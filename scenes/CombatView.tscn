@@ -1,0 +1,185 @@
+[gd_scene load_steps=2 format=3 uid="uid://bq7rbbhqrjhrt"]
+
+[ext_resource type="Script" uid="uid://c221b20euic1x" path="res://scripts/combat_view.gd" id="1"]
+
+[node name="CombatView" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerStatsLabel" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Player ..."
+
+[node name="EnemyStatsLabel" type="Label" parent="MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Enemy ..."
+horizontal_alignment = 2
+
+[node name="StageLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Stage 1"
+horizontal_alignment = 1
+
+[node name="TopArea" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 216)
+layout_mode = 2
+
+[node name="EnemyGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/TopArea"]
+custom_minimum_size = Vector2(576, 216)
+layout_mode = 2
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -288.0
+offset_right = 288.0
+offset_bottom = 216.0
+columns = 8
+
+[node name="EnemyUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/TopArea"]
+layout_mode = 2
+anchors_preset = 0
+
+[node name="EnemySprite" type="TextureRect" parent="MarginContainer/VBoxContainer/TopArea/EnemyUnitHolder"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+expand_mode = 1
+
+[node name="EnemyHPBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/TopArea/EnemyUnitHolder"]
+layout_mode = 2
+size_flags_horizontal = 3
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="BottomArea" type="Control" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 216)
+layout_mode = 2
+
+[node name="PlayerGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BottomArea"]
+custom_minimum_size = Vector2(576, 216)
+layout_mode = 2
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -288.0
+offset_right = 288.0
+offset_bottom = 216.0
+columns = 8
+
+[node name="PlayerUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/BottomArea"]
+layout_mode = 2
+anchors_preset = 0
+
+[node name="PlayerSprite" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomArea/PlayerUnitHolder"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+expand_mode = 1
+
+[node name="PlayerHPBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BottomArea/PlayerUnitHolder"]
+layout_mode = 2
+size_flags_horizontal = 3
+step = 1.0
+value = 100.0
+show_percentage = false
+
+[node name="Log" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="ActionsRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AttackButton" type="Button" parent="MarginContainer/VBoxContainer/ActionsRow"]
+visible = false
+layout_mode = 2
+text = "Attack"
+
+[node name="ContinueButton" type="Button" parent="MarginContainer/VBoxContainer/ActionsRow"]
+layout_mode = 2
+disabled = true
+text = "Continue"
+
+[node name="PowerupPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+layout_mode = 2
+text = "Choose one powerup:"
+
+[node name="PowerupBtn1" type="Button" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+layout_mode = 2
+text = "Option 1"
+
+[node name="PowerupBtn2" type="Button" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+layout_mode = 2
+text = "Option 2"
+
+[node name="PowerupBtn3" type="Button" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+layout_mode = 2
+text = "Option 3"
+
+[node name="TitleOverlay" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TitleVBox" type="VBoxContainer" parent="TitleOverlay"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_top = 80.0
+offset_right = -80.0
+offset_bottom = -80.0
+theme_override_constants/separation = 12
+
+[node name="GameTitle" type="Label" parent="TitleOverlay/TitleVBox"]
+layout_mode = 2
+text = "Gamble Battle"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitleOverlay/TitleVBox"]
+layout_mode = 2
+text = "Turn-based luck and powerups"
+horizontal_alignment = 1
+
+[node name="NameRow" type="HBoxContainer" parent="TitleOverlay/TitleVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="TitleOverlay/TitleVBox/NameRow"]
+layout_mode = 2
+text = "Name:"
+
+[node name="NameInput" type="LineEdit" parent="TitleOverlay/TitleVBox/NameRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Hero"
+
+[node name="StartButton" type="Button" parent="TitleOverlay/TitleVBox"]
+layout_mode = 2
+text = "Start"
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_right = 4.0
+offset_bottom = 27.0

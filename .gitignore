@@ -1,0 +1,17 @@
+# Godot 4+ specific ignores
+.godot/
+.import/
+/.android/
+/.export/
+/export/
+
+# Logs and text (do not commit)
+*.txt
+*.log
+logs/
+debug_logs/
+Godot/app_userdata/
+
+# OS junk
+.DS_Store
+Thumbs.db
