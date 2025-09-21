@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RoleModifier" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/role_modifier.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+role = "Mage Tank"
+health = 260
+attack_damage = 0
+spell_power = 35
+attack_range = 0
+armor = 22
+magic_resist = 22

@@ -1,173 +1,195 @@
 extends Object
 class_name UnitFactory
 
-class UnitTemplate:
-	var id: String
-	var name: String
-	var sprite_path: String
+static var _cache: Dictionary = {}
 
-	var max_hp: int = 1
-	var hp_regen: int = 0
+const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
 
-	var attack_damage: int = 0
-	var spell_power: int = 0
-	var attack_speed: float = 1.0
-	var crit_chance: float = 0.05
-	var crit_damage: float = 2.0
-	var lifesteal: float = 0.0
-	var attack_range: int = 1
+static func _def_path(id: String) -> String:
+	return "res://data/units/%s.tres" % id
 
-	var armor: int = 0
-	var magic_resist: int = 0
-	var block_chance: float = 0.0
-	var damage_reduction: float = 0.0
-
-	var mana_start: int = 0
-	var mana_max: int = 0
-	var mana_regen: int = 0
-
-static var _builtins_registered := false
-static var _templates: Dictionary = {}
-
-static func register(template: UnitTemplate) -> void:
-	if template == null or not template.id:
-		return
-	_templates[template.id] = template
-
-static func get_template(id: String) -> UnitTemplate:
-	ensure_builtins()
-	if _templates.has(id):
-		return _templates[id]
+static func _load_def(id: String) -> UnitDef:
+	var path := _def_path(id)
+	if _cache.has(path):
+		return _cache[path]
+	if ResourceLoader.exists(path):
+		var res = load(path)
+		var out_def: UnitDef = null
+		# Support both legacy UnitDef .tres and new UnitProfile .tres
+		if res is UnitDef:
+			out_def = res
+		elif res is UnitProfile:
+			var p: UnitProfile = res
+			out_def = load("res://scripts/game/units/unit_def.gd").new()
+			out_def.id = p.id
+			out_def.name = p.name
+			out_def.sprite_path = p.sprite_path
+			out_def.traits = p.traits.duplicate()
+			out_def.roles = p.roles.duplicate()
+			out_def.cost = p.cost
+			out_def.level = p.level
+		else:
+			push_warning("UnitFactory: unsupported unit resource '%s'" % path)
+		if out_def != null:
+			_cache[path] = out_def
+			return out_def
+	push_warning("UnitFactory: unit def not found '%s'" % id)
 	return null
 
-static func ensure_builtins() -> void:
-	if _builtins_registered:
-		return
-	_builtins_registered = true
-
-	# Sari (starter melee baseline)
-	var sari := UnitTemplate.new()
-	sari.id = "sari"
-	sari.name = "Sari"
-	sari.sprite_path = "res://assets/units/sari (3).png"
-	sari.max_hp = 100
-	sari.hp_regen = 0
-	sari.attack_damage = 12
-	sari.spell_power = 0
-	sari.attack_speed = 1.0
-	sari.crit_chance = 0.05
-	sari.crit_damage = 2.0
-	sari.lifesteal = 0.0
-	sari.attack_range = 1
-	sari.armor = 0
-	sari.magic_resist = 0
-	sari.block_chance = 0.0
-	sari.damage_reduction = 0.0
-	sari.mana_start = 0
-	sari.mana_max = 60
-	sari.mana_regen = 0
-	register(sari)
-
-	# Nyxa (ranged)
-	var nyxa := UnitTemplate.new()
-	nyxa.id = "nyxa"
-	nyxa.name = "Nyxa"
-	nyxa.sprite_path = "res://assets/units/nyxa.png"
-	nyxa.max_hp = 90
-	nyxa.hp_regen = 0
-	nyxa.attack_damage = 14
-	nyxa.spell_power = 0
-	nyxa.attack_speed = 0.9
-	nyxa.crit_chance = 0.10
-	nyxa.crit_damage = 2.0
-	nyxa.lifesteal = 0.0
-	nyxa.attack_range = 4
-	nyxa.armor = 0
-	nyxa.magic_resist = 0
-	nyxa.block_chance = 0.0
-	nyxa.damage_reduction = 0.0
-	nyxa.mana_start = 10
-	nyxa.mana_max = 50
-	nyxa.mana_regen = 0
-	register(nyxa)
-
-	# Volt (ranged, higher speed, lower damage)
-	var volt := UnitTemplate.new()
-	volt.id = "volt"
-	volt.name = "Volt"
-	volt.sprite_path = "res://assets/units/volt.png"
-	volt.max_hp = 80
-	volt.hp_regen = 0
-	volt.attack_damage = 10
-	volt.spell_power = 0
-	volt.attack_speed = 1.6
-	volt.crit_chance = 0.08
-	volt.crit_damage = 2.0
-	volt.lifesteal = 0.0
-	volt.attack_range = 4
-	volt.armor = 0
-	volt.magic_resist = 0
-	volt.block_chance = 0.0
-	volt.damage_reduction = 0.0
-	volt.mana_start = 0
-	volt.mana_max = 40
-	volt.mana_regen = 0
-	register(volt)
-
-	# Paisley (ally/support baseline)
-	var paisley := UnitTemplate.new()
-	paisley.id = "paisley"
-	paisley.name = "Paisley"
-	paisley.sprite_path = "res://assets/units/paisley.png"
-	paisley.max_hp = 85
-	paisley.hp_regen = 1
-	paisley.attack_damage = 8
-	paisley.spell_power = 0
-	paisley.attack_speed = 1.2
-	paisley.crit_chance = 0.06
-	paisley.crit_damage = 2.0
-	paisley.lifesteal = 0.0
-	paisley.attack_range = 2
-	paisley.armor = 0
-	paisley.magic_resist = 0
-	paisley.block_chance = 0.02
-	paisley.damage_reduction = 0.0
-	paisley.mana_start = 0
-	paisley.mana_max = 50
-	paisley.mana_regen = 1
-	register(paisley)
-
 static func spawn(id: String) -> Unit:
-	ensure_builtins()
-	var t: UnitTemplate = get_template(id)
-	if t == null:
-		push_warning("UnitFactory.spawn: unknown id '%s'" % id)
+	var d: UnitDef = _load_def(id)
+	if d == null:
 		return null
+	return _from_def(d)
+
+static func _from_def(d: UnitDef) -> Unit:
 	var u := Unit.new()
-	u.id = t.id
-	u.name = t.name
-	u.sprite_path = t.sprite_path
+	u.id = d.id
+	u.name = d.name
+	u.sprite_path = d.sprite_path
+	u.ability_id = d.ability_id
+	u.traits = d.traits.duplicate()
+	u.roles = d.roles.duplicate()
+	u.cost = int(d.cost)
+	u.level = int(d.level)
 
-	u.max_hp = max(1, t.max_hp)
-	u.hp_regen = max(0, t.hp_regen)
+	# Use UnitDef base defaults as the single source of truth for base stats.
+	# Resource-specific .tres should not override math-driven base stats.
+	var base_def: UnitDef = d.get_script().new()
+
+	u.max_hp = max(1, int(base_def.max_hp))
 	u.hp = u.max_hp
+	u.hp_regen = max(0.0, float(base_def.hp_regen))
 
-	u.attack_damage = max(0, t.attack_damage)
-	u.spell_power = max(0, t.spell_power)
-	u.attack_speed = max(0.01, t.attack_speed)
-	u.crit_chance = clampf(t.crit_chance, 0.0, 0.95)
-	u.crit_damage = max(1.0, t.crit_damage)
-	u.lifesteal = clampf(t.lifesteal, 0.0, 0.9)
-	u.attack_range = max(1, t.attack_range)
+	u.attack_damage = max(0.0, float(base_def.attack_damage))
+	u.spell_power = max(0.0, float(base_def.spell_power))
+	u.attack_speed = max(0.01, float(base_def.attack_speed))
+	u.crit_chance = clampf(float(base_def.crit_chance), 0.0, 0.95)
+	u.crit_damage = max(1.0, float(base_def.crit_damage))
+	u.true_damage = max(0.0, float(base_def.true_damage))
+	u.lifesteal = clampf(float(base_def.lifesteal), 0.0, 0.9)
+	u.attack_range = max(1, int(base_def.attack_range))
 
-	u.armor = max(0, t.armor)
-	u.magic_resist = max(0, t.magic_resist)
-	u.block_chance = clampf(t.block_chance, 0.0, 0.8)
-	u.damage_reduction = clampf(t.damage_reduction, 0.0, 0.9)
+	u.armor = max(0.0, float(base_def.armor))
+	u.magic_resist = max(0.0, float(base_def.magic_resist))
+	u.armor_pen_flat = max(0.0, float(base_def.armor_pen_flat))
+	u.armor_pen_pct = clampf(float(base_def.armor_pen_pct), 0.0, 1.0)
+	u.mr_pen_flat = max(0.0, float(base_def.mr_pen_flat))
+	u.mr_pen_pct = clampf(float(base_def.mr_pen_pct), 0.0, 1.0)
 
-	u.mana_max = max(0, t.mana_max)
-	u.mana_start = clamp(t.mana_start, 0, u.mana_max)
-	u.mana_regen = max(0, t.mana_regen)
+	# Resource & casting
+	u.mana_max = max(0, int(base_def.mana))
+	u.mana_start = int(clamp(float(base_def.mana_start), 0.0, float(u.mana_max)))
+	u.mana_regen = max(0.0, float(base_def.mana_regen))
+	u.cast_speed = max(0.1, float(base_def.cast_speed))
 	u.mana = u.mana_start
 
+	# Capture base values before role deltas for scaling eligibility
+	var base_vals := {
+		"max_hp": int(base_def.max_hp),
+		"hp_regen": float(base_def.hp_regen),
+		"attack_damage": float(base_def.attack_damage),
+		"spell_power": float(base_def.spell_power),
+		"lifesteal": float(base_def.lifesteal),
+		"armor": float(base_def.armor),
+		"magic_resist": float(base_def.magic_resist),
+		"true_damage": float(base_def.true_damage)
+	}
+
+	# Apply role-based stat offsets (additive before scaling)
+	var role_totals := {
+		"health": 0.0,
+		"attack_damage": 0.0,
+		"spell_power": 0.0,
+		"attack_range": 0.0,
+		"armor": 0.0,
+		"magic_resist": 0.0,
+	}
+	if d.roles.size() > 0:
+		for r in d.roles:
+			var mod: Dictionary = RoleLibrary.get_modifier(str(r))
+			if mod.is_empty():
+				continue
+			for key in role_totals.keys():
+				if mod.has(key):
+					role_totals[key] += float(mod[key])
+	var health_delta := float(role_totals["health"])
+	if health_delta != 0.0:
+		u.max_hp = max(1, int(round(float(u.max_hp) + health_delta)))
+		u.hp = min(u.max_hp, u.hp)
+	var ad_delta := float(role_totals["attack_damage"])
+	if ad_delta != 0.0:
+		u.attack_damage = max(0.0, u.attack_damage + ad_delta)
+	var sp_delta := float(role_totals["spell_power"])
+	if sp_delta != 0.0:
+		u.spell_power = max(0.0, u.spell_power + sp_delta)
+	var range_delta := float(role_totals["attack_range"])
+	if range_delta != 0.0:
+		var new_range := int(round(float(u.attack_range) + range_delta))
+		u.attack_range = max(1, new_range)
+	var armor_delta := float(role_totals["armor"])
+	if armor_delta != 0.0:
+		u.armor = max(0.0, u.armor + armor_delta)
+	var mr_delta := float(role_totals["magic_resist"])
+	if mr_delta != 0.0:
+		u.magic_resist = max(0.0, u.magic_resist + mr_delta)
+
+
+	# Multiplicative scaling from cost and level
+	var scale_keys := ["max_hp","hp_regen","attack_damage","spell_power","lifesteal","armor","magic_resist","true_damage"]
+	for k in scale_keys:
+		var base_zero := false
+		if base_vals.has(k):
+			var bv = base_vals[k]
+			base_zero = (int(bv) == 0 if k == "max_hp" else float(bv) == 0.0)
+		if base_zero:
+			continue
+		var curv = float(u.get(k))
+		# Apply cost scaling first, stepwise 1.5x per step
+		if u.cost > 1:
+			for _ci in range(u.cost - 1):
+				curv *= 1.5
+				if k == "max_hp":
+					curv = float(int(curv)) # floor for ints
+		# Then level scaling, stepwise 1.5x per step
+		if u.level > 1:
+			for _li in range(u.level - 1):
+				curv *= 1.5
+				if k == "max_hp":
+					curv = float(int(curv)) # floor for ints
+		match k:
+			"max_hp":
+				u.max_hp = max(1, int(curv))
+			"hp_regen":
+				u.hp_regen = max(0.0, curv)
+			"attack_damage":
+				u.attack_damage = max(0.0, curv)
+			"spell_power":
+				u.spell_power = max(0.0, curv)
+			"lifesteal":
+				u.lifesteal = clampf(curv, 0.0, 0.9)
+			"armor":
+				u.armor = max(0.0, curv)
+			"magic_resist":
+				u.magic_resist = max(0.0, curv)
+			"true_damage":
+				u.true_damage = max(0.0, curv)
+
+	# Final clamps for non-scaled fields potentially changed by roles
+	u.crit_chance = clampf(u.crit_chance, 0.0, 0.95)
+	u.crit_damage = max(1.0, u.crit_damage)
+	u.attack_speed = max(0.01, u.attack_speed)
+	u.mana_regen = max(0.0, u.mana_regen)
+	u.cast_speed = max(0.1, u.cast_speed)
+	u.armor_pen_flat = max(0.0, u.armor_pen_flat)
+	u.armor_pen_pct = clampf(u.armor_pen_pct, 0.0, 1.0)
+	u.mr_pen_flat = max(0.0, u.mr_pen_flat)
+	u.mr_pen_pct = clampf(u.mr_pen_pct, 0.0, 1.0)
+
+	# Reset HP to new max after scaling
+	u.hp = u.max_hp
 	return u
+
+static func _apply_role_generation(u: Unit, d: UnitDef) -> void:
+	# Role generation removed; units use base stats directly.
+	return

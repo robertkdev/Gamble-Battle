@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2 format=3 uid="uid://cga1d0a1vxqfk"]
+
+[ext_resource type="Script" uid="uid://c6oi01wpbnkvs" path="res://scripts/game/abilities/ability_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "volt_arc_lock"
+name = "Arc Lock"
+description = "Deals magic damage and stuns the target."
+base_cost = 60
+tags = Array[String](["damage", "stun"])

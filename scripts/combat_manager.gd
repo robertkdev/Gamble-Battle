@@ -4,113 +4,91 @@ class_name CombatManager
 signal battle_started(stage: int, enemy)
 signal log_line(text: String)
 signal stats_updated(player, enemy)
+signal team_stats_updated(player_team, enemy_team)
+signal unit_stat_changed(team: String, index: int, fields: Dictionary)
 signal victory(stage: int)
 signal defeat(stage: int)
+signal draw(stage: int)
 signal powerup_choices(options)
 signal powerup_applied(powerup_name: String)
 signal prompt_continue()
-# New team-based projectile signal: includes team and indices
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 
-var rng := RandomNumberGenerator.new()
 var player: Unit
-# Maintain legacy single enemy for HUD compatibility (first alive enemy)
 var enemy: Unit
 
-# Teams (locked to 2v2 for now)
 var player_team: Array[Unit] = []
 var enemy_team: Array[Unit] = []
 
-# Per-unit cooldowns and targets (parallel to teams)
-var _player_cds: Array[float] = []
-var _enemy_cds: Array[float] = []
-var _player_targets: Array[int] = []
-var _enemy_targets: Array[int] = []
-
-# Distance/selection helper provided by the view
 var select_closest_target: Callable = Callable()
-
 var stage: int = 1
 
-# Realtime combat state
-var _battle_active: bool = false
-var _regen_tick_accum: float = 0.0
+var _state: BattleState
+var _engine: CombatEngine
+
+func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
+	if _engine:
+		_engine.set_arena(tile_size, player_pos, enemy_pos, bounds)
+
+func get_player_positions() -> Array:
+	if _engine:
+		return _engine.get_player_positions_copy()
+	return []
+
+func get_enemy_positions() -> Array:
+	if _engine:		return _engine.get_enemy_positions_copy()
+	return []
+
+func get_arena_bounds() -> Rect2:
+	if _engine:		return _engine.get_arena_bounds_copy()
+	return Rect2()
+
 
 func _ready() -> void:
-	rng.randomize()
 	set_process(true)
 
 func is_turn_in_progress() -> bool:
 	return false
 
 func _process(delta: float) -> void:
-	if not _battle_active:
+	if _engine:
+		_engine.process(delta)
+
+func _wire_engine_signals() -> void:
+	if not _engine:
 		return
-	# Victory/defeat guardrails
-	if _all_dead(player_team):
-		_on_defeat()
-		return
-	if _all_dead(enemy_team):
-		_on_victory()
-		return
+	if not _engine.is_connected("projectile_fired", Callable(self, "_re_emit_projectile")):
+		_engine.projectile_fired.connect(_re_emit_projectile)
+	if not _engine.is_connected("stats_updated", Callable(self, "_on_engine_stats")):
+		_engine.stats_updated.connect(_on_engine_stats)
+	if not _engine.is_connected("team_stats_updated", Callable(self, "_on_engine_team_stats")):
+		_engine.team_stats_updated.connect(_on_engine_team_stats)
+	if not _engine.is_connected("log_line", Callable(self, "_on_engine_log")):
+		_engine.log_line.connect(_on_engine_log)
+	if not _engine.is_connected("victory", Callable(self, "_on_victory")):
+		_engine.victory.connect(_on_victory)
+	if not _engine.is_connected("defeat", Callable(self, "_on_defeat")):
+		_engine.defeat.connect(_on_defeat)
+	if not _engine.is_connected("draw", Callable(self, "_on_draw")):
+		_engine.draw.connect(_on_draw)
+	if not _engine.is_connected("unit_stat_changed", Callable(self, "_on_engine_unit_stat")):
+		_engine.unit_stat_changed.connect(_on_engine_unit_stat)
 
-	# Advance regen/mana tick (once per second)
-	_regen_tick_accum += delta
-	if _regen_tick_accum >= 1.0:
-		_regen_tick_accum -= 1.0
-		_tick_regen()
+func _re_emit_projectile(team: String, sidx: int, tidx: int, dmg: int, crit: bool) -> void:
+	emit_signal("projectile_fired", team, sidx, tidx, dmg, crit)
 
-	# Tick and possibly attack for each alive unit on both teams
-	for i in range(player_team.size()):
-		if i >= _player_cds.size():
-			_player_cds.append(0.0)
-		_player_cds[i] -= delta
-		var u: Unit = player_team[i]
-		if not u or not u.is_alive():
-			continue
-		# Ensure/refresh target
-		if not _is_valid_target(_player_targets, i, enemy_team):
-			_player_targets = _ensure_size(_player_targets, player_team.size(), -1)
-			_player_targets[i] = _select_target_for("player", i, "enemy")
-		# Attack if ready and target valid
-		if _player_cds[i] <= 0.0 and _is_target_alive(enemy_team, _player_targets[i]):
-			var roll := u.attack_roll(rng)
-			emit_signal("projectile_fired", "player", i, _player_targets[i], int(roll["damage"]), bool(roll["crit"]))
-			_after_attack_mana_gain(u)
-			_player_cds[i] = _compute_cooldown(u)
+func _on_engine_stats(p, e) -> void:
+	enemy = e
+	emit_signal("stats_updated", p, e)
 
-	for j in range(enemy_team.size()):
-		if j >= _enemy_cds.size():
-			_enemy_cds.append(0.0)
-		_enemy_cds[j] -= delta
-		var e: Unit = enemy_team[j]
-		if not e or not e.is_alive():
-			continue
-		if not _is_valid_target(_enemy_targets, j, player_team):
-			_enemy_targets = _ensure_size(_enemy_targets, enemy_team.size(), -1)
-			_enemy_targets[j] = _select_target_for("enemy", j, "player")
-		if _enemy_cds[j] <= 0.0 and _is_target_alive(player_team, _enemy_targets[j]):
-			var r2 := e.attack_roll(rng)
-			emit_signal("projectile_fired", "enemy", j, _enemy_targets[j], int(r2["damage"]), bool(r2["crit"]))
-			_after_attack_mana_gain(e)
-			_enemy_cds[j] = _compute_cooldown(e)
+func _on_engine_log(t: String) -> void:
+	emit_signal("log_line", t)
 
-func _compute_cooldown(u: Unit) -> float:
-	if not u:
-		return 1.0
-	var atk_speed: float = max(0.01, u.attack_speed)
-	return 1.0 / atk_speed
+func _on_engine_team_stats(pteam, eteam) -> void:
+	emit_signal("team_stats_updated", pteam, eteam)
 
-func _after_attack_mana_gain(src: Unit) -> void:
-	if not src:
-		return
-	var gain: int = int(max(0, int(src.mana_gain_per_attack)))
-	if gain > 0 and src.mana_max > 0:
-		src.mana = min(src.mana_max, src.mana + gain)
-		if src.mana >= src.mana_max:
-			emit_signal("log_line", "%s used its ability!" % (src.name if src.name != "" else "Unit"))
-			src.mana = 0
-		emit_signal("stats_updated", player, enemy)
+func _on_engine_unit_stat(team: String, index: int, fields: Dictionary) -> void:
+	emit_signal("unit_stat_changed", team, index, fields)
 
 func new_player(player_name: String = "Hero") -> void:
 	player = load("res://scripts/unit_factory.gd").spawn("sari")
@@ -118,133 +96,86 @@ func new_player(player_name: String = "Hero") -> void:
 		player.name = player_name
 
 func start_stage() -> void:
-	# Build 2v2 teams
-	player_team.clear()
-	enemy_team.clear()
-	# Player team: starter + ally
+	_ensure_state()
+	_state.reset()
+	_state.stage = stage
 	if player:
-		player_team.append(player)
+		_state.player_team.append(player)
 	var ally: Unit = load("res://scripts/unit_factory.gd").spawn("paisley") as Unit
 	if ally:
-		player_team.append(ally)
-	# Enemy team: Nyxa + Volt
-	var nyxa: Unit = load("res://scripts/unit_factory.gd").spawn("nyxa") as Unit
-	var volt: Unit = load("res://scripts/unit_factory.gd").spawn("volt") as Unit
-	if nyxa: enemy_team.append(nyxa)
-	if volt: enemy_team.append(volt)
+		_state.player_team.append(ally)
+	var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
+	_state.enemy_team = spawner.build_for_stage(stage)
 
-	# Legacy fields for HUD compatibility
-	enemy = _first_alive(enemy_team)
+	player_team = _state.player_team
+	enemy_team = _state.enemy_team
+	enemy = BattleState.first_alive(_state.enemy_team)
 	emit_signal("battle_started", stage, enemy)
 	if enemy:
-		emit_signal("log_line", "=== Stage %d: %s and %s appear! ===" % [stage, enemy_team[0].name, enemy_team[1].name if enemy_team.size() > 1 else "?"])
+		var name2: String = (_state.enemy_team[1].name if _state.enemy_team.size() > 1 else "?")
+		emit_signal("log_line", "=== Stage %d: %s and %s appear! ===" % [stage, _state.enemy_team[0].name, name2])
 	emit_signal("stats_updated", player, enemy)
 
-	# Initialize realtime battle state
-	_battle_active = true
-	_regen_tick_accum = 0.0
-	_player_cds = _fill_cds_for(player_team)
-	_enemy_cds = _fill_cds_for(enemy_team)
-	_player_targets = _ensure_size([], player_team.size(), -1)
-	_enemy_targets = _ensure_size([], enemy_team.size(), -1)
-	# Initial target selection for each unit
-	for i in range(player_team.size()):
-		_player_targets[i] = _select_target_for("player", i, "enemy")
-	for j in range(enemy_team.size()):
-		_enemy_targets[j] = _select_target_for("enemy", j, "player")
+	_engine = load("res://scripts/game/combat/combat_engine.gd").new()
+	_engine.configure(_state, player, stage, select_closest_target)
+	_wire_engine_signals()
+	_engine.start()
+
+	# Compile traits for both teams and log summary (data-driven)
+	var tc: Script = load("res://scripts/game/traits/trait_compiler.gd")
+	var p_traits: Dictionary = tc.compile(_state.player_team)
+	var e_traits: Dictionary = tc.compile(_state.enemy_team)
+	_log_trait_summary("Your team", p_traits)
+	_log_trait_summary("Enemy team", e_traits)
 
 func setup_stage_preview() -> void:
-	# Prepare teams (2v2) without starting combat so the view can build sprites and allow placement.
-	player_team.clear()
-	enemy_team.clear()
+	_ensure_state()
+	_state.reset()
+	_state.stage = stage
 	if player:
-		player_team.append(player)
+		_state.player_team.append(player)
 	var ally: Unit = load("res://scripts/unit_factory.gd").spawn("paisley") as Unit
 	if ally:
-		player_team.append(ally)
-	# Spawn enemies for preview; do not start battle yet.
-	var nyxa: Unit = load("res://scripts/unit_factory.gd").spawn("nyxa") as Unit
-	var volt: Unit = load("res://scripts/unit_factory.gd").spawn("volt") as Unit
-	if nyxa: enemy_team.append(nyxa)
-	if volt: enemy_team.append(volt)
-	# Legacy HUD ref
-	enemy = _first_alive(enemy_team)
-	_battle_active = false
-	_regen_tick_accum = 0.0
-	_player_cds = _fill_cds_for(player_team)
-	_enemy_cds = _fill_cds_for(enemy_team)
-	_player_targets = _ensure_size([], player_team.size(), -1)
-	_enemy_targets = _ensure_size([], enemy_team.size(), -1)
+		_state.player_team.append(ally)
+	var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
+	_state.enemy_team = spawner.build_for_stage(stage)
+
+	for u in _state.player_team:
+		if u:
+			u.mana = 0
+	for e in _state.enemy_team:
+		if e:
+			e.mana = 0
+
+	player_team = _state.player_team
+	enemy_team = _state.enemy_team
+	enemy = BattleState.first_alive(_state.enemy_team)
+
+	# Preview: compile and log trait counts (no activation yet)
+	var tc: Script = load("res://scripts/game/traits/trait_compiler.gd")
+	var p_traits: Dictionary = tc.compile(_state.player_team)
+	var e_traits: Dictionary = tc.compile(_state.enemy_team)
+	_log_trait_summary("Your team (preview)", p_traits)
+	_log_trait_summary("Enemy team (preview)", e_traits)
+	emit_signal("team_stats_updated", _state.player_team, _state.enemy_team)
+
 
 func on_projectile_hit(source_team: String, source_index: int, target_index: int, damage: int, crit: bool) -> void:
-	# Ignore any hits after combat stops to avoid post-fight damage
-	if not _battle_active:
-		return
-	var src: Unit = null
-	var tgt: Unit = null
-	var tgt_array: Array[Unit]
-	if source_team == "player":
-		src = _unit_at(player_team, source_index)
-		tgt = _unit_at(enemy_team, target_index)
-		tgt_array = enemy_team
-	else:
-		src = _unit_at(enemy_team, source_index)
-		tgt = _unit_at(player_team, target_index)
-		tgt_array = player_team
-	if not src or not tgt:
-		return
-	# Apply block chance if defender has it
-	if rng.randf() < tgt.block_chance:
-		if source_team == "enemy":
-			emit_signal("log_line", "You blocked the enemy attack.")
-		else:
-			emit_signal("log_line", "%s blocked your attack." % (tgt.name))
-	else:
-		var dealt := tgt.take_damage(damage)
-		var heal := int(float(dealt) * src.lifesteal)
-		if heal > 0:
-			src.hp = min(src.max_hp, src.hp + heal)
-		if source_team == "player":
-			emit_signal("log_line", "You hit %s for %d%s. Lifesteal +%d." % [tgt.name, dealt, " (CRIT)" if crit else "", heal])
-		else:
-			emit_signal("log_line", "%s hits you for %d%s." % [src.name, dealt, " (CRIT)" if crit else ""])
+	if _engine:
+		_engine.on_projectile_hit(source_team, source_index, target_index, damage, crit)
 
-	# Refresh legacy enemy ref for HUD
-	enemy = _first_alive(enemy_team)
-	emit_signal("stats_updated", player, enemy)
-
-	# Victory/defeat checks
-	if _all_dead(tgt_array):
-		if source_team == "player":
-			_on_victory()
-		else:
-			_on_defeat()
-
-func _tick_regen() -> void:
-	for u in player_team:
-		if u:
-			u.end_of_turn()
-	for e in enemy_team:
-		if e:
-			e.end_of_turn()
-	# Refresh legacy refs
-	enemy = _first_alive(enemy_team)
-	emit_signal("stats_updated", player, enemy)
-
-func _on_victory() -> void:
+func _on_victory(_stage: int = 0) -> void:
 	emit_signal("log_line", "Victory. You survived Stage %d." % stage)
 	_reset_units_after_combat()
 	emit_signal("stats_updated", player, enemy)
 	emit_signal("victory", stage)
 	_offer_powerups()
-	_battle_active = false
 
-func _on_defeat() -> void:
+func _on_defeat(_stage: int = 0) -> void:
 	emit_signal("log_line", "Defeat at Stage %d." % stage)
 	_reset_units_after_combat()
 	emit_signal("stats_updated", player, enemy)
 	emit_signal("defeat", stage)
-	_battle_active = false
 
 func _offer_powerups() -> void:
 	var all: Array = load("res://scripts/powerup.gd").catalog()
@@ -261,7 +192,6 @@ func apply_powerup(p: Powerup) -> void:
 	emit_signal("stats_updated", player, enemy)
 	emit_signal("prompt_continue")
 
-# Initialization hook to reset per-combat state (e.g., stacks in future)
 func _reset_units_after_combat() -> void:
 	for u in player_team:
 		if u:
@@ -274,57 +204,24 @@ func continue_to_next_stage() -> void:
 	stage += 1
 	start_stage()
 
-# --- Targeting helpers ---
-func _ensure_size(arr: Array[int], size: int, fill: int) -> Array[int]:
-	var out: Array[int] = []
-	for v in arr:
-		out.append(int(v))
-	while out.size() < size:
-		out.append(fill)
-	return out
+func _ensure_state() -> void:
+	if not _state:
+		_state = load("res://scripts/game/combat/battle_state.gd").new()
 
-func _fill_cds_for(team: Array[Unit]) -> Array[float]:
-	var cds: Array[float] = []
-	for u in team:
-		cds.append(0.0 if u else 1.0)
-	return cds
-
-func _all_dead(team: Array[Unit]) -> bool:
-	for u in team:
-		if u and u.is_alive():
-			return false
-	return true
-
-func _first_alive(team: Array[Unit]) -> Unit:
-	for u in team:
-		if u and u.is_alive():
-			return u
-	return null
-
-func _unit_at(team: Array[Unit], idx: int) -> Unit:
-	if idx < 0 or idx >= team.size():
-		return null
-	return team[idx]
-
-func _is_target_alive(team: Array[Unit], idx: int) -> bool:
-	var u := _unit_at(team, idx)
-	return u != null and u.is_alive()
-
-func _is_valid_target(targets: Array[int], src_index: int, enemy_team_local: Array[Unit]) -> bool:
-	if src_index < 0 or src_index >= targets.size():
-		return false
-	var t := targets[src_index]
-	return _is_target_alive(enemy_team_local, t)
-
-func _select_target_for(my_team: String, my_index: int, enemy_team_name: String) -> int:
-	# Defer to view-provided helper if available
-	if select_closest_target.is_valid():
-		var result = select_closest_target.call(my_team, my_index, enemy_team_name)
-		if typeof(result) == TYPE_INT:
-			return int(result)
-	# Fallback: pick first alive
-	var enemy_arr := enemy_team if enemy_team_name == "enemy" else player_team
-	for i in range(enemy_arr.size()):
-		if _is_target_alive(enemy_arr, i):
-			return i
-	return -1
+func _log_trait_summary(label: String, compiled: Dictionary) -> void:
+	var counts: Dictionary = compiled.get("counts", {})
+	var tiers: Dictionary = compiled.get("tiers", {})
+	if counts.is_empty():
+		return
+	var parts: Array[String] = []
+	for k in counts.keys():
+		var c: int = int(counts[k])
+		var t: int = int(tiers.get(k, -1))
+		var tstr: String = (" T" + str(t+1)) if t >= 0 else ""
+		parts.append("%s %d%s" % [String(k), c, tstr])
+	emit_signal("log_line", "%s traits: %s" % [label, ", ".join(parts)])
+func _on_draw(_stage: int = 0) -> void:
+	emit_signal("log_line", "Stalemate! Both sides fell together.")
+	_reset_units_after_combat()
+	emit_signal("stats_updated", player, enemy)
+	emit_signal("draw", stage)

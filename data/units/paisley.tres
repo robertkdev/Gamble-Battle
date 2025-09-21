@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://deop3a1qcslcc"]
+
+[ext_resource type="Script" path="res://scripts/game/units/unit_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "paisley"
+name = "Paisley"
+sprite_path = "res://assets/units/paisley.png"
+traits = Array[String](["Arcanist", "Kaleidoscope", "Blessed"])
+roles = Array[String](["support"])
+cost = 1
+level = 1

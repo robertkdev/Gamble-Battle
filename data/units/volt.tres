@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://dc5vsn8e3vspv"]
+
+[ext_resource type="Script" path="res://scripts/game/units/unit_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "volt"
+name = "Volt"
+sprite_path = "res://assets/units/volt.png"
+traits = Array[String](["Scholar", "Overload"])
+roles = Array[String](["ranged"])
+cost = 1
+level = 1

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "sari"
+name = "Sari"
+sprite_path = "res://assets/units/sari (3).png"
+traits = [ ]
+roles = [ "melee" ]

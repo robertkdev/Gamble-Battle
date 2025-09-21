@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 
 var total: int = 0
 var passed: int = 0
@@ -165,10 +165,12 @@ func test_regen_tick() -> void:
 	var p := _mk_unit(20, 0, 1.0, 0.0, 2.0, 0.0, 2)
 	p.hp = 10
 	var e := _mk_unit(1, 0, 1.0)
-	var m = _mk_manager(p, e)
-	m._tick_regen(); m._tick_regen()
+	var state := BattleState.new()
+	state.player_team = [p]
+	state.enemy_team = [e]
+	var regen := RegenSystem.new()
+	regen.apply_ticks(state, 2, p, {})
 	_assert_eq(p.hp, 14, "regen applies per tick")
-	m.queue_free()
 
 func test_victory_and_defeat() -> void:
 	if not _ok_name("victory_and_defeat"): return
@@ -291,7 +293,7 @@ func test_two_enemies_closest_targeting() -> void:
 	view._set_enemy_tile(1) # near player
 	view._set_enemy2_tile(23) # far away
 	# Use helper to choose nearest and verify index is the close one
-	var choice := view.select_closest_target("player", 0, "enemy")
+	var choice: int = view.select_closest_target("player", 0, "enemy")
 	_assert_eq(choice, 0, "player selects nearest enemy (index 0)")
 	view.queue_free()
 
@@ -359,6 +361,83 @@ func run_all() -> void:
 		call(t)
 		tlog("%d/%d tests passed (failed: %d)" % [passed, total, failed])
 	# Write results to res:// or user://
-		_write_results()
+	_write_results()
 	var tmr := get_tree().create_timer(0.1)
 	tmr.timeout.connect(func(): get_tree().quit(0 if failed == 0 else 1))
+
+# --- Unit sim smoke (optional balancing helper) ---
+func test_unit_sim_base_1v1() -> void:
+	if not _ok_name("unit_sim_base_1v1"): return
+	var sim := load("res://tests/unit_sim.gd").new()
+	var result := sim.run_1v1("none", "none", 100, 0.05, "sari", "nyxa")
+	tlog("UnitSim base 1v1 (sari vs nyxa): %s" % [str(result)])
+	_assert(true, "unit sim executed")
+
+func test_target_controller_refresh() -> void:
+	if not _ok_name("target_controller_refresh"): return
+	var state := BattleState.new()
+	var p1 := _mk_unit(50, 10, 1.0)
+	var p2 := _mk_unit(50, 10, 1.0)
+	var e1 := _mk_unit(50, 0, 1.0)
+	var e2 := _mk_unit(50, 0, 1.0)
+	state.player_team = [p1, p2]
+	state.enemy_team = [e1, e2]
+	var controller := TargetController.new()
+	controller.configure(state, Callable())
+	_assert_eq(controller.current_target("player", 0), 0, "initial target is first alive")
+	e1.hp = 0
+	_assert_eq(controller.refresh_target("player", 0), 1, "refresh selects next alive target")
+
+func test_cooldown_scheduler_pairs() -> void:
+	if not _ok_name("cooldown_scheduler_pairs"): return
+	var state := BattleState.new()
+	var p := _mk_unit(100, 10, 10.0)
+	var e := _mk_unit(100, 10, 10.0)
+	state.player_team = [p]
+	state.enemy_team = [e]
+	state.player_cds = [0.0]
+	state.enemy_cds = [0.0]
+	var controller := TargetController.new()
+	controller.configure(state, Callable())
+	var scheduler := CooldownScheduler.new()
+	scheduler.configure(state, controller)
+	scheduler.apply_rules(true, false, true)
+	scheduler.reset_turn()
+	var result := scheduler.advance(0.2)
+	var pairs: Array = result.get("pairs", [])
+	_assert(pairs.size() > 0, "scheduler produced pair events")
+	_assert(Array(pairs[0]).size() == 2, "pair contains both sides")
+
+func test_attack_resolver_double_ko_frame_flags() -> void:
+	if not _ok_name("attack_resolver_double_ko"): return
+	var state := BattleState.new()
+	var p := _mk_unit(10, 10, 1.0)
+	var e := _mk_unit(10, 10, 1.0)
+	state.player_team = [p]
+	state.enemy_team = [e]
+	state.player_cds = [0.0]
+	state.enemy_cds = [0.0]
+	var controller := TargetController.new()
+	controller.configure(state, Callable())
+	var resolver := AttackResolver.new()
+	resolver.configure(state, controller, RandomNumberGenerator.new(), p, {})
+	resolver.set_deterministic_rolls(true)
+	var pair := [AttackEvent.new("player", 0, 0), AttackEvent.new("enemy", 0, 0)]
+	resolver.resolve_pairs([pair])
+	var frame := resolver.frame_status()
+	_assert(bool(frame.get("player_dead", false)), "player flagged dead after double KO")
+	_assert(bool(frame.get("enemy_dead", false)), "enemy flagged dead after double KO")
+	_assert(bool(frame.get("double_ko", false)), "double KO flag set")
+
+func test_outcome_resolver_tiebreaker_cd() -> void:
+	if not _ok_name("outcome_resolver_tiebreaker_cd"): return
+	var state := BattleState.new()
+	state.player_team = []
+	state.enemy_team = []
+	state.player_cds = [0.2]
+	state.enemy_cds = [0.5]
+	var resolver := OutcomeResolver.new()
+	resolver.configure(state, RandomNumberGenerator.new())
+	var totals := {"player": 40, "enemy": 40}
+	var outcome := resolver.evaluate_board(false, totals)
+	_assert_eq(outcome, "victory", "lower cooldown wins tiebreaker")

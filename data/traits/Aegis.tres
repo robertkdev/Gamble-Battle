@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TraitDef" load_steps=2 format=3 uid="uid://dingp0uk1ipxk"]
+
+[ext_resource type="Script" uid="uid://2j21h3i7yib7" path="res://scripts/game/traits/trait_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "Aegis"
+name = "Aegis"
+thresholds = Array[int]([2, 4, 6, 8])
+description = "Stacks on cast, grants Armor and Magic Resist to members and allies."

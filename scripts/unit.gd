@@ -5,32 +5,44 @@ class_name Unit
 var id: String = ""
 var name: String = ""
 var sprite_path: String = ""
+var ability_id: String = ""
+var traits: Array[String] = []
+var roles: Array[String] = []
+var cost: int = 1
+var level: int = 1
 
 # Health
 var max_hp: int = 1
 var hp: int = 1
-var hp_regen: int = 0
+var hp_regen: float = 0.0
 
 # Offense
-var attack_damage: int = 0 # AD
-var spell_power: int = 0   # SP (reserved)
+var attack_damage: float = 0.0 # AD
+var spell_power: float = 0.0   # SP
 var attack_speed: float = 1.0 # AS attacks/second (rate of fire)
 var crit_chance: float = 0.05 # 0..1
 var crit_damage: float = 2.0  # 1.0 = no bonus, 2.0 = double
+var true_damage: float = 0.0  # flat true damage
 var lifesteal: float = 0.0    # 0..1
 var attack_range: int = 1
+var move_speed: float = 120.0
 
 # Defense
-var armor: int = 0
-var magic_resist: int = 0
+var armor: float = 0.0
+var magic_resist: float = 0.0
 var block_chance: float = 0.0     # 0..1
 var damage_reduction: float = 0.0 # 0..1 (reserved)
+var armor_pen_flat: float = 0.0
+var armor_pen_pct: float = 0.0
+var mr_pen_flat: float = 0.0
+var mr_pen_pct: float = 0.0
 
 # Mana
 var mana: int = 0
-var mana_max: int = 0
+var mana_max: int = 0      # ability cost
 var mana_start: int = 0
-var mana_regen: int = 0
+var mana_regen: float = 0.0
+var cast_speed: float = 1.0
 var mana_gain_per_attack: int = 1
 
 func _init() -> void:
@@ -51,7 +63,7 @@ func take_damage(amount: int) -> int:
 func attack_roll(rng: RandomNumberGenerator) -> Dictionary:
 	# returns { damage:int, crit:bool }
 	var crit := rng.randf() < crit_chance
-	var dmg_f := float(attack_damage) * (crit_damage if crit else 1.0)
+	var dmg_f := float(attack_damage) * (crit_damage if crit else 1.0) + true_damage
 	return { "damage": int(round(dmg_f)), "crit": crit }
 
 func end_of_turn() -> void:

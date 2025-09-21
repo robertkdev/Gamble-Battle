@@ -10,6 +10,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
+metadata/_edit_use_anchors_ = true
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
@@ -68,6 +69,30 @@ step = 1.0
 value = 100.0
 show_percentage = false
 
+[node name="ArenaContainer" type="Control" parent="MarginContainer/VBoxContainer"]
+visible = false
+custom_minimum_size = Vector2(0, 456)
+layout_mode = 2
+
+[node name="ArenaBackground" type="ColorRect" parent="MarginContainer/VBoxContainer/ArenaContainer"]
+layout_mode = 2
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -288.0
+offset_right = 288.0
+offset_bottom = 456.0
+color = Color(0.07, 0.07, 0.1, 1)
+
+[node name="ArenaUnits" type="Control" parent="MarginContainer/VBoxContainer/ArenaContainer"]
+layout_mode = 2
+anchors_preset = 0
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -288.0
+offset_right = 288.0
+offset_bottom = 456.0
+mouse_filter = 2
+
 [node name="BottomArea" type="Control" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 216)
 layout_mode = 2
@@ -117,7 +142,6 @@ disabled = true
 text = "Continue"
 
 [node name="PowerupPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
-visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="MarginContainer/VBoxContainer/PowerupPanel"]
@@ -136,50 +160,18 @@ text = "Option 2"
 layout_mode = 2
 text = "Option 3"
 
-[node name="TitleOverlay" type="Panel" parent="."]
-visible = false
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="TitleVBox" type="VBoxContainer" parent="TitleOverlay"]
-layout_mode = 2
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 80.0
-offset_top = 80.0
-offset_right = -80.0
-offset_bottom = -80.0
-theme_override_constants/separation = 12
-
-[node name="GameTitle" type="Label" parent="TitleOverlay/TitleVBox"]
-layout_mode = 2
-text = "Gamble Battle"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="TitleOverlay/TitleVBox"]
-layout_mode = 2
-text = "Turn-based luck and powerups"
-horizontal_alignment = 1
-
-[node name="NameRow" type="HBoxContainer" parent="TitleOverlay/TitleVBox"]
-layout_mode = 2
-theme_override_constants/separation = 8
-
-[node name="NameLabel" type="Label" parent="TitleOverlay/TitleVBox/NameRow"]
-layout_mode = 2
-text = "Name:"
-
-[node name="NameInput" type="LineEdit" parent="TitleOverlay/TitleVBox/NameRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Hero"
-
-[node name="StartButton" type="Button" parent="TitleOverlay/TitleVBox"]
-layout_mode = 2
-text = "Start"
-
 [node name="ProgressBar" type="ProgressBar" parent="."]
 layout_mode = 0
 offset_right = 4.0
 offset_bottom = 27.0
+
+[node name="DragLayer" type="CanvasLayer" parent="."]
+
+[node name="DragRoot" type="Control" parent="DragLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
