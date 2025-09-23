@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "kythera"
+name = "Kythera"
+sprite_path = "res://assets/units/kythera.png"
+ability_id = "kythera_glyph_bloom"
+traits = ["Aegis", "Exile"]
+roles = ["mage_tank"]
+cost = 1
+level = 1
+

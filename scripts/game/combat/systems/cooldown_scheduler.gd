@@ -1,30 +1,42 @@
-﻿extends RefCounted
+extends RefCounted
 class_name CooldownScheduler
 
 var state: BattleState
 var target_controller: TargetController
+var buff_system: BuffSystem = null
 
+# Scheduling rules
 var process_player_first: bool = true
 var alternate_order: bool = false
-var simultaneous_pairs: bool = true
+# Pairs are deprecated; always resolve ordered
+# Pairs path removed; always resolve ordered
 
 var max_regen_loops: int = 10
 var _next_player_first: bool = true
 
-func configure(_state: BattleState, _target_controller: TargetController) -> void:
+# Deterministic randomization support (provided by engine RNG)
+var rng: RandomNumberGenerator = null
+
+# One-time shuffled iteration order per team (removes index bias)
+var _player_order: Array[int] = []
+var _enemy_order: Array[int] = []
+
+func configure(_state: BattleState, _target_controller: TargetController, _buff_system: BuffSystem = null) -> void:
 	state = _state
 	target_controller = _target_controller
+	buff_system = _buff_system
 	_sync_cooldowns()
 	_next_player_first = process_player_first
+	_refresh_orders()
 
-func apply_rules(_process_player_first: bool, _alternate_order: bool, _simultaneous_pairs: bool) -> void:
+func apply_rules(_process_player_first: bool, _alternate_order: bool) -> void:
 	process_player_first = _process_player_first
 	alternate_order = _alternate_order
-	simultaneous_pairs = _simultaneous_pairs
 
 func reset_turn() -> void:
 	_sync_cooldowns()
 	_next_player_first = process_player_first
+	_refresh_orders()
 
 func advance(delta: float) -> Dictionary:
 	if not state or delta <= 0.0:
@@ -39,11 +51,6 @@ func advance(delta: float) -> Dictionary:
 		_next_player_first = not _next_player_first
 	else:
 		_next_player_first = process_player_first
-	if simultaneous_pairs:
-		var pair_count: int = min(player_events.size(), enemy_events.size())
-		for i in range(pair_count):
-			result["pairs"].append([player_events[i], enemy_events[i]])
-		return result
 	var pi: int = 0
 	var ei: int = 0
 	var ordered: Array[AttackEvent] = []
@@ -81,21 +88,27 @@ func _accumulate_regen(delta: float) -> int:
 
 func _collect_events(team: String, units: Array[Unit], cds: Array[float], delta: float) -> Array[AttackEvent]:
 	var events: Array[AttackEvent] = []
-	for i in range(units.size()):
-		if i >= cds.size():
+	var order: Array[int] = _order_for(team, units.size())
+	for idx in order:
+		if idx >= cds.size():
 			cds.append(0.0)
-		cds[i] -= delta
-		var unit: Unit = units[i]
+		cds[idx] -= delta
+		var unit: Unit = units[idx]
 		if not unit or not unit.is_alive():
+			continue
+		# Skip scheduling when stunned; prevent CD backlog
+		if buff_system != null and buff_system.is_stunned(unit):
+			if cds[idx] < 0.0:
+				cds[idx] = 0.0
 			continue
 		var cooldown: float = _compute_cooldown(unit)
 		var max_shots: int = clamp(int(ceil(delta / max(0.01, cooldown))) + 2, 1, 100)
 		var shots: int = 0
-		while cds[i] <= 0.0 and shots < max_shots:
-			var target_idx: int = target_controller.current_target(team, i)
-			var evt: AttackEvent = AttackEvent.new(team, i, target_idx, 0, false, 0.0)
-			cds[i] += cooldown
-			evt.pending_cooldown = cds[i]
+		while cds[idx] <= 0.0 and shots < max_shots:
+			var target_idx: int = target_controller.current_target(team, idx)
+			var evt: AttackEvent = AttackEvent.new(team, idx, target_idx, 0, false, 0.0)
+			cds[idx] += cooldown
+			evt.pending_cooldown = cds[idx]
 			events.append(evt)
 			shots += 1
 	return events
@@ -109,6 +122,7 @@ func _sync_cooldowns() -> void:
 		return
 	state.player_cds = _resize_float_array(state.player_cds, state.player_team.size())
 	state.enemy_cds = _resize_float_array(state.enemy_cds, state.enemy_team.size())
+	_ensure_order_sizes()
 
 func _resize_float_array(existing: Array, desired: int) -> Array[float]:
 	var out: Array[float] = []
@@ -121,3 +135,37 @@ func _resize_float_array(existing: Array, desired: int) -> Array[float]:
 		out.append(0.0)
 	return out
 
+func _order_for(team: String, count: int) -> Array[int]:
+	if team == "player":
+		return _player_order.slice(0, count)
+	return _enemy_order.slice(0, count)
+
+func _refresh_orders() -> void:
+	var p_size := (state.player_team.size() if state else 0)
+	var e_size := (state.enemy_team.size() if state else 0)
+	_player_order.clear()
+	_enemy_order.clear()
+	for i in range(p_size): _player_order.append(i)
+	for j in range(e_size): _enemy_order.append(j)
+	if rng != null:
+		if _player_order.size() > 1:
+			for k in range(_player_order.size() - 1, 0, -1):
+				var r := int(rng.randi() % (k + 1))
+				var tmp := _player_order[k]
+				_player_order[k] = _player_order[r]
+				_player_order[r] = tmp
+		if _enemy_order.size() > 1:
+			for k2 in range(_enemy_order.size() - 1, 0, -1):
+				var r2 := int(rng.randi() % (k2 + 1))
+				var tmp2 := _enemy_order[k2]
+				_enemy_order[k2] = _enemy_order[r2]
+				_enemy_order[r2] = tmp2
+
+func _ensure_order_sizes() -> void:
+	# Append new indices at the end if team sizes grew (e.g., summons)
+	var p_size := (state.player_team.size() if state else 0)
+	var e_size := (state.enemy_team.size() if state else 0)
+	while _player_order.size() < p_size:
+		_player_order.append(_player_order.size())
+	while _enemy_order.size() < e_size:
+		_enemy_order.append(_enemy_order.size())

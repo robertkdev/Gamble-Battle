@@ -25,7 +25,7 @@ var crit_damage: float = 2.0  # 1.0 = no bonus, 2.0 = double
 var true_damage: float = 0.0  # flat true damage
 var lifesteal: float = 0.0    # 0..1
 var attack_range: int = 1
-var move_speed: float = 120.0
+var move_speed: float = 12.0 #120
 
 # Defense
 var armor: float = 0.0
@@ -43,7 +43,7 @@ var mana_max: int = 0      # ability cost
 var mana_start: int = 0
 var mana_regen: float = 0.0
 var cast_speed: float = 1.0
-var mana_gain_per_attack: int = 1
+var mana_gain_per_attack: int = 30
 
 func _init() -> void:
 	pass

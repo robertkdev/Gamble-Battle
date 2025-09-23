@@ -1,11 +1,14 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://cnkh284dqwemd"]
 
-[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource("1")
 id = "sari"
 name = "Sari"
 sprite_path = "res://assets/units/sari (3).png"
-traits = [ ]
-roles = [ "melee" ]
+ability_id = ""
+traits = Array[String]([])
+roles = Array[String](["marksman"])
+cost = 1
+level = 1

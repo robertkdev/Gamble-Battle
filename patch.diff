@@ -1,0 +1,68 @@
+*** Begin Patch
+*** Update File: scripts/combat_manager.gd
+@@
+ extends Node
+ class_name CombatManager
+@@
+ var _engine: CombatEngine
+@@
+ func start_stage() -> void:
+-    print("[CombatManager] start_stage begin; stage=", stage)
++    Trace.step("CombatManager.start_stage: begin stage=" + str(stage))
+     _ensure_state()
++    Trace.step("CombatManager.start_stage: state ensured")
+     _state.reset()
++    Trace.step("CombatManager.start_stage: state reset")
+     _state.stage = stage
+     # Build player team if not already present
+     if player_team.is_empty():
+-        _ensure_default_player_team()
++        Trace.step("CombatManager.start_stage: ensuring default player team")
++        _ensure_default_player_team()
+     # Copy current player_team into state
+     for u in player_team:
+         if u:
+             _state.player_team.append(u)
++    Trace.step("CombatManager.start_stage: copied player team size=" + str(_state.player_team.size()))
+     var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
++    Trace.step("CombatManager.start_stage: created EnemySpawner")
+     _state.enemy_team = spawner.build_for_stage(stage)
+-    print("[CombatManager] teams built: player=", _state.player_team.size(), ", enemy=", _state.enemy_team.size())
++    Trace.step("CombatManager.start_stage: enemy team built size=" + str(_state.enemy_team.size()))
+@@
+     player_team = _state.player_team
+     enemy_team = _state.enemy_team
+     enemy = BattleState.first_alive(_state.enemy_team)
+-    emit_signal("battle_started", stage, enemy)
++    Trace.step("CombatManager.start_stage: emitting battle_started")
++    emit_signal("battle_started", stage, enemy)
+     if enemy:
+         var name2: String = (_state.enemy_team[1].name if _state.enemy_team.size() > 1 else "?")
+         emit_signal("log_line", "=== Stage %d: %s and %s appear! ===" % [stage, _state.enemy_team[0].name, name2])
+-    emit_signal("stats_updated", pref, enemy)
++    Trace.step("CombatManager.start_stage: emitting stats_updated")
++    emit_signal("stats_updated", pref, enemy)
+ 
+-    _engine = load("res://scripts/game/combat/combat_engine.gd").new()
+-    _engine.configure(_state, pref, stage, select_closest_target)
+-    _wire_engine_signals()
+-    _engine.start()
+-    print("[CombatManager] engine started")
++    Trace.step("CombatManager.start_stage: creating engine")
++    _engine = load("res://scripts/game/combat/combat_engine.gd").new()
++    Trace.step("CombatManager.start_stage: configuring engine")
++    _engine.configure(_state, pref, stage, select_closest_target)
++    Trace.step("CombatManager.start_stage: wiring engine signals")
++    _wire_engine_signals()
++    Trace.step("CombatManager.start_stage: starting engine")
++    _engine.start()
++    Trace.step("CombatManager.start_stage: engine started")
+@@
+-    var tc: Script = load("res://scripts/game/traits/trait_compiler.gd")
++    var tc: Script = load("res://scripts/game/traits/trait_compiler.gd")
+     var p_traits: Dictionary = tc.compile(_state.player_team)
+     var e_traits: Dictionary = tc.compile(_state.enemy_team)
+     _log_trait_summary("Your team", p_traits)
+     _log_trait_summary("Enemy team", e_traits)
++    Trace.step("CombatManager.start_stage: finished")
+*** End Patch

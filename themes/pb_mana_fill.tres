@@ -1,12 +1,8 @@
-[gd_resource type="StyleBoxFlat" format=3]
+[gd_resource type="StyleBoxFlat" format=3 uid="uid://cmswimmpmoshv"]
 
 [resource]
-bg_color = Color(0.2, 0.6, 1.0, 1)
+bg_color = Color(0.2, 0.6, 1, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
-border_width_left = 0
-border_width_top = 0
-border_width_right = 0
-border_width_bottom = 0

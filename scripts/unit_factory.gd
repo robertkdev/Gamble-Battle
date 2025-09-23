@@ -4,11 +4,13 @@ class_name UnitFactory
 static var _cache: Dictionary = {}
 
 const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
+const Trace := preload("res://scripts/util/trace.gd")
 
 static func _def_path(id: String) -> String:
 	return "res://data/units/%s.tres" % id
 
 static func _load_def(id: String) -> UnitDef:
+	Trace.step("UnitFactory._load_def: " + id)
 	var path := _def_path(id)
 	if _cache.has(path):
 		return _cache[path]
@@ -25,7 +27,9 @@ static func _load_def(id: String) -> UnitDef:
 			out_def.name = p.name
 			out_def.sprite_path = p.sprite_path
 			out_def.traits = p.traits.duplicate()
+			# Use roles from profile (string-based)
 			out_def.roles = p.roles.duplicate()
+			out_def.ability_id = p.ability_id
 			out_def.cost = p.cost
 			out_def.level = p.level
 		else:
@@ -37,10 +41,14 @@ static func _load_def(id: String) -> UnitDef:
 	return null
 
 static func spawn(id: String) -> Unit:
+	Trace.step("UnitFactory.spawn: " + id)
 	var d: UnitDef = _load_def(id)
 	if d == null:
+		Trace.step("UnitFactory.spawn: def missing for " + id)
 		return null
-	return _from_def(d)
+	var u: Unit = _from_def(d)
+	Trace.step("UnitFactory.spawn: built unit " + id)
+	return u
 
 static func _from_def(d: UnitDef) -> Unit:
 	var u := Unit.new()
@@ -83,6 +91,14 @@ static func _from_def(d: UnitDef) -> Unit:
 	u.mana_regen = max(0.0, float(base_def.mana_regen))
 	u.cast_speed = max(0.1, float(base_def.cast_speed))
 	u.mana = u.mana_start
+
+	# If unit has an ability, prefer its defined base_cost for mana_max (ability cost)
+	if String(u.ability_id) != "":
+		var AbilityCatalog = load("res://scripts/game/abilities/ability_catalog.gd")
+		if AbilityCatalog and AbilityCatalog.has_method("get_def"):
+			var adef = AbilityCatalog.get_def(String(u.ability_id))
+			if adef and int(adef.base_cost) > 0:
+				u.mana_max = int(adef.base_cost)
 
 	# Capture base values before role deltas for scaling eligibility
 	var base_vals := {

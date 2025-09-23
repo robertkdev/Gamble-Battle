@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://dgn2n8m58s57g"]
+
+[ext_resource type="Script" uid="uid://c8n628o6iwxlo" path="res://tests/unit_sim/unit_sim_log_runner.gd" id="1"]
+
+[node name="UnitSimLogRunner" type="Node"]
+script = ExtResource("1")
+

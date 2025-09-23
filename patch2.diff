@@ -1,0 +1,26 @@
+*** Begin Patch
+*** Update File: scripts/unit_factory.gd
+@@
+ extends Object
+ class_name UnitFactory
++const Trace := preload("res://scripts/util/trace.gd")
+@@
+ static func spawn(id: String) -> Unit:
++    Trace.step("UnitFactory.spawn: " + id)
+     var d: UnitDef = _load_def(id)
+     if d == null:
++        Trace.step("UnitFactory.spawn: def missing for " + id)
+         return null
+-    return _from_def(d)
++    var u: Unit = _from_def(d)
++    Trace.step("UnitFactory.spawn: built unit " + id)
++    return u
+@@
+ static func _load_def(id: String) -> UnitDef:
++    Trace.step("UnitFactory._load_def: " + id)
+     var path := _def_path(id)
+@@
+-    push_warning("UnitFactory: unit def not found '%s'" % id)
++    push_warning("UnitFactory: unit def not found '%s'" % id)
+     return null
+*** End Patch

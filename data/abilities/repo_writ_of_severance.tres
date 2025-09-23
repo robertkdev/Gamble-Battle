@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "repo_writ_of_severance"
+name = "Writ of Severance"
+description = "Heals, then slashes the current target for heavy physical damage, with bonus damage against Tanks. On kill, immediately recasts at reduced damage."
+base_cost = 0
+tags = ["damage", "self-heal"]
+

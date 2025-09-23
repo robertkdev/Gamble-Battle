@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "bonko_bonk"
+name = "Bonk"
+description = "Smashes a single target for physical damage and stuns it. Deals bonus damage to already-stunned targets."
+base_cost = 60
+tags = ["damage", "stun"]
+

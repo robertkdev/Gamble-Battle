@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "teller"
+name = "Teller"
+sprite_path = "res://assets/units/teller.png"
+ability_id = "teller_margin_call"
+traits = ["Exile", "Mogul"]
+roles = ["marksman"]
+cost = 1
+level = 1
+

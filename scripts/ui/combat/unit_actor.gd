@@ -1,8 +1,12 @@
 extends Control
 class_name UnitActor
 
+const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
+
 var unit: Unit
 var sprite: TextureRect
+var hp_bar: ProgressBar
+var mana_bar: ProgressBar
 var size_px: Vector2 = Vector2(64, 64)
 
 func _ready() -> void:
@@ -10,7 +14,8 @@ func _ready() -> void:
 	size = size_px
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_sprite()
-	_update_texture()
+	_ensure_bars()
+	_update_visuals()
 
 func _ensure_sprite() -> void:
 	if sprite and is_instance_valid(sprite):
@@ -30,14 +35,50 @@ func _ensure_sprite() -> void:
 	sprite.offset_bottom = 0.0
 	add_child(sprite)
 
+func _ensure_bars() -> void:
+	if not (hp_bar and is_instance_valid(hp_bar)):
+		hp_bar = UIBars.make_hp_bar()
+		add_child(hp_bar)
+		hp_bar.anchor_left = 0.0
+		hp_bar.anchor_top = 0.0
+		hp_bar.anchor_right = 1.0
+		hp_bar.anchor_bottom = 0.0
+		hp_bar.offset_left = 0.0
+		hp_bar.offset_top = 0.0
+		hp_bar.offset_right = 0.0
+		hp_bar.offset_bottom = 8.0
+		hp_bar.z_index = 1
+	if not (mana_bar and is_instance_valid(mana_bar)):
+		mana_bar = UIBars.make_mana_bar()
+		add_child(mana_bar)
+		mana_bar.anchor_left = 0.0
+		mana_bar.anchor_top = 0.0
+		mana_bar.anchor_right = 1.0
+		mana_bar.anchor_bottom = 0.0
+		mana_bar.offset_left = 0.0
+		mana_bar.offset_top = 10.0
+		mana_bar.offset_right = 0.0
+		mana_bar.offset_bottom = 18.0
+		mana_bar.z_index = 1
+
 func set_unit(u: Unit) -> void:
 	unit = u
 	_ensure_sprite()
-	_update_texture()
+	_ensure_bars()
+	_update_visuals()
+
+func update_bars(updated_unit: Unit = null) -> void:
+	if updated_unit:
+		unit = updated_unit
+	_update_bars()
 
 # Avoid overriding Control.set_global_position(Vector2, bool)
 func set_screen_position(pos: Vector2) -> void:
 	global_position = pos - size * 0.5
+
+func _update_visuals() -> void:
+	_update_texture()
+	_update_bars()
 
 func _update_texture() -> void:
 	_ensure_sprite()
@@ -61,7 +102,25 @@ func _update_texture() -> void:
 		tex = ImageTexture.create_from_image(img)
 	sprite.texture = tex
 
+func _update_bars() -> void:
+	_ensure_bars()
+	var hp_max := 1
+	var hp_val := 1
+	var mana_max := 0
+	var mana_val := 0
+	if unit:
+		hp_max = max(1, unit.max_hp)
+		hp_val = clamp(unit.hp, 0, unit.max_hp)
+		mana_max = max(0, unit.mana_max)
+		mana_val = clamp(unit.mana, 0, unit.mana_max)
+	if hp_bar:
+		hp_bar.max_value = hp_max
+		hp_bar.value = hp_val
+	if mana_bar:
+		mana_bar.max_value = mana_max
+		mana_bar.value = mana_val
+
 func set_size_px(new_size: Vector2) -> void:
 	size_px = new_size
 	size = size_px
-	_update_texture()
+	_update_visuals()

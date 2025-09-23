@@ -6,6 +6,9 @@ var arena_bounds: Rect2 = Rect2()
 var player_positions: Array[Vector2] = []
 var enemy_positions: Array[Vector2] = []
 
+# Debug: log movement for the first N update_movement frames
+var debug_log_frames: int = 0
+
 func configure(tile_size: float, player_pos: Array[Vector2], enemy_pos: Array[Vector2], bounds: Rect2) -> void:
 	tile_size_px = tile_size
 	arena_bounds = Rect2(bounds.position, bounds.size)
@@ -25,6 +28,11 @@ func update_movement(state: BattleState, delta: float, target_resolver: Callable
 	ensure_capacity(state.player_team.size(), state.enemy_team.size())
 	_update_team_movement("player", state.player_team, player_positions, enemy_positions, delta, target_resolver)
 	_update_team_movement("enemy", state.enemy_team, enemy_positions, player_positions, delta, target_resolver)
+	if debug_log_frames > 0:
+		debug_log_frames -= 1
+
+func set_debug_log_frames(n: int) -> void:
+	debug_log_frames = max(0, int(n))
 
 func player_positions_copy() -> Array[Vector2]:
 	return player_positions.duplicate()
@@ -66,6 +74,8 @@ func _update_team_movement(team: String, units: Array[Unit], positions: Array[Ve
 		var desired_range: float = max(0.0, float(u.attack_range)) * tile_size_px
 		var dist: float = current_pos.distance_to(target_pos)
 		if dist <= desired_range:
+			if debug_log_frames > 0:
+				print("[Move] team=", team, " i=", i, " pos=", current_pos, " tgt=", target_idx, " tpos=", target_pos, " desired=", desired_range, " dist=", dist, " step=0 new=", current_pos, " clamped=false")
 			continue
 		var dir: Vector2 = target_pos - current_pos
 		if dir.length() == 0.0:
@@ -77,10 +87,19 @@ func _update_team_movement(team: String, units: Array[Unit], positions: Array[Ve
 		if step <= 0.0:
 			continue
 		var new_pos: Vector2 = current_pos + dir.normalized() * step
+		var clamped_x: bool = false
+		var clamped_y: bool = false
 		if arena_bounds.size != Vector2.ZERO:
-			new_pos.x = clamp(new_pos.x, arena_bounds.position.x, arena_bounds.position.x + arena_bounds.size.x)
-			new_pos.y = clamp(new_pos.y, arena_bounds.position.y, arena_bounds.position.y + arena_bounds.size.y)
+			var nx: float = clampf(new_pos.x, arena_bounds.position.x, arena_bounds.position.x + arena_bounds.size.x)
+			var ny: float = clampf(new_pos.y, arena_bounds.position.y, arena_bounds.position.y + arena_bounds.size.y)
+			clamped_x = (nx != new_pos.x)
+			clamped_y = (ny != new_pos.y)
+			new_pos.x = nx
+			new_pos.y = ny
 		positions[i] = new_pos
+		if debug_log_frames > 0:
+			var clamped: bool = clamped_x or clamped_y
+			print("[Move] team=", team, " i=", i, " pos=", current_pos, " tgt=", target_idx, " tpos=", target_pos, " desired=", desired_range, " dist=", dist, " step=", step, " new=", new_pos, " clamped=", clamped)
 
 func _resize_vector_array(arr: Array[Vector2], length: int, fill: Vector2) -> void:
 	if length < 0:

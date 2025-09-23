@@ -1,5 +1,8 @@
 extends RefCounted
 class_name CombatEngine
+const Trace := preload("res://scripts/util/trace.gd")
+const AbilitySystemLib := preload("res://scripts/game/abilities/ability_system.gd")
+const BuffSystemLib := preload("res://scripts/game/abilities/buff_system.gd")
 
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal stats_updated(player, enemy)
@@ -8,7 +11,6 @@ signal unit_stat_changed(team: String, index: int, fields: Dictionary)
 signal log_line(text: String)
 signal victory(stage: int)
 signal defeat(stage: int)
-signal draw(stage: int)
 
 # Emitted after damage is applied (single or paired)
 # Provides detailed data for deterministic logging/analytics.
@@ -22,7 +24,6 @@ var select_closest_target: Callable = Callable()
 
 var process_player_first: bool = true
 var alternate_order: bool = false
-var simultaneous_pairs: bool = true
 var deterministic_rolls: bool = true
 
 var total_damage_player: int = 0
@@ -39,10 +40,16 @@ var attack_resolver: AttackResolver = AttackResolver.new()
 var outcome_resolver: OutcomeResolver = OutcomeResolver.new()
 var projectile_handler: ProjectileHandler = ProjectileHandler.new()
 var regen_system: RegenSystem = RegenSystem.new()
+var ability_system: AbilitySystem = null
+var buff_system: BuffSystem = null
+
+# Feature toggles
+var abilities_enabled: bool = true
 
 var _resolver_emitters: Dictionary[String, Callable] = {}
 
 func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Callable = Callable()) -> void:
+	Trace.step("CombatEngine.configure: begin")
 	state = _state
 	player_ref = _player
 	stage = _stage
@@ -50,18 +57,39 @@ func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Calla
 	rng.randomize()
 	_resolver_emitters = _build_resolver_emitters()
 	target_controller.configure(state, select_closest_target)
-	cooldown_scheduler.configure(state, target_controller)
-	cooldown_scheduler.apply_rules(process_player_first, alternate_order, simultaneous_pairs)
-	attack_resolver.configure(state, target_controller, rng, player_ref, _resolver_emitters)
+	cooldown_scheduler.configure(state, target_controller, buff_system)
+	cooldown_scheduler.rng = rng
+	cooldown_scheduler.apply_rules(process_player_first, alternate_order)
+	# Ensure buff and ability systems
+	if buff_system == null:
+		buff_system = BuffSystemLib.new()
+	# Ability system is optional based on toggle
+	if abilities_enabled:
+		if ability_system == null:
+			ability_system = AbilitySystemLib.new()
+		ability_system.configure(self, state, rng, buff_system)
+	else:
+		ability_system = null
+	attack_resolver.configure(state, target_controller, rng, player_ref, _resolver_emitters, ability_system, buff_system)
 	attack_resolver.set_deterministic_rolls(deterministic_rolls)
 	outcome_resolver.configure(state, rng)
 	projectile_handler.configure(attack_resolver)
 	arena_state.ensure_capacity(state.player_team.size(), state.enemy_team.size())
 	_update_totals_cache()
 	_reset_debug_counters()
+	Trace.step("CombatEngine.configure: done")
 
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
-	arena_state.configure(tile_size, player_pos, enemy_pos, bounds)
+	# Cast/convert to typed arrays of Vector2 to satisfy CombatArenaState.configure signature
+	var p: Array[Vector2] = []
+	for v in player_pos:
+		if typeof(v) == TYPE_VECTOR2:
+			p.append(v)
+	var e: Array[Vector2] = []
+	for v2 in enemy_pos:
+		if typeof(v2) == TYPE_VECTOR2:
+			e.append(v2)
+	arena_state.configure(tile_size, p, e, bounds)
 
 func get_arena_bounds_copy() -> Rect2:
 	return arena_state.bounds_copy()
@@ -79,6 +107,7 @@ func get_enemy_positions_copy() -> Array:
 	return arena_state.enemy_positions_copy()
 
 func start() -> void:
+	Trace.step("CombatEngine.start: begin")
 	if not state:
 		return
 	state.battle_active = true
@@ -91,15 +120,19 @@ func start() -> void:
 	state.player_targets.clear()
 	state.enemy_targets.clear()
 	target_controller.configure(state, select_closest_target)
-	cooldown_scheduler.configure(state, target_controller)
-	cooldown_scheduler.apply_rules(process_player_first, alternate_order, simultaneous_pairs)
+	cooldown_scheduler.configure(state, target_controller, buff_system)
+	cooldown_scheduler.apply_rules(process_player_first, alternate_order)
 	cooldown_scheduler.reset_turn()
+	# Randomize starting side once per battle when not explicitly set by rules
+	if rng:
+		cooldown_scheduler._next_player_first = (rng.randf() < 0.5) if alternate_order else cooldown_scheduler._next_player_first
 	attack_resolver.set_deterministic_rolls(deterministic_rolls)
 	arena_state.ensure_capacity(state.player_team.size(), state.enemy_team.size())
 	total_damage_player = 0
 	total_damage_enemy = 0
 	_reset_debug_counters()
 	_emit_stats_snapshot()
+	Trace.step("CombatEngine.start: done")
 
 func stop() -> void:
 	if not state:
@@ -112,29 +145,32 @@ func process(delta: float) -> void:
 	if delta <= 0.0:
 		return
 	_frame_delta_last = delta
-	cooldown_scheduler.apply_rules(process_player_first, alternate_order, simultaneous_pairs)
+	cooldown_scheduler.apply_rules(process_player_first, alternate_order)
 	attack_resolver.set_deterministic_rolls(deterministic_rolls)
 	attack_resolver.begin_frame()
 	if not state.battle_active:
-		var idle_outcome: String = outcome_resolver.evaluate_idle(simultaneous_pairs, attack_resolver.totals())
+		var idle_outcome: String = outcome_resolver.evaluate_idle(attack_resolver.totals())
 		if idle_outcome != "":
 			_update_totals_cache()
 			_emit_outcome(idle_outcome)
 		return
 	arena_state.update_movement(state, delta, target_controller.resolver_for_arena())
-	var board_pre: String = outcome_resolver.evaluate_board(simultaneous_pairs, attack_resolver.totals())
+	var board_pre: String = outcome_resolver.evaluate_board(attack_resolver.totals())
 	if board_pre != "":
 		_update_totals_cache()
 		_emit_outcome(board_pre)
 		return
 	var frame_data: Dictionary = cooldown_scheduler.advance(delta)
 	_apply_regen(int(frame_data.get("regen_ticks", 0)))
-	var pairs: Array = frame_data.get("pairs", []) as Array
-	if pairs.size() > 0:
-		attack_resolver.resolve_pairs(pairs)
-	var ordered: Array = frame_data.get("ordered", [])
+	if buff_system != null:
+		buff_system.tick(state, delta)
+	if ability_system != null:
+		ability_system.tick(delta)
+	var ordered: Array[AttackEvent] = frame_data.get("ordered", []) as Array[AttackEvent]
 	if ordered.size() > 0:
-		attack_resolver.resolve_ordered(ordered)
+		var gated: Array[AttackEvent] = _filter_events_in_range(ordered)
+		if gated.size() > 0:
+			attack_resolver.resolve_ordered(gated)
 	if _evaluate_outcome():
 		return
 	_update_totals_cache()
@@ -154,12 +190,12 @@ func _apply_regen(ticks: int) -> void:
 	regen_system.apply_ticks(state, ticks, player_ref, _resolver_emitters)
 
 func _evaluate_outcome() -> bool:
-	var frame_outcome: String = outcome_resolver.evaluate_frame(simultaneous_pairs, attack_resolver.frame_status())
+	var frame_outcome: String = outcome_resolver.evaluate_frame(attack_resolver.frame_status())
 	if frame_outcome != "":
 		_update_totals_cache()
 		_emit_outcome(frame_outcome)
 		return true
-	var board_outcome: String = outcome_resolver.evaluate_board(simultaneous_pairs, attack_resolver.totals())
+	var board_outcome: String = outcome_resolver.evaluate_board(attack_resolver.totals())
 	if board_outcome != "":
 		_update_totals_cache()
 		_emit_outcome(board_outcome)
@@ -177,7 +213,8 @@ func _emit_outcome(kind: String) -> void:
 		"defeat":
 			emit_signal("defeat", stage)
 		_:
-			emit_signal("draw", stage)
+			# Fallback: default to defeat if unknown outcome
+			emit_signal("defeat", stage)
 	stop()
 
 func _emit_stats_snapshot() -> void:
@@ -203,6 +240,33 @@ func _build_resolver_emitters() -> Dictionary[String, Callable]:
 		"team_stats_updated": Callable(self, "_resolver_emit_team_stats"),
 		"hit_applied": Callable(self, "_resolver_emit_hit")
 	}
+
+func _filter_events_in_range(events: Array[AttackEvent]) -> Array[AttackEvent]:
+	var out: Array[AttackEvent] = []
+	if not state:
+		return out
+	var ts: float = arena_state.tile_size()
+	for evt in events:
+		if evt == null:
+			continue
+		var team: String = evt.team
+		var idx: int = evt.shooter_index
+		var tgt_idx: int = evt.target_index
+		var shooter: Unit = null
+		if team == "player":
+			if idx >= 0 and idx < state.player_team.size():
+				shooter = state.player_team[idx]
+		else:
+			if idx >= 0 and idx < state.enemy_team.size():
+				shooter = state.enemy_team[idx]
+		if not shooter or not shooter.is_alive():
+			continue
+		var desired: float = max(0.0, float(shooter.attack_range)) * ts
+		var spos: Vector2 = arena_state.get_player_position(idx) if team == "player" else arena_state.get_enemy_position(idx)
+		var tpos: Vector2 = arena_state.get_enemy_position(tgt_idx) if team == "player" else arena_state.get_player_position(tgt_idx)
+		if spos.distance_to(tpos) <= desired:
+			out.append(evt)
+	return out
 
 func _resolver_emit_projectile(team: String, source_index: int, target_index: int, damage: int, crit: bool) -> void:
 	emit_signal("projectile_fired", team, source_index, target_index, damage, crit)

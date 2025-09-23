@@ -1,7 +1,12 @@
-[gd_scene load_steps=3 format=3 uid="uid://cs1wvmj4qc8xt"]
+[gd_scene load_steps=6 format=3 uid="uid://cs1wvmj4qc8xt"]
 
 [ext_resource type="PackedScene" uid="uid://bq7rbbhqrjhrt" path="res://scenes/CombatView.tscn" id="1"]
 [ext_resource type="Script" uid="uid://dgmadxqjln56b" path="res://scripts/main.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/UnitSelect.tscn" id="3"]
+[ext_resource type="Shader" path="res://shaders/dark_fantasy_bg.gdshader" id="4"]
+
+[sub_resource type="ShaderMaterial" id="1"]
+shader = ExtResource("4")
 
 [node name="Main" type="Node"]
 script = ExtResource("2")
@@ -14,33 +19,50 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBox" type="VBoxContainer" parent="TitleMenu"]
-layout_mode = 2
+[node name="Background" type="ColorRect" parent="TitleMenu"]
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 80.0
-offset_top = 80.0
-offset_right = -80.0
-offset_bottom = -80.0
-theme_override_constants/separation = 16
+grow_horizontal = 2
+grow_vertical = 2
+z_index = -10
+material = SubResource("1")
 
-[node name="GameTitle" type="Label" parent="TitleMenu/VBox"]
+[node name="Center" type="CenterContainer" parent="TitleMenu"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="TitleMenu/Center"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+size_flags_horizontal = 5
+
+[node name="GameTitle" type="Label" parent="TitleMenu/Center/VBox"]
 layout_mode = 2
 text = "Gamble Battle"
 horizontal_alignment = 1
+theme_override_font_sizes/font_size = 56
 
-[node name="Subtitle" type="Label" parent="TitleMenu/VBox"]
-layout_mode = 2
-text = "Autobattler roguelite"
-horizontal_alignment = 1
-
-[node name="StartButton" type="Button" parent="TitleMenu/VBox"]
+[node name="StartButton" type="Button" parent="TitleMenu/Center/VBox"]
 layout_mode = 2
 text = "Start"
+theme_override_font_sizes/font_size = 28
+custom_minimum_size = Vector2(600, 56)
 
-[node name="QuitButton" type="Button" parent="TitleMenu/VBox"]
+[node name="QuitButton" type="Button" parent="TitleMenu/Center/VBox"]
 layout_mode = 2
 text = "Quit"
+theme_override_font_sizes/font_size = 28
+custom_minimum_size = Vector2(600, 56)
 
 [node name="CombatView" parent="." instance=ExtResource("1")]
+visible = false
+
+[node name="UnitSelect" parent="." instance=ExtResource("3")]
 visible = false

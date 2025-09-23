@@ -13,62 +13,50 @@ func configure(_state: BattleState, _rng: RandomNumberGenerator) -> void:
 func reset() -> void:
     outcome_sent = false
 
-func evaluate_idle(simultaneous_pairs: bool, totals: Dictionary) -> String:
+func evaluate_idle(totals: Dictionary) -> String:
     if outcome_sent:
         return ""
     var outcome: String = _outcome_from_board(
         BattleState.all_dead(state.player_team),
         BattleState.all_dead(state.enemy_team),
-        simultaneous_pairs,
         totals
     )
     if outcome != "":
         outcome_sent = true
     return outcome
 
-func evaluate_board(simultaneous_pairs: bool, totals: Dictionary) -> String:
+func evaluate_board(totals: Dictionary) -> String:
     if outcome_sent:
         return ""
     var outcome: String = _outcome_from_board(
         BattleState.all_dead(state.player_team),
         BattleState.all_dead(state.enemy_team),
-        simultaneous_pairs,
         totals
     )
     if outcome != "":
         outcome_sent = true
     return outcome
 
-func evaluate_frame(simultaneous_pairs: bool, frame_flags: Dictionary) -> String:
+func evaluate_frame(frame_flags: Dictionary) -> String:
     if outcome_sent:
         return ""
-    if BattleState.all_dead(state.player_team) and BattleState.all_dead(state.enemy_team):
-        outcome_sent = true
-        return "draw"
-    var double_ko: bool = bool(frame_flags.get("double_ko", false))
-    if double_ko:
-        outcome_sent = true
-        return "draw"
-    var player_dead: bool = bool(frame_flags.get("player_dead", false))
-    var enemy_dead: bool = bool(frame_flags.get("enemy_dead", false))
-    if player_dead and enemy_dead:
-        outcome_sent = true
-        return "draw"
-    if enemy_dead:
+    # Resolve immediately only if exactly one team is defeated.
+    var player_team_defeated: bool = bool(frame_flags.get("player_team_defeated", false))
+    var enemy_team_defeated: bool = bool(frame_flags.get("enemy_team_defeated", false))
+    if enemy_team_defeated and not player_team_defeated:
         outcome_sent = true
         return "victory"
-    if player_dead:
+    if player_team_defeated and not enemy_team_defeated:
         outcome_sent = true
         return "defeat"
+    # Double KO or both dead at frame-level: defer to board evaluation.
     return ""
 
 func mark_emitted() -> void:
     outcome_sent = true
 
-func _outcome_from_board(player_dead: bool, enemy_dead: bool, simultaneous_pairs: bool, totals: Dictionary) -> String:
-    if player_dead and enemy_dead:
-        if simultaneous_pairs:
-            return "draw"
+func _outcome_from_board(player_team_defeated: bool, enemy_team_defeated: bool, totals: Dictionary) -> String:
+    if player_team_defeated and enemy_team_defeated:
         var p_dmg: int = int(totals.get("player", 0))
         var e_dmg: int = int(totals.get("enemy", 0))
         if p_dmg > e_dmg:
@@ -84,9 +72,9 @@ func _outcome_from_board(player_dead: bool, enemy_dead: bool, simultaneous_pairs
         if rng and rng.randf() < 0.5:
             return "victory"
         return "defeat"
-    elif player_dead:
+    elif player_team_defeated:
         return "defeat"
-    elif enemy_dead:
+    elif enemy_team_defeated:
         return "victory"
     return ""
 

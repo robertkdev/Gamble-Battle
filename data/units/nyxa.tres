@@ -1,13 +1,14 @@
 [gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://hh8hptofjpgr"]
 
-[ext_resource type="Script" path="res://scripts/game/units/unit_profile.gd" id="1"]
+[ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
 id = "nyxa"
 name = "Nyxa"
 sprite_path = "res://assets/units/nyxa.png"
+ability_id = "nyxa_chaos_volley"
 traits = Array[String](["Overload", "Chronomancer"])
-roles = Array[String](["ranged"])
+roles = Array[String](["marksman"])
 cost = 1
 level = 1

@@ -1,0 +1,51 @@
+﻿[gd_scene load_steps=4 format=3 uid="uid://cs1wvmj4qc8xt"]
+
+[ext_resource type="PackedScene" uid="uid://bq7rbbhqrjhrt" path="res://scenes/CombatView.tscn" id="1"]
+[ext_resource type="Script" uid="uid://dgmadxqjln56b" path="res://scripts/main.gd" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/UnitSelect.tscn" id="3"]
+
+[node name="Main" type="Node"]
+script = ExtResource("2")
+
+[node name="TitleMenu" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="TitleMenu"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_top = 80.0
+offset_right = -80.0
+offset_bottom = -80.0
+theme_override_constants/separation = 16
+
+[node name="GameTitle" type="Label" parent="TitleMenu/VBox"]
+layout_mode = 2
+text = "Gamble Battle"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitleMenu/VBox"]
+layout_mode = 2
+text = "Autobattler roguelite"
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="TitleMenu/VBox"]
+layout_mode = 2
+text = "Start"
+
+[node name="QuitButton" type="Button" parent="TitleMenu/VBox"]
+layout_mode = 2
+text = "Quit"
+
+[node name="CombatView" parent="." instance=ExtResource("1")]
+visible = false
+
+[node name="UnitSelect" parent="." instance=ExtResource("3")]
+visible = false
+

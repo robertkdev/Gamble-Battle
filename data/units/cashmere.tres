@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "cashmere"
+name = "Cashmere"
+sprite_path = "res://assets/units/cashmere.png"
+ability_id = "cashmere_arcane_ledger"
+traits = ["Arcanist", "Mogul"]
+roles = ["mage"]
+cost = 1
+level = 1
+

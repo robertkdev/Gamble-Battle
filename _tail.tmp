@@ -1,0 +1,74 @@
+		if mr.a_wins > 0:
+			fastest.append({"pair": "%s vs %s" % [mr.a_id, mr.b_id], "winner": mr.a_id, "t": s.a_avg_time})
+		if mr.b_wins > 0:
+			fastest.append({"pair": "%s vs %s" % [mr.a_id, mr.b_id], "winner": mr.b_id, "t": s.b_avg_time})
+	fastest.sort_custom(func(x, y): return float(x.t) < float(y.t))
+
+	print("\n=== Fastest Average Kills ===")
+	for i in range(min(15, fastest.size())):
+		var r = fastest[i]
+		print("%2d. %-18s winner=%-10s avg_t=%.2fs" % [i + 1, r.pair, r.winner, r.t])
+
+	var margins: Array = []
+	for mr2: MatchResult in results:
+		var s2 := mr2.summary()
+		if mr2.a_wins > 0:
+			margins.append({"pair": "%s vs %s" % [mr2.a_id, mr2.b_id], "winner": mr2.a_id, "hp": s2.a_avg_hp})
+		if mr2.b_wins > 0:
+			margins.append({"pair": "%s vs %s" % [mr2.a_id, mr2.b_id], "winner": mr2.b_id, "hp": s2.b_avg_hp})
+	margins.sort_custom(func(x, y): return int(y.hp) - int(x.hp))
+
+	print("\n=== Largest Average HP Margin ===")
+	for i2 in range(min(15, margins.size())):
+		var r2 = margins[i2]
+		print("%2d. %-18s winner=%-10s avg_hp=%d" % [i2 + 1, r2.pair, r2.winner, r2.hp])
+
+	print("\n=== Matrix (excerpt) ===")
+	results.sort_custom(func(m1: MatchResult, m2: MatchResult): return m1.a_id + m1.b_id < m2.a_id + m2.b_id)
+	for k in range(min(20, results.size())):
+		var mr3: MatchResult = results[k]
+		var s3 := mr3.summary()
+		print("%s vs %s  a%%=%.2f  b%%=%.2f  draws=%.2f  a_t=%.2f  b_t=%.2f" % [s3.a, s3.b, s3.a_win_pct, s3.b_win_pct, s3.draw_pct, s3.a_avg_time, s3.b_avg_time])
+
+func _parse_args(argv: PackedStringArray) -> Dictionary:
+	var out := {}
+	var seen_sep := false
+	for a in argv:
+		if a == "--":
+			seen_sep = true
+			continue
+		var s := String(a)
+		if (not seen_sep) and (not s.contains("=")):
+			continue
+		var parts := s.split("=", false, 2)
+		if parts.size() == 2:
+			out[parts[0].lstrip("-")] = parts[1]
+	return out
+
+func _split_csv(s: String) -> PackedStringArray:
+	var out: PackedStringArray = []
+	if s.strip_edges() == "":
+		return out
+	for p in s.split(","):
+		var v := String(p).strip_edges().to_lower()
+		if v != "":
+			out.append(v)
+	return out
+
+func _csv_to_ints(s: String) -> PackedInt32Array:
+	var out: PackedInt32Array = []
+	if s.strip_edges() == "":
+		return out
+	for p in s.split(","):
+		var v := String(p).strip_edges()
+		if v.is_valid_int():
+			out.append(int(v))
+	return out
+
+func _join_strings(arr: PackedStringArray, sep: String) -> String:
+	var s := ""
+	for i in arr.size():
+		if i > 0:
+			s += sep
+		s += arr[i]
+	return s

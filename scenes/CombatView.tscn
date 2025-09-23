@@ -12,6 +12,15 @@ grow_vertical = 2
 script = ExtResource("1")
 metadata/_edit_use_anchors_ = true
 
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
 anchor_right = 1.0
@@ -36,100 +45,458 @@ horizontal_alignment = 2
 
 [node name="StageLabel" type="Label" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 61
 text = "Stage 1"
 horizontal_alignment = 1
 
-[node name="TopArea" type="Control" parent="MarginContainer/VBoxContainer"]
+[node name="BattleArea" type="Control" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+
+[node name="LeftItemArea" type="Control" parent="MarginContainer/VBoxContainer/BattleArea"]
+custom_minimum_size = Vector2(320, 480)
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -240.0
+offset_right = 320.0
+offset_bottom = 240.0
+grow_vertical = 2
+
+[node name="ItemStorageGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/LeftItemArea"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+grow_vertical = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 6
+
+[node name="PlanningArea" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleArea"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+metadata/_edit_use_anchors_ = true
+
+[node name="TopArea" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea"]
 custom_minimum_size = Vector2(0, 216)
 layout_mode = 2
 
-[node name="EnemyGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/TopArea"]
+[node name="EnemyGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea"]
 custom_minimum_size = Vector2(576, 216)
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 8
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
-offset_left = -288.0
-offset_right = 288.0
-offset_bottom = 216.0
+anchor_bottom = 0.5
+offset_left = -316.0
+offset_top = -116.0
+offset_right = 316.0
+offset_bottom = 116.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
 columns = 8
 
-[node name="EnemyUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/TopArea"]
+[node name="TileE_00" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_01" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_02" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_03" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_04" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_05" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_06" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_07" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_08" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_09" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_10" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_11" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_12" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_13" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_14" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_15" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_16" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_17" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_18" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_19" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_20" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_21" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_22" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileE_23" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="EnemyUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea"]
+custom_minimum_size = Vector2(3.855, 0)
 layout_mode = 2
 anchors_preset = 0
+anchor_left = 0.597917
+anchor_top = 1.20833
+anchor_right = 0.627083
+anchor_bottom = 1.44444
+metadata/_edit_use_anchors_ = true
 
-[node name="EnemySprite" type="TextureRect" parent="MarginContainer/VBoxContainer/TopArea/EnemyUnitHolder"]
+[node name="EnemySprite" type="TextureRect" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyUnitHolder"]
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
 expand_mode = 1
 
-[node name="EnemyHPBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/TopArea/EnemyUnitHolder"]
-layout_mode = 2
-size_flags_horizontal = 3
-step = 1.0
-value = 100.0
-show_percentage = false
-
-[node name="ArenaContainer" type="Control" parent="MarginContainer/VBoxContainer"]
-visible = false
-custom_minimum_size = Vector2(0, 456)
+[node name="BottomArea" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea"]
+custom_minimum_size = Vector2(0, 216)
 layout_mode = 2
 
-[node name="ArenaBackground" type="ColorRect" parent="MarginContainer/VBoxContainer/ArenaContainer"]
-layout_mode = 2
+[node name="PlayerGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea"]
+custom_minimum_size = Vector2(576, 216)
+layout_mode = 1
+anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -288.0
-offset_right = 288.0
-offset_bottom = 456.0
-color = Color(0.07, 0.07, 0.1, 1)
+offset_left = -316.0
+offset_right = 316.0
+offset_bottom = 232.0
+grow_horizontal = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 8
 
-[node name="ArenaUnits" type="Control" parent="MarginContainer/VBoxContainer/ArenaContainer"]
+[node name="TileP_00" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_01" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_02" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_03" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_04" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_05" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_06" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_07" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_08" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_09" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_10" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_11" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_12" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_13" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_14" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_15" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_16" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_17" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_18" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_19" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_20" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_21" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_22" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="TileP_23" type="Button" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+focus_mode = 0
+disabled = true
+
+[node name="PlayerUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea"]
 layout_mode = 2
 anchors_preset = 0
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -288.0
-offset_right = 288.0
-offset_bottom = 456.0
+
+[node name="PlayerSprite" type="TextureRect" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerUnitHolder"]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+expand_mode = 1
+
+[node name="BottomStorageArea" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="UnitStorageGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomStorageArea"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 10
+
+[node name="ShopGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomStorageArea"]
+custom_minimum_size = Vector2(1000, 72)
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 6
+
+[node name="ArenaContainer" type="Control" parent="MarginContainer/VBoxContainer/BattleArea"]
+z_index = 10
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ArenaBackground" type="ColorRect" parent="MarginContainer/VBoxContainer/BattleArea/ArenaContainer"]
+layout_mode = 2
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.219608)
+
+[node name="ArenaUnits" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ArenaContainer"]
+layout_mode = 2
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
-
-[node name="BottomArea" type="Control" parent="MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 216)
-layout_mode = 2
-
-[node name="PlayerGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BottomArea"]
-custom_minimum_size = Vector2(576, 216)
-layout_mode = 2
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = -288.0
-offset_right = 288.0
-offset_bottom = 216.0
-columns = 8
-
-[node name="PlayerUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/BottomArea"]
-layout_mode = 2
-anchors_preset = 0
-
-[node name="PlayerSprite" type="TextureRect" parent="MarginContainer/VBoxContainer/BottomArea/PlayerUnitHolder"]
-custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
-expand_mode = 1
-
-[node name="PlayerHPBar" type="ProgressBar" parent="MarginContainer/VBoxContainer/BottomArea/PlayerUnitHolder"]
-layout_mode = 2
-size_flags_horizontal = 3
-step = 1.0
-value = 100.0
-show_percentage = false
+metadata/_edit_use_anchors_ = true
 
 [node name="Log" type="RichTextLabel" parent="MarginContainer/VBoxContainer"]
 visible = false
 layout_mode = 2
 
 [node name="ActionsRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 70.23)
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 13
+
+[node name="GoldLabel" type="Label" parent="MarginContainer/VBoxContainer/ActionsRow"]
+layout_mode = 2
+text = "Gold: 2"
+
+[node name="MenuButton" type="Button" parent="MarginContainer/VBoxContainer/ActionsRow"]
+layout_mode = 2
+text = "Menu"
 
 [node name="AttackButton" type="Button" parent="MarginContainer/VBoxContainer/ActionsRow"]
 visible = false
@@ -141,37 +508,22 @@ layout_mode = 2
 disabled = true
 text = "Continue"
 
-[node name="PowerupPanel" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
+[node name="BetRow" type="HBoxContainer" parent="MarginContainer/VBoxContainer/ActionsRow"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+[node name="BetLabel" type="Label" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
 layout_mode = 2
-text = "Choose one powerup:"
+text = "Bet:"
 
-[node name="PowerupBtn1" type="Button" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+[node name="BetSlider" type="HSlider" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
-text = "Option 1"
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 2.0
+value = 1.0
 
-[node name="PowerupBtn2" type="Button" parent="MarginContainer/VBoxContainer/PowerupPanel"]
+[node name="BetValue" type="Label" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
 layout_mode = 2
-text = "Option 2"
-
-[node name="PowerupBtn3" type="Button" parent="MarginContainer/VBoxContainer/PowerupPanel"]
-layout_mode = 2
-text = "Option 3"
-
-[node name="ProgressBar" type="ProgressBar" parent="."]
-layout_mode = 0
-offset_right = 4.0
-offset_bottom = 27.0
-
-[node name="DragLayer" type="CanvasLayer" parent="."]
-
-[node name="DragRoot" type="Control" parent="DragLayer"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
+text = "1"

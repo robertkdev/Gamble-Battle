@@ -1,12 +1,14 @@
 extends DragAndDroppable
 class_name UnitView
 
+const UI := preload("res://scripts/constants/ui_constants.gd")
+
 var unit: Unit
 var sprite: TextureRect
 var hp_bar: ProgressBar
 var mana_bar: ProgressBar
 
-const TILE_SIZE := 72
+const TILE_SIZE := UI.TILE_SIZE
 
 func _ready() -> void:
 	super._ready()
@@ -15,9 +17,7 @@ func _ready() -> void:
 	content_root_path = NodePath(".")
 	drag_size = Vector2(TILE_SIZE, TILE_SIZE)
 	# Allow drag outside of combat for units
-	var main := get_tree().root.get_node_or_null("/root/Main")
-	if main:
-		allowed_phases = [main.GamePhase.PREVIEW, main.GamePhase.POST_COMBAT]
+	allowed_phases = [GameState.GamePhase.PREVIEW, GameState.GamePhase.POST_COMBAT]
 
 func _ensure_children() -> void:
 	if not sprite:

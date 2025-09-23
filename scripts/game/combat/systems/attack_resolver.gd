@@ -6,15 +6,17 @@ var target_controller: TargetController
 var rng: RandomNumberGenerator
 var player_ref: Unit
 var deterministic_rolls: bool = true
+var ability_system: AbilitySystem = null
+var buff_system: BuffSystem = null
 
 var total_damage_player: int = 0
 var total_damage_enemy: int = 0
 
 var frame_damage_player: int = 0
 var frame_damage_enemy: int = 0
-var frame_player_dead: bool = false
-var frame_enemy_dead: bool = false
-var frame_double_ko: bool = false
+var frame_player_team_defeated: bool = false
+var frame_enemy_team_defeated: bool = false
+## double KO bookkeeping (deprecated) removed
 
 var emitters: Dictionary = {}
 
@@ -22,12 +24,14 @@ var debug_pairs: int = 0
 var debug_shots: int = 0
 var debug_double_lethals: int = 0
 
-func configure(_state: BattleState, _target_controller: TargetController, _rng: RandomNumberGenerator, _player_ref: Unit, _emitters: Dictionary) -> void:
+func configure(_state: BattleState, _target_controller: TargetController, _rng: RandomNumberGenerator, _player_ref: Unit, _emitters: Dictionary, _ability_system: AbilitySystem = null, _buff_system: BuffSystem = null) -> void:
 	state = _state
 	target_controller = _target_controller
 	rng = _rng
 	player_ref = _player_ref
 	emitters = _emitters.duplicate()
+	ability_system = _ability_system
+	buff_system = _buff_system
 
 func set_deterministic_rolls(flag: bool) -> void:
 	deterministic_rolls = flag
@@ -39,17 +43,10 @@ func reset_totals() -> void:
 func begin_frame() -> void:
 	frame_damage_player = 0
 	frame_damage_enemy = 0
-	frame_player_dead = false
-	frame_enemy_dead = false
-	frame_double_ko = false
-
-func resolve_pairs(pairs: Array) -> void:
-	for pair in pairs:
-		if typeof(pair) != TYPE_ARRAY or pair.size() < 2:
-			continue
-		var result: Dictionary = _resolve_pair(pair[0], pair[1])
-		if result.get("double_ko", false):
-			frame_double_ko = true
+	frame_player_team_defeated = false
+	frame_enemy_team_defeated = false
+	# no double KO tracking
+# pairs path removed
 
 func resolve_ordered(events: Array[AttackEvent]) -> void:
 	for event in events:
@@ -80,8 +77,37 @@ func apply_projectile_hit(source_team: String, source_index: int, target_index: 
 		else:
 			_emit_log("%s blocked your attack." % tgt.name)
 		return response
-	var dealt: int = int(tgt.take_damage(damage))
+	# --- Full stat pipeline (shared via DamageMath) ---
+	var DamageMathRef = preload("res://scripts/game/combat/damage_math.gd")
+	# 1) Base components
+	var phys_base: float = max(0.0, float(src.attack_damage))
+	var magic_base: float = max(0.0, float(src.spell_power))
+	if crit:
+		phys_base *= max(1.0, float(src.crit_damage))
+
+	var phys_dealt: float = DamageMathRef.physical_after_armor(phys_base, src, tgt)
+	var magic_dealt: float = DamageMathRef.magic_after_resist(magic_base, src, tgt)
+	var true_dealt: float = max(0.0, float(src.true_damage))
+	var total: float = DamageMathRef.apply_reduction(phys_dealt + magic_dealt + true_dealt, tgt)
+	# Nyxa Chaos Volley additional per-shot damage while active
+	if buff_system != null and buff_system.has_tag(state, source_team, source_index, "nyxa_cv_active"):
+		var meta: Dictionary = buff_system.get_tag_data(state, source_team, source_index, "nyxa_cv_active")
+		var bonus: int = int(meta.get("damage_bonus", 0))
+		if bonus > 0:
+			total += float(bonus)
+	var dealt_pre: int = int(max(0.0, round(total)))
+	var absorbed: int = 0
+	var dealt: int = dealt_pre
+	if buff_system != null:
+		var shield_res: Dictionary = buff_system.absorb_with_shields(tgt, dealt_pre)
+		absorbed = int(shield_res.get("absorbed", 0))
+		dealt = int(shield_res.get("leftover", dealt_pre))
+	if absorbed > 0:
+		_emit_log("%s's shield absorbed %d damage." % [tgt.name, absorbed])
+	dealt = int(tgt.take_damage(dealt))
 	response["dealt"] = dealt
+	if absorbed > 0:
+		response["absorbed"] = absorbed
 	response["after_hp"] = int(tgt.hp)
 	if source_team == "player":
 		total_damage_player += dealt
@@ -101,6 +127,18 @@ func apply_projectile_hit(source_team: String, source_index: int, target_index: 
 	_emit_unit_stat(source_team, source_index, {"hp": src.hp, "mana": src.mana})
 	_emit_unit_stat(tgt_team, target_index, {"hp": tgt.hp})
 	_emit_stats()
+	# Emit detailed hit analytics (parity with pair path)
+	var player_cd_now: float = 0.0
+	var enemy_cd_now: float = 0.0
+	if source_team == "player":
+		player_cd_now = _cd_safe("player", source_index)
+		enemy_cd_now = _cd_safe("enemy", target_index)
+		_emit_hit("player", source_index, target_index, damage, dealt, crit, before_hp, int(tgt.hp), player_cd_now, enemy_cd_now)
+	else:
+		player_cd_now = _cd_safe("player", target_index)
+		enemy_cd_now = _cd_safe("enemy", source_index)
+		_emit_hit("enemy", source_index, target_index, damage, dealt, crit, before_hp, int(tgt.hp), player_cd_now, enemy_cd_now)
+
 	_update_frame_deaths(source_team)
 	return response
 
@@ -109,16 +147,16 @@ func totals() -> Dictionary:
 
 func frame_status() -> Dictionary:
 	return {
-		"player_dead": frame_player_dead,
-		"enemy_dead": frame_enemy_dead,
-		"double_ko": frame_double_ko
+		"player_team_defeated": frame_player_team_defeated,
+		"enemy_team_defeated": frame_enemy_team_defeated
 	}
 
 func frame_damage_summary() -> Dictionary:
 	return {"player": frame_damage_player, "enemy": frame_damage_enemy}
 
 func _resolve_pair(player_event: AttackEvent, enemy_event: AttackEvent) -> Dictionary:
-	var summary: Dictionary = {"double_ko": false}
+	# Deprecated; kept only to avoid breakage if referenced.
+	var summary: Dictionary = {}
 	if not state:
 		return summary
 	var p_idx: int = player_event.shooter_index
@@ -160,8 +198,7 @@ func _resolve_pair(player_event: AttackEvent, enemy_event: AttackEvent) -> Dicti
 	if e_dealt > 0 and enemy_unit.lifesteal > 0.0:
 		enemy_unit.hp = min(enemy_unit.max_hp, enemy_unit.hp + int(float(e_dealt) * enemy_unit.lifesteal))
 	if p_dealt >= p_before and e_dealt >= e_before:
-		frame_double_ko = true
-		summary["double_ko"] = true
+		# double KO path deprecated
 		debug_double_lethals += 1
 	total_damage_player += p_dealt
 	total_damage_enemy += e_dealt
@@ -173,8 +210,10 @@ func _resolve_pair(player_event: AttackEvent, enemy_event: AttackEvent) -> Dicti
 	var enemy_lifesteal: int = int(float(e_dealt) * enemy_unit.lifesteal)
 	_emit_log("You hit %s for %d%s. Lifesteal +%d." % [ptgt.name, p_dealt, (" (CRIT)" if player_event.crit else ""), player_lifesteal])
 	_emit_log("%s hits you for %d%s." % [enemy_unit.name, e_dealt, (" (CRIT)" if enemy_event.crit else "")])
-	_emit_unit_stat("enemy", p_idx, {"hp": player_unit.hp, "mana": player_unit.mana})
-	_emit_unit_stat("player", e_idx, {"hp": enemy_unit.hp, "mana": enemy_unit.mana})
+	# Update shooter stats on their own teams
+	_emit_unit_stat("player", p_idx, {"hp": player_unit.hp, "mana": player_unit.mana})
+	_emit_unit_stat("enemy", e_idx, {"hp": enemy_unit.hp, "mana": enemy_unit.mana})
+	# Update targets on the opposite teams
 	_emit_unit_stat("enemy", p_target_idx, {"hp": ptgt.hp})
 	_emit_unit_stat("player", e_target_idx, {"hp": etgt.hp})
 	_emit_stats()
@@ -185,9 +224,9 @@ func _resolve_pair(player_event: AttackEvent, enemy_event: AttackEvent) -> Dicti
 	var player_all_dead: bool = BattleState.all_dead(state.player_team)
 	var enemy_all_dead: bool = BattleState.all_dead(state.enemy_team)
 	if player_all_dead:
-		frame_player_dead = true
+		frame_player_team_defeated = true
 	if enemy_all_dead:
-		frame_enemy_dead = true
+		frame_enemy_team_defeated = true
 	return summary
 
 func _resolve_single_event(event: AttackEvent) -> void:
@@ -207,18 +246,39 @@ func _resolve_single_event(event: AttackEvent) -> void:
 	var roll: Dictionary = _attack_roll(shooter)
 	event.rolled_damage = int(roll["damage"])
 	event.crit = bool(roll["crit"])
-	_emit_projectile(team, shooter_index, target_idx, event.rolled_damage, event.crit)
+	# If Chaos Volley active, send base shot to a random alive enemy (range bypass)
+	var base_tgt_idx: int = target_idx
+	if buff_system != null and buff_system.has_tag(state, team, shooter_index, "nyxa_cv_active"):
+		var alive: Array[int] = []
+		var earr: Array[Unit] = _unit_array(target_team)
+		for ei in range(earr.size()):
+			var eu: Unit = earr[ei]
+			if eu and eu.is_alive():
+				alive.append(ei)
+		if not alive.is_empty():
+			base_tgt_idx = (rng.randi_range(0, alive.size() - 1) if rng else alive[0])
+	_emit_projectile(team, shooter_index, base_tgt_idx, event.rolled_damage, event.crit)
 	debug_shots += 1
-	var outcome: Dictionary = apply_projectile_hit(team, shooter_index, target_idx, event.rolled_damage, event.crit, true)
-	if not outcome.get("processed", false):
-		return
-	var before_hp: int = int(outcome.get("before_hp", int(target.hp)))
-	var after_hp: int = int(outcome.get("after_hp", int(target.hp)))
-	var dealt: int = int(outcome.get("dealt", 0))
-	var player_cd: float = _cd_safe("player", shooter_index) if team == "player" else _cd_safe("player", 0)
-	var enemy_cd: float = _cd_safe("enemy", shooter_index) if team == "enemy" else _cd_safe("enemy", 0)
-
-	_emit_hit(team, shooter_index, target_idx, event.rolled_damage, dealt, event.crit, before_hp, after_hp, player_cd, enemy_cd)
+	# Chaos Volley: while active tag is present, fire extra arrows at random alive enemies (range bypass)
+	if buff_system != null and buff_system.has_tag(state, team, shooter_index, "nyxa_cv_active"):
+		var meta: Dictionary = buff_system.get_tag_data(state, team, shooter_index, "nyxa_cv_active")
+		var extra: int = int(meta.get("extra", 0))
+		if extra > 0:
+			var enemy_team: String = _other_team(team)
+			var alive: Array[int] = []
+			var earr: Array[Unit] = _unit_array(enemy_team)
+			for ei in range(earr.size()):
+				var eu: Unit = earr[ei]
+				if eu and eu.is_alive():
+					alive.append(ei)
+			if not alive.is_empty():
+				for _i in range(extra):
+					var pick_idx: int = (rng.randi_range(0, alive.size() - 1) if rng else 0)
+					var extra_tgt: int = alive[pick_idx]
+					_emit_projectile(team, shooter_index, extra_tgt, event.rolled_damage, event.crit)
+					debug_shots += 1
+	# Damage, lifesteal, stats, and hit events are now applied only on projectile impact
+	# via CombatEngine.on_projectile_hit -> ProjectileHandler -> apply_projectile_hit.
 
 func _attack_roll(u: Unit) -> Dictionary:
 	if not u:
@@ -233,12 +293,21 @@ func _after_attack_mana_gain(team: String, index: int, src: Unit) -> void:
 		return
 	var gain: int = int(max(0, int(src.mana_gain_per_attack)))
 	if gain > 0 and src.mana_max > 0:
-		src.mana = min(src.mana_max, src.mana + gain)
-		if src.mana >= src.mana_max:
-			var ability_name: String = _ability_name_for(src)
-			var readable_name: String = src.name if src.name != "" else "Unit"
-			_emit_log("%s used %s!" % [readable_name, ability_name])
-			src.mana = 0
+		var block_mana_gain: bool = false
+		if buff_system != null:
+			# Disable on-hit mana gain while Chaos Volley tag is active
+			if buff_system.has_tag(state, team, index, "nyxa_cv_active"):
+				block_mana_gain = true
+		if not block_mana_gain:
+			src.mana = min(src.mana_max, src.mana + gain)
+			if src.mana >= src.mana_max:
+				if ability_system != null:
+					var cast_res: Dictionary = ability_system.try_cast(team, index)
+					# Only zero mana on successful cast (handled by AbilitySystem)
+					pass
+				else:
+					# No ability system wired; leave mana as-is (no-op)
+					pass
 	_emit_unit_stat(team, index, {"mana": src.mana})
 	_emit_stats()
 
@@ -258,12 +327,12 @@ func _update_frame_deaths(source_team: String) -> void:
 		return
 	var min_cd: float = _min_cd(_other_cds(source_team))
 	if min_cd <= 0.0001:
-		frame_enemy_dead = true
-		frame_player_dead = true
+		frame_enemy_team_defeated = true
+		frame_player_team_defeated = true
 	elif source_team == "player":
-		frame_enemy_dead = true
+		frame_enemy_team_defeated = true
 	else:
-		frame_player_dead = true
+		frame_player_team_defeated = true
 
 func _emit_projectile(team: String, shooter_index: int, target_index: int, damage: int, crit: bool) -> void:
 	_emit("projectile_fired", [team, shooter_index, target_index, damage, crit])

@@ -64,6 +64,20 @@ func attach(control: Control, idx: int) -> void:
 	_occupants[idx] = control
 	_index_by_control[control] = idx
 
+func clear() -> void:
+	# Remove all children from each tile and reset occupancy maps
+	for i in range(_tiles.size()):
+		var tile: Control = _tiles[i]
+		if not is_instance_valid(tile):
+			continue
+		for child in tile.get_children():
+			if child is Node:
+				child.queue_free()
+	_occupants.clear()
+	for i in range(_tiles.size()):
+		_occupants.append(null)
+	_index_by_control.clear()
+
 func get_center(idx: int) -> Vector2:
 	var tile := tile_at(idx)
 	if not tile:

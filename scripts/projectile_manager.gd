@@ -10,12 +10,7 @@ signal projectile_hit(source_team: String, source_index: int, target_index: int,
 var _projectiles: Array[Dictionary] = []
 var _to_remove: Array[int] = []
 
-var player_sprite: TextureRect
-var enemy_sprite: TextureRect
-
-func configure(_player_sprite: TextureRect, _enemy_sprite: TextureRect) -> void:
-	player_sprite = _player_sprite
-	enemy_sprite = _enemy_sprite
+func configure() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	z_index = 100 # render on top of most UI
 	# Cover the whole view and render above containers
@@ -51,14 +46,17 @@ func fire_basic(
 		color: Color = Color(1,1,1,1),
 		target_control: Control = null,
 		target_index: int = -1,
-		source_control: Control = null
-	) -> void:
+		source_control: Control = null,
+		arc_curve: float = 0.0,
+		arc_freq: float = 6.0
+) -> void:
 	var dir: Vector2 = (end_pos - start_pos)
 	var dist: float = max(1.0, dir.length())
 	dir /= dist
 	var proj: Dictionary = {
 		"pos": start_pos,
 		"vel": dir * speed,
+		"speed": float(speed),
 		"radius": radius,
 		"color": color,
 		"source_team": source_team,
@@ -68,6 +66,10 @@ func fire_basic(
 		"target_index": int(target_index),
 		"target_control": target_control,
 		"source_control": source_control,
+		"arc_curve": max(0.0, float(arc_curve)),
+		"arc_freq": max(0.0, float(arc_freq)),
+		"arc_phase": randf() * (PI * 2.0),
+		"elapsed": 0.0,
 	}
 	_projectiles.append(proj)
 	queue_redraw()
@@ -83,7 +85,29 @@ func _process(delta: float) -> void:
 		if i >= _projectiles.size():
 			break
 		var p: Dictionary = _projectiles[i]
+		# Home towards current target position if available
+		var speed: float = float(p.get("speed", 600.0))
+		var tc = p.get("target_control", null)
+		if tc and is_instance_valid(tc):
+			var target_rect: Rect2 = (tc as Control).get_global_rect()
+			var target_center: Vector2 = target_rect.get_center()
+			var cur_pos: Vector2 = p["pos"]
+			var d: Vector2 = target_center - cur_pos
+			if d.length() > 0.001:
+				var base_dir: Vector2 = d.normalized()
+				var curve: float = float(p.get("arc_curve", 0.0))
+				if curve > 0.0:
+					var freq: float = float(p.get("arc_freq", 6.0))
+					var t: float = float(p.get("elapsed", 0.0))
+					var phase: float = float(p.get("arc_phase", 0.0))
+					var perp: Vector2 = Vector2(-base_dir.y, base_dir.x)
+					var sway: float = sin(t * freq + phase) * curve
+					var dir2: Vector2 = (base_dir + perp * sway).normalized()
+					p["vel"] = dir2 * speed
+				else:
+					p["vel"] = base_dir * speed
 		p["pos"] = (p["pos"] as Vector2) + (p["vel"] as Vector2) * delta
+		p["elapsed"] = float(p.get("elapsed", 0.0)) + delta
 		_projectiles[i] = p
 
 		var target_rect: Rect2 = _get_target_rect_for(p)
@@ -122,11 +146,6 @@ func _get_target_rect_for(p: Dictionary) -> Rect2:
 	var tc = p.get("target_control", null)
 	if tc and is_instance_valid(tc):
 		return tc.get_global_rect()
-	# Fallbacks for legacy single-target
-	var is_player_target := String(p.get("source_team", "player")) == "enemy"
-	var spr := player_sprite if is_player_target else enemy_sprite
-	if spr and is_instance_valid(spr):
-		return spr.get_global_rect()
 	return Rect2(Vector2.ZERO, Vector2.ZERO)
 
 func _intersects_rect(pos: Vector2, radius: float, rect: Rect2) -> bool:

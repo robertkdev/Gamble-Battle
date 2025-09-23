@@ -33,10 +33,14 @@ func enable_drag(grid: BoardGrid) -> void:
     set_drop_grid(grid)
 
 func can_drag_now() -> bool:
-    var main := get_tree().root.get_node_or_null("/root/Main")
-    if main == null:
-        return true
-    var phase_ok := (allowed_phases.is_empty() or allowed_phases.has(main.game_phase))
+    # Prefer global GameState if available for phase checks
+    var current_phase: int = -1
+    if Engine.has_singleton("GameState") or has_node("/root/GameState"):
+        current_phase = GameState.phase
+    else:
+        var main := get_tree().root.get_node_or_null("/root/Main")
+        current_phase = (main.game_phase if main else -1)
+    var phase_ok := (allowed_phases.is_empty() or allowed_phases.has(current_phase))
     return phase_ok and _can_drag_extra()
 
 func _can_drag_extra() -> bool:

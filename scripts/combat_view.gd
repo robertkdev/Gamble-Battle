@@ -1,34 +1,45 @@
 extends Control
 
+const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
+const Trace := preload("res://scripts/util/trace.gd")
+const UI := preload("res://scripts/constants/ui_constants.gd")
+const G := preload("res://scripts/constants/gameplay_constants.gd")
+const ArenaControllerClass := preload("res://scripts/ui/combat/arena_controller.gd")
+const UnitSlotView := preload("res://scripts/ui/combat/unit_slot_view.gd")
+const UnitViewClass := preload("res://scripts/ui/combat/unit_view.gd")
+const ProjectileManagerScript := preload("res://scripts/projectile_manager.gd")
+const Debug := preload("res://scripts/util/debug.gd")
+
 @onready var log_label: RichTextLabel = $"MarginContainer/VBoxContainer/Log"
 @onready var player_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/PlayerStatsLabel"
 @onready var enemy_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/EnemyStatsLabel"
 @onready var stage_label: Label = $"MarginContainer/VBoxContainer/StageLabel"
-@onready var player_sprite: TextureRect = $"MarginContainer/VBoxContainer/BottomArea/PlayerUnitHolder/PlayerSprite"
-@onready var enemy_sprite: TextureRect = $"MarginContainer/VBoxContainer/TopArea/EnemyUnitHolder/EnemySprite"
-@onready var player_hp_bar: ProgressBar = $"MarginContainer/VBoxContainer/BottomArea/PlayerUnitHolder/PlayerHPBar"
-@onready var enemy_hp_bar: ProgressBar = $"MarginContainer/VBoxContainer/TopArea/EnemyUnitHolder/EnemyHPBar"
-@onready var player_grid: GridContainer = $"MarginContainer/VBoxContainer/BottomArea/PlayerGrid"
-@onready var arena_container: Control = $"MarginContainer/VBoxContainer/ArenaContainer"
-@onready var arena_background: ColorRect = $"MarginContainer/VBoxContainer/ArenaContainer/ArenaBackground"
-@onready var arena_units: Control = $"MarginContainer/VBoxContainer/ArenaContainer/ArenaUnits"
-@onready var top_area: Control = $"MarginContainer/VBoxContainer/TopArea"
-@onready var bottom_area: Control = $"MarginContainer/VBoxContainer/BottomArea"
+@onready var player_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerUnitHolder/PlayerSprite"
+@onready var enemy_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyUnitHolder/EnemySprite"
+var player_hp_bar: ProgressBar = null
+var enemy_hp_bar: ProgressBar = null
+@onready var player_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"
+@onready var arena_container: Control = $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer"
+@onready var arena_background: ColorRect = $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground"
+@onready var arena_units: Control = $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits"
+@onready var top_area: Control = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea"
+@onready var bottom_area: Control = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea"
+@onready var planning_area: Control = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea"
 const UnitActorScene := preload("res://scripts/ui/combat/unit_actor.gd")
 var player_actors: Array[UnitActor] = []
 var enemy_actors: Array[UnitActor] = []
 var arena_bounds_rect: Rect2 = Rect2()
-@onready var enemy_grid: GridContainer = $"MarginContainer/VBoxContainer/TopArea/EnemyGrid"
+@onready var enemy_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"
 @onready var attack_button: Button = $"MarginContainer/VBoxContainer/ActionsRow/AttackButton"
 @onready var continue_button: Button = $"MarginContainer/VBoxContainer/ActionsRow/ContinueButton"
-@onready var powerup_panel: VBoxContainer = $"MarginContainer/VBoxContainer/PowerupPanel"
-@onready var pbtn1: Button = $"MarginContainer/VBoxContainer/PowerupPanel/PowerupBtn1"
-@onready var pbtn2: Button = $"MarginContainer/VBoxContainer/PowerupPanel/PowerupBtn2"
-@onready var pbtn3: Button = $"MarginContainer/VBoxContainer/PowerupPanel/PowerupBtn3"
+@onready var menu_button: Button = $"MarginContainer/VBoxContainer/ActionsRow/MenuButton"
+@onready var gold_label: Label = $"MarginContainer/VBoxContainer/ActionsRow/GoldLabel"
+@onready var bet_row: HBoxContainer = $"MarginContainer/VBoxContainer/ActionsRow/BetRow"
+@onready var bet_slider: HSlider = $"MarginContainer/VBoxContainer/ActionsRow/BetRow/BetSlider"
+@onready var bet_value: Label = $"MarginContainer/VBoxContainer/ActionsRow/BetRow/BetValue"
 ## Title screen removed
 
 var manager: CombatManager
-var offered_powerups: Array[Powerup] = []
 var player_name: String = "Hero"
 var projectile_manager: ProjectileManager
 
@@ -40,11 +51,9 @@ var turn_delay: float = 0.6
 # Grid settings
 const GRID_W := 8
 const GRID_H := 3
-const TILE_SIZE := 72
+const TILE_SIZE := UI.TILE_SIZE
 const GRID_TILE_GAP := 8
 const GRID_BETWEEN_GAP := 24
-var single_grid_size: Vector2 = Vector2.ZERO
-var combined_grid_size: Vector2 = Vector2.ZERO
 var player_tiles: Array[Button] = []
 var enemy_tiles: Array[Button] = []
 var player_grid_helper: BoardGrid
@@ -61,8 +70,8 @@ var enemy2_hp_bar: ProgressBar
 var player_mana_bar: ProgressBar
 var enemy_mana_bar: ProgressBar
 var enemy2_mana_bar: ProgressBar
-var enemy_views: Array[Dictionary] = [] # each: { unit: Unit, sprite: Control, hp_bar: ProgressBar, mana_bar: ProgressBar, tile_idx: int }
-var player_views: Array[Dictionary] = [] # each: { unit: Unit, sprite: Control, hp_bar: ProgressBar, mana_bar: ProgressBar, tile_idx: int }
+var enemy_views: Array[UnitSlotView] = []
+var player_views: Array[UnitSlotView] = []
 
 # Index arrays for multi-unit placement
 var player_indices: Array[int] = []
@@ -71,38 +80,127 @@ var ally_sprite: TextureRect
 var ally_hp_bar: ProgressBar
 var ally_mana_bar: ProgressBar
 
-# Cached styleboxes for bars
-var _pb_bg_style: StyleBox = null # deprecated; styles handled by UIBars
-var _pb_hp_fill: StyleBox = null
-var _pb_mana_fill: StyleBox = null
+var arena
 
-func _calculate_single_grid_size() -> Vector2:
-	var h_gap_count: int = max(0, GRID_W - 1)
-	var v_gap_count: int = max(0, GRID_H - 1)
-	return Vector2(GRID_W * TILE_SIZE + h_gap_count * GRID_TILE_GAP, GRID_H * TILE_SIZE + v_gap_count * GRID_TILE_GAP)
+var _planning_area_prev_mouse_filter: int = 0
 
-func _calculate_combined_grid_size() -> Vector2:
-	var single: Vector2 = _calculate_single_grid_size()
-	return Vector2(single.x, single.y * 2.0 + GRID_BETWEEN_GAP)
+# --- Post-combat intermission UI ---
+var _intermission_active: bool = false
+var _intermission_elapsed: float = 0.0
+var _intermission_duration: float = 2.0
+var _intermission_bar: ProgressBar = null
+var _post_combat_outcome: String = "" # "victory" | "defeat" | ""
+var _pending_continue: bool = false
+
+func _ensure_intermission_bar() -> void:
+	if _intermission_bar and is_instance_valid(_intermission_bar):
+		return
+	_intermission_bar = ProgressBar.new()
+	add_child(_intermission_bar)
+	_intermission_bar.anchor_left = 0.0
+	_intermission_bar.anchor_top = 0.0
+	_intermission_bar.anchor_right = 1.0
+	_intermission_bar.anchor_bottom = 0.0
+	_intermission_bar.offset_left = 16.0
+	_intermission_bar.offset_right = -16.0
+	_intermission_bar.offset_top = 8.0
+	_intermission_bar.offset_bottom = 18.0
+	_intermission_bar.min_value = 0.0
+	_intermission_bar.max_value = 1.0
+	_intermission_bar.value = 0.0
+	_intermission_bar.visible = false
+
+func _start_intermission(seconds: float = 5.0) -> void:
+	_ensure_intermission_bar()
+	_intermission_duration = max(0.1, seconds)
+	_intermission_elapsed = 0.0
+	_intermission_active = true
+	_intermission_bar.value = 0.0
+	_intermission_bar.visible = true
+	set_process(true)
+
+func _finish_intermission() -> void:
+	_intermission_active = false
+	if _intermission_bar:
+		_intermission_bar.visible = false
+	# Reveal planning phase after the brief intermission
+	if arena_container and arena_container.visible:
+		_exit_combat_arena()
+	# Now enter POST_COMBAT and show deferred UI
+	GameState.set_phase(GameState.GamePhase.POST_COMBAT)
+	if projectile_manager:
+		projectile_manager.clear()
+	# Heal/reset units only now that the timer has finished
+	if manager and manager.has_method("finalize_post_combat"):
+		manager.finalize_post_combat()
+	if Engine.has_singleton("Economy") or has_node("/root/Economy"):
+		if _post_combat_outcome != "":
+			var win := _post_combat_outcome == "victory"
+			Economy.resolve(win)
+			_refresh_economy_ui()
+			if bet_slider:
+				bet_slider.editable = true
+	# Otherwise, show continue/restart prompt if pending or default flow
+	if _post_combat_outcome == "defeat" and (Engine.has_singleton("Economy") or has_node("/root/Economy")) and Economy.is_broke():
+		_on_log_line("Out of gold. Press Restart to try again.")
+		continue_button.text = "Restart"
+		continue_button.disabled = false
+		continue_button.visible = true
+		continue_button.grab_focus()
+	else:
+		continue_button.text = "Continue"
+		continue_button.disabled = false
+		continue_button.visible = true
+	_pending_continue = false
+	_post_combat_outcome = ""
+
+func set_combat_manager(m: CombatManager) -> void:
+	# Allows DI of CombatManager; wires signals safely
+	if manager and is_instance_valid(manager):
+		if manager.is_connected("battle_started", Callable(self, "_on_battle_started")):
+			manager.battle_started.disconnect(_on_battle_started)
+		if manager.is_connected("log_line", Callable(self, "_on_log_line")):
+			manager.log_line.disconnect(_on_log_line)
+		if manager.is_connected("stats_updated", Callable(self, "_on_stats_updated")):
+			manager.stats_updated.disconnect(_on_stats_updated)
+		if manager.is_connected("team_stats_updated", Callable(self, "_on_team_stats_updated")):
+			manager.team_stats_updated.disconnect(_on_team_stats_updated)
+		if manager.is_connected("unit_stat_changed", Callable(self, "_on_unit_stat_changed")):
+			manager.unit_stat_changed.disconnect(_on_unit_stat_changed)
+	manager = m
+	if manager:
+		if manager.get_parent() != self:
+			add_child(manager)
+		# Wire engine target selector so units move toward nearest valid enemy
+		# (manager defines select_closest_target: Callable)
+		manager.select_closest_target = Callable(self, "select_closest_target")
+		if not manager.is_connected("battle_started", Callable(self, "_on_battle_started")):
+			manager.battle_started.connect(_on_battle_started)
+		if not manager.is_connected("log_line", Callable(self, "_on_log_line")):
+			manager.log_line.connect(_on_log_line)
+		if not manager.is_connected("stats_updated", Callable(self, "_on_stats_updated")):
+			manager.stats_updated.connect(_on_stats_updated)
+		if not manager.is_connected("team_stats_updated", Callable(self, "_on_team_stats_updated")):
+			manager.team_stats_updated.connect(_on_team_stats_updated)
+		if not manager.is_connected("unit_stat_changed", Callable(self, "_on_unit_stat_changed")):
+			manager.unit_stat_changed.connect(_on_unit_stat_changed)
+
+func _join_strings(arr: Array, sep: String) -> String:
+	var out := ""
+	for i in range(arr.size()):
+		if i > 0:
+			out += sep
+		out += str(arr[i])
+	return out
 
 func _update_grid_metrics() -> void:
-	single_grid_size = _calculate_single_grid_size()
-	combined_grid_size = _calculate_combined_grid_size()
-	if arena_container:
-		arena_container.custom_minimum_size = combined_grid_size
-	for ctrl in [arena_background, arena_units]:
-		if ctrl:
-			ctrl.anchor_left = 0.0
-			ctrl.anchor_top = 0.0
-			ctrl.anchor_right = 0.0
-			ctrl.anchor_bottom = 0.0
-			ctrl.position = Vector2.ZERO
-			ctrl.size = combined_grid_size
-			ctrl.custom_minimum_size = combined_grid_size
+	# No-op: sizing is controlled in the scene. Move/resize BattleArea in the editor.
+	pass
 
 func _ready() -> void:
-	manager = load("res://scripts/combat_manager.gd").new()
-	add_child(manager)
+	if manager == null:
+		manager = load("res://scripts/combat_manager.gd").new()
+		add_child(manager)
 
 	# Connect signals
 	manager.battle_started.connect(_on_battle_started)
@@ -114,20 +212,30 @@ func _ready() -> void:
 		manager.unit_stat_changed.connect(_on_unit_stat_changed)
 	manager.victory.connect(_on_victory)
 	manager.defeat.connect(_on_defeat)
-	manager.powerup_choices.connect(_on_powerup_choices)
-	manager.powerup_applied.connect(_on_powerup_applied)
-	manager.prompt_continue.connect(_on_prompt_continue)
 	manager.projectile_fired.connect(_on_projectile_fired)
-	# Provide closest-target helper to the manager
-	manager.select_closest_target = Callable(self, "select_closest_target")
+	# Ensure engine uses our closest-target selector for movement/aiming
+	if manager:
+		manager.select_closest_target = Callable(self, "select_closest_target")
+
+	# Hide legacy HUD bars (single set) to keep unit bars as the only source of truth
+	if is_instance_valid(player_hp_bar):
+		player_hp_bar.visible = false
+	if is_instance_valid(enemy_hp_bar):
+		enemy_hp_bar.visible = false
 
 	# Wire buttons
 	attack_button.pressed.connect(_on_attack_pressed)
 	continue_button.pressed.connect(_on_continue_pressed)
+	if menu_button and not menu_button.is_connected("pressed", Callable(self, "_on_menu_pressed")):
+		menu_button.pressed.connect(_on_menu_pressed)
 	# title start removed
-	pbtn1.pressed.connect(func(): _on_powerup_pressed_idx(0))
-	pbtn2.pressed.connect(func(): _on_powerup_pressed_idx(1))
-	pbtn3.pressed.connect(func(): _on_powerup_pressed_idx(2))
+	# Economy UI wiring
+	if bet_slider and not bet_slider.is_connected("value_changed", Callable(self, "_on_bet_changed")):
+		bet_slider.value_changed.connect(_on_bet_changed)
+	_refresh_economy_ui()
+	if Engine.has_singleton("Economy") or has_node("/root/Economy"):
+		Economy.gold_changed.connect(func(_g): _refresh_economy_ui())
+		Economy.bet_changed.connect(func(_b): _refresh_economy_ui())
 
 	# Optional fade-in kept minimal
 	self.modulate.a = 1.0
@@ -137,6 +245,10 @@ func _ready() -> void:
 	_build_grids()
 	_prepare_sprites()
 	_prepare_projectiles()
+
+	# Configure Arena controller
+	arena = ArenaControllerClass.new()
+	arena.configure(arena_container, arena_units, player_grid_helper, enemy_grid_helper, UnitActorScene, TILE_SIZE)
 	# Set default player position (center row, column 1)
 	var default_idx := int(floor(float(GRID_H) / 2.0)) * GRID_W + 1
 	player_tile_idx = default_idx
@@ -147,20 +259,6 @@ func _ready() -> void:
 
 	if arena_container:
 		arena_container.visible = false
-	if arena_background:
-		arena_background.anchor_left = 0.0
-		arena_background.anchor_top = 0.0
-		arena_background.anchor_right = 0.0
-		arena_background.anchor_bottom = 0.0
-		arena_background.position = Vector2.ZERO
-		arena_background.size = Vector2.ZERO
-	if arena_units:
-		arena_units.anchor_left = 0.0
-		arena_units.anchor_top = 0.0
-		arena_units.anchor_right = 0.0
-		arena_units.anchor_bottom = 0.0
-		arena_units.position = Vector2.ZERO
-		arena_units.size = Vector2.ZERO
 	set_process(true)
 	# Title screen removed; awaiting external start
 
@@ -171,24 +269,20 @@ func _ready() -> void:
 
 func _init_game() -> void:
 	clear_log()
-	disable_powerup_panel()
 	continue_button.disabled = false
 	continue_button.visible = true
 	continue_button.text = "Start Battle"
 	attack_button.disabled = true
+	# Reset economy for a new run
+	if Engine.has_singleton("Economy") or has_node("/root/Economy"):
+		Economy.reset_run()
+		_refresh_economy_ui()
 	manager.stage = 1
-	manager.new_player(player_name)
-	# Set player sprite from Unit sprite path
-	if manager.player and is_instance_valid(player_sprite):
-		_set_sprite_texture(player_sprite, manager.player.sprite_path, Color(0.2, 0.6, 1.0, 1.0))
-	# Apply bar styles
-	_apply_bar_style(player_hp_bar, false)
-	_apply_bar_style(enemy_hp_bar, false)
+	# Legacy HUD bars hidden; styling not applied
 	_on_log_line("Gamble Battle")
-	_on_log_line("Player: " + player_name)
-	_on_log_line(manager.player.summary())
 	# Build teams for preview so both player and ally are visible before battle
 	manager.setup_stage_preview()
+	# Do not auto-start the battle; player starts via Continue/Start Battle
 	# Deterministic enemy preview placement (record indices only; attach during rebuild)
 	if enemy_tiles.size() == GRID_W * GRID_H:
 		enemy_tile_idx = 0
@@ -199,31 +293,95 @@ func _init_game() -> void:
 	_rebuild_enemy_views()
 	_rebuild_player_views()
 	# Phase: PREVIEW (setup phase, allow editing)
-	var main := get_tree().root.get_node_or_null("/root/Main")
-	if main and main.has_method("set_phase"):
-		main.call("set_phase", main.GamePhase.PREVIEW)
+	GameState.set_phase(GameState.GamePhase.PREVIEW)
 	# Player ally will be provided by manager.start_stage via player_team; views built on battle_started
 
 func _on_attack_pressed() -> void:
 	# No manual attacks in realtime autobattler
 	pass
 
+func _on_menu_pressed() -> void:
+	var main := get_tree().root.get_node_or_null("/root/Main")
+	if main and main.has_method("go_to_menu"):
+		main.call("go_to_menu")
+	else:
+		# Fallback: hide self and set phase
+		self.visible = false
+		GameState.set_phase(GameState.GamePhase.MENU)
+
 func _on_continue_pressed() -> void:
 	if continue_button.text == "Start Battle":
+		Trace.step("Continue pressed: Start Battle branch")
+		# Require a valid bet to start combat
+		if (not (Engine.has_singleton("Economy") or has_node("/root/Economy"))):
+			print("[CombatView] Economy not found")
+			return
+		var bet_ok: bool = Economy.set_bet(int(bet_slider.value))
+		if not bet_ok:
+			print("[CombatView] Place a bet > 0 to start")
+			return
+		Trace.step("Economy bet accepted")
 		continue_button.disabled = true
-		disable_powerup_panel()
+		# Lock bet during combat
+		if bet_slider: bet_slider.editable = false
+		# Do not allow start if player team is empty
+		if manager.player_team.is_empty():
+			print("[CombatView] Cannot start combat: player team is empty")
+			continue_button.disabled = false
+			return
+		Trace.step("Calling manager.start_stage()")
 		manager.start_stage()
+		Trace.step("Returned from manager.start_stage()")
 		return
 	if continue_button.text == "Restart":
 		_init_game()
 		return
 	# Post-victory continue to next stage
+	# Require a valid bet before continuing to the next stage
+	if not (Engine.has_singleton("Economy") or has_node("/root/Economy")):
+		print("[CombatView] Economy not found")
+		return
+	var bet_ok2: bool = Economy.set_bet(int(bet_slider.value))
+	if not bet_ok2:
+		print("[CombatView] Place a bet > 0 to continue")
+		return
 	continue_button.disabled = true
 	attack_button.disabled = false
-	disable_powerup_panel()
+	if bet_slider: bet_slider.editable = false
 	manager.continue_to_next_stage()
 
+func _auto_start_battle() -> void:
+	if not auto_combat:
+		return
+	if continue_button and continue_button.text != "Start Battle":
+		continue_button.text = "Start Battle"
+	print("[CombatView] Auto-starting battle")
+	_on_continue_pressed()
+
+func _refresh_economy_ui() -> void:
+	if not (Engine.has_singleton("Economy") or has_node("/root/Economy")):
+		return
+	if gold_label:
+		gold_label.text = "Gold: " + str(Economy.gold)
+	if bet_slider:
+		bet_slider.min_value = 1 if Economy.gold > 0 else 0
+		bet_slider.max_value = max(1, Economy.gold)
+		if Economy.current_bet > 0:
+			bet_slider.value = clamp(Economy.current_bet, bet_slider.min_value, bet_slider.max_value)
+		else:
+			bet_slider.value = min(1, bet_slider.max_value)
+	if bet_value:
+		bet_value.text = str(int(bet_slider.value))
+
+func _on_bet_changed(val: float) -> void:
+	if not (Engine.has_singleton("Economy") or has_node("/root/Economy")):
+		return
+	Economy.set_bet(int(val))
+	if bet_value:
+		bet_value.text = str(int(val))
+
 func _on_battle_started(stage: int, enemy: Unit) -> void:
+	Trace.step("CombatView._on_battle_started: begin")
 	_on_log_line("Prepare to fight.")
 	_refresh_hud()
 	stage_label.text = "Stage " + str(stage)
@@ -235,12 +393,13 @@ func _on_battle_started(stage: int, enemy: Unit) -> void:
 			enemy_indices.append(i)
 	# Enemy UnitViews will be built in _rebuild_enemy_views
 	# Build/attach views for both teams
+	Trace.step("CombatView._on_battle_started: rebuild enemy views")
 	_rebuild_enemy_views()
+	Trace.step("CombatView._on_battle_started: rebuild player views")
 	_rebuild_player_views()
 	# Phase: COMBAT (disable editing)
-	var main := get_tree().root.get_node_or_null("/root/Main")
-	if main and main.has_method("set_phase"):
-		main.call("set_phase", main.GamePhase.COMBAT)
+	GameState.set_phase(GameState.GamePhase.COMBAT)
+	Trace.step("CombatView._on_battle_started: enter arena")
 	_enter_combat_arena()
 	# Realtime combat handled by CombatManager; no manual loop needed.
 
@@ -251,131 +410,84 @@ func _on_log_line(text: String) -> void:
 	_log_to_file(text)
 
 func _log_to_file(text: String) -> void:
-	var path := "user://gameplay.log"
-	var fa := FileAccess.open(path, FileAccess.READ_WRITE)
-	if fa:
-		fa.seek_end()
-		fa.store_line(text)
-		fa.close()
+	# Disable synchronous per-line file writes during combat to avoid stalls
+	return
 
 
 func _on_stats_updated(_player: Unit, _enemy: Unit) -> void:
 	_refresh_hud()
 
 func _refresh_hud() -> void:
-	# Update health bars instead of verbose labels
-	if manager and manager.player and is_instance_valid(player_hp_bar):
-		player_hp_bar.max_value = max(1, manager.player.max_hp)
-		player_hp_bar.value = clamp(manager.player.hp, 0, manager.player.max_hp)
-		# Player mana
-		if not player_mana_bar:
-			_ensure_player_mana_bar()
-		if player_mana_bar:
-			player_mana_bar.max_value = max(0, manager.player.mana_max)
-			player_mana_bar.value = clamp(manager.player.mana, 0, manager.player.mana_max)
-	# Generic enemy bars
+	# Unit bars are updated on their own views and actors; no HUD bar updates
+	# Generic enemy bars (typed UnitSlotView)
 	if not enemy_views.is_empty():
 		for v in enemy_views:
-			var u: Unit = v["unit"]
-			var hp: ProgressBar = v["hp_bar"]
-			var mb: ProgressBar = v["mana_bar"]
-			if hp:
-				hp.max_value = max(1, u.max_hp)
-				hp.value = clamp(u.hp, 0, u.max_hp)
-			if mb:
-				mb.max_value = max(0, u.mana_max)
-				mb.value = clamp(u.mana, 0, u.mana_max)
+			if v and v.unit and v.view:
+				var u: Unit = v.unit
+				if v.view.hp_bar:
+					v.view.hp_bar.max_value = max(1, u.max_hp)
+					v.view.hp_bar.value = clamp(u.hp, 0, u.max_hp)
+				if v.view.mana_bar:
+					v.view.mana_bar.max_value = max(0, u.mana_max)
+					v.view.mana_bar.value = clamp(u.mana, 0, u.mana_max)
 
-	# Player team bars
+	# Player team bars (typed UnitSlotView)
 	if not player_views.is_empty():
 		for pv in player_views:
-			var pu: Unit = pv["unit"]
-			var php: ProgressBar = pv["hp_bar"]
-			var pmb: ProgressBar = pv["mana_bar"]
-			if php:
-				php.max_value = max(1, pu.max_hp)
-				php.value = clamp(pu.hp, 0, pu.max_hp)
-			if pmb:
-				pmb.max_value = max(0, pu.mana_max)
-				pmb.value = clamp(pu.mana, 0, pu.mana_max)
+			if pv and pv.unit and pv.view:
+				var pu: Unit = pv.unit
+				if pv.view.hp_bar:
+					pv.view.hp_bar.max_value = max(1, pu.max_hp)
+					pv.view.hp_bar.value = clamp(pu.hp, 0, pu.max_hp)
+				if pv.view.mana_bar:
+					pv.view.mana_bar.max_value = max(0, pu.mana_max)
+					pv.view.mana_bar.value = clamp(pu.mana, 0, pu.mana_max)
+
+	if manager:
+		for i in range(min(player_actors.size(), manager.player_team.size())):
+			var actor: UnitActor = player_actors[i]
+			if actor and is_instance_valid(actor):
+				actor.update_bars(manager.player_team[i])
+		for i in range(min(enemy_actors.size(), manager.enemy_team.size())):
+			var enemy_actor: UnitActor = enemy_actors[i]
+			if enemy_actor and is_instance_valid(enemy_actor):
+				enemy_actor.update_bars(manager.enemy_team[i])
 
 func _refresh_stats() -> void:
-	player_stats_label.text = "Player: " + manager.player.summary()
+	var p: Unit = null
+	if manager and manager.player_team.size() > 0:
+		for u in manager.player_team:
+			if u and u.is_alive():
+				p = u
+				break
+		if p == null:
+			p = manager.player_team[0]
+	if p:
+		player_stats_label.text = "Team: " + p.summary()
+	else:
+		player_stats_label.text = "Team: (empty)"
 	if manager.enemy:
 		enemy_stats_label.text = "Enemy:  " + manager.enemy.summary()
 	else:
-		enemy_stats_label.text = "Enemy:  ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â"
+		enemy_stats_label.text = "Enemy:  "
 
 func _on_victory(_stage: int) -> void:
 	attack_button.disabled = true
-	_exit_combat_arena()
+	_post_combat_outcome = "victory"
 	_auto_loop_running = false
-	# Post-combat phase
-	var main := get_tree().root.get_node_or_null("/root/Main")
-	if main and main.has_method("set_phase"):
-		main.call("set_phase", main.GamePhase.POST_COMBAT)
-	if projectile_manager:
-		projectile_manager.clear()
-	# Offer continue to next stage after powerups get applied
-	continue_button.text = "Continue"
-	continue_button.disabled = false
-	continue_button.visible = true
+	# Begin intermission delay before leaving combat and showing any post-combat UI
+	_start_intermission(2.0)
 
 func _on_defeat(_stage: int) -> void:
 	attack_button.disabled = true
-	_exit_combat_arena()
-	disable_powerup_panel()
-	_on_log_line("Game Over. Press Restart to try again.")
-	continue_button.text = "Restart"
-	continue_button.disabled = false
-	continue_button.visible = true
-	continue_button.grab_focus()
-
+	_post_combat_outcome = "defeat"
+	# Begin intermission delay before leaving combat and showing any post-combat UI
+	_start_intermission(2.0)
 	_auto_loop_running = false
-	if projectile_manager:
-		projectile_manager.clear()
-	# Post-combat phase
-	var main := get_tree().root.get_node_or_null("/root/Main")
-	if main and main.has_method("set_phase"):
-		main.call("set_phase", main.GamePhase.POST_COMBAT)
-
-func _on_powerup_choices(options: Array[Powerup]) -> void:
-	offered_powerups = options.duplicate()
-	powerup_panel.visible = true
-	pbtn1.text = options[0].name
-	pbtn2.text = options[1].name
-	pbtn3.text = options[2].name
-	pbtn1.tooltip_text = options[0].description
-	pbtn2.tooltip_text = options[1].description
-	pbtn3.tooltip_text = options[2].description
-	pbtn1.disabled = false
-	pbtn2.disabled = false
-	pbtn3.disabled = false
-
-func _on_powerup_pressed_idx(i: int) -> void:
-	if i < 0 or i >= offered_powerups.size():
-		return
-	# prevent multiple clicks
-	pbtn1.disabled = true
-	pbtn2.disabled = true
-	pbtn3.disabled = true
-	manager.apply_powerup(offered_powerups[i])
-
-func _on_powerup_applied(_name: String) -> void:
-	disable_powerup_panel()
-
-func _on_prompt_continue() -> void:
-	continue_button.text = "Continue"
-	continue_button.disabled = false
-	continue_button.visible = true
-	continue_button.grab_focus()
-	# Stay in POST_COMBAT until next battle starts
+	# Defer any post-combat UI until after intermission
 
 func clear_log() -> void:
 	log_label.clear()
-
-func disable_powerup_panel() -> void:
-	powerup_panel.visible = false
 
 ## Title overlay removed; start via Main
 
@@ -390,13 +502,11 @@ func _start_auto_loop() -> void:
 	call_deferred("_auto_loop")
 
 func _auto_loop() -> void:
-	# Run until someone falls or we enter a selection state
+	# Run until a team is eliminated or we enter a selection state
 	while _auto_loop_running and auto_combat:
-		if not manager or not manager.player or not manager.enemy:
+		if not manager or manager.player_team.is_empty():
 			break
-		if not manager.player.is_alive() or not manager.enemy.is_alive():
-			break
-		if powerup_panel.visible:
+		if manager.is_team_defeated("player") or manager.is_team_defeated("enemy"):
 			break
 		if projectile_manager and projectile_manager.has_active():
 			pass
@@ -421,16 +531,20 @@ func _prepare_sprites() -> void:
 		enemy_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# Connect drag handling once
-	if player_sprite and not player_sprite.is_connected("gui_input", Callable(self, "_on_player_sprite_gui_input")):
-		player_sprite.gui_input.connect(_on_player_sprite_gui_input)
-	# Ensure ally sprite (when present) also connects for drag
-	if ally_sprite and not ally_sprite.is_connected("gui_input", Callable(self, "_on_ally_sprite_gui_input")):
-		ally_sprite.gui_input.connect(_on_ally_sprite_gui_input)
+	# Drag handled by UnitView; no direct sprite dragging
 
 func _prepare_projectiles() -> void:
-	projectile_manager = load("res://scripts/projectile_manager.gd").new()
-	add_child(projectile_manager)
-	projectile_manager.configure(player_sprite, enemy_sprite)
+	if not projectile_manager:
+		projectile_manager = ProjectileManagerScript.new()
+	if projectile_manager.get_parent() != self:
+		add_child(projectile_manager)
+	projectile_manager.configure()
+
+func set_projectile_manager(pm: ProjectileManager) -> void:
+	projectile_manager = pm
+	if projectile_manager.get_parent() != self:
+		add_child(projectile_manager)
+	projectile_manager.configure()
 
 func _on_projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool) -> void:
 	if not projectile_manager:
@@ -439,26 +553,55 @@ func _on_projectile_fired(source_team: String, source_index: int, target_index: 
 	var end_pos: Vector2
 	var tgt_control: Control = null
 	var color: Color
+	var src_control: Control = null
 	if source_team == "player":
 		# Source is on player team
-		var psrc := _get_player_sprite_by_index(source_index)
-		start_pos = psrc.get_global_rect().get_center() if psrc else player_grid_helper.get_center(player_tile_idx)
-		var spr: Control = _get_enemy_sprite_by_index(target_index)
-		if spr:
-			tgt_control = spr
-			end_pos = spr.get_global_rect().get_center()
+		var actor_src: UnitActor = arena.get_player_actor(source_index) if arena else null
+		if actor_src:
+			start_pos = actor_src.get_global_rect().get_center()
 		else:
-			end_pos = enemy_grid_helper.get_center(target_index)
+			var psrc := _get_player_sprite_by_index(source_index)
+			start_pos = psrc.get_global_rect().get_center() if psrc else player_grid_helper.get_center(player_tile_idx)
+		src_control = actor_src if actor_src else _get_player_sprite_by_index(source_index)
+		var actor_tgt: UnitActor = arena.get_enemy_actor(target_index) if arena else null
+		if actor_tgt:
+			tgt_control = actor_tgt
+			end_pos = actor_tgt.get_global_rect().get_center()
+		else:
+			var spr: Control = _get_enemy_sprite_by_index(target_index)
+			if spr:
+				tgt_control = spr
+				end_pos = spr.get_global_rect().get_center()
+			else:
+				end_pos = enemy_grid_helper.get_center(target_index)
 		color = Color(0.2, 0.8, 1.0)
 	else:
 		# Source is on enemy team
-		var esrc := _get_enemy_sprite_by_index(source_index)
-		start_pos = esrc.get_global_rect().get_center() if esrc else enemy_grid_helper.get_center(source_index)
-		tgt_control = _get_player_sprite_by_index(target_index)
-		end_pos = (tgt_control as Control).get_global_rect().get_center() if tgt_control else player_grid_helper.get_center(target_index)
+		var actor_esrc: UnitActor = arena.get_enemy_actor(source_index) if arena else null
+		if actor_esrc:
+			start_pos = actor_esrc.get_global_rect().get_center()
+		else:
+			var esrc := _get_enemy_sprite_by_index(source_index)
+			start_pos = esrc.get_global_rect().get_center() if esrc else enemy_grid_helper.get_center(source_index)
+		src_control = actor_esrc if actor_esrc else _get_enemy_sprite_by_index(source_index)
+		var actor_ptgt: UnitActor = arena.get_player_actor(target_index) if arena else null
+		if actor_ptgt:
+			tgt_control = actor_ptgt
+			end_pos = actor_ptgt.get_global_rect().get_center()
+		else:
+			tgt_control = _get_player_sprite_by_index(target_index)
+			end_pos = (tgt_control as Control).get_global_rect().get_center() if tgt_control else player_grid_helper.get_center(target_index)
 		color = Color(1.0, 0.4, 0.2)
-	var speed := 800.0
-	var radius := 6.0
+	var speed := G.PROJECTILE_SPEED
+	var radius := G.PROJECTILE_RADIUS
+		# Determine arc effect for ability multishot (Nyxa Chaos Volley)
+	var arc_curve: float = 0.0
+	var arc_freq: float = 6.0
+	if manager and manager.get_engine():
+		var eng = manager.get_engine()
+		if eng and eng.buff_system and eng.state and eng.buff_system.has_tag(eng.state, source_team, source_index, "nyxa_cv_active"):
+			arc_curve = 0.35 + view_rng.randf() * 0.25 # slight randomness
+			arc_freq = 5.0 + view_rng.randf() * 4.0
 	projectile_manager.fire_basic(
 		source_team,
 		source_index,
@@ -471,7 +614,9 @@ func _on_projectile_fired(source_team: String, source_index: int, target_index: 
 		color,
 		tgt_control,
 		target_index,
-		(_get_player_sprite_by_index(source_index) if source_team == "player" else _get_enemy_sprite_by_index(source_index))
+		src_control,
+		arc_curve,
+		arc_freq
 	)
 	# Ensure hit bridging is connected
 	if not projectile_manager.is_connected("projectile_hit", Callable(manager, "on_projectile_hit")):
@@ -487,171 +632,45 @@ func _set_sprite_texture(rect: TextureRect, path: String, fallback_color: Color)
 		rect.texture = tex
 		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 
-# Drag state
-var _dragging: bool = false
-var _drag_offset: Vector2 = Vector2.ZERO
-var _drag_hp_bar: ProgressBar = null
-var _drag_mana_bar: ProgressBar = null
+# Direct sprite drag removed; UnitView handles drag-and-drop
+func _begin_drag(_sprite: TextureRect, _hp_bar: ProgressBar, _mana_bar: ProgressBar) -> void:
+	pass
 
-func _begin_drag(sprite: TextureRect, hp_bar: ProgressBar, mana_bar: ProgressBar) -> void:
-	if hp_bar:
-		var p := hp_bar.get_parent()
-		if p:
-			p.remove_child(hp_bar)
-		get_tree().root.add_child(hp_bar)
-		hp_bar.anchor_left = 0.0
-		hp_bar.anchor_top = 0.0
-		hp_bar.anchor_right = 0.0
-		hp_bar.anchor_bottom = 0.0
-		hp_bar.size = Vector2(TILE_SIZE, 8)
-		hp_bar.z_index = 1001
-		_drag_hp_bar = hp_bar
-	if mana_bar:
-		var mp := mana_bar.get_parent()
-		if mp:
-			mp.remove_child(mana_bar)
-		get_tree().root.add_child(mana_bar)
-		mana_bar.anchor_left = 0.0
-		mana_bar.anchor_top = 0.0
-		mana_bar.anchor_right = 0.0
-		mana_bar.anchor_bottom = 0.0
-		mana_bar.size = Vector2(TILE_SIZE, 8)
-		mana_bar.z_index = 1001
-		_drag_mana_bar = mana_bar
-	_update_drag_bars_position(sprite)
-
-func _update_drag_bars_position(sprite: TextureRect) -> void:
-	if _drag_hp_bar:
-		_drag_hp_bar.global_position = sprite.global_position + Vector2(0, 0)
-	if _drag_mana_bar:
-		_drag_mana_bar.global_position = sprite.global_position + Vector2(0, 10)
+func _update_drag_bars_position(_sprite: TextureRect) -> void:
+	pass
 
 func _end_drag_bars() -> void:
-	_drag_hp_bar = null
-	_drag_mana_bar = null
+	pass
 
 func _on_player_sprite_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			_dragging = true
-			# Ensure fixed size while dragging to avoid stretching
-			player_sprite.anchor_left = 0.0
-			player_sprite.anchor_top = 0.0
-			player_sprite.anchor_right = 0.0
-			player_sprite.anchor_bottom = 0.0
-			player_sprite.offset_left = 0.0
-			player_sprite.offset_top = 0.0
-			player_sprite.offset_right = 0.0
-			player_sprite.offset_bottom = 0.0
-			player_sprite.size = Vector2(TILE_SIZE, TILE_SIZE)
-			# Temporarily make sprite a direct child of root to move freely
-			var parent := player_sprite.get_parent()
-			if parent:
-				parent.remove_child(player_sprite)
-			get_tree().root.add_child(player_sprite)
-			player_sprite.z_index = 1000
-			# keep the cursor near the center of the sprite
-			_drag_offset = -player_sprite.size * 0.5
-			# Float bars during drag
-			_begin_drag(player_sprite, player_hp_bar, player_mana_bar)
-		else:
-			# release: snap to nearest valid player tile
-			_dragging = false
-			player_sprite.z_index = 0
-			_snap_player_to_mouse_tile()
-			_end_drag_bars()
-	elif event is InputEventMouseMotion and _dragging:
-		player_sprite.global_position = get_viewport().get_mouse_position() + _drag_offset
-		_update_drag_bars_position(player_sprite)
+	pass
 
 func _input(event: InputEvent) -> void:
-	# Fallback to stop dragging even if sprite misses the release event
-	if _dragging and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		_dragging = false
-		player_sprite.z_index = 0
-		_snap_player_to_mouse_tile()
-		_end_drag_bars()
-	if _ally_dragging and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
-		_ally_dragging = false
-		if ally_sprite:
-			ally_sprite.z_index = 0
-			_snap_ally_to_mouse_tile()
+	pass
 
 func _process(_delta: float) -> void:
-	if _dragging:
-		player_sprite.global_position = get_viewport().get_mouse_position() + _drag_offset
-		_update_drag_bars_position(player_sprite)
-	if _ally_dragging and ally_sprite:
-		ally_sprite.global_position = get_viewport().get_mouse_position() + _ally_drag_offset
-		_update_drag_bars_position(ally_sprite)
-
+	if _intermission_active:
+		_intermission_elapsed += _delta
+		if _intermission_bar and _intermission_duration > 0.0:
+			_intermission_bar.value = clamp(_intermission_elapsed / _intermission_duration, 0.0, 1.0)
+		if _intermission_elapsed >= _intermission_duration:
+			_finish_intermission()
 	if arena_container and arena_container.visible:
 		_sync_arena_units()
 
-# --- Ally drag ---
-var _ally_dragging: bool = false
-var _ally_drag_offset: Vector2 = Vector2.ZERO
-
-func _on_ally_sprite_gui_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-		if event.pressed:
-			_ally_dragging = true
-			ally_sprite.anchor_left = 0.0
-			ally_sprite.anchor_top = 0.0
-			ally_sprite.anchor_right = 0.0
-			ally_sprite.anchor_bottom = 0.0
-			ally_sprite.offset_left = 0.0
-			ally_sprite.offset_top = 0.0
-			ally_sprite.offset_right = 0.0
-			ally_sprite.offset_bottom = 0.0
-			ally_sprite.size = Vector2(TILE_SIZE, TILE_SIZE)
-			var parent := ally_sprite.get_parent()
-			if parent:
-				parent.remove_child(ally_sprite)
-			get_tree().root.add_child(ally_sprite)
-			ally_sprite.z_index = 1000
-			_ally_drag_offset = -ally_sprite.size * 0.5
-			# Float ally bars during drag
-			_begin_drag(ally_sprite, ally_hp_bar, ally_mana_bar)
-		else:
-			_ally_dragging = false
-			ally_sprite.z_index = 0
-			_snap_ally_to_mouse_tile()
-	elif event is InputEventMouseMotion and _ally_dragging:
-		ally_sprite.global_position = get_viewport().get_mouse_position() + _ally_drag_offset
-		_update_drag_bars_position(ally_sprite)
+## Ally sprite direct drag removed; UnitView handles placement and snapping
+func _on_ally_sprite_gui_input(_event: InputEvent) -> void:
+	pass
 
 func _snap_ally_to_mouse_tile() -> void:
-	var mouse_pos := get_viewport().get_mouse_position()
-	var picked_idx := _player_tile_index_from_global(mouse_pos)
-	if picked_idx != -1:
-		ally_tile_idx = picked_idx
-		_attach_unit_to_tile(ally_sprite, ally_hp_bar, player_tiles[picked_idx])
-		if ally_mana_bar:
-			_attach_mana_bar_to_tile(ally_mana_bar, player_tiles[picked_idx])
+	pass
 
 func _snap_player_to_mouse_tile() -> void:
-	var mouse_pos := get_viewport().get_mouse_position()
-	# Find tile under mouse in player_grid
-	var picked_idx := _player_tile_index_from_global(mouse_pos)
-	if picked_idx != -1:
-		_set_player_tile(picked_idx)
-		return
-	# If not over any tile, reattach to current tile
-	if player_tile_idx != -1:
-		_attach_unit_to_tile(player_sprite, player_hp_bar, player_tiles[player_tile_idx])
+	pass
 
-func _player_tile_index_from_global(gpos: Vector2) -> int:
-	if player_grid_helper:
-		return player_grid_helper.index_at_global(gpos)
-	# Fallback manual search
-	for i in range(player_tiles.size()):
-		var tile := player_tiles[i]
-		if not is_instance_valid(tile):
-			continue
-		if tile.get_global_rect().has_point(gpos):
-			return i
+func _player_tile_index_from_global(_gpos: Vector2) -> int:
 	return -1
+
 
 
 func _make_circle_texture(color: Color, tex_size: int) -> ImageTexture:
@@ -674,42 +693,33 @@ func _make_circle_texture(color: Color, tex_size: int) -> ImageTexture:
 # --- Grid helpers ---
 
 func _build_grids() -> void:
-	# Clear existing children if any
-	for c in player_grid.get_children():
-		c.queue_free()
-	for c in enemy_grid.get_children():
-		c.queue_free()
+	# Collect pre-placed tiles from the scene (no dynamic creation)
 	player_tiles.clear()
 	enemy_tiles.clear()
-	player_grid.columns = GRID_W
-	enemy_grid.columns = GRID_W
-	# Intra-grid spacing
-	player_grid.add_theme_constant_override("h_separation", GRID_TILE_GAP)
-	player_grid.add_theme_constant_override("v_separation", GRID_TILE_GAP)
-	enemy_grid.add_theme_constant_override("h_separation", GRID_TILE_GAP)
-	enemy_grid.add_theme_constant_override("v_separation", GRID_TILE_GAP)
-	# Inter-grid spacing (vertical gap between the two grids)
-	var root_vbox := $"MarginContainer/VBoxContainer"
-	if root_vbox:
-		root_vbox.add_theme_constant_override("separation", GRID_BETWEEN_GAP)
-	for i in range(GRID_W * GRID_H):
-		# Player tile (non-clickable; drag-and-drop only)
-		var pb := Button.new()
-		pb.text = ""
-		pb.toggle_mode = false
-		pb.focus_mode = Control.FOCUS_NONE
-		pb.disabled = true
-		pb.custom_minimum_size = Vector2(TILE_SIZE, TILE_SIZE)
-		player_grid.add_child(pb)
-		player_tiles.append(pb)
-		# Enemy tile (not clickable)
-		var eb := Button.new()
-		eb.text = ""
-		eb.disabled = true
-		eb.focus_mode = Control.FOCUS_NONE
-		eb.custom_minimum_size = Vector2(TILE_SIZE, TILE_SIZE)
-		enemy_grid.add_child(eb)
-		enemy_tiles.append(eb)
+	# Player tiles
+	if player_grid:
+		for c in player_grid.get_children():
+			if c is Button:
+				var pb := c as Button
+				pb.text = ""
+				pb.toggle_mode = false
+				pb.focus_mode = Control.FOCUS_NONE
+				pb.disabled = true
+				if pb.custom_minimum_size == Vector2.ZERO:
+					pb.custom_minimum_size = Vector2(TILE_SIZE, TILE_SIZE)
+				player_tiles.append(pb)
+	# Enemy tiles
+	if enemy_grid:
+		for c in enemy_grid.get_children():
+			if c is Button:
+				var eb := c as Button
+				eb.text = ""
+				eb.toggle_mode = false
+				eb.focus_mode = Control.FOCUS_NONE
+				eb.disabled = true
+				if eb.custom_minimum_size == Vector2.ZERO:
+					eb.custom_minimum_size = Vector2(TILE_SIZE, TILE_SIZE)
+				enemy_tiles.append(eb)
 
 	# Initialize grid helpers
 	player_grid_helper = load("res://scripts/board_grid.gd").new()
@@ -717,7 +727,7 @@ func _build_grids() -> void:
 	enemy_grid_helper = load("res://scripts/board_grid.gd").new()
 	enemy_grid_helper.configure(enemy_tiles, GRID_W, GRID_H)
 
-	_update_grid_metrics()
+	# No dynamic sizing here; use BattleArea in the scene to control layout.
 
 # Click-to-place disabled entirely; placement is drag-only
 func _on_player_tile_pressed(idx: int) -> void:
@@ -730,62 +740,19 @@ func _set_player_tile(idx: int) -> void:
 	for i in range(player_tiles.size()):
 		player_tiles[i].button_pressed = (i == idx)
 	# If player exists, ensure bar values are up to date before attaching
-	if manager and manager.player and player_hp_bar:
-		player_hp_bar.max_value = max(1, manager.player.max_hp)
-		player_hp_bar.value = clamp(manager.player.hp, 0, manager.player.max_hp)
-	_ensure_player_mana_bar()
-	if manager and manager.player and player_mana_bar:
-		player_mana_bar.max_value = max(0, manager.player.mana_max)
-		player_mana_bar.value = clamp(manager.player.mana, 0, manager.player.mana_max)
-	_attach_unit_to_tile(player_sprite, player_hp_bar, player_tiles[idx])
-	_attach_mana_bar_to_tile(player_mana_bar, player_tiles[idx])
+	# Legacy HUD bars removed; skip attach
 
 func _set_enemy_tile(idx: int) -> void:
 	if idx < 0 or idx >= enemy_tiles.size():
 		return
 	enemy_tile_idx = idx
-	_apply_bar_style(enemy_hp_bar, false)
-	# If enemy exists, set values before attaching
-	if manager and manager.enemy_team.size() >= 1 and enemy_hp_bar:
-		var u0: Unit = manager.enemy_team[0]
-		enemy_hp_bar.max_value = max(1, u0.max_hp)
-		enemy_hp_bar.value = clamp(u0.hp, 0, u0.max_hp)
-	_attach_unit_to_tile(enemy_sprite, enemy_hp_bar, enemy_tiles[idx])
-	# Attach or create enemy1 mana bar
-	if not enemy_mana_bar:
-		enemy_mana_bar = _make_mana_bar()
-	if manager and manager.enemy_team.size() >= 1 and enemy_mana_bar:
-		var u0m: Unit = manager.enemy_team[0]
-		enemy_mana_bar.max_value = max(0, u0m.mana_max)
-		enemy_mana_bar.value = clamp(u0m.mana, 0, u0m.mana_max)
-	_attach_mana_bar_to_tile(enemy_mana_bar, enemy_tiles[idx])
+	# Legacy HUD bars removed; enemy UnitViews handle their own bars
 
 func _set_enemy2_tile(idx: int) -> void:
 	if idx < 0 or idx >= enemy_tiles.size():
 		return
 	enemy2_tile_idx = idx
-	if not enemy_sprite2:
-		enemy_sprite2 = TextureRect.new()
-		enemy_sprite2.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		enemy_sprite2.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		enemy_sprite2.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if not enemy2_hp_bar:
-		enemy2_hp_bar = ProgressBar.new()
-		enemy2_hp_bar.show_percentage = false
-	_apply_bar_style(enemy2_hp_bar, false)
-	# If enemy2 exists, set values before attaching
-	if manager and manager.enemy_team.size() > 1 and enemy2_hp_bar:
-		var u1: Unit = manager.enemy_team[1]
-		enemy2_hp_bar.max_value = max(1, u1.max_hp)
-		enemy2_hp_bar.value = clamp(u1.hp, 0, u1.max_hp)
-	_attach_unit_to_tile(enemy_sprite2, enemy2_hp_bar, enemy_tiles[idx])
-	if not enemy2_mana_bar:
-		enemy2_mana_bar = _make_mana_bar()
-	if manager and manager.enemy_team.size() > 1 and enemy2_mana_bar:
-		var u1m: Unit = manager.enemy_team[1]
-		enemy2_mana_bar.max_value = max(0, u1m.mana_max)
-		enemy2_mana_bar.value = clamp(u1m.mana, 0, u1m.mana_max)
-	_attach_mana_bar_to_tile(enemy2_mana_bar, enemy_tiles[idx])
+	# Legacy HUD bars removed; enemy UnitViews handle their own bars
 
 func _attach_unit_to_tile(sprite: Control, hp_bar: ProgressBar, tile: Control) -> void:
 	if not sprite or not tile:
@@ -794,7 +761,6 @@ func _attach_unit_to_tile(sprite: Control, hp_bar: ProgressBar, tile: Control) -
 	if parent:
 		parent.remove_child(sprite)
 	tile.add_child(sprite)
-	# Fill tile and keep aspect centered
 	sprite.anchor_left = 0.0
 	sprite.anchor_top = 0.0
 	sprite.anchor_right = 1.0
@@ -803,117 +769,86 @@ func _attach_unit_to_tile(sprite: Control, hp_bar: ProgressBar, tile: Control) -
 	sprite.offset_top = 0.0
 	sprite.offset_right = 0.0
 	sprite.offset_bottom = 0.0
-	# Attach HP bar to same tile, top-aligned, 8px height
-	if hp_bar:
-		var bpar := hp_bar.get_parent()
-		if bpar:
-			bpar.remove_child(hp_bar)
-		tile.add_child(hp_bar)
-		hp_bar.anchor_left = 0.0
-		hp_bar.anchor_top = 0.0
-		hp_bar.anchor_right = 1.0
-		hp_bar.anchor_bottom = 0.0
-		hp_bar.offset_left = 0.0
-		hp_bar.offset_top = 0.0
-		hp_bar.offset_right = 0.0
-		hp_bar.offset_bottom = 8.0
 
 func _attach_mana_bar_to_tile(mana_bar: ProgressBar, tile: Control) -> void:
-	if not mana_bar or not tile:
-		return
-	var bpar := mana_bar.get_parent()
-	if bpar:
-		bpar.remove_child(mana_bar)
-	tile.add_child(mana_bar)
-	mana_bar.anchor_left = 0.0
-	mana_bar.anchor_top = 0.0
-	mana_bar.anchor_right = 1.0
-	mana_bar.anchor_bottom = 0.0
-	mana_bar.offset_left = 0.0
-	mana_bar.offset_top = 10.0
-	mana_bar.offset_right = 0.0
-	mana_bar.offset_bottom = 18.0
-
-func _make_mana_bar() -> ProgressBar:
-	return load("res://scripts/ui/combat/ui_bars.gd").make_mana_bar()
-
-func _apply_bar_style(pb: ProgressBar, is_mana: bool) -> void:
-	if pb == null:
-		return
-	load("res://scripts/ui/combat/ui_bars.gd").style_bar(pb, is_mana)
+	# Legacy HUD bars removed; no-op
+	return
 
 func _ensure_player_mana_bar() -> void:
-	if not player_mana_bar:
-		player_mana_bar = _make_mana_bar()
-		if player_tile_idx >= 0:
-			_attach_mana_bar_to_tile(player_mana_bar, player_tiles[player_tile_idx])
+	# Legacy HUD bars removed; no-op
+	return
 
 func _get_enemy_sprite_by_index(i: int) -> Control:
 	if i >= 0 and i < enemy_views.size():
-		var v = enemy_views[i]
-		if v.has("sprite") and v["sprite"]:
-			return v["sprite"]
+		var v: UnitSlotView = enemy_views[i]
+		if v and v.view:
+			return v.view
 	return null
 
 func _get_player_sprite_by_index(i: int) -> Control:
 	if i >= 0 and i < player_views.size():
-		var v = player_views[i]
-		if v.has("sprite") and v["sprite"]:
-			return v["sprite"]
+		var v: UnitSlotView = player_views[i]
+		if v and v.view:
+			return v.view
 	return null
 
 func _rebuild_enemy_views() -> void:
 	enemy_views.clear()
-	# Build a UnitView for each enemy, attach to enemy grid
+	if not manager:
+		return
+	Trace.step("CombatView._rebuild_enemy_views: begin")
+	if enemy_grid_helper:
+		enemy_grid_helper.clear()
+	var summary: Array[String] = []
 	for i in range(min(manager.enemy_team.size(), enemy_tiles.size())):
 		var tile_idx: int = i
 		if tile_idx >= enemy_tiles.size():
 			continue
 		var u: Unit = manager.enemy_team[i]
-		var uv: UnitView = load("res://scripts/ui/combat/unit_view.gd").new()
+		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(u)
-		# Attach using helper if available
 		if enemy_grid_helper:
 			enemy_grid_helper.attach(uv, tile_idx)
 		else:
 			_attach_unit_to_tile(uv, null, enemy_tiles[tile_idx])
-		enemy_views.append({
-			"unit": u,
-			"sprite": uv,
-			"hp_bar": uv.hp_bar,
-			"mana_bar": uv.mana_bar,
-			"tile_idx": tile_idx,
-		})
+		var slot := UnitSlotView.new()
+		slot.unit = u
+		slot.view = uv
+		slot.tile_idx = tile_idx
+		enemy_views.append(slot)
+		var placement: String = "%d:tile%d" % [i, tile_idx]
+		if enemy_grid_helper and tile_idx >= 0:
+			placement = "%d:%s" % [i, enemy_grid_helper.get_center(tile_idx)]
+		summary.append(placement)
+	if not summary.is_empty():
+		Debug.log("Plan", "Enemy positions %s" % [_join_strings(summary, ", ")])
+	Trace.step("CombatView._rebuild_enemy_views: done")
 
 func _rebuild_player_views() -> void:
 	player_views.clear()
+	if not manager:
+		return
+	Trace.step("CombatView._rebuild_player_views: begin")
 	if manager.player_team.size() == 0:
 		return
-	# Hide scene placeholders to avoid duplication
+	if player_grid_helper:
+		player_grid_helper.clear()
 	if is_instance_valid(player_sprite):
 		player_sprite.visible = false
-	if is_instance_valid(player_hp_bar):
-		player_hp_bar.visible = false
-	if is_instance_valid(player_mana_bar):
-		player_mana_bar.visible = false
-	# Ensure indices
+	# Legacy HUD bars already hidden in _ready
 	if player_indices.size() != manager.player_team.size():
 		player_indices.clear()
 		for i in range(manager.player_team.size()):
 			player_indices.append(min(player_tiles.size() - 1, (player_tile_idx + i) % player_tiles.size()))
-	# Build each player view
+	var summary: Array[String] = []
 	for i in range(min(manager.player_team.size(), player_tiles.size())):
 		var pu: Unit = manager.player_team[i]
 		var tile_idx := player_indices[i]
 		if tile_idx < 0:
 			tile_idx = i % player_tiles.size()
-		var uv: UnitView = load("res://scripts/ui/combat/unit_view.gd").new()
+		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(pu)
-		# Enable drag only when not in combat phase
-		var allow_drag := true
-		var main := get_tree().root.get_node_or_null("/root/Main")
-		if main:
-			allow_drag = (main.game_phase != main.GamePhase.COMBAT)
+		var allow_drag := (GameState.phase != GameState.GamePhase.COMBAT)
 		if allow_drag:
 			uv.enable_drag(player_grid_helper)
 		uv.dropped_on_tile.connect(func(idx): _on_player_unit_dropped(i, idx))
@@ -921,16 +856,24 @@ func _rebuild_player_views() -> void:
 			player_grid_helper.attach(uv, tile_idx)
 		else:
 			_attach_unit_to_tile(uv, null, player_tiles[tile_idx])
-		player_views.append({
-			"unit": pu,
-			"sprite": uv,
-			"hp_bar": uv.hp_bar,
-			"mana_bar": uv.mana_bar,
-			"tile_idx": tile_idx,
-		})
+		var slot := UnitSlotView.new()
+		slot.unit = pu
+		slot.view = uv
+		slot.tile_idx = tile_idx
+		player_views.append(slot)
+		var placement: String = "%d:tile%d" % [i, tile_idx]
+		if player_grid_helper and tile_idx >= 0:
+			placement = "%d:%s" % [i, player_grid_helper.get_center(tile_idx)]
+		summary.append(placement)
+	if not summary.is_empty():
+		Debug.log("Plan", "Player positions %s" % [_join_strings(summary, ", ")])
+	Trace.step("CombatView._rebuild_player_views: done")
 
 func _on_player_unit_dropped(i: int, idx: int) -> void:
 	if idx < 0 or idx >= player_tiles.size():
+		return
+	# Guard against stale indices if views were rebuilt during drag
+	if i < 0 or i >= player_views.size():
 		return
 	# If another unit occupies target, swap
 	var j := -1
@@ -941,36 +884,53 @@ func _on_player_unit_dropped(i: int, idx: int) -> void:
 	var old_idx := player_indices[i]
 	player_indices[i] = idx
 	if j != -1:
+		if j < 0 or j >= player_views.size():
+			return
 		player_indices[j] = old_idx
 		# Swap occupants visually
-		var ctrl_i: Control = player_views[i]["sprite"]
-		var ctrl_j: Control = player_views[j]["sprite"]
+		var ctrl_i: Control = player_views[i].view
+		var ctrl_j: Control = player_views[j].view
 		if player_grid_helper:
 			player_grid_helper.attach(ctrl_i, idx)
 			player_grid_helper.attach(ctrl_j, old_idx)
+		# Keep view metadata in sync
+		player_views[i].tile_idx = idx
+		player_views[j].tile_idx = old_idx
 	else:
-		var ctrl: Control = player_views[i]["sprite"]
+		var ctrl: Control = player_views[i].view
 		if player_grid_helper and ctrl:
 			player_grid_helper.attach(ctrl, idx)
+		player_views[i].tile_idx = idx
 
 func _on_team_stats_updated(_pteam, _eteam) -> void:
 	# Apply selective refresh for bars
 	_refresh_hud()
 
 func _on_unit_stat_changed(team: String, index: int, fields: Dictionary) -> void:
-	var views := (player_views if team == "player" else enemy_views)
+	var views: Array[UnitSlotView] = (player_views if team == "player" else enemy_views)
 	if index < 0 or index >= views.size():
 		return
-	var v = views[index]
-	var hp: ProgressBar = v.get("hp_bar", null)
-	var mb: ProgressBar = v.get("mana_bar", null)
-	var u: Unit = v.get("unit", null)
-	if hp and fields.has("hp") and u:
-		hp.max_value = max(1, u.max_hp)
-		hp.value = clamp(int(fields["hp"]), 0, u.max_hp)
-	if mb and fields.has("mana") and u:
-		mb.max_value = max(0, u.mana_max)
-		mb.value = clamp(int(fields["mana"]), 0, u.mana_max)
+	var v: UnitSlotView = views[index]
+	var u: Unit = v.unit
+	if v.view and v.view.hp_bar and fields.has("hp") and u:
+		v.view.hp_bar.max_value = max(1, u.max_hp)
+		v.view.hp_bar.value = clamp(int(fields["hp"]), 0, u.max_hp)
+	if v.view and v.view.mana_bar and fields.has("mana") and u:
+		v.view.mana_bar.max_value = max(0, u.mana_max)
+		v.view.mana_bar.value = clamp(int(fields["mana"]), 0, u.mana_max)
+	# Also update active arena actors immediately to avoid relying solely on snapshot refreshes
+	if team == "player":
+		if index >= 0 and index < player_actors.size():
+			var actor: UnitActor = player_actors[index]
+			if actor and is_instance_valid(actor):
+				actor.update_bars(u)
+		# No HUD bars to update
+	else:
+		if index >= 0 and index < enemy_actors.size():
+			var eactor: UnitActor = enemy_actors[index]
+			if eactor and is_instance_valid(eactor):
+				eactor.update_bars(u)
+		# No HUD bars to update
 
 # --- Allies (modular unit UI for player side) ---
 func _spawn_ally(id: String) -> void:
@@ -1006,124 +966,221 @@ func _choose_nearest_enemy_index() -> int:
 	return indices[0]
 
 func select_closest_target(my_team: String, my_index: int, enemy_team: String) -> int:
-	# Returns enemy index or -1 by closest straight-line distance between sprite centers.
-	# Teams: "player" or "enemy".
-	var enemy_count: int = manager.enemy_team.size() if enemy_team == "enemy" else manager.player_team.size()
+	# Returns enemy index or -1 by closest straight-line distance.
+	# Prefer engine arena positions (authoritative), then arena actors, then static UnitView sprites.
+	if manager == null:
+		return -1
+	var enemy_arr: Array[Unit] = manager.enemy_team if enemy_team == "enemy" else manager.player_team
 	var alive_indices: Array[int] = []
-	for i in range(enemy_count):
-		var u: Unit = (manager.enemy_team[i] if enemy_team == "enemy" else manager.player_team[i])
+	for i in range(enemy_arr.size()):
+		var u: Unit = enemy_arr[i]
 		if u and u.is_alive():
 			alive_indices.append(i)
 	if alive_indices.is_empty():
 		return -1
-	# Get source center
-	var src_rect: Control = (_get_player_sprite_by_index(my_index) if my_team == "player" else _get_enemy_sprite_by_index(my_index))
-	if not src_rect:
+
+	# 1) Engine positions (kept in sync with movement and range gating)
+	var ppos: Array = manager.get_player_positions()
+	var epos: Array = manager.get_enemy_positions()
+	var src_pos: Vector2 = Vector2.ZERO
+	var have_engine_positions := false
+	if (my_team == "player" and my_index >= 0 and my_index < ppos.size() and typeof(ppos[my_index]) == TYPE_VECTOR2):
+		src_pos = ppos[my_index]
+		have_engine_positions = true
+	elif (my_team != "player" and my_index >= 0 and my_index < epos.size() and typeof(epos[my_index]) == TYPE_VECTOR2):
+		src_pos = epos[my_index]
+		have_engine_positions = true
+	if have_engine_positions:
+		var best_idx := alive_indices[0]
+		var best_d2: float = INF
+		for idx in alive_indices:
+			var tgt_pos: Vector2 = Vector2.ZERO
+			if enemy_team == "enemy":
+				if idx >= 0 and idx < epos.size() and typeof(epos[idx]) == TYPE_VECTOR2:
+					tgt_pos = epos[idx]
+			else:
+				if idx >= 0 and idx < ppos.size() and typeof(ppos[idx]) == TYPE_VECTOR2:
+					tgt_pos = ppos[idx]
+			if tgt_pos != Vector2.ZERO:
+				var d2 := tgt_pos.distance_squared_to(src_pos)
+				if d2 < best_d2:
+					best_d2 = d2
+					best_idx = idx
+		return best_idx
+
+	# 2) Arena actors (visuals following engine state)
+	var src_ctrl: Control = null
+	if my_team == "player":
+		var a: UnitActor = (arena.get_player_actor(my_index) if arena else null)
+		src_ctrl = (a as Control) if a else _get_player_sprite_by_index(my_index)
+	else:
+		var ea: UnitActor = (arena.get_enemy_actor(my_index) if arena else null)
+		src_ctrl = (ea as Control) if ea else _get_enemy_sprite_by_index(my_index)
+	if not src_ctrl:
 		return alive_indices[0]
-	var src_pos: Vector2 = src_rect.get_global_rect().get_center()
-	var best_idx: int = alive_indices[0]
-	var best_d2: float = INF
-	for idx in alive_indices:
-		var spr: Control = (_get_enemy_sprite_by_index(idx) if enemy_team == "enemy" else _get_player_sprite_by_index(idx))
-		if not spr:
+	var src_center: Vector2 = (src_ctrl as Control).get_global_rect().get_center()
+	var best_idx2: int = alive_indices[0]
+	var best_d22: float = INF
+	for idx2 in alive_indices:
+		var tgt_ctrl: Control = null
+		if enemy_team == "enemy":
+			var ta: UnitActor = (arena.get_enemy_actor(idx2) if arena else null)
+			tgt_ctrl = (ta as Control) if ta else _get_enemy_sprite_by_index(idx2)
+		else:
+			var pa: UnitActor = (arena.get_player_actor(idx2) if arena else null)
+			tgt_ctrl = (pa as Control) if pa else _get_player_sprite_by_index(idx2)
+		if not tgt_ctrl:
 			continue
-		var d2: float = spr.get_global_rect().get_center().distance_squared_to(src_pos)
-		if d2 < best_d2:
-			best_d2 = d2
-			best_idx = idx
-	return best_idx
+		var d22: float = tgt_ctrl.get_global_rect().get_center().distance_squared_to(src_center)
+		if d22 < best_d22:
+			best_d22 = d22
+			best_idx2 = idx2
+	return best_idx2
 
 func _enter_combat_arena() -> void:
 	if not arena_container:
 		return
-	_update_grid_metrics()
-	var player_rect := player_grid.get_global_rect() if player_grid else Rect2(Vector2.ZERO, Vector2.ZERO)
-	var enemy_rect := enemy_grid.get_global_rect() if enemy_grid else Rect2(Vector2.ZERO, Vector2.ZERO)
-	var total_size: Vector2 = combined_grid_size
-	if total_size == Vector2.ZERO:
-		total_size = _calculate_combined_grid_size()
-	var merged_rect: Rect2 = player_rect.merge(enemy_rect)
-	arena_bounds_rect = Rect2(merged_rect.position, total_size)
-	var local_origin: Vector2 = arena_container.get_global_transform_with_canvas().affine_inverse() * arena_bounds_rect.position
-	if arena_background:
-		arena_background.position = local_origin
-		arena_background.size = total_size
-	if arena_units:
-		arena_units.position = local_origin
-		arena_units.size = total_size
-	_clear_arena_units()
-	var player_positions: Array[Vector2] = []
-	for i in range(player_views.size()):
-		var pv: Dictionary = player_views[i]
-		var tile_idx: int = pv.get("tile_idx", -1)
-		var pos: Vector2 = arena_bounds_rect.position + arena_bounds_rect.size * 0.25
-		if player_grid_helper and tile_idx >= 0:
-			pos = player_grid_helper.get_center(tile_idx)
-		player_positions.append(pos)
-		var actor: UnitActor = UnitActorScene.new() as UnitActor
-		actor.set_unit(pv.get("unit"))
-		arena_units.add_child(actor)
-		actor.set_size_px(Vector2(TILE_SIZE, TILE_SIZE))
-		_place_actor(actor, pos)
-		player_actors.append(actor)
-	var enemy_positions: Array[Vector2] = []
-	for i in range(enemy_views.size()):
-		var ev: Dictionary = enemy_views[i]
-		var tile_idx: int = ev.get("tile_idx", -1)
-		var pos: Vector2 = arena_bounds_rect.position + arena_bounds_rect.size * 0.75
-		if enemy_grid_helper and tile_idx >= 0:
-			pos = enemy_grid_helper.get_center(tile_idx)
-		enemy_positions.append(pos)
-		var actor: UnitActor = UnitActorScene.new() as UnitActor
-		actor.set_unit(ev.get("unit"))
-		arena_units.add_child(actor)
-		actor.set_size_px(Vector2(TILE_SIZE, TILE_SIZE))
-		_place_actor(actor, pos)
-		enemy_actors.append(actor)
+	Trace.step("CombatView._enter_combat_arena: calling enter_arena")
+	arena.call("enter_arena", player_views, enemy_views)
 	arena_container.visible = true
-	if top_area:
-		top_area.visible = false
-	if bottom_area:
-		bottom_area.visible = false
-	if manager:
-		manager.set_arena(TILE_SIZE, player_positions, enemy_positions, arena_bounds_rect)
+	if planning_area:
+		_planning_area_prev_mouse_filter = planning_area.mouse_filter
+		planning_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		planning_area.modulate.a = 0.0
+	# Configure engine arena after engine is created inside CombatManager.start_stage
+	Trace.step("CombatView._enter_combat_arena: defer configure engine arena")
+	call_deferred("_configure_engine_arena")
 
 func _place_actor(actor: UnitActor, global_pos: Vector2) -> void:
-	if not actor or not is_instance_valid(actor):
-		return
-	if arena_bounds_rect.size == Vector2.ZERO:
+	# Deprecated in favor of ArenaController
+	if actor and is_instance_valid(actor):
 		actor.set_screen_position(global_pos)
-		return
-	var local_pos: Vector2 = global_pos - arena_bounds_rect.position - actor.size * 0.5
-	actor.position = local_pos
 
 func _sync_arena_units() -> void:
-	if not manager:
-		return
-	var player_pos: Array[Vector2] = manager.get_player_positions() as Array[Vector2]
-	for i in range(min(player_actors.size(), player_pos.size())):
-		var actor: UnitActor = player_actors[i]
-		if actor and is_instance_valid(actor):
-			_place_actor(actor, player_pos[i])
-	var enemy_pos: Array[Vector2] = manager.get_enemy_positions() as Array[Vector2]
-	for i in range(min(enemy_actors.size(), enemy_pos.size())):
-		var actor: UnitActor = enemy_actors[i]
-		if actor and is_instance_valid(actor):
-			_place_actor(actor, enemy_pos[i])
+	if manager:
+		var ppos: Array = manager.get_player_positions()
+		var epos: Array = manager.get_enemy_positions()
+		if ppos.size() > 0 or epos.size() > 0:
+			arena.call("sync_arena_with_positions", player_views, enemy_views, ppos, epos)
+			return
+	arena.call("sync_arena", player_views, enemy_views)
 
 func _exit_combat_arena() -> void:
-	_clear_arena_units()
-	arena_bounds_rect = Rect2()
+	arena.call("exit_arena")
 	if arena_container:
 		arena_container.visible = false
-	if top_area:
-		top_area.visible = true
-	if bottom_area:
-		bottom_area.visible = true
+	if planning_area:
+		planning_area.modulate.a = 1.0
+		planning_area.mouse_filter = _planning_area_prev_mouse_filter
 
 func _clear_arena_units() -> void:
+	# Deprecated in favor of ArenaController
 	if arena_units:
 		for child in arena_units.get_children():
 			child.queue_free()
-	player_actors.clear()
-	enemy_actors.clear()
+
+func _configure_engine_arena() -> void:
+	if not manager:
+		return
+	Trace.step("CombatView._configure_engine_arena: begin")
+	var tile_size := TILE_SIZE
+	# Bounds from the arena background area (global coordinates)
+	var bounds: Rect2 = Rect2()
+	if is_instance_valid(arena_background):
+		var r: Rect2 = arena_background.get_global_rect()
+		bounds = Rect2(r.position, r.size)
+	# Initial positions from current tile centers
+	var ppos: Array[Vector2] = []
+	var epos: Array[Vector2] = []
+	for i in range(player_views.size()):
+		var pv: UnitSlotView = player_views[i]
+		var idx: int = pv.tile_idx
+		var pos: Vector2 = player_grid_helper.get_center(idx) if player_grid_helper and idx >= 0 else Vector2.ZERO
+		ppos.append(pos)
+	for j in range(enemy_views.size()):
+		var ev: UnitSlotView = enemy_views[j]
+		var idx2: int = ev.tile_idx
+		var pos2: Vector2 = enemy_grid_helper.get_center(idx2) if enemy_grid_helper and idx2 >= 0 else Vector2.ZERO
+		epos.append(pos2)
+	# If the background produced a degenerate bounds (e.g., height 0),
+	# compute a fallback from the grid tile centers with a margin.
+	if bounds.size.y <= 1.0 or bounds.size.x <= 1.0:
+		var all_pts: Array[Vector2] = []
+		for v in ppos:
+			if typeof(v) == TYPE_VECTOR2:
+				all_pts.append(v)
+		for v2 in epos:
+			if typeof(v2) == TYPE_VECTOR2:
+				all_pts.append(v2)
+		if all_pts.size() > 0:
+			var min_x: float = all_pts[0].x
+			var max_x: float = all_pts[0].x
+			var min_y: float = all_pts[0].y
+			var max_y: float = all_pts[0].y
+			for p in all_pts:
+				min_x = min(min_x, p.x)
+				max_x = max(max_x, p.x)
+				min_y = min(min_y, p.y)
+				max_y = max(max_y, p.y)
+			var margin: float = float(tile_size)
+			var pos := Vector2(min_x - margin, min_y - margin)
+			var size := Vector2(max(1.0, (max_x - min_x) + margin * 2.0), max(1.0, (max_y - min_y) + margin * 2.0))
+			bounds = Rect2(pos, size)
+			print("[ArenaFix] Fallback bounds from tiles -> ", bounds)
+		else:
+			# Last resort: use viewport size
+			var vp := get_viewport()
+			var vs := (vp.get_visible_rect() if vp else Rect2(Vector2.ZERO, Vector2(1920, 1080)))
+			bounds = Rect2(vs.position, vs.size)
+			print("[ArenaFix] Fallback bounds from viewport -> ", bounds)
+
+	manager.set_arena(float(tile_size), ppos, epos, bounds)
+	Trace.step("CombatView._configure_engine_arena: done")
+	print("[Arena] tile=", tile_size, " bounds=", bounds)
+	# After arena is configured, log starting positions and initial targets for all units
+	_log_start_positions_and_targets()
+	# Enable per-frame movement logs briefly to diagnose movement issues
+	if manager and manager.has_method("enable_movement_debug"):
+		manager.enable_movement_debug(60)
+
+func _log_start_positions_and_targets() -> void:
+	if not manager:
+		return
+	var ppos: Array = manager.get_player_positions()
+	var epos: Array = manager.get_enemy_positions()
+	# Player team
+	for i in range(manager.player_team.size()):
+		var u: Unit = manager.player_team[i]
+		if not u or not u.is_alive():
+			continue
+		var my_pos: Vector2 = Vector2.ZERO
+		if i >= 0 and i < ppos.size() and typeof(ppos[i]) == TYPE_VECTOR2:
+			my_pos = ppos[i]
+		var tgt_idx: int = select_closest_target("player", i, "enemy")
+		var tgt_pos: Vector2 = Vector2.ZERO
+		if tgt_idx >= 0 and tgt_idx < epos.size() and typeof(epos[tgt_idx]) == TYPE_VECTOR2:
+			tgt_pos = epos[tgt_idx]
+		print("[Start] player ", i, " pos=", my_pos, " -> target ", tgt_idx, " tpos=", tgt_pos)
+	# Enemy team
+	for j in range(manager.enemy_team.size()):
+		var e: Unit = manager.enemy_team[j]
+		if not e or not e.is_alive():
+			continue
+		var e_my_pos: Vector2 = Vector2.ZERO
+		if j >= 0 and j < epos.size() and typeof(epos[j]) == TYPE_VECTOR2:
+			e_my_pos = epos[j]
+		var e_tgt_idx: int = select_closest_target("enemy", j, "player")
+		var e_tgt_pos: Vector2 = Vector2.ZERO
+		if e_tgt_idx >= 0 and e_tgt_idx < ppos.size() and typeof(ppos[e_tgt_idx]) == TYPE_VECTOR2:
+			e_tgt_pos = ppos[e_tgt_idx]
+		print("[Start] enemy  ", j, " pos=", e_my_pos, " -> target ", e_tgt_idx, " tpos=", e_tgt_pos)
+
+func set_player_team_ids(ids: Array) -> void:
+	if not manager:
+		return
+	manager.player_team.clear()
+	var uf = load("res://scripts/unit_factory.gd")
+	for id in ids:
+		var u: Unit = uf.spawn(String(id))
+		if u:
+			manager.player_team.append(u)
