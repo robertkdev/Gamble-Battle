@@ -11,16 +11,15 @@ signal phase_changed(prev: int, next: int)
 signal stage_changed(prev: int, next: int)
 
 func set_phase(p: int) -> void:
-    if p == phase:
-        return
-    var prev := phase
-    phase = p
-    phase_changed.emit(prev, phase)
+	if p == phase:
+		return
+	var prev := phase
+	phase = p
+	phase_changed.emit(prev, phase)
 
 func set_stage(s: int) -> void:
-    if s == stage:
-        return
-    var prev := stage
-    stage = s
-    stage_changed.emit(prev, stage)
-
+	if s == stage:
+		return
+	var prev := stage
+	stage = s
+	stage_changed.emit(prev, stage)

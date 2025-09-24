@@ -1,6 +1,11 @@
 extends RefCounted
 class_name RegenSystem
 
+const Health := preload("res://scripts/game/stats/health.gd")
+const Mana := preload("res://scripts/game/stats/mana.gd")
+
+var buff_system: BuffSystem = null
+
 # Expect a map of event_key -> Callable
 func apply_ticks(state: BattleState, ticks: int, player_ref: Unit, emitters: Dictionary[String, Callable]) -> void:
 	if ticks <= 0 or state == null:
@@ -9,12 +14,26 @@ func apply_ticks(state: BattleState, ticks: int, player_ref: Unit, emitters: Dic
 		_apply_single_tick(state, player_ref, emitters)
 
 func _apply_single_tick(state: BattleState, player_ref: Unit, emitters: Dictionary[String, Callable]) -> void:
-	for u in state.player_team:
+	# Player team regen
+	for i in range(state.player_team.size()):
+		var u: Unit = state.player_team[i]
 		if u:
-			u.end_of_turn()
-	for e in state.enemy_team:
+			Health.regen_tick(u, 1.0)
+			var before_mana_p: int = int(u.mana)
+			Mana.regen_tick(u, 1.0)
+			if buff_system != null and buff_system.has_method("is_mana_gain_blocked"):
+				if buff_system.is_mana_gain_blocked(state, "player", i):
+					u.mana = before_mana_p
+	# Enemy team regen
+	for j in range(state.enemy_team.size()):
+		var e: Unit = state.enemy_team[j]
 		if e:
-			e.end_of_turn()
+			Health.regen_tick(e, 1.0)
+			var before_mana_e: int = int(e.mana)
+			Mana.regen_tick(e, 1.0)
+			if buff_system != null and buff_system.has_method("is_mana_gain_blocked"):
+				if buff_system.is_mana_gain_blocked(state, "enemy", j):
+					e.mana = before_mana_e
 	_emit(emitters, "stats_updated", [player_ref, BattleState.first_alive(state.enemy_team)])
 	_emit(emitters, "team_stats_updated", [state.player_team, state.enemy_team])
 

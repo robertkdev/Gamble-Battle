@@ -5,6 +5,8 @@ signal ability_cast(team: String, index: int, ability_id: String)
 
 const AbilityCatalog = preload("res://scripts/game/abilities/ability_catalog.gd")
 const AbilityContext = preload("res://scripts/game/abilities/ability_context.gd")
+const AbilityEffects = preload("res://scripts/game/abilities/effects.gd")
+const BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
 
 var engine: CombatEngine
 var state: BattleState
@@ -13,6 +15,7 @@ var buff_system: BuffSystem = null
 
 # Per-unit cooldowns (seconds remaining)
 var _cooldowns: Dictionary = {} # Unit -> float
+var _events: Array = [] # Array[Dictionary]: { name, team, index, t, data }
 
 func configure(_engine: CombatEngine, _state: BattleState, _rng: RandomNumberGenerator, _buffs: BuffSystem = null) -> void:
 	engine = _engine
@@ -33,6 +36,75 @@ func tick(delta: float) -> void:
 			_cooldowns[u] = left
 	for u2 in to_erase:
 		_cooldowns.erase(u2)
+	# Timed ability events (e.g., Korath release)
+	var remaining: Array = []
+	for e in _events:
+		var tleft: float = float(e.get("t", 0.0)) - delta
+		if tleft <= 0.0:
+			_handle_event(e)
+		else:
+			e["t"] = tleft
+			remaining.append(e)
+	_events = remaining
+
+func schedule_event(name: String, team: String, index: int, delay_s: float, data: Dictionary = {}) -> void:
+	if String(name) == "":
+		return
+	_events.append({
+		"name": name,
+		"team": team,
+		"index": index,
+		"t": max(0.0, float(delay_s)),
+		"data": (data if data != null else {})
+	})
+
+func _handle_event(evt: Dictionary) -> void:
+	var name: String = String(evt.get("name", ""))
+	match name:
+		"korath_release":
+			_handle_korath_release(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
+		_:
+			pass
+
+func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
+	if state == null or engine == null:
+		return
+	var caster: Unit = _unit_at(team, index)
+	if caster == null or not caster.is_alive():
+		return
+	# Extract meta reference captured at cast time
+	var meta: Dictionary = {}
+	if data != null:
+		meta = data.get("meta", {})
+	var pool: int = int(0)
+	var stacks_at_cast: int = int(0)
+	if meta != null and typeof(meta) == TYPE_DICTIONARY:
+		pool = int(meta.get("pool", 0))
+		stacks_at_cast = int(meta.get("stacks_at_cast", 0))
+		# Clear remaining time on tag if still present (not required, but tidy)
+		if buff_system != null and buff_system.has_tag(state, team, index, BuffTags.TAG_KORATH):
+			var tag = buff_system.get_tag(state, team, index, BuffTags.TAG_KORATH)
+			if not tag.is_empty():
+				tag["remaining"] = 0.0
+	# Find ally with greatest missing HP (include self)
+	var allies: Array[Unit] = (state.player_team if team == "player" else state.enemy_team)
+	var best_idx: int = -1
+	var best_missing: int = -1
+	for i in range(allies.size()):
+		var u: Unit = allies[i]
+		if u == null or not u.is_alive():
+			continue
+		var missing: int = int(u.max_hp) - int(u.hp)
+		if missing > best_missing:
+			best_missing = missing
+			best_idx = i
+	if best_idx < 0:
+		return
+	var tgt_team: String = team
+	var heal_base: int = int(floor(0.20 * float(caster.max_hp)))
+	var heal_amt: int = max(0, int(pool) + heal_base + 4 * int(stacks_at_cast))
+	AbilityEffects.heal_single(engine, state, tgt_team, best_idx, heal_amt)
+	engine._resolver_emit_log("Absorb & Release: healed %d (pool=%d, base=%d, stacks=%d)" % [heal_amt, pool, heal_base, stacks_at_cast])
 
 func try_cast(team: String, index: int) -> Dictionary:
 	var result := {"cast": false, "reason": ""}

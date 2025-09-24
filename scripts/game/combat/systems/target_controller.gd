@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name TargetController
 
 const Targeting := preload("res://scripts/game/combat/targeting.gd")
@@ -45,6 +45,11 @@ func resolver_for_arena() -> Callable:
 func target_array(team: String) -> Array[int]:
 	_sync_arrays()
 	return _targets_for(team)
+
+# Public: re-select targets for all units on both teams.
+# Useful to reprime after arena positions become available.
+func prime_targets() -> void:
+	_prime_targets()
 
 func _resolve_for_arena(team: String, shooter_index: int) -> int:
 	return current_target(team, shooter_index)
@@ -97,4 +102,3 @@ func _resized(existing: Array, desired: int) -> Array[int]:
 	while out.size() < desired:
 		out.append(-1)
 	return out
-

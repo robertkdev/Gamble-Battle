@@ -8,6 +8,17 @@ var sprite: TextureRect
 var hp_bar: ProgressBar
 var mana_bar: ProgressBar
 var size_px: Vector2 = Vector2(64, 64)
+var _base_screen_pos: Vector2 = Vector2.ZERO
+var _effect_offset: Vector2 = Vector2.ZERO
+var _knockup_offset_y: float = 0.0
+var knockup_offset_y: float:
+	get:
+		return _knockup_offset_y
+	set(value):
+		_knockup_offset_y = value
+		_effect_offset.y = value
+		_update_screen_position()
+var _knockup_tween: Tween = null
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -74,7 +85,11 @@ func update_bars(updated_unit: Unit = null) -> void:
 
 # Avoid overriding Control.set_global_position(Vector2, bool)
 func set_screen_position(pos: Vector2) -> void:
-	global_position = pos - size * 0.5
+	_base_screen_pos = pos
+	_update_screen_position()
+
+func _update_screen_position() -> void:
+	global_position = _base_screen_pos - size * 0.5 + _effect_offset
 
 func _update_visuals() -> void:
 	_update_texture()
@@ -124,3 +139,19 @@ func set_size_px(new_size: Vector2) -> void:
 	size_px = new_size
 	size = size_px
 	_update_visuals()
+
+func play_knockup(duration_s: float) -> void:
+	# Simple up-then-down bounce using a vertical effect offset; non-intrusive to arena positioning.
+	var dur: float = max(0.05, duration_s)
+	var half: float = dur * 0.5
+	var amp: float = -min(24.0, size_px.y * 0.35) # negative = up on screen
+	# Cancel existing tween on this property
+	if _knockup_tween and is_instance_valid(_knockup_tween):
+		_knockup_tween.kill()
+	_knockup_tween = create_tween()
+	_knockup_tween.set_trans(Tween.TRANS_SINE)
+	_knockup_tween.set_ease(Tween.EASE_OUT)
+	_knockup_tween.tween_property(self, "knockup_offset_y", amp, half)
+	_knockup_tween.set_trans(Tween.TRANS_SINE)
+	_knockup_tween.set_ease(Tween.EASE_IN)
+	_knockup_tween.tween_property(self, "knockup_offset_y", 0.0, half)

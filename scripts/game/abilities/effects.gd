@@ -2,6 +2,7 @@ extends Object
 class_name AbilityEffects
 
 const DamageMath = preload("res://scripts/game/combat/damage_math.gd")
+const Health := preload("res://scripts/game/stats/health.gd")
 
 # Deals damage to a single target with mitigation.
 # type: "physical" | "magic" | "true" | "hybrid"
@@ -32,7 +33,8 @@ static func damage_single(engine: CombatEngine, state: BattleState, source_team:
 		_:
 			dealt_f = max(0.0, amount)
 	var dealt: int = int(max(0.0, round(dealt_f)))
-	dealt = int(tgt.take_damage(dealt))
+	var _hres := Health.apply_damage(tgt, dealt)
+	dealt = int(_hres.dealt)
 	result["dealt"] = dealt
 	result["before_hp"] = before_hp
 	result["after_hp"] = int(tgt.hp)
@@ -53,9 +55,9 @@ static func heal_single(engine: CombatEngine, state: BattleState, target_team: S
 		return result
 	var before_hp: int = int(tgt.hp)
 	var heal_amt: int = int(max(0.0, round(amount)))
-	tgt.hp = min(tgt.max_hp, tgt.hp + heal_amt)
+	var hres := Health.heal(tgt, heal_amt)
 	result["processed"] = true
-	result["healed"] = int(tgt.hp) - before_hp
+	result["healed"] = int(hres.get("healed", int(tgt.hp) - before_hp))
 	result["before_hp"] = before_hp
 	result["after_hp"] = int(tgt.hp)
 	engine._resolver_emit_unit_stat(target_team, target_index, {"hp": tgt.hp})

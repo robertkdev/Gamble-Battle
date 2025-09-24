@@ -1,6 +1,3 @@
-[gd_scene load_steps=2 format=3 uid="uid://b5kh5ma1g576h"]
-
-[ext_resource type="Script" path="res://tests/test_runner.gd" id="1"]
+[gd_scene format=3 uid="uid://b5kh5ma1g576h"]
 
 [node name="TestRunner" type="Node"]
-script = ExtResource("1")

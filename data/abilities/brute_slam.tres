@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "brute_slam"
+name = "Slam"
+description = "Knocks up nearby enemies for 0.75s, shatters shields, deals 110/165/250 + 15 × Titan stacks physical damage, and heals self for 120/170/240 + 20 × Titan stacks."
+base_cost = 50
+tags = ["heal", "damage", "cc"]

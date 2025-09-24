@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 @onready var combat_view: Node = $CombatView
 @onready var unit_select: Node = $UnitSelect
@@ -6,10 +6,13 @@
 @onready var start_button: Button = $TitleMenu/Center/VBox/StartButton
 @onready var quit_button: Button = $TitleMenu/Center/VBox/QuitButton
 
+const Debug := preload("res://scripts/util/debug.gd")
+
 const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
 
 func _ready() -> void:
+	Debug.set_enabled(true)
 	# Wire menu buttons
 	var Trace = load("res://scripts/util/trace.gd")
 	if Trace and Trace.has_method("set_enabled"):
@@ -25,7 +28,8 @@ func _ready() -> void:
 		unit_select.unit_selected.connect(_on_unit_selected)
 	# Optional debug auto-start (disabled by default)
 	if OS.is_debug_build() and DEBUG_AUTO_START:
-		print("[Main] Debug auto-start enabled; starting game")
+		if Debug.enabled:
+			print("[Main] Debug auto-start enabled; starting game")
 		call_deferred("_on_start")
 
 func _set_menu_visible(show_menu: bool) -> void:
@@ -63,5 +67,3 @@ func _on_unit_selected(unit_id: String) -> void:
 		if combat_view.has_method("_init_game"):
 			combat_view.call("_init_game")
 	GameState.set_phase(GameState.GamePhase.PREVIEW)
-
-

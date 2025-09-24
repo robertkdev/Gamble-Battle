@@ -4,9 +4,10 @@ extends AbilityImplBase
 # For the next four attacks, fires at random enemies.
 # Gains +1 bonus arrow per cast, up to a maximum of four.
 
+const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 const KEY_BONUS := "nyxa_cv_bonus_arrows" # persistent: number of extra arrows per attack (0..3)
 const KEY_DMG_STACKS := "nyxa_cv_damage_stacks" # persistent: number of casts beyond cap
-const TAG_ACTIVE := "nyxa_cv_active" # timed tag during which multishot applies
+const TAG_ACTIVE := BuffTags.TAG_NYXA # timed tag during which multishot applies
 
 func cast(ctx: AbilityContext) -> bool:
     if ctx == null:
@@ -40,7 +41,8 @@ func cast(ctx: AbilityContext) -> bool:
     var damage_bonus_per_stack: int = 5
     var meta := {
         "extra": new_bonus, # number of extra shots (total = 1 + extra)
-        "damage_bonus": int(max(0, dmg_stacks_after)) * damage_bonus_per_stack
+        "damage_bonus": int(max(0, dmg_stacks_after)) * damage_bonus_per_stack,
+        "block_mana_gain": true
     }
     bs.apply_tag(ctx.state, ctx.caster_team, ctx.caster_index, TAG_ACTIVE, duration_s, meta)
 

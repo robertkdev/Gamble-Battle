@@ -3,6 +3,7 @@ class_name AbilityContext
 
 const AbilityEffects = preload("res://scripts/game/abilities/effects.gd")
 const TraitCompiler = preload("res://scripts/game/traits/trait_compiler.gd")
+const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
 
 var engine: CombatEngine
 var state: BattleState
@@ -88,23 +89,27 @@ func _enemy_indices_alive(team: String) -> Array[int]:
 			arr.append(i)
 	return arr
 
-# Geometric selectors (tile-aware; uses arena tile_size)
+# Geometric selectors (tile-aware; use MovementMath and MovementService tuning
+# epsilon so range checks behave consistently with movement/attacks.)
 func enemies_in_radius(team: String, center_index: int, radius_tiles: float) -> Array[int]:
 	var out: Array[int] = []
 	var center: Vector2 = position_of(team, center_index)
-	var world_r: float = max(0.0, radius_tiles) * tile_size()
+	var ts: float = tile_size()
+	var epsilon: float = _range_epsilon()
+	var band_mult: float = _band_max_for(team, center_index)
 	for i in _enemy_indices_alive(team):
 		var p: Vector2 = position_of(_other_team(team), i)
-		if center.distance_to(p) <= world_r:
+		if MovementMath.within_radius_tiles(center, p, radius_tiles * band_mult, ts, epsilon):
 			out.append(i)
 	return out
 
 func enemies_in_radius_at(team: String, center_world: Vector2, radius_tiles: float) -> Array[int]:
 	var out: Array[int] = []
-	var world_r: float = max(0.0, radius_tiles) * tile_size()
+	var ts: float = tile_size()
+	var epsilon: float = _range_epsilon()
 	for i in _enemy_indices_alive(team):
 		var p: Vector2 = position_of(_other_team(team), i)
-		if center_world.distance_to(p) <= world_r:
+		if MovementMath.within_radius_tiles(center_world, p, radius_tiles, ts, epsilon):
 			out.append(i)
 	return out
 
@@ -116,7 +121,8 @@ func enemies_in_line(team: String, shooter_index: int, target_index: int, length
 	if dir.length() == 0.0:
 		return out
 	var len_w: float = max(0.0, length_tiles) * tile_size()
-	var half_w: float = max(0.0, width_tiles) * tile_size() * 0.5
+	# Expand half-width by epsilon to keep edge behavior consistent
+	var half_w: float = max(0.0, width_tiles) * tile_size() * 0.5 + _range_epsilon()
 	var fwd: Vector2 = dir.normalized()
 	for i in _enemy_indices_alive(team):
 		var p: Vector2 = position_of(_other_team(team), i)
@@ -193,3 +199,17 @@ func log(text: String) -> void:
 	if text == "" or engine == null:
 		return
 	engine._resolver_emit_log(text)
+# Shared epsilon sourced from movement tuning to keep range consistent
+func _range_epsilon() -> float:
+	if engine != null and engine.arena_state != null:
+		return float(engine.arena_state.tuning.range_epsilon)
+	return 0.5
+
+# Movement profile band (hysteresis) helper for abilities that use unit-centered
+# ranges. This keeps ability radii consistent with approach/attack bands.
+func _band_max_for(team: String, idx: int) -> float:
+	if engine != null and engine.arena_state != null and engine.arena_state.has_method("get_profile"):
+		var prof = engine.arena_state.get_profile(team, idx)
+		if prof != null and typeof(prof.band_max) in [TYPE_FLOAT, TYPE_INT]:
+			return float(prof.band_max)
+	return 1.0

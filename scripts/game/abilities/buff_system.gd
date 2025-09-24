@@ -116,6 +116,21 @@ func get_tag_data(state: BattleState, team: String, index: int, tag: String) -> 
 	var d: Dictionary = b.get("data", {})
 	return d if d != null else {}
 
+# Returns true if any active tag on the unit sets data.block_mana_gain == true
+func is_mana_gain_blocked(state: BattleState, team: String, index: int) -> bool:
+	var u: Unit = _unit_at(state, team, index)
+	if u == null or not _buffs.has(u):
+		return false
+	for b in _buffs[u]:
+		if String(b.get("kind", "")) != "tag":
+			continue
+		if float(b.get("remaining", 0.0)) <= 0.0:
+			continue
+		var d: Dictionary = b.get("data", {})
+		if d != null and bool(d.get("block_mana_gain", false)):
+			return true
+	return false
+
 # Attempts to absorb incoming damage using active shields on this unit.
 # Returns leftover damage after shields (non-negative) and the amount absorbed.
 func absorb_with_shields(u: Unit, incoming_damage: int) -> Dictionary:
@@ -138,6 +153,26 @@ func absorb_with_shields(u: Unit, incoming_damage: int) -> Dictionary:
 		result["absorbed"] = int(result["absorbed"]) + used
 	result["leftover"] = dmg
 	return result
+
+# Instantly removes all active shield values on the unit.
+# Returns the total shield amount removed.
+func break_shields(u: Unit) -> int:
+	var removed: int = 0
+	if u == null or not _buffs.has(u):
+		return removed
+	var arr: Array = _buffs[u]
+	for b in arr:
+		if String(b.get("kind", "")) != "shield":
+			continue
+		var s: int = int(b.get("shield", 0))
+		if s > 0:
+			removed += s
+			b["shield"] = 0
+	return removed
+
+func break_shields_on(state: BattleState, team: String, index: int) -> int:
+	var u: Unit = _unit_at(state, team, index)
+	return break_shields(u)
 
 func is_stunned(u: Unit) -> bool:
 	if u == null or not _buffs.has(u):

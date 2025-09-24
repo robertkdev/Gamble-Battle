@@ -1,5 +1,7 @@
 extends RefCounted
 class_name Unit
+const Health := preload("res://scripts/game/stats/health.gd")
+const Mana := preload("res://scripts/game/stats/mana.gd")
 
 # Identity
 var id: String = ""
@@ -25,7 +27,7 @@ var crit_damage: float = 2.0  # 1.0 = no bonus, 2.0 = double
 var true_damage: float = 0.0  # flat true damage
 var lifesteal: float = 0.0    # 0..1
 var attack_range: int = 1
-var move_speed: float = 12.0 #120
+var move_speed: float = 120.0 #120
 
 # Defense
 var armor: float = 0.0
@@ -52,13 +54,12 @@ func is_alive() -> bool:
 	return hp > 0
 
 func heal_to_full() -> void:
-	hp = max_hp
+	Health.heal_full(self)
 
 func take_damage(amount: int) -> int:
-	var dmg: int = int(max(0, amount))
-	# Armor/damage_reduction could reduce damage in the future.
-	hp = max(0, hp - dmg)
-	return dmg
+	# Armor/damage_reduction could reduce damage earlier in pipeline.
+	var res := Health.apply_damage(self, amount)
+	return int(res.get("dealt", int(max(0, amount))))
 
 func attack_roll(rng: RandomNumberGenerator) -> Dictionary:
 	# returns { damage:int, crit:bool }
@@ -67,11 +68,9 @@ func attack_roll(rng: RandomNumberGenerator) -> Dictionary:
 	return { "damage": int(round(dmg_f)), "crit": crit }
 
 func end_of_turn() -> void:
-	if hp_regen > 0 and is_alive():
-		hp = min(max_hp, hp + hp_regen)
-	# Basic mana regen support (future abilities will use mana)
-	if mana_regen > 0:
-		mana = min(mana_max, mana + mana_regen)
+	# Delegate to centralized systems for regen
+	Health.regen_tick(self, 1.0)
+	Mana.regen_tick(self, 1.0)
 
 func summary() -> String:
 	return "HP %d/%d  AD %d  CRIT %d%%  LS %d%%  BLOCK %d%%  REGEN %d" % [

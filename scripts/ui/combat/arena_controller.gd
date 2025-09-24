@@ -3,6 +3,7 @@ class_name ArenaController
 const Trace := preload("res://scripts/util/trace.gd")
 
 const Debug := preload("res://scripts/util/debug.gd")
+const Strings := preload("res://scripts/util/strings.gd")
 
 var arena_container: Control
 var arena_units: Control
@@ -41,7 +42,7 @@ func enter_arena(player_views, enemy_views) -> void:
         actor.visible = (pv.unit != null and pv.unit.is_alive())
         player_actors.append(actor)
     if not player_summary.is_empty():
-        Debug.log("Arena", "Player positions %s" % [_join_strings(player_summary, ", ")])
+        Debug.log("Arena", "Player positions %s" % [Strings.join(player_summary, ", ")])
     Trace.step("ArenaController.enter_arena: after players")
 
     var enemy_summary: Array[String] = []
@@ -60,7 +61,7 @@ func enter_arena(player_views, enemy_views) -> void:
         actor2.visible = (ev.unit != null and ev.unit.is_alive())
         enemy_actors.append(actor2)
     if not enemy_summary.is_empty():
-        Debug.log("Arena", "Enemy positions %s" % [_join_strings(enemy_summary, ", ")])
+        Debug.log("Arena", "Enemy positions %s" % [Strings.join(enemy_summary, ", ")])
     Trace.step("ArenaController.enter_arena: done")
 
 func sync_arena(player_views, enemy_views) -> void:
@@ -79,7 +80,7 @@ func sync_arena(player_views, enemy_views) -> void:
             actor.update_bars(pv.unit)
             actor.visible = (pv.unit != null and pv.unit.is_alive())
     if not player_summary.is_empty():
-        Debug.log("ArenaSync", "Player %s" % [_join_strings(player_summary, ", ")])
+        Debug.log("ArenaSync", "Player %s" % [Strings.join(player_summary, ", ")])
 
     var enemy_summary: Array[String] = []
     for i in range(min(enemy_actors.size(), enemy_views.size())):
@@ -96,7 +97,7 @@ func sync_arena(player_views, enemy_views) -> void:
             actor2.update_bars(ev.unit)
             actor2.visible = (ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
-        Debug.log("ArenaSync", "Enemy %s" % [_join_strings(enemy_summary, ", ")])
+        Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
 
 func sync_arena_with_positions(player_views, enemy_views, player_positions: Array, enemy_positions: Array) -> void:
     # Prefer engine-provided positions when available; fall back to grid centers
@@ -117,7 +118,7 @@ func sync_arena_with_positions(player_views, enemy_views, player_positions: Arra
             actor.update_bars(pv.unit)
             actor.visible = (pv.unit != null and pv.unit.is_alive())
     if not player_summary.is_empty():
-        Debug.log("ArenaSync", "Player %s" % [_join_strings(player_summary, ", ")])
+        Debug.log("ArenaSync", "Player %s" % [Strings.join(player_summary, ", ")])
 
     var enemy_summary: Array[String] = []
     for i in range(min(enemy_actors.size(), enemy_views.size())):
@@ -136,7 +137,7 @@ func sync_arena_with_positions(player_views, enemy_views, player_positions: Arra
             actor2.update_bars(ev.unit)
             actor2.visible = (ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
-        Debug.log("ArenaSync", "Enemy %s" % [_join_strings(enemy_summary, ", ")])
+        Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
 
 func exit_arena() -> void:
     _clear()
@@ -148,13 +149,7 @@ func _clear() -> void:
     player_actors.clear()
     enemy_actors.clear()
 
-func _join_strings(arr: Array, sep: String) -> String:
-    var out := ""
-    for i in range(arr.size()):
-        if i > 0:
-            out += sep
-        out += str(arr[i])
-    return out
+## join moved to Strings.join
 
 func get_player_actor(index: int) -> UnitActor:
     if index < 0 or index >= player_actors.size():

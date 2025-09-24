@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://df6wdwq7tewtm"
-path="res://.godot/imported/boulder.png-75797e10b093f52992d1ca0b633cae8b.ctex"
+uid="uid://6hyhiw0lr2vo"
+path="res://.godot/imported/brute.png-ab31667c592ce289541c20137ae47d36.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/units/boulder.png"
-dest_files=["res://.godot/imported/boulder.png-75797e10b093f52992d1ca0b633cae8b.ctex"]
+source_file="res://assets/units/brute.png"
+dest_files=["res://.godot/imported/brute.png-ab31667c592ce289541c20137ae47d36.ctex"]
 
 [params]
 

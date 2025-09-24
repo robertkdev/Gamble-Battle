@@ -1,6 +1,8 @@
 extends Node
 class_name CombatManager
 const Trace := preload("res://scripts/util/trace.gd")
+const Health := preload("res://scripts/game/stats/health.gd")
+const Mana := preload("res://scripts/game/stats/mana.gd")
 
 signal battle_started(stage: int, enemy)
 signal log_line(text: String)
@@ -10,6 +12,7 @@ signal unit_stat_changed(team: String, index: int, fields: Dictionary)
 signal victory(stage: int)
 signal defeat(stage: int)
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
+signal vfx_knockup(team: String, index: int, duration: float)
 
 var enemy: Unit
 
@@ -20,7 +23,7 @@ var select_closest_target: Callable = Callable()
 var stage: int = 1
 
 var _state: BattleState
-var _engine: CombatEngine
+var _engine
 var _pending_movement_debug_frames: int = 0
 
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
@@ -77,6 +80,8 @@ func _wire_engine_signals() -> void:
 		_engine.defeat.connect(_on_defeat)
 	if not _engine.is_connected("unit_stat_changed", Callable(self, "_on_engine_unit_stat")):
 		_engine.unit_stat_changed.connect(_on_engine_unit_stat)
+	if not _engine.is_connected("vfx_knockup", Callable(self, "_on_engine_vfx_knockup")):
+		_engine.vfx_knockup.connect(_on_engine_vfx_knockup)
 
 func _re_emit_projectile(team: String, sidx: int, tidx: int, dmg: int, crit: bool) -> void:
 	emit_signal("projectile_fired", team, sidx, tidx, dmg, crit)
@@ -93,6 +98,9 @@ func _on_engine_team_stats(pteam, eteam) -> void:
 
 func _on_engine_unit_stat(team: String, index: int, fields: Dictionary) -> void:
 	emit_signal("unit_stat_changed", team, index, fields)
+
+func _on_engine_vfx_knockup(team: String, index: int, duration: float) -> void:
+	emit_signal("vfx_knockup", team, index, duration)
 
 func _ensure_default_player_team_into(arr: Array) -> void:
 	# Append default units into the provided array
@@ -158,9 +166,9 @@ func start_stage() -> void:
 	Trace.step("CM.start_stage: start engine")
 	_engine.start()
 	Trace.step("CM.start_stage: engine started")
-	# Apply any pending movement debug logging
-	if _pending_movement_debug_frames > 0 and _engine and _engine.arena_state and _engine.arena_state.has_method("set_debug_log_frames"):
-		_engine.arena_state.set_debug_log_frames(_pending_movement_debug_frames)
+	# Apply any pending movement debug logging without peeking internal fields
+	if _pending_movement_debug_frames > 0 and _engine and _engine.has_method("set_movement_debug_frames"):
+		_engine.set_movement_debug_frames(_pending_movement_debug_frames)
 		_pending_movement_debug_frames = 0
 
 	# Compile traits for both teams and log summary (data-driven)
@@ -183,10 +191,10 @@ func setup_stage_preview() -> void:
 
 	for u in _state.player_team:
 		if u:
-			u.mana = 0
+			Mana.reset_for_preview(u)
 	for e in _state.enemy_team:
 		if e:
-			e.mana = 0
+			Mana.reset_for_preview(e)
 
 	player_team = _state.player_team
 	enemy_team = _state.enemy_team
@@ -220,10 +228,10 @@ func _on_defeat(_stage: int = 0) -> void:
 func _reset_units_after_combat() -> void:
 	for u in player_team:
 		if u:
-			u.heal_to_full()
+			Health.heal_full(u)
 	for e in enemy_team:
 		if e:
-			e.heal_to_full()
+			Health.heal_full(e)
 
 func continue_to_next_stage() -> void:
 	stage += 1

@@ -4,12 +4,11 @@
 
 [resource]
 script = ExtResource( 1 )
-id = "boulder"
-name = "Boulder"
-sprite_path = "res://assets/units/boulder.png"
-ability_id = "boulder_slamline_guard"
+id = "brute"
+name = "Brute"
+sprite_path = "res://assets/units/brute.png"
+ability_id = "brute_slam"
 traits = ["Titan", "Fortified"]
 roles = ["tank"]
 cost = 1
 level = 1
-

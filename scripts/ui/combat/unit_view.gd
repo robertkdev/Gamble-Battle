@@ -2,6 +2,7 @@ extends DragAndDroppable
 class_name UnitView
 
 const UI := preload("res://scripts/constants/ui_constants.gd")
+const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 
 var unit: Unit
 var sprite: TextureRect
@@ -71,7 +72,7 @@ func _refresh_visual() -> void:
 	if unit.sprite_path != "":
 		tex = load(unit.sprite_path)
 	if tex == null:
-		tex = _make_circle_texture(Color(0.8, 0.8, 0.8), 96)
+		tex = TextureUtils.make_circle_texture(Color(0.8, 0.8, 0.8), 96)
 	sprite.texture = tex
 	# Bars
 	if hp_bar:
@@ -110,19 +111,4 @@ func enable_drag(grid: BoardGrid) -> void:
 
 
 
-func _make_circle_texture(color: Color, tex_size: int) -> ImageTexture:
-	var img := Image.create(tex_size, tex_size, false, Image.FORMAT_RGBA8)
-	img.fill(Color(0, 0, 0, 0))
-	var cx := float(tex_size) * 0.5
-	var cy := float(tex_size) * 0.5
-	var r := float(tex_size) * 0.45
-	var r2 := r * r
-	for y in range(tex_size):
-		for x in range(tex_size):
-			var dx := float(x) - cx
-			var dy := float(y) - cy
-			var d2 := dx * dx + dy * dy
-			if d2 <= r2:
-				img.set_pixel(x, y, color)
-	var tex := ImageTexture.create_from_image(img)
-	return tex
+## moved to TextureUtils.make_circle_texture
