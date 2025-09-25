@@ -5,12 +5,15 @@ class_name BuffSystem
 # - Applies additive stat deltas and reverts them on expiry
 # - Supports simple shields and stuns (data tracked here; integration is separate)
 
+const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
+
 const SUPPORTED_FIELDS := [
 	"armor", "magic_resist", "damage_reduction",
 	"attack_damage", "spell_power", "attack_speed",
-	"max_hp", "move_speed", "lifesteal",
+	"max_hp", "move_speed", "lifesteel",
 	"true_damage", "armor_pen_flat", "armor_pen_pct",
-	"mr_pen_flat", "mr_pen_pct"
+	"mr_pen_flat", "mr_pen_pct",
+	"damage_reduction_flat"
 ]
 
 # Map[Unit -> Array[Dictionary]]
@@ -65,6 +68,9 @@ func apply_shield(state: BattleState, team: String, index: int, amount: int, dur
 func apply_stun(state: BattleState, team: String, index: int, duration_s: float) -> Dictionary:
 	var u: Unit = _unit_at(state, team, index)
 	if u == null or duration_s <= 0.0:
+		return {"processed": false}
+	# Gate stuns when unit is CC-immune via active tag
+	if _has_cc_immunity(state, team, index):
 		return {"processed": false}
 	var buff := {"kind": "stun", "remaining": duration_s}
 	_add_buff(u, buff)
@@ -254,6 +260,9 @@ func _apply_fields(u: Unit, fields: Dictionary, sign: int) -> void:
 					if k in ["armor", "magic_resist", "armor_pen_flat", "mr_pen_flat"]:
 						nv = max(0.0, nv)
 					u.set(k, nv)
+
+func _has_cc_immunity(state: BattleState, team: String, index: int) -> bool:
+	return has_tag(state, team, index, BuffTags.TAG_CC_IMMUNE)
 
 func _filter_fields(fields: Dictionary) -> Dictionary:
 	var out: Dictionary = {}

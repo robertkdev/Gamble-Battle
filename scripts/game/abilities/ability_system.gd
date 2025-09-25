@@ -63,6 +63,12 @@ func _handle_event(evt: Dictionary) -> void:
 	match name:
 		"korath_release":
 			_handle_korath_release(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
+		"veyra_harden_end":
+			_handle_veyra_harden_end(String(evt.get("team", "player")), int(evt.get("index", -1)))
+		"kythera_siphon_tick":
+			_handle_kythera_siphon_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
+		"kythera_siphon_end":
+			_handle_kythera_siphon_end(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		_:
 			pass
 
@@ -105,6 +111,85 @@ func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 	var heal_amt: int = max(0, int(pool) + heal_base + 4 * int(stacks_at_cast))
 	AbilityEffects.heal_single(engine, state, tgt_team, best_idx, heal_amt)
 	engine._resolver_emit_log("Absorb & Release: healed %d (pool=%d, base=%d, stacks=%d)" % [heal_amt, pool, heal_base, stacks_at_cast])
+
+func _handle_veyra_harden_end(team: String, index: int) -> void:
+	if state == null or engine == null:
+		return
+	var caster: Unit = _unit_at(team, index)
+	if caster == null or not caster.is_alive():
+		return
+	var stacks: int = 0
+	if buff_system != null and buff_system.has_method("get_stack"):
+		stacks = int(buff_system.get_stack(state, team, index, "aegis_stacks"))
+	stacks = max(0, stacks)
+	if stacks <= 0:
+		engine._resolver_emit_log("Harden ended: no Aegis stacks; no max HP gained.")
+		return
+	var hp_gain: int = int(floor(float(caster.max_hp) * (float(stacks) * 0.01)))
+	if hp_gain <= 0:
+		engine._resolver_emit_log("Harden ended: stacks=%d, no effective max HP gain." % stacks)
+		return
+	# Apply a match-long stack that adds max_hp by hp_gain
+	if buff_system != null and buff_system.has_method("add_stack"):
+		buff_system.add_stack(state, team, index, "veyra_harden_hp", 1, {"max_hp": hp_gain})
+	engine._resolver_emit_log("Harden: +%d Max HP (stacks=%d)" % [hp_gain, stacks])
+
+func _handle_kythera_siphon_tick(team: String, index: int, data: Dictionary) -> void:
+	if state == null or engine == null:
+		return
+	var caster: Unit = _unit_at(team, index)
+	if caster == null or not caster.is_alive():
+		return
+	var tgt_idx: int = int(data.get("target_index", -1))
+	if tgt_idx < 0:
+		return
+	var tgt_team: String = ("enemy" if team == "player" else "player")
+	var tgt: Unit = _unit_at(tgt_team, tgt_idx)
+	if tgt == null or not tgt.is_alive():
+		return
+	var dmg: int = int(max(0, int(data.get("damage", 0))))
+	if dmg > 0:
+		AbilityEffects.damage_single(engine, state, team, index, tgt_idx, dmg, "magic")
+	# Apply incremental MR drain this tick and accumulate drained_total on caster tag
+	if buff_system != null:
+		var BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
+		if buff_system.has_tag(state, team, index, BuffTags.TAG_KYTHERA):
+			var tag := buff_system.get_tag(state, team, index, BuffTags.TAG_KYTHERA)
+			var meta: Dictionary = tag.get("data", {})
+			var per_sec: float = float(meta.get("per_sec", 0.0))
+			var drained_total: float = float(meta.get("drained_total", 0.0))
+			var remain: float = float(data.get("remain", 0.0))
+			# Effective drain cannot exceed current MR
+			var cur_mr: float = float(tgt.magic_resist)
+			var eff: float = min(per_sec, max(0.0, cur_mr))
+			if eff > 0.0 and remain > 0.0:
+				buff_system.apply_stats_buff(state, tgt_team, tgt_idx, {"magic_resist": -eff}, remain)
+			drained_total += eff
+			meta["drained_total"] = drained_total
+			tag["data"] = meta
+
+func _handle_kythera_siphon_end(team: String, index: int, data: Dictionary) -> void:
+	if state == null or engine == null:
+		return
+	var caster: Unit = _unit_at(team, index)
+	if caster == null or not caster.is_alive():
+		return
+	var gain_total: int = 0
+	if buff_system != null:
+		var BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
+		if buff_system.has_tag(state, team, index, BuffTags.TAG_KYTHERA):
+			var tag := buff_system.get_tag(state, team, index, BuffTags.TAG_KYTHERA)
+			var meta: Dictionary = tag.get("data", {})
+			var drained_total: float = float(meta.get("drained_total", 0.0))
+			gain_total = int(max(0, round(drained_total)))
+			# Clear remaining time on tag
+			tag["remaining"] = 0.0
+	if gain_total <= 0:
+		engine._resolver_emit_log("Siphon ended: no MR gained.")
+		return
+	if buff_system != null and buff_system.has_method("add_stack"):
+		buff_system.add_stack(state, team, index, "kythera_siphon_mr", 1, {"magic_resist": float(gain_total)})
+	engine._resolver_emit_log("Siphon: +%d Magic Resist (permanent)" % gain_total)
 
 func try_cast(team: String, index: int) -> Dictionary:
 	var result := {"cast": false, "reason": ""}

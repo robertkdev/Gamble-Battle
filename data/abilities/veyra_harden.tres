@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource( 1 )
-id = "veyra_absorb"
-name = "Absorb"
-description = "Reduces incoming damage for a duration, scaling with Aegis stacks; gains an Aegis stack on cast."
+id = "veyra_harden"
+name = "Harden"
+description = "Gains 40 + (Aegis stacks) flat damage reduction for 4s; then gains (Aegis stacks)% Max HP until end of combat."
 base_cost = 60
 tags = ["mitigation", "stacking"]
 

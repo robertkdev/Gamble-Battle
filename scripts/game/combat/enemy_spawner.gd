@@ -8,7 +8,7 @@ const Trace := preload("res://scripts/util/trace.gd")
 # Put unit IDs you want to spawn for the enemy team.
 # Example: ["axiom", "axiom", "paisley"]
 var ENEMY_TEAM: Array[String] = [
-	"axiom", "axiom", "axiom", "axiom", "axiom", "axiom", "axiom", "axiom"
+	"brute"
 ]
 
 # Optional: change at runtime from tests/tools

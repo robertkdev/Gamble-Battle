@@ -39,6 +39,9 @@ var armor_pen_pct: float = 0.0
 var mr_pen_flat: float = 0.0
 var mr_pen_pct: float = 0.0
 
+# Global flat damage reduction (applies after armor/MR and percent DR, before shields)
+var damage_reduction_flat: float = 0.0
+
 # Mana
 var mana: int = 0
 var mana_max: int = 0      # ability cost

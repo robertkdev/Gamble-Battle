@@ -7,9 +7,8 @@ script = ExtResource( 1 )
 id = "veyra"
 name = "Veyra"
 sprite_path = "res://assets/units/veyra.png"
-ability_id = "veyra_absorb"
+ability_id = "veyra_harden"
 traits = ["Aegis", "Bulwark"]
 roles = ["mage_tank"]
 cost = 1
 level = 1
-

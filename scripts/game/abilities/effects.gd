@@ -32,6 +32,14 @@ static func damage_single(engine: CombatEngine, state: BattleState, source_team:
 			dealt_f = DamageMath.apply_reduction(phys + mag, tgt)
 		_:
 			dealt_f = max(0.0, amount)
+	# Apply global flat damage reduction after %DR, before health apply
+	if tgt != null:
+		var flat_dr: float = 0.0
+		if tgt.has_method("get"):
+			flat_dr = max(0.0, float(tgt.get("damage_reduction_flat")))
+		else:
+			flat_dr = max(0.0, float(tgt.damage_reduction_flat))
+		dealt_f = max(0.0, dealt_f - flat_dr)
 	var dealt: int = int(max(0.0, round(dealt_f)))
 	var _hres := Health.apply_damage(tgt, dealt)
 	dealt = int(_hres.dealt)

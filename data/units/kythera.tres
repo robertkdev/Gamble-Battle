@@ -7,9 +7,8 @@ script = ExtResource( 1 )
 id = "kythera"
 name = "Kythera"
 sprite_path = "res://assets/units/kythera.png"
-ability_id = "kythera_glyph_bloom"
+ability_id = "kythera_siphon"
 traits = ["Aegis", "Exile"]
 roles = ["mage_tank"]
 cost = 1
 level = 1
-

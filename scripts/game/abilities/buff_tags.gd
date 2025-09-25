@@ -5,4 +5,5 @@ class_name BuffTags
 
 const TAG_NYXA := "nyxa_cv_active"
 const TAG_KORATH := "korath_absorb_active"
-
+const TAG_CC_IMMUNE := "cc_immune"
+const TAG_KYTHERA := "kythera_siphon_active"

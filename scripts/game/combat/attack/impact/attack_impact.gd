@@ -53,6 +53,14 @@ func apply_hit(source_team: String, source_index: int, src: Unit, tgt_team: Stri
 
     # Total after mitigation
     var total: float = dmgcalc.from_components(phys_base, magic_base, true_base, src, tgt)
+    # Apply global flat damage reduction after %DR, before shields
+    if tgt != null:
+        var flat_dr: float = 0.0
+        if tgt.has_method("get"):
+            flat_dr = max(0.0, float(tgt.get("damage_reduction_flat")))
+        else:
+            flat_dr = max(0.0, float(tgt.damage_reduction_flat))
+        total = max(0.0, total - flat_dr)
 
     # Nyxa per-shot bonus
     var bonus: int = 0
