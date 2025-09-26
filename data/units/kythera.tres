@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://bjd3owjjnqumh"]
 
-[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource("1")
 id = "kythera"
 name = "Kythera"
 sprite_path = "res://assets/units/kythera.png"
 ability_id = "kythera_siphon"
-traits = ["Aegis", "Exile"]
-roles = ["mage_tank"]
+traits = Array[String](["Aegis", "Exile"])
+roles = Array[String](["mage_tank"])
 cost = 1
 level = 1

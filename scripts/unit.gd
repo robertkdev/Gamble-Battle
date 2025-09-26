@@ -50,6 +50,9 @@ var mana_regen: float = 0.0
 var cast_speed: float = 1.0
 var mana_gain_per_attack: int = 30
 
+# UI helper: total active shield amount (for rendering). Updated by BuffSystem.
+var ui_shield: int = 0
+
 func _init() -> void:
 	pass
 

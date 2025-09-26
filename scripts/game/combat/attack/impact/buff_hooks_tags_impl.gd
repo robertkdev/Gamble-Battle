@@ -39,3 +39,18 @@ func korath_accumulate_pool(state: BattleState, team: String, index: int, amount
         return
     var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_KORATH)
     meta["pool"] = int(meta.get("pool", 0)) + max(0, amount)
+
+func bonko_clone_count(state: BattleState, team: String, index: int) -> int:
+    if buff_system == null or state == null:
+        return 0
+    if not buff_system.has_tag(state, team, index, BuffTags.TAG_BONKO):
+        return 0
+    return 1
+
+func bonko_clone_damage_pct(state: BattleState, team: String, index: int) -> float:
+    if buff_system == null or state == null:
+        return 0.5
+    if not buff_system.has_tag(state, team, index, BuffTags.TAG_BONKO):
+        return 0.0
+    var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_BONKO)
+    return float(meta.get("pct", 0.5))

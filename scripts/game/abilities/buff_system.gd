@@ -42,6 +42,9 @@ func tick(state: BattleState, delta: float) -> void:
 			_buffs[uu].erase(bb)
 			if _buffs[uu].is_empty():
 				_buffs.erase(uu)
+	# Recompute shield UI values after changes
+	for u2 in _buffs.keys():
+		_recompute_ui_shield(u2)
 
 # === Public API ===
 
@@ -63,6 +66,7 @@ func apply_shield(state: BattleState, team: String, index: int, amount: int, dur
 		return {"processed": false}
 	var buff := {"kind": "shield", "shield": int(amount), "remaining": duration_s}
 	_add_buff(u, buff)
+	_recompute_ui_shield(u)
 	return {"processed": true, "shield": int(amount), "duration": duration_s}
 
 func apply_stun(state: BattleState, team: String, index: int, duration_s: float) -> Dictionary:
@@ -158,6 +162,7 @@ func absorb_with_shields(u: Unit, incoming_damage: int) -> Dictionary:
 		dmg -= used
 		result["absorbed"] = int(result["absorbed"]) + used
 	result["leftover"] = dmg
+	_recompute_ui_shield(u)
 	return result
 
 # Instantly removes all active shield values on the unit.
@@ -174,6 +179,7 @@ func break_shields(u: Unit) -> int:
 		if s > 0:
 			removed += s
 			b["shield"] = 0
+	_recompute_ui_shield(u)
 	return removed
 
 func break_shields_on(state: BattleState, team: String, index: int) -> int:
@@ -235,6 +241,8 @@ func _expire_buff(u: Unit, buff: Dictionary) -> void:
 			_apply_fields(u, f, -1)
 	# shield and stun expire passively
 	# tag kind also expires passively
+	if kind == "shield":
+		_recompute_ui_shield(u)
 
 func _apply_fields(u: Unit, fields: Dictionary, sign: int) -> void:
 	for k in fields.keys():
@@ -278,3 +286,15 @@ func _unit_at(state: BattleState, team: String, idx: int) -> Unit:
 	if idx < 0 or idx >= arr.size():
 		return null
 	return arr[idx]
+
+func _recompute_ui_shield(u: Unit) -> void:
+	if u == null:
+		return
+	var total: int = 0
+	if _buffs.has(u):
+		var arr: Array = _buffs[u]
+		for b in arr:
+			if String(b.get("kind", "")) == "shield":
+				total += max(0, int(b.get("shield", 0)))
+	if u.has_method("set"):
+		u.ui_shield = int(total)

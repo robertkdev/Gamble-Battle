@@ -74,7 +74,7 @@ func configure(state: BattleState, target_controller: TargetController, rng: Ran
     frame_calc = _maybe_override(overrides, KEYS.frame_calc, FrameStatusCalculatorLib.new())
 
     projectile_policy = _maybe_override(overrides, KEYS.projectile_policy, ProjectilePolicyLib.new())
-    projectile_policy.configure(state, multishot, projectile_emitter)
+    projectile_policy.configure(state, multishot, projectile_emitter, hooks)
 
     target_assigner = _maybe_override(overrides, KEYS.target_assigner, TargetAssignerLib.new())
 

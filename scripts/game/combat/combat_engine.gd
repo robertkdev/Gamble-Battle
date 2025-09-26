@@ -81,6 +81,7 @@ func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Calla
 	projectile_handler.configure(attack_resolver)
 	# Ensure regen system enforces mana blocking via BuffSystem
 	regen_system.buff_system = buff_system
+	regen_system.ability_system = ability_system
 	# Ensure movement service (already constructed at declaration)
 	# Provide BuffSystem to movement via adapter if supported
 	if arena_state and arena_state.has_method("set_buff_system"):

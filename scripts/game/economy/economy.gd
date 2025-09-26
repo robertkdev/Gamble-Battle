@@ -37,3 +37,10 @@ func resolve(win: bool) -> void:
 
 func is_broke() -> bool:
 	return gold <= 0
+
+func add_gold(amount: int) -> void:
+	var delta: int = int(amount)
+	if delta == 0:
+		return
+	gold = max(0, gold + delta)
+	gold_changed.emit(gold)
