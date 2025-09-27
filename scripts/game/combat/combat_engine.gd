@@ -13,6 +13,7 @@ signal log_line(text: String)
 signal victory(stage: int)
 signal defeat(stage: int)
 signal vfx_knockup(team: String, index: int, duration: float)
+signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
 
 # Emitted after damage is applied (single or paired)
 # Provides detailed data for deterministic logging/analytics.
@@ -367,3 +368,7 @@ func _resolver_emit_hit(team: String, source_index: int, target_index: int, roll
 
 func _resolver_emit_vfx_knockup(team: String, index: int, duration: float) -> void:
 	emit_signal("vfx_knockup", team, index, duration)
+
+func _resolver_emit_vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float) -> void:
+	# Visual-only signal to draw a transient beam line in the arena UI.
+	emit_signal("vfx_beam_line", start, end, color, width, duration)

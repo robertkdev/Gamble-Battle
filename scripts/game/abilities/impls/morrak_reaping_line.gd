@@ -14,8 +14,9 @@ const LINE_WIDTH_TILES := 0.6
 const BASE_BY_LEVEL := [110, 165, 250]
 const BUFF_BY_LEVEL := [25, 35, 45] # Armor/MR
 
-const STRIKER_KEY := "striker_stacks"
-const EXECUTIONER_KEY := "executioner_stacks"
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
+const STRIKER_KEY := "striker_stacks"           # Legacy fallback; TODO remove after validation
+const EXECUTIONER_KEY := "executioner_stacks"    # Legacy fallback; TODO remove after validation
 
 func _level_index(u: Unit) -> int:
     var lvl: int = (int(u.level) if u != null else 1)
@@ -24,6 +25,14 @@ func _level_index(u: Unit) -> int:
 func _stack(bs, state: BattleState, team: String, index: int, key: String) -> int:
     if bs == null:
         return 0
+    var trait_key: String = key
+    if key == STRIKER_KEY:
+        trait_key = TraitKeys.STRIKER
+    elif key == EXECUTIONER_KEY:
+        trait_key = TraitKeys.EXECUTIONER
+    var v: int = int(bs.get_stack(state, team, index, trait_key))
+    if v > 0:
+        return v
     return int(bs.get_stack(state, team, index, key))
 
 func _execute_threshold(exec_stacks: int) -> float:

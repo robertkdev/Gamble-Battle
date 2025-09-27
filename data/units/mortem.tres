@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "mortem"
+name = "Mortem"
+sprite_path = "res://assets/units/mortem.png"
+ability_id = "mortem_blood_feast"
+traits = ["Sanguine", "Vindicator"]
+roles = ["hybrid_brawler"]
+cost = 1
+level = 1

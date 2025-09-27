@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TraitDef" load_steps=2 format=3 uid="uid://dvf4mxk0w0tu3"]
+
+[ext_resource type="Script" uid="uid://2j21h3i7yib7" path="res://scripts/game/traits/trait_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "Kaleidoscope"
+name = "Kaleidoscope"
+thresholds = Array[int]([2])
+description = "Allies gain AD/SP and bonus health per active trait; at many traits, gain Attack Speed."

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "creep"
+name = "Creep"
+sprite_path = "res://assets/units/creep.png"
+ability_id = "creep_eavesdropping"
+traits = ["Exile", "Executioner"]
+roles = ["assassin"]
+cost = 3
+level = 1
+

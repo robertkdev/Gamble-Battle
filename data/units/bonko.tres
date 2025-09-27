@@ -8,8 +8,7 @@ id = "bonko"
 name = "Bonko"
 sprite_path = "res://assets/units/bonko.png"
 ability_id = "bonko_bonk"
-traits = ["Striker", "Chronomancer"]
+traits = ["Cartel", "Chronomancer"]
 roles = ["brawler"]
 cost = 1
 level = 1
-

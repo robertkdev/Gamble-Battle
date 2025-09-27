@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TraitDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/traits/trait_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "Sanguine"
+name = "Sanguine"
+thresholds = [ 2, 4, 6 ]
+description = "Omnivamp for members; allies gain partial omnivamp at higher tiers. Overheal interactions at high tiers."
+

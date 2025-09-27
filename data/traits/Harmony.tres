@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="TraitDef" load_steps=2 format=3 uid="uid://8ub1w3pe1hbl"]
+
+[ext_resource type="Script" uid="uid://2j21h3i7yib7" path="res://scripts/game/traits/trait_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "Harmony"
+name = "Harmony"
+thresholds = Array[int]([2])
+description = "At combat start, checks the size of your largest trait and grants a team-wide bonus based on vertical size."

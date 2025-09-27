@@ -4,8 +4,8 @@ extends AbilityImplBase
 # Gate trait behavior via ctx.trait_tier(ctx.caster_team, "Titan") >= 0; skip when inactive—do not implement trait effects yet.
 
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const TAG_ACTIVE := BuffTags.TAG_KORATH
-const STACK_KEY := "korath_titan_stacks"
 
 const PCT_BY_LVL := [0.25, 0.30, 0.35] # absorb percent for 3s
 const RELEASE_DELAY_S := 3.0
@@ -27,11 +27,8 @@ func cast(ctx: AbilityContext) -> bool:
     var lvl: int = max(1, int(caster.level))
     var pct: float = PCT_BY_LVL[min(2, lvl - 1)]
 
-    # Titan gating: only gain a Titan stack if the Titan trait is active on the team
-    var titan_active: bool = (ctx.trait_tier(ctx.caster_team, "Titan") >= 0)
-    if titan_active:
-        bs.add_stack(ctx.state, ctx.caster_team, ctx.caster_index, STACK_KEY, 1)
-    var stacks_at_cast: int = int(bs.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, STACK_KEY))
+    # Read unified Titan stack key managed by trait systems; do not add here (DRY)
+    var stacks_at_cast: int = int(bs.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, TraitKeys.TITAN))
 
     # Apply timed absorbing tag; also block mana gain while active
     var meta := {

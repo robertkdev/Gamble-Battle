@@ -3,6 +3,7 @@ class_name AbilityEffects
 
 const DamageMath = preload("res://scripts/game/combat/damage_math.gd")
 const Health := preload("res://scripts/game/stats/health.gd")
+const HealingService := preload("res://scripts/game/traits/runtime/healing_service.gd")
 
 # Deals damage to a single target with mitigation.
 # type: "physical" | "magic" | "true" | "hybrid"
@@ -16,22 +17,31 @@ static func damage_single(engine: CombatEngine, state: BattleState, source_team:
 	if src == null or tgt == null or not tgt.is_alive():
 		return result
 	result["processed"] = true
+	# Global ability damage amplifier via tag (e.g., Arcanist T4)
+	var amt_f: float = max(0.0, amount)
+	if engine != null and engine.buff_system != null:
+		const BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
+		var data: Dictionary = engine.buff_system.get_tag_data(state, source_team, source_index, BuffTags.TAG_ABILITY_AMP)
+		if data != null and not data.is_empty():
+			var amp: float = float(data.get("ability_damage_amp", 0.0))
+			if amp != 0.0:
+				amt_f = max(0.0, amt_f * (1.0 + amp))
 	var before_hp: int = int(tgt.hp)
 	var dealt_f: float = 0.0
 	match type:
 		"physical":
-			dealt_f = DamageMath.apply_reduction(DamageMath.physical_after_armor(max(0.0, amount), src, tgt), tgt)
+			dealt_f = DamageMath.apply_reduction(DamageMath.physical_after_armor(max(0.0, amt_f), src, tgt), tgt)
 		"magic":
-			dealt_f = DamageMath.apply_reduction(DamageMath.magic_after_resist(max(0.0, amount), src, tgt), tgt)
+			dealt_f = DamageMath.apply_reduction(DamageMath.magic_after_resist(max(0.0, amt_f), src, tgt), tgt)
 		"true":
-			dealt_f = max(0.0, amount)
+			dealt_f = max(0.0, amt_f)
 		"hybrid":
-			var half: float = max(0.0, amount) * 0.5
+			var half: float = max(0.0, amt_f) * 0.5
 			var phys := DamageMath.physical_after_armor(half, src, tgt)
 			var mag := DamageMath.magic_after_resist(half, src, tgt)
 			dealt_f = DamageMath.apply_reduction(phys + mag, tgt)
 		_:
-			dealt_f = max(0.0, amount)
+			dealt_f = max(0.0, amt_f)
 	# Apply global flat damage reduction after %DR, before health apply
 	if tgt != null:
 		var flat_dr: float = 0.0
@@ -46,6 +56,10 @@ static func damage_single(engine: CombatEngine, state: BattleState, source_team:
 	result["dealt"] = dealt
 	result["before_hp"] = before_hp
 	result["after_hp"] = int(tgt.hp)
+	# Emit for analytics/traits: treat as a hit_applied for ability damage
+	if engine != null and engine.has_method("_resolver_emit_hit"):
+		var rolled_val: int = int(max(0.0, round(amt_f)))
+		engine._resolver_emit_hit(source_team, source_index, target_index, rolled_val, dealt, false, before_hp, int(tgt.hp), 0.0, 0.0)
 	# Emit for UI/analytics
 	if source_team == "player":
 		engine._resolver_emit_log("Your ability hits %s for %d." % [tgt.name, dealt])
@@ -61,15 +75,19 @@ static func heal_single(engine: CombatEngine, state: BattleState, target_team: S
 	var tgt: Unit = _unit_at(state, target_team, target_index)
 	if tgt == null or not tgt.is_alive():
 		return result
-	var before_hp: int = int(tgt.hp)
-	var heal_amt: int = int(max(0.0, round(amount)))
-	var hres := Health.heal(tgt, heal_amt)
+	var heal_amt: float = max(0.0, float(amount))
+	# Route through HealingService for amp/overheal conversion
+	var bs = engine.buff_system if engine != null else null
+	var hres: Dictionary = HealingService.apply_heal(state, bs, target_team, target_index, heal_amt)
+	if not hres.get("processed", false):
+		return result
 	result["processed"] = true
-	result["healed"] = int(hres.get("healed", int(tgt.hp) - before_hp))
-	result["before_hp"] = before_hp
-	result["after_hp"] = int(tgt.hp)
-	engine._resolver_emit_unit_stat(target_team, target_index, {"hp": tgt.hp})
-	engine._resolver_emit_stats(BattleState.first_alive(state.player_team), BattleState.first_alive(state.enemy_team))
+	result["healed"] = int(hres.get("healed", 0))
+	result["before_hp"] = int(hres.get("before_hp", 0))
+	result["after_hp"] = int(hres.get("after_hp", 0))
+	if engine != null:
+		engine._resolver_emit_unit_stat(target_team, target_index, {"hp": tgt.hp})
+		engine._resolver_emit_stats(BattleState.first_alive(state.player_team), BattleState.first_alive(state.enemy_team))
 	return result
 
 # Applies a shield via BuffSystem; no-op if buff_system is null.

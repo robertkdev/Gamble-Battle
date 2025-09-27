@@ -3,6 +3,7 @@ class_name AbilityContext
 
 const AbilityEffects = preload("res://scripts/game/abilities/effects.gd")
 const TraitCompiler = preload("res://scripts/game/traits/trait_compiler.gd")
+const BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
 const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
 
 var engine: CombatEngine
@@ -183,8 +184,29 @@ func trait_count(team: String, trait_id: String) -> int:
 	var counts: Dictionary = t.get("counts", {})
 	return int(counts.get(trait_id, 0))
 
+# Exile upgrade helper for abilities: returns 0 if none, or 1..3 when active.
+func exile_upgrade_level(team: String, index: int) -> int:
+	if buff_system == null:
+		return 0
+	if not buff_system.has_tag(state, team, index, BuffTags.TAG_EXILE_UPGRADE):
+		return 0
+	var data: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_EXILE_UPGRADE)
+	return int(data.get("level", 0))
+
 func _other_team(team: String) -> String:
 	return "enemy" if team == "player" else "player"
+
+# --- Mentor–Pupil pairing ---
+func pupil_for(team: String, mentor_index: int) -> int:
+	if state == null or mentor_index < 0:
+		return -1
+	if team == "player":
+		if mentor_index < state.player_pupil_map.size():
+			return int(state.player_pupil_map[mentor_index])
+	else:
+		if mentor_index < state.enemy_pupil_map.size():
+			return int(state.enemy_pupil_map[mentor_index])
+	return -1
 
 # --- Effects ---
 # Deals physical/magic/true damage in-place using shared mitigation.

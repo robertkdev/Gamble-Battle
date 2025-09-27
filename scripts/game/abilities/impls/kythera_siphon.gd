@@ -7,12 +7,17 @@ extends AbilityImplBase
 
 const DURATION_S := 3.0
 const SP_DMG_MULT := 0.35
-const KEY_AEGIS_STACKS := "aegis_stacks"              # future-provided; falls back to 0 for now
+const KEY_AEGIS_STACKS := "aegis_stacks"              # Legacy fallback; TODO remove after validation
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 
 func _read_aegis_stacks(ctx: AbilityContext) -> int:
 	if ctx == null or ctx.buff_system == null:
 		return 0
+	# Prefer unified TraitKeys; fall back to legacy aegis_stacks for compatibility.
+	var v: int = int(ctx.buff_system.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, TraitKeys.AEGIS))
+	if v > 0:
+		return v
 	return int(ctx.buff_system.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, KEY_AEGIS_STACKS))
 
 func cast(ctx: AbilityContext) -> bool:

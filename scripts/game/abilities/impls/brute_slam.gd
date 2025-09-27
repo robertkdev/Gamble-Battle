@@ -3,7 +3,7 @@ extends AbilityImplBase
 # TRAIT HOOKS: Implement baseline; expose TUNE_* constants + STACK/TAG keys only.
 # Gate trait behavior via ctx.trait_tier(ctx.caster_team, "Titan") >= 0; skip when inactive.
 
-const STACK_KEY := "trait.Titan" # unified Titan stack key (per-unit)
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 
 const HEAL_BASE := [120, 170, 240]
 const HEAL_PER_STACK := 20
@@ -28,11 +28,8 @@ func cast(ctx: AbilityContext) -> bool:
     var heal_base: int = int(HEAL_BASE[lvl - 1])
     var dmg_base: int = int(DMG_BASE[lvl - 1])
 
-    # Titan gate: only gain a Titan stack if Titan is active on team
-    var titan_active: bool = (ctx.trait_tier(ctx.caster_team, "Titan") >= 0)
-    if titan_active:
-        bs.add_stack(ctx.state, ctx.caster_team, ctx.caster_index, STACK_KEY, 1)
-    var stacks_at_cast: int = int(bs.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, STACK_KEY))
+    # Read unified Titan stack key (managed by trait system). Do not add stacks here.
+    var stacks_at_cast: int = int(bs.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, TraitKeys.TITAN))
 
     var heal_amount: int = max(0, heal_base + HEAL_PER_STACK * stacks_at_cast)
     var damage_amount: int = max(0, dmg_base + DMG_PER_STACK * stacks_at_cast)

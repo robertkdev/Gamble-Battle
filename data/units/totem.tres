@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://cf2wlfuis6arw"]
+
+[ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "totem"
+name = "Totem"
+sprite_path = "res://assets/units/totem.png"
+ability_id = "totem_cleanse"
+traits = Array[String](["Bulwark", "Exile"])
+roles = Array[String](["mage"])
+cost = 1
+level = 1

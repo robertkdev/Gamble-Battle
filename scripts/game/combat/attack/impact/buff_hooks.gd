@@ -13,3 +13,12 @@ func korath_absorb_pct(state: BattleState, team: String, index: int) -> float:
 func korath_accumulate_pool(state: BattleState, team: String, index: int, amount: int) -> void:
     pass
 
+func unstable_pre_phys_bonus(state: BattleState, team: String, index: int, tgt_team: String, target_index: int) -> float:
+    return 0.0
+
+# Executioner specials
+func exec_ignore_shields_on_crit(state: BattleState, team: String, index: int) -> bool:
+    return false
+
+func exec_true_bonus_pct(state: BattleState, team: String, index: int) -> float:
+    return 0.0

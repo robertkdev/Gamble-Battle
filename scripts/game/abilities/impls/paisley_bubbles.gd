@@ -16,8 +16,9 @@ const DMG_SP_MULT := 0.70
 const DMG_KALEI_PER_STACK := 12.0
 const DMG_ARCA_PER_STACK := 8.0
 
-const KEY_KALEIDOSCOPE := "kaleidoscope_stacks"
-const KEY_ARCANIST := "arcanist_stacks"
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
+const KEY_KALEIDOSCOPE := "kaleidoscope_stacks" # Legacy fallback; TODO remove after validation
+const KEY_ARCANIST := "arcanist_stacks"         # Legacy fallback; TODO remove after validation
 
 func _level_index(u: Unit) -> int:
 	var lvl: int = (int(u.level) if u != null else 1)
@@ -26,6 +27,14 @@ func _level_index(u: Unit) -> int:
 func _get_stack(bs, state: BattleState, team: String, index: int, key: String) -> int:
 	if bs == null:
 		return 0
+	var trait_key: String = key
+	if key == KEY_ARCANIST:
+		trait_key = TraitKeys.ARCANIST
+	elif key == KEY_KALEIDOSCOPE:
+		trait_key = TraitKeys.KALEIDOSCOPE
+	var v: int = int(bs.get_stack(state, team, index, trait_key))
+	if v > 0:
+		return v
 	return int(bs.get_stack(state, team, index, key))
 
 func _ally_indices_by_lowest_ratio(ctx: AbilityContext, team: String) -> Array[int]:

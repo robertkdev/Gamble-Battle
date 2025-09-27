@@ -3,6 +3,8 @@ class_name CombatManager
 const Trace := preload("res://scripts/util/trace.gd")
 const Health := preload("res://scripts/game/stats/health.gd")
 const Mana := preload("res://scripts/game/stats/mana.gd")
+const TraitRuntimeLib := preload("res://scripts/game/traits/runtime/trait_runtime.gd")
+const MentorLink := preload("res://scripts/game/traits/runtime/mentor_link.gd")
 
 signal battle_started(stage: int, enemy)
 signal log_line(text: String)
@@ -13,6 +15,7 @@ signal victory(stage: int)
 signal defeat(stage: int)
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal vfx_knockup(team: String, index: int, duration: float)
+signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
 
 var enemy: Unit
 
@@ -25,10 +28,24 @@ var stage: int = 1
 var _state: BattleState
 var _engine
 var _pending_movement_debug_frames: int = 0
+var _trait_runtime: TraitRuntime = null
 
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	if _engine:
 		_engine.set_arena(tile_size, player_pos, enemy_pos, bounds)
+		# After arena positions are set, compute mentor–pupil pairs for this battle
+		_compute_mentor_pairs(player_pos, enemy_pos)
+
+func _compute_mentor_pairs(player_pos: Array, enemy_pos: Array) -> void:
+	if _state == null:
+		return
+	# Trait-driven Mentor pairing via MentorLink
+	_state.player_pupil_map = MentorLink.compute_for_team(_state.player_team, player_pos)
+	_state.enemy_pupil_map = MentorLink.compute_for_team(_state.enemy_team, enemy_pos)
+
+func _pair_for_team(team: String, units: Array[Unit], positions: Array) -> Array[int]:
+	# Legacy helper retained for safety; delegate to MentorLink
+	return MentorLink.compute_for_team(units, positions)
 
 func is_team_defeated(team: String) -> bool:
 	var arr := player_team if team == "player" else enemy_team
@@ -62,6 +79,9 @@ func is_turn_in_progress() -> bool:
 func _process(delta: float) -> void:
 	if _engine:
 		_engine.process(delta)
+	# Single hook to drive trait runtime ticks
+	if _trait_runtime != null:
+		_trait_runtime.process(delta)
 
 func _wire_engine_signals() -> void:
 	if not _engine:
@@ -82,6 +102,8 @@ func _wire_engine_signals() -> void:
 		_engine.unit_stat_changed.connect(_on_engine_unit_stat)
 	if not _engine.is_connected("vfx_knockup", Callable(self, "_on_engine_vfx_knockup")):
 		_engine.vfx_knockup.connect(_on_engine_vfx_knockup)
+	if not _engine.is_connected("vfx_beam_line", Callable(self, "_on_engine_vfx_beam_line")):
+		_engine.vfx_beam_line.connect(_on_engine_vfx_beam_line)
 
 func _re_emit_projectile(team: String, sidx: int, tidx: int, dmg: int, crit: bool) -> void:
 	emit_signal("projectile_fired", team, sidx, tidx, dmg, crit)
@@ -101,6 +123,9 @@ func _on_engine_unit_stat(team: String, index: int, fields: Dictionary) -> void:
 
 func _on_engine_vfx_knockup(team: String, index: int, duration: float) -> void:
 	emit_signal("vfx_knockup", team, index, duration)
+
+func _on_engine_vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float) -> void:
+	emit_signal("vfx_beam_line", start, end, color, width, duration)
 
 func _ensure_default_player_team_into(arr: Array) -> void:
 	# Append default units into the provided array
@@ -163,8 +188,18 @@ func start_stage() -> void:
 	_engine.configure(_state, pref, stage, select_closest_target)
 	Trace.step("CM.start_stage: wire engine signals")
 	_wire_engine_signals()
+	# Create trait runtime after engine is configured (ability/buff systems ready)
+	if _trait_runtime != null:
+		_trait_runtime.unwire_signals()
+		_trait_runtime = null
+	_trait_runtime = TraitRuntimeLib.new()
+	_trait_runtime.configure(_engine, _state, _engine.buff_system, _engine.ability_system)
+	_trait_runtime.wire_signals()
 	Trace.step("CM.start_stage: start engine")
 	_engine.start()
+	# Notify traits battle start after engine start but before first process tick
+	if _trait_runtime != null:
+		_trait_runtime.on_battle_start()
 	Trace.step("CM.start_stage: engine started")
 	# Apply any pending movement debug logging without peeking internal fields
 	if _pending_movement_debug_frames > 0 and _engine and _engine.has_method("set_movement_debug_frames"):

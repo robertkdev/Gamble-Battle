@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TraitDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/traits/trait_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "Cartel"
+name = "Cartel"
+thresholds = [ 2 ]
+description = "At 2+, grants team-wide buffs based on the costs of units fielded."
+

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "grint_body_check"
+name = "Body Check"
+description = "Swipe the target for 100/150/225 + 0.6×AD physical damage, then dash into the target, knocking them back by 1 tile."
+base_cost = 60
+tags = ["damage", "dash", "knockback", "physical"]

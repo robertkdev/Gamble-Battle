@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "bo"
+name = "Bo"
+sprite_path = "res://assets/units/bo.png"
+ability_id = "bo_writ_of_severance"
+traits = ["Fortified", "Executioner"]
+roles = ["brawler_tank"]
+cost = 1
+level = 1

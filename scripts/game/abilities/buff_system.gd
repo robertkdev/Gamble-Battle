@@ -10,19 +10,26 @@ const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 const SUPPORTED_FIELDS := [
 	"armor", "magic_resist", "damage_reduction",
 	"attack_damage", "spell_power", "attack_speed",
-	"max_hp", "move_speed", "lifesteel",
+	"crit_chance", "crit_damage",
+	"mana_regen",
+	"max_hp", "move_speed", "lifesteal", "lifesteel", # support both spellings
 	"true_damage", "armor_pen_flat", "armor_pen_pct",
 	"mr_pen_flat", "mr_pen_pct",
-	"damage_reduction_flat"
+	"damage_reduction_flat",
+	"tenacity"
 ]
 
 # Map[Unit -> Array[Dictionary]]
 var _buffs: Dictionary = {}
 var _stacks: Dictionary = {} # Map[Unit -> Dictionary[String, int]]
+var _cc_first: Dictionary = {} # Map[Unit -> bool]
+
+signal cc_applied_first(team: String, index: int, kind: String)
 
 func clear() -> void:
 	_buffs.clear()
 	_stacks.clear()
+	_cc_first.clear()
 
 func tick(state: BattleState, delta: float) -> void:
 	if delta <= 0.0:
@@ -31,8 +38,9 @@ func tick(state: BattleState, delta: float) -> void:
 	for u in _buffs.keys():
 		var arr: Array = _buffs[u]
 		for b in arr:
-			b.remaining = float(b.remaining) - delta
-			if b.remaining <= 0.0:
+			var rem := float(b.get("remaining", 0.0)) - delta
+			b["remaining"] = rem
+			if rem <= 0.0:
 				_expire_buff(u, b)
 				to_remove.append([u, b])
 	for pair in to_remove:
@@ -60,14 +68,45 @@ func apply_stats_buff(state: BattleState, team: String, index: int, fields: Dict
 	_add_buff(u, buff)
 	return {"processed": true, "applied": f, "duration": duration_s}
 
+# Applies or refreshes a labeled stats buff so it does not stack.
+# If a stats buff with the same label exists on the unit, refreshes its remaining duration to max(current, duration_s)
+# and returns without reapplying fields. Otherwise applies fields and adds a new labeled stats buff.
+func apply_stats_labeled(state: BattleState, team: String, index: int, label: String, fields: Dictionary, duration_s: float) -> Dictionary:
+	var u: Unit = _unit_at(state, team, index)
+	if u == null or String(label).strip_edges() == "" or duration_s <= 0.0:
+		return {"processed": false}
+	# If labeled stats buff exists, just refresh remaining
+	if _buffs.has(u):
+		for b in _buffs[u]:
+			if String(b.get("kind", "")) == "stats" and String(b.get("label", "")) == String(label):
+				var cur: float = float(b.get("remaining", 0.0))
+				b["remaining"] = max(cur, float(duration_s))
+				return {"processed": true, "refreshed": true, "duration": float(b["remaining"]) }
+	var f := _filter_fields(fields)
+	if f.is_empty():
+		return {"processed": false}
+	_apply_fields(u, f, +1)
+	var buff := {"kind": "stats", "fields": f, "remaining": duration_s, "label": String(label)}
+	_add_buff(u, buff)
+	return {"processed": true, "applied": f, "duration": duration_s}
+
 func apply_shield(state: BattleState, team: String, index: int, amount: int, duration_s: float) -> Dictionary:
 	var u: Unit = _unit_at(state, team, index)
 	if u == null or amount <= 0 or duration_s <= 0.0:
 		return {"processed": false}
-	var buff := {"kind": "shield", "shield": int(amount), "remaining": duration_s}
+	var amt: int = int(max(0, amount))
+	# Apply shield strength multiplier from active healing mods tag if present
+	const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
+	if has_tag(state, team, index, BuffTags.TAG_HEALING_MODS):
+		var data: Dictionary = get_tag_data(state, team, index, BuffTags.TAG_HEALING_MODS)
+		if data != null:
+			var mult: float = 1.0 + float(data.get("shield_strength_pct", 0.0))
+			if mult != 1.0:
+				amt = int(max(0.0, round(float(amt) * max(0.0, mult))))
+	var buff := {"kind": "shield", "shield": int(amt), "remaining": duration_s}
 	_add_buff(u, buff)
 	_recompute_ui_shield(u)
-	return {"processed": true, "shield": int(amount), "duration": duration_s}
+	return {"processed": true, "shield": int(amt), "duration": duration_s}
 
 func apply_stun(state: BattleState, team: String, index: int, duration_s: float) -> Dictionary:
 	var u: Unit = _unit_at(state, team, index)
@@ -76,8 +115,20 @@ func apply_stun(state: BattleState, team: String, index: int, duration_s: float)
 	# Gate stuns when unit is CC-immune via active tag
 	if _has_cc_immunity(state, team, index):
 		return {"processed": false}
-	var buff := {"kind": "stun", "remaining": duration_s}
+	var dur: float = max(0.0, duration_s)
+	# Tenacity reduces CC duration: effective = duration * (1 - tenacity)
+	var ten: float = 0.0
+	if u.has_method("get"):
+		ten = max(0.0, min(0.95, float(u.get("tenacity"))))
+	else:
+		ten = max(0.0, min(0.95, float(u.tenacity)))
+	if ten > 0.0:
+		dur = max(0.0, dur * (1.0 - ten))
+	if dur <= 0.0:
+		return {"processed": false}
+	var buff := {"kind": "stun", "remaining": dur}
 	_add_buff(u, buff)
+	_maybe_mark_first_cc(state, team, index, "stun")
 	return {"processed": true, "duration": duration_s}
 
 # Generic tagged timed buff helper (no stat deltas by default)
@@ -86,19 +137,34 @@ func apply_tag(state: BattleState, team: String, index: int, tag: String, durati
 	var u: Unit = _unit_at(state, team, index)
 	if u == null or tag.strip_edges() == "" or duration_s <= 0.0:
 		return {"processed": false}
+	var dur: float = max(0.0, duration_s)
+	# Scale root/rooted tags by tenacity
+	var lname: String = String(tag).to_lower()
+	if lname == "root" or lname == "rooted":
+		var ten: float = 0.0
+		if u.has_method("get"):
+			ten = max(0.0, min(0.95, float(u.get("tenacity"))))
+		else:
+			ten = max(0.0, min(0.95, float(u.tenacity)))
+		if ten > 0.0:
+			dur = max(0.0, dur * (1.0 - ten))
+		if dur <= 0.0:
+			return {"processed": false}
 	# If tag already present, refresh remaining and merge data
 	if _buffs.has(u):
 		for b in _buffs[u]:
 			if String(b.get("kind", "")) == "tag" and String(b.get("tag", "")) == tag:
-				b["remaining"] = max(float(b.get("remaining", 0.0)), duration_s)
+				b["remaining"] = max(float(b.get("remaining", 0.0)), dur)
 				var cur: Dictionary = b.get("data", {})
 				var merged: Dictionary = cur.duplicate()
 				for k in data.keys():
 					merged[k] = data[k]
 				b["data"] = merged
 				return {"processed": true, "updated": true, "remaining": float(b["remaining"]), "data": merged}
-	var buff := {"kind": "tag", "tag": tag, "remaining": duration_s, "data": (data if data != null else {})}
+	var buff := {"kind": "tag", "tag": tag, "remaining": dur, "data": (data if data != null else {})}
 	_add_buff(u, buff)
+	if lname == "root" or lname == "rooted":
+		_maybe_mark_first_cc(state, team, index, "root")
 	return {"processed": true, "created": true, "remaining": duration_s, "data": buff["data"]}
 
 func has_tag(state: BattleState, team: String, index: int, tag: String) -> bool:
@@ -139,7 +205,88 @@ func is_mana_gain_blocked(state: BattleState, team: String, index: int) -> bool:
 		var d: Dictionary = b.get("data", {})
 		if d != null and bool(d.get("block_mana_gain", false)):
 			return true
+		# Convention: any active-tag (name ends with _active) implies ability is in-progress; block mana gain
+		var tname: String = String(b.get("tag", ""))
+		if tname.ends_with("_active"):
+			return true
 	return false
+
+# Returns true if unit has any debuff: active stun, root/rooted tag, or a tag with a debuff hint
+func is_debuffed(state: BattleState, team: String, index: int) -> bool:
+	var u: Unit = _unit_at(state, team, index)
+	if u == null or not _buffs.has(u):
+		return false
+	# Stun counts as a debuff
+	if is_stunned(u):
+		return true
+	for b in _buffs[u]:
+		if float(b.get("remaining", 0.0)) <= 0.0:
+			continue
+		var kind: String = String(b.get("kind", ""))
+		if kind == "tag":
+			var tname: String = String(b.get("tag", ""))
+			if tname == "root" or tname == "rooted":
+				return true
+			if tname.to_lower().find("mark") >= 0:
+				return true
+			var d: Dictionary = b.get("data", {})
+			if d != null and (bool(d.get("is_debuff", false)) or bool(d.get("debuff", false))):
+				return true
+		elif kind == "stats":
+			var f: Dictionary = b.get("fields", {})
+			if f and not f.is_empty():
+				# If any stat buff has negative value, treat as debuff
+				for k in f.keys():
+					if float(f[k]) < 0.0:
+						return true
+	return false
+
+# Cleanses debuffs from a unit: removes stuns, root/rooted tags, marked tags, and negative stat buffs
+func cleanse(state: BattleState, team: String, index: int) -> Dictionary:
+	var result := {"removed": 0}
+	var u: Unit = _unit_at(state, team, index)
+	if u == null or not _buffs.has(u):
+		return result
+	var arr: Array = _buffs[u]
+	var to_remove: Array = []
+	for b in arr:
+		var keep: bool = true
+		var kind: String = String(b.get("kind", ""))
+		if kind == "stun":
+			keep = false
+		elif kind == "tag":
+			var tname: String = String(b.get("tag", ""))
+			if tname == "root" or tname == "rooted" or tname.to_lower().find("mark") >= 0:
+				keep = false
+			else:
+				var d: Dictionary = b.get("data", {})
+				if d != null and (bool(d.get("is_debuff", false)) or bool(d.get("debuff", false)) or bool(d.get("cleanseable", false))):
+					keep = false
+		elif kind == "stats":
+			var f: Dictionary = b.get("fields", {})
+			if f and not f.is_empty():
+				for k in f.keys():
+					if float(f[k]) < 0.0:
+						keep = false
+						break
+		# Shields and positive buffs are kept
+		if not keep:
+			to_remove.append(b)
+	# Apply removals and revert stat buffs
+	var removed: int = 0
+	for b2 in to_remove:
+		var kind2: String = String(b2.get("kind", ""))
+		if kind2 == "stats":
+			var f2: Dictionary = b2.get("fields", {})
+			if f2 and not f2.is_empty():
+				_apply_fields(u, f2, -1)
+		arr.erase(b2)
+		removed += 1
+	if arr.is_empty():
+		_buffs.erase(u)
+	_recompute_ui_shield(u)
+	result["removed"] = removed
+	return result
 
 # Attempts to absorb incoming damage using active shields on this unit.
 # Returns leftover damage after shields (non-negative) and the amount absorbed.
@@ -255,6 +402,19 @@ func _apply_fields(u: Unit, fields: Dictionary, sign: int) -> void:
 				u.attack_speed = max(0.01, u.attack_speed + delta)
 			"lifesteal":
 				u.lifesteal = clamp(u.lifesteal + delta, 0.0, 0.9)
+			"lifesteel": # alias
+				u.lifesteal = clamp(u.lifesteal + delta, 0.0, 0.9)
+			"tenacity":
+				var base_t: float = 0.0
+				if u.has_method("get"):
+					base_t = float(u.get("tenacity"))
+				else:
+					base_t = float(u.tenacity)
+				var nv_t: float = clamp(base_t + delta, 0.0, 0.95)
+				if u.has_method("set"):
+					u.set("tenacity", nv_t)
+				else:
+					u.tenacity = nv_t
 			"max_hp":
 				var new_max: int = max(1, int(round(float(u.max_hp) + delta)))
 				u.max_hp = new_max
@@ -268,6 +428,14 @@ func _apply_fields(u: Unit, fields: Dictionary, sign: int) -> void:
 					if k in ["armor", "magic_resist", "armor_pen_flat", "mr_pen_flat"]:
 						nv = max(0.0, nv)
 					u.set(k, nv)
+
+func _maybe_mark_first_cc(state: BattleState, team: String, index: int, kind: String) -> void:
+	var u: Unit = _unit_at(state, team, index)
+	if u == null:
+		return
+	if not _cc_first.has(u) or not bool(_cc_first[u]):
+		_cc_first[u] = true
+		emit_signal("cc_applied_first", team, index, String(kind))
 
 func _has_cc_immunity(state: BattleState, team: String, index: int) -> bool:
 	return has_tag(state, team, index, BuffTags.TAG_CC_IMMUNE)

@@ -7,10 +7,11 @@ extends AbilityImplBase
 # Then: spawn Bonk Buddy (virtual) for 4.0s — Bonko gains +50% attack speed, and a clone shot is emitted on each attack for 50% damage.
 
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 
 const BASE_BY_LEVEL := [160, 240, 380]
 const STUN_BY_LEVEL := [1.0, 1.25, 1.5]
-const STRIKER_KEY := "striker_stacks"
+const STRIKER_KEY := "striker_stacks" # Legacy fallback; TODO: remove after validation
 const DURATION_S := 4.0
 const CLONE_PCT := 0.5
 const BONUS_ON_STUNNED := 0.25
@@ -22,6 +23,11 @@ func _level_index(u: Unit) -> int:
 func _stacks(bs, state: BattleState, team: String, index: int, key: String) -> int:
     if bs == null:
         return 0
+    # Prefer unified TraitKeys; fall back to legacy key for back-compat
+    var trait_key: String = TraitKeys.STRIKER
+    var v: int = int(bs.get_stack(state, team, index, trait_key))
+    if v > 0:
+        return v
     return int(bs.get_stack(state, team, index, key))
 
 func cast(ctx: AbilityContext) -> bool:
@@ -68,4 +74,3 @@ func cast(ctx: AbilityContext) -> bool:
 
     ctx.log("Bonk: dealt %d (%s), stun %.2fs, Buddy 4s (+50%% AS, 50%% echo)" % [int(round(total)), ("+25% vs stunned" if already_stunned else "stun applied"), STUN_BY_LEVEL[li]])
     return true
-

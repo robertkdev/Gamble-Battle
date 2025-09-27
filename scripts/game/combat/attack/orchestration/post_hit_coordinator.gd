@@ -40,6 +40,16 @@ func apply(source_team: String, source_index: int, target_team: String, target_i
 
     # Totals/frame damage
     stats.add_dealt(source_team, dealt)
+    # Per-unit round damage on state
+    if state != null and dealt > 0:
+        if source_team == "player":
+            while state.player_damage_this_round.size() < state.player_team.size(): state.player_damage_this_round.append(0)
+            if source_index >= 0 and source_index < state.player_damage_this_round.size():
+                state.player_damage_this_round[source_index] = int(state.player_damage_this_round[source_index]) + int(dealt)
+        else:
+            while state.enemy_damage_this_round.size() < state.enemy_team.size(): state.enemy_damage_this_round.append(0)
+            if source_index >= 0 and source_index < state.enemy_damage_this_round.size():
+                state.enemy_damage_this_round[source_index] = int(state.enemy_damage_this_round[source_index]) + int(dealt)
 
     # Mana gain on attack (handles tag-based blocking and optional autocast)
     var src: Unit = TeamUtils.unit_at(state, source_team, source_index)

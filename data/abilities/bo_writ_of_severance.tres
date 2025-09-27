@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "bo_writ_of_severance"
+name = "Writ of Severance"
+description = "Throws his weapon up to 3 tiles through his current target, dealing physical damage to all enemies hit. Then dashes to the weapon, becoming Unstoppable and taking 30% reduced damage while dashing; enemies he passes through are knocked up and take additional physical damage. After landing, Bo retargets the nearest enemy."
+base_cost = 60
+tags = ["damage", "line", "projectile", "dash", "knockup"]
+

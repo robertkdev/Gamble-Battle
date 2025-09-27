@@ -64,6 +64,7 @@ var turn_delay: float = 0.6
 var _post_combat_outcome: String = ""
 var _pending_continue: bool = false
 var view_rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var _beam_overlay: Control = null
 
 func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> void:
 	parent = _parent
@@ -104,6 +105,8 @@ func initialize() -> void:
 			manager.unit_stat_changed.connect(_on_unit_stat_changed)
 		if not manager.is_connected("vfx_knockup", Callable(self, "_on_vfx_knockup")):
 			manager.vfx_knockup.connect(_on_vfx_knockup)
+		if not manager.is_connected("vfx_beam_line", Callable(self, "_on_vfx_beam_line")):
+			manager.vfx_beam_line.connect(_on_vfx_beam_line)
 		if not manager.is_connected("victory", Callable(self, "_on_victory")):
 			manager.victory.connect(_on_victory)
 		if not manager.is_connected("defeat", Callable(self, "_on_defeat")):
@@ -477,6 +480,29 @@ func _on_vfx_knockup(team: String, index: int, duration: float) -> void:
 	var actor: UnitActor = arena_bridge.get_actor(team, index)
 	if actor and is_instance_valid(actor):
 		actor.play_knockup(duration)
+
+func _ensure_beam_overlay() -> void:
+	if _beam_overlay and is_instance_valid(_beam_overlay):
+		return
+	var Overlay = load("res://scripts/ui/combat/beam_overlay.gd")
+	_beam_overlay = Overlay.new()
+	# Attach to arena_units so it sits above actors
+	if parent and parent.has_method("get_node") and arena_units:
+		arena_units.add_child(_beam_overlay)
+		_beam_overlay.anchor_left = 0.0
+		_beam_overlay.anchor_top = 0.0
+		_beam_overlay.anchor_right = 1.0
+		_beam_overlay.anchor_bottom = 1.0
+		_beam_overlay.offset_left = 0.0
+		_beam_overlay.offset_top = 0.0
+		_beam_overlay.offset_right = 0.0
+		_beam_overlay.offset_bottom = 0.0
+		_beam_overlay.z_index = 100
+
+func _on_vfx_beam_line(start: Vector2, end_: Vector2, color: Color, width: float, duration: float) -> void:
+	_ensure_beam_overlay()
+	if _beam_overlay and is_instance_valid(_beam_overlay) and _beam_overlay.has_method("add_beam"):
+		_beam_overlay.add_beam(start, end_, color, width, duration)
 
 func _enter_combat_arena() -> void:
 	if not arena_container:

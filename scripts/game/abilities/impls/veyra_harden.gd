@@ -7,7 +7,8 @@ extends AbilityImplBase
 
 const DURATION_S := 4.0
 const RADIUS_TILES := 2.0
-const KEY_AEGIS_STACKS := "aegis_stacks"               # future-provided by Aegis systems; 0 if absent
+const KEY_AEGIS_STACKS := "aegis_stacks"               # legacy key for backward compatibility
+const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const KEY_HARDEN_MAXHP := "veyra_harden_hp"            # permanent stack key applying max_hp delta
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
@@ -15,7 +16,10 @@ const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
 func _read_aegis_stacks(ctx: AbilityContext) -> int:
     if ctx == null or ctx.buff_system == null:
         return 0
-    # Prepared for trait wiring later: try a BuffSystem stack first; falls back to 0.
+    # Prefer unified trait key; fall back to legacy aegis_stacks for compatibility.
+    var trait_val: int = int(ctx.buff_system.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, TraitKeys.AEGIS))
+    if trait_val > 0:
+        return trait_val
     return int(ctx.buff_system.get_stack(ctx.state, ctx.caster_team, ctx.caster_index, KEY_AEGIS_STACKS))
 
 func _snapshot_allies_in_radius(ctx: AbilityContext, radius_tiles: float) -> Array[int]:

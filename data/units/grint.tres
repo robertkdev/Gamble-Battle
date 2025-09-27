@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "grint"
+name = "Grint"
+sprite_path = "res://assets/units/grint.png"
+ability_id = "grint_body_check"
+traits = ["Cartel", "Harmony"]
+roles = ["tank", "brawler"]
+cost = 1
+level = 1
