@@ -17,8 +17,8 @@ func _ready() -> void:
 	# Drag base config
 	content_root_path = NodePath(".")
 	drag_size = Vector2(TILE_SIZE, TILE_SIZE)
-	# Allow drag outside of combat for units
-	allowed_phases = [GameState.GamePhase.PREVIEW, GameState.GamePhase.POST_COMBAT]
+	# Allow drag during combat too so players can sell while fighting
+	allowed_phases = [GameState.GamePhase.PREVIEW, GameState.GamePhase.COMBAT, GameState.GamePhase.POST_COMBAT]
 
 func _ensure_children() -> void:
 	if not sprite:

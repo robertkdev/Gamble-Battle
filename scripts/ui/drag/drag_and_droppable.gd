@@ -2,6 +2,7 @@ extends Control
 class_name DragAndDroppable
 
 signal dropped_on_tile(tile_idx: int)
+signal dropped_on_target(grid, tile_idx: int)
 signal began_drag()
 signal ended_drag()
 
@@ -11,6 +12,7 @@ signal ended_drag()
 @export var drag_channel: String = ""
 
 var _grid: BoardGrid = null
+var _grids: Array[BoardGrid] = [] # Optional multiple targets; first is preferred
 var _dragging: bool = false
 var _mouse_down: bool = false
 var _press_pos: Vector2 = Vector2.ZERO
@@ -25,12 +27,23 @@ func _ready() -> void:
         gui_input.connect(_on_gui_input_base)
 
 func set_drop_grid(grid: BoardGrid) -> void:
+    # Backward-compatible single-target API
     _grid = grid
-    if _grid:
-        _orig_tile_idx = _grid.index_of(self)
+    _grids.clear()
+    if grid:
+        _grids.append(grid)
+        _orig_tile_idx = grid.index_of(self)
 
 func enable_drag(grid: BoardGrid) -> void:
     set_drop_grid(grid)
+
+func set_drop_targets(grids: Array) -> void:
+    # Preferred multi-target API (KISS): store ordered list; first has precedence
+    _grids.clear()
+    for g in grids:
+        if g != null:
+            _grids.append(g)
+    _grid = (_grids[0] if _grids.size() > 0 else null)
 
 func can_drag_now() -> bool:
     # Prefer global GameState if available for phase checks
@@ -77,8 +90,22 @@ func _begin_drag_internal() -> void:
     mouse_filter = Control.MOUSE_FILTER_STOP
     if _drag_mgr == null:
         _drag_mgr = load("res://scripts/ui/drag/drag_manager.gd").new()
-    if _grid and _orig_tile_idx == -1:
-        _orig_tile_idx = _grid.index_of(self)
+    if _orig_tile_idx == -1:
+        # Resolve origin grid from available targets to allow bench↔board drags
+        var resolved: bool = false
+        if _grid != null:
+            var oi: int = _grid.index_of(self)
+            if oi != -1:
+                _orig_tile_idx = oi
+                resolved = true
+        if not resolved and _grids.size() > 0:
+            for g in _grids:
+                var idx: int = g.index_of(self)
+                if idx != -1:
+                    _grid = g
+                    _orig_tile_idx = idx
+                    resolved = true
+                    break
     # Build ghost from content root (clone subtree so bars/sprite follow)
     var src: Control = (get_node_or_null(content_root_path) as Control) if content_root_path != NodePath("") else self
     _ghost = Control.new()
@@ -122,13 +149,25 @@ func _end_drag_internal() -> void:
     mouse_filter = Control.MOUSE_FILTER_STOP
     var did_drop := false
     var idx := -1
-    if _grid:
-        idx = _grid.index_at_global(get_viewport().get_mouse_position())
+    var target_grid: BoardGrid = null
+    var mp: Vector2 = get_viewport().get_mouse_position()
+    if _grids.size() > 0:
+        for g in _grids:
+            var ti: int = g.index_at_global(mp)
+            if ti != -1:
+                idx = ti
+                target_grid = g
+                break
+    elif _grid:
+        idx = _grid.index_at_global(mp)
         if idx != -1:
-            emit_signal("dropped_on_tile", idx)
-            did_drop = true
-        elif _orig_tile_idx >= 0:
-            _grid.attach(self, _orig_tile_idx)
+            target_grid = _grid
+    if target_grid != null and idx != -1:
+        emit_signal("dropped_on_tile", idx)
+        emit_signal("dropped_on_target", target_grid, idx)
+        did_drop = true
+    elif _orig_tile_idx >= 0 and _grid:
+        _grid.attach(self, _orig_tile_idx)
     on_drop(did_drop, idx)
     if _drag_mgr:
         _drag_mgr.end()

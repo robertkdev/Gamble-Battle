@@ -17,6 +17,8 @@ var unit_actor_class
 var tile_size: int = 72
 
 var _planning_area_prev_mouse_filter: int = 0
+var _hidden_nodes: Array = []
+var _prev_mouse_filters: Dictionary = {}
 
 func configure(_arena_container: Control, _arena_units: Control, _planning_area: Control, _arena_background: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class, _tile_size: int) -> void:
     arena_container = _arena_container
@@ -38,10 +40,21 @@ func enter_arena(player_views, enemy_views) -> void:
     arena.enter_arena(player_views, enemy_views)
     if arena_container:
         arena_container.visible = true
+    # Fade planning board areas (TopArea/BottomArea) but keep bench/shop visible and interactive
     if planning_area:
-        _planning_area_prev_mouse_filter = planning_area.mouse_filter
-        planning_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        planning_area.modulate.a = 0.0
+        _hidden_nodes.clear()
+        _prev_mouse_filters.clear()
+        var names := ["TopArea", "BottomArea"]
+        for nm in names:
+            var n = planning_area.get_node_or_null(nm)
+            if n != null and n is Control:
+                var c: Control = n
+                _hidden_nodes.append(c)
+                _prev_mouse_filters[c] = c.mouse_filter
+                c.mouse_filter = Control.MOUSE_FILTER_IGNORE
+                var m = c.modulate
+                m.a = 0.0
+                c.modulate = m
     Trace.step("ArenaBridge.enter_arena: done")
 
 func sync(manager: CombatManager, player_views, enemy_views) -> void:
@@ -60,9 +73,18 @@ func exit_arena() -> void:
         arena.exit_arena()
     if arena_container:
         arena_container.visible = false
-    if planning_area:
-        planning_area.modulate.a = 1.0
-        planning_area.mouse_filter = _planning_area_prev_mouse_filter
+    # Restore faded nodes
+    if not _hidden_nodes.is_empty():
+        for n in _hidden_nodes:
+            if n and is_instance_valid(n):
+                var c: Control = n
+                var m = c.modulate
+                m.a = 1.0
+                c.modulate = m
+                if _prev_mouse_filters.has(c):
+                    c.mouse_filter = int(_prev_mouse_filters[c])
+        _hidden_nodes.clear()
+        _prev_mouse_filters.clear()
 
 func get_player_actor(index: int) -> UnitActor:
     if arena:

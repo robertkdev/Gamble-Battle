@@ -215,7 +215,7 @@ func damage_single(source_team: String, source_index: int, target_index: int, am
 	return AbilityEffects.damage_single(engine, state, source_team, source_index, target_index, amount, type)
 
 func heal_single(target_team: String, target_index: int, amount: float) -> Dictionary:
-	return AbilityEffects.heal_single(engine, state, target_team, target_index, amount)
+	return AbilityEffects.heal_single(engine, state, target_team, target_index, amount, caster_team, caster_index)
 
 func log(text: String) -> void:
 	if text == "" or engine == null:

@@ -6,12 +6,19 @@ const UI := preload("res://scripts/constants/ui_constants.gd")
 const G := preload("res://scripts/constants/gameplay_constants.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const Debug := preload("res://scripts/util/debug.gd")
+const BenchConstants := preload("res://scripts/constants/bench_constants.gd")
 
 const ArenaBridge := preload("res://scripts/ui/combat/arena_bridge.gd")
 const GridPlacement := preload("res://scripts/ui/combat/grid_placement.gd")
+const BenchPlacement := preload("res://scripts/ui/combat/bench_placement.gd")
+const MoveRouter := preload("res://scripts/ui/combat/move_router.gd")
 const ProjectileBridge := preload("res://scripts/ui/combat/projectile_bridge.gd")
 const EconomyUI := preload("res://scripts/ui/combat/economy_ui.gd")
 const IntermissionController := preload("res://scripts/ui/combat/intermission_controller.gd")
+const ShopPresenter := preload("res://scripts/ui/shop/shop_presenter.gd")
+const SellZone := preload("res://scripts/ui/shop/sell_zone.gd") # legacy; no longer used visually
+const SelectionService := preload("res://scripts/ui/combat/stats/selection_service.gd")
+const StatsTracker := preload("res://scripts/ui/combat/stats/stats_tracker.gd")
 
 # Parent scene (CombatView)
 var parent: Control
@@ -25,6 +32,10 @@ var player_sprite: TextureRect
 var enemy_sprite: TextureRect
 var player_grid: GridContainer
 var enemy_grid: GridContainer
+var bench_grid: GridContainer
+var shop_grid: GridContainer
+# Legacy reference left for compatibility; no longer instantiated
+var sell_zone: SellZone
 var arena_container: Control
 var arena_background: Control
 var arena_units: Control
@@ -35,25 +46,33 @@ var menu_button: Button
 var gold_label: Label
 var bet_slider: HSlider
 var bet_value: Label
+var stats_panel: Control
 
 # External engine manager
 var manager: CombatManager
 
 # Modules
 var grid_placement: GridPlacement
+var bench_placement
 var arena_bridge: ArenaBridge
 var projectile_bridge: ProjectileBridge
 var economy_ui: EconomyUI
 var intermission: IntermissionController
+var shop_presenter: ShopPresenter
+var selection: SelectionService
+var stats_tracker: StatsTracker
 
 # Grid helpers
 var player_grid_helper: BoardGrid
 var enemy_grid_helper: BoardGrid
+var bench_grid_helper: BoardGrid
+var sell_grid_helper: BoardGrid
 var player_tile_idx: int = -1
 
 # Views
 var player_views: Array[UnitSlotView] = []
 var enemy_views: Array[UnitSlotView] = []
+var move_router
 
 # Auto-battle
 var auto_combat: bool = true
@@ -65,6 +84,14 @@ var _post_combat_outcome: String = ""
 var _pending_continue: bool = false
 var view_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _beam_overlay: Control = null
+var _layout_debug: bool = true
+
+func _attach_clear_to_grid_tiles(grid: GridContainer) -> void:
+	if selection == null or grid == null:
+		return
+	for child in grid.get_children():
+		if child is Control:
+			selection.attach_clear_on(child)
 
 func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> void:
 	parent = _parent
@@ -76,6 +103,8 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	player_sprite = nodes.get("player_sprite")
 	enemy_sprite = nodes.get("enemy_sprite")
 	player_grid = nodes.get("player_grid")
+	bench_grid = nodes.get("bench_grid")
+	shop_grid = nodes.get("shop_grid")
 	enemy_grid = nodes.get("enemy_grid")
 	arena_container = nodes.get("arena_container")
 	arena_background = nodes.get("arena_background")
@@ -87,6 +116,7 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	gold_label = nodes.get("gold_label")
 	bet_slider = nodes.get("bet_slider")
 	bet_value = nodes.get("bet_value")
+	stats_panel = nodes.get("stats_panel")
 
 func initialize() -> void:
 	# Wire manager
@@ -107,12 +137,46 @@ func initialize() -> void:
 			manager.vfx_knockup.connect(_on_vfx_knockup)
 		if not manager.is_connected("vfx_beam_line", Callable(self, "_on_vfx_beam_line")):
 			manager.vfx_beam_line.connect(_on_vfx_beam_line)
+	# Configure StatsPanel shell (optional)
+	if stats_panel and stats_panel.has_method("configure"):
+		stats_panel.configure(parent, manager)
 		if not manager.is_connected("victory", Callable(self, "_on_victory")):
 			manager.victory.connect(_on_victory)
 		if not manager.is_connected("defeat", Callable(self, "_on_defeat")):
 			manager.defeat.connect(_on_defeat)
+
+	# Layout debug disabled by default; enable and add prints as needed
 		if not manager.is_connected("projectile_fired", Callable(self, "_on_projectile_fired")):
 			manager.projectile_fired.connect(_on_projectile_fired)
+
+	# UI-side stats tracker
+	if stats_tracker == null:
+		stats_tracker = StatsTracker.new()
+		parent.add_child(stats_tracker)
+		stats_tracker.configure(manager)
+		# Provide tracker to StatsPanel if it exposes a setter
+		if stats_panel and stats_panel.has_method("set_tracker"):
+			stats_panel.set_tracker(stats_tracker)
+
+	# Selection service: clear when clicking empty space
+	if selection == null:
+		selection = SelectionService.new()
+		selection.unit_selected.connect(_on_unit_selected)
+	if arena_background:
+		selection.attach_clear_on(arena_background)
+	# Also clear when clicking the planning area (pre-combat grid space)
+	if planning_area:
+		selection.attach_clear_on(planning_area)
+	# And on the grids themselves so empty tiles count as 'off unit'
+	if player_grid:
+		selection.attach_clear_on(player_grid)
+		_attach_clear_to_grid_tiles(player_grid)
+	if enemy_grid:
+		selection.attach_clear_on(enemy_grid)
+		_attach_clear_to_grid_tiles(enemy_grid)
+	if bench_grid:
+		selection.attach_clear_on(bench_grid)
+		_attach_clear_to_grid_tiles(bench_grid)
 
 	# Wire buttons
 	if attack_button and not attack_button.is_connected("pressed", Callable(self, "_on_attack_pressed")):
@@ -137,8 +201,25 @@ func initialize() -> void:
 	view_rng.randomize()
 	grid_placement = GridPlacement.new()
 	grid_placement.configure(player_grid, enemy_grid, UI.TILE_SIZE, 8, 3)
+	# Ensure grid containers match the configured tile size so the
+	# runtime layout looks the same as the editor preview.
+	_apply_grid_dimensions(UI.TILE_SIZE)
 	player_grid_helper = grid_placement.get_player_grid()
 	enemy_grid_helper = grid_placement.get_enemy_grid()
+
+	# Bench setup
+	bench_placement = BenchPlacement.new()
+	bench_placement.configure(bench_grid, UI.TILE_SIZE, BenchConstants.BENCH_CAPACITY)
+	bench_grid_helper = bench_placement.get_bench_grid()
+
+	# Movement router
+	move_router = MoveRouter.new()
+	move_router.configure(manager, Roster, player_grid_helper, bench_grid_helper, grid_placement, bench_placement)
+	move_router.set_refresh_callback(Callable(self, "refresh_all_views"))
+
+	# React to bench changes
+	if Roster and not Roster.is_connected("bench_changed", Callable(self, "_on_bench_changed")):
+		Roster.bench_changed.connect(_on_bench_changed)
 
 	_prepare_sprites()
 
@@ -160,6 +241,81 @@ func initialize() -> void:
 	if arena_container:
 		arena_container.visible = false
 
+	# Shop presenter (UI shell). Use the shop grid itself as the sell-drop target.
+	if shop_grid:
+		shop_presenter = ShopPresenter.new()
+		shop_presenter.configure(parent, shop_grid)
+		# Use cards in the shop grid as a BoardGrid drop target for selling.
+		if shop_presenter.has_method("get_drop_grid"):
+			sell_grid_helper = shop_presenter.get_drop_grid()
+		# Refresh bench views when the shop UI rebuilds so their drop
+		# targets include the up-to-date shop grid tiles.
+		if shop_presenter.has_signal("grid_updated"):
+			shop_presenter.grid_updated.connect(func():
+				sell_grid_helper = shop_presenter.get_drop_grid()
+				_rebuild_bench_views(true)
+			)
+		# Move economy + start controls into the shop button bar for a single top row.
+		var bar := (shop_presenter.get_button_bar() if shop_presenter and shop_presenter.has_method("get_button_bar") else null)
+		if bar:
+			# Preserve order: reroll, lock, buy xp, lvl, gold, start battle, bet
+			if gold_label and gold_label.get_parent() != bar:
+				var prev := gold_label.get_parent()
+				if prev: prev.remove_child(gold_label)
+				bar.add_child(gold_label)
+			if continue_button and continue_button.get_parent() != bar:
+				var prev2 := continue_button.get_parent()
+				if prev2: prev2.remove_child(continue_button)
+				bar.add_child(continue_button)
+			if bet_slider:
+				var bet_row := bet_slider.get_parent()
+				if bet_row and bet_row is Control and bet_row.get_parent() != bar:
+					var prev3 := bet_row.get_parent()
+					if prev3: prev3.remove_child(bet_row)
+					bar.add_child(bet_row)
+			# Hide the original actions row container if empty/unused.
+			var actions_row := (gold_label.get_parent() if gold_label else null)
+			# gold_label was moved, so we cannot resolve original directly. Instead, use known path if available.
+			if parent and parent.has_node("MarginContainer/VBoxContainer/ActionsRow"):
+				var ar := parent.get_node("MarginContainer/VBoxContainer/ActionsRow")
+				if ar is Control:
+					(ar as Control).visible = false
+
+func _apply_grid_dimensions(tile: int) -> void:
+	# Compute desired grid size from constants and theme separations
+	if enemy_grid == null or player_grid == null:
+		return
+	var cols := 8
+	var rows := 3
+	var hsep := enemy_grid.get_theme_constant("h_separation", "GridContainer")
+	var vsep := enemy_grid.get_theme_constant("v_separation", "GridContainer")
+	var grid_w := tile * cols + hsep * (cols - 1)
+	var grid_h := tile * rows + vsep * (rows - 1)
+
+	# Center enemy grid at top of its area
+	enemy_grid.anchor_left = 0.5
+	enemy_grid.anchor_right = 0.5
+	enemy_grid.offset_left = -grid_w / 2
+	enemy_grid.offset_right = grid_w / 2
+	enemy_grid.offset_bottom = grid_h
+
+	# Center player grid at bottom of its area
+	player_grid.anchor_left = 0.5
+	player_grid.anchor_right = 0.5
+	player_grid.anchor_top = 1.0
+	player_grid.anchor_bottom = 1.0
+	player_grid.offset_left = -grid_w / 2
+	player_grid.offset_right = grid_w / 2
+	player_grid.offset_top = -grid_h
+
+	# Make sure the containers holding the grids are tall enough
+	var top_area := enemy_grid.get_parent() as Control
+	if top_area:
+		top_area.custom_minimum_size.y = grid_h
+	var bottom_area := player_grid.get_parent() as Control
+	if bottom_area:
+		bottom_area.custom_minimum_size.y = grid_h
+
 func process(delta: float) -> void:
 	if arena_container and arena_container.visible:
 		_sync_arena_units()
@@ -176,6 +332,8 @@ func _init_game() -> void:
 		Economy.reset_run()
 		if economy_ui:
 			economy_ui.refresh()
+	if Engine.has_singleton("Shop") or parent.has_node("/root/Shop"):
+		Shop.reset_run()
 	if manager:
 		manager.stage = 1
 		_on_log_line("Gamble Battle")
@@ -185,10 +343,32 @@ func _init_game() -> void:
 	if grid_placement and manager:
 		grid_placement.rebuild_enemy_views(manager.enemy_team)
 		enemy_views = grid_placement.get_enemy_views()
-		grid_placement.rebuild_player_views(manager.player_team, true)
-		player_views = grid_placement.get_player_views()
+		refresh_all_views()
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.PREVIEW)
+
+func refresh_all_views() -> void:
+	# Rebuild player and bench views and rewire drag drop targets (KISS/DRY)
+	if grid_placement and manager:
+		grid_placement.rebuild_player_views(manager.player_team, true)
+		player_views = grid_placement.get_player_views()
+		for pv in player_views:
+			if pv and pv.view:
+				# Player views: board<->bench only; selling restricted to bench
+				pv.view.set_drop_targets([player_grid_helper, bench_grid_helper])
+				move_router.connect_unit_view(pv.view)
+				# Selection on grid tiles (unit provider bound to slot)
+				var _pv = pv
+				var __prov := func(): return _pv.unit
+				selection.attach_to_unit_view(_pv.view, "player", _pv.tile_idx, __prov)
+	_rebuild_bench_views(true)
+	# Ensure grid tiles keep the 'clear selection' handler even after rebuilds
+	if player_grid:
+		_attach_clear_to_grid_tiles(player_grid)
+	if enemy_grid:
+		_attach_clear_to_grid_tiles(enemy_grid)
+	if bench_grid:
+		_attach_clear_to_grid_tiles(bench_grid)
 
 func _on_attack_pressed() -> void:
 	pass
@@ -249,6 +429,49 @@ func _on_continue_pressed() -> void:
 		economy_ui.set_bet_editable(false)
 	manager.continue_to_next_stage()
 
+func _on_bench_changed() -> void:
+	_rebuild_bench_views(true)
+
+func _rebuild_bench_views(allow_drag: bool) -> void:
+	if bench_placement == null:
+		return
+	var units: Array = []
+	if Roster:
+		units = Roster.bench_slots
+	bench_placement.rebuild_bench_views(units, allow_drag)
+	# Assign multi-targets and routing for bench UnitViews by scanning tile children
+	if bench_grid:
+		for tile in bench_grid.get_children():
+			if tile is Control:
+				for child in tile.get_children():
+					if child is UnitView:
+						var t: Array = [player_grid_helper, bench_grid_helper]
+						if sell_grid_helper != null:
+							t.append(sell_grid_helper)
+						(child as UnitView).set_drop_targets(t)
+						move_router.connect_unit_view(child)
+						# Connect sell handling for bench units
+						if not (child as UnitView).is_connected("dropped_on_target", Callable(self, "_on_unit_dropped_any")):
+							(child as UnitView).dropped_on_target.connect(_on_unit_dropped_any.bind(child))
+							# Selection on bench unit views
+							var _uv: UnitView = (child as UnitView)
+							var __prov2 := func(): return _uv.unit
+							selection.attach_to_unit_view(_uv, "player", -1, __prov2)
+
+func _on_unit_dropped_any(target_grid, _tile_idx: int, uv: UnitView) -> void:
+	# Handle sell-zone drops
+	if sell_grid_helper == null or uv == null:
+		return
+	if target_grid != sell_grid_helper:
+		return
+	var u: Unit = uv.unit
+	if u == null:
+		return
+	# Attempt to sell via Shop
+	if Engine.has_singleton("Shop"):
+		var res = Shop.sell_unit(u)
+		# On success, views will be rebuilt via roster signal; else snap back handled by drag base
+
 func _auto_start_battle() -> void:
 	if not auto_combat:
 		return
@@ -268,15 +491,77 @@ func _on_battle_started(stage: int, enemy: Unit) -> void:
 	_refresh_hud()
 	if stage_label:
 		stage_label.text = "Stage " + str(stage)
+	# Set COMBAT phase before starting Economy escrow so UI refresh sees correct phase
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		GameState.set_phase(GameState.GamePhase.COMBAT)
+	if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
+		Economy.start_combat()
 	if grid_placement and manager:
 		grid_placement.rebuild_enemy_views(manager.enemy_team)
 		enemy_views = grid_placement.get_enemy_views()
 		grid_placement.rebuild_player_views(manager.player_team, false)
 		player_views = grid_placement.get_player_views()
-	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
-		GameState.set_phase(GameState.GamePhase.COMBAT)
 	Trace.step("CombatView._on_battle_started: enter arena")
 	_enter_combat_arena()
+	# Optional: add layout prints here when debugging sizes
+	# Ensure economy UI reflects combat lock state immediately
+	if economy_ui:
+		economy_ui.refresh()
+
+	# Wire engine events for stats panel/tracker and ability casts
+	var eng = (manager.get_engine() if manager and manager.has_method("get_engine") else null)
+	if eng:
+		if not eng.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
+			eng.hit_applied.connect(_on_engine_hit_applied)
+		if eng.ability_system and not eng.ability_system.is_connected("ability_cast", Callable(self, "_on_engine_ability_cast")):
+			eng.ability_system.ability_cast.connect(_on_engine_ability_cast)
+		# Provide ability system to stats panel if supported
+		if stats_panel and stats_panel.has_method("set_ability_system"):
+			stats_panel.set_ability_system(eng.ability_system)
+
+	# Attach selection overlays to arena actors
+	_attach_selection_to_arena()
+
+func _attach_selection_to_arena() -> void:
+	if arena_bridge == null or manager == null:
+		return
+	for i in range(manager.player_team.size()):
+		var actor: UnitActor = arena_bridge.get_player_actor(i)
+		if actor and is_instance_valid(actor):
+			var _idx := i
+			var _prov := func():
+				return (manager.player_team[_idx] if _idx < manager.player_team.size() else null)
+			selection.attach_to_unit_actor(actor, "player", _idx, _prov)
+	for j in range(manager.enemy_team.size()):
+		var eactor: UnitActor = arena_bridge.get_enemy_actor(j)
+		if eactor and is_instance_valid(eactor):
+			var _j := j
+			var _prov2 := func():
+				return (manager.enemy_team[_j] if _j < manager.enemy_team.size() else null)
+			selection.attach_to_unit_actor(eactor, "enemy", _j, _prov2)
+
+func _on_engine_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float) -> void:
+	# Forward to StatsPanel if it exposes a handler (non-breaking)
+	if stats_panel and stats_panel.has_method("_on_hit_applied"):
+		stats_panel._on_hit_applied(team, si, ti, rolled, dealt, crit, before_hp, after_hp, player_cd, enemy_cd)
+
+func _on_engine_ability_cast(team: String, index: int, ability_id: String) -> void:
+	if stats_panel and stats_panel.has_method("_on_ability_cast"):
+		stats_panel._on_ability_cast(team, index, ability_id)
+
+func _on_unit_selected(u: Unit) -> void:
+	if stats_panel == null:
+		return
+	if u != null:
+		if stats_panel.has_method("show_unit_metrics_ctx"):
+			# Use selection service's current context if available
+			var team := (selection.get_selected_team() if selection else "player")
+			var idx := (selection.get_selected_index() if selection else -1)
+			stats_panel.show_unit_metrics_ctx(team, idx, u)
+		elif stats_panel.has_method("show_unit_metrics"):
+			stats_panel.show_unit_metrics(u)
+	elif stats_panel.has_method("show_team_metrics"):
+		stats_panel.show_team_metrics()
 
 func _on_log_line(text: String) -> void:
 	if Debug.enabled:
@@ -364,13 +649,22 @@ func _on_intermission_finished() -> void:
 		projectile_bridge.clear()
 	if manager and manager.has_method("finalize_post_combat"):
 		manager.finalize_post_combat()
-	if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
-		if _post_combat_outcome != "":
-			var win: bool = (_post_combat_outcome == "victory")
-			Economy.resolve(win)
+		# Rebuild UI after engine resets units
+		refresh_all_views()
+		if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
+			if _post_combat_outcome != "":
+				var win: bool = (_post_combat_outcome == "victory")
+				Economy.resolve(win)
 			if economy_ui:
 				economy_ui.refresh()
 				economy_ui.set_bet_editable(true)
+	# Optional: add layout prints here when debugging sizes
+			# Auto-refresh the shop after combat ends (respect lock; free refresh)
+			if Engine.has_singleton("Shop") or parent.has_node("/root/Shop"):
+				var locked: bool = (bool(Shop.state.locked) if Shop and Shop.state else false)
+				if not locked:
+					Shop.add_free_rerolls(1)
+					Shop.reroll()
 	if _post_combat_outcome == "defeat" and (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")) and Economy.is_broke():
 		_on_log_line("Out of gold. Press Restart to try again.")
 		if continue_button:
@@ -393,6 +687,8 @@ func _start_auto_loop() -> void:
 		return
 	_auto_loop_running = true
 	call_deferred("_auto_loop")
+
+	# No-op helpers removed; inline prints used instead
 
 func _auto_loop() -> void:
 	while _auto_loop_running and auto_combat:

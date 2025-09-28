@@ -97,6 +97,24 @@ func apply_projectile_hit(source_team: String, source_index: int, target_index: 
 			frame_player_team_defeated = true
 		if bool(flags.get("enemy_team_defeated", false)):
 			frame_enemy_team_defeated = true
+	# Analytics events using CombatEvents
+	if _events != null:
+		var absorbed: int = int(response.get("absorbed", 0))
+		if absorbed > 0:
+			_events.shield_absorbed(tgt_team, target_index, absorbed)
+		var premit: int = int(response.get("premit", 0))
+		var pre_shield: int = int(response.get("pre_shield", dealt))
+		if premit > 0:
+			_events.hit_mitigated(source_team, source_index, tgt_team, target_index, premit, pre_shield)
+		var before_cap: int = int(response.get("before_cap", dealt))
+		var overkill: int = max(0, before_cap - dealt)
+		if overkill > 0:
+			_events.hit_overkill(source_team, source_index, tgt_team, target_index, overkill)
+		var cphys: int = int(response.get("comp_phys", 0))
+		var cmag: int = int(response.get("comp_mag", 0))
+		var ctrue: int = int(response.get("comp_true", 0))
+		if cphys > 0 or cmag > 0 or ctrue > 0:
+			_events.hit_components(source_team, source_index, tgt_team, target_index, cphys, cmag, ctrue)
 	return response
 
 func totals() -> Dictionary:

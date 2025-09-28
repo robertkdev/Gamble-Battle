@@ -1,4 +1,4 @@
-extends Node
+extends Control
 
 @onready var combat_view: Node = $CombatView
 @onready var unit_select: Node = $UnitSelect
@@ -12,7 +12,7 @@ const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
 
 func _ready() -> void:
-	Debug.set_enabled(true)
+	Debug.set_enabled(false)
 	# Wire menu buttons
 	var Trace = load("res://scripts/util/trace.gd")
 	if Trace and Trace.has_method("set_enabled"):

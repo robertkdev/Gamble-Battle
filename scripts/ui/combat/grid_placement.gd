@@ -65,8 +65,8 @@ func _build_grids() -> void:
 				pb.toggle_mode = false
 				pb.focus_mode = Control.FOCUS_NONE
 				pb.disabled = true
-				if pb.custom_minimum_size == Vector2.ZERO:
-					pb.custom_minimum_size = Vector2(tile_size, tile_size)
+				# Always enforce tile size from constants to allow runtime scaling
+				pb.custom_minimum_size = Vector2(tile_size, tile_size)
 				player_tiles.append(pb)
 	if enemy_grid:
 		for c in enemy_grid.get_children():
@@ -76,8 +76,8 @@ func _build_grids() -> void:
 				eb.toggle_mode = false
 				eb.focus_mode = Control.FOCUS_NONE
 				eb.disabled = true
-				if eb.custom_minimum_size == Vector2.ZERO:
-					eb.custom_minimum_size = Vector2(tile_size, tile_size)
+				# Always enforce tile size from constants to allow runtime scaling
+				eb.custom_minimum_size = Vector2(tile_size, tile_size)
 				enemy_tiles.append(eb)
 	player_grid_helper = load("res://scripts/board_grid.gd").new()
 	player_grid_helper.configure(player_tiles, grid_w, grid_h)
@@ -113,15 +113,32 @@ func rebuild_player_views(player_team: Array, allow_drag: bool) -> void:
 		return
 	if player_grid_helper:
 		player_grid_helper.clear()
-	# Ensure indices array length matches team size
-	if _player_indices.size() != player_team.size():
-		_player_indices.clear()
-		for i in range(player_team.size()):
-			var base := (_player_base_tile_idx if _player_base_tile_idx >= 0 else 0)
-			var idx := 0
-			if player_tiles.size() > 0:
-				idx = min(player_tiles.size() - 1, (base + i) % player_tiles.size())
-			_player_indices.append(idx)
+	# Ensure indices array length matches team size, preserving existing placements.
+	var team_size: int = player_team.size()
+	var tiles_count: int = player_tiles.size()
+	if _player_indices.size() > team_size:
+		# Shrink: drop trailing indices (units were removed from end)
+		_player_indices.resize(team_size)
+	elif _player_indices.size() < team_size:
+		# Extend: keep existing indices and assign free tiles to new units
+		var used: Dictionary = {}
+		for v in _player_indices:
+			var vi: int = int(v)
+			if vi >= 0:
+				used[vi] = true
+		var base := (_player_base_tile_idx if _player_base_tile_idx >= 0 else 0)
+		for i in range(_player_indices.size(), team_size):
+			var picked: int = -1
+			if tiles_count > 0:
+				for off in range(tiles_count):
+					var cand: int = (base + off) % tiles_count
+					if not used.has(cand):
+						picked = cand
+						break
+			if picked < 0:
+				picked = max(0, min(tiles_count - 1, 0))
+			_player_indices.append(picked)
+			used[picked] = true
 	var summary: Array[String] = []
 	var n: int = min(player_team.size(), player_tiles.size())
 	for i in range(n):

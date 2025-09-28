@@ -19,6 +19,14 @@ signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, d
 # Provides detailed data for deterministic logging/analytics.
 signal hit_applied(source_team: String, source_index: int, target_index: int, rolled_damage: int, dealt_damage: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float)
 
+# New analytics signals
+signal heal_applied(source_team: String, source_index: int, target_team: String, target_index: int, healed: int, overheal: int, before_hp: int, after_hp: int)
+signal shield_absorbed(target_team: String, target_index: int, absorbed: int)
+signal hit_mitigated(source_team: String, source_index: int, target_team: String, target_index: int, pre_mit: int, post_pre_shield: int)
+signal hit_overkill(source_team: String, source_index: int, target_team: String, target_index: int, overkill: int)
+signal hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int)
+signal cc_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration: float)
+
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var state: BattleState
 var player_ref: Unit
@@ -302,7 +310,12 @@ func _build_resolver_emitters() -> Dictionary[String, Callable]:
 		"unit_stat_changed": Callable(self, "_resolver_emit_unit_stat"),
 		"stats_updated": Callable(self, "_resolver_emit_stats"),
 		"team_stats_updated": Callable(self, "_resolver_emit_team_stats"),
-		"hit_applied": Callable(self, "_resolver_emit_hit")
+		"hit_applied": Callable(self, "_resolver_emit_hit"),
+		"heal_applied": Callable(self, "_resolver_emit_heal_applied"),
+		"shield_absorbed": Callable(self, "_resolver_emit_shield_absorbed"),
+		"hit_mitigated": Callable(self, "_resolver_emit_hit_mitigated"),
+		"hit_overkill": Callable(self, "_resolver_emit_hit_overkill")
+		,"hit_components": Callable(self, "_resolver_emit_hit_components")
 	}
 
 func _filter_events_in_range(events: Array[AttackEvent]) -> Array[AttackEvent]:
@@ -365,6 +378,21 @@ func _resolver_emit_team_stats(player_team, enemy_team) -> void:
 
 func _resolver_emit_hit(team: String, source_index: int, target_index: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float) -> void:
 	emit_signal("hit_applied", team, source_index, target_index, rolled, dealt, crit, before_hp, after_hp, player_cd, enemy_cd)
+
+func _resolver_emit_heal_applied(source_team: String, source_index: int, target_team: String, target_index: int, healed: int, overheal: int, before_hp: int, after_hp: int) -> void:
+	emit_signal("heal_applied", source_team, source_index, target_team, target_index, healed, overheal, before_hp, after_hp)
+
+func _resolver_emit_shield_absorbed(target_team: String, target_index: int, absorbed: int) -> void:
+	emit_signal("shield_absorbed", target_team, target_index, absorbed)
+
+func _resolver_emit_hit_mitigated(source_team: String, source_index: int, target_team: String, target_index: int, pre_mit: int, post_pre_shield: int) -> void:
+	emit_signal("hit_mitigated", source_team, source_index, target_team, target_index, pre_mit, post_pre_shield)
+
+func _resolver_emit_hit_overkill(source_team: String, source_index: int, target_team: String, target_index: int, overkill: int) -> void:
+	emit_signal("hit_overkill", source_team, source_index, target_team, target_index, overkill)
+
+func _resolver_emit_hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int) -> void:
+	emit_signal("hit_components", source_team, source_index, target_team, target_index, phys, mag, tru)
 
 func _resolver_emit_vfx_knockup(team: String, index: int, duration: float) -> void:
 	emit_signal("vfx_knockup", team, index, duration)

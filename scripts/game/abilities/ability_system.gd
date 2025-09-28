@@ -233,7 +233,10 @@ func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 	var tgt_team: String = team
 	var heal_base: int = int(floor(0.20 * float(caster.max_hp)))
 	var heal_amt: int = max(0, int(pool) + heal_base + 4 * int(stacks_at_cast))
-	AbilityEffects.heal_single(engine, state, tgt_team, best_idx, heal_amt)
+	# Use context helper so healing includes source metadata
+	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
+	ctx.buff_system = buff_system
+	ctx.heal_single(tgt_team, best_idx, heal_amt)
 	engine._resolver_emit_log("Absorb & Release: healed %d (pool=%d, base=%d, stacks=%d)" % [heal_amt, pool, heal_base, stacks_at_cast])
 
 func _handle_veyra_harden_end(team: String, index: int) -> void:

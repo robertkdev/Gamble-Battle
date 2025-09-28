@@ -30,8 +30,23 @@ func team_stats(state) -> void:
         return
     _emit("team_stats_updated", [state.player_team, state.enemy_team])
 
+# --- New analytics events ---
+func heal_applied(source_team: String, source_index: int, target_team: String, target_index: int, healed: int, overheal: int, before_hp: int, after_hp: int) -> void:
+    _emit("heal_applied", [source_team, source_index, target_team, target_index, int(healed), int(overheal), int(before_hp), int(after_hp)])
+
+func shield_absorbed(target_team: String, target_index: int, absorbed: int) -> void:
+    _emit("shield_absorbed", [target_team, target_index, int(absorbed)])
+
+func hit_mitigated(source_team: String, source_index: int, target_team: String, target_index: int, pre_mit: int, post_pre_shield: int) -> void:
+    _emit("hit_mitigated", [source_team, source_index, target_team, target_index, int(pre_mit), int(post_pre_shield)])
+
+func hit_overkill(source_team: String, source_index: int, target_team: String, target_index: int, overkill: int) -> void:
+    _emit("hit_overkill", [source_team, source_index, target_team, target_index, int(overkill)])
+
+func hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int) -> void:
+    _emit("hit_components", [source_team, source_index, target_team, target_index, int(phys), int(mag), int(tru)])
+
 func _emit(key: String, args: Array) -> void:
     var callable: Callable = _emitters.get(key, Callable())
     if callable.is_valid():
         callable.callv(args)
-

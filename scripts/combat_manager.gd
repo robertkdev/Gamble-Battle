@@ -16,6 +16,12 @@ signal defeat(stage: int)
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal vfx_knockup(team: String, index: int, duration: float)
 signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
+signal heal_applied(source_team: String, source_index: int, target_team: String, target_index: int, healed: int, overheal: int, before_hp: int, after_hp: int)
+signal shield_absorbed(target_team: String, target_index: int, absorbed: int)
+signal hit_mitigated(source_team: String, source_index: int, target_team: String, target_index: int, pre_mit: int, post_pre_shield: int)
+signal hit_overkill(source_team: String, source_index: int, target_team: String, target_index: int, overkill: int)
+signal hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int)
+signal cc_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration: float)
 
 var enemy: Unit
 
@@ -104,6 +110,18 @@ func _wire_engine_signals() -> void:
 		_engine.vfx_knockup.connect(_on_engine_vfx_knockup)
 	if not _engine.is_connected("vfx_beam_line", Callable(self, "_on_engine_vfx_beam_line")):
 		_engine.vfx_beam_line.connect(_on_engine_vfx_beam_line)
+	if not _engine.is_connected("heal_applied", Callable(self, "_on_engine_heal_applied")):
+		_engine.heal_applied.connect(_on_engine_heal_applied)
+	if not _engine.is_connected("shield_absorbed", Callable(self, "_on_engine_shield_absorbed")):
+		_engine.shield_absorbed.connect(_on_engine_shield_absorbed)
+	if not _engine.is_connected("hit_mitigated", Callable(self, "_on_engine_hit_mitigated")):
+		_engine.hit_mitigated.connect(_on_engine_hit_mitigated)
+	if not _engine.is_connected("hit_overkill", Callable(self, "_on_engine_hit_overkill")):
+		_engine.hit_overkill.connect(_on_engine_hit_overkill)
+	if not _engine.is_connected("hit_components", Callable(self, "_on_engine_hit_components")):
+		_engine.hit_components.connect(_on_engine_hit_components)
+	if not _engine.is_connected("cc_applied", Callable(self, "_on_engine_cc_applied")):
+		_engine.cc_applied.connect(_on_engine_cc_applied)
 
 func _re_emit_projectile(team: String, sidx: int, tidx: int, dmg: int, crit: bool) -> void:
 	emit_signal("projectile_fired", team, sidx, tidx, dmg, crit)
@@ -126,6 +144,24 @@ func _on_engine_vfx_knockup(team: String, index: int, duration: float) -> void:
 
 func _on_engine_vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float) -> void:
 	emit_signal("vfx_beam_line", start, end, color, width, duration)
+
+func _on_engine_heal_applied(st: String, si: int, tt: String, ti: int, healed: int, overheal: int, bhp: int, ahp: int) -> void:
+	emit_signal("heal_applied", st, si, tt, ti, healed, overheal, bhp, ahp)
+
+func _on_engine_shield_absorbed(tt: String, ti: int, absorbed: int) -> void:
+	emit_signal("shield_absorbed", tt, ti, absorbed)
+
+func _on_engine_hit_mitigated(st: String, si: int, tt: String, ti: int, pre_mit: int, post_pre_shield: int) -> void:
+	emit_signal("hit_mitigated", st, si, tt, ti, pre_mit, post_pre_shield)
+
+func _on_engine_hit_overkill(st: String, si: int, tt: String, ti: int, overkill: int) -> void:
+	emit_signal("hit_overkill", st, si, tt, ti, overkill)
+
+func _on_engine_hit_components(st: String, si: int, tt: String, ti: int, phys: int, mag: int, tru: int) -> void:
+	emit_signal("hit_components", st, si, tt, ti, phys, mag, tru)
+
+func _on_engine_cc_applied(st: String, si: int, tt: String, ti: int, kind: String, dur: float) -> void:
+	emit_signal("cc_applied", st, si, tt, ti, kind, dur)
 
 func _ensure_default_player_team_into(arr: Array) -> void:
 	# Append default units into the provided array

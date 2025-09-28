@@ -4,6 +4,7 @@ class_name UnitFactory
 static var _cache: Dictionary = {}
 
 const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
+const UnitScaler := preload("res://scripts/game/units/unit_scaler.gd")
 const Trace := preload("res://scripts/util/trace.gd")
 
 static func _def_path(id: String) -> String:
@@ -151,45 +152,8 @@ static func _from_def(d: UnitDef) -> Unit:
 		u.magic_resist = max(0.0, u.magic_resist + mr_delta)
 
 
-	# Multiplicative scaling from cost and level
-	var scale_keys := ["max_hp","hp_regen","attack_damage","spell_power","lifesteal","armor","magic_resist","true_damage"]
-	for k in scale_keys:
-		var base_zero := false
-		if base_vals.has(k):
-			var bv = base_vals[k]
-			base_zero = (int(bv) == 0 if k == "max_hp" else float(bv) == 0.0)
-		if base_zero:
-			continue
-		var curv = float(u.get(k))
-		# Apply cost scaling first, stepwise 1.5x per step
-		if u.cost > 1:
-			for _ci in range(u.cost - 1):
-				curv *= 1.5
-				if k == "max_hp":
-					curv = float(int(curv)) # floor for ints
-		# Then level scaling, stepwise 1.5x per step
-		if u.level > 1:
-			for _li in range(u.level - 1):
-				curv *= 1.5
-				if k == "max_hp":
-					curv = float(int(curv)) # floor for ints
-		match k:
-			"max_hp":
-				u.max_hp = max(1, int(curv))
-			"hp_regen":
-				u.hp_regen = max(0.0, curv)
-			"attack_damage":
-				u.attack_damage = max(0.0, curv)
-			"spell_power":
-				u.spell_power = max(0.0, curv)
-			"lifesteal":
-				u.lifesteal = clampf(curv, 0.0, 0.9)
-			"armor":
-				u.armor = max(0.0, curv)
-			"magic_resist":
-				u.magic_resist = max(0.0, curv)
-			"true_damage":
-				u.true_damage = max(0.0, curv)
+	# Multiplicative scaling from cost and level (centralized)
+	UnitScaler.apply_cost_level_scaling(u, base_vals)
 
 	# Final clamps for non-scaled fields potentially changed by roles
 	u.crit_chance = clampf(u.crit_chance, 0.0, 0.95)

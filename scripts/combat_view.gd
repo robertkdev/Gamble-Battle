@@ -6,17 +6,20 @@ const CombatController := preload("res://scripts/ui/combat/controller/combat_con
 @onready var player_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/PlayerStatsLabel"
 @onready var enemy_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/EnemyStatsLabel"
 @onready var stage_label: Label = $"MarginContainer/VBoxContainer/StageLabel"
-@onready var player_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerUnitHolder/PlayerSprite"
-@onready var enemy_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyUnitHolder/EnemySprite"
-@onready var player_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/BottomArea/PlayerGrid"
+@onready var player_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerUnitHolder/PlayerSprite"
+@onready var enemy_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyUnitHolder/EnemySprite"
+@onready var player_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid"
+@onready var bench_grid: GridContainer = $"MarginContainer/VBoxContainer/BenchArea/BenchGrid"
+@onready var shop_grid: GridContainer = $"MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid"
 @onready var arena_container: Control = $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer"
 @onready var arena_background: ColorRect = $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground"
 @onready var arena_units: Control = $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits"
-@onready var planning_area: Control = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea"
-@onready var enemy_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/PlanningArea/TopArea/EnemyGrid"
+@onready var planning_area: Control = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea"
+@onready var enemy_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyGrid"
+@onready var stats_panel: Control = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel"
 @onready var attack_button: Button = $"MarginContainer/VBoxContainer/ActionsRow/AttackButton"
 @onready var continue_button: Button = $"MarginContainer/VBoxContainer/ActionsRow/ContinueButton"
-@onready var menu_button: Button = $"MarginContainer/VBoxContainer/ActionsRow/MenuButton"
+@onready var menu_button: Button = $"TopBar/MenuButton"
 @onready var gold_label: Label = $"MarginContainer/VBoxContainer/ActionsRow/GoldLabel"
 @onready var bet_slider: HSlider = $"MarginContainer/VBoxContainer/ActionsRow/BetRow/BetSlider"
 @onready var bet_value: Label = $"MarginContainer/VBoxContainer/ActionsRow/BetRow/BetValue"
@@ -46,6 +49,7 @@ func _ready() -> void:
 	controller = CombatController.new()
 	controller.configure(self, manager, _collect_nodes())
 	controller.initialize()
+	call_deferred("_log_initial_layout", "CombatView snapshot (ready)")
 	set_process(true)
 
 func _init_game() -> void:
@@ -180,6 +184,47 @@ func _log_start_positions_and_targets() -> void:
 func set_player_team_ids(ids: Array) -> void:
 	controller.set_player_team_ids(ids)
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree():
+		call_deferred("_log_initial_layout", "CombatView snapshot (visible)")
+
+
+func _log_initial_layout(tag: String = "CombatView snapshot") -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	print("[Layout] ===== %s =====" % tag)
+	_print_control_rect("CombatView", self)
+	_print_control_rect("MarginContainer", $"MarginContainer")
+	_print_control_rect("VBoxContainer", $"MarginContainer/VBoxContainer")
+	_print_control_rect("BattleArea", $"MarginContainer/VBoxContainer/BattleArea")
+	_print_control_rect("ContentRow", $"MarginContainer/VBoxContainer/BattleArea/ContentRow")
+	_print_control_rect("LeftItemArea", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea")
+	_print_control_rect("ItemStorageGrid", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid")
+	_print_control_rect("BoardColumn", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn")
+	_print_control_rect("PlanningArea", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea")
+	_print_control_rect("EnemyGrid", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyGrid")
+	_print_control_rect("PlayerGrid", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid")
+	_print_control_rect("ArenaContainer", $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer")
+	_print_control_rect("ArenaUnits", $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits")
+	_print_control_rect("BenchArea", $"MarginContainer/VBoxContainer/BenchArea")
+	_print_control_rect("BenchGrid", $"MarginContainer/VBoxContainer/BenchArea/BenchGrid")
+	_print_control_rect("ActionsRow", $"MarginContainer/VBoxContainer/ActionsRow")
+	_print_control_rect("BetRow", $"MarginContainer/VBoxContainer/ActionsRow/BetRow")
+	_print_control_rect("BottomStorageArea", $"MarginContainer/VBoxContainer/BottomStorageArea")
+	_print_control_rect("ShopGrid", $"MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid")
+	_print_control_rect("TopBar", $"TopBar")
+	_print_control_rect("MenuButton", $"TopBar/MenuButton")
+	print("[Layout] =================================")
+
+func _print_control_rect(label: String, target: Control) -> void:
+	if target == null:
+		print("[Layout] %s: <missing>" % label)
+		return
+	var rect := target.get_global_rect()
+	print("[Layout] %s origin=%s size=%s" % [label, rect.position, rect.size])
+
+
+
 func _collect_nodes() -> Dictionary:
 	return {
 		"log_label": log_label,
@@ -189,11 +234,14 @@ func _collect_nodes() -> Dictionary:
 		"player_sprite": player_sprite,
 		"enemy_sprite": enemy_sprite,
 		"player_grid": player_grid,
+		"bench_grid": bench_grid,
+		"shop_grid": shop_grid,
 		"enemy_grid": enemy_grid,
 		"arena_container": arena_container,
 		"arena_background": arena_background,
 		"arena_units": arena_units,
 		"planning_area": planning_area,
+		"stats_panel": stats_panel,
 		"attack_button": attack_button,
 		"continue_button": continue_button,
 		"menu_button": menu_button,

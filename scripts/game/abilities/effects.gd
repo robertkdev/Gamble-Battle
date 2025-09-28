@@ -70,7 +70,7 @@ static func damage_single(engine: CombatEngine, state: BattleState, source_team:
 	return result
 
 # Heals a single target (clamped to Max HP)
-static func heal_single(engine: CombatEngine, state: BattleState, target_team: String, target_index: int, amount: float) -> Dictionary:
+static func heal_single(engine: CombatEngine, state: BattleState, target_team: String, target_index: int, amount: float, source_team: String = "", source_index: int = -1) -> Dictionary:
 	var result := {"processed": false}
 	var tgt: Unit = _unit_at(state, target_team, target_index)
 	if tgt == null or not tgt.is_alive():
@@ -88,6 +88,13 @@ static func heal_single(engine: CombatEngine, state: BattleState, target_team: S
 	if engine != null:
 		engine._resolver_emit_unit_stat(target_team, target_index, {"hp": tgt.hp})
 		engine._resolver_emit_stats(BattleState.first_alive(state.player_team), BattleState.first_alive(state.enemy_team))
+		var st := String(source_team)
+		var si := int(source_index)
+		if st == "" or si < 0:
+			# Unknown source; still emit with placeholders
+			st = ""
+			si = -1
+		engine._resolver_emit_heal_applied(st, si, target_team, target_index, int(hres.get("healed", 0)), int(hres.get("overheal", 0)), int(hres.get("before_hp", 0)), int(hres.get("after_hp", 0)))
 	return result
 
 # Applies a shield via BuffSystem; no-op if buff_system is null.
@@ -105,11 +112,43 @@ static func buff_stats(buff_system, engine: CombatEngine, state: BattleState, ta
 	return buff_system.apply_stats_buff(state, target_team, target_index, fields, max(0.0, duration_s))
 
 # Applies a stun via BuffSystem; no-op if buff_system is null.
-static func stun(buff_system, engine: CombatEngine, state: BattleState, target_team: String, target_index: int, duration_s: float) -> Dictionary:
+static func stun(buff_system, engine: CombatEngine, state: BattleState, target_team: String, target_index: int, duration_s: float, source_team: String = "", source_index: int = -1) -> Dictionary:
 	if buff_system == null:
 		engine._resolver_emit_log("[Ability] Stun requested but BuffSystem not available")
 		return {"processed": false}
-	return buff_system.apply_stun(state, target_team, target_index, max(0.0, duration_s))
+	var res: Dictionary = buff_system.apply_stun(state, target_team, target_index, max(0.0, duration_s))
+	# Emit CC applied for analytics if we know the effective time
+	if engine != null and res != null and bool(res.get("processed", false)):
+		var eff: float = float(res.get("effective", res.get("duration", duration_s)))
+		if eff > 0.0 and engine.has_method("_resolver_emit_log"):
+			var st := String(source_team)
+			var si := int(source_index)
+			engine._resolver_emit_log("CC applied: stun %.2fs" % eff)
+		if engine != null and engine.has_method("_resolver_emit_hit") and engine.has_method("_resolver_emit_log"):
+			pass
+		if engine != null and engine.has_method("_resolver_emit_stats"):
+			pass
+		if engine != null and engine.has_method("_resolver_emit_hit_mitigated"):
+			pass
+		if engine != null and engine.has_method("_resolver_emit_team_stats"):
+			pass
+		if engine != null and engine.has_method("_resolver_emit_log"):
+			pass
+		if engine != null and engine.has_method("_resolver_emit_hit_components"):
+			pass
+		if engine != null and engine.has_method("_resolver_emit_heal_applied"):
+			pass
+		# Dedicated event through CombatEvents if wired
+		if engine != null and engine.has_method("_build_resolver_emitters"):
+			# Use CombatManager re-emitted path via events: add cc_applied to bus
+			if engine != null and engine.has_method("_resolver_emit_log"):
+				pass
+		if engine != null and engine.has_method("_resolver_emit_team_stats"):
+			pass
+		# Use CombatEvents on services instead (simpler): call via engine direct signal
+		if engine != null and engine.has_signal("cc_applied"):
+			engine.emit_signal("cc_applied", String(source_team), int(source_index), String(target_team), int(target_index), "stun", float(eff))
+	return res
 
 # --- Internal helpers ---
 static func _unit_at(state: BattleState, team: String, idx: int) -> Unit:
