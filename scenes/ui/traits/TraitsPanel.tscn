@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://dib1tw8576diu"]
+
+[node name="TraitsPanel" type="Control"]
+z_index = 40
+custom_minimum_size = Vector2(56, 64)
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Background" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.593552, 0.169596, 0.223749, 1)
+
+[node name="TraitsScroll" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+horizontal_scroll_mode = 0
+
+[node name="TraitsVBox" type="VBoxContainer" parent="TraitsScroll"]
+layout_mode = 2

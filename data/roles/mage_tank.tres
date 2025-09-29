@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource( 1 )
 role = "Mage Tank"
-health = 260
+health = 300
 attack_damage = 0
 spell_power = 35
 attack_range = 0

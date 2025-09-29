@@ -1,36 +1,103 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://dcgxau8dno4pu"]
 
-[ext_resource type="Script" path="res://scripts/ui/shop/shop_card.gd" id="1"]
+[ext_resource type="Script" uid="uid://5ldqccl3b20s" path="res://scripts/ui/shop/shop_card.gd" id="1"]
+
+[sub_resource type="Gradient" id="Gradient_2qg5p"]
+colors = PackedColorArray(0.0588235, 0.129412, 0.113725, 1, 0.0352941, 0.219608, 0.113725, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_1ap5a"]
+gradient = SubResource("Gradient_2qg5p")
 
 [node name="ShopCard" type="Button"]
-custom_minimum_size = Vector2(144, 148)
-toggle_mode = false
+custom_minimum_size = Vector2(144, 144)
+anchors_preset = -1
+anchor_right = 0.075
+anchor_bottom = 0.137037
+offset_right = -144.0
+offset_bottom = -148.0
 script = ExtResource("1")
+metadata/_edit_use_anchors_ = true
 
-[node name="Box" type="VBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 4
+[node name="boarder_gradient" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("GradientTexture2D_1ap5a")
+metadata/_edit_use_anchors_ = true
 
-[node name="Icon" type="TextureRect" parent="Box"]
-custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
-stretch_mode = 5
+[node name="Icon" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0138889
+anchor_top = 0.0138889
+anchor_right = 0.986111
+anchor_bottom = 0.986111
+grow_horizontal = 2
+grow_vertical = 2
 expand_mode = 1
+stretch_mode = 5
+metadata/_edit_use_anchors_ = true
 
-[node name="Name" type="Label" parent="Box"]
-layout_mode = 2
+[node name="TraitIcons" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.166667
+anchor_bottom = 0.868056
+grow_vertical = 2
+theme_override_constants/separation = 6
+alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Role" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.8)
+layout_mode = 1
+offset_right = 144.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(0, 1, 1, 1)
+text = "Role"
+horizontal_alignment = 2
+
+[node name="bottom_gradient" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.840278
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = SubResource("GradientTexture2D_1ap5a")
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="Name" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0.9)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+offset_right = 8.0
+grow_vertical = 0
 text = "?"
 horizontal_alignment = 1
-modulate = Color(1, 1, 1, 0.9)
 
-[node name="Price" type="Label" parent="Box"]
-layout_mode = 2
+[node name="Price" type="Label" parent="."]
+modulate = Color(1, 1, 0.8, 0.95)
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -19.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 8
 text = "0g"
 horizontal_alignment = 1
-modulate = Color(1, 1, 0.8, 0.95)
-
-[node name="Tags" type="HBoxContainer" parent="Box"]
-layout_mode = 2
-visible = false
-theme_override_constants/separation = 4
-

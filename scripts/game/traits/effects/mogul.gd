@@ -24,16 +24,15 @@ func on_battle_end(ctx):
     var can_award: bool = true
     if Engine.has_singleton("Economy"):
         var econ = Engine.get_singleton("Economy")
-        if econ != null and econ.has_method("get"):
+        if econ != null:
             var g = 0
-            # Try common access patterns
-            if econ.has_property("gold"):
-                g = int(econ.get("gold"))
+            # Prefer property via get(); falls back to method if present
+            var gv = econ.get("gold") if econ.has_method("get") else null
+            if gv != null:
+                g = int(gv)
             elif econ.has_method("gold"):
                 g = int(econ.gold())
             can_award = (g > 0)
-        elif econ != null and econ.has_property("gold"):
-            can_award = int(econ.gold) > 0
     if not can_award:
         _pending_player = 0
         return
@@ -50,4 +49,3 @@ func on_battle_end(ctx):
     # Fallback: try to bubble to UI via log (UI can listen and award).
     if ctx.engine != null and ctx.engine.has_method("_resolver_emit_log"):
         ctx.engine._resolver_emit_log("[Mogul] gold_awarded(%d)" % amt)
-

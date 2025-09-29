@@ -1,0 +1,727 @@
+   1 extends Node
+   2 
+   3 # Headless round-robin 1v1 simulator for balance.
+   4 # Scene-friendly and -s friendly.
+   5 # CLI example:
+   6 # godot --headless -s tests/balance_runner/balance_runner.gd -- --repeats=10 --delta=0.05 --timeout=120 --cost=1,2,3 --role=marksman,mage --out=user://balance_runner/balance_matrix.csv
+   7 
+   8 const UnitFactory = preload("res://scripts/unit_factory.gd")
+   9 const BattleState = preload("res://scripts/game/combat/battle_state.gd")
+  10 const CombatEngine = preload("res://scripts/game/combat/combat_engine.gd")
+  11 const Unit = preload("res://scripts/unit.gd")
+  12 const UnitProfile = preload("res://scripts/game/units/unit_profile.gd")
+  13 const UnitDef = preload("res://scripts/game/units/unit_def.gd")
+  14 
+  15 var _signal_outcome: String = ""
+  16 
+  17 # Editor-friendly overrides (set via Inspector when running as a scene)
+  18 @export var use_editor_params: bool = true
+  19 @export var ids_prop: String = ""              # format: "attacker:defender,att:def"
+  20 @export var repeats_prop: int = 10
+  21 @export var timeout_prop: float = 120.0
+  22 @export var abilities_prop: bool = false
+  23 @export var ability_metrics_prop: bool = false
+  24 @export var role_filter_prop: String = ""       # CSV of role ids
+  25 @export var cost_filter_prop: String = ""       # CSV of ints
+  26 @export var out_path_prop: String = "user://balance_matrix.csv"
+  27 
+  28 func _ready() -> void:
+  29 	# Prefer Inspector parameters when no CLI args are provided.
+  30 	call_deferred("_run")
+  31 
+  32 func _run_from_properties() -> void:
+  33 	# Use fixed delta (0.05) per request; ignore delta-related fields.
+  34 	if UnitFactory.has_property("role_invariant_fail_fast"):
+  35 		UnitFactory.role_invariant_fail_fast = true
+  36 	var id_pairs: Array = _parse_id_pairs(String(ids_prop))
+  37 	var role_filter: PackedStringArray = _split_csv(String(role_filter_prop))
+  38 	var cost_filter: PackedInt32Array = _csv_to_ints(String(cost_filter_prop))
+  39 	var out_path: String = String(out_path_prop)
+  40 	var repeats := int(repeats_prop)
+  41 	var timeout_s := float(timeout_prop)
+  42 	var abilities_enabled := bool(abilities_prop)
+  43 	var ability_metrics := bool(ability_metrics_prop)
+  44 
+  45 	var units: Array[Dictionary] = _collect_units(role_filter, cost_filter)
+  46 	if units.size() < 2:
+  47 		push_warning("BalanceRunner: not enough units with current filters")
+  48 		return
+  49 	var results: Array = []
+  50 	for i in range(units.size()):
+  51 		for j in range(i + 1, units.size()):
+  52 			var a: Dictionary = units[i]
+  53 			var b: Dictionary = units[j]
+  54 			if not _pair_allowed(String(a.id), String(b.id), id_pairs):
+  55 				continue
+  56 			var mr := MatchResult.new()
+  57 			mr.a_id = String(a.id)
+  58 			mr.b_id = String(b.id)
+  59 			# Attach unit metadata for analytics/aggregation (CLI path)
+  60 			mr.a_roles = a.roles.duplicate()
+  61 			mr.b_roles = b.roles.duplicate()
+  62 			mr.a_cost = int(a.cost)
+  63 			mr.b_cost = int(b.cost)
+  64 			mr.a_level = int(a.level)
+  65 			mr.b_level = int(b.level)
+  66 			for _r in range(repeats):
+  67 				_simulate_pair(mr, a.id, b.id, 0.05, timeout_s, abilities_enabled, ability_metrics)
+  68 				_simulate_pair(mr, b.id, a.id, 0.05, timeout_s, abilities_enabled, ability_metrics)
+  69 			results.append(mr)
+  70 	_write_csv(out_path, results, ability_metrics)
+  71 	_print_human_summary(results)
+  72 	# Also write aggregated role-pair summary next to the matrix
+  73 	_write_role_pair_summary(results, out_path)
+  74 
+  75 class MatchResult:
+  76 	var a_id: String
+  77 	var b_id: String
+  78 	var a_roles: Array[String] = []
+  79 	var b_roles: Array[String] = []
+  80 	var a_cost: int = 0
+  81 	var b_cost: int = 0
+  82 	var a_level: int = 1
+  83 	var b_level: int = 1
+  84 	var a_wins: int = 0
+  85 	var b_wins: int = 0
+  86 	var draws: int = 0
+  87 	var shots: int = 0
+  88 	var a_shots: int = 0
+  89 	var b_shots: int = 0
+  90 	var casts_sum: int = 0
+  91 	var first_cast_time_sum: float = 0.0
+  92 	var first_cast_samples: int = 0
+  93 	var a_casts_sum: int = 0
+  94 	var b_casts_sum: int = 0
+  95 	var a_first_cast_time_sum: float = 0.0
+  96 	var b_first_cast_time_sum: float = 0.0
+  97 	var a_first_cast_samples: int = 0
+  98 	var b_first_cast_samples: int = 0
+  99 	var a_time_sum: float = 0.0
+ 100 	var b_time_sum: float = 0.0
+ 101 	var a_hp_sum: int = 0
+ 102 	var b_hp_sum: int = 0
+ 103 	# Per-side totals for analytics
+ 104 	var a_damage_sum: int = 0
+ 105 	var b_damage_sum: int = 0
+ 106 	var a_heal_total: int = 0
+ 107 	var b_heal_total: int = 0
+ 108 	var a_absorb_total: int = 0
+ 109 	var b_absorb_total: int = 0
+ 110 	var a_mitigated_total: int = 0
+ 111 	var b_mitigated_total: int = 0
+ 112 	var a_overkill_total: int = 0
+ 113 	var b_overkill_total: int = 0
+ 114 	var a_phys_total: int = 0
+ 115 	var b_phys_total: int = 0
+ 116 	var a_mag_total: int = 0
+ 117 	var b_mag_total: int = 0
+ 118 	var a_true_total: int = 0
+ 119 	var b_true_total: int = 0
+ 120 	# First-hit timing per side
+ 121 	var a_first_hit_time_sum: float = 0.0
+ 122 	var b_first_hit_time_sum: float = 0.0
+ 123 	var a_first_hit_samples: int = 0
+ 124 	var b_first_hit_samples: int = 0
+ 125 	var total: int = 0
+ 126 
+ 127 	func add_win(winner: String, time_s: float, a_hp: int, b_hp: int) -> void:
+ 128 		total += 1
+ 129 		if winner == a_id:
+ 130 			a_wins += 1
+ 131 			a_time_sum += time_s
+ 132 			a_hp_sum += a_hp
+ 133 		elif winner == b_id:
+ 134 			b_wins += 1
+ 135 			b_time_sum += time_s
+ 136 			b_hp_sum += b_hp
+ 137 		else:
+ 138 			draws += 1
+ 139 
+ 140 	func summary() -> Dictionary:
+ 141 		var a_roles_s := ""
+ 142 		for i in range(a_roles.size()):
+ 143 			if i > 0:
+ 144 				a_roles_s += "|"
+ 145 			a_roles_s += String(a_roles[i])
+ 146 		var b_roles_s := ""
+ 147 		for j in range(b_roles.size()):
+ 148 			if j > 0:
+ 149 				b_roles_s += "|"
+ 150 			b_roles_s += String(b_roles[j])
+ 151 		return {
+ 152 			"a": a_id,
+ 153 			"b": b_id,
+ 154 			"a_roles": a_roles_s,
+ 155 			"b_roles": b_roles_s,
+ 156 			"a_cost": a_cost,
+ 157 			"b_cost": b_cost,
+ 158 			"a_level": a_level,
+ 159 			"b_level": b_level,
+ 160 			"a_win_pct": (float(a_wins) / max(1, total)),
+ 161 			"b_win_pct": (float(b_wins) / max(1, total)),
+ 162 			"draw_pct": (float(draws) / max(1, total)),
+ 163 			"a_avg_time": (a_time_sum / max(1, a_wins)),
+ 164 			"b_avg_time": (b_time_sum / max(1, b_wins)),
+ 165 			"a_avg_hp": int(round(float(a_hp_sum) / max(1, a_wins))),
+ 166 			"b_avg_hp": int(round(float(b_hp_sum) / max(1, b_wins))),
+ 167 			"shots": shots,
+ 168 			"a_shots": a_shots,
+ 169 			"b_shots": b_shots,
+ 170 			"a_avg_damage": float(a_damage_sum) / max(1, total),
+ 171 			"b_avg_damage": float(b_damage_sum) / max(1, total),
+ 172 			"a_heal_total": a_heal_total,
+ 173 			"b_heal_total": b_heal_total,
+ 174 			"a_absorbed": a_absorb_total,
+ 175 			"b_absorbed": b_absorb_total,
+ 176 			"a_mitigated": a_mitigated_total,
+ 177 			"b_mitigated": b_mitigated_total,
+ 178 			"a_overkill": a_overkill_total,
+ 179 			"b_overkill": b_overkill_total,
+ 180 			"a_phys": a_phys_total,
+ 181 			"b_phys": b_phys_total,
+ 182 			"a_mag": a_mag_total,
+ 183 			"b_mag": b_mag_total,
+ 184 			"a_true": a_true_total,
+ 185 			"b_true": b_true_total,
+ 186 			"a_first_hit_s": a_first_hit_time_sum / max(1, a_first_hit_samples),
+ 187 			"b_first_hit_s": b_first_hit_time_sum / max(1, b_first_hit_samples),
+ 188 			"a_avg_casts": float(a_casts_sum) / max(1, total),
+ 189 			"b_avg_casts": float(b_casts_sum) / max(1, total),
+ 190 			"a_first_cast_s": a_first_cast_time_sum / max(1, a_first_cast_samples),
+ 191 			"b_first_cast_s": b_first_cast_time_sum / max(1, b_first_cast_samples),
+ 192 		}
+ 193 
+ 194 func _run() -> void:
+ 195 	print("BalanceRunner: starting. argv=", OS.get_cmdline_args())
+ 196 	var args := _parse_args(OS.get_cmdline_args())
+ 197 	if UnitFactory.has_property("role_invariant_fail_fast"):
+ 198 		UnitFactory.role_invariant_fail_fast = true
+ 199 	# If no CLI args, use editor properties for convenience when running the scene from Godot.
+ 200 	if args.size() == 0 and bool(use_editor_params):
+ 201 		_run_from_properties()
+ 202 		return
+ 203 	var repeats: int = int(args.get("repeats", 10))
+ 204 	var timeout_s: float = float(args.get("timeout", 120.0))
+ 205 	var abilities_flag_str: String = String(args.get("abilities", "false"))
+ 206 	var abilities_enabled: bool = _parse_bool(abilities_flag_str)
+ 207 	var metrics_flag_str: String = String(args.get("ability_metrics", "false"))
+ 208 	var ability_metrics: bool = _parse_bool(metrics_flag_str)
+ 209 	# Optional filters
+ 210 	var ids_filter_str: String = String(args.get("ids", ""))
+ 211 	var id_pairs: Array = _parse_id_pairs(ids_filter_str)
+ 212 	# Default to the repo folder; we'll resolve to an OS path so it works headless.
+ 213 	var out_path: String = String(args.get("out", "res://tests/balance_runner/results/balance_matrix.csv"))
+ 214 	var role_filter: PackedStringArray = _split_csv(String(args.get("role", "")))
+ 215 	var cost_filter: PackedInt32Array = _csv_to_ints(String(args.get("cost", "")))
+ 216 
+ 217 	var units: Array[Dictionary] = _collect_units(role_filter, cost_filter)
+ 218 	if units.size() < 2:
+ 219 		var cost_strs: PackedStringArray = []
+ 220 		for v in cost_filter:
+ 221 			cost_strs.append(str(v))
+ 222 		var msg := "BalanceRunner: not enough units after filtering. role=%s cost=%s" % [
+ 223 			_join_strings(role_filter, ","), _join_strings(cost_strs, ",")
+ 224 		]
+ 225 		push_warning(msg)
+ 226 		printerr(msg)
+ 227 		if get_tree():
+ 228 			get_tree().quit()
+ 229 		return
+ 230 	var results: Array = []
+ 231 	for i in range(units.size()):
+ 232 		for j in range(i + 1, units.size()):
+ 233 			var a: Dictionary = units[i]
+ 234 			var b: Dictionary = units[j]
+ 235 			if not _pair_allowed(String(a.id), String(b.id), id_pairs):
+ 236 				continue
+ 237 			var mr := MatchResult.new()
+ 238 			mr.a_id = String(a.id)
+ 239 			mr.b_id = String(b.id)
+ 240 			for _r in range(repeats):
+ 241 				_simulate_pair(mr, a.id, b.id, 0.05, timeout_s, abilities_enabled, ability_metrics)
+ 242 				_simulate_pair(mr, b.id, a.id, 0.05, timeout_s, abilities_enabled, ability_metrics)
+ 243 			results.append(mr)
+ 244 	_write_csv(out_path, results, ability_metrics)
+ 245 	_print_human_summary(results)
+ 246 	if get_tree():
+ 247 		get_tree().quit()
+ 248 
+ 249 func _simulate_pair(mr: MatchResult, player_id: String, enemy_id: String, delta: float, timeout_s: float, abilities_enabled: bool, ability_metrics: bool) -> void:
+ 250 	var uA: Unit = UnitFactory.spawn(player_id)
+ 251 	var uB: Unit = UnitFactory.spawn(enemy_id)
+ 252 	if uA == null or uB == null:
+ 253 		return
+ 254 	# Optional: role invariant checks (fail-fast during BalanceRunner runs)
+ 255 	if UnitFactory.has_method("validate_role_invariants"):
+ 256 		var vA: Array = UnitFactory.validate_role_invariants(uA)
+ 257 		var vB: Array = UnitFactory.validate_role_invariants(uB)
+ 258 		if vA.size() > 0 or vB.size() > 0:
+ 259 			for msg in vA:
+ 260 				printerr("Invariant violation for ", player_id, ": ", String(msg))
+ 261 			for msg2 in vB:
+ 262 				printerr("Invariant violation for ", enemy_id, ": ", String(msg2))
+ 263 			if UnitFactory.has_property("role_invariant_fail_fast") and bool(UnitFactory.role_invariant_fail_fast):
+ 264 				return
+ 265 	var state: BattleState = BattleState.new()
+ 266 	state.stage = 1
+ 267 	state.player_team.append(uA)
+ 268 	state.enemy_team.append(uB)
+ 269 
+ 270 	var engine: CombatEngine = CombatEngine.new()
+ 271 	engine.abilities_enabled = abilities_enabled
+ 272 	engine.deterministic_rolls = false
+ 273 	engine.configure(state, uA, 1, Callable())
+ 274 	# Place units with a small separation so first-hit timings reflect approach/kiting
+ 275 	# Bounds centered on origin: 4x4 area spanning (-2,-2) to (2,2)
+ 276 	engine.set_arena(1.0, [Vector2(-1, 0)], [Vector2(1, 0)], Rect2(Vector2(-2, -2), Vector2(4, 4)))
+ 277 	var debug_hit_prints := 0
+ 278 	# Time accumulator declared early so signal closures can reference it safely
+ 279 	var t: float = 0.0
+ 280 	# Map engine team labels to logical A/B for this simulation
+ 281 	var player_is_a := (player_id == mr.a_id)
+ 282 	# Use a small ref dict for per-sim one-time flags (mutable in lambdas)
+ 283 	var rec := {"a_first_hit": false, "b_first_hit": false}
+ 284 
+ 285 	# Inline connects; engine is new per sim so no duplicate risk
+ 286 	engine.projectile_fired.connect(func(team: String, sidx: int, tidx: int, dmg: int, crit: bool):
+ 287 		engine.on_projectile_hit(team, sidx, tidx, dmg, crit)
+ 288 	)
+ 289 	engine.hit_applied.connect(func(team: String, sidx: int, tidx: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, p_cd: float, e_cd: float):
+ 290 			mr.shots += 1
+ 291 			var is_a_source := ((team == "player") and player_is_a) or ((team == "enemy") and (not player_is_a))
+ 292 			var eff_dealt := int(dealt)
+ 293 			if eff_dealt <= 0:
+ 294 				var d_from_hp := int(max(0, int(before_hp) - int(after_hp)))
+ 295 				eff_dealt = d_from_hp
+ 296 			if is_a_source:
+ 297 				mr.a_shots += 1
+ 298 				mr.a_damage_sum += eff_dealt
+ 299 				if not rec["a_first_hit"]:
+ 300 					mr.a_first_hit_time_sum += t
+ 301 					mr.a_first_hit_samples += 1
+ 302 					rec["a_first_hit"] = true
+ 303 			else:
+ 304 				mr.b_shots += 1
+ 305 				mr.b_damage_sum += eff_dealt
+ 306 				if not rec["b_first_hit"]:
+ 307 					mr.b_first_hit_time_sum += t
+ 308 					mr.b_first_hit_samples += 1
+ 309 					rec["b_first_hit"] = true
+ 310 			if debug_hit_prints < 20:
+ 311 				debug_hit_prints += 1
+ 312 	)
+ 313 	# Additional analytics signals
+ 314 	if engine.has_signal("heal_applied"):
+ 315 		engine.heal_applied.connect(func(source_team: String, _source_index: int, _target_team: String, _target_index: int, healed: int, _overheal: int, _before_hp: int, _after_hp: int):
+ 316 			var is_a_source := ((source_team == "player") and player_is_a) or ((source_team == "enemy") and (not player_is_a))
+ 317 			if is_a_source:
+ 318 				mr.a_heal_total += int(healed)
+ 319 			else:
+ 320 				mr.b_heal_total += int(healed)
+ 321 		)
+ 322 	if engine.has_signal("shield_absorbed"):
+ 323 		engine.shield_absorbed.connect(func(target_team: String, _target_index: int, absorbed: int):
+ 324 			var is_a_target := ((target_team == "player") and player_is_a) or ((target_team == "enemy") and (not player_is_a))
+ 325 			if is_a_target:
+ 326 				mr.a_absorb_total += int(absorbed)
+ 327 			else:
+ 328 				mr.b_absorb_total += int(absorbed)
+ 329 		)
+ 330 	if engine.has_signal("hit_mitigated"):
+ 331 		engine.hit_mitigated.connect(func(_source_team: String, _source_index: int, target_team: String, _target_index: int, pre_mit: int, _post_pre_shield: int):
+ 332 			var is_a_target := ((target_team == "player") and player_is_a) or ((target_team == "enemy") and (not player_is_a))
+ 333 			if is_a_target:
+ 334 				mr.a_mitigated_total += int(pre_mit)
+ 335 			else:
+ 336 				mr.b_mitigated_total += int(pre_mit)
+ 337 		)
+ 338 	if engine.has_signal("hit_overkill"):
+ 339 		engine.hit_overkill.connect(func(source_team: String, _source_index: int, _target_team: String, _target_index: int, overkill: int):
+ 340 			var is_a_source := ((source_team == "player") and player_is_a) or ((source_team == "enemy") and (not player_is_a))
+ 341 			if is_a_source:
+ 342 				mr.a_overkill_total += int(overkill)
+ 343 			else:
+ 344 				mr.b_overkill_total += int(overkill)
+ 345 		)
+ 346 	if engine.has_signal("hit_components"):
+ 347 		engine.hit_components.connect(func(source_team: String, _source_index: int, _target_team: String, _target_index: int, phys: int, mag: int, tru: int):
+ 348 			var is_a_source := ((source_team == "player") and player_is_a) or ((source_team == "enemy") and (not player_is_a))
+ 349 			if is_a_source:
+ 350 				mr.a_phys_total += int(phys)
+ 351 				mr.a_mag_total += int(mag)
+ 352 				mr.a_true_total += int(tru)
+ 353 			else:
+ 354 				mr.b_phys_total += int(phys)
+ 355 				mr.b_mag_total += int(mag)
+ 356 				mr.b_true_total += int(tru)
+ 357 		)
+ 358 
+ 359 	var outcome: String = ""
+ 360 	_signal_outcome = ""
+ 361 	if not engine.is_connected("victory", Callable(self, "_on_engine_outcome_v")):
+ 362 		engine.victory.connect(Callable(self, "_on_engine_outcome_v"))
+ 363 	if not engine.is_connected("defeat", Callable(self, "_on_engine_outcome_d")):
+ 364 		engine.defeat.connect(Callable(self, "_on_engine_outcome_d"))
+ 365 
+ 366 	# Ability analytics (optional)
+ 367 	var casts_player := 0
+ 368 	var casts_enemy := 0
+ 369 	var first_cast_time_player := -1.0
+ 370 	var first_cast_time_enemy := -1.0
+ 371 	# Per-frame sampling to detect casts via mana reset (robust regardless of signals)
+ 372 	var last_mana_player := int(uA.mana)
+ 373 	var last_mana_enemy := int(uB.mana)
+ 374 	engine.start()
+ 375 	while outcome == "" and t < timeout_s:
+ 376 		engine.process(delta)
+ 377 		# Detect mana resets to 0 as casts (covers attack-based gain and regen autocast)
+ 378 		if abilities_enabled and ability_metrics:
+ 379 			if last_mana_player > 0 and int(uA.mana) == 0:
+ 380 				casts_player += 1
+ 381 				if first_cast_time_player < 0.0:
+ 382 					first_cast_time_player = t
+ 383 			if last_mana_enemy > 0 and int(uB.mana) == 0:
+ 384 				casts_enemy += 1
+ 385 				if first_cast_time_enemy < 0.0:
+ 386 					first_cast_time_enemy = t
+ 387 			last_mana_player = int(uA.mana)
+ 388 			last_mana_enemy = int(uB.mana)
+ 389 		t += delta
+ 390 		if _signal_outcome != "":
+ 391 			outcome = _signal_outcome
+ 392 
+ 393 	var winner_id := "draw"
+ 394 	# Map final HPs to logical a/b (mr.a_id/mr.b_id), not player/enemy order.
+ 395 	# When we simulate with sides swapped, uA/uB are player/enemy, so
+ 396 	# compute a_hp/b_hp by comparing the current player_id to mr.a_id/mr.b_id.
+ 397 	var a_hp: int
+ 398 	var b_hp: int
+ 399 	if player_id == mr.a_id:
+ 400 		a_hp = int(uA.hp)
+ 401 		b_hp = int(uB.hp)
+ 402 	else:
+ 403 		a_hp = int(uB.hp)
+ 404 		b_hp = int(uA.hp)
+ 405 	if outcome == "victory":
+ 406 		winner_id = player_id
+ 407 	elif outcome == "defeat":
+ 408 		winner_id = enemy_id
+ 409 
+ 410 	mr.add_win(winner_id, t, a_hp, b_hp)
+ 411 	# Per-side ability metrics aggregation
+ 412 	if abilities_enabled and ability_metrics:
+ 413 		if player_is_a:
+ 414 			mr.a_casts_sum += casts_player
+ 415 			mr.b_casts_sum += casts_enemy
+ 416 			if first_cast_time_player >= 0.0:
+ 417 				mr.a_first_cast_time_sum += first_cast_time_player
+ 418 				mr.a_first_cast_samples += 1
+ 419 			if first_cast_time_enemy >= 0.0:
+ 420 				mr.b_first_cast_time_sum += first_cast_time_enemy
+ 421 				mr.b_first_cast_samples += 1
+ 422 		else:
+ 423 			mr.a_casts_sum += casts_enemy
+ 424 			mr.b_casts_sum += casts_player
+ 425 			if first_cast_time_enemy >= 0.0:
+ 426 				mr.a_first_cast_time_sum += first_cast_time_enemy
+ 427 				mr.a_first_cast_samples += 1
+ 428 			if first_cast_time_player >= 0.0:
+ 429 				mr.b_first_cast_time_sum += first_cast_time_player
+ 430 				mr.b_first_cast_samples += 1
+ 431 
+ 432 func _collect_units(role_filter: PackedStringArray, cost_filter: PackedInt32Array) -> Array:
+ 433 	var out: Array[Dictionary] = []
+ 434 	var dir := DirAccess.open("res://data/units")
+ 435 	if dir == null:
+ 436 		return out
+ 437 	dir.list_dir_begin()
+ 438 	while true:
+ 439 		var f := dir.get_next()
+ 440 		if f == "":
+ 441 			break
+ 442 		if f.begins_with(".") or dir.current_is_dir() or not f.ends_with(".tres"):
+ 443 			continue
+ 444 		var path := "res://data/units/%s" % f
+ 445 		var res = load(path)
+ 446 		var id := ""
+ 447 		var roles: Array[String] = []
+ 448 		var cost := 0
+ 449 		var level := 1
+ 450 		if res is UnitProfile:
+ 451 			id = String(res.id)
+ 452 			roles = res.roles.duplicate()
+ 453 			cost = int(res.cost)
+ 454 			level = int(res.level)
+ 455 		elif res is UnitDef:
+ 456 			id = String(res.id)
+ 457 			roles = res.roles.duplicate()
+ 458 			cost = int(res.cost)
+ 459 			level = int(res.level)
+ 460 		if id == "":
+ 461 			continue
+ 462 		if role_filter.size() > 0:
+ 463 			var ok := false
+ 464 			for r in roles:
+ 465 				if role_filter.has(String(r).to_lower()):
+ 466 					ok = true
+ 467 					break
+ 468 			if not ok:
+ 469 				continue
+ 470 		if cost_filter.size() > 0 and not cost_filter.has(cost):
+ 471 			continue
+ 472 		out.append({"id": id, "roles": roles, "cost": cost, "level": level})
+ 473 	dir.list_dir_end()
+ 474 	out.sort_custom(func(a, b): return String(a.id) < String(b.id))
+ 475 	return out
+ 476 
+ 477 func _write_csv(path: String, results: Array, ability_metrics: bool) -> void:
+ 478 	var fa := FileAccess.open(path, FileAccess.WRITE)
+ 479 	if fa == null:
+ 480 		var emsg := "BalanceRunner: cannot write %s" % path
+ 481 		push_warning(emsg)
+ 482 		printerr(emsg)
+ 483 		return
+ 484 	var header := "attacker,defender,a_roles,b_roles,a_cost,b_cost,a_level,b_level,a_win_pct,b_win_pct,draw_pct,a_avg_time,b_avg_time,a_avg_hp,b_avg_hp,total,shots,a_shots,b_shots,a_avg_damage_dealt,b_avg_damage_dealt,a_heal_total,b_heal_total,a_shield_absorbed,b_shield_absorbed,a_mitigated,b_mitigated,a_overkill,b_overkill,a_phys,b_phys,a_mag,b_mag,a_true,b_true,a_first_hit_s,b_first_hit_s"
+ 485 	if ability_metrics:
+ 486 		header += ",a_avg_casts,b_avg_casts,a_first_cast_s,b_first_cast_s"
+ 487 	fa.store_line(header)
+ 488 	for mr: MatchResult in results:
+ 489 		var s := mr.summary()
+ 490 		var cols: Array[String] = []
+ 491 		cols.append(String(s.a))
+ 492 		cols.append(String(s.b))
+ 493 		cols.append(String(s.a_roles))
+ 494 		cols.append(String(s.b_roles))
+ 495 		cols.append(str(int(s.a_cost)))
+ 496 		cols.append(str(int(s.b_cost)))
+ 497 		cols.append(str(int(s.a_level)))
+ 498 		cols.append(str(int(s.b_level)))
+ 499 		cols.append("%.3f" % float(s.a_win_pct))
+ 500 		cols.append("%.3f" % float(s.b_win_pct))
+ 501 		cols.append("%.3f" % float(s.draw_pct))
+ 502 		cols.append("%.2f" % float(s.a_avg_time))
+ 503 		cols.append("%.2f" % float(s.b_avg_time))
+ 504 		cols.append(str(int(s.a_avg_hp)))
+ 505 		cols.append(str(int(s.b_avg_hp)))
+ 506 		cols.append(str(int(mr.total)))
+ 507 		cols.append(str(int(mr.shots)))
+ 508 		cols.append(str(int(s.a_shots)))
+ 509 		cols.append(str(int(s.b_shots)))
+ 510 		cols.append("%.2f" % float(s.a_avg_damage))
+ 511 		cols.append("%.2f" % float(s.b_avg_damage))
+ 512 		cols.append(str(int(s.a_heal_total)))
+ 513 		cols.append(str(int(s.b_heal_total)))
+ 514 		cols.append(str(int(s.a_absorbed)))
+ 515 		cols.append(str(int(s.b_absorbed)))
+ 516 		cols.append(str(int(s.a_mitigated)))
+ 517 		cols.append(str(int(s.b_mitigated)))
+ 518 		cols.append(str(int(s.a_overkill)))
+ 519 		cols.append(str(int(s.b_overkill)))
+ 520 		cols.append(str(int(s.a_phys)))
+ 521 		cols.append(str(int(s.b_phys)))
+ 522 		cols.append(str(int(s.a_mag)))
+ 523 		cols.append(str(int(s.b_mag)))
+ 524 		cols.append(str(int(s.a_true)))
+ 525 		cols.append(str(int(s.b_true)))
+ 526 		cols.append("%.2f" % float(s.a_first_hit_s))
+ 527 		cols.append("%.2f" % float(s.b_first_hit_s))
+ 528 		if ability_metrics:
+ 529 			cols.append("%.2f" % float(s.a_avg_casts))
+ 530 			cols.append("%.2f" % float(s.b_avg_casts))
+ 531 			cols.append("%.2f" % float(s.a_first_cast_s))
+ 532 			cols.append("%.2f" % float(s.b_first_cast_s))
+ 533 		var cols_psa: PackedStringArray = []
+ 534 		for c in cols:
+ 535 			cols_psa.append(String(c))
+ 536 		fa.store_line(_join_strings(cols_psa, ","))
+ 537 	fa.close()
+ 538 	print("BalanceRunner: wrote results to %s" % path)
+ 539 
+ 540 # Aggregated role-pair summary CSV
+ 541 func _write_role_pair_summary(results: Array, base_out_path: String) -> void:
+ 542 	# Map roles -> clusters via UnitFactory.cluster_for_roles
+ 543 	var agg: Dictionary = {}
+ 544 	for mr: MatchResult in results:
+ 545 		var a_cluster := (UnitFactory.cluster_for_roles(mr.a_roles) if UnitFactory and UnitFactory.has_method("cluster_for_roles") else "other")
+ 546 		var b_cluster := (UnitFactory.cluster_for_roles(mr.b_roles) if UnitFactory and UnitFactory.has_method("cluster_for_roles") else "other")
+ 547 		var key := a_cluster + ":" + b_cluster
+ 548 		if not agg.has(key):
+ 549 			agg[key] = {"a": a_cluster, "b": b_cluster, "a_wins": 0, "b_wins": 0, "draws": 0, "matches": 0, "a_time": 0.0, "b_time": 0.0}
+ 550 		var row := agg[key]
+ 551 		row.a_wins += int(mr.a_wins)
+ 552 		row.b_wins += int(mr.b_wins)
+ 553 		row.draws += int(mr.draws)
+ 554 		row.matches += int(mr.total)
+ 555 		row.a_time += float(mr.a_time_sum)
+ 556 		row.b_time += float(mr.b_time_sum)
+ 557 		agg[key] = row
+ 558 	# Write CSV next to matrix path
+ 559 	var out_path := base_out_path.get_basename() + "_agg.csv"
+ 560 	var fa := FileAccess.open(out_path, FileAccess.WRITE)
+ 561 	if fa == null:
+ 562 		printerr("BalanceRunner: cannot write agg to ", out_path)
+ 563 		return
+ 564 	fa.store_line("pair,a_cluster,b_cluster,a_win_pct,b_win_pct,draw_pct,a_avg_time,b_avg_time,matches,pass")
+ 565 	for k in agg.keys():
+ 566 		var r = agg[k]
+ 567 		var total := max(1, int(r.matches))
+ 568 		var a_wp := float(r.a_wins) / float(total)
+ 569 		var b_wp := float(r.b_wins) / float(total)
+ 570 		var dr := float(r.draws) / float(total)
+ 571 		var a_t := (float(r.a_time) / max(1, int(r.a_wins))) if int(r.a_wins) > 0 else 0.0
+ 572 		var b_t := (float(r.b_time) / max(1, int(r.b_wins))) if int(r.b_wins) > 0 else 0.0
+ 573 		var pass_flag := _agg_pass_flag(String(r.a), String(r.b), a_wp, b_wp, dr)
+ 574 		var cols := [k, String(r.a), String(r.b), "%.3f" % a_wp, "%.3f" % b_wp, "%.3f" % dr, "%.2f" % a_t, "%.2f" % b_t, str(int(r.matches)), pass_flag]
+ 575 		var psa: PackedStringArray = []
+ 576 		for c in cols:
+ 577 			psa.append(String(c))
+ 578 		fa.store_line(_join_strings(psa, ","))
+ 579 	fa.close()
+ 580 	print("BalanceRunner: wrote agg to %s" % out_path)
+ 581 
+ 582 func _agg_pass_flag(a_cluster: String, b_cluster: String, a_wp: float, b_wp: float, draw_pct: float) -> String:
+ 583 	# Windows from spec; evaluate based on direction
+ 584 	if draw_pct > 0.10:
+ 585 		return "draw_high"
+ 586 	if a_cluster == "assassin" and (b_cluster == "marksman" or b_cluster == "mage"):
+ 587 		return _pass_range(a_wp, 0.60, 0.75)
+ 588 	if a_cluster == "tank" or a_cluster == "bruiser":
+ 589 		if b_cluster == "assassin":
+ 590 			return _pass_range(a_wp, 0.60, 0.75)
+ 591 	if (a_cluster == "marksman" or a_cluster == "mage") and (b_cluster == "tank" or b_cluster == "bruiser"):
+ 592 		return _pass_range(a_wp, 0.55, 0.70)
+ 593 	# If opposite direction of a spec, check b's window
+ 594 	if b_cluster == "assassin" and (a_cluster == "marksman" or a_cluster == "mage"):
+ 595 		return _pass_range(b_wp, 0.60, 0.75)
+ 596 	if b_cluster == "tank" or b_cluster == "bruiser":
+ 597 		if a_cluster == "assassin":
+ 598 			return _pass_range(b_wp, 0.60, 0.75)
+ 599 	if (b_cluster == "marksman" or b_cluster == "mage") and (a_cluster == "tank" or a_cluster == "bruiser"):
+ 600 		return _pass_range(b_wp, 0.55, 0.70)
+ 601 	return "na"
+ 602 
+ 603 func _pass_range(v: float, lo: float, hi: float) -> String:
+ 604 	return ("pass" if (v >= lo and v <= hi) else ("low" if v < lo else "high"))
+ 605 
+ 606 ## Sweep helpers removed (fixed delta only)
+ 607 
+ 608 func _print_human_summary(results: Array) -> void:
+ 609 	var fastest: Array = []
+ 610 	for mr: MatchResult in results:
+ 611 		var s := mr.summary()
+ 612 		if mr.a_wins > 0:
+ 613 			fastest.append({"pair": "%s vs %s" % [mr.a_id, mr.b_id], "winner": mr.a_id, "t": s.a_avg_time})
+ 614 		if mr.b_wins > 0:
+ 615 			fastest.append({"pair": "%s vs %s" % [mr.a_id, mr.b_id], "winner": mr.b_id, "t": s.b_avg_time})
+ 616 	fastest.sort_custom(func(x, y): return float(x.t) < float(y.t))
+ 617 
+ 618 
+ 619 	for i in range(min(15, fastest.size())):
+ 620 		var r = fastest[i]
+ 621 
+ 622 
+ 623 	var margins: Array = []
+ 624 	for mr2: MatchResult in results:
+ 625 		var s2 := mr2.summary()
+ 626 		if mr2.a_wins > 0:
+ 627 			margins.append({"pair": "%s vs %s" % [mr2.a_id, mr2.b_id], "winner": mr2.a_id, "hp": s2.a_avg_hp})
+ 628 		if mr2.b_wins > 0:
+ 629 			margins.append({"pair": "%s vs %s" % [mr2.a_id, mr2.b_id], "winner": mr2.b_id, "hp": s2.b_avg_hp})
+ 630 	margins.sort_custom(func(x, y): return int(y.hp) - int(x.hp))
+ 631 
+ 632 
+ 633 	for i2 in range(min(15, margins.size())):
+ 634 		var r2 = margins[i2]
+ 635 
+ 636 	results.sort_custom(func(m1: MatchResult, m2: MatchResult): return m1.a_id + m1.b_id < m2.a_id + m2.b_id)
+ 637 	for k in range(min(20, results.size())):
+ 638 		var mr3: MatchResult = results[k]
+ 639 		var s3 := mr3.summary()
+ 640 
+ 641 func _parse_args(argv: PackedStringArray) -> Dictionary:
+ 642 	var out := {}
+ 643 	var seen_sep := false
+ 644 	for a in argv:
+ 645 		if a == "--":
+ 646 			seen_sep = true
+ 647 			continue
+ 648 		var s := String(a)
+ 649 		if (not seen_sep) and (not s.contains("=")):
+ 650 			continue
+ 651 		var parts := s.split("=", false, 2)
+ 652 		if parts.size() == 2:
+ 653 			out[parts[0].lstrip("-")] = parts[1]
+ 654 	return out
+ 655 
+ 656 func _split_csv(s: String) -> PackedStringArray:
+ 657 	var out: PackedStringArray = []
+ 658 	if s.strip_edges() == "":
+ 659 		return out
+ 660 	for p in s.split(","):
+ 661 		var v := String(p).strip_edges().to_lower()
+ 662 		if v != "":
+ 663 			out.append(v)
+ 664 	return out
+ 665 
+ 666 func _csv_to_ints(s: String) -> PackedInt32Array:
+ 667 	var out: PackedInt32Array = []
+ 668 	if s.strip_edges() == "":
+ 669 		return out
+ 670 	for p in s.split(","):
+ 671 		var v := String(p).strip_edges()
+ 672 		if v.is_valid_int():
+ 673 			out.append(int(v))
+ 674 	return out
+ 675 
+ 676 
+ 677 func _join_strings(arr: PackedStringArray, sep: String) -> String:
+ 678 	var s := ""
+ 679 	for i in range(arr.size()):
+ 680 		if i > 0:
+ 681 			s += sep
+ 682 		s += arr[i]
+ 683 	return s
+ 684 
+ 685 func _parse_bool(s: String) -> bool:
+ 686 	var v := s.strip_edges().to_lower()
+ 687 	return v in ["1", "true", "yes", "y", "on"]
+ 688 
+ 689 func _parse_id_pairs(s: String) -> Array:
+ 690 	# Format: "a:b,c:d"
+ 691 	var out: Array = []
+ 692 	var src := String(s).strip_edges()
+ 693 	if src == "":
+ 694 		return out
+ 695 	for tok in src.split(","):
+ 696 		var t := String(tok).strip_edges()
+ 697 		if t == "":
+ 698 			continue
+ 699 		var parts := t.split(":", false, 2)
+ 700 		if parts.size() != 2:
+ 701 			continue
+ 702 		var a := String(parts[0]).strip_edges().to_lower()
+ 703 		var b := String(parts[1]).strip_edges().to_lower()
+ 704 		if a == "" or b == "":
+ 705 			continue
+ 706 		out.append({"a": a, "b": b})
+ 707 	return out
+ 708 
+ 709 func _pair_allowed(attacker_id: String, defender_id: String, pairs: Array) -> bool:
+ 710 	if pairs == null or pairs.is_empty():
+ 711 		return true
+ 712 	var a := attacker_id.to_lower()
+ 713 	var b := defender_id.to_lower()
+ 714 	for p in pairs:
+ 715 		if String(p.get("a", "")) == a and String(p.get("b", "")) == b:
+ 716 			return true
+ 717 	return false
+ 718 
+ 719 # Delta sweep helpers removed per request; fixed delta 0.05 is used for all sims
+ 720 
+ 721 
+ 722 func _on_engine_outcome_v(_stage: int) -> void:
+ 723 	_signal_outcome = "victory"
+ 724 
+ 725 
+ 726 func _on_engine_outcome_d(_stage: int) -> void:
+ 727 	_signal_outcome = "defeat"

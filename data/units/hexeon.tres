@@ -1,15 +1,14 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://dx7hok7kh6t0l"]
 
-[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource("1")
 id = "hexeon"
 name = "Hexeon"
 sprite_path = "res://assets/units/hexeon.png"
 ability_id = "hexeon_prismatic_guillotine"
-traits = ["Kaleidoscope", "Executioner"]
-roles = ["mage_assassin"]
-cost = 1
+traits = Array[String](["Kaleidoscope", "Executioner"])
+roles = Array[String](["mage_assassin"])
+cost = 3
 level = 1
-

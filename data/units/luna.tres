@@ -7,7 +7,6 @@ script = ExtResource( 1 )
 id = "luna"
 name = "Luna"
 sprite_path = "res://assets/units/luna.png"
-ability_id = ""
 ability_id = "luna_moon_beam"
 traits = ["Liaison", "Kaleidoscope"]
 roles = ["mage"]

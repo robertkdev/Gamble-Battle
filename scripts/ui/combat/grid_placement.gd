@@ -3,6 +3,7 @@ class_name GridPlacement
 
 const UnitViewClass := preload("res://scripts/ui/combat/unit_view.gd")
 const UnitSlotView := preload("res://scripts/ui/combat/unit_slot_view.gd")
+const UnitItemsView := preload("res://scripts/ui/items/unit_items_view.gd")
 const Debug := preload("res://scripts/util/debug.gd")
 const Strings := preload("res://scripts/util/strings.gd")
 
@@ -94,6 +95,10 @@ func rebuild_enemy_views(enemy_team: Array) -> void:
 		var u: Unit = enemy_team[i]
 		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(u)
+		# Items overlay
+		var _items_view_e := UnitItemsView.new()
+		_items_view_e.set_unit(u)
+		uv.add_child(_items_view_e)
 		var tile_idx: int = i
 		if enemy_grid_helper:
 			enemy_grid_helper.attach(uv, tile_idx)
@@ -149,6 +154,10 @@ func rebuild_player_views(player_team: Array, allow_drag: bool) -> void:
 			_player_indices[i] = tile_idx
 		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(pu)
+		# Items overlay
+		var _items_view_p := UnitItemsView.new()
+		_items_view_p.set_unit(pu)
+		uv.add_child(_items_view_p)
 		if allow_drag:
 			uv.enable_drag(player_grid_helper)
 			uv.dropped_on_tile.connect(func(idx): _on_player_unit_dropped(i, idx))

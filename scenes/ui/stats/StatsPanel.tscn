@@ -63,6 +63,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Scoreboard" parent="VBox/Body" instance=ExtResource("3")]
+layout_mode = 0
+anchors_preset = 0
 
 [node name="UnitPanel" parent="VBox/Body" instance=ExtResource("4")]
 visible = false

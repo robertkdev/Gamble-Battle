@@ -7,5 +7,5 @@ script = ExtResource( 1 )
 id = "brute_slam"
 name = "Slam"
 description = "Knocks up nearby enemies for 0.75s, shatters shields, deals 110/165/250 + 15 × Titan stacks physical damage, and heals self for 120/170/240 + 20 × Titan stacks."
-base_cost = 50
+base_cost = 60
 tags = ["heal", "damage", "cc"]

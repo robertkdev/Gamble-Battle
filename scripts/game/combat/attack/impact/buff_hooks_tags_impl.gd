@@ -2,6 +2,7 @@ extends BuffHooks
 class_name BuffHooksTagsImpl
 
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
+const BuffTagsItems := preload("res://scripts/game/abilities/buff_tags_items.gd")
 
 var buff_system: BuffSystem = null
 
@@ -75,28 +76,41 @@ func unstable_pre_phys_bonus(state: BattleState, team: String, index: int, tgt_t
 func exec_ignore_shields_on_crit(state: BattleState, team: String, index: int) -> bool:
     if buff_system == null or state == null:
         return false
-    if not buff_system.has_tag(state, team, index, BuffTags.TAG_EXEC_T8):
-        return false
-    var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_EXEC_T8)
-    return bool(meta.get("ignore_shields_on_crit", false))
+    var ignore: bool = false
+    if buff_system.has_tag(state, team, index, BuffTags.TAG_EXEC_T8):
+        var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_EXEC_T8)
+        ignore = ignore or bool(meta.get("ignore_shields_on_crit", false))
+    if buff_system.has_tag(state, team, index, BuffTagsItems.TAG_ITEM_IGNORE_SHIELDS_ON_CRIT):
+        var meta2: Dictionary = buff_system.get_tag_data(state, team, index, BuffTagsItems.TAG_ITEM_IGNORE_SHIELDS_ON_CRIT)
+        ignore = ignore or bool(meta2.get("ignore_shields_on_crit", false))
+    return ignore
 
 func exec_true_bonus_pct(state: BattleState, team: String, index: int) -> float:
     if buff_system == null or state == null:
         return 0.0
-    if not buff_system.has_tag(state, team, index, BuffTags.TAG_EXEC_T8):
-        return 0.0
-    var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_EXEC_T8)
-    return float(meta.get("true_bonus_pct", 0.0))
+    var pct: float = 0.0
+    if buff_system.has_tag(state, team, index, BuffTags.TAG_EXEC_T8):
+        var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_EXEC_T8)
+        pct += float(meta.get("true_bonus_pct", 0.0))
+    if buff_system.has_tag(state, team, index, BuffTagsItems.TAG_ITEM_TRUE_BONUS):
+        var meta2: Dictionary = buff_system.get_tag_data(state, team, index, BuffTagsItems.TAG_ITEM_TRUE_BONUS)
+        pct += float(meta2.get("true_bonus_pct", 0.0))
+    return pct
 
 func damage_amp_pct(state: BattleState, team: String, index: int) -> float:
     if buff_system == null or state == null:
         return 0.0
-    # Prefer explicit damage amp tag
+    var out: float = 0.0
+    # Explicit damage amp tags (traits)
     if buff_system.has_tag(state, team, index, BuffTags.TAG_DAMAGE_AMP):
         var meta: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_DAMAGE_AMP)
-        return float(meta.get("damage_amp_pct", 0.0))
+        out += float(meta.get("damage_amp_pct", 0.0))
+    # Item-based damage amp (optional)
+    if buff_system.has_tag(state, team, index, BuffTagsItems.TAG_ITEM_DAMAGE_AMP):
+        var meta_i: Dictionary = buff_system.get_tag_data(state, team, index, BuffTagsItems.TAG_ITEM_DAMAGE_AMP)
+        out += float(meta_i.get("damage_amp_pct", 0.0))
     # Fallback: reuse ability amp for attacks if present
-    if buff_system.has_tag(state, team, index, BuffTags.TAG_ABILITY_AMP):
+    if out == 0.0 and buff_system.has_tag(state, team, index, BuffTags.TAG_ABILITY_AMP):
         var meta2: Dictionary = buff_system.get_tag_data(state, team, index, BuffTags.TAG_ABILITY_AMP)
-        return float(meta2.get("ability_damage_amp", 0.0))
-    return 0.0
+        out += float(meta2.get("ability_damage_amp", 0.0))
+    return out

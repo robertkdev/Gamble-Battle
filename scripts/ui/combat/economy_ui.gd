@@ -62,8 +62,10 @@ func refresh() -> void:
 		if in_combat:
 			target = max(0, int(Economy.current_bet))
 		else:
-			if Engine.has_singleton("Economy") and Economy.has_property("preferred_bet"):
-				target = int(Economy.preferred_bet)
+			if Engine.has_singleton("Economy"):
+				var _pref = Economy.get("preferred_bet")
+				if _pref != null:
+					target = int(_pref)
 			elif int(Economy.current_bet) > 0:
 				target = int(Economy.current_bet)
 			target = int(clamp(target, bet_slider.min_value, bet_slider.max_value))

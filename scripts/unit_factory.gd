@@ -7,6 +7,69 @@ const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
 const UnitScaler := preload("res://scripts/game/units/unit_scaler.gd")
 const Trace := preload("res://scripts/util/trace.gd")
 
+# Validation toggle for BalanceRunner and tools
+static var role_invariant_fail_fast: bool = false
+
+# Role clusters for analytics/validation
+static func cluster_for_roles(roles: Array) -> String:
+	# Normalize to lower strings
+	var rset: Dictionary = {}
+	for r in roles:
+		var k := String(r).strip_edges().to_lower()
+		if k != "":
+			rset[k] = true
+	# Priority order: assassin > marksman/mage > tank/bruiser
+	if rset.has("assassin") or rset.has("mage_assassin"):
+		return "assassin"
+	if rset.has("marksman"):
+		return "marksman"
+	if rset.has("mage"):
+		return "mage"
+	if rset.has("tank") or rset.has("hybrid_tank") or rset.has("brawler_tank"):
+		return "tank"
+	if rset.has("brawler") or rset.has("hybrid_brawler"):
+		return "bruiser"
+	return "other"
+
+# Quick role identity sanity checks (post role modifiers, pre-abilities)
+# Returns an array of human-readable violations
+static func validate_role_invariants(u: Unit) -> Array[String]:
+	var out: Array[String] = []
+	if u == null:
+		return out
+	var cluster := cluster_for_roles(u.roles)
+	# Tunable bands (very broad; adjust as you tune)
+	match cluster:
+		"marksman":
+			if int(u.attack_range) < 3:
+				out.append("marksman: attack_range < 3")
+			if int(u.max_hp) > 900:
+				out.append("marksman: max_hp > 900 (too tanky)")
+			if float(u.attack_damage) < 40.0 or float(u.attack_damage) > 90.0:
+				out.append("marksman: attack_damage outside 40..90")
+		"mage":
+			if int(u.attack_range) < 2:
+				out.append("mage: attack_range < 2")
+			if float(u.spell_power) < 30.0:
+				out.append("mage: spell_power < 30")
+		"assassin":
+			if int(u.max_hp) > 850:
+				out.append("assassin: max_hp > 850 (too durable)")
+			if int(u.attack_range) > 2:
+				out.append("assassin: attack_range > 2 (should be short)")
+			if (float(u.attack_damage) + 0.5 * float(u.spell_power)) < 60.0:
+				out.append("assassin: burst proxy < 60")
+		"tank", "bruiser":
+			if int(u.max_hp) < 800:
+				out.append(cluster + ": max_hp < 800 (too squishy)")
+			if (float(u.armor) + float(u.magic_resist)) < 30.0:
+				out.append(cluster + ": armor+mr < 30")
+			if float(u.attack_damage) > 80.0:
+				out.append(cluster + ": attack_damage > 80 (too high)")
+		_:
+			pass
+	return out
+
 static func _def_path(id: String) -> String:
 	return "res://data/units/%s.tres" % id
 

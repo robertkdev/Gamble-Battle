@@ -41,15 +41,19 @@ func set_offers(offers: Array) -> void:
             var props: Dictionary = {}
             if o is ShopOffer and String(o.id) != "":
                 var off: ShopOffer = o
+                var roles: Array = _duplicate_strings(off.roles)
+                var traits: Array = _duplicate_strings(off.traits)
                 props = {
                     "id": String(off.id),
                     "name": String(off.name),
                     "price": int(off.cost),
                     "image_path": String(off.sprite_path),
-                    "tags": [],
+                    "role": _role_text(roles),
+                    "roles": roles,
+                    "traits": traits,
                 }
             else:
-                props = {"id":"","name":"?","price":0,"image_path":"","tags":[]}
+                props = {"id":"","name":"?","price":0,"image_path":"","role":"","roles":[],"traits":[]}
             # Defer until after _ready so @onready children exist
             (card as ShopCard).call_deferred("set_data", props)
         shown += 1
@@ -96,3 +100,28 @@ func _make_sold() -> Control:
     wrap.add_child(tile)
     wrap.add_child(lbl)
     return wrap
+
+func _duplicate_strings(values) -> Array:
+    var out: Array = []
+    if values == null:
+        return out
+    for v in values:
+        out.append(String(v))
+    return out
+
+func _role_text(roles: Array) -> String:
+    if roles == null or roles.is_empty():
+        return ""
+    var primary := String(roles[0])
+    var cleaned := primary.replace("_", " " ).strip_edges()
+    if cleaned == "":
+        return ""
+    var parts := cleaned.split(" ", false)
+    var pretty := PackedStringArray()
+    for part in parts:
+        if part == "":
+            continue
+        pretty.append(part.capitalize())
+    if pretty.size() == 0:
+        return cleaned.capitalize()
+    return " ".join(pretty)

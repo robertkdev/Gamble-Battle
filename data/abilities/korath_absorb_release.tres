@@ -7,5 +7,5 @@ script = ExtResource( 1 )
 id = "korath_absorb_release"
 name = "Absorb & Release"
 description = "Absorbs a portion of damage taken, then heals the lowest-HP ally after a delay. Gains Titan stacks on cast."
-base_cost = 50
+base_cost = 40
 tags = ["heal", "mitigation"]

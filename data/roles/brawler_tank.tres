@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 role = "Brawler Tank"
-health = 260
+health = 300
 attack_damage = 30
 spell_power = 0
 attack_range = 0

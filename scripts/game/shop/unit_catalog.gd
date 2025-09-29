@@ -4,11 +4,11 @@ class_name UnitCatalog
 const Debug := preload("res://scripts/util/debug.gd")
 
 # Read-only catalog of unit definitions indexed by cost.
-# Scans `res://data/units` for UnitProfile/UnitDef resources and caches ID→meta.
+# Scans `res://data/units` for UnitProfile/UnitDef resources and caches ID->meta.
 
 var _scanned: bool = false
 var _cost_to_ids: Dictionary = {}        # int cost -> Array[String] ids
-var _meta_by_id: Dictionary = {}          # id -> { name, sprite_path, cost }
+var _meta_by_id: Dictionary = {}          # id -> { name, sprite_path, cost, roles, traits }
 
 func refresh() -> void:
 	_scanned = false
@@ -40,18 +40,24 @@ func refresh() -> void:
 		var name := ""
 		var sprite_path := ""
 		var cost := 0
+		var roles: Array = []
+		var traits: Array = []
 		if res is UnitProfile:
 			var p: UnitProfile = res
 			id = String(p.id)
 			name = String(p.name)
 			sprite_path = String(p.sprite_path)
 			cost = int(p.cost)
+			roles = _duplicate_string_array(p.roles)
+			traits = _duplicate_string_array(p.traits)
 		elif res is UnitDef:
 			var d: UnitDef = res
 			id = String(d.id)
 			name = String(d.name)
 			sprite_path = String(d.sprite_path)
 			cost = int(d.cost)
+			roles = _duplicate_string_array(d.roles)
+			traits = _duplicate_string_array(d.traits)
 		if id == "" or cost <= 0:
 			continue
 		if seen.has(id):
@@ -61,6 +67,8 @@ func refresh() -> void:
 			"name": name,
 			"sprite_path": sprite_path,
 			"cost": cost,
+			"roles": roles,
+			"traits": traits,
 		}
 		if not _cost_to_ids.has(cost):
 			_cost_to_ids[cost] = []
@@ -76,6 +84,18 @@ func refresh() -> void:
 		)
 		_cost_to_ids[c] = arr
 	_scanned = true
+
+func _duplicate_string_array(values) -> Array:
+	var out: Array = []
+	if values == null:
+		return out
+	if values is Array:
+		for v in values:
+			out.append(String(v))
+	elif values is PackedStringArray:
+		for v in values:
+			out.append(String(v))
+	return out
 
 func is_ready() -> bool:
 	return _scanned
@@ -120,6 +140,24 @@ func get_sprite_path(id: String) -> String:
 
 func get_cost(id: String) -> int:
 	return int(get_unit_meta(id).get("cost", 0))
+
+func get_roles(id: String) -> Array[String]:
+	ensure_ready()
+	var meta: Dictionary = _meta_by_id.get(String(id), {}) as Dictionary
+	var roles: Array = (meta.get("roles", []) as Array)
+	var out: Array[String] = []
+	for r in roles:
+		out.append(String(r))
+	return out
+
+func get_traits(id: String) -> Array[String]:
+	ensure_ready()
+	var meta: Dictionary = _meta_by_id.get(String(id), {}) as Dictionary
+	var traits: Array = (meta.get("traits", []) as Array)
+	var out: Array[String] = []
+	for t in traits:
+		out.append(String(t))
+	return out
 
 func pick_id_by_cost(cost: int, rng = null) -> String:
 	var ids := get_ids_by_cost(cost)

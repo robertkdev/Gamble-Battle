@@ -77,9 +77,22 @@ func _wire_manager_signals() -> void:
 func _on_battle_started(_stage: int, _enemy) -> void:
 	_reset_for_new_battle()
 	engine = (manager.get_engine() if manager and manager.has_method("get_engine") else null)
+	if engine != null:
+		_connect_engine_signals()
+		_connect_ability_signals()
+	else:
+		call_deferred("_late_bind_engine")
+	_active = true
+
+func _late_bind_engine() -> void:
+	if not _active:
+		return
+	engine = (manager.get_engine() if manager and manager.has_method("get_engine") else null)
+	if engine == null:
+		call_deferred("_late_bind_engine")
+		return
 	_connect_engine_signals()
 	_connect_ability_signals()
-	_active = true
 
 func _on_battle_end(_stage: int) -> void:
 	_active = false
@@ -185,6 +198,8 @@ func _on_hit_applied(team: String, source_index: int, target_index: int, _rolled
 	var fmap_arr: Array = (_focus_maps_player if src_team == TEAM_PLAYER else _focus_maps_enemy)
 	while fmap_arr.size() <= source_index:
 		fmap_arr.append({})
+	if fmap_arr[source_index] == null or not (fmap_arr[source_index] is Dictionary):
+		fmap_arr[source_index] = {}
 	var fmap: Dictionary = fmap_arr[source_index]
 	var key := "%s#%d" % [tgt_team, target_index]
 	fmap[key] = int(fmap.get(key, 0)) + amt
@@ -314,7 +329,11 @@ func get_focus_share(team: String, index: int) -> float:
 	var arr: Array = (_focus_maps_player if tm == TEAM_PLAYER else _focus_maps_enemy)
 	if index < 0 or index >= arr.size():
 		return 0.0
-	var fmap: Dictionary = arr[index]
+	var entry = arr[index]
+	if entry == null or not (entry is Dictionary):
+		arr[index] = {}
+		return 0.0
+	var fmap: Dictionary = entry
 	if fmap.is_empty():
 		return 0.0
 	var maxv: float = 0.0

@@ -7,6 +7,5 @@ script = ExtResource( 1 )
 id = "teller_margin_call"
 name = "Margin Call"
 description = "Fires two line shots at the furthest enemies, dealing heavy physical damage to the first unit hit; excess damage continues. On kill, has a chance to drop gold. Gains an extra shot when Exile trait is active at certain thresholds."
-base_cost = 60
+base_cost = 80
 tags = ["damage", "line", "economy"]
-

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/items/item_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "wand"
+name = "Wand"
+type = "component"
+icon_path = ""
+stat_mods = {"flat_sp": 40.0}
+effects = []
+components = []

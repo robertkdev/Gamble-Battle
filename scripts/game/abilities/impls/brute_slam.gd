@@ -5,8 +5,8 @@ extends AbilityImplBase
 
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 
-const HEAL_BASE := [120, 170, 240]
-const HEAL_PER_STACK := 20
+const HEAL_BASE := [90, 130, 180]
+const HEAL_PER_STACK := 12
 const DMG_BASE := [110, 165, 250]
 const DMG_PER_STACK := 15
 const KNOCKUP_DURATION := 0.75

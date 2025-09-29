@@ -50,7 +50,9 @@ func roll(level: int, count: int = ShopConfig.SLOT_COUNT) -> Array[ShopOffer]:
 			break
 		var name := _catalog.get_name(offer_id)
 		var sprite := _catalog.get_sprite_path(offer_id)
-		var offer: ShopOffer = ShopOffer.new(offer_id, name, int(cost), sprite)
+		var roles := _catalog.get_roles(offer_id)
+		var traits := _catalog.get_traits(offer_id)
+		var offer: ShopOffer = ShopOffer.new(offer_id, name, int(cost), sprite, roles, traits)
 		out.append(offer)
 		if not allow_dupes:
 			used[offer_id] = true

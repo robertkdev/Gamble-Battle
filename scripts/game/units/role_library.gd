@@ -87,7 +87,15 @@ static func _ensure_loaded() -> void:
 		reload()
 
 static func _normalize(role: String) -> String:
-	return role.strip_edges().to_lower()
+	var s := role.strip_edges().to_lower()
+	# Treat spaces and hyphens as underscores so resource Role names like
+	# "Mage Assassin" match UnitProfile roles like "mage_assassin".
+	s = s.replace(" ", "_")
+	s = s.replace("-", "_")
+	# Collapse duplicate underscores
+	while s.find("__") != -1:
+		s = s.replace("__", "_")
+	return s
 
 static func _filter_supported(modifier: Dictionary) -> Dictionary:
 	var filtered: Dictionary = {}

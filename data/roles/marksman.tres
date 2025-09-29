@@ -6,7 +6,7 @@
 script = ExtResource("1")
 role = "Marksman"
 health = 150
-attack_damage = 50
+attack_damage = 40
 spell_power = 0
 attack_range = 6
 armor = 0

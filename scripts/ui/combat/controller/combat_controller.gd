@@ -19,6 +19,10 @@ const ShopPresenter := preload("res://scripts/ui/shop/shop_presenter.gd")
 const SellZone := preload("res://scripts/ui/shop/sell_zone.gd") # legacy; no longer used visually
 const SelectionService := preload("res://scripts/ui/combat/stats/selection_service.gd")
 const StatsTracker := preload("res://scripts/ui/combat/stats/stats_tracker.gd")
+const ItemsPresenter := preload("res://scripts/ui/items/items_presenter.gd")
+const ItemRuntime := preload("res://scripts/game/items/item_runtime.gd")
+const ItemDragRouter := preload("res://scripts/ui/items/item_drag_router.gd")
+const TraitsPresenter := preload("res://scripts/ui/traits/traits_presenter.gd")
 
 # Parent scene (CombatView)
 var parent: Control
@@ -61,6 +65,10 @@ var intermission: IntermissionController
 var shop_presenter: ShopPresenter
 var selection: SelectionService
 var stats_tracker: StatsTracker
+var items_presenter: ItemsPresenter
+var traits_presenter: TraitsPresenter
+var item_runtime: ItemRuntime
+var item_drag_router: ItemDragRouter
 
 # Grid helpers
 var player_grid_helper: BoardGrid
@@ -137,6 +145,16 @@ func initialize() -> void:
 			manager.vfx_knockup.connect(_on_vfx_knockup)
 		if not manager.is_connected("vfx_beam_line", Callable(self, "_on_vfx_beam_line")):
 			manager.vfx_beam_line.connect(_on_vfx_beam_line)
+
+	# Items runtime: orchestrates combat item effects based on equipped items
+	if item_runtime == null:
+		item_runtime = ItemRuntime.new()
+		# Configure with manager; runtime will rebind to engine when available and on battle start
+		item_runtime.configure(manager)
+
+	# Listen to Items action logs and route to the same log pipeline as engine
+	if Engine.has_singleton("Items") and not Items.is_connected("action_log", Callable(self, "_on_items_action_log")):
+		Items.action_log.connect(_on_items_action_log)
 	# Configure StatsPanel shell (optional)
 	if stats_panel and stats_panel.has_method("configure"):
 		stats_panel.configure(parent, manager)
@@ -211,6 +229,11 @@ func initialize() -> void:
 	bench_placement = BenchPlacement.new()
 	bench_placement.configure(bench_grid, UI.TILE_SIZE, BenchConstants.BENCH_CAPACITY)
 	bench_grid_helper = bench_placement.get_bench_grid()
+
+	# Items: drag router for item cards (route drops to units on board or bench)
+	if item_drag_router == null:
+		item_drag_router = ItemDragRouter.new()
+		item_drag_router.configure(parent, grid_placement, player_grid_helper, bench_grid_helper)
 
 	# Movement router
 	move_router = MoveRouter.new()
@@ -346,6 +369,23 @@ func _init_game() -> void:
 		refresh_all_views()
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.PREVIEW)
+	# Mount inventory UI presenter (left panel)
+	if items_presenter == null:
+		items_presenter = ItemsPresenter.new()
+		items_presenter.configure(parent)
+		items_presenter.initialize()
+		if item_drag_router != null and items_presenter.has_method("set_router"):
+			items_presenter.set_router(item_drag_router)
+
+	# Mount traits tracker overlay (non-invasive to HBox)
+	if traits_presenter == null:
+		traits_presenter = TraitsPresenter.new()
+		traits_presenter.configure(parent, manager)
+		traits_presenter.initialize()
+
+func _on_items_action_log(t: String) -> void:
+	# Route item logs into the same UI logger used by combat engine
+	_on_log_line(t)
 
 func refresh_all_views() -> void:
 	# Rebuild player and bench views and rewire drag drop targets (KISS/DRY)
@@ -369,6 +409,9 @@ func refresh_all_views() -> void:
 		_attach_clear_to_grid_tiles(enemy_grid)
 	if bench_grid:
 		_attach_clear_to_grid_tiles(bench_grid)
+	# Rebuild traits tracker (board-only traits)
+	if traits_presenter:
+		traits_presenter.rebuild()
 
 func _on_attack_pressed() -> void:
 	pass

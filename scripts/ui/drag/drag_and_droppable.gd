@@ -87,6 +87,7 @@ func _on_gui_input_base(event: InputEvent) -> void:
 func _begin_drag_internal() -> void:
     _dragging = true
     emit_signal("began_drag")
+    print("[Drag] begin on=", name, " allowed=", can_drag_now())
     mouse_filter = Control.MOUSE_FILTER_STOP
     if _drag_mgr == null:
         _drag_mgr = load("res://scripts/ui/drag/drag_manager.gd").new()
@@ -137,6 +138,7 @@ func _begin_drag_internal() -> void:
     # Dim original during drag
     self.modulate.a = 0.35
     _drag_mgr.begin(_ghost, _grid)
+    print("[Drag] ghost at=", rect.position, " orig_idx=", _orig_tile_idx, " grids=", _grids.size())
 
 func _set_mouse_ignore_recursive(n: Node) -> void:
     if n is Control:
@@ -151,9 +153,11 @@ func _end_drag_internal() -> void:
     var idx := -1
     var target_grid: BoardGrid = null
     var mp: Vector2 = get_viewport().get_mouse_position()
+    print("[Drag] end at mouse=", mp, " grids=", _grids.size(), " single=", (_grid != null))
     if _grids.size() > 0:
         for g in _grids:
             var ti: int = g.index_at_global(mp)
+            print("[Drag] test grid=", g, " -> tile=", ti)
             if ti != -1:
                 idx = ti
                 target_grid = g
@@ -163,10 +167,12 @@ func _end_drag_internal() -> void:
         if idx != -1:
             target_grid = _grid
     if target_grid != null and idx != -1:
+        print("[Drag] dropped on tile=", idx)
         emit_signal("dropped_on_tile", idx)
         emit_signal("dropped_on_target", target_grid, idx)
         did_drop = true
     elif _orig_tile_idx >= 0 and _grid:
+        print("[Drag] return to origin tile ", _orig_tile_idx)
         _grid.attach(self, _orig_tile_idx)
     on_drop(did_drop, idx)
     if _drag_mgr:
@@ -179,3 +185,4 @@ func _end_drag_internal() -> void:
         _ghost = null
     self.modulate.a = 1.0
     emit_signal("ended_drag")
+    print("[Drag] ended; success=", did_drop)

@@ -21,6 +21,7 @@ GameState="*res://scripts/game/game_state.gd"
 Economy="*res://scripts/game/economy/economy.gd"
 Roster="*res://scripts/game/roster.gd"
 Shop="*res://scripts/game/shop/shop.gd"
+Items="*res://scripts/game/items/items.gd"
 
 [display]
 

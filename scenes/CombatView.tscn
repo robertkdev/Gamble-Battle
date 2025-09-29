@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bq7rbbhqrjhrt"]
+[gd_scene load_steps=4 format=3 uid="uid://bq7rbbhqrjhrt"]
 
 [ext_resource type="Script" uid="uid://c221b20euic1x" path="res://scripts/combat_view.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://brf1rgu45pejc" path="res://scenes/ui/stats/StatsPanel.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://dib1tw8576diu" path="res://scenes/ui/traits/TraitsPanel.tscn" id="3"]
 
 [node name="CombatView" type="Control"]
 layout_mode = 3
@@ -482,6 +483,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="TraitsPanel" parent="MarginContainer/VBoxContainer/BattleArea" instance=ExtResource("3")]
+anchors_preset = -1
+anchor_left = 0.16875
+anchor_top = 0.123438
+anchor_right = 0.197917
+anchor_bottom = 0.99375
 metadata/_edit_use_anchors_ = true
 
 [node name="BenchArea" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]

@@ -9,5 +9,5 @@ health = -100
 attack_damage = 0
 spell_power = 40
 attack_range = 6
-armor = 0
+armor = 5
 magic_resist = 0

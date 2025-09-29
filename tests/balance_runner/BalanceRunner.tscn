@@ -1,6 +1,10 @@
 [gd_scene load_steps=2 format=3 uid="uid://yx2xk6eatayv"]
 
-[ext_resource type="Script" uid="uid://ddi2aa2vfxh84" path="res://tests/balance_runner/balance_runner.gd" id="1_d6y1c"]
+[ext_resource type="Script" uid="uid://ddi2aa2vfxh84" path="res://tests/balance_runner/balance_runner.gd" id="1"]
 
 [node name="BalanceRunner" type="Node"]
-script = ExtResource("1_d6y1c")
+script = ExtResource("1")
+abilities_prop = true
+ability_metrics_prop = true
+role_filter_prop = "assassin,mage_assassin,marksman,mage,tank,brawler,hybrid_brawler,hybrid_tank"
+cost_filter_prop = "1"

@@ -237,6 +237,15 @@ func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
 	ctx.buff_system = buff_system
 	ctx.heal_single(tgt_team, best_idx, heal_amt)
+	# Offensive conversion: deal a portion of absorbed pool as magic damage to lowest-HP enemy
+	var enemy_idx: int = ctx.lowest_hp_enemy(team)
+	if enemy_idx >= 0:
+		var dmg_pct: float = 0.20
+		var dmg_amt: int = int(max(0.0, round(float(pool) * dmg_pct)))
+		if dmg_amt > 0:
+			AbilityEffects.damage_single(engine, state, team, index, enemy_idx, float(dmg_amt), "magic")
+			# Brief stun to create a window to capitalize
+			AbilityEffects.stun(buff_system, engine, state, ("enemy" if team == "player" else "player"), enemy_idx, 0.4)
 	engine._resolver_emit_log("Absorb & Release: healed %d (pool=%d, base=%d, stacks=%d)" % [heal_amt, pool, heal_base, stacks_at_cast])
 
 func _handle_veyra_harden_end(team: String, index: int) -> void:
