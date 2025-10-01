@@ -8,7 +8,7 @@ const Debug := preload("res://scripts/util/debug.gd")
 
 var _scanned: bool = false
 var _cost_to_ids: Dictionary = {}        # int cost -> Array[String] ids
-var _meta_by_id: Dictionary = {}          # id -> { name, sprite_path, cost, roles, traits }
+var _meta_by_id: Dictionary = {}          # id -> { name, sprite_path, cost, roles, traits, identity }
 
 func refresh() -> void:
 	_scanned = false
@@ -63,12 +63,18 @@ func refresh() -> void:
 		if seen.has(id):
 			continue # de-duplicate by id
 		seen[id] = true
+		var identity := _extract_identity(res, id, roles)
 		_meta_by_id[id] = {
 			"name": name,
 			"sprite_path": sprite_path,
 			"cost": cost,
 			"roles": roles,
 			"traits": traits,
+			"primary_role": identity.get("primary_role", ""),
+			"primary_goal": identity.get("primary_goal", ""),
+			"approaches": identity.get("approaches", PackedStringArray()),
+			"alt_goals": identity.get("alt_goals", PackedStringArray()),
+			"identity_path": identity.get("identity_path", ""),
 		}
 		if not _cost_to_ids.has(cost):
 			_cost_to_ids[cost] = []
@@ -95,6 +101,8 @@ func _duplicate_string_array(values) -> Array:
 	elif values is PackedStringArray:
 		for v in values:
 			out.append(String(v))
+	elif typeof(values) == TYPE_STRING:
+		out.append(String(values))
 	return out
 
 func is_ready() -> bool:
@@ -159,6 +167,45 @@ func get_traits(id: String) -> Array[String]:
 		out.append(String(t))
 	return out
 
+func get_primary_role(id: String) -> String:
+	return String(get_unit_meta(id).get("primary_role", ""))
+
+func get_primary_goal(id: String) -> String:
+	return String(get_unit_meta(id).get("primary_goal", ""))
+
+func get_approaches(id: String) -> Array[String]:
+	ensure_ready()
+	var meta: Dictionary = _meta_by_id.get(String(id), {}) as Dictionary
+	var arr = meta.get("approaches", PackedStringArray())
+	var out: Array[String] = []
+	if arr is Array:
+		for v in arr:
+			out.append(String(v))
+	elif arr is PackedStringArray:
+		for v in arr:
+			out.append(String(v))
+	elif typeof(arr) == TYPE_STRING:
+		out.append(String(arr))
+	return out
+
+func get_alt_goals(id: String) -> Array[String]:
+	ensure_ready()
+	var meta: Dictionary = _meta_by_id.get(String(id), {}) as Dictionary
+	var arr = meta.get("alt_goals", PackedStringArray())
+	var out: Array[String] = []
+	if arr is Array:
+		for v in arr:
+			out.append(String(v))
+	elif arr is PackedStringArray:
+		for v in arr:
+			out.append(String(v))
+	elif typeof(arr) == TYPE_STRING:
+		out.append(String(arr))
+	return out
+
+func get_identity_path(id: String) -> String:
+	return String(get_unit_meta(id).get("identity_path", ""))
+
 func pick_id_by_cost(cost: int, rng = null) -> String:
 	var ids := get_ids_by_cost(cost)
 	if ids.is_empty():
@@ -171,3 +218,97 @@ func pick_id_by_cost(cost: int, rng = null) -> String:
 		r.randomize()
 		idx = int(r.randi_range(0, ids.size() - 1))
 	return String(ids[idx])
+
+func _extract_identity(res, unit_id: String, fallback_roles: Array) -> Dictionary:
+	var primary_role := ""
+	var primary_goal := ""
+	var approaches := PackedStringArray()
+	var alt_goals := PackedStringArray()
+	var identity_path := ""
+
+	if res is UnitProfile:
+		var p: UnitProfile = res
+		if p.identity != null:
+			primary_role = _normalize_role(p.identity.primary_role)
+			primary_goal = _normalize_key(p.identity.primary_goal)
+			approaches = _make_packed(p.identity.approaches, Callable(self, "_normalize_key"))
+			alt_goals = _make_packed(p.identity.alt_goals, Callable(self, "_normalize_key"))
+			identity_path = String(p.identity.resource_path)
+		if primary_role == "":
+			primary_role = _normalize_role(p.primary_role)
+		if primary_goal == "":
+			primary_goal = _normalize_key(p.primary_goal)
+		if approaches.is_empty():
+			approaches = _make_packed(p.approaches, Callable(self, "_normalize_key"))
+		if alt_goals.is_empty():
+			alt_goals = _make_packed(p.alt_goals, Callable(self, "_normalize_key"))
+	elif res is UnitDef:
+		var d: UnitDef = res
+		if d.identity != null:
+			primary_role = _normalize_role(d.identity.primary_role)
+			primary_goal = _normalize_key(d.identity.primary_goal)
+			approaches = _make_packed(d.identity.approaches, Callable(self, "_normalize_key"))
+			alt_goals = _make_packed(d.identity.alt_goals, Callable(self, "_normalize_key"))
+			identity_path = String(d.identity.resource_path)
+		if primary_role == "":
+			primary_role = _normalize_role(d.primary_role)
+		if primary_goal == "":
+			primary_goal = _normalize_key(d.primary_goal)
+		if approaches.is_empty():
+			approaches = _make_packed(d.approaches, Callable(self, "_normalize_key"))
+		if alt_goals.is_empty():
+			alt_goals = _make_packed(d.alt_goals, Callable(self, "_normalize_key"))
+
+	if primary_role == "" and fallback_roles.size() > 0:
+		primary_role = _normalize_role(fallback_roles[0])
+
+	if identity_path == "" and unit_id != "":
+		var candidate := "res://data/identity/unit_identities/%s_identity.tres" % unit_id
+		if ResourceLoader.exists(candidate):
+			identity_path = candidate
+
+	return {
+		"primary_role": primary_role,
+		"primary_goal": primary_goal,
+		"approaches": approaches,
+		"alt_goals": alt_goals,
+		"identity_path": identity_path,
+	}
+
+func _make_packed(values, normalizer: Callable) -> PackedStringArray:
+	var out := PackedStringArray()
+	if values == null:
+		return out
+	var iterable: Array = []
+	if values is Array:
+		iterable = values
+	elif values is PackedStringArray:
+		for v in values:
+			iterable.append(String(v))
+	elif typeof(values) == TYPE_STRING:
+		iterable.append(String(values))
+	else:
+		return out
+	var seen: Dictionary = {}
+	for raw in iterable:
+		var s := String(raw)
+		if normalizer.is_valid():
+			s = String(normalizer.call(s))
+		else:
+			s = s.strip_edges()
+		if s == "" or seen.has(s):
+			continue
+		seen[s] = true
+		out.append(s)
+	return out
+
+func _normalize_role(value: String) -> String:
+	var s := String(value).strip_edges().to_lower()
+	s = s.replace(" ", "_")
+	s = s.replace("-", "_")
+	while s.find("__") != -1:
+		s = s.replace("__", "_")
+	return s
+
+func _normalize_key(value: String) -> String:
+	return String(value).strip_edges().to_lower()

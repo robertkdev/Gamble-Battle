@@ -2,7 +2,9 @@ extends Object
 class_name UnitFactory
 
 static var _cache: Dictionary = {}
+const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
 
+const IdentityValidator := preload("res://scripts/game/identity/identity_validator.gd")
 const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
 const UnitScaler := preload("res://scripts/game/units/unit_scaler.gd")
 const Trace := preload("res://scripts/util/trace.gd")
@@ -12,63 +14,46 @@ static var role_invariant_fail_fast: bool = false
 
 # Role clusters for analytics/validation
 static func cluster_for_roles(roles: Array) -> String:
-	# Normalize to lower strings
 	var rset: Dictionary = {}
-	for r in roles:
-		var k := String(r).strip_edges().to_lower()
-		if k != "":
-			rset[k] = true
-	# Priority order: assassin > marksman/mage > tank/bruiser
+	if roles != null:
+		for r in roles:
+			var raw := String(r)
+			if raw == "":
+				continue
+			for part in raw.split("|", false):
+				var key := _sanitize_role_id(String(part))
+				if key != "":
+					rset[key] = true
 	if rset.has("assassin") or rset.has("mage_assassin"):
 		return "assassin"
 	if rset.has("marksman"):
 		return "marksman"
 	if rset.has("mage"):
 		return "mage"
+	if rset.has("support"):
+		return "support"
 	if rset.has("tank") or rset.has("hybrid_tank") or rset.has("brawler_tank"):
 		return "tank"
 	if rset.has("brawler") or rset.has("hybrid_brawler"):
 		return "bruiser"
 	return "other"
 
-# Quick role identity sanity checks (post role modifiers, pre-abilities)
+# Quick role identity sanity checks (post role profile, pre-abilities)
 # Returns an array of human-readable violations
 static func validate_role_invariants(u: Unit) -> Array[String]:
-	var out: Array[String] = []
+	var issues: Array[String] = []
 	if u == null:
-		return out
-	var cluster := cluster_for_roles(u.roles)
-	# Tunable bands (very broad; adjust as you tune)
-	match cluster:
-		"marksman":
-			if int(u.attack_range) < 3:
-				out.append("marksman: attack_range < 3")
-			if int(u.max_hp) > 900:
-				out.append("marksman: max_hp > 900 (too tanky)")
-			if float(u.attack_damage) < 40.0 or float(u.attack_damage) > 90.0:
-				out.append("marksman: attack_damage outside 40..90")
-		"mage":
-			if int(u.attack_range) < 2:
-				out.append("mage: attack_range < 2")
-			if float(u.spell_power) < 30.0:
-				out.append("mage: spell_power < 30")
-		"assassin":
-			if int(u.max_hp) > 850:
-				out.append("assassin: max_hp > 850 (too durable)")
-			if int(u.attack_range) > 2:
-				out.append("assassin: attack_range > 2 (should be short)")
-			if (float(u.attack_damage) + 0.5 * float(u.spell_power)) < 60.0:
-				out.append("assassin: burst proxy < 60")
-		"tank", "bruiser":
-			if int(u.max_hp) < 800:
-				out.append(cluster + ": max_hp < 800 (too squishy)")
-			if (float(u.armor) + float(u.magic_resist)) < 30.0:
-				out.append(cluster + ": armor+mr < 30")
-			if float(u.attack_damage) > 80.0:
-				out.append(cluster + ": attack_damage > 80 (too high)")
-		_:
-			pass
-	return out
+		return issues
+	var role_id := _primary_role_from_unit(u)
+	var goal_id := String(u.primary_goal).strip_edges()
+	issues.append_array(IdentityValidator.validate(role_id, goal_id, u.get_approaches()))
+	if role_id != "":
+		issues.append_array(RoleLibrary.validate_unit(role_id, u))
+	if role_invariant_fail_fast and not issues.is_empty():
+		for issue in issues:
+			push_error("UnitFactory invariant (%s): %s" % [u.id, issue])
+		assert(false)
+	return issues
 
 static func _def_path(id: String) -> String:
 	return "res://data/units/%s.tres" % id
@@ -91,11 +76,15 @@ static func _load_def(id: String) -> UnitDef:
 			out_def.name = p.name
 			out_def.sprite_path = p.sprite_path
 			out_def.traits = p.traits.duplicate()
-			# Use roles from profile (string-based)
 			out_def.roles = p.roles.duplicate()
 			out_def.ability_id = p.ability_id
 			out_def.cost = p.cost
 			out_def.level = p.level
+			out_def.primary_role = p.primary_role
+			out_def.primary_goal = p.primary_goal
+			out_def.approaches = p.approaches.duplicate()
+			out_def.alt_goals = p.alt_goals.duplicate()
+			out_def.identity = p.identity
 		else:
 			push_warning("UnitFactory: unsupported unit resource '%s'" % path)
 		if out_def != null:
@@ -125,8 +114,14 @@ static func _from_def(d: UnitDef) -> Unit:
 	u.cost = int(d.cost)
 	u.level = int(d.level)
 
-	# Use UnitDef base defaults as the single source of truth for base stats.
-	# Resource-specific .tres should not override math-driven base stats.
+	var identity_resource: UnitIdentity = d.identity
+	var primary_role_id := _resolve_primary_role(d)
+	var primary_goal_id := _resolve_primary_goal(identity_resource, d, primary_role_id)
+	var approaches := _resolve_approaches(identity_resource, d, primary_role_id)
+	var alt_goals := _resolve_alt_goals(identity_resource, d, primary_role_id, primary_goal_id)
+	u.set_identity_data(primary_role_id, primary_goal_id, approaches, alt_goals, identity_resource)
+
+	# Use UnitDef base defaults as the starting point for stats.
 	var base_def: UnitDef = d.get_script().new()
 
 	u.max_hp = max(1, int(base_def.max_hp))
@@ -156,6 +151,12 @@ static func _from_def(d: UnitDef) -> Unit:
 	u.cast_speed = max(0.1, float(base_def.cast_speed))
 	u.mana = u.mana_start
 
+	# Override with role profile base stats when available
+	if primary_role_id != "":
+		var role_base := RoleLibrary.base_stats(primary_role_id)
+		if not role_base.is_empty():
+			_apply_base_stats(u, role_base)
+
 	# If unit has an ability, prefer its defined base_cost for mana_max (ability cost)
 	if String(u.ability_id) != "":
 		var AbilityCatalog = load("res://scripts/game/abilities/ability_catalog.gd")
@@ -164,61 +165,22 @@ static func _from_def(d: UnitDef) -> Unit:
 			if adef and int(adef.base_cost) > 0:
 				u.mana_max = int(adef.base_cost)
 
-	# Capture base values before role deltas for scaling eligibility
+	# Capture base values before scaling
 	var base_vals := {
-		"max_hp": int(base_def.max_hp),
-		"hp_regen": float(base_def.hp_regen),
-		"attack_damage": float(base_def.attack_damage),
-		"spell_power": float(base_def.spell_power),
-		"lifesteal": float(base_def.lifesteal),
-		"armor": float(base_def.armor),
-		"magic_resist": float(base_def.magic_resist),
-		"true_damage": float(base_def.true_damage)
+		"max_hp": float(u.max_hp),
+		"hp_regen": float(u.hp_regen),
+		"attack_damage": float(u.attack_damage),
+		"spell_power": float(u.spell_power),
+		"lifesteal": float(u.lifesteal),
+		"armor": float(u.armor),
+		"magic_resist": float(u.magic_resist),
+		"true_damage": float(u.true_damage)
 	}
-
-	# Apply role-based stat offsets (additive before scaling)
-	var role_totals := {
-		"health": 0.0,
-		"attack_damage": 0.0,
-		"spell_power": 0.0,
-		"attack_range": 0.0,
-		"armor": 0.0,
-		"magic_resist": 0.0,
-	}
-	if d.roles.size() > 0:
-		for r in d.roles:
-			var mod: Dictionary = RoleLibrary.get_modifier(str(r))
-			if mod.is_empty():
-				continue
-			for key in role_totals.keys():
-				if mod.has(key):
-					role_totals[key] += float(mod[key])
-	var health_delta := float(role_totals["health"])
-	if health_delta != 0.0:
-		u.max_hp = max(1, int(round(float(u.max_hp) + health_delta)))
-		u.hp = min(u.max_hp, u.hp)
-	var ad_delta := float(role_totals["attack_damage"])
-	if ad_delta != 0.0:
-		u.attack_damage = max(0.0, u.attack_damage + ad_delta)
-	var sp_delta := float(role_totals["spell_power"])
-	if sp_delta != 0.0:
-		u.spell_power = max(0.0, u.spell_power + sp_delta)
-	var range_delta := float(role_totals["attack_range"])
-	if range_delta != 0.0:
-		var new_range := int(round(float(u.attack_range) + range_delta))
-		u.attack_range = max(1, new_range)
-	var armor_delta := float(role_totals["armor"])
-	if armor_delta != 0.0:
-		u.armor = max(0.0, u.armor + armor_delta)
-	var mr_delta := float(role_totals["magic_resist"])
-	if mr_delta != 0.0:
-		u.magic_resist = max(0.0, u.magic_resist + mr_delta)
-
 
 	# Multiplicative scaling from cost and level (centralized)
 	UnitScaler.apply_cost_level_scaling(u, base_vals)
 
-	# Final clamps for non-scaled fields potentially changed by roles
+	# Final clamps for non-scaled fields
 	u.crit_chance = clampf(u.crit_chance, 0.0, 0.95)
 	u.crit_damage = max(1.0, u.crit_damage)
 	u.attack_speed = max(0.01, u.attack_speed)
@@ -231,8 +193,123 @@ static func _from_def(d: UnitDef) -> Unit:
 
 	# Reset HP to new max after scaling
 	u.hp = u.max_hp
+	var identity_issues := validate_role_invariants(u)
+	if identity_issues.size() > 0 and not role_invariant_fail_fast:
+		for issue in identity_issues:
+			push_warning("UnitFactory validation (%s): %s" % [u.id, issue])
 	return u
 
 static func _apply_role_generation(u: Unit, d: UnitDef) -> void:
 	# Role generation removed; units use base stats directly.
 	return
+
+static func _apply_base_stats(u: Unit, stats: Dictionary) -> void:
+	if stats.has("max_hp"):
+		u.max_hp = max(1, int(round(float(stats["max_hp"]))))
+		u.hp = min(u.max_hp, u.hp)
+	if stats.has("attack_damage"):
+		u.attack_damage = max(0.0, float(stats["attack_damage"]))
+	if stats.has("spell_power"):
+		u.spell_power = max(0.0, float(stats["spell_power"]))
+	if stats.has("attack_range"):
+		u.attack_range = max(1, int(round(float(stats["attack_range"]))))
+	if stats.has("armor"):
+		u.armor = max(0.0, float(stats["armor"]))
+	if stats.has("magic_resist"):
+		u.magic_resist = max(0.0, float(stats["magic_resist"]))
+
+static func _resolve_primary_role(d: UnitDef) -> String:
+	if d == null:
+		return ""
+	if d.identity != null:
+		var rid_identity := String(d.identity.primary_role).strip_edges()
+		if rid_identity != "":
+			return _sanitize_role_id(rid_identity)
+	var rid_def := String(d.primary_role).strip_edges()
+	if rid_def != "":
+		return _sanitize_role_id(rid_def)
+	if d.roles.size() > 0:
+		return _sanitize_role_id(String(d.roles[0]).strip_edges())
+	return ""
+
+static func _resolve_primary_goal(identity: UnitIdentity, d: UnitDef, primary_role_id: String) -> String:
+	if identity != null:
+		var goal_identity := String(identity.primary_goal).strip_edges()
+		if goal_identity != "":
+			return goal_identity
+	var goal_def := String(d.primary_goal).strip_edges()
+	if goal_def != "":
+		return goal_def
+	if primary_role_id != "":
+		var defaults := RoleLibrary.default_goals(primary_role_id)
+		if defaults.size() > 0:
+			return String(defaults[0])
+	return ""
+
+static func _resolve_approaches(identity: UnitIdentity, d: UnitDef, primary_role_id: String) -> Array[String]:
+	var merged: Array[String] = []
+	if identity != null:
+		merged.append_array(_copy_string_array(identity.approaches))
+	merged.append_array(_copy_string_array(d.approaches))
+	if merged.is_empty() and primary_role_id != "":
+		merged.append_array(RoleLibrary.default_approaches(primary_role_id))
+	return _unique_strings(merged)
+
+static func _resolve_alt_goals(identity: UnitIdentity, d: UnitDef, primary_role_id: String, primary_goal_id: String) -> Array[String]:
+	var merged: Array[String] = []
+	if identity != null:
+		merged.append_array(_copy_string_array(identity.alt_goals))
+	merged.append_array(_copy_string_array(d.alt_goals))
+	if primary_role_id != "":
+		var defaults := RoleLibrary.default_goals(primary_role_id)
+		for goal in defaults:
+			var g := String(goal)
+			if g != "" and g != primary_goal_id:
+				merged.append(g)
+	return _unique_strings(merged)
+
+static func _primary_role_from_def(d: UnitDef) -> String:
+	return _resolve_primary_role(d)
+
+static func _primary_role_from_unit(u: Unit) -> String:
+	if u == null:
+		return ""
+	var rid := String(u.primary_role).strip_edges()
+	if rid != "":
+		return _sanitize_role_id(rid)
+	if u.roles.size() > 0:
+		return _sanitize_role_id(String(u.roles[0]).strip_edges())
+	return ""
+
+static func _sanitize_role_id(value: String) -> String:
+	var s := String(value).strip_edges().to_lower()
+	s = s.replace(" ", "_")
+	s = s.replace("-", "_")
+	while s.find("__") != -1:
+		s = s.replace("__", "_")
+	return s
+
+static func _copy_string_array(values) -> Array[String]:
+	var out: Array[String] = []
+	if values == null:
+		return out
+	if values is Array:
+		for v in values:
+			out.append(String(v))
+	elif values is PackedStringArray:
+		for v in values:
+			out.append(String(v))
+	elif typeof(values) == TYPE_STRING:
+		out.append(String(values))
+	return out
+
+static func _unique_strings(values: Array[String]) -> Array[String]:
+	var seen: Dictionary = {}
+	var out: Array[String] = []
+	for value in values:
+		var key := String(value).strip_edges()
+		if key == "" or seen.has(key):
+			continue
+		seen[key] = true
+		out.append(key)
+	return out

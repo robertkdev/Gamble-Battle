@@ -38,3 +38,21 @@ static func value_by_tier(tier_index: int, values: Array) -> float:
 	var i: int = clamp(tier_index, 0, values.size() - 1)
 	var v = values[i]
 	return float(v) if typeof(v) in [TYPE_INT, TYPE_FLOAT] else 0.0
+
+static func members_with_primary_role(ctx, team: String, role_id: String) -> Array[int]:
+	if ctx == null:
+		return []
+	return ctx.members_with_primary_role(team, role_id)
+
+static func primary_role_count(ctx, team: String, role_id: String) -> int:
+	return members_with_primary_role(ctx, team, role_id).size()
+
+static func members_with_primary_goal(ctx, team: String, goal_id: String) -> Array[int]:
+	if ctx == null:
+		return []
+	return ctx.members_with_primary_goal(team, goal_id)
+
+static func members_with_approach(ctx, team: String, approach_id: String) -> Array[int]:
+	if ctx == null:
+		return []
+	return ctx.members_with_approach(team, approach_id)

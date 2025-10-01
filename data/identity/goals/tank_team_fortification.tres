@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "tank.team_fortification"
+name = "Team Fortification"
+description = "Fortify allies with team-wide defensive buffs and shields."
+allowed_roles = [ "tank" ]
+default_approaches = [ "amp", "damage_reduction", "zone" ]

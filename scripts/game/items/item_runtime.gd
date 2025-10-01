@@ -53,11 +53,11 @@ func _wire_manager_signals() -> void:
         manager.defeat.connect(_on_defeat)
     if not manager.is_connected("unit_stat_changed", Callable(self, "_on_unit_stat_changed")):
         manager.unit_stat_changed.connect(_on_unit_stat_changed)
-    if not manager.is_connected("hit_applied", Callable(self, "_on_hit_applied")) and manager.has_signal("hit_applied"):
+    if manager.has_signal("hit_applied") and not manager.is_connected("hit_applied", Callable(self, "_on_hit_applied")):
         manager.hit_applied.connect(_on_hit_applied)
-    if not manager.is_connected("hit_components", Callable(self, "_on_hit_components")) and manager.has_signal("hit_components"):
+    if manager.has_signal("hit_components") and not manager.is_connected("hit_components", Callable(self, "_on_hit_components")):
         manager.hit_components.connect(_on_hit_components)
-    if not manager.is_connected("cc_applied", Callable(self, "_on_cc_applied")) and manager.has_signal("cc_applied"):
+    if manager.has_signal("cc_applied") and not manager.is_connected("cc_applied", Callable(self, "_on_cc_applied")):
         manager.cc_applied.connect(_on_cc_applied)
 
 func _unwire_manager_signals() -> void:
@@ -228,3 +228,4 @@ func _unit_at(team: String, index: int) -> Unit:
         if index >= 0 and index < manager.enemy_team.size():
             return manager.enemy_team[index]
         return null
+

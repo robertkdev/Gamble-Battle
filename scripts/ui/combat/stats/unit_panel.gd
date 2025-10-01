@@ -6,7 +6,10 @@ const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 
 @onready var portrait: TextureRect = $"VBox/Header/Portrait"
 @onready var name_label: Label = $"VBox/Header/Info/Name"
-@onready var tags_label: Label = $"VBox/Header/Info/Tags"
+@onready var role_badge: Label = $"VBox/Header/Info/RoleBadge"
+@onready var goal_label: Label = $"VBox/Header/Info/GoalLabel"
+@onready var approach_tags: FlowContainer = $"VBox/Header/Info/ApproachTags"
+@onready var traits_label: Label = $"VBox/Header/Info/TraitsLabel"
 @onready var bars_box: VBoxContainer = $"VBox/Bars"
 @onready var stats_grid: GridContainer = $"VBox/StatsGrid"
 @onready var dps_label: Label = $"VBox/Footer/DPSLabel"
@@ -23,6 +26,7 @@ var mana_bar: ProgressBar
 
 func _ready() -> void:
     _ensure_bars()
+    _ensure_identity_styles()
     set_process(true)
 
 func configure(_tracker: StatsTracker) -> void:
@@ -131,6 +135,10 @@ func _ensure_bars() -> void:
         mana_bar = UIBars.make_mana_bar()
         bars_box.add_child(mana_bar)
 
+func _ensure_identity_styles() -> void:
+    if role_badge and not role_badge.has_theme_stylebox_override("normal"):
+        role_badge.add_theme_stylebox_override("normal", _make_badge_style())
+
 func _refresh_header() -> void:
     var tex: Texture2D = null
     if unit_ref != null and String(unit_ref.sprite_path) != "":
@@ -139,21 +147,89 @@ func _refresh_header() -> void:
         tex = TextureUtils.make_circle_texture(Color(0.7, 0.7, 0.9), 64)
     portrait.texture = tex
     name_label.text = (unit_ref.name if unit_ref != null else "Unit")
-    var roles: String = ""
-    var traits: String = ""
+
+    var primary_role := ""
+    var primary_goal := ""
+    var approaches: Array = []
+    var trait_text := ""
     if unit_ref != null:
-        roles = ", ".join(unit_ref.roles)
-        traits = ", ".join(unit_ref.traits)
-    var tags_text: String = roles
-    if traits != "":
-        tags_text = (roles + " • " + traits) if roles != "" else traits
-    tags_label.text = (tags_text if tags_text != "" else "")
-    tags_label.tooltip_text = tags_text
+        primary_role = String(unit_ref.get_primary_role())
+        if primary_role == "" and unit_ref.roles.size() > 0:
+            primary_role = String(unit_ref.roles[0])
+        primary_goal = String(unit_ref.get_primary_goal())
+        if primary_goal == "" and unit_ref.identity != null:
+            primary_goal = String(unit_ref.identity.primary_goal)
+        approaches = unit_ref.get_approaches()
+        if approaches.is_empty() and unit_ref.identity != null:
+            approaches = unit_ref.identity.approaches.duplicate()
+        trait_text = ", ".join(unit_ref.traits)
+
+    _set_role_badge(_format_role(primary_role))
+    _set_goal_label(_format_goal(primary_goal))
+    _set_approach_tags(approaches)
+    _set_traits(trait_text)
+
+func _set_role_badge(text: String) -> void:
+    if role_badge == null:
+        return
+    var clean := String(text).strip_edges()
+    role_badge.text = clean
+    role_badge.visible = clean != ""
+
+func _set_goal_label(text: String) -> void:
+    if goal_label == null:
+        return
+    var clean := String(text).strip_edges()
+    goal_label.text = clean
+    goal_label.visible = clean != ""
+    goal_label.tooltip_text = clean
+
+func _set_traits(text: String) -> void:
+    if traits_label == null:
+        return
+    var clean := String(text).strip_edges()
+    if clean == "":
+        traits_label.visible = false
+        traits_label.text = ""
+        traits_label.tooltip_text = ""
+    else:
+        traits_label.visible = true
+        traits_label.text = "Traits: " + clean
+        traits_label.tooltip_text = clean
+
+func _set_approach_tags(approaches: Array) -> void:
+    if approach_tags == null:
+        return
+    for child in approach_tags.get_children():
+        child.queue_free()
+    if approaches == null:
+        approach_tags.visible = false
+        return
+    var seen: Dictionary = {}
+    var shown := 0
+    for raw in approaches:
+        var label_text := _prettify_token(String(raw))
+        if label_text == "" or seen.has(label_text):
+            continue
+        seen[label_text] = true
+        var lbl := Label.new()
+        lbl.text = label_text
+        lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        lbl.modulate = Color(1, 1, 1, 0.92)
+        lbl.add_theme_stylebox_override("normal", _make_tag_style())
+        approach_tags.add_child(lbl)
+        shown += 1
+        if shown >= 5:
+            break
+    approach_tags.visible = shown > 0
 
 func _refresh_bars() -> void:
     if unit_ref == null:
-        hp_bar.visible = false
-        mana_bar.visible = false
+        if hp_bar:
+            hp_bar.visible = false
+        if mana_bar:
+            mana_bar.visible = false
         return
     hp_bar.visible = true
     mana_bar.visible = true
@@ -210,3 +286,67 @@ func _fmt(v) -> String:
     if abs(f - round(f)) < 0.0001:
         return str(int(round(f)))
     return String.num(f, 2)
+
+func _format_role(role_id: String) -> String:
+    var raw := String(role_id).strip_edges()
+    if raw == "":
+        return ""
+    var parts := raw.to_lower().split("_", false)
+    var pretty := PackedStringArray()
+    for part in parts:
+        if part == "":
+            continue
+        pretty.append(part.capitalize())
+    return " ".join(pretty)
+
+func _format_goal(goal_id: String) -> String:
+    var raw := String(goal_id).strip_edges()
+    if raw == "":
+        return ""
+    var parts := raw.split(".", false, 2)
+    if parts.size() >= 2:
+        var role_part := _format_role(parts[0])
+        var goal_part := _prettify_token(parts[1])
+        if role_part != "":
+            if goal_part != "":
+                return "%s - %s" % [role_part, goal_part]
+            return role_part
+    return _prettify_token(raw)
+
+func _prettify_token(value: String) -> String:
+    var text := String(value).strip_edges().to_lower()
+    if text == "":
+        return ""
+    var parts := text.split("_", false)
+    var pretty := PackedStringArray()
+    for part in parts:
+        if part == "":
+            continue
+        pretty.append(part.capitalize())
+    return " ".join(pretty)
+
+func _make_badge_style() -> StyleBoxFlat:
+    var sb := StyleBoxFlat.new()
+    sb.bg_color = Color(0.121569, 0.211765, 0.266667, 0.95)
+    sb.corner_radius_top_left = 7
+    sb.corner_radius_top_right = 7
+    sb.corner_radius_bottom_right = 7
+    sb.corner_radius_bottom_left = 7
+    sb.content_margin_left = 10
+    sb.content_margin_right = 10
+    sb.content_margin_top = 4
+    sb.content_margin_bottom = 4
+    return sb
+
+func _make_tag_style() -> StyleBoxFlat:
+    var sb := StyleBoxFlat.new()
+    sb.bg_color = Color(0.0941177, 0.137255, 0.211765, 0.95)
+    sb.corner_radius_top_left = 6
+    sb.corner_radius_top_right = 6
+    sb.corner_radius_bottom_right = 6
+    sb.corner_radius_bottom_left = 6
+    sb.content_margin_left = 6
+    sb.content_margin_right = 6
+    sb.content_margin_top = 2
+    sb.content_margin_bottom = 2
+    return sb

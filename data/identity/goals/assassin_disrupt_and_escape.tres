@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "assassin.disrupt_and_escape"
+name = "Disrupt and Escape"
+description = "Create chaos in the backline and survive the retaliation."
+allowed_roles = [ "assassin" ]
+default_approaches = [ "disrupt", "untargetable", "reposition" ]

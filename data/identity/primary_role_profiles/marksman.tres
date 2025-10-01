@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/primary_role_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+role_id = "marksman"
+display_name = "Marksman"
+description = "Primary ranged damage dealers who excel at sustained DPS."
+base_stats = {
+    "attack_damage": 90.0,
+    "attack_range": 7.0,
+    "armor": 20.0,
+    "magic_resist": 5.0,
+    "max_hp": 650.0,
+    "spell_power": 0.0
+}
+validation_rules = [{
+        "label": "Marksman Range",
+        "metric": "attack_range",
+        "min": 3.0
+    }, {
+        "label": "Marksman HP",
+        "metric": "max_hp",
+        "max": 850.0
+    }, {
+        "label": "Marksman Damage",
+        "metric": "attack_damage",
+        "min": 55.0,
+        "max": 100.0
+    }]
+default_goals = ["marksman.sustained_dps", "marksman.backline_siege", "marksman.tank_shredding"]
+default_approaches = ["long_range", "on_hit_effect", "ramp"]

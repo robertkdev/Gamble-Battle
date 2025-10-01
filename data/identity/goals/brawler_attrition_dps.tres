@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "brawler.attrition_dps"
+name = "Attrition DPS"
+description = "Win extended front-to-back fights by outlasting and out-damaging the frontline."
+allowed_roles = [ "brawler" ]
+default_approaches = [ "sustain", "on_hit_effect", "ramp" ]

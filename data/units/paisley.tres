@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://deop3a1qcslcc"]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3 format=3 uid="uid://deop3a1qcslcc"]
 
 [ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
+[ext_resource path="res://data/identity/unit_identities/paisley_identity.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource("1")
@@ -9,6 +10,11 @@ name = "Paisley"
 sprite_path = "res://assets/units/paisley.png"
 ability_id = "paisley_bubbles"
 traits = Array[String](["Arcanist", "Kaleidoscope", "Blessed"])
-roles = Array[String](["mage"])
+roles = ["mage"]
 cost = 1
 level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )

@@ -1,6 +1,8 @@
 extends Resource
 class_name UnitDef
 
+const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
+
 @export var id: String = ""
 @export var name: String = ""
 @export var sprite_path: String = ""
@@ -40,6 +42,12 @@ class_name UnitDef
 @export var roles: Array[String] = []
 @export var damage_type: String = "Attack" # Attack | Magic | Hybrid-Additive | Hybrid-Either
 @export var power_level: int = 1
+
+@export var primary_role: String = ""
+@export var primary_goal: String = ""
+@export var approaches: Array[String] = []
+@export var alt_goals: Array[String] = []
+@export var identity: UnitIdentity = null
 
 # Economy/scaling
 @export var cost: int = 1

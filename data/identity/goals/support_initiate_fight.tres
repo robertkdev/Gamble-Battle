@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "support.initiate_fight"
+name = "Initiate Fight"
+description = "Enable allies to start fights with mobility or setup tools."
+allowed_roles = [ "support" ]
+default_approaches = [ "engage", "amp", "disrupt" ]

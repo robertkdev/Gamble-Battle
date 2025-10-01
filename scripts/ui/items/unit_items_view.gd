@@ -3,7 +3,6 @@ class_name UnitItemsView
 
 const ItemCatalog := preload("res://scripts/game/items/item_catalog.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
-const UI := preload("res://scripts/constants/ui_constants.gd")
 
 var unit: Unit = null
 var _container: HBoxContainer = null
@@ -83,8 +82,6 @@ func _render_ids(ids: Array[String]) -> void:
 		_container.add_child(tr)
 
 func _icon_for(id: String) -> Texture2D:
-	if UI.USE_ITEM_ICON_PLACEHOLDERS:
-		return TextureUtils.placeholder_icon_for_id(id, 32)
 	var def = ItemCatalog.get_def(id)
 	if def != null and String(def.icon_path) != "":
 		var t: Texture2D = load(def.icon_path)

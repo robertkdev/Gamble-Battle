@@ -37,40 +37,29 @@ func rebuild() -> void:
 	_clear_grid()
 	var inv: Dictionary = _inventory_snapshot()
 	print("[ItemsPresenter] rebuild; inventory entries=", inv.size())
-	# Build deterministic list: components first, then completed, then specials
-	var order: Array[String] = ["component", "completed", "special"]
-	var ids: Array[String] = []
-	for k in inv.keys():
-		ids.append(String(k))
-	ids.sort_custom(func(a, b):
-		var da: ItemDef = ItemCatalog.get_def(a)
-		var db: ItemDef = ItemCatalog.get_def(b)
-		var ia: int = order.find(String(da.type)) if da != null else 3
-		var ib: int = order.find(String(db.type)) if db != null else 3
-		if ia == ib:
-			var na: String = (da.name if da != null and String(da.name) != "" else a)
-			var nb: String = (db.name if db != null and String(db.name) != "" else b)
-			return String(na) < String(nb)
-		return ia < ib)
-
-	for id in ids:
-		var cnt: int = int(inv.get(id, 0))
-		if cnt <= 0:
-			continue
+	var layout: Array[String] = _inventory_layout()
+	var cols: int = int(grid.columns) if grid and grid.has_method("get") else 1
+	cols = max(1, cols)
+	var min_slots: int = cols * DEFAULT_MIN_ROWS
+	while layout.size() < min_slots:
+		layout.append("")
+	for idx in range(layout.size()):
+		var id := String(layout[idx])
 		var card := ITEM_CARD_SCENE.instantiate()
 		if card == null:
 			continue
 		if card.has_method("set_item_id"):
-			card.set_item_id(String(id))
+			card.set_item_id(id)
 		if card.has_method("set_count"):
-			card.set_count(cnt)
+			card.set_count(1 if id != "" else 0)
+		if card.has_method("set_slot_index"):
+			card.set_slot_index(idx)
+		else:
+			card.set("slot_index", idx)
 		grid.add_child(card)
-		print("[ItemsPresenter] added card id=", id, " count=", cnt)
+		print("[ItemsPresenter] added card slot=", idx, " id=", id)
 		if router != null and router.has_method("attach_card"):
 			router.attach_card(card)
-
-	# Always pad with empty placeholder slots to form full rows
-	_pad_placeholders()
 
 	# Rebuild an item-grid helper so item-to-item drags can target specific cards.
 	_item_grid_helper = _build_item_grid_helper()
@@ -115,6 +104,37 @@ func _inventory_snapshot() -> Dictionary:
 			return raw.duplicate()
 	return result
 
+func _inventory_layout() -> Array[String]:
+	var items = _items_singleton()
+	if items != null and items.has_method("get_inventory_slots"):
+		var slots = items.get_inventory_slots()
+		if slots is Array:
+			var out: Array[String] = []
+			for v in slots:
+				out.append(String(v))
+			return out
+	var inv := _inventory_snapshot()
+	var order: Array[String] = ["component", "completed", "special"]
+	var ids: Array[String] = []
+	for k in inv.keys():
+		ids.append(String(k))
+	ids.sort_custom(func(a, b):
+		var da: ItemDef = ItemCatalog.get_def(a)
+		var db: ItemDef = ItemCatalog.get_def(b)
+		var ia: int = order.find(String(da.type)) if da != null else 3
+		var ib: int = order.find(String(db.type)) if db != null else 3
+		if ia == ib:
+			var na: String = (da.name if da != null and String(da.name) != "" else a)
+			var nb: String = (db.name if db != null and String(db.name) != "" else b)
+			return String(na) < String(nb)
+		return ia < ib)
+	var fallback: Array[String] = []
+	for id in ids:
+		var cnt: int = int(inv.get(id, 0))
+		for _i in range(cnt):
+			fallback.append(String(id))
+	return fallback
+
 func set_router(r) -> void:
 	router = r
 	# Attach to existing cards
@@ -141,23 +161,3 @@ func _build_item_grid_helper():
 	var helper = load("res://scripts/board_grid.gd").new()
 	helper.configure(tiles, cols, rows)
 	return helper
-
-func _pad_placeholders() -> void:
-	if grid == null:
-		return
-	var cols: int = int(grid.columns) if grid and grid.has_method("get") else 1
-	cols = max(1, cols)
-	var current: int = grid.get_child_count()
-	# Determine rows so we always show at least DEFAULT_MIN_ROWS
-	var rows: int = max(DEFAULT_MIN_ROWS, int(ceil(float(current) / float(cols))))
-	var desired: int = rows * cols
-	var to_add: int = max(0, desired - current)
-	for i in range(to_add):
-		var slot := ITEM_CARD_SCENE.instantiate()
-		if slot == null:
-			continue
-		if slot.has_method("set_item_id"):
-			slot.set_item_id("") # empty placeholder, not draggable
-		if slot.has_method("set_count"):
-			slot.set_count(0)
-		grid.add_child(slot)

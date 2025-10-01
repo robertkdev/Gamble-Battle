@@ -9,7 +9,7 @@ const EnemyScaling := preload("res://scripts/game/combat/enemy_scaling.gd")
 # Put unit IDs you want to spawn for the enemy team.
 # Example: ["axiom", "axiom", "paisley"]
 var ENEMY_TEAM: Array[String] = [
-	"axiom", "axiom", "axiom", "axiom", "axiom", "axiom", "axiom"
+	"bonko"
 ]
 
 # Optional: change at runtime from tests/tools

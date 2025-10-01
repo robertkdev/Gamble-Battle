@@ -2,6 +2,7 @@ extends RefCounted
 class_name Unit
 const Health := preload("res://scripts/game/stats/health.gd")
 const Mana := preload("res://scripts/game/stats/mana.gd")
+const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
 
 # Identity
 var id: String = ""
@@ -9,9 +10,14 @@ var name: String = ""
 var sprite_path: String = ""
 var ability_id: String = ""
 var traits: Array[String] = []
-var roles: Array[String] = []
+var roles: Array[String] = [] # Legacy multi-role data; prefer primary_role/goal
 var cost: int = 1
 var level: int = 1
+var primary_role: String = ""
+var primary_goal: String = ""
+var approaches: Array[String] = []
+var alt_goals: Array[String] = []
+var identity: UnitIdentity = null
 
 # Health
 var max_hp: int = 1
@@ -86,3 +92,49 @@ func summary() -> String:
 		hp, max_hp, attack_damage, int(crit_chance * 100.0), int(lifesteal * 100.0),
 		int(block_chance * 100.0), hp_regen
 	]
+
+func set_identity_data(primary_role_value: String, primary_goal_value: String, approaches_value: Array[String], alt_goals_value: Array[String] = [], identity_resource: UnitIdentity = null) -> void:
+	primary_role = String(primary_role_value)
+	primary_goal = String(primary_goal_value)
+	approaches = _to_string_array(approaches_value)
+	alt_goals = _to_string_array(alt_goals_value)
+	identity = identity_resource
+
+func get_primary_role() -> String:
+	return primary_role
+
+func get_primary_goal() -> String:
+	return primary_goal
+
+func is_primary_role(role_id: String) -> bool:
+	if role_id == null:
+		return false
+	var current := String(primary_role).strip_edges()
+	if current == "":
+		return false
+	return current.to_lower() == String(role_id).strip_edges().to_lower()
+
+func get_approaches() -> Array[String]:
+	return approaches.duplicate()
+
+func get_alt_goals() -> Array[String]:
+	return alt_goals.duplicate()
+
+func has_approach(approach_id: String) -> bool:
+	var key := String(approach_id)
+	for a in approaches:
+		if String(a) == key:
+			return true
+	return false
+
+func _to_string_array(values) -> Array[String]:
+	var out: Array[String] = []
+	if values is Array:
+		for v in values:
+			out.append(String(v))
+	elif values is PackedStringArray:
+		for v in values:
+			out.append(String(v))
+	elif typeof(values) == TYPE_STRING:
+		out.append(String(values))
+	return out

@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/primary_role_profile.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+role_id = "brawler"
+display_name = "Brawler"
+description = "Frontline bruisers who win extended fights through pressure."
+base_stats = {
+    "attack_damage": 75.0,
+    "attack_range": 1.0,
+    "armor": 30.0,
+    "magic_resist": 10.0,
+    "max_hp": 800.0,
+    "spell_power": 0.0
+}
+validation_rules = [{
+        "label": "Brawler HP",
+        "metric": "max_hp",
+        "min": 700.0
+    }, {
+        "label": "Brawler Durability",
+        "metric": "armor_plus_mr",
+        "min": 35.0
+    }, {
+        "label": "Brawler Damage",
+        "metric": "attack_damage",
+        "min": 50.0,
+        "max": 95.0
+    }]
+default_goals = ["brawler.attrition_dps", "brawler.frontline_disruption", "brawler.skirmish_dive"]
+default_approaches = ["sustain", "disrupt", "reposition"]

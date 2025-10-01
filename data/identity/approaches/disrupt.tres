@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ApproachDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/approach_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "disrupt"
+name = "Disrupt"
+description = "Applies short crowd control to break enemy formations."
+category = "utility"
+conflicts_with = []

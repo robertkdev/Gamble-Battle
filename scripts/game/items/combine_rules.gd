@@ -38,7 +38,7 @@ const RULES := {
     "hammer+spike": "shiv",
     "core+hammer": "blood_engine",
     "hammer+plate": "rendsaw",
-    "hammer+veil": "mindbreaker",
+    "hammer+veil": "lifetaker",
     "hammer+orb": "mind_siphon",
     "hammer+wand": "spellblade",
 
@@ -75,4 +75,5 @@ const RULES := {
     # veil + X
     "orb+veil": "serenity",
 }
+
 

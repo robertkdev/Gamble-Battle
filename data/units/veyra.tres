@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=2]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
 
 [ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource path="res://data/identity/unit_identities/veyra_identity.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource( 1 )
@@ -9,6 +10,11 @@ name = "Veyra"
 sprite_path = "res://assets/units/veyra.png"
 ability_id = "veyra_harden"
 traits = ["Aegis", "Bulwark"]
-roles = ["mage_tank"]
+roles = ["tank"]
 cost = 1
 level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )

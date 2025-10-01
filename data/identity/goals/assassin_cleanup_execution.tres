@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "assassin.cleanup_execution"
+name = "Cleanup Execution"
+description = "Finish low-health targets in chaotic fights and keep moving."
+allowed_roles = [ "assassin" ]
+default_approaches = [ "execute", "reset_mechanic", "reposition" ]

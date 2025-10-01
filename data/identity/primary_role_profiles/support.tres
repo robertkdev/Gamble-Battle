@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2 format=3 uid="uid://bv326iq13tjf0"]
+
+[ext_resource type="Script" uid="uid://boj4iou4o6ucc" path="res://scripts/game/identity/primary_role_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+role_id = "support"
+display_name = "Support"
+description = "Utility specialists focused on amplifying allies and protecting carries."
+base_stats = {
+"armor": 25.0,
+"attack_damage": 45.0,
+"attack_range": 3.0,
+"magic_resist": 25.0,
+"max_hp": 650.0,
+"spell_power": 50.0
+}
+validation_rules = Array[Dictionary]([{
+"label": "Support HP",
+"max": 850.0,
+"metric": "max_hp",
+"min": 550.0
+}, {
+"label": "Support Range",
+"metric": "attack_range",
+"min": 2.0
+}, {
+"label": "Support Utility",
+"metric": "spell_power",
+"min": 30.0
+}])
+default_goals = Array[String](["support.team_amplification", "support.peel_carry", "support.enemy_lockdown", "support.initiate_fight"])
+default_approaches = Array[String](["amp", "peel", "disrupt", "lockdown"])

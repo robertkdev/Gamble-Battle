@@ -1,5 +1,7 @@
 extends AbilityImplBase
 
+const IdentityKeys := preload("res://scripts/game/identity/identity_keys.gd")
+
 # Repo — Writ of Severance
 # Heals for 90/130/170 × SP, then slashes current target for 215/325/520 × AD physical damage.
 # Damage is increased by 60% against Tank‑class enemies. On kill, immediately recasts at 75% damage.
@@ -13,9 +15,12 @@ func _level_index(u: Unit) -> int:
     var lvl: int = (int(u.level) if u != null else 1)
     return clamp(lvl - 1, 0, 2)
 
-func _is_tank_roles(u: Unit) -> bool:
+func _is_tank_identity(u: Unit) -> bool:
     if u == null:
         return false
+    if u.is_primary_role(IdentityKeys.ROLE_TANK):
+        return true
+    # Legacy fallback while migration completes
     for r in u.roles:
         var s := String(r).to_lower()
         if s.find("tank") >= 0:
@@ -25,7 +30,7 @@ func _is_tank_roles(u: Unit) -> bool:
 func _slash(ctx: AbilityContext, target_idx: int, base_dmg: float) -> Dictionary:
     var tgt := ctx.unit_at(ctx._other_team(ctx.caster_team), target_idx)
     var dmg: float = base_dmg
-    if _is_tank_roles(tgt):
+    if _is_tank_identity(tgt):
         dmg *= (1.0 + BONUS_VS_TANK)
     return ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, max(0.0, dmg), "physical")
 

@@ -17,6 +17,11 @@ var _equipped: Dictionary = {}             # Unit -> Array[String]
 var _unit_refs: Dictionary = {}            # Unit -> WeakRef (for liveness checks)
 var _equip_service: EquipService = null
 
+const INVENTORY_COLUMNS := 6
+const INVENTORY_MIN_ROWS := 3
+
+var _inventory_slots: Array[String] = []
+
 # DEV: starter inventory seeding (disabled by default)
 # Toggle this on during development to auto‑populate inventory at startup.
 @export var DEV_STARTER_INVENTORY_ENABLED: bool = true
@@ -38,6 +43,7 @@ func _ready() -> void:
 	Combiner.configure(Callable(self, "get_equipped_ids"), Callable(self, "consume_components"))
 	_equip_service = EquipService.new()
 	_maybe_seed_dev_inventory()
+	_ensure_inventory_slots()
 
 func add_to_inventory(id: String, n: int = 1) -> Dictionary:
 	_cleanup_invalid_units()
@@ -50,12 +56,12 @@ func add_to_inventory(id: String, n: int = 1) -> Dictionary:
 	if ItemCatalog.get_def(key) == null:
 		res.reason = "unknown_item"
 		return res
-	_inventory[key] = int(_inventory.get(key, 0)) + cnt
+	_inc_inventory(key, cnt)
 	inventory_changed.emit()
 	action_log.emit("+%d %s" % [cnt, key])
-	print("[Items] add_to_inventory id=", key, " n=", cnt, " new_count=", int(_inventory[key]))
+	print("[Items] add_to_inventory id=", key, " n=", cnt, " new_count=", int(_inventory.get(key, 0)))
 	res.ok = true
-	res["count"] = int(_inventory[key])
+	res["count"] = int(_inventory.get(key, 0))
 	return res
 
 func equip(unit, id: String) -> Dictionary:
@@ -176,7 +182,7 @@ func get_inventory_snapshot() -> Dictionary:
 	return _inventory.duplicate()
 
 # Combine two components directly in inventory (no unit involved)
-func try_combine_in_inventory(a: String, b: String) -> Dictionary:
+func try_combine_in_inventory(a: String, b: String, a_slot: int = -1, b_slot: int = -1, result_slot: int = -1) -> Dictionary:
 	var res := {"ok": false, "reason": ""}
 	var ia := String(a).strip_edges()
 	var ib := String(b).strip_edges()
@@ -200,15 +206,41 @@ func try_combine_in_inventory(a: String, b: String) -> Dictionary:
 	if have_a < need_a or have_b < need_b:
 		res.reason = "insufficient_components"
 		return res
-	# Consume components
-	if need_a > 0 and not _dec_inventory(ia, need_a):
+	_ensure_inventory_slots()
+	var taken: Dictionary = {}
+	var slots_a: Array[int] = []
+	var slots_b: Array[int] = []
+	var slot_a1 := _take_inventory_slot(ia, a_slot, taken)
+	if slot_a1 == -1:
+		res.reason = "insufficient_components"
+		return res
+	slots_a.append(slot_a1)
+	if need_a > 1:
+		var slot_a2 := _take_inventory_slot(ia, b_slot, taken)
+		if slot_a2 == -1:
+			slot_a2 = _take_inventory_slot(ia, -1, taken)
+		if slot_a2 == -1:
+			res.reason = "insufficient_components"
+			return res
+		slots_a.append(slot_a2)
+	if need_b > 0:
+		var slot_b1 := _take_inventory_slot(ib, b_slot, taken)
+		if slot_b1 == -1:
+			slot_b1 = _take_inventory_slot(ib, -1, taken)
+		if slot_b1 == -1:
+			res.reason = "insufficient_components"
+			return res
+		slots_b.append(slot_b1)
+	if need_a > 0 and not _dec_inventory(ia, need_a, slots_a):
 		res.reason = "inventory_underflow_a"
 		return res
-	if need_b > 0 and not _dec_inventory(ib, need_b):
+	if need_b > 0 and not _dec_inventory(ib, need_b, slots_b):
 		res.reason = "inventory_underflow_b"
 		return res
-	# Add completed item
-	_inc_inventory(cid, 1)
+	var preferred: Array[int] = []
+	if result_slot >= 0:
+		preferred.append(result_slot)
+	_inc_inventory(cid, 1, preferred)
 	inventory_changed.emit()
 	action_log.emit("Combined %s + %s -> %s" % [ia, ib, cid])
 	print("[Items] combined in inventory: ", ia, " + ", ib, " -> ", cid)
@@ -268,7 +300,7 @@ func _ensure_unit_array(unit) -> Array:
 		_watch_unit(unit)
 	return (_equipped[unit] as Array)
 
-func _dec_inventory(id: String, n: int) -> bool:
+func _dec_inventory(id: String, n: int, slots: Array[int] = []) -> bool:
 	var key := String(id)
 	var need := int(n)
 	if need <= 0:
@@ -277,16 +309,109 @@ func _dec_inventory(id: String, n: int) -> bool:
 	if have < need:
 		return false
 	_inventory[key] = have - need
-	if int(_inventory[key]) <= 0:
+	if int(_inventory.get(key, 0)) <= 0:
 		_inventory.erase(key)
-	return true
+	var remaining := need
+	var used: Dictionary = {}
+	if slots != null:
+		for s in slots:
+			if remaining <= 0:
+				break
+			if s >= 0 and s < _inventory_slots.size() and _inventory_slots[s] == key and not used.has(s):
+				_inventory_slots[s] = ""
+				used[s] = true
+				remaining -= 1
+	if remaining > 0:
+		for idx in range(_inventory_slots.size()):
+			if remaining <= 0:
+				break
+			if _inventory_slots[idx] == key and not used.has(idx):
+				_inventory_slots[idx] = ""
+				used[idx] = true
+				remaining -= 1
+	return remaining == 0
 
-func _inc_inventory(id: String, n: int) -> void:
+func _inc_inventory(id: String, n: int, preferred_slots: Array[int] = []) -> void:
 	var key := String(id)
 	var inc := int(n)
 	if inc <= 0:
 		return
 	_inventory[key] = int(_inventory.get(key, 0)) + inc
+	var remaining := inc
+	if preferred_slots != null:
+		for s in preferred_slots:
+			if remaining <= 0:
+				break
+			if s < 0:
+				continue
+			_ensure_inventory_slots(s + 1)
+			if _inventory_slots[s] == "":
+				_inventory_slots[s] = key
+				remaining -= 1
+	while remaining > 0:
+		var idx := _inventory_slots.find("")
+		if idx == -1:
+			_inventory_slots.append("")
+			idx = _inventory_slots.size() - 1
+		_inventory_slots[idx] = key
+		remaining -= 1
+
+func get_inventory_slots() -> Array[String]:
+	_ensure_inventory_slots()
+	return _inventory_slots.duplicate()
+
+func swap_inventory_slots(a: int, b: int) -> void:
+	var max_idx: int = max(a, b)
+	_ensure_inventory_slots(max_idx + 1)
+	if a < 0 or b < 0:
+		return
+	if a >= _inventory_slots.size() or b >= _inventory_slots.size():
+		return
+	if a == b:
+		return
+	var val_a := _inventory_slots[a]
+	var val_b := _inventory_slots[b]
+	if val_a == val_b:
+		return
+	_inventory_slots[a] = val_b
+	_inventory_slots[b] = val_a
+	inventory_changed.emit()
+
+func combine_inventory_slots(src: int, dst: int) -> Dictionary:
+	var res := {"ok": false}
+	var max_idx: int = max(src, dst)
+	_ensure_inventory_slots(max_idx + 1)
+	if src < 0 or dst < 0:
+		res.reason = "invalid_slot"
+		return res
+	if src >= _inventory_slots.size() or dst >= _inventory_slots.size():
+		res.reason = "invalid_slot"
+		return res
+	var a_id := String(_inventory_slots[src])
+	var b_id := String(_inventory_slots[dst])
+	if a_id == "" or b_id == "":
+		res.reason = "empty_slot"
+		return res
+	res = try_combine_in_inventory(a_id, b_id, src, dst, dst)
+	return res
+
+func _take_inventory_slot(id: String, preferred: int, taken: Dictionary) -> int:
+	if preferred >= 0:
+		_ensure_inventory_slots(preferred + 1)
+		if preferred < _inventory_slots.size() and _inventory_slots[preferred] == id and not taken.has(preferred):
+			taken[preferred] = true
+			return preferred
+	for idx in range(_inventory_slots.size()):
+		if _inventory_slots[idx] == id and not taken.has(idx):
+			taken[idx] = true
+			return idx
+	return -1
+
+func _ensure_inventory_slots(min_slots: int = INVENTORY_COLUMNS * INVENTORY_MIN_ROWS) -> void:
+	if min_slots < 0:
+		min_slots = 0
+	while _inventory_slots.size() < min_slots:
+		_inventory_slots.append("")
 
 func _watch_unit(unit) -> void:
 	if unit == null:

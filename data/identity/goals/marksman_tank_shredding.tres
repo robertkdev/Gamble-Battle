@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "marksman.tank_shredding"
+name = "Tank Shredding"
+description = "Burn down high-health, high-armor frontline targets."
+allowed_roles = [ "marksman" ]
+default_approaches = [ "on_hit_effect", "debuff", "ramp" ]

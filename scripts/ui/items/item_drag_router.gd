@@ -53,6 +53,13 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 		print("[ItemDrag] Items singleton node=", items)
 		if items == null:
 			return
+		var src_idx := -1
+		if card.has_method("get_slot_index"):
+			src_idx = int(card.get_slot_index())
+		if src_idx == -1:
+			return
+		if src_idx == tile_idx:
+			return
 		var target_ctrl: Control = item_grid_helper.tile_at(tile_idx)
 		var target_id: String = ""
 		if target_ctrl != null:
@@ -60,10 +67,17 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 				target_id = String(target_ctrl.get("item_id"))
 			elif target_ctrl.has_method("get_item_id"):
 				target_id = String(target_ctrl.get_item_id())
-		print("[ItemDrag] inventory drop src=", iid, " tgt=", target_id)
-		if target_id != "" and target_id != iid and items.has_method("try_combine_in_inventory"):
-			var cres = items.try_combine_in_inventory(iid, target_id)
+		print("[ItemDrag] inventory drop src=", iid, " tgt=", target_id, " src_idx=", src_idx, " dst=", tile_idx)
+		var did_combine := false
+		if target_id != "" and items.has_method("combine_inventory_slots"):
+			var cres = items.combine_inventory_slots(src_idx, tile_idx)
 			print("[ItemDrag] combine result => ", cres)
+			if cres is Dictionary and bool(cres.get("ok", false)):
+				did_combine = true
+		if did_combine:
+			return
+		if items.has_method("swap_inventory_slots"):
+			items.swap_inventory_slots(src_idx, tile_idx)
 		return
 	# Otherwise, resolve the unit at the drop location on a board grid.
 	var unit: Unit = _resolve_unit(grid, tile_idx)

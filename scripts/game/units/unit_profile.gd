@@ -1,8 +1,8 @@
 extends Resource
 class_name UnitProfile
 
-const RoleModifier := preload("res://scripts/game/units/role_modifier.gd")
 const RoleLibrary := preload("res://scripts/game/units/role_library.gd")
+const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
 
 @export var id: String = ""
 @export var name: String = ""
@@ -13,6 +13,12 @@ const RoleLibrary := preload("res://scripts/game/units/role_library.gd")
 @export var roles: Array[String] = []
 @export var cost: int = 1
 @export var level: int = 1
+
+@export var primary_role: String = ""
+@export var primary_goal: String = ""
+@export var approaches: Array[String] = []
+@export var alt_goals: Array[String] = []
+@export var identity: UnitIdentity = null
 
 func role_names() -> PackedStringArray:
 	var out := PackedStringArray()

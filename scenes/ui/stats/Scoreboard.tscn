@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cthp37obhaka7"]
+[gd_scene load_steps=2 format=3 uid="uid://cthp37obhaka7"]
 
 [ext_resource type="Script" uid="uid://brjxff7n1n3va" path="res://scripts/ui/combat/stats/scoreboard.gd" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/ui/stats/ScoreboardRow.tscn" id="2"]
 
 [node name="Scoreboard" type="VBoxContainer"]
 anchors_preset = 15
@@ -47,16 +46,3 @@ visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-
-[node name="RowTemplate" type="PackedScene" parent="."]
-_import_path = NodePath("")
-unique_name_in_owner = false
-process_mode = 0
-process_priority = 0
-process_physics_priority = 0
-process_thread_group = 0
-physics_interpolation_mode = 0
-auto_translate_mode = 0
-editor_description = ""
-resource = ExtResource("2")
-script = null

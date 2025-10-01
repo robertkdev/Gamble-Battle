@@ -73,3 +73,81 @@ static func unit_at(team: Array[Unit], idx: int) -> Unit:
 static func is_target_alive(team: Array[Unit], idx: int) -> bool:
 	var u := unit_at(team, idx)
 	return u != null and u.is_alive()
+
+func team_units(team: String) -> Array[Unit]:
+	return player_team if team == "player" else enemy_team
+
+func primary_role_members(team: String, role_id: String) -> Array[int]:
+	var arr: Array[Unit] = team_units(team)
+	var out: Array[int] = []
+	var norm := _normalize_role(role_id)
+	if norm == "":
+		return out
+	for i in range(arr.size()):
+		var u: Unit = arr[i]
+		if u == null:
+			continue
+		if _unit_matches_role(u, norm):
+			out.append(i)
+	return out
+
+func primary_role_count(team: String, role_id: String) -> int:
+	return primary_role_members(team, role_id).size()
+
+func primary_goal_members(team: String, goal_id: String) -> Array[int]:
+	var arr: Array[Unit] = team_units(team)
+	var out: Array[int] = []
+	var norm := _normalize_key(goal_id)
+	if norm == "":
+		return out
+	for i in range(arr.size()):
+		var u: Unit = arr[i]
+		if u == null:
+			continue
+		var goal_norm := _normalize_key(u.get_primary_goal())
+		if goal_norm == norm:
+			out.append(i)
+	return out
+
+func primary_goal_count(team: String, goal_id: String) -> int:
+	return primary_goal_members(team, goal_id).size()
+
+func members_with_approach(team: String, approach_id: String) -> Array[int]:
+	var arr: Array[Unit] = team_units(team)
+	var out: Array[int] = []
+	var norm := _normalize_key(approach_id)
+	if norm == "":
+		return out
+	for i in range(arr.size()):
+		var u: Unit = arr[i]
+		if u == null:
+			continue
+		for a in u.get_approaches():
+			if _normalize_key(a) == norm:
+				out.append(i)
+				break
+	return out
+
+func members_with_approach_count(team: String, approach_id: String) -> int:
+	return members_with_approach(team, approach_id).size()
+
+func _unit_matches_role(u: Unit, norm_role: String) -> bool:
+	if u == null or norm_role == "":
+		return false
+	if u.is_primary_role(norm_role):
+		return true
+	for legacy in u.roles:
+		if _normalize_role(legacy) == norm_role:
+			return true
+	return false
+
+func _normalize_role(role_id: String) -> String:
+	var s := String(role_id).strip_edges().to_lower()
+	s = s.replace(" ", "_")
+	s = s.replace("-", "_")
+	while s.find("__") != -1:
+		s = s.replace("__", "_")
+	return s
+
+func _normalize_key(value: String) -> String:
+	return String(value).strip_edges().to_lower()

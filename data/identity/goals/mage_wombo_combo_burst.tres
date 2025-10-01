@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "mage.wombo_combo_burst"
+name = "Wombo Combo Burst"
+description = "Detonate massive area damage alongside engage partners."
+allowed_roles = [ "mage" ]
+default_approaches = [ "burst", "aoe", "engage" ]

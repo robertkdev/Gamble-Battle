@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="GoalDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/goal_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "marksman.sustained_dps"
+name = "Sustained DPS"
+description = "Act as the primary source of consistent front-to-back damage."
+allowed_roles = [ "marksman" ]
+default_approaches = [ "ramp", "on_hit_effect", "long_range" ]

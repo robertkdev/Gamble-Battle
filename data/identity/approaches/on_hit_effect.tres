@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ApproachDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/approach_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "on_hit_effect"
+name = "On-Hit Effect"
+description = "Enhances basic attacks with additional effects."
+category = "offense"
+conflicts_with = []

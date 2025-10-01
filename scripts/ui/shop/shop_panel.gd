@@ -24,58 +24,74 @@ func get_host_container() -> Container:
 func set_offers(offers: Array) -> void:
     if _grid == null:
         return
-    # Clear existing children
     for c in _grid.get_children():
         if c is Node:
             c.queue_free()
     _cards.clear()
-    # Populate placeholders for now (no interactions)
+
     var shown: int = 0
     var idx: int = 0
     for o in offers:
         var card := _make_card(o, idx)
         _grid.add_child(card)
         _cards.append(card)
-        # IMPORTANT: now that the card is in the scene tree, set its data
         if card is ShopCard:
             var props: Dictionary = {}
             if o is ShopOffer and String(o.id) != "":
                 var off: ShopOffer = o
-                var roles: Array = _duplicate_strings(off.roles)
-                var traits: Array = _duplicate_strings(off.traits)
+                var roles := _duplicate_strings(off.roles)
+                var traits := _duplicate_strings(off.traits)
+                var approaches := _duplicate_strings(off.approaches)
+                var alt_goals := _duplicate_strings(off.alt_goals)
+                var primary_role := String(off.primary_role)
                 props = {
                     "id": String(off.id),
                     "name": String(off.name),
                     "price": int(off.cost),
                     "image_path": String(off.sprite_path),
-                    "role": _role_text(roles),
+                    "role": _role_text(roles, primary_role),
                     "roles": roles,
                     "traits": traits,
+                    "primary_role": primary_role,
+                    "primary_goal": String(off.primary_goal),
+                    "approaches": approaches,
+                    "alt_goals": alt_goals,
+                    "identity_path": String(off.identity_path),
                 }
             else:
-                props = {"id":"","name":"?","price":0,"image_path":"","role":"","roles":[],"traits":[]}
-            # Defer until after _ready so @onready children exist
+                props = {
+                    "id": "",
+                    "name": "?",
+                    "price": 0,
+                    "image_path": "",
+                    "role": "",
+                    "roles": [],
+                    "traits": [],
+                    "primary_role": "",
+                    "primary_goal": "",
+                    "approaches": [],
+                    "alt_goals": [],
+                    "identity_path": "",
+                }
             (card as ShopCard).call_deferred("set_data", props)
         shown += 1
         idx += 1
-    # Fill remaining slots with empty placeholders to keep layout stable
+
     while shown < _slot_count:
         _grid.add_child(_make_empty())
         shown += 1
 
 func _make_card(offer, index: int) -> Control:
     if ShopCardScene:
-        # If this is a placeholder/empty offer, render a blank sold/empty tile
         if offer is ShopOffer and String(offer.id) == "":
             return _make_sold()
         var card = ShopCardScene.instantiate()
         if card and card.has_method("set_slot_index"):
             card.set_slot_index(index)
         return card
-    # Fallback minimal if scene missing
     var placeholder := ColorRect.new()
     placeholder.custom_minimum_size = Vector2(UI.TILE_SIZE * 2, UI.TILE_SIZE + 24)
-    placeholder.color = Color(0.1,0.1,0.12,0.4)
+    placeholder.color = Color(0.1, 0.1, 0.12, 0.4)
     return placeholder
 
 func _make_empty() -> Control:
@@ -96,7 +112,7 @@ func _make_sold() -> Control:
     var lbl := Label.new()
     lbl.text = "SOLD"
     lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    lbl.modulate = Color(1,0.5,0.5,0.9)
+    lbl.modulate = Color(1, 0.5, 0.5, 0.9)
     wrap.add_child(tile)
     wrap.add_child(lbl)
     return wrap
@@ -105,15 +121,24 @@ func _duplicate_strings(values) -> Array:
     var out: Array = []
     if values == null:
         return out
-    for v in values:
-        out.append(String(v))
+    if values is Array:
+        for v in values:
+            out.append(String(v))
+    elif values is PackedStringArray:
+        for v in values:
+            out.append(String(v))
+    elif typeof(values) == TYPE_STRING:
+        out.append(String(values))
     return out
 
-func _role_text(roles: Array) -> String:
-    if roles == null or roles.is_empty():
+func _role_text(roles: Array, primary_role: String = "") -> String:
+    var source := String(primary_role).strip_edges()
+    if source == "" and roles != null and roles.size() > 0:
+        source = String(roles[0])
+    source = source.strip_edges()
+    if source == "":
         return ""
-    var primary := String(roles[0])
-    var cleaned := primary.replace("_", " " ).strip_edges()
+    var cleaned := source.replace("_", " ").strip_edges()
     if cleaned == "":
         return ""
     var parts := cleaned.split(" ", false)

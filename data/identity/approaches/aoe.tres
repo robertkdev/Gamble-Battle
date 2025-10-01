@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ApproachDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/identity/approach_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "aoe"
+name = "Area Coverage"
+description = "Impacts multiple targets or zones at once."
+category = "offense"
+conflicts_with = []

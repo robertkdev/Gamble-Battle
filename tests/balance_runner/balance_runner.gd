@@ -3,7 +3,7 @@ extends Node
 # Headless round-robin 1v1 simulator for balance.
 # Scene-friendly and -s friendly.
 # CLI example:
-# godot --headless -s tests/balance_runner/balance_runner.gd -- --repeats=10 --delta=0.05 --timeout=120 --cost=1,2,3 --role=marksman,mage --out=user://balance_runner/balance_matrix.csv
+# godot --headless -s tests/balance_runner/balance_runner.gd -- --repeats=10 --timeout=120 --cost=1,2,3 --role=marksman,mage --out=user://balance_matrix.csv
 
 const UnitFactory = preload("res://scripts/unit_factory.gd")
 const BattleState = preload("res://scripts/game/combat/battle_state.gd")
@@ -11,6 +11,8 @@ const CombatEngine = preload("res://scripts/game/combat/combat_engine.gd")
 const Unit = preload("res://scripts/unit.gd")
 const UnitProfile = preload("res://scripts/game/units/unit_profile.gd")
 const UnitDef = preload("res://scripts/game/units/unit_def.gd")
+const CSV_SCHEMA_VERSION := "identity_v2"
+## Legacy adapter removed; BalanceRunner now writes only one CSV.
 
 var _signal_outcome: String = ""
 
@@ -21,7 +23,8 @@ var _signal_outcome: String = ""
 @export var timeout_prop: float = 120.0
 @export var abilities_prop: bool = false
 @export var ability_metrics_prop: bool = false
-@export var role_filter_prop: String = ""       # CSV of role ids
+@export var role_filter_prop: String = ""       # CSV of primary roles (tank,brawler,assassin,marksman,mage,support)
+@export var goal_filter_prop: String = ""       # CSV of primary goals (e.g., brawler.frontline_disruption)
 @export var cost_filter_prop: String = ""       # CSV of ints
 @export var out_path_prop: String = "user://balance_matrix.csv"
 
@@ -34,6 +37,7 @@ func _run_from_properties() -> void:
 	UnitFactory.role_invariant_fail_fast = true
 	var id_pairs: Array = _parse_id_pairs(String(ids_prop))
 	var role_filter: PackedStringArray = _split_csv(String(role_filter_prop))
+	var goal_filter: PackedStringArray = _split_csv(String(goal_filter_prop))
 	var cost_filter: PackedInt32Array = _csv_to_ints(String(cost_filter_prop))
 	var out_path: String = String(out_path_prop)
 	var repeats := int(repeats_prop)
@@ -41,11 +45,22 @@ func _run_from_properties() -> void:
 	var abilities_enabled := bool(abilities_prop)
 	var ability_metrics := bool(ability_metrics_prop)
 
-	var units: Array[Dictionary] = _collect_units(role_filter, cost_filter)
+	var units: Array[Dictionary] = _collect_units(role_filter, goal_filter, cost_filter)
 	if units.size() < 2:
-		push_warning("BalanceRunner: not enough units with current filters")
+		var cost_strs: PackedStringArray = []
+		for v in cost_filter:
+			cost_strs.append(str(v))
+		var goal_strs: PackedStringArray = []
+		for g in goal_filter:
+			goal_strs.append(String(g))
+		var msg := "BalanceRunner: not enough units after filtering. role=%s goal=%s cost=%s" % [
+			_join_strings(role_filter, ","), _join_strings(goal_strs, ","), _join_strings(cost_strs, ",")
+		]
+		push_warning(msg)
+		printerr(msg)
+		if get_tree():
+			get_tree().quit()
 		return
-	# Build allowed pairs so we can report progress once per matchup
 	var pairs: Array[Dictionary] = _enumerate_pairs(units, id_pairs)
 	var total_pairs: int = pairs.size()
 	var results: Array = []
@@ -62,6 +77,12 @@ func _run_from_properties() -> void:
 		# Attach unit metadata for analytics/aggregation
 		mr.a_roles = a.roles.duplicate()
 		mr.b_roles = b.roles.duplicate()
+		mr.a_primary_role = String(a.primary_role)
+		mr.b_primary_role = String(b.primary_role)
+		mr.a_primary_goal = String(a.primary_goal)
+		mr.b_primary_goal = String(b.primary_goal)
+		mr.a_approaches = _duplicate_string_array(a.approaches)
+		mr.b_approaches = _duplicate_string_array(b.approaches)
 		mr.a_cost = int(a.cost)
 		mr.b_cost = int(b.cost)
 		mr.a_level = int(a.level)
@@ -72,14 +93,19 @@ func _run_from_properties() -> void:
 		results.append(mr)
 	_write_csv(out_path, results, ability_metrics)
 	_print_human_summary(results)
-	# Also write aggregated role-pair summary next to the matrix
-	_write_role_pair_summary(results, out_path)
+	print("BalanceRunner: wrote identity_v2 matrix to %s (see docs/balance_runner_schema.md)" % out_path)
 
 class MatchResult:
 	var a_id: String
 	var b_id: String
 	var a_roles: Array[String] = []
 	var b_roles: Array[String] = []
+	var a_primary_role: String = ""
+	var b_primary_role: String = ""
+	var a_primary_goal: String = ""
+	var b_primary_goal: String = ""
+	var a_approaches: Array[String] = []
+	var b_approaches: Array[String] = []
 	var a_cost: int = 0
 	var b_cost: int = 0
 	var a_level: int = 1
@@ -127,6 +153,19 @@ class MatchResult:
 	var b_first_hit_samples: int = 0
 	var total: int = 0
 
+	static func _join_identity_list(values: Array[String]) -> String:
+		var tokens := PackedStringArray()
+		for v in values:
+			var token := String(v).strip_edges()
+			if token != "":
+				tokens.append(token)
+		var joined := ""
+		for i in range(tokens.size()):
+			if i > 0:
+				joined += "|"
+			joined += tokens[i]
+		return joined
+
 	func add_win(winner: String, time_s: float, a_hp: int, b_hp: int) -> void:
 		total += 1
 		if winner == a_id:
@@ -151,11 +190,19 @@ class MatchResult:
 			if j > 0:
 				b_roles_s += "|"
 			b_roles_s += String(b_roles[j])
+		var a_approach_s: String = MatchResult._join_identity_list(a_approaches)
+		var b_approach_s: String = MatchResult._join_identity_list(b_approaches)
 		return {
 			"a": a_id,
 			"b": b_id,
 			"a_roles": a_roles_s,
 			"b_roles": b_roles_s,
+			"a_primary_role": a_primary_role,
+			"b_primary_role": b_primary_role,
+			"a_primary_goal": a_primary_goal,
+			"b_primary_goal": b_primary_goal,
+			"a_approaches": a_approach_s,
+			"b_approaches": b_approach_s,
 			"a_cost": a_cost,
 			"b_cost": b_cost,
 			"a_level": a_level,
@@ -167,6 +214,7 @@ class MatchResult:
 			"b_avg_time": (b_time_sum / max(1, b_wins)),
 			"a_avg_hp": int(round(float(a_hp_sum) / max(1, a_wins))),
 			"b_avg_hp": int(round(float(b_hp_sum) / max(1, b_wins))),
+			"matches_total": total,
 			"shots": shots,
 			"a_shots": a_shots,
 			"b_shots": b_shots,
@@ -212,23 +260,23 @@ func _run() -> void:
 	var ids_filter_str: String = String(args.get("ids", ""))
 	var id_pairs: Array = _parse_id_pairs(ids_filter_str)
 	# Default to the repo folder; we'll resolve to an OS path so it works headless.
-	var out_path: String = String(args.get("out", "res://tests/balance_runner/results/balance_matrix.csv"))
+	var out_path: String = String(args.get("out", "user://balance_matrix.csv"))
 	var role_filter: PackedStringArray = _split_csv(String(args.get("role", "")))
+	var goal_filter: PackedStringArray = _split_csv(String(args.get("goal", "")))
 	var cost_filter: PackedInt32Array = _csv_to_ints(String(args.get("cost", "")))
 
-	var units: Array[Dictionary] = _collect_units(role_filter, cost_filter)
+	var units: Array[Dictionary] = _collect_units(role_filter, goal_filter, cost_filter)
 	if units.size() < 2:
 		var cost_strs: PackedStringArray = []
 		for v in cost_filter:
 			cost_strs.append(str(v))
-		var msg := "BalanceRunner: not enough units after filtering. role=%s cost=%s" % [
-			_join_strings(role_filter, ","), _join_strings(cost_strs, ",")
+		var goal_strs: PackedStringArray = []
+		for g in goal_filter:
+			goal_strs.append(String(g))
+		var msg := "BalanceRunner: not enough units after filtering. role=%s goal=%s cost=%s" % [
+			_join_strings(role_filter, ","), _join_strings(goal_strs, ","), _join_strings(cost_strs, ",")
 		]
 		push_warning(msg)
-		printerr(msg)
-		if get_tree():
-			get_tree().quit()
-		return
 	var results: Array = []
 	var pairs_cli: Array[Dictionary] = _enumerate_pairs(units, id_pairs)
 	var total_pairs_cli: int = pairs_cli.size()
@@ -245,6 +293,12 @@ func _run() -> void:
 		# Attach unit metadata for analytics/aggregation
 		mr2.a_roles = a2.roles.duplicate()
 		mr2.b_roles = b2.roles.duplicate()
+		mr2.a_primary_role = String(a2.primary_role)
+		mr2.b_primary_role = String(b2.primary_role)
+		mr2.a_primary_goal = String(a2.primary_goal)
+		mr2.b_primary_goal = String(b2.primary_goal)
+		mr2.a_approaches = _duplicate_string_array(a2.approaches)
+		mr2.b_approaches = _duplicate_string_array(b2.approaches)
 		mr2.a_cost = int(a2.cost)
 		mr2.b_cost = int(b2.cost)
 		mr2.a_level = int(a2.level)
@@ -255,6 +309,7 @@ func _run() -> void:
 		results.append(mr2)
 	_write_csv(out_path, results, ability_metrics)
 	_print_human_summary(results)
+	print("BalanceRunner: wrote identity_v2 matrix to %s (see docs/balance_runner_schema.md)" % out_path)
 	if get_tree():
 		get_tree().quit()
 
@@ -440,11 +495,83 @@ func _simulate_pair(mr: MatchResult, player_id: String, enemy_id: String, delta:
 				mr.b_first_cast_time_sum += first_cast_time_player
 				mr.b_first_cast_samples += 1
 
-func _collect_units(role_filter: PackedStringArray, cost_filter: PackedInt32Array) -> Array:
+func _write_csv(path: String, results: Array, ability_metrics: bool) -> void:
+	var fa := FileAccess.open(path, FileAccess.WRITE)
+	if fa == null:
+		var emsg := "BalanceRunner: cannot write %s" % path
+		push_warning(emsg)
+		printerr(emsg)
+		return
+	var header := "schema_version,attacker_id,defender_id,attacker_primary_role,defender_primary_role,attacker_primary_goal,defender_primary_goal,attacker_approaches,defender_approaches,attacker_cost,defender_cost,attacker_level,defender_level,attacker_win_pct,defender_win_pct,draw_pct,attacker_avg_time_to_win_s,defender_avg_time_to_win_s,attacker_avg_remaining_hp,defender_avg_remaining_hp,matches_total,hit_events_total,attacker_hit_events,defender_hit_events,attacker_avg_damage_dealt_per_match,defender_avg_damage_dealt_per_match,attacker_healing_total,defender_healing_total,attacker_shield_absorbed_total,defender_shield_absorbed_total,attacker_damage_mitigated_total,defender_damage_mitigated_total,attacker_overkill_total,defender_overkill_total,attacker_damage_physical_total,defender_damage_physical_total,attacker_damage_magic_total,defender_damage_magic_total,attacker_damage_true_total,defender_damage_true_total,attacker_time_to_first_hit_s,defender_time_to_first_hit_s"
+	if ability_metrics:
+		header += ",attacker_avg_casts_per_match,defender_avg_casts_per_match,attacker_first_cast_time_s,defender_first_cast_time_s"
+	fa.store_line(header)
+	for mr: MatchResult in results:
+		var s := mr.summary()
+		var cols: Array[String] = []
+		cols.append(CSV_SCHEMA_VERSION)
+		cols.append(String(s.a))
+		cols.append(String(s.b))
+		cols.append(String(s.a_primary_role))
+		cols.append(String(s.b_primary_role))
+		cols.append(String(s.a_primary_goal))
+		cols.append(String(s.b_primary_goal))
+		cols.append(String(s.a_approaches))
+		cols.append(String(s.b_approaches))
+		cols.append(str(int(s.a_cost)))
+		cols.append(str(int(s.b_cost)))
+		cols.append(str(int(s.a_level)))
+		cols.append(str(int(s.b_level)))
+		cols.append("%.3f" % float(s.a_win_pct))
+		cols.append("%.3f" % float(s.b_win_pct))
+		cols.append("%.3f" % float(s.draw_pct))
+		cols.append("%.2f" % float(s.a_avg_time))
+		cols.append("%.2f" % float(s.b_avg_time))
+		cols.append(str(int(s.a_avg_hp)))
+		cols.append(str(int(s.b_avg_hp)))
+		cols.append(str(int(s.matches_total)))
+		cols.append(str(int(s.shots)))
+		cols.append(str(int(s.a_shots)))
+		cols.append(str(int(s.b_shots)))
+		cols.append("%.2f" % float(s.a_avg_damage))
+		cols.append("%.2f" % float(s.b_avg_damage))
+		cols.append(str(int(s.a_heal_total)))
+		cols.append(str(int(s.b_heal_total)))
+		cols.append(str(int(s.a_absorbed)))
+		cols.append(str(int(s.b_absorbed)))
+		cols.append(str(int(s.a_mitigated)))
+		cols.append(str(int(s.b_mitigated)))
+		cols.append(str(int(s.a_overkill)))
+		cols.append(str(int(s.b_overkill)))
+		cols.append(str(int(s.a_phys)))
+		cols.append(str(int(s.b_phys)))
+		cols.append(str(int(s.a_mag)))
+		cols.append(str(int(s.b_mag)))
+		cols.append(str(int(s.a_true)))
+		cols.append(str(int(s.b_true)))
+		cols.append("%.2f" % float(s.a_first_hit_s))
+		cols.append("%.2f" % float(s.b_first_hit_s))
+		if ability_metrics:
+			cols.append("%.2f" % float(s.a_avg_casts))
+			cols.append("%.2f" % float(s.b_avg_casts))
+			cols.append("%.2f" % float(s.a_first_cast_s))
+			cols.append("%.2f" % float(s.b_first_cast_s))
+		var psa := PackedStringArray()
+		for c in cols:
+			psa.append(String(c))
+		fa.store_line(_join_strings(psa, ","))
+	fa.close()
+func _collect_units(role_filter: PackedStringArray, goal_filter: PackedStringArray, cost_filter: PackedInt32Array) -> Array:
 	var out: Array[Dictionary] = []
 	var dir := DirAccess.open("res://data/units")
 	if dir == null:
 		return out
+	var filtered_roles := PackedStringArray()
+	for r in role_filter:
+		filtered_roles.append(_normalize_role_id(r))
+	var filtered_goals := PackedStringArray()
+	for g in goal_filter:
+		filtered_goals.append(_normalize_goal_id(g))
 	dir.list_dir_begin()
 	while true:
 		var f := dir.get_next()
@@ -458,161 +585,70 @@ func _collect_units(role_filter: PackedStringArray, cost_filter: PackedInt32Arra
 		var roles: Array[String] = []
 		var cost := 0
 		var level := 1
+		var primary_role := ""
+		var primary_goal := ""
+		var approaches_accum: Array[String] = []
 		if res is UnitProfile:
 			id = String(res.id)
 			roles = res.roles.duplicate()
 			cost = int(res.cost)
 			level = int(res.level)
+			primary_role = String(res.primary_role)
+			primary_goal = String(res.primary_goal)
+			approaches_accum = _duplicate_string_array(res.approaches)
+			if res.identity != null:
+				if primary_role == "":
+					primary_role = String(res.identity.primary_role)
+				if primary_goal == "":
+					primary_goal = String(res.identity.primary_goal)
+				approaches_accum = _merge_normalized_lists(approaches_accum, res.identity.approaches)
 		elif res is UnitDef:
 			id = String(res.id)
 			roles = res.roles.duplicate()
 			cost = int(res.cost)
 			level = int(res.level)
+			primary_role = String(res.primary_role)
+			primary_goal = String(res.primary_goal)
+			approaches_accum = _duplicate_string_array(res.approaches)
+			if res.identity != null:
+				if primary_role == "":
+					primary_role = String(res.identity.primary_role)
+				if primary_goal == "":
+					primary_goal = String(res.identity.primary_goal)
+				approaches_accum = _merge_normalized_lists(approaches_accum, res.identity.approaches)
 		if id == "":
 			continue
-		if role_filter.size() > 0:
-			var ok := false
-			for r in roles:
-				if role_filter.has(String(r).to_lower()):
-					ok = true
-					break
-			if not ok:
+		var primary_role_norm := _normalize_role_id(primary_role)
+		if primary_role_norm == "" and roles.size() > 0:
+			primary_role_norm = _normalize_role_id(roles[0])
+		if filtered_roles.size() > 0:
+			var role_ok := filtered_roles.has(primary_role_norm)
+			if not role_ok:
+				for r_name in roles:
+					if filtered_roles.has(_normalize_role_id(r_name)):
+						role_ok = true
+						break
+			if not role_ok:
 				continue
+		var primary_goal_norm := _normalize_goal_id(primary_goal)
+		if filtered_goals.size() > 0 and not filtered_goals.has(primary_goal_norm):
+			continue
 		if cost_filter.size() > 0 and not cost_filter.has(cost):
 			continue
-		out.append({"id": id, "roles": roles, "cost": cost, "level": level})
+		var approaches_norm := _normalized_identity_list(approaches_accum)
+		out.append({
+			"id": id,
+			"roles": roles,
+			"cost": cost,
+			"level": level,
+			"primary_role": primary_role_norm,
+			"primary_goal": primary_goal_norm,
+			"approaches": approaches_norm
+		})
 	dir.list_dir_end()
 	out.sort_custom(func(a, b): return String(a.id) < String(b.id))
 	return out
-
-func _write_csv(path: String, results: Array, ability_metrics: bool) -> void:
-	var fa := FileAccess.open(path, FileAccess.WRITE)
-	if fa == null:
-		var emsg := "BalanceRunner: cannot write %s" % path
-		push_warning(emsg)
-		printerr(emsg)
-		return
-	var header := "attacker_id,defender_id,attacker_roles,defender_roles,attacker_cost,defender_cost,attacker_level,defender_level,attacker_win_pct,defender_win_pct,draw_pct,attacker_avg_time_to_win_s,defender_avg_time_to_win_s,attacker_avg_remaining_hp,defender_avg_remaining_hp,matches_total,hit_events_total,attacker_hit_events,defender_hit_events,attacker_avg_damage_dealt_per_match,defender_avg_damage_dealt_per_match,attacker_healing_total,defender_healing_total,attacker_shield_absorbed_total,defender_shield_absorbed_total,attacker_damage_mitigated_total,defender_damage_mitigated_total,attacker_overkill_total,defender_overkill_total,attacker_damage_physical_total,defender_damage_physical_total,attacker_damage_magic_total,defender_damage_magic_total,attacker_damage_true_total,defender_damage_true_total,attacker_time_to_first_hit_s,defender_time_to_first_hit_s"
-	if ability_metrics:
-		header += ",attacker_avg_casts_per_match,defender_avg_casts_per_match,attacker_first_cast_time_s,defender_first_cast_time_s"
-	fa.store_line(header)
-	for mr: MatchResult in results:
-		var s := mr.summary()
-		var cols: Array[String] = []
-		cols.append(String(s.a))                                  # attacker_id
-		cols.append(String(s.b))                                  # defender_id
-		cols.append(String(s.a_roles))                            # attacker_roles
-		cols.append(String(s.b_roles))                            # defender_roles
-		cols.append(str(int(s.a_cost)))                           # attacker_cost
-		cols.append(str(int(s.b_cost)))                           # defender_cost
-		cols.append(str(int(s.a_level)))                          # attacker_level
-		cols.append(str(int(s.b_level)))                          # defender_level
-		cols.append("%.3f" % float(s.a_win_pct))                 # attacker_win_pct
-		cols.append("%.3f" % float(s.b_win_pct))                 # defender_win_pct
-		cols.append("%.3f" % float(s.draw_pct))                  # draw_pct
-		cols.append("%.2f" % float(s.a_avg_time))               # attacker_avg_time_to_win_s
-		cols.append("%.2f" % float(s.b_avg_time))               # defender_avg_time_to_win_s
-		cols.append(str(int(s.a_avg_hp)))                        # attacker_avg_remaining_hp
-		cols.append(str(int(s.b_avg_hp)))                        # defender_avg_remaining_hp
-		cols.append(str(int(mr.total)))                          # matches_total
-		cols.append(str(int(mr.shots)))                          # hit_events_total
-		cols.append(str(int(s.a_shots)))                         # attacker_hit_events
-		cols.append(str(int(s.b_shots)))                         # defender_hit_events
-		cols.append("%.2f" % float(s.a_avg_damage))             # attacker_avg_damage_dealt_per_match
-		cols.append("%.2f" % float(s.b_avg_damage))             # defender_avg_damage_dealt_per_match
-		cols.append(str(int(s.a_heal_total)))                    # attacker_healing_total
-		cols.append(str(int(s.b_heal_total)))                    # defender_healing_total
-		cols.append(str(int(s.a_absorbed)))                      # attacker_shield_absorbed_total
-		cols.append(str(int(s.b_absorbed)))                      # defender_shield_absorbed_total
-		cols.append(str(int(s.a_mitigated)))                     # attacker_damage_mitigated_total
-		cols.append(str(int(s.b_mitigated)))                     # defender_damage_mitigated_total
-		cols.append(str(int(s.a_overkill)))                      # attacker_overkill_total
-		cols.append(str(int(s.b_overkill)))                      # defender_overkill_total
-		cols.append(str(int(s.a_phys)))                          # attacker_damage_physical_total
-		cols.append(str(int(s.b_phys)))                          # defender_damage_physical_total
-		cols.append(str(int(s.a_mag)))                           # attacker_damage_magic_total
-		cols.append(str(int(s.b_mag)))                           # defender_damage_magic_total
-		cols.append(str(int(s.a_true)))                          # attacker_damage_true_total
-		cols.append(str(int(s.b_true)))                          # defender_damage_true_total
-		cols.append("%.2f" % float(s.a_first_hit_s))            # attacker_time_to_first_hit_s
-		cols.append("%.2f" % float(s.b_first_hit_s))            # defender_time_to_first_hit_s
-		if ability_metrics:
-			cols.append("%.2f" % float(s.a_avg_casts))           # attacker_avg_casts_per_match
-			cols.append("%.2f" % float(s.b_avg_casts))           # defender_avg_casts_per_match
-			cols.append("%.2f" % float(s.a_first_cast_s))        # attacker_first_cast_time_s
-			cols.append("%.2f" % float(s.b_first_cast_s))        # defender_first_cast_time_s
-		var cols_psa: PackedStringArray = []
-		for c in cols:
-			cols_psa.append(String(c))
-		fa.store_line(_join_strings(cols_psa, ","))
-	fa.close()
-	print("BalanceRunner: wrote results to %s" % path)
-
-# Aggregated role-pair summary CSV
-func _write_role_pair_summary(results: Array, base_out_path: String) -> void:
-	# Map roles -> clusters via UnitFactory.cluster_for_roles
-	var agg: Dictionary = {}
-	for mr: MatchResult in results:
-		var a_cluster := UnitFactory.cluster_for_roles(mr.a_roles)
-		var b_cluster := UnitFactory.cluster_for_roles(mr.b_roles)
-		var key := a_cluster + ":" + b_cluster
-		if not agg.has(key):
-			agg[key] = {"a": a_cluster, "b": b_cluster, "a_wins": 0, "b_wins": 0, "draws": 0, "matches": 0, "a_time": 0.0, "b_time": 0.0}
-		var row: Dictionary = agg[key]
-		row.a_wins += int(mr.a_wins)
-		row.b_wins += int(mr.b_wins)
-		row.draws += int(mr.draws)
-		row.matches += int(mr.total)
-		row.a_time += float(mr.a_time_sum)
-		row.b_time += float(mr.b_time_sum)
-		agg[key] = row
-	# Write CSV next to matrix path
-	var out_path := base_out_path.get_basename() + "_agg.csv"
-	var fa := FileAccess.open(out_path, FileAccess.WRITE)
-	if fa == null:
-		printerr("BalanceRunner: cannot write agg to ", out_path)
-		return
-	fa.store_line("pair,a_cluster,b_cluster,a_win_pct,b_win_pct,draw_pct,a_avg_time,b_avg_time,matches,pass")
-	for k in agg.keys():
-		var r: Dictionary = agg[k]
-		var total: int = max(1, int(r.matches))
-		var a_wp: float = float(r.a_wins) / float(total)
-		var b_wp: float = float(r.b_wins) / float(total)
-		var dr: float = float(r.draws) / float(total)
-		var a_t: float = (float(r.a_time) / max(1, int(r.a_wins))) if int(r.a_wins) > 0 else 0.0
-		var b_t: float = (float(r.b_time) / max(1, int(r.b_wins))) if int(r.b_wins) > 0 else 0.0
-		var pass_flag := _agg_pass_flag(String(r.a), String(r.b), a_wp, b_wp, dr)
-		var cols := [k, String(r.a), String(r.b), "%.3f" % a_wp, "%.3f" % b_wp, "%.3f" % dr, "%.2f" % a_t, "%.2f" % b_t, str(int(r.matches)), pass_flag]
-		var psa: PackedStringArray = []
-		for c in cols:
-			psa.append(String(c))
-		fa.store_line(_join_strings(psa, ","))
-	fa.close()
-	print("BalanceRunner: wrote agg to %s" % out_path)
-
-func _agg_pass_flag(a_cluster: String, b_cluster: String, a_wp: float, b_wp: float, draw_pct: float) -> String:
-	# Windows from spec; evaluate based on direction
-	if draw_pct > 0.10:
-		return "draw_high"
-	if a_cluster == "assassin" and (b_cluster == "marksman" or b_cluster == "mage"):
-		return _pass_range(a_wp, 0.60, 0.75)
-	if a_cluster == "tank" or a_cluster == "bruiser":
-		if b_cluster == "assassin":
-			return _pass_range(a_wp, 0.60, 0.75)
-	if (a_cluster == "marksman" or a_cluster == "mage") and (b_cluster == "tank" or b_cluster == "bruiser"):
-		return _pass_range(a_wp, 0.55, 0.70)
-	# If opposite direction of a spec, check b's window
-	if b_cluster == "assassin" and (a_cluster == "marksman" or a_cluster == "mage"):
-		return _pass_range(b_wp, 0.60, 0.75)
-	if b_cluster == "tank" or b_cluster == "bruiser":
-		if a_cluster == "assassin":
-			return _pass_range(b_wp, 0.60, 0.75)
-	if (b_cluster == "marksman" or b_cluster == "mage") and (a_cluster == "tank" or a_cluster == "bruiser"):
-		return _pass_range(b_wp, 0.55, 0.70)
-	return "na"
-
-func _pass_range(v: float, lo: float, hi: float) -> String:
-	return ("pass" if (v >= lo and v <= hi) else ("low" if v < lo else "high"))
+## Aggregated summary output removed; only the main matrix CSV is written.
 
 ## Sweep helpers removed (fixed delta only)
 
@@ -684,6 +720,87 @@ func _csv_to_ints(s: String) -> PackedInt32Array:
 			out.append(int(v))
 	return out
 
+
+func _duplicate_string_array(source) -> Array[String]:
+	var out: Array[String] = []
+	if source == null:
+		return out
+	if source is PackedStringArray:
+		for value in source:
+			out.append(String(value))
+	elif source is Array:
+		for value in source:
+			out.append(String(value))
+	elif typeof(source) == TYPE_STRING:
+		var single := String(source).strip_edges()
+		if single != "":
+			out.append(single)
+	return out
+
+
+func _normalize_role_id(value) -> String:
+	var s := String(value).strip_edges().to_lower()
+	s = s.replace(" ", "_")
+	s = s.replace("-", "_")
+	while s.find("__") != -1:
+		s = s.replace("__", "_")
+	return s
+
+func _normalize_goal_id(value) -> String:
+	return String(value).strip_edges().to_lower()
+
+func _normalized_identity_list(values) -> Array[String]:
+	return _merge_normalized_lists([], values)
+
+func _merge_normalized_lists(base: Array[String], extra) -> Array[String]:
+	var out: Array[String] = []
+	var seen: Dictionary = {}
+	for entry in base:
+		var norm := String(entry).strip_edges().to_lower()
+		if norm == "" or seen.has(norm):
+			continue
+		seen[norm] = true
+		out.append(norm)
+	if extra == null:
+		return out
+	if extra is Array:
+		for raw in extra:
+			var norm2 := String(raw).strip_edges().to_lower()
+			if norm2 == "" or seen.has(norm2):
+				continue
+			seen[norm2] = true
+			out.append(norm2)
+	elif extra is PackedStringArray:
+		for raw in extra:
+			var norm3 := String(raw).strip_edges().to_lower()
+			if norm3 == "" or seen.has(norm3):
+				continue
+			seen[norm3] = true
+			out.append(norm3)
+	elif typeof(extra) == TYPE_STRING:
+		var single := String(extra).strip_edges().to_lower()
+		if single != "" and not seen.has(single):
+			seen[single] = true
+			out.append(single)
+	return out
+
+func _join_identity_list(values: Array[String]) -> String:
+	var out := PackedStringArray()
+	for v in values:
+		var token := String(v).strip_edges()
+		if token != "":
+			out.append(token)
+	return _join_strings(out, "|")
+
+func _cluster_from_identity(primary_role: String, legacy_roles: Array[String]) -> String:
+	var collected: Array[String] = []
+	var norm := _normalize_role_id(primary_role)
+	if norm != "":
+		collected.append(norm)
+	elif legacy_roles != null:
+		for r in legacy_roles:
+			collected.append(String(r))
+	return UnitFactory.cluster_for_roles(collected)
 
 func _join_strings(arr: PackedStringArray, sep: String) -> String:
 	var s := ""

@@ -2,7 +2,7 @@ extends Control
 
 const CombatController := preload("res://scripts/ui/combat/controller/combat_controller.gd")
 
-@onready var log_label: RichTextLabel = $"MarginContainer/VBoxContainer/Log"
+@onready var log_label: RichTextLabel = get_node_or_null("MarginContainer/VBoxContainer/Log") as RichTextLabel
 @onready var player_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/PlayerStatsLabel"
 @onready var enemy_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/EnemyStatsLabel"
 @onready var stage_label: Label = $"MarginContainer/VBoxContainer/StageLabel"
@@ -194,33 +194,39 @@ func _log_initial_layout(tag: String = "CombatView snapshot") -> void:
 	await get_tree().process_frame
 	print("[Layout] ===== %s =====" % tag)
 	_print_control_rect("CombatView", self)
-	_print_control_rect("MarginContainer", $"MarginContainer")
-	_print_control_rect("VBoxContainer", $"MarginContainer/VBoxContainer")
-	_print_control_rect("BattleArea", $"MarginContainer/VBoxContainer/BattleArea")
-	_print_control_rect("ContentRow", $"MarginContainer/VBoxContainer/BattleArea/ContentRow")
-	_print_control_rect("LeftItemArea", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea")
-	_print_control_rect("ItemStorageGrid", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid")
-	_print_control_rect("BoardColumn", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn")
-	_print_control_rect("PlanningArea", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea")
-	_print_control_rect("EnemyGrid", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyGrid")
-	_print_control_rect("PlayerGrid", $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid")
-	_print_control_rect("ArenaContainer", $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer")
-	_print_control_rect("ArenaUnits", $"MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits")
-	_print_control_rect("BenchArea", $"MarginContainer/VBoxContainer/BenchArea")
-	_print_control_rect("BenchGrid", $"MarginContainer/VBoxContainer/BenchArea/BenchGrid")
-	_print_control_rect("ActionsRow", $"MarginContainer/VBoxContainer/ActionsRow")
-	_print_control_rect("BetRow", $"MarginContainer/VBoxContainer/ActionsRow/BetRow")
-	_print_control_rect("BottomStorageArea", $"MarginContainer/VBoxContainer/BottomStorageArea")
-	_print_control_rect("ShopGrid", $"MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid")
-	_print_control_rect("TopBar", $"TopBar")
-	_print_control_rect("MenuButton", $"TopBar/MenuButton")
+	_print_control_rect("MarginContainer", "MarginContainer")
+	_print_control_rect("VBoxContainer", "MarginContainer/VBoxContainer")
+	_print_control_rect("BattleArea", "MarginContainer/VBoxContainer/BattleArea")
+	_print_control_rect("ContentRow", "MarginContainer/VBoxContainer/BattleArea/ContentRow")
+	_print_control_rect("LeftItemArea", "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea")
+	_print_control_rect("ItemStorageGrid", "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid")
+	_print_control_rect("BoardColumn", "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn")
+	_print_control_rect("PlanningArea", "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea")
+	_print_control_rect("EnemyGrid", "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyGrid")
+	_print_control_rect("PlayerGrid", "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid")
+	_print_control_rect("ArenaContainer", "MarginContainer/VBoxContainer/BattleArea/ArenaContainer")
+	_print_control_rect("ArenaUnits", "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits")
+	_print_control_rect("BenchArea", "MarginContainer/VBoxContainer/BenchArea")
+	_print_control_rect("BenchGrid", "MarginContainer/VBoxContainer/BenchArea/BenchGrid")
+	_print_control_rect("ActionsRow", "MarginContainer/VBoxContainer/ActionsRow")
+	_print_control_rect("BottomStorageArea", "MarginContainer/VBoxContainer/BottomStorageArea")
+	_print_control_rect("ShopGrid", "MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid")
+	_print_control_rect("TopBar", "TopBar")
+	_print_control_rect("MenuButton", "TopBar/MenuButton")
 	print("[Layout] =================================")
 
-func _print_control_rect(label: String, target: Control) -> void:
-	if target == null:
+func _print_control_rect(label: String, target) -> void:
+	var control: Control = null
+	if target is Control:
+		control = target
+	elif target is NodePath:
+		control = get_node_or_null(target) as Control
+	elif target is String or target is StringName:
+		control = get_node_or_null(NodePath(String(target))) as Control
+	if control == null:
 		print("[Layout] %s: <missing>" % label)
 		return
-	var rect := target.get_global_rect()
+	var rect := control.get_global_rect()
 	print("[Layout] %s origin=%s size=%s" % [label, rect.position, rect.size])
 
 

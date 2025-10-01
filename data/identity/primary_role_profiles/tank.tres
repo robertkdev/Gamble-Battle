@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2 format=3 uid="uid://bvue356rq0ygr"]
+
+[ext_resource type="Script" uid="uid://boj4iou4o6ucc" path="res://scripts/game/identity/primary_role_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+role_id = "tank"
+display_name = "Tank"
+description = "Durable initiators who soak focus and open fights."
+base_stats = {
+"armor": 40.0,
+"attack_damage": 50.0,
+"attack_range": 1.0,
+"magic_resist": 20.0,
+"max_hp": 800.0,
+"spell_power": 0.0
+}
+validation_rules = Array[Dictionary]([{
+"label": "Tank HP",
+"metric": "max_hp",
+"min": 800.0
+}, {
+"label": "Tank Durability",
+"metric": "armor_plus_mr",
+"min": 50.0
+}, {
+"label": "Tank Damage",
+"max": 80.0,
+"metric": "attack_damage"
+}])
+default_goals = Array[String](["tank.frontline_absorb", "tank.initiate_fight", "tank.team_fortification"])
+default_approaches = Array[String](["engage", "damage_reduction", "redirect"])

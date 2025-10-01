@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3 uid="uid://qrlo58b7o8yx"]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3 format=3 uid="uid://qrlo58b7o8yx"]
 
 [ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
+[ext_resource path="res://data/identity/unit_identities/morrak_identity.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource("1")
@@ -9,6 +10,11 @@ name = "Morrak"
 sprite_path = "res://assets/units/morrak.png"
 ability_id = "morrak_reaping_line"
 traits = Array[String](["Striker", "Executioner"])
-roles = Array[String](["brawler"])
+roles = ["brawler"]
 cost = 1
 level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )
