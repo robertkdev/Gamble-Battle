@@ -1,6 +1,9 @@
 extends RefCounted
 class_name TargetController
 
+signal target_start(team: String, index: int, target_team: String, target_index: int)
+signal target_end(team: String, index: int, target_team: String, target_index: int)
+
 const Targeting := preload("res://scripts/game/combat/targeting.gd")
 
 var state: BattleState
@@ -35,8 +38,15 @@ func refresh_target(team: String, shooter_index: int) -> int:
 	var targets: Array[int] = _targets_for(team)
 	if shooter_index >= targets.size():
 		return -1
+	var previous: int = int(targets[shooter_index])
 	var selection: int = _select_target(team, shooter_index)
+	if previous == selection:
+		return selection
 	targets[shooter_index] = selection
+	if previous >= 0:
+		_emit_target_end(team, shooter_index, previous)
+	if selection >= 0:
+		_emit_target_start(team, shooter_index, selection)
 	return selection
 
 func resolver_for_arena() -> Callable:
@@ -68,6 +78,12 @@ func _enemy_team_for(team: String) -> Array[Unit]:
 
 func _enemy_team_name(team: String) -> String:
 	return "enemy" if team == "player" else "player"
+
+func _emit_target_start(team: String, shooter_index: int, target_index: int) -> void:
+	emit_signal("target_start", team, shooter_index, _enemy_team_name(team), target_index)
+
+func _emit_target_end(team: String, shooter_index: int, target_index: int) -> void:
+	emit_signal("target_end", team, shooter_index, _enemy_team_name(team), target_index)
 
 func _is_target_alive(team: String, idx: int) -> bool:
 	var enemy_team: Array[Unit] = _enemy_team_for(team)

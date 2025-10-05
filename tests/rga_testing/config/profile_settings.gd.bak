@@ -1,0 +1,40 @@
+﻿extends Resource
+class_name ProfileSettings
+
+@export_tooltip("Pick which ready-made setup to use. designer_quick is a short run, ci_full is a long run, none means use only the other boxes.")
+@export_enum("designer_quick", "ci_full", "none") var profile: String = "designer_quick"
+
+@export_tooltip("If you put a file path here, we read that config first (like stacking blocks).")
+@export var base_config_path: String = ""
+
+@export_tooltip("Write matchups like hero:villain,cat:dog to only test those pairs.")
+@export var ids_csv: String = ""
+
+@export_tooltip("Type how many times to repeat each fight. Leave -1 to keep the normal number.")
+@export var repeats_override: int = -1
+
+@export_tooltip("Type how many seconds a fight should last. Leave -1 to keep the normal time.")
+@export var timeout_override: float = -1.0
+
+@export_tooltip("When override flags is on, this switch says if fighters may use special abilities.")
+@export var abilities_override: bool = false
+
+@export_tooltip("When override flags is on, this switch says if we record extra ability stats.")
+@export var ability_metrics_override: bool = false
+
+@export_tooltip("Turn this on to make the ability switches above matter. Leave off to keep the profile defaults.")
+@export var override_flags: bool = false
+
+func to_cli_dict() -> Dictionary:
+    var d := {}
+    if ids_csv.strip_edges() != "":
+        d["ids"] = ids_csv
+    if repeats_override >= 0:
+        d["repeats"] = str(repeats_override)
+    if timeout_override >= 0.0:
+        d["timeout"] = str(timeout_override)
+    if override_flags:
+        d["abilities"] = str(abilities_override)
+        d["ability_metrics"] = str(ability_metrics_override)
+    return d
+

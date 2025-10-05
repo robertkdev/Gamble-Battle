@@ -59,7 +59,6 @@ func add_to_inventory(id: String, n: int = 1) -> Dictionary:
 	_inc_inventory(key, cnt)
 	inventory_changed.emit()
 	action_log.emit("+%d %s" % [cnt, key])
-	print("[Items] add_to_inventory id=", key, " n=", cnt, " new_count=", int(_inventory.get(key, 0)))
 	res.ok = true
 	res["count"] = int(_inventory.get(key, 0))
 	return res

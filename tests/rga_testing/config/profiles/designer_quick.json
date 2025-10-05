@@ -1,0 +1,17 @@
+{
+  "run_id": "designer_quick",
+  "sim_seed_start": 12345,
+  "deterministic": true,
+  "team_sizes": [1],
+  "repeats": 3,
+  "timeout_s": 90.0,
+  "abilities": false,
+  "ability_metrics": false,
+  "out_path": "user://rga_out.jsonl",
+  "aggregates_only": true,
+  "role_filter": [],
+  "goal_filter": [],
+  "approach_filter": [],
+  "cost_filter": [],
+  "ids": []
+}

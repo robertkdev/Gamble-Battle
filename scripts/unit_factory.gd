@@ -2,6 +2,9 @@ extends Object
 class_name UnitFactory
 
 static var _cache: Dictionary = {}
+static func clear_cache() -> void:
+	_cache.clear()
+
 const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
 
 const IdentityValidator := preload("res://scripts/game/identity/identity_validator.gd")
@@ -64,7 +67,7 @@ static func _load_def(id: String) -> UnitDef:
 	if _cache.has(path):
 		return _cache[path]
 	if ResourceLoader.exists(path):
-		var res = load(path)
+		var res = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 		var out_def: UnitDef = null
 		# Support both legacy UnitDef .tres and new UnitProfile .tres
 		if res is UnitDef:

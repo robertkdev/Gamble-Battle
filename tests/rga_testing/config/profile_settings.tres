@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ProfileSettings" load_steps=2 format=3 uid="uid://bck65syerqlye"]
+
+[ext_resource type="Script" uid="uid://5vav5ij3il6k" path="res://tests/rga_testing/config/profile_settings.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+profile = "designer_quick"
+base_config_path = ""
+ids_csv = "sari:paisley"
+repeats_override = 10
+timeout_override = -1.0
+abilities_override = false
+ability_metrics_override = false
+override_flags = false

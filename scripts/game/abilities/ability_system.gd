@@ -1,7 +1,7 @@
 extends RefCounted
 class_name AbilitySystem
 
-signal ability_cast(team: String, index: int, ability_id: String)
+signal ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2)
 
 const AbilityCatalog = preload("res://scripts/game/abilities/ability_catalog.gd")
 const AbilityContext = preload("res://scripts/game/abilities/ability_context.gd")
@@ -95,6 +95,7 @@ func _autocast_totem_if_needed(team: String, index: int) -> void:
 	# Require Exile trait active on team (count > 0)
 	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
 	ctx.buff_system = buff_system
+	var ability_id := "totem_cleanse"
 	var exile_count: int = 0
 	if ctx.has_method("trait_count"):
 		exile_count = ctx.trait_count(team, "Exile")
@@ -106,8 +107,9 @@ func _autocast_totem_if_needed(team: String, index: int) -> void:
 	# Gate: simple per-unit cooldown to avoid spamming
 	if _cooldowns.get(state.player_team[index] if team == "player" else state.enemy_team[index], 0.0) > 0.0:
 		return
+	_emit_ability_cast_event(team, index, ability_id, ctx, team, index)
 	# Attempt to cast immediately, ignoring mana threshold; consume mana on success
-	var impl = AbilityCatalog.new_instance("totem_cleanse")
+	var impl = AbilityCatalog.new_instance(ability_id)
 	if impl == null or not impl.has_method("cast"):
 		return
 	var ok: bool = bool(impl.cast(ctx))
@@ -119,9 +121,7 @@ func _autocast_totem_if_needed(team: String, index: int) -> void:
 		unit.mana = 0
 		engine._resolver_emit_unit_stat(team, index, {"mana": unit.mana})
 		engine._resolver_emit_stats(unit, BattleState.first_alive(state.enemy_team))
-		emit_signal("ability_cast", team, index, "totem_cleanse")
 		_cooldowns[unit] = 0.5
-
 func _handle_event(evt: Dictionary) -> void:
 	var name: String = String(evt.get("name", ""))
 	match name:
@@ -465,6 +465,7 @@ func try_cast(team: String, index: int) -> Dictionary:
 	# Build context
 	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
 	ctx.buff_system = buff_system
+	_emit_ability_cast_event(team, index, ability_id, ctx)
 	# Call ability implementation
 	var ok: bool = false
 	# Guard against exceptions in ability scripts
@@ -486,7 +487,6 @@ func try_cast(team: String, index: int) -> Dictionary:
 		engine._resolver_emit_log("%s used %s!" % [unit.name if unit.name != "" else "Unit", String(def.name)])
 	else:
 		engine._resolver_emit_log("%s used ability." % (unit.name if unit.name != "" else "Unit"))
-	emit_signal("ability_cast", team, index, ability_id)
 	result.cast = true
 	return result
 
@@ -509,3 +509,29 @@ func _unit_at(team: String, idx: int) -> Unit:
 	if idx < 0 or idx >= arr.size():
 		return null
 	return arr[idx]
+
+func _emit_ability_cast_event(team: String, index: int, ability_id: String, ctx: AbilityContext, target_team_override: String = "", target_index_override: int = -1, target_point_override: Variant = null) -> void:
+	var info := _compose_cast_target(team, index, ctx, target_team_override, target_index_override, target_point_override)
+	emit_signal("ability_cast", team, index, ability_id, info.target_team, info.target_index, info.point)
+
+func _compose_cast_target(team: String, index: int, ctx: AbilityContext, target_team_override: String = "", target_index_override: int = -1, target_point_override: Variant = null) -> Dictionary:
+	var target_team := String(target_team_override)
+	if target_team == "":
+		target_team = ("enemy" if String(team) == "player" else "player")
+	var target_index: int = int(target_index_override)
+	if ctx != null and target_index < 0:
+		target_index = int(ctx.current_target(team, index))
+	var point: Vector2 = Vector2.ZERO
+	var override_point_valid := target_point_override is Vector2
+	if override_point_valid:
+		point = target_point_override
+	elif ctx != null and target_index >= 0:
+		point = ctx.position_of(target_team, target_index)
+	elif ctx != null:
+		point = ctx.position_of(team, index)
+	if target_index < 0:
+		target_index = index
+		target_team = String(team)
+		if ctx != null and not override_point_valid:
+			point = ctx.position_of(team, index)
+	return {"target_team": String(target_team), "target_index": int(target_index), "point": point}

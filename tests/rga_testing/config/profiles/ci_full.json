@@ -1,0 +1,29 @@
+{
+  "run_id": "ci_full",
+  "sim_seed_start": 987654321,
+  "deterministic": true,
+  "team_sizes": [1],
+  "repeats": 10,
+  "timeout_s": 120.0,
+  "abilities": true,
+  "ability_metrics": true,
+  "out_path": "user://out/ci_full/run_ci_full.ndjson",
+  "role_filter": [],
+  "goal_filter": [],
+  "approach_filter": [],
+  "cost_filter": [],
+  "ids": [],
+  "gates": {
+    "enable_invariants": true,
+    "enable_balancerunner_gate": true,
+    "tol_win_pct": 0.02,
+    "tol_time_s": 0.10,
+    "tol_damage_rel": 0.03
+  },
+  "sharding": {
+    "enabled": true,
+    "rows_per_shard": 5000,
+    "dir": "user://out/ci_full/"
+  }
+}
+

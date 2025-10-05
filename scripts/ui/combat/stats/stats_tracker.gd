@@ -223,7 +223,7 @@ func _on_hit_applied(team: String, source_index: int, target_index: int, _rolled
 		"t": Time.get_ticks_msec()
 	})
 
-func _on_ability_cast(team: String, index: int, _ability_id: String) -> void:
+func _on_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
 	var tm := (TEAM_PLAYER if String(team) == TEAM_PLAYER else TEAM_ENEMY)
 	_ensure_capacity(tm, int(index) + 1)
 	var arr: Array = (_player_stats if tm == TEAM_PLAYER else _enemy_stats)
@@ -233,7 +233,10 @@ func _on_ability_cast(team: String, index: int, _ability_id: String) -> void:
 	_push_event(_cast_events, {
 		"team": String(team),
 		"index": int(index),
-		"id": String(_ability_id),
+		"id": String(ability_id),
+		"target_team": String(target_team),
+		"target_index": int(target_index),
+		"point": target_point,
 		"t": Time.get_ticks_msec()
 	})
 

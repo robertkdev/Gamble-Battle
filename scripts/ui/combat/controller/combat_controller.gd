@@ -588,9 +588,9 @@ func _on_engine_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: 
 	if stats_panel and stats_panel.has_method("_on_hit_applied"):
 		stats_panel._on_hit_applied(team, si, ti, rolled, dealt, crit, before_hp, after_hp, player_cd, enemy_cd)
 
-func _on_engine_ability_cast(team: String, index: int, ability_id: String) -> void:
+func _on_engine_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
 	if stats_panel and stats_panel.has_method("_on_ability_cast"):
-		stats_panel._on_ability_cast(team, index, ability_id)
+		stats_panel._on_ability_cast(team, index, ability_id, target_team, target_index, target_point)
 
 func _on_unit_selected(u: Unit) -> void:
 	if stats_panel == null:

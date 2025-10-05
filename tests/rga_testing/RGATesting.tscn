@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://csdf084dxy10p"]
+
+[ext_resource type="Script" uid="uid://c2ipm4vnx8nog" path="res://tests/rga_testing/main_fixed.gd" id="1"]
+[ext_resource type="Resource" uid="uid://bck65syerqlye" path="res://tests/rga_testing/config/profile_settings.tres" id="2"]
+
+[node name="RGATesting" type="Node"]
+script = ExtResource("1")
+profile_settings = ExtResource("2")

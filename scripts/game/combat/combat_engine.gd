@@ -14,6 +14,12 @@ signal victory(stage: int)
 signal defeat(stage: int)
 signal vfx_knockup(team: String, index: int, duration: float)
 signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
+signal position_updated(team: String, index: int, x: float, y: float)
+signal target_start(source_team: String, source_index: int, target_team: String, target_index: int)
+signal target_end(source_team: String, source_index: int, target_team: String, target_index: int)
+signal ability_cast(source_team: String, source_index: int, target_team: String, target_index: int, position: Vector2)
+
+const POSITION_EMIT_INTERVAL: float = 0.1
 
 # Emitted after damage is applied (single or paired)
 # Provides detailed data for deterministic logging/analytics.
@@ -43,6 +49,13 @@ var debug_pairs: int = 0
 var debug_shots: int = 0
 var debug_double_lethals: int = 0
 var _frame_delta_last: float = 0.0
+var _seed_locked: bool = false
+var _seed_value: int = 0
+var _position_emit_accum: float = 0.0
+var _last_player_positions: Array = []
+var _last_enemy_positions: Array = []
+var _last_targets_player: Array = []
+var _last_targets_enemy: Array = []
 
 var arena_state = MovementServiceLib.new()
 var target_controller: TargetController = TargetController.new()
@@ -53,20 +66,35 @@ var projectile_handler: ProjectileHandler = ProjectileHandler.new()
 var regen_system: RegenSystem = RegenSystem.new()
 var ability_system: AbilitySystem = null
 var buff_system: BuffSystem = null
+var _connected_ability_system: AbilitySystem = null
 
 # Feature toggles
 var abilities_enabled: bool = true
 
 var _resolver_emitters: Dictionary[String, Callable] = {}
 
+func set_seed(seed: int) -> void:
+	if rng == null:
+		rng = RandomNumberGenerator.new()
+	var coerced: int = int(seed)
+	if coerced < 0:
+		coerced = int(abs(seed))
+	_seed_value = coerced
+	_seed_locked = true
+	rng.seed = coerced
+
 func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Callable = Callable()) -> void:
 	Trace.step("CombatEngine.configure: begin")
+	_disconnect_signal_bindings()
 	state = _state
 	player_ref = _player
 	stage = _stage
 	# Prefer engine-provided closest-target selector if none supplied
 	select_closest_target = (_selector if _selector.is_valid() else Callable(self, "_engine_select_closest_target"))
-	rng.randomize()
+	if _seed_locked:
+		rng.seed = _seed_value
+	else:
+		rng.randomize()
 	_resolver_emitters = _build_resolver_emitters()
 	if outcome_resolver == null:
 		outcome_resolver = OutcomeResolver.new()
@@ -96,6 +124,10 @@ func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Calla
 	if arena_state and arena_state.has_method("set_buff_system"):
 		arena_state.set_buff_system(buff_system)
 	arena_state.ensure_capacity(state.player_team.size(), state.enemy_team.size())
+	_reset_position_tracking()
+	_reset_target_tracking()
+	_position_emit_accum = 0.0
+	_refresh_signal_bindings()
 	_update_totals_cache()
 	_reset_debug_counters()
 	Trace.step("CombatEngine.configure: done")
@@ -186,6 +218,11 @@ func start() -> void:
 		cooldown_scheduler._next_player_first = (rng.randf() < 0.5) if alternate_order else cooldown_scheduler._next_player_first
 	attack_resolver.set_deterministic_rolls(deterministic_rolls)
 	arena_state.ensure_capacity(state.player_team.size(), state.enemy_team.size())
+	_position_emit_accum = 0.0
+	_reset_position_tracking()
+	_reset_target_tracking()
+	_emit_position_updates(true)
+	_emit_target_events(true)
 	total_damage_player = 0
 	total_damage_enemy = 0
 	_reset_debug_counters()
@@ -215,6 +252,10 @@ func process(delta: float) -> void:
 			_emit_outcome(idle_outcome)
 		return
 	arena_state.update_movement(state, delta, target_controller.resolver_for_arena())
+	_position_emit_accum += delta
+	while _position_emit_accum >= POSITION_EMIT_INTERVAL:
+		_emit_position_updates()
+		_position_emit_accum -= POSITION_EMIT_INTERVAL
 	var board_pre: String = ""
 	if outcome_resolver != null:
 		board_pre = outcome_resolver.evaluate_board(attack_resolver.totals())
@@ -228,11 +269,13 @@ func process(delta: float) -> void:
 		buff_system.tick(state, delta)
 	if ability_system != null:
 		ability_system.tick(delta)
+	_emit_target_events()
 	var ordered: Array[AttackEvent] = frame_data.get("ordered", []) as Array[AttackEvent]
 	if ordered.size() > 0:
 		var gated: Array[AttackEvent] = _filter_events_in_range(ordered)
 		if gated.size() > 0:
 			attack_resolver.resolve_ordered(gated)
+	_emit_target_events()
 	if _evaluate_outcome():
 		return
 	_update_totals_cache()
@@ -297,6 +340,100 @@ func _reset_debug_counters() -> void:
 	debug_pairs = attack_resolver.debug_pairs
 	debug_shots = attack_resolver.debug_shots
 	debug_double_lethals = attack_resolver.debug_double_lethals
+
+func _refresh_signal_bindings() -> void:
+	if ability_system != null and ability_system.has_signal("ability_cast"):
+		if not ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
+			ability_system.ability_cast.connect(_on_ability_system_cast)
+		_connected_ability_system = ability_system
+	else:
+		_connected_ability_system = null
+
+func _disconnect_signal_bindings() -> void:
+	if _connected_ability_system != null and _connected_ability_system.has_signal("ability_cast"):
+		if _connected_ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
+			_connected_ability_system.ability_cast.disconnect(_on_ability_system_cast)
+	_connected_ability_system = null
+
+func _reset_position_tracking() -> void:
+	_last_player_positions = []
+	_last_enemy_positions = []
+
+func _reset_target_tracking() -> void:
+	_last_targets_player = []
+	_last_targets_enemy = []
+
+func _emit_position_updates(force: bool = false) -> void:
+	if state == null or arena_state == null:
+		return
+	var player_count: int = state.player_team.size()
+	if player_count > 0:
+		_last_player_positions.resize(player_count)
+		for i in range(player_count):
+			var unit: Unit = state.player_team[i]
+			if unit == null:
+				_last_player_positions[i] = null
+				continue
+			var pos: Vector2 = arena_state.get_player_position(i)
+			var last = _last_player_positions[i] if i < _last_player_positions.size() else null
+			var emit_now: bool = force
+			if not emit_now:
+				emit_now = not (last is Vector2 and pos.is_equal_approx(last))
+			if emit_now:
+				emit_signal("position_updated", "player", i, pos.x, pos.y)
+			_last_player_positions[i] = pos
+	else:
+		_last_player_positions.clear()
+	var enemy_count: int = state.enemy_team.size()
+	if enemy_count > 0:
+		_last_enemy_positions.resize(enemy_count)
+		for j in range(enemy_count):
+			var enemy: Unit = state.enemy_team[j]
+			if enemy == null:
+				_last_enemy_positions[j] = null
+				continue
+			var epos: Vector2 = arena_state.get_enemy_position(j)
+			var elast = _last_enemy_positions[j] if j < _last_enemy_positions.size() else null
+			var emit_enemy: bool = force
+			if not emit_enemy:
+				emit_enemy = not (elast is Vector2 and epos.is_equal_approx(elast))
+			if emit_enemy:
+				emit_signal("position_updated", "enemy", j, epos.x, epos.y)
+			_last_enemy_positions[j] = epos
+	else:
+		_last_enemy_positions.clear()
+
+func _emit_target_events(force: bool = false) -> void:
+	if target_controller == null or state == null:
+		return
+	var player_targets: Array = target_controller.target_array("player")
+	var enemy_targets: Array = target_controller.target_array("enemy")
+	_last_targets_player = _emit_target_events_for_team("player", "enemy", player_targets, _last_targets_player, force)
+	_last_targets_enemy = _emit_target_events_for_team("enemy", "player", enemy_targets, _last_targets_enemy, force)
+
+func _emit_target_events_for_team(team: String, target_team: String, current: Array, previous: Array, force: bool) -> Array:
+	var result: Array = []
+	var curr_count: int = current.size()
+	var prev_count: int = previous.size()
+	for i in range(curr_count):
+		var new_target: int = int(current[i])
+		var prev_target: int = (int(previous[i]) if i < prev_count else -1)
+		if force:
+			if new_target >= 0:
+				emit_signal("target_start", team, i, target_team, new_target)
+		else:
+			if prev_target != new_target:
+				if prev_target >= 0:
+					emit_signal("target_end", team, i, target_team, prev_target)
+				if new_target >= 0:
+					emit_signal("target_start", team, i, target_team, new_target)
+		result.append(new_target)
+	if not force and prev_count > curr_count:
+		for j in range(curr_count, prev_count):
+			var prev_val: int = int(previous[j])
+			if prev_val >= 0:
+				emit_signal("target_end", team, j, target_team, prev_val)
+	return result
 
 # Public helper to avoid external scripts depending on internal fields
 func set_movement_debug_frames(frames: int) -> void:
@@ -400,3 +537,27 @@ func _resolver_emit_vfx_knockup(team: String, index: int, duration: float) -> vo
 func _resolver_emit_vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float) -> void:
 	# Visual-only signal to draw a transient beam line in the arena UI.
 	emit_signal("vfx_beam_line", start, end, color, width, duration)
+
+func _on_ability_system_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
+	var tgt_team := String(target_team)
+	if tgt_team == "":
+		tgt_team = ("enemy" if team == "player" else "player")
+	var tgt_index: int = int(target_index)
+	if tgt_index < 0 and target_controller != null:
+		tgt_index = target_controller.current_target(team, index)
+	if tgt_index < 0:
+		tgt_team = String(team)
+		tgt_index = index
+	var pos: Vector2 = target_point
+	if arena_state != null and state != null:
+		if pos == Vector2.ZERO:
+			if tgt_team == "player" and tgt_index >= 0 and tgt_index < state.player_team.size():
+				pos = arena_state.get_player_position(tgt_index)
+			elif tgt_team == "enemy" and tgt_index >= 0 and tgt_index < state.enemy_team.size():
+				pos = arena_state.get_enemy_position(tgt_index)
+		if pos == Vector2.ZERO:
+			if team == "player" and index >= 0 and index < state.player_team.size():
+				pos = arena_state.get_player_position(index)
+			elif team == "enemy" and index >= 0 and index < state.enemy_team.size():
+				pos = arena_state.get_enemy_position(index)
+	emit_signal("ability_cast", team, index, tgt_team, tgt_index, pos)

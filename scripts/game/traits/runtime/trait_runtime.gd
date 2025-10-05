@@ -99,11 +99,31 @@ func _instantiate_handlers() -> void:
 			handlers[tid] = h
 
 # === Signal handlers ===
-func _on_ability_cast(team: String, index: int, ability_id: String) -> void:
+func _on_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
 	for _k in handlers.keys():
 		var h = handlers[_k]
-		if h != null and h.has_method("on_ability_cast"):
+		if h == null or not h.has_method("on_ability_cast"):
+			continue
+		var argc: int = _resolve_method_argc(h, "on_ability_cast")
+		if argc == 4:
 			h.on_ability_cast(ctx, String(team), int(index), String(ability_id))
+		elif argc == 5:
+			h.on_ability_cast(ctx, String(team), int(index), String(ability_id), String(target_team))
+		elif argc == 6:
+			h.on_ability_cast(ctx, String(team), int(index), String(ability_id), String(target_team), int(target_index))
+		else:
+			h.on_ability_cast(ctx, String(team), int(index), String(ability_id), String(target_team), int(target_index), target_point)
+
+func _resolve_method_argc(obj, method_name: String) -> int:
+	if obj == null:
+		return -1
+	if not obj.has_method(method_name):
+		return -1
+	for meta in obj.get_method_list():
+		if String(meta.get("name", "")) == method_name:
+			var args = meta.get("args", [])
+			return args.size() if args is Array else 0
+	return -1
 
 func _on_hit_applied(team: String, shooter_index: int, target_index: int, rolled_damage: int, dealt_damage: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float) -> void:
 	var evt := {

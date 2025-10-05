@@ -169,11 +169,11 @@ func _on_items_equipped_changed(unit) -> void:
 
 # --- Event dispatch ---
 
-func _on_ability_cast(team: String, index: int, ability_id: String) -> void:
+func _on_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
     var u: Unit = _unit_at(team, index)
     if u == null:
         return
-    _dispatch(u, "ability_cast", {"team": team, "index": index, "ability_id": ability_id})
+    _dispatch(u, "ability_cast", {"team": team, "index": index, "ability_id": ability_id, "target_team": target_team, "target_index": target_index, "target_point": target_point})
 
 func _on_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, _pcd: float, _ecd: float) -> void:
     var src: Unit = _unit_at(team, si)
