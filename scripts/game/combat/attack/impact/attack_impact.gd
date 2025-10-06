@@ -48,8 +48,9 @@ func apply_hit(source_team: String, source_index: int, src: Unit, tgt_team: Stri
 		return result
 
 	# Base damage components
+	# Basic attacks scale from AD only (no baseline SP on autos)
 	var phys_base: float = max(0.0, float(src.attack_damage))
-	var magic_base: float = max(0.0, float(src.spell_power))
+	var magic_base: float = 0.0
 	if crit:
 		phys_base *= max(1.0, float(src.crit_damage))
 	var true_base: float = max(0.0, float(src.true_damage))

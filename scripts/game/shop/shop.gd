@@ -157,10 +157,27 @@ func sell_unit(u: Unit) -> Dictionary:
 			# Selling during combat should free up credit as well
 			if _is_combat_phase() and Economy.has_method("adjust_combat_spent"):
 				Economy.adjust_combat_spent(-g)
-			Economy.add_gold(g)
+		Economy.add_gold(g)
 	else:
 		error.emit(String(res.get("error", "UNKNOWN")), {"op": "sell_unit"})
 	return res
+
+func set_board_team_provider(cb: Callable) -> void:
+	# Allows UI/controller layer to provide the current player_team for board-aware combines
+	if _tx != null and cb != null:
+		_tx.set_board_team_provider(cb)
+
+func set_remove_from_board(cb: Callable) -> void:
+	# Allows UI/controller to provide removal of a specific board unit when consumed by a combine
+	if _tx != null and cb != null:
+		_tx.set_remove_from_board(cb)
+
+func try_combine_now() -> Array:
+	# Attempts to perform bench+board combines immediately (planning phase only).
+	# Returns a list of promotion dicts for UI effects.
+	if _tx != null and _tx.has_method("combine_now"):
+		return _tx.combine_now()
+	return []
 
 func _emit_all() -> void:
 	offers_changed.emit(state.offers)

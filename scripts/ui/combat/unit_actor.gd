@@ -59,9 +59,9 @@ func _ensure_bars() -> void:
 		hp_bar.anchor_right = 1.0
 		hp_bar.anchor_bottom = 0.0
 		hp_bar.offset_left = 0.0
-		hp_bar.offset_top = 0.0
+		hp_bar.offset_top = -22.0
 		hp_bar.offset_right = 0.0
-		hp_bar.offset_bottom = 8.0
+		hp_bar.offset_bottom = -14.0
 		hp_bar.z_index = 1
 		# HP tick marks
 		if not (hp_ticks and is_instance_valid(hp_ticks)):
@@ -72,14 +72,14 @@ func _ensure_bars() -> void:
 			hp_ticks.anchor_right = 1.0
 			hp_ticks.anchor_bottom = 0.0
 			hp_ticks.offset_left = 0.0
-			hp_ticks.offset_top = 0.0
+			hp_ticks.offset_top = -22.0
 			hp_ticks.offset_right = 0.0
-			hp_ticks.offset_bottom = 8.0
+			hp_ticks.offset_bottom = -14.0
 			hp_ticks.z_index = 2
 			hp_ticks.minor_step = 200
 			hp_ticks.major_step = 1000
-			hp_ticks.minor_color = Color(0.85, 0.2, 0.25, 0.45)
-			hp_ticks.major_color = Color(0.95, 0.5, 0.3, 0.65)
+			hp_ticks.minor_color = Color(0, 0, 0, 0.45)
+			hp_ticks.major_color = Color(0, 0, 0, 0.65)
 	if not (mana_bar and is_instance_valid(mana_bar)):
 		mana_bar = UIBars.make_mana_bar()
 		add_child(mana_bar)
@@ -88,9 +88,9 @@ func _ensure_bars() -> void:
 		mana_bar.anchor_right = 1.0
 		mana_bar.anchor_bottom = 0.0
 		mana_bar.offset_left = 0.0
-		mana_bar.offset_top = 10.0
+		mana_bar.offset_top = -12.0
 		mana_bar.offset_right = 0.0
-		mana_bar.offset_bottom = 18.0
+		mana_bar.offset_bottom = -6.0
 		mana_bar.z_index = 1
 		# Mana tick marks
 		if not (mana_ticks and is_instance_valid(mana_ticks)):
@@ -101,14 +101,14 @@ func _ensure_bars() -> void:
 			mana_ticks.anchor_right = 1.0
 			mana_ticks.anchor_bottom = 0.0
 			mana_ticks.offset_left = 0.0
-			mana_ticks.offset_top = 10.0
+			mana_ticks.offset_top = -12.0
 			mana_ticks.offset_right = 0.0
-			mana_ticks.offset_bottom = 18.0
+			mana_ticks.offset_bottom = -6.0
 			mana_ticks.z_index = 2
 			mana_ticks.minor_step = 10
 			mana_ticks.major_step = 50
-			mana_ticks.minor_color = Color(0.4, 0.7, 1.0, 0.5)
-			mana_ticks.major_color = Color(0.7, 0.85, 1.0, 0.7)
+			mana_ticks.minor_color = Color(0, 0, 0, 0.5)
+			mana_ticks.major_color = Color(0, 0, 0, 0.7)
 		# Shield bar (thin, above HP)
 		if not (shield_bar and is_instance_valid(shield_bar)):
 			shield_bar = ProgressBar.new()
@@ -118,9 +118,9 @@ func _ensure_bars() -> void:
 			shield_bar.anchor_right = 1.0
 			shield_bar.anchor_bottom = 0.0
 			shield_bar.offset_left = 0.0
-			shield_bar.offset_top = -3.0
+			shield_bar.offset_top = -30.0
 			shield_bar.offset_right = 0.0
-			shield_bar.offset_bottom = 4.0
+			shield_bar.offset_bottom = -23.0
 			shield_bar.z_index = 3
 			shield_bar.show_percentage = false
 			shield_bar.min_value = 0
@@ -151,9 +151,9 @@ func _ensure_bars() -> void:
 			shield_ticks.anchor_right = 1.0
 			shield_ticks.anchor_bottom = 0.0
 			shield_ticks.offset_left = 0.0
-			shield_ticks.offset_top = -3.0
+			shield_ticks.offset_top = -30.0
 			shield_ticks.offset_right = 0.0
-			shield_ticks.offset_bottom = 4.0
+			shield_ticks.offset_bottom = -23.0
 			shield_ticks.z_index = 4
 			shield_ticks.minor_step = 200
 			shield_ticks.major_step = 1000

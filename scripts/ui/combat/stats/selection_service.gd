@@ -41,20 +41,34 @@ func attach_to_unit_actor(actor: Control, team: String, index: int, unit_provide
         return
     var hit := actor.get_node_or_null("SelectHit")
     if hit == null:
-        hit = Control.new()
+        hit = ColorRect.new()
         hit.name = "SelectHit"
         actor.add_child(hit)
-        hit.anchor_left = 0.0
-        hit.anchor_top = 0.0
-        hit.anchor_right = 1.0
-        hit.anchor_bottom = 1.0
-        hit.offset_left = 0.0
-        hit.offset_top = 0.0
-        hit.offset_right = 0.0
-        hit.offset_bottom = 0.0
-        hit.mouse_filter = Control.MOUSE_FILTER_STOP
-    if not hit.is_connected("gui_input", Callable(self, "_on_view_gui_input")):
-        hit.gui_input.connect(_on_view_gui_input.bind(actor, String(team), int(index), unit_provider))
+    elif not (hit is ColorRect):
+        var replacement := ColorRect.new()
+        replacement.name = "SelectHit"
+        actor.add_child(replacement)
+        hit.queue_free()
+        hit = replacement
+    var hit_control := hit as Control
+    if hit_control == null:
+        return
+    hit_control.anchor_left = 0.0
+    hit_control.anchor_top = 0.0
+    hit_control.anchor_right = 1.0
+    hit_control.anchor_bottom = 1.0
+    hit_control.offset_left = 0.0
+    hit_control.offset_top = 0.0
+    hit_control.offset_right = 0.0
+    hit_control.offset_bottom = 0.0
+    hit_control.mouse_filter = Control.MOUSE_FILTER_STOP
+    hit_control.z_index = 0
+    if hit_control is ColorRect:
+        var rect := hit_control as ColorRect
+        rect.color = Color(1.0, 0.0, 0.0, 0.25)
+        rect.show_behind_parent = false
+    if not hit_control.is_connected("gui_input", Callable(self, "_on_view_gui_input")):
+        hit_control.gui_input.connect(_on_view_gui_input.bind(actor, String(team), int(index), unit_provider))
 
 # Clicking on this control clears the selection.
 func attach_clear_on(control: Control) -> void:

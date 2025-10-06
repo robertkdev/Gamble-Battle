@@ -36,7 +36,6 @@ func rebuild() -> void:
 		return
 	_clear_grid()
 	var inv: Dictionary = _inventory_snapshot()
-	print("[ItemsPresenter] rebuild; inventory entries=", inv.size())
 	var layout: Array[String] = _inventory_layout()
 	var cols: int = int(grid.columns) if grid and grid.has_method("get") else 1
 	cols = max(1, cols)
@@ -57,7 +56,6 @@ func rebuild() -> void:
 		else:
 			card.set("slot_index", idx)
 		grid.add_child(card)
-		print("[ItemsPresenter] added card slot=", idx, " id=", id)
 		if router != null and router.has_method("attach_card"):
 			router.attach_card(card)
 

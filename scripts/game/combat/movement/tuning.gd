@@ -12,18 +12,18 @@ class_name MovementTuning
 #   MovementMath.within_range for range checks. Engine gating uses the
 #   same helper to avoid drift. Defaults to 0.5.
 # - unit_radius_factor: radius (in tiles) = tile_size * factor, used by
-#   CollisionResolver to compute separation circles. Defaults to 0.35.
+#   CollisionResolver to compute separation circles. Defaults to 0.28.
 
 var speed_scale: float = 1.0
 var range_epsilon: float = 0.5
-var unit_radius_factor: float = 0.35
+var unit_radius_factor: float = 0.28
 
 # Slot-based movement + local avoidance knobs
 var separation_radius_factor: float = 3.0  # neighbors within (radius * factor) contribute to separation
 var separation_weight: float = 1.5         # base weight of separation steering
 var seek_weight: float = 1.0               # base weight of seek steering
 var collision_iterations: int = 2          # position-based relaxation passes per frame
-var friendly_soft_separation: bool = true  # friend–friend pairs ignore step cap during relaxation
+var friendly_soft_separation: bool = true  # friend-friend pairs ignore step cap during relaxation
 
 # Legacy knobs for avoidance/grid A* removed in favor of slot-based movement.
 

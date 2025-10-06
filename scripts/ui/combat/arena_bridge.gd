@@ -109,16 +109,25 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
     # Initial positions from current tile centers
     var ppos: Array[Vector2] = []
     var epos: Array[Vector2] = []
+    var p_summary: Array[String] = []
+    var e_summary: Array[String] = []
     for i in range(_player_views.size()):
         var pv = _player_views[i]
         var idx: int = pv.tile_idx
         var pos: Vector2 = player_grid_helper.get_center(idx) if player_grid_helper and idx >= 0 else Vector2.ZERO
         ppos.append(pos)
+        # Summarize planned placements by index, tile, and unit name (first few only)
+        if i < 8:
+            var uname: String = (pv.unit.name if pv and pv.unit else "?")
+            p_summary.append("%d#%d:%s(%s)" % [i, idx, str(pos), uname])
     for j in range(_enemy_views.size()):
         var ev = _enemy_views[j]
         var idx2: int = ev.tile_idx
         var pos2: Vector2 = enemy_grid_helper.get_center(idx2) if enemy_grid_helper and idx2 >= 0 else Vector2.ZERO
         epos.append(pos2)
+        if j < 8:
+            var ename: String = (ev.unit.name if ev and ev.unit else "?")
+            e_summary.append("%d#%d:%s(%s)" % [j, idx2, str(pos2), ename])
     # Bounds from arena background; fallback if degenerate
     var bounds: Rect2 = Rect2()
     if arena_background and is_instance_valid(arena_background):
@@ -154,7 +163,28 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
             bounds = Rect2(vs.position, vs.size)
             if Debug.enabled:
                 print("[ArenaFix] Fallback bounds from viewport -> ", bounds)
-    manager.set_arena(ts, ppos, epos, bounds)
+    # Decide whether engine arena is already validly configured.
+    # The engine may allocate zero-filled position arrays on start() before bounds are set,
+    # which would make size()>0 but still be invalid (all at 0,0 with empty bounds).
+    var cur_ppos: Array = manager.get_player_positions() if manager else []
+    var cur_epos: Array = manager.get_enemy_positions() if manager else []
+    var cur_bounds: Rect2 = manager.get_arena_bounds() if manager else Rect2()
+
+    var bounds_valid: bool = (cur_bounds.size.x > 1.0 and cur_bounds.size.y > 1.0)
+    var any_nonzero_pos: bool = false
+    for v in cur_ppos:
+        if typeof(v) == TYPE_VECTOR2 and (v as Vector2).length_squared() > 0.000001:
+            any_nonzero_pos = true
+            break
+    if not any_nonzero_pos:
+        for v2 in cur_epos:
+            if typeof(v2) == TYPE_VECTOR2 and (v2 as Vector2).length_squared() > 0.000001:
+                any_nonzero_pos = true
+                break
+
+    var engine_config_valid: bool = bounds_valid and any_nonzero_pos
+    if not engine_config_valid:
+        manager.set_arena(ts, ppos, epos, bounds)
     Trace.step("ArenaBridge.configure_engine_arena: done")
     if Debug.enabled:
         print("[Arena] tile=", ts, " bounds=", bounds)

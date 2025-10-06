@@ -11,6 +11,8 @@ var preferred_bet: int = 1   # Remember last chosen bet outside combat
 var combat_active: bool = false
 var combat_credit_base: int = 0   # 2*bet - 1 at combat start
 var combat_spent: int = 0         # Sum of spends during this combat
+var last_gold_start: int = 0      # Gold at the moment combat started (before escrow)
+var last_bet_start: int = 0       # Bet amount at the moment combat started
 
 func _ready() -> void:
 	gold = 2
@@ -24,6 +26,8 @@ func reset_run() -> void:
 	combat_active = false
 	combat_credit_base = 0
 	combat_spent = 0
+	last_gold_start = 0
+	last_bet_start = 0
 	gold_changed.emit(gold)
 	bet_changed.emit(current_bet)
 
@@ -43,6 +47,9 @@ func start_combat() -> void:
 	var b: int = max(0, current_bet)
 	# Mark combat active before emitting signals so reactive UI cannot change the bet mid-combat
 	combat_active = true
+	# Capture snapshot of gold and bet at the start for next-round heuristics
+	last_gold_start = gold
+	last_bet_start = b
 	if b > 0:
 		gold = max(0, gold - b)
 		gold_changed.emit(gold)
@@ -65,6 +72,14 @@ func resolve(win: bool) -> void:
 		combat_active = false
 		combat_credit_base = 0
 		combat_spent = 0
+		# Intelligent next-bet default:
+		# If player went all-in last round (bet >= gold at start), assume same for next
+		# and default slider to full (preferred_bet = new gold).
+		if last_gold_start > 0 and last_bet_start >= last_gold_start:
+			preferred_bet = gold
+		else:
+			# Otherwise, keep previous preferred bet but clamp to current gold
+			preferred_bet = int(clamp(preferred_bet, (1 if gold > 0 else 0), gold))
 	else:
 		# Legacy fallback
 		if win:

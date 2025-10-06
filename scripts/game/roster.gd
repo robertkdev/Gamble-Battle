@@ -60,6 +60,21 @@ func compact() -> Array[Unit]:
 			out.append(u)
 	return out
 
+
+func reset(clear_max_team: bool = true) -> void:
+	for i in range(bench_slots.size()):
+		var u: Unit = bench_slots[i]
+		if u != null:
+			if Engine.has_singleton("Items") and Items.has_method("remove_all"):
+				Items.remove_all(u)
+		bench_slots[i] = null
+	if clear_max_team:
+		var prev: int = max_team_size
+		max_team_size = -1
+		if prev != max_team_size:
+			max_team_size_changed.emit(prev, max_team_size)
+	bench_changed.emit()
+
 # Returns a union of current on-board team and bench (no duplicates, preserve order: team first).
 func owned_units(current_team: Array = []) -> Array[Unit]:
 	var seen: Dictionary = {}

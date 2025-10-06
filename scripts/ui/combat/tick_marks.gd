@@ -5,8 +5,8 @@ class_name TickMarks
 @export var minor_step: int = 10 : set = set_minor
 @export var major_step: int = 0 : set = set_major
 @export var rtl: bool = false : set = set_rtl
-@export var minor_color: Color = Color(1,1,1,0.4) : set = set_minor_color
-@export var major_color: Color = Color(1,1,1,0.6) : set = set_major_color
+@export var minor_color: Color = Color(0,0,0,0.4) : set = set_minor_color
+@export var major_color: Color = Color(0,0,0,0.6) : set = set_major_color
 @export var thickness: int = 1 : set = set_thickness
 @export var major_thickness: int = 2 : set = set_thickness_major
 

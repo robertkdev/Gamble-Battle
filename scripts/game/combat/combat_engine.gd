@@ -3,7 +3,8 @@ class_name CombatEngine
 const Trace := preload("res://scripts/util/trace.gd")
 const AbilitySystemLib := preload("res://scripts/game/abilities/ability_system.gd")
 const BuffSystemLib := preload("res://scripts/game/abilities/buff_system.gd")
-const MovementServiceLib := preload("res://scripts/game/combat/movement/movement_service.gd")
+# Use a minimal service to allow loading while iterating on movement.
+const MovementServiceLib := preload("res://scripts/game/combat/movement/movement_service2.gd")
 
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal stats_updated(player, enemy)
@@ -482,7 +483,7 @@ func _filter_events_in_range(events: Array[AttackEvent]) -> Array[AttackEvent]:
 			continue
 		var spos: Vector2 = arena_state.get_player_position(idx) if team == "player" else arena_state.get_enemy_position(idx)
 		var tpos: Vector2 = arena_state.get_enemy_position(tgt_idx) if team == "player" else arena_state.get_player_position(tgt_idx)
-		var prof := arena_state.get_profile(team, idx) if arena_state and arena_state.has_method("get_profile") else null
+		var prof: Variant = arena_state.get_profile(team, idx) if arena_state and arena_state.has_method("get_profile") else null
 		var band_mult: float = (prof.band_max if prof != null else 1.0)
 		if MovementMath.within_range(shooter, spos, tpos, ts, epsilon, band_mult):
 			out.append(evt)

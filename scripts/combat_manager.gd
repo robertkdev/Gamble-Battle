@@ -5,6 +5,12 @@ const Health := preload("res://scripts/game/stats/health.gd")
 const Mana := preload("res://scripts/game/stats/mana.gd")
 const TraitRuntimeLib := preload("res://scripts/game/traits/runtime/trait_runtime.gd")
 const MentorLink := preload("res://scripts/game/traits/runtime/mentor_link.gd")
+const ProgressionService := preload("res://scripts/game/progression/progression_service.gd")
+const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
+const LogSchema := preload("res://scripts/util/log_schema.gd")
+const StageRuleRunner := preload("res://scripts/game/progression/stage_rule_runner.gd")
+const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
+const EnemyScaling := preload("res://scripts/game/combat/enemy_scaling.gd")
 
 signal battle_started(stage: int, enemy)
 signal log_line(text: String)
@@ -33,14 +39,34 @@ var stage: int = 1
 
 var _state: BattleState
 var _engine
+var _pending_tile_size: float = -1.0
+var _pending_player_pos: Array = []
+var _pending_enemy_pos: Array = []
+var _pending_bounds: Rect2 = Rect2()
 var _pending_movement_debug_frames: int = 0
 var _trait_runtime: TraitRuntime = null
 
+func _mirror_stage_from_gamestate() -> void:
+	# Mirror manager.stage from GameState (authoritative source)
+	if Engine.has_singleton("GameState"):
+		stage = int(GameState.stage)
+		return
+	var gs = get_node_or_null("/root/GameState")
+	if gs:
+		stage = int(gs.stage)
+
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	if _engine:
+		
 		_engine.set_arena(tile_size, player_pos, enemy_pos, bounds)
 		# After arena positions are set, compute mentor–pupil pairs for this battle
 		_compute_mentor_pairs(player_pos, enemy_pos)
+	else:
+		
+		_pending_tile_size = float(tile_size)
+		_pending_player_pos = player_pos.duplicate(true)
+		_pending_enemy_pos = enemy_pos.duplicate(true)
+		_pending_bounds = bounds
 
 func _compute_mentor_pairs(player_pos: Array, enemy_pos: Array) -> void:
 	if _state == null:
@@ -48,6 +74,13 @@ func _compute_mentor_pairs(player_pos: Array, enemy_pos: Array) -> void:
 	# Trait-driven Mentor pairing via MentorLink
 	_state.player_pupil_map = MentorLink.compute_for_team(_state.player_team, player_pos)
 	_state.enemy_pupil_map = MentorLink.compute_for_team(_state.enemy_team, enemy_pos)
+
+# Allow UI to pre-provide arena config before engine exists
+func cache_arena_config(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
+	_pending_tile_size = float(tile_size)
+	_pending_player_pos = player_pos.duplicate(true)
+	_pending_enemy_pos = enemy_pos.duplicate(true)
+	_pending_bounds = bounds
 
 func _pair_for_team(team: String, units: Array[Unit], positions: Array) -> Array[int]:
 	# Legacy helper retained for safety; delegate to MentorLink
@@ -174,9 +207,16 @@ func _ensure_default_player_team_into(arr: Array) -> void:
 		arr.append(u2)
 
 func start_stage() -> void:
+	_mirror_stage_from_gamestate()
 	Trace.step("CM.start_stage: begin stage=" + str(stage))
 	_ensure_state()
 	Trace.step("CM.start_stage: state ensured")
+	# Log canonical stage banner using chapter/stage mapping
+	var mapping := ProgressionService.from_global_stage(int(stage))
+	var ch: int = int(mapping.get("chapter", 1))
+	var sic: int = int(mapping.get("stage_in_chapter", 1))
+	var total: int = int(ChapterCatalog.stages_in(ch))
+	emit_signal("log_line", LogSchema.format_stage(ch, sic, total))
 	# Snapshot current team before reset to avoid aliasing issues
 	var saved_team: Array[Unit] = []
 	for u in player_team:
@@ -198,8 +238,14 @@ func start_stage() -> void:
 	Trace.step("CM.start_stage: copy done; state size=" + str(_state.player_team.size()))
 	Trace.step("CM.start_stage: create spawner")
 	var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
-	Trace.step("CM.start_stage: build enemy team")
-	_state.enemy_team = spawner.build_for_stage(stage)
+	# Build spec via catalog and run rule hooks around spawn
+	var spec: Dictionary = RosterCatalog.get_spec(ch, sic)
+	StageRuleRunner.pre_spawn(spec, ch, sic)
+	Trace.step("CM.start_stage: build enemy team from spec")
+	_state.enemy_team = spawner.build_for_spec(spec, ch, sic)
+	StageRuleRunner.post_spawn(_state.enemy_team, spec, ch, sic)
+	# Apply centralized stage-based scaling (no-op unless enabled)
+	EnemyScaling.apply_for_stage(_state.enemy_team, stage)
 	Trace.step("CM.start_stage: teams built p=" + str(_state.player_team.size()) + " e=" + str(_state.enemy_team.size()))
 
 
@@ -220,8 +266,17 @@ func start_stage() -> void:
 
 	Trace.step("CM.start_stage: create engine")
 	_engine = load("res://scripts/game/combat/combat_engine.gd").new()
+	# Rules: allow provider to tweak state/engine prior to configure
+	StageRuleRunner.pre_engine_config(_state, _engine, spec, ch, sic)
 	Trace.step("CM.start_stage: configure engine")
 	_engine.configure(_state, pref, stage, select_closest_target)
+	# Apply any pre-provided arena configuration from UI before starting engine
+	if _pending_tile_size > 0.0:
+		_engine.set_arena(_pending_tile_size, _pending_player_pos, _pending_enemy_pos, _pending_bounds)
+		_compute_mentor_pairs(_pending_player_pos, _pending_enemy_pos)
+		_pending_tile_size = -1.0
+		_pending_player_pos = []
+		_pending_enemy_pos = []
 	Trace.step("CM.start_stage: wire engine signals")
 	_wire_engine_signals()
 	# Create trait runtime after engine is configured (ability/buff systems ready)
@@ -233,6 +288,8 @@ func start_stage() -> void:
 	_trait_runtime.wire_signals()
 	Trace.step("CM.start_stage: start engine")
 	_engine.start()
+	# Rules: notify provider after engine start, before first process tick
+	StageRuleRunner.on_battle_start(_state, _engine, spec, ch, sic)
 	# Notify traits battle start after engine start but before first process tick
 	if _trait_runtime != null:
 		_trait_runtime.on_battle_start()
@@ -251,12 +308,19 @@ func start_stage() -> void:
 	Trace.step("CM.start_stage: end")
 
 func setup_stage_preview() -> void:
+	_mirror_stage_from_gamestate()
 	_ensure_state()
-	_state.reset()
-	_state.stage = stage
+	# Snapshot current team before resetting state to avoid aliasing wipe
+	var saved_team: Array[Unit] = []
 	for u in player_team:
 		if u:
-			_state.player_team.append(u)
+			saved_team.append(u)
+	_state.reset()
+	_state.stage = stage
+	# Rebuild state player team from snapshot
+	for u2 in saved_team:
+		if u2:
+			_state.player_team.append(u2)
 	var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
 	_state.enemy_team = spawner.build_for_stage(stage)
 
@@ -305,7 +369,18 @@ func _reset_units_after_combat() -> void:
 			Health.heal_full(e)
 
 func continue_to_next_stage() -> void:
-	stage += 1
+	# Delegate progression advancement to GameState (authoritative)
+	if Engine.has_singleton("GameState"):
+		GameState.advance_after_victory()
+		stage = int(GameState.stage)
+	else:
+		var gs = get_node_or_null("/root/GameState")
+		if gs and gs.has_method("advance_after_victory"):
+			gs.advance_after_victory()
+			stage = int(gs.stage)
+		else:
+			# Fallback if GameState is unavailable
+			stage += 1
 	start_stage()
 
 func _ensure_state() -> void:

@@ -16,6 +16,7 @@ var _message_timer: SceneTreeTimer = null
 var _drop_grid: BoardGrid = null
 
 signal grid_updated
+signal promotions_emitted(promotions)
 
 func _root() -> Node:
 	var tree := (_parent.get_tree() if _parent else null)
@@ -195,7 +196,12 @@ func _refresh_cards_state() -> void:
 func _on_card_clicked(slot_index: int) -> void:
 	if not _has_shop():
 		return
-	Shop.buy_unit(int(slot_index))
+	var res = Shop.buy_unit(int(slot_index))
+	# Emit promotions for UI effects if present
+	if typeof(res) == TYPE_DICTIONARY:
+		var promos = res.get("promotions", null)
+		if promos is Array and promos.size() > 0:
+			promotions_emitted.emit(promos)
 	_refresh_progress()
 
 func set_enabled(enabled: bool) -> void:

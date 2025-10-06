@@ -24,7 +24,7 @@ grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
-layout_mode = 2
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 
@@ -262,7 +262,6 @@ disabled = true
 
 [node name="EnemyUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea"]
 custom_minimum_size = Vector2(3.855, 0)
-layout_mode = 2
 anchors_preset = 0
 anchor_left = 0.597917
 anchor_top = 1.20833
@@ -272,7 +271,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="EnemySprite" type="TextureRect" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyUnitHolder"]
 custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
+layout_mode = 0
 expand_mode = 1
 
 [node name="BottomArea" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea"]
@@ -440,12 +439,11 @@ focus_mode = 0
 disabled = true
 
 [node name="PlayerUnitHolder" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea"]
-layout_mode = 2
 anchors_preset = 0
 
 [node name="PlayerSprite" type="TextureRect" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerUnitHolder"]
 custom_minimum_size = Vector2(72, 72)
-layout_mode = 2
+layout_mode = 0
 expand_mode = 1
 
 [node name="StatsArea" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow"]
@@ -468,7 +466,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="ArenaBackground" type="ColorRect" parent="MarginContainer/VBoxContainer/BattleArea/ArenaContainer"]
-layout_mode = 2
+layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
@@ -476,7 +474,6 @@ grow_vertical = 2
 color = Color(0, 0, 0, 0.219608)
 
 [node name="ArenaUnits" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ArenaContainer"]
-layout_mode = 2
 anchors_preset = 0
 anchor_right = 1.0
 anchor_bottom = 1.0

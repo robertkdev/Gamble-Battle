@@ -51,6 +51,9 @@ func _on_unit_dropped(target_grid, tile_idx: int, uv: UnitView) -> void:
 	# Board↔Board is handled by GridPlacement via dropped_on_tile
 	if target_grid == board_grid and from_board:
 		return
+	# If target is neither board nor bench (e.g., shop sell grid), leave handling to controller
+	if target_grid != board_grid and target_grid != bench_grid:
+		return
 	# Unknown route: snap back via helper
 	_snap_back(uv)
 
@@ -101,8 +104,12 @@ func _bench_to_board(uv: UnitView, tile_idx: int) -> void:
 		grid_placement._on_player_unit_dropped(idx_in_team, tile_idx)
 
 	# Dispose original dragged view to avoid stale duplicates capturing input
-	if uv and uv.is_inside_tree():
-		uv.queue_free()
+	if uv:
+		# Ensure any drag ghost is cleaned up before freeing the original view
+		if uv.has_method("cleanup_drag_artifacts"):
+			uv.cleanup_drag_artifacts()
+		if uv.is_inside_tree():
+			uv.queue_free()
 
 func _board_to_bench(uv: UnitView, tile_idx: int) -> void:
 	if manager == null or board_grid == null or bench_grid == null or grid_placement == null or bench_placement == null or roster == null:
@@ -145,8 +152,11 @@ func _board_to_bench(uv: UnitView, tile_idx: int) -> void:
 		bench_placement.rebuild_bench_views(roster.bench_slots, true)
 
 	# Dispose original dragged view to avoid stale duplicates capturing input
-	if uv and uv.is_inside_tree():
-		uv.queue_free()
+	if uv:
+		if uv.has_method("cleanup_drag_artifacts"):
+			uv.cleanup_drag_artifacts()
+		if uv.is_inside_tree():
+			uv.queue_free()
 
 func _bench_to_bench(uv: UnitView, tile_idx: int) -> void:
 	if bench_grid == null or roster == null:
@@ -178,8 +188,11 @@ func _bench_to_bench(uv: UnitView, tile_idx: int) -> void:
 	roster.set_slot(from_idx, dest_u)
 
 	# Views will be rebuilt via bench_changed signal; dispose dragged view
-	if uv and uv.is_inside_tree():
-		uv.queue_free()
+	if uv:
+		if uv.has_method("cleanup_drag_artifacts"):
+			uv.cleanup_drag_artifacts()
+		if uv.is_inside_tree():
+			uv.queue_free()
 
 func _snap_back(uv: UnitView) -> void:
 	if uv == null:

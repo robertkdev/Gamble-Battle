@@ -16,18 +16,18 @@ const ACTION_FAILED := "ACTION_FAILED"
 const WOULD_KILL_YOU := "WOULD_KILL_YOU"
 
 const MESSAGES := {
-    UNKNOWN: "Unknown error",
-    COMBAT_PHASE: "Not available during combat",
-    INVALID_SLOT: "Invalid shop slot",
-    NO_OFFERS: "No available offers",
-    INSUFFICIENT_GOLD: "Not enough gold",
-    BENCH_FULL: "Bench is full",
-    SHOP_LOCKED: "Shop is locked",
-    INVALID_UNIT: "Invalid unit",
-    NOT_FOUND: "Not found",
-    ACTION_FAILED: "Action failed",
-    WOULD_KILL_YOU: "Purchasing this now would kill you",
+	UNKNOWN: "Unknown error",
+	COMBAT_PHASE: "Not available during combat",
+	INVALID_SLOT: "Invalid shop slot",
+	NO_OFFERS: "No available offers",
+	INSUFFICIENT_GOLD: "Not enough gold",
+	BENCH_FULL: "Bench is full",
+	SHOP_LOCKED: "Shop is locked",
+	INVALID_UNIT: "Invalid unit",
+	NOT_FOUND: "Not found",
+	ACTION_FAILED: "Action failed",
+	WOULD_KILL_YOU: "Purchasing this now would kill you",
 }
 
 static func message(code: String) -> String:
-    return String(MESSAGES.get(code, "Unknown error"))
+	return String(MESSAGES.get(code, "Unknown error"))

@@ -23,6 +23,10 @@ const ItemsPresenter := preload("res://scripts/ui/items/items_presenter.gd")
 const ItemRuntime := preload("res://scripts/game/items/item_runtime.gd")
 const ItemDragRouter := preload("res://scripts/ui/items/item_drag_router.gd")
 const TraitsPresenter := preload("res://scripts/ui/traits/traits_presenter.gd")
+const LogSchema := preload("res://scripts/util/log_schema.gd")
+const ProgressionService := preload("res://scripts/game/progression/progression_service.gd")
+const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
+const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 
 # Parent scene (CombatView)
 var parent: Control
@@ -164,8 +168,8 @@ func initialize() -> void:
 			manager.defeat.connect(_on_defeat)
 
 	# Layout debug disabled by default; enable and add prints as needed
-		if not manager.is_connected("projectile_fired", Callable(self, "_on_projectile_fired")):
-			manager.projectile_fired.connect(_on_projectile_fired)
+	if not manager.is_connected("projectile_fired", Callable(self, "_on_projectile_fired")):
+		manager.projectile_fired.connect(_on_projectile_fired)
 
 	# UI-side stats tracker
 	if stats_tracker == null:
@@ -246,6 +250,14 @@ func initialize() -> void:
 
 	_prepare_sprites()
 
+	# Progression label updates from GameState
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		var gs = GameState if Engine.has_singleton("GameState") else parent.get_node("/root/GameState")
+		if gs and not gs.is_connected("chapter_changed", Callable(self, "_on_gs_chapter_changed")):
+			gs.chapter_changed.connect(_on_gs_chapter_changed)
+		if gs and not gs.is_connected("stage_changed", Callable(self, "_on_gs_stage_changed")):
+			gs.stage_changed.connect(_on_gs_stage_changed)
+
 	# Arena + projectiles
 	arena_bridge = ArenaBridge.new()
 	arena_bridge.configure(arena_container, arena_units, planning_area, arena_background, player_grid_helper, enemy_grid_helper, preload("res://scripts/ui/combat/unit_actor.gd"), UI.TILE_SIZE)
@@ -268,6 +280,35 @@ func initialize() -> void:
 	if shop_grid:
 		shop_presenter = ShopPresenter.new()
 		shop_presenter.configure(parent, shop_grid)
+		# Listen for combine promotions to play level-up effects on bench/board
+		if not shop_presenter.is_connected("promotions_emitted", Callable(self, "_on_promotions_emitted")):
+			shop_presenter.promotions_emitted.connect(_on_promotions_emitted)
+		# Provide board-aware combine hooks to Shop/Transactions so bench+board triples upgrade.
+		if Engine.has_singleton("Shop"):
+			# Team provider returns the live player_team array
+			var _prov_team := func():
+				return (manager.player_team if manager else [])
+			if Shop.has_method("set_board_team_provider"):
+				Shop.set_board_team_provider(_prov_team)
+			# Removal callback consumes a specific unit from the board when combining
+			if Shop.has_method("set_remove_from_board"):
+				Shop.set_remove_from_board(func(u: Unit) -> bool:
+					if u == null or manager == null:
+						return false
+					var rem_idx := -1
+					for i in range(manager.player_team.size()):
+						if manager.player_team[i] == u:
+							rem_idx = i
+							break
+					if rem_idx == -1:
+						return false
+					manager.player_team.remove_at(rem_idx)
+					# Refresh views to reflect removal and any promotion on-board
+					if has_method("refresh_all_views"):
+						refresh_all_views()
+					elif grid_placement:
+						grid_placement.rebuild_player_views(manager.player_team, true)
+					return true)
 		# Use cards in the shop grid as a BoardGrid drop target for selling.
 		if shop_presenter.has_method("get_drop_grid"):
 			sell_grid_helper = shop_presenter.get_drop_grid()
@@ -357,10 +398,24 @@ func _init_game() -> void:
 			economy_ui.refresh()
 	if Engine.has_singleton("Shop") or parent.has_node("/root/Shop"):
 		Shop.reset_run()
+	if Engine.has_singleton("Roster") and Roster.has_method("reset"):
+		Roster.reset()
+	# Initialize chapter/stage via GameState (authoritative) and keep manager compatibility
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		var gs = GameState if Engine.has_singleton("GameState") else parent.get_node("/root/GameState")
+		if gs:
+			if gs.has_method("set_chapter_and_stage"):
+				gs.set_chapter_and_stage(1, 1)
+			elif gs.has_method("set_stage"):
+				gs.set_stage(1)
+	# For compatibility with existing flows
 	if manager:
 		manager.stage = 1
 		_on_log_line("Gamble Battle")
+		# Build preview after state set so it reflects Chapter 1 — Stage 1
 		manager.setup_stage_preview()
+		# Update label to reflect preview stage
+		_update_stage_label()
 	if is_instance_valid(player_sprite):
 		player_sprite.visible = false
 	if grid_placement and manager:
@@ -394,9 +449,15 @@ func refresh_all_views() -> void:
 		player_views = grid_placement.get_player_views()
 		for pv in player_views:
 			if pv and pv.view:
-				# Player views: board<->bench only; selling restricted to bench
-				pv.view.set_drop_targets([player_grid_helper, bench_grid_helper])
+				# Player views: allow board<->bench moves and selling via shop grid when available
+				var targets: Array = [player_grid_helper, bench_grid_helper]
+				if sell_grid_helper != null:
+					targets.append(sell_grid_helper)
+				pv.view.set_drop_targets(targets)
 				move_router.connect_unit_view(pv.view)
+				# Also route potential sell drops from board
+				if not pv.view.is_connected("dropped_on_target", Callable(self, "_on_unit_dropped_any")):
+					pv.view.dropped_on_target.connect(_on_unit_dropped_any.bind(pv.view))
 				# Selection on grid tiles (unit provider bound to slot)
 				var _pv = pv
 				var __prov := func(): return _pv.unit
@@ -434,7 +495,13 @@ func _on_continue_pressed() -> void:
 			if Debug.enabled:
 				print("[CombatView] Economy not found")
 			return
-		var bet_ok: bool = Economy.set_bet(int(bet_slider.value))
+		var bet_val: int = int(bet_slider.value) if bet_slider else int(Economy.current_bet)
+		# Auto-bump bet to 1 when player has gold but slider is 0 (post-combat edge)
+		if bet_val <= 0 and (Engine.has_singleton("Economy") and int(Economy.gold) > 0):
+			bet_val = 1
+			if bet_slider:
+				bet_slider.value = 1
+		var bet_ok: bool = Economy.set_bet(int(bet_val))
 		if not bet_ok:
 			if Debug.enabled:
 				print("[CombatView] Place a bet > 0 to start")
@@ -448,6 +515,44 @@ func _on_continue_pressed() -> void:
 				print("[CombatView] Cannot start combat: player team is empty")
 			continue_button.disabled = false
 			return
+		# Precompute arena positions from current planning layout so engine starts at chosen tiles
+		if grid_placement and arena_bridge and manager:
+			var ts := float(UI.TILE_SIZE)
+			var ppos: Array[Vector2] = []
+			var epos: Array[Vector2] = []
+			for pv in player_views:
+				var idx: int = pv.tile_idx
+				var pos: Vector2 = player_grid_helper.get_center(idx) if player_grid_helper and idx >= 0 else Vector2.ZERO
+				ppos.append(pos)
+			for ev in enemy_views:
+				var idx2: int = ev.tile_idx
+				var pos2: Vector2 = enemy_grid_helper.get_center(idx2) if enemy_grid_helper and idx2 >= 0 else Vector2.ZERO
+				epos.append(pos2)
+			var bounds: Rect2 = Rect2()
+			if arena_background and is_instance_valid(arena_background):
+				var r: Rect2 = arena_background.get_global_rect()
+				bounds = Rect2(r.position, r.size)
+			if bounds.size.y <= 1.0 or bounds.size.x <= 1.0:
+				var all_pts: Array[Vector2] = []
+				for v in ppos: if typeof(v) == TYPE_VECTOR2: all_pts.append(v)
+				for v2 in epos: if typeof(v2) == TYPE_VECTOR2: all_pts.append(v2)
+				if all_pts.size() > 0:
+					var min_x: float = all_pts[0].x
+					var max_x: float = all_pts[0].x
+					var min_y: float = all_pts[0].y
+					var max_y: float = all_pts[0].y
+					for p in all_pts:
+						min_x = min(min_x, p.x)
+						max_x = max(max_x, p.x)
+						min_y = min(min_y, p.y)
+						max_y = max(max_y, p.y)
+					var margin: float = ts
+					var pos_b := Vector2(min_x - margin, min_y - margin)
+					var size_b := Vector2(max(1.0, (max_x - min_x) + margin * 2.0), max(1.0, (max_y - min_y) + margin * 2.0))
+					bounds = Rect2(pos_b, size_b)
+			# When bounds are valid, keep as-is
+			if manager.has_method("cache_arena_config"):
+				manager.cache_arena_config(ts, ppos, epos, bounds)
 		Trace.step("Calling manager.start_stage()")
 		manager.start_stage()
 		Trace.step("Returned from manager.start_stage()")
@@ -473,7 +578,83 @@ func _on_continue_pressed() -> void:
 	manager.continue_to_next_stage()
 
 func _on_bench_changed() -> void:
+	# Rebuild bench views first so visuals reflect any immediate bench changes
 	_rebuild_bench_views(true)
+	# Auto-try combines when bench changes during planning. This makes triples consistent
+	# whether they are formed by buying or by moving units between bench/board.
+	var in_planning: bool = true
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		in_planning = (int(GameState.phase) != int(GameState.GamePhase.COMBAT))
+	if in_planning and Engine.has_singleton("Shop") and Shop.has_method("try_combine_now"):
+		var promos: Array = Shop.try_combine_now()
+		if promos is Array and promos.size() > 0:
+			# Refresh both bench and player views since board units may be consumed or promoted
+			refresh_all_views()
+			# Play level-up effects for promoted units
+			_play_promotions(promos)
+
+func _on_promotions_emitted(promotions: Array) -> void:
+	if promotions == null or promotions.size() == 0:
+		return
+	# Defer to next frame so bench/player views rebuild after roster/team mutations
+	call_deferred("_play_promotions", promotions)
+
+func _play_promotions(promotions: Array) -> void:
+	# Stagger multiple effects for clarity
+	var delay: float = 0.0
+	for p in promotions:
+		if typeof(p) != TYPE_DICTIONARY:
+			continue
+		var kind := String(p.get("kept_kind", ""))
+		var idx: int = int(p.get("kept_index", -1))
+		var to_level: int = int(p.get("to_level", 0))
+		if kind == "bench" and idx >= 0:
+			_play_bench_promo(idx, to_level, delay)
+		elif kind == "board" and idx >= 0:
+			_play_board_promo(idx, to_level, delay)
+		delay += 0.05
+
+func _play_bench_promo(bench_index: int, to_level: int, delay: float) -> void:
+	if bench_grid == null:
+		return
+	# BenchPlacement attaches UnitView as child of button tile at same index
+	var tiles: Array = bench_grid.get_children()
+	if bench_index < 0 or bench_index >= tiles.size():
+		return
+	var tile = tiles[bench_index]
+	if tile is Control:
+		# Locate UnitView under this tile
+		for c in (tile as Control).get_children():
+			if c is UnitView:
+				var uv: UnitView = c
+				if delay > 0.0:
+					var tree := parent.get_tree() if parent else null
+					if tree:
+						var tmr := tree.create_timer(delay)
+						tmr.timeout.connect(func(): uv.play_level_up(to_level))
+						return
+				uv.play_level_up(to_level)
+				return
+
+func _play_board_promo(team_index: int, to_level: int, delay: float) -> void:
+	# Resolve unit by team index, then find its UnitView and play effect
+	if manager == null or team_index < 0 or team_index >= manager.player_team.size():
+		return
+	var u: Unit = manager.player_team[team_index]
+	if u == null:
+		return
+	# Find matching UnitView in current player_views
+	for sv in player_views:
+		if sv != null and sv.unit == u and sv.view is UnitView:
+			var uv: UnitView = sv.view
+			if delay > 0.0:
+				var tree := parent.get_tree() if parent else null
+				if tree:
+					var tmr := tree.create_timer(delay)
+					tmr.timeout.connect(func(): uv.play_level_up(to_level))
+					return
+			uv.play_level_up(to_level)
+			return
 
 func _rebuild_bench_views(allow_drag: bool) -> void:
 	if bench_placement == null:
@@ -510,10 +691,25 @@ func _on_unit_dropped_any(target_grid, _tile_idx: int, uv: UnitView) -> void:
 	var u: Unit = uv.unit
 	if u == null:
 		return
-	# Attempt to sell via Shop
+	# Attempt to sell via Shop (support both autoload and root node setups)
+	var sell_ok: bool = false
+	var res: Dictionary = {}
 	if Engine.has_singleton("Shop"):
-		var res = Shop.sell_unit(u)
-		# On success, views will be rebuilt via roster signal; else snap back handled by drag base
+		res = Shop.sell_unit(u)
+		sell_ok = bool(res.get("ok", false))
+	else:
+		var root := (parent.get_tree().root if parent else null)
+		var shop_node := (root.get_node_or_null("/root/Shop") if root else null)
+		if shop_node and shop_node.has_method("sell_unit"):
+			res = shop_node.call("sell_unit", u)
+			sell_ok = bool(res.get("ok", false))
+	# On success, ensure drag artifacts are cleaned and the view is removed promptly
+	if sell_ok:
+		if uv.has_method("cleanup_drag_artifacts"):
+			uv.cleanup_drag_artifacts()
+		if uv.is_inside_tree():
+			uv.queue_free()
+	# On success, views will be rebuilt via roster signal or board removal callback
 
 func _auto_start_battle() -> void:
 	if not auto_combat:
@@ -532,8 +728,7 @@ func _on_battle_started(stage: int, enemy: Unit) -> void:
 	Trace.step("CombatView._on_battle_started: begin")
 	_on_log_line("Prepare to fight.")
 	_refresh_hud()
-	if stage_label:
-		stage_label.text = "Stage " + str(stage)
+	_update_stage_label()
 	# Set COMBAT phase before starting Economy escrow so UI refresh sees correct phase
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.COMBAT)
@@ -614,6 +809,36 @@ func _on_log_line(text: String) -> void:
 		log_label.scroll_to_line(log_label.get_line_count() - 1)
 	_log_to_file(text)
 
+func _on_gs_chapter_changed(_prev: int, _next: int) -> void:
+	_update_stage_label()
+
+func _on_gs_stage_changed(_prev: int, _next: int) -> void:
+	_update_stage_label()
+
+func _update_stage_label() -> void:
+	if stage_label == null:
+		return
+	var ch: int = 1
+	var sic: int = 1
+	var total: int = 0
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		var gs = GameState if Engine.has_singleton("GameState") else parent.get_node("/root/GameState")
+		if gs:
+			ch = int(gs.chapter)
+			sic = int(gs.stage_in_chapter)
+			total = int(ChapterCatalog.stages_in(ch))
+	else:
+		# Fallback: derive from manager.stage
+		var st: int = (int(manager.stage) if manager else 1)
+		var map := ProgressionService.from_global_stage(st)
+		ch = int(map.get("chapter", 1))
+		sic = int(map.get("stage_in_chapter", 1))
+		total = int(ChapterCatalog.stages_in(ch))
+	var label := LogSchema.format_stage(ch, sic, total)
+	if RosterUtils.is_boss_stage(sic):
+		label += " " + LogSchema.format_boss_badge()
+	stage_label.text = label
+
 func _log_to_file(_text: String) -> void:
 	return
 
@@ -692,7 +917,14 @@ func _on_intermission_finished() -> void:
 		projectile_bridge.clear()
 	if manager and manager.has_method("finalize_post_combat"):
 		manager.finalize_post_combat()
-		# Rebuild UI after engine resets units
+		# Advance progression on victory so planning shows the upcoming enemy
+		var win2: bool = (_post_combat_outcome == "victory")
+		if win2 and (Engine.has_singleton("GameState") or parent.has_node("/root/GameState")):
+			GameState.advance_after_victory()
+		# Build a fresh preview for the next attempt (next stage on win, same stage on defeat)
+		if manager.has_method("setup_stage_preview"):
+			manager.setup_stage_preview()
+		# Rebuild UI after state changes
 		refresh_all_views()
 		if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
 			if _post_combat_outcome != "":
@@ -708,16 +940,36 @@ func _on_intermission_finished() -> void:
 				if not locked:
 					Shop.add_free_rerolls(1)
 					Shop.reroll()
+	# Refresh label to reflect the stage/round the player will fight next
+	_update_stage_label()
 	if _post_combat_outcome == "defeat" and (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")) and Economy.is_broke():
-		_on_log_line("Out of gold. Press Restart to try again.")
+		# Show loss screen instead of flipping the continue button to Restart
+		var Loss = load("res://scenes/ui/LossScreen.tscn")
+		if Loss:
+			var screen: Control = Loss.instantiate()
+			if screen:
+				screen.z_index = 10000
+				# Configure with last battle stats if available
+				if screen.has_method("configure") and stats_tracker != null:
+					screen.call("configure", stats_tracker)
+				# Add above CombatView
+				if parent and parent is Control:
+					(parent as Control).add_child(screen)
+				else:
+					var ml := Engine.get_main_loop()
+					if ml is SceneTree:
+						(ml as SceneTree).root.add_child(screen)
+		# Hide/disable continue button under overlay
 		if continue_button:
-			continue_button.text = "Restart"
-			continue_button.disabled = false
-			continue_button.visible = true
-			continue_button.grab_focus()
+			continue_button.disabled = true
+			continue_button.visible = false
 	else:
 		if continue_button:
-			continue_button.text = "Continue"
+			# After victory we've already advanced and built a preview; use Start Battle.
+			if _post_combat_outcome == "victory":
+				continue_button.text = "Start Battle"
+			else:
+				continue_button.text = "Continue"
 			continue_button.disabled = false
 			continue_button.visible = true
 	_pending_continue = false

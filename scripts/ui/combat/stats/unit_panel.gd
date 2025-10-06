@@ -248,6 +248,7 @@ func _build_stats_grid() -> void:
     if unit_ref == null:
         return
     var entries := [
+        ["LVL", str(unit_ref.level)],
         ["HP", str(unit_ref.max_hp)],
         ["AD", _fmt(unit_ref.attack_damage)],
         ["SP", _fmt(unit_ref.spell_power)],

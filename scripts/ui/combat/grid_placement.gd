@@ -23,7 +23,9 @@ var enemy_grid_helper: BoardGrid
 var player_views: Array[UnitSlotView] = []
 var enemy_views: Array[UnitSlotView] = []
 
-var _player_indices: Array[int] = []
+# Preserve player placements by Unit identity rather than array position.
+# This avoids unintended reordering when the team array changes.
+var _player_index_by_unit: Dictionary = {}
 var _player_base_tile_idx: int = -1
 
 func configure(_player_grid: GridContainer, _enemy_grid: GridContainer, _tile_size: int, _grid_w: int, _grid_h: int) -> void:
@@ -113,45 +115,55 @@ func rebuild_enemy_views(enemy_team: Array) -> void:
 		Debug.log("Plan", "Enemy positions %s" % [Strings.join(summary, ", ")])
 
 func rebuild_player_views(player_team: Array, allow_drag: bool) -> void:
+	# Capture previous placements by Unit from existing views to preserve layout robustly
+	var prev_map: Dictionary = {}
+	if player_views and player_views.size() > 0:
+		for pv in player_views:
+			if pv and pv.unit != null:
+				prev_map[pv.unit] = int(pv.tile_idx)
 	player_views.clear()
 	if player_team.size() == 0:
+		# No team: clear grid visuals and placement map
+		if player_grid_helper:
+			player_grid_helper.clear()
+		_player_index_by_unit.clear()
 		return
 	if player_grid_helper:
 		player_grid_helper.clear()
-	# Ensure indices array length matches team size, preserving existing placements.
-	var team_size: int = player_team.size()
+	# Assign a tile to each unit, preferring prior placement by Unit identity.
 	var tiles_count: int = player_tiles.size()
-	if _player_indices.size() > team_size:
-		# Shrink: drop trailing indices (units were removed from end)
-		_player_indices.resize(team_size)
-	elif _player_indices.size() < team_size:
-		# Extend: keep existing indices and assign free tiles to new units
-		var used: Dictionary = {}
-		for v in _player_indices:
-			var vi: int = int(v)
-			if vi >= 0:
-				used[vi] = true
-		var base := (_player_base_tile_idx if _player_base_tile_idx >= 0 else 0)
-		for i in range(_player_indices.size(), team_size):
-			var picked: int = -1
-			if tiles_count > 0:
-				for off in range(tiles_count):
-					var cand: int = (base + off) % tiles_count
-					if not used.has(cand):
-						picked = cand
-						break
-			if picked < 0:
-				picked = max(0, min(tiles_count - 1, 0))
-			_player_indices.append(picked)
-			used[picked] = true
+	var used_tiles: Dictionary = {}
+	# Update internal map from previous snapshot but do not pre-mark used tiles.
+	# We will claim tiles progressively so preserved placements are kept where possible.
+	for u in player_team:
+		if u != null and prev_map.has(u):
+			var keep: int = int(prev_map[u])
+			if keep >= 0 and keep < tiles_count:
+				_player_index_by_unit[u] = keep
 	var summary: Array[String] = []
 	var n: int = min(player_team.size(), player_tiles.size())
 	for i in range(n):
 		var pu: Unit = player_team[i]
-		var tile_idx: int = _player_indices[i]
-		if tile_idx < 0:
-			tile_idx = i % max(1, player_tiles.size())
-			_player_indices[i] = tile_idx
+		if pu == null:
+			continue
+		# Prefer existing placement for this Unit
+		var tile_idx: int = int(_player_index_by_unit.get(pu, -1))
+		# If missing/invalid or already used by another unit, pick the next free near base
+		if tile_idx < 0 or tile_idx >= tiles_count or used_tiles.has(tile_idx):
+			var base := (_player_base_tile_idx if _player_base_tile_idx >= 0 else 0)
+			var picked: int = -1
+			if tiles_count > 0:
+				for off in range(tiles_count):
+					var cand: int = (base + off) % tiles_count
+					if not used_tiles.has(cand):
+						picked = cand
+						break
+			if picked < 0:
+				picked = max(0, min(tiles_count - 1, 0))
+			tile_idx = picked
+		# Record and mark used
+		_player_index_by_unit[pu] = tile_idx
+		used_tiles[tile_idx] = true
 		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(pu)
 		# Items overlay
@@ -160,7 +172,9 @@ func rebuild_player_views(player_team: Array, allow_drag: bool) -> void:
 		uv.add_child(_items_view_p)
 		if allow_drag:
 			uv.enable_drag(player_grid_helper)
-			uv.dropped_on_tile.connect(func(idx): _on_player_unit_dropped(i, idx))
+			# Capture loop index by value to avoid late-binding issues
+			var _i := i
+			uv.dropped_on_tile.connect(func(idx): _on_player_unit_dropped(_i, idx))
 		if player_grid_helper:
 			player_grid_helper.attach(uv, tile_idx)
 		var slot := UnitSlotView.new()
@@ -178,18 +192,25 @@ func _on_player_unit_dropped(i: int, idx: int) -> void:
 		return
 	if i < 0 or i >= player_views.size():
 		return
-	# If another unit occupies target, swap indices
+	# Resolve Units for source index and any target occupant
+	var u_i: Unit = player_views[i].unit
+	# Find if some other view currently uses the target tile
 	var j := -1
-	for k in range(_player_indices.size()):
-		if k != i and _player_indices[k] == idx:
+	for k in range(player_views.size()):
+		if k == i:
+			continue
+		var u_k: Unit = player_views[k].unit
+		var t_k: int = int(_player_index_by_unit.get(u_k, -1))
+		if t_k == idx:
 			j = k
 			break
-	var old_idx := _player_indices[i]
-	_player_indices[i] = idx
+	var old_idx: int = int(_player_index_by_unit.get(u_i, -1))
+	_player_index_by_unit[u_i] = idx
 	if j != -1:
 		if j < 0 or j >= player_views.size():
 			return
-		_player_indices[j] = old_idx
+		var u_j: Unit = player_views[j].unit
+		_player_index_by_unit[u_j] = old_idx
 		var ctrl_i: Control = player_views[i].view
 		var ctrl_j: Control = player_views[j].view
 		if player_grid_helper:

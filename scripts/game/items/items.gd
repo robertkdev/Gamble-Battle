@@ -165,6 +165,46 @@ func remove_all(unit) -> Dictionary:
 	print("[Items] remove_all on=", uname3, " -> returned=", int(result.get("returned", 0)))
 	return result
 
+func force_set_equipped(unit, ids) -> Dictionary:
+	_cleanup_invalid_units()
+	var result := {"ok": false, "reason": ""}
+	if unit == null:
+		result.reason = "no_unit"
+		return result
+	var requested: Array = []
+	if ids is Array:
+		requested = ids
+	elif typeof(ids) == TYPE_STRING:
+		requested = [ids]
+	elif ids != null:
+		requested = [String(ids)]
+	var deduped: Array[String] = []
+	var seen: Dictionary = {}
+	for raw in requested:
+		if raw == null:
+			continue
+		var key := String(raw).strip_edges()
+		if key == "":
+			continue
+		if not ItemCatalog.get_def(key):
+			push_warning("Items.force_set_equipped: unknown item %s" % key)
+			continue
+		if seen.has(key):
+			continue
+		seen[key] = true
+		deduped.append(key)
+	if deduped.size() > MAX_SLOTS:
+		deduped = deduped.slice(0, MAX_SLOTS)
+	_equipped[unit] = deduped.duplicate()
+	_watch_unit(unit)
+	if _equip_service:
+		_equip_service.recompute_for(unit)
+	equipped_changed.emit(unit)
+	result.ok = true
+	result["count"] = deduped.size()
+	result["items"] = deduped.duplicate()
+	return result
+
 func get_equipped(unit) -> Array:
 	_cleanup_invalid_units()
 	var eq: Array = _equipped.get(unit, [])

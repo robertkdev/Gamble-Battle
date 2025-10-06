@@ -33,8 +33,7 @@ func attach_card(card: Node) -> void:
 	# In Godot 4, connect expects a Callable; bind the card as extra arg
 	if not card.is_connected(sig, Callable(self, "_on_card_dropped")):
 		card.connect(sig, Callable(self, "_on_card_dropped").bind(card))
-	var iid_dbg: String = (card.get("item_id") if card and card.has_method("get") else "?")
-	print("[ItemDrag] Router attached to card id=", iid_dbg)
+
 
 func _on_card_dropped(grid, tile_idx: int, card) -> void:
 	if grid == null or tile_idx < 0 or card == null:

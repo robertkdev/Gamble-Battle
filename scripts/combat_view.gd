@@ -1,6 +1,6 @@
 extends Control
 
-const CombatController := preload("res://scripts/ui/combat/controller/combat_controller.gd")
+var _controller_script: Script = null
 
 @onready var log_label: RichTextLabel = get_node_or_null("MarginContainer/VBoxContainer/Log") as RichTextLabel
 @onready var player_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/PlayerStatsLabel"
@@ -26,7 +26,7 @@ const CombatController := preload("res://scripts/ui/combat/controller/combat_con
 ## Title screen removed
 
 var manager: CombatManager
-var controller: CombatController
+var controller
 
 var player_name: String = "Hero"
 
@@ -46,10 +46,14 @@ func _ready() -> void:
 	if manager == null:
 		manager = load("res://scripts/combat_manager.gd").new()
 		add_child(manager)
-	controller = CombatController.new()
+	if _controller_script == null:
+		_controller_script = load("res://scripts/ui/combat/controller/combat_controller.gd")
+	if _controller_script != null:
+		controller = _controller_script.new()
+	else:
+		controller = null
 	controller.configure(self, manager, _collect_nodes())
 	controller.initialize()
-	call_deferred("_log_initial_layout", "CombatView snapshot (ready)")
 	set_process(true)
 
 func _init_game() -> void:
@@ -185,8 +189,7 @@ func set_player_team_ids(ids: Array) -> void:
 	controller.set_player_team_ids(ids)
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree():
-		call_deferred("_log_initial_layout", "CombatView snapshot (visible)")
+	pass
 
 
 func _log_initial_layout(tag: String = "CombatView snapshot") -> void:
