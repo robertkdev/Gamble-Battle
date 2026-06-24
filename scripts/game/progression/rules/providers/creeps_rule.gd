@@ -55,7 +55,7 @@ func on_battle_start(state, engine, spec: Dictionary, _ch: int = 0, _sic: int = 
 	var options: Dictionary = {
 		"rolls_per_kill": int(cfg.get("rolls_per_kill", pool.rolls_per_kill)),
 		"only_creeps": bool(cfg.get("only_creeps", true)),
-		"source_team": String(cfg.get("source_team", "any")),
+		"source_team": String(cfg.get("source_team", "player")),
 		"max_triggers": int(cfg.get("max_triggers", -1)),
 	}
 	_runtime.configure(engine, pool, options)

@@ -9,19 +9,19 @@
 script = ExtResource("2")
 id = "nothing"
 kind = "nothing"
-weight = 40.0
+weight = 20.0
 
 [sub_resource type="Resource" id="6"]
 script = ExtResource("2")
 id = "gold_pool_pick"
 kind = "pool"
-weight = 40.0
+weight = 25.0
 sub_pool = ExtResource("3")
 
 [sub_resource type="Resource" id="7"]
 script = ExtResource("2")
 id = "drop_component"
-weight = 90.0
+weight = 70.0
 action_id = "drop_component"
 action_params = {
 "count": 1

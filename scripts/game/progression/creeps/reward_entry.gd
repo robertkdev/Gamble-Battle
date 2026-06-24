@@ -8,6 +8,7 @@ class_name CreepRewardEntry
 @export var weight: float = 1.0
 
 # For kind == "action": identifier understood by the runtime (e.g., grant_gold, drop_component)
+# Creep rewards intentionally drop item components, not completed items.
 @export var action_id: String = ""
 @export var action_params: Dictionary = {}
 

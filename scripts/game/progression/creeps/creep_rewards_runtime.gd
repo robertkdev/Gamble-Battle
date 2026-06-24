@@ -25,7 +25,7 @@ func configure(_engine: CombatEngine, _pool: CreepRewardPool, options: Dictionar
 	pool = _pool
 	rolls_per_kill = int(options.get("rolls_per_kill", (pool.rolls_per_kill if pool != null else 1)))
 	only_creeps = bool(options.get("only_creeps", true))
-	source_team_filter = String(options.get("source_team", "any")).strip_edges().to_lower()
+	source_team_filter = String(options.get("source_team", "player")).strip_edges().to_lower()
 	max_triggers = int(options.get("max_triggers", -1))
 	_dead_seen.clear()
 	_dead_seen["player"] = {}
@@ -193,10 +193,8 @@ func _execute_action(action_id: String, params: Dictionary) -> void:
 			print(LOG_PREFIX, "action drop_component: count=", count, " tags=", tags)
 			_drop_items("component", count, tags)
 		"drop_completed":
-			var count2: int = max(1, int(params.get("count", 1)))
-			var tags2 := _to_packed(params.get("tags", PackedStringArray()))
-			print(LOG_PREFIX, "action drop_completed: count=", count2, " tags=", tags2)
-			_drop_items("completed", count2, tags2)
+			_log("Creep reward skipped: completed items do not drop from creeps")
+			print(LOG_PREFIX, "action drop_completed disabled for creep rewards")
 		"log":
 			var text: String = String(params.get("text", "Creep reward"))
 			_log(text)

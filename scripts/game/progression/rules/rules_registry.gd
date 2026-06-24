@@ -27,6 +27,8 @@ static func ensure_builtins() -> void:
     # Attempt to load built-in provider implementations; fall back to no-op RuleProvider
     _register_builtin(StageTypes.KIND_NORMAL, "res://scripts/game/progression/rules/providers/normal_rule.gd")
     _register_builtin(StageTypes.KIND_CREEPS, "res://scripts/game/progression/rules/providers/creeps_rule.gd")
+    _register_builtin(StageTypes.KIND_ELITE, "res://scripts/game/progression/rules/providers/elite_rule.gd")
+    _register_builtin(StageTypes.KIND_EVENT, "res://scripts/game/progression/rules/providers/elite_rule.gd")
     _register_builtin(StageTypes.KIND_BOSS, "res://scripts/game/progression/rules/providers/boss_rule.gd")
 
 static func clear_runtime() -> void:

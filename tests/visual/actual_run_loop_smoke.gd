@@ -1,8 +1,9 @@
 extends Node
 
 const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
-const SHOP_CONFIG := preload("res://scripts/game/shop/shop_config.gd")
-const UnitFactory := preload("res://scripts/unit_factory.gd")
+const ItemCatalog = preload("res://scripts/game/items/item_catalog.gd")
+const SHOP_CONFIG = preload("res://scripts/game/shop/shop_config.gd")
+const UnitFactory = preload("res://scripts/unit_factory.gd")
 const LOSS_CYCLES: int = 5
 const CLICK_SETTLE_FRAMES: int = 3
 const DRAG_STEPS: int = 8
@@ -39,7 +40,7 @@ func _run() -> void:
 	_expect(Items.get_inventory_snapshot().is_empty(), "new run should start with clean item inventory")
 
 	for cycle_index: int in range(1, LOSS_CYCLES + 1):
-		await _play_loss_cycle("paisley", cycle_index)
+		await _play_loss_cycle("axiom", cycle_index)
 		if _finish_if_failed():
 			return
 	await _play_shop_cycle("bonko")
@@ -65,7 +66,7 @@ func _finish() -> void:
 			push_error("ActualRunLoopSmoke: " + failure)
 		exit_code = 1
 	_cleanup_runtime()
-	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 2), CONNECT_ONE_SHOT)
+	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
 
 func _quit_after_cleanup(exit_code: int, frames_left: int) -> void:
 	if frames_left > 0:
@@ -74,6 +75,12 @@ func _quit_after_cleanup(exit_code: int, frames_left: int) -> void:
 	get_tree().quit(exit_code)
 
 func _cleanup_runtime() -> void:
+	if _main != null and is_instance_valid(_main) and _main.has_method("_reset_run_state"):
+		_main.call("_reset_run_state")
+	if Engine.has_singleton("Items") and Items.has_method("reset_run"):
+		Items.reset_run()
+	ItemCatalog.clear_cache()
+	UnitFactory.clear_cache()
 	if _main != null and is_instance_valid(_main):
 		var parent: Node = _main.get_parent()
 		if parent != null:
@@ -124,6 +131,10 @@ func _play_shop_cycle(unit_id: String) -> void:
 	await _ensure_unit_select()
 	await _select_starter(unit_id)
 	await _settle_frames(4)
+	var repositioned: bool = await _reposition_first_board_unit("shop cycle board reposition")
+	_expect(repositioned, "shop cycle board unit did not reposition through mouse drag")
+	if not repositioned:
+		return
 	_set_planning_timer_safe()
 	_expect(_first_fight_placeholder_visible(), "forced first fight shop placeholder was not visible")
 	_expect(_opening_shop_buttons_disabled(), "opening shop controls should be disabled during forced first fight")
