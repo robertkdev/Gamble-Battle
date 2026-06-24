@@ -30,7 +30,8 @@ func _run() -> void:
 	_expect(shop_grid != null, "ShopGrid missing", failures)
 	if shop_grid != null and shop_grid.get_child_count() > 0:
 		var first_slot: Control = shop_grid.get_child(0) as Control
-		_expect(first_slot != null and first_slot.custom_minimum_size.x >= 168.0, "Shop slots are too small", failures)
+		_expect(first_slot != null and first_slot.custom_minimum_size.x >= 150.0, "Shop slots are too small", failures)
+		_expect(first_slot != null and first_slot.custom_minimum_size.y <= 150.0, "Shop slots are too tall for 1080p layout", failures)
 	var player_tile: Button = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid/TileP_00") as Button
 	_expect(player_tile != null, "Player tile missing", failures)
 	if player_tile != null:

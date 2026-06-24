@@ -29,6 +29,10 @@ const ProgressionService := preload("res://scripts/game/progression/progression_
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
 const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 
+const START_BATTLE_TEXT: String = "Start Battle"
+const START_FORCED_FIGHT_TEXT: String = "Start Forced Fight"
+const BATTLE_LOCKED_TEXT: String = "Battle Locked"
+
 # Parent scene (CombatView)
 var parent: Control
 
@@ -394,7 +398,7 @@ func _init_game() -> void:
 	if continue_button:
 		continue_button.disabled = false
 		continue_button.visible = true
-		continue_button.text = "Start Battle"
+		continue_button.text = START_BATTLE_TEXT
 	if attack_button:
 		attack_button.disabled = true
 	if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
@@ -429,6 +433,7 @@ func _init_game() -> void:
 		refresh_all_views()
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.PREVIEW)
+	_set_continue_to_start_text()
 	# Mount inventory UI presenter (left panel)
 	if items_presenter == null:
 		items_presenter = ItemsPresenter.new()
@@ -503,7 +508,7 @@ func _on_menu_pressed() -> void:
 func _on_continue_pressed() -> void:
 	if not continue_button:
 		return
-	if continue_button.text == "Start Battle":
+	if _is_continue_start_text():
 		Trace.step("Continue pressed: Start Battle branch")
 		if not (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")):
 			if Debug.enabled:
@@ -522,13 +527,14 @@ func _on_continue_pressed() -> void:
 			return
 		Trace.step("Economy bet accepted")
 		continue_button.disabled = true
-		continue_button.text = "Battle Locked"
+		continue_button.text = BATTLE_LOCKED_TEXT
 		if economy_ui:
 			economy_ui.set_bet_editable(false)
 		if manager.player_team.is_empty():
 			if Debug.enabled:
 				print("[CombatView] Cannot start combat: player team is empty")
 			continue_button.disabled = false
+			_set_continue_to_start_text()
 			return
 		# Precompute arena positions from current planning layout so engine starts at chosen tiles
 		if grid_placement and arena_bridge and manager:
@@ -765,8 +771,8 @@ func _on_unit_dropped_any(target_grid, _tile_idx: int, uv: UnitView) -> void:
 func _auto_start_battle() -> void:
 	if not auto_combat:
 		return
-	if continue_button and continue_button.text != "Start Battle":
-		continue_button.text = "Start Battle"
+	if continue_button and not _is_continue_start_text():
+		_set_continue_to_start_text()
 	if Debug.enabled:
 		print("[CombatView] Auto-starting battle")
 	_on_continue_pressed()
@@ -1080,7 +1086,7 @@ func _on_intermission_finished() -> void:
 	else:
 		if continue_button:
 			# After intermission (win or loss), planning is ready; always show Start Battle.
-			continue_button.text = "Start Battle"
+			_set_continue_to_start_text()
 			continue_button.disabled = false
 			continue_button.visible = true
 	_pending_continue = false
@@ -1237,3 +1243,29 @@ func set_player_team_ids(ids: Array) -> void:
 		var u: Unit = uf.spawn(String(id))
 		if u:
 			manager.player_team.append(u)
+
+func _is_continue_start_text() -> bool:
+	if continue_button == null:
+		return false
+	var button_text: String = String(continue_button.text)
+	return button_text == START_BATTLE_TEXT or button_text == START_FORCED_FIGHT_TEXT
+
+func _set_continue_to_start_text() -> void:
+	if continue_button == null:
+		return
+	continue_button.text = START_FORCED_FIGHT_TEXT if _is_forced_first_fight() else START_BATTLE_TEXT
+
+func _is_forced_first_fight() -> bool:
+	var has_game_state: bool = Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))
+	if not has_game_state:
+		return false
+	var first_stage: bool = int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 1
+	var preview_phase: bool = int(GameState.phase) == int(GameState.GamePhase.PREVIEW)
+	if not first_stage or not preview_phase:
+		return false
+	var has_shop: bool = Engine.has_singleton("Shop") or (parent != null and parent.has_node("/root/Shop"))
+	if not has_shop:
+		return true
+	if Shop == null or Shop.state == null or Shop.state.offers == null:
+		return true
+	return Shop.state.offers.is_empty()

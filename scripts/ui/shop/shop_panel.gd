@@ -11,6 +11,8 @@ var _grid: GridContainer = null
 var _slot_count: int = ShopConfig.SLOT_COUNT
 var _host_container: Container = null
 var _cards: Array = []
+var _empty_label_text: String = "LEDGER"
+var _empty_hint_text: String = "Reroll to reveal"
 
 func configure(grid: GridContainer, slot_count: int = ShopConfig.SLOT_COUNT) -> void:
     _grid = grid
@@ -18,9 +20,16 @@ func configure(grid: GridContainer, slot_count: int = ShopConfig.SLOT_COUNT) -> 
     _slot_count = max(1, int(slot_count))
     if _grid and _grid.has_method("set"):
         _grid.columns = _slot_count
+        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, 790.0), 138.0)
 
 func get_host_container() -> Container:
     return _host_container
+
+func set_empty_state(label_text: String, hint_text: String = "") -> void:
+    _empty_label_text = String(label_text).strip_edges()
+    _empty_hint_text = String(hint_text).strip_edges()
+    if _empty_label_text == "":
+        _empty_label_text = "LEDGER"
 
 func set_offers(offers: Array) -> void:
     if _grid == null:
@@ -106,19 +115,19 @@ func _make_sold() -> Control:
 
 func _make_placeholder(sold: bool) -> Control:
     var wrap: PanelContainer = PanelContainer.new()
-    wrap.custom_minimum_size = Vector2(168.0, 176.0)
+    wrap.custom_minimum_size = Vector2(150.0, 138.0)
     wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_theme_stylebox_override("panel", _make_placeholder_style(sold))
 
     var stack: VBoxContainer = VBoxContainer.new()
     stack.alignment = BoxContainer.ALIGNMENT_CENTER
-    stack.add_theme_constant_override("separation", 8)
+    stack.add_theme_constant_override("separation", 5)
     stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_child(stack)
 
     var icon: TextureRect = TextureRect.new()
     icon.texture = EmptySigilTexture
-    icon.custom_minimum_size = Vector2(78.0, 78.0)
+    icon.custom_minimum_size = Vector2(50.0, 50.0)
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     icon.modulate = Color(0.82, 0.58, 0.34, 0.30) if not sold else Color(0.82, 0.14, 0.14, 0.34)
@@ -126,14 +135,28 @@ func _make_placeholder(sold: bool) -> Control:
     stack.add_child(icon)
 
     var label: Label = Label.new()
-    label.text = "SEALED" if sold else "LEDGER"
+    label.text = "SEALED" if sold else _empty_label_text
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    label.add_theme_font_size_override("font_size", 12)
+    label.add_theme_font_size_override("font_size", 11)
     label.add_theme_color_override("font_color", Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.74, 0.48, 0.44, 0.88))
     label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.80))
     label.add_theme_constant_override("outline_size", 1)
     label.mouse_filter = Control.MOUSE_FILTER_IGNORE
     stack.add_child(label)
+
+    var hint_text: String = "Purchased" if sold else _empty_hint_text
+    if hint_text != "":
+        var hint: Label = Label.new()
+        hint.text = hint_text
+        hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        hint.custom_minimum_size = Vector2(126.0, 0.0)
+        hint.add_theme_font_size_override("font_size", 10)
+        hint.add_theme_color_override("font_color", Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.58, 0.38, 0.36, 0.86))
+        hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
+        hint.add_theme_constant_override("outline_size", 1)
+        hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        stack.add_child(hint)
     return wrap
 
 func _make_placeholder_style(sold: bool) -> StyleBoxFlat:

@@ -40,6 +40,12 @@ func _run() -> void:
 		_expect(selected_label != null and selected_label.text != "No champion chosen", "Selection label did not update", failures)
 		var art: TextureRect = view.get_node_or_null("Center/HBox/Right/Preview/ArtWrap/Art") as TextureRect
 		_expect(art != null and art.texture != null, "Preview art did not load", failures)
+		view.reset_selection()
+		await get_tree().process_frame
+		_expect(start_button.disabled, "StartButton did not disable after reset_selection", failures)
+		_expect(view.selected_id == "", "selected_id did not clear after reset_selection", failures)
+		_expect(selected_label != null and selected_label.text == "No champion chosen", "Selection label did not reset", failures)
+		_expect(art != null and art.texture == null, "Preview art did not clear after reset_selection", failures)
 
 	if failures.size() > 0:
 		for failure: String in failures:

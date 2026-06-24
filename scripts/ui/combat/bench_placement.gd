@@ -106,7 +106,7 @@ func _ensure_overlay_layer() -> void:
     _overlay_layer = Control.new()
     if bench_grid and is_instance_valid(bench_grid):
         bench_grid.add_child(_overlay_layer)
-        _overlay_layer.z_index = 10000
+        _overlay_layer.z_index = 3000
         _overlay_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
         _overlay_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
         _overlay_layer.offset_left = 0
@@ -131,8 +131,8 @@ func make_level_up_effect_opts(tile_index: int, level: int) -> Dictionary:
         "flash_rect": rect,
         "ring_top_level": true,
         "flash_top_level": true,
-        "ring_z_index": 12000,
-        "flash_z_index": 12010,
+        "ring_z_index": 3010,
+        "flash_z_index": 3020,
         "flash_color": Color(1, 1, 1, 0.4)
     }
     opts["level"] = level

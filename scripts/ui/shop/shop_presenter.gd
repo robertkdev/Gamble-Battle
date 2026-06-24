@@ -85,6 +85,7 @@ func _wire() -> void:
 func _refresh_now() -> void:
 	if not _has_shop():
 		return
+	_apply_empty_state()
 	# If Shop has current offers (after reroll), show them; else show empties
 	if Shop and Shop.state and Shop.state.offers != null:
 		_panel.set_offers(Shop.state.offers)
@@ -96,6 +97,7 @@ func _refresh_now() -> void:
 	
 func _on_offers_changed(offers: Array) -> void:
 	if _panel:
+		_apply_empty_state()
 		_panel.set_offers(offers)
 		_refresh_cards_state()
 		_refresh_progress()
@@ -125,13 +127,10 @@ func _on_economy_changed(_v := 0) -> void:
 	_refresh_progress()
 
 func _on_phase_changed(_prev: int, _next: int) -> void:
-	_refresh_cards_state()
+	_refresh_now()
 
 func _refresh_cards_state() -> void:
 	if _panel == null:
-		return
-	var cards: Array = _panel.get_cards()
-	if cards.is_empty():
 		return
 	var gold: int = 0
 	if _has_economy():
@@ -143,8 +142,24 @@ func _refresh_cards_state() -> void:
 	var in_combat: bool = false
 	if _has_game_state():
 		in_combat = (GameState.phase == GameState.GamePhase.COMBAT)
+	var forced_first_fight: bool = _is_forced_first_fight()
 	if _buttons:
-		_buttons.set_enabled(not in_combat)
+		_buttons.set_enabled(not in_combat and not forced_first_fight)
+		if forced_first_fight:
+			var first_tip: String = "First fight is forced. Win to open the shop."
+			_buttons.set_reroll_tooltip(first_tip)
+			_buttons.set_lock_tooltip(first_tip)
+			_buttons.set_buy_xp_tooltip(first_tip)
+		elif in_combat:
+			var combat_tip: String = "Shop locked during battle"
+			_buttons.set_reroll_tooltip(combat_tip)
+			_buttons.set_lock_tooltip(combat_tip)
+			_buttons.set_buy_xp_tooltip(combat_tip)
+		else:
+			_buttons.set_lock_tooltip("")
+	var cards: Array = _panel.get_cards()
+	if cards.is_empty():
+		return
 	var bet: int = (int(Economy.current_bet) if _has_economy() else 0)
 	var spent: int = (int(Economy.combat_spent) if _has_economy() and in_combat else 0)
 	var idx: int = 0
@@ -181,6 +196,8 @@ func _refresh_cards_state() -> void:
 		idx += 1
 
 	# Buttons hints
+	if forced_first_fight or in_combat:
+		return
 	if _buttons:
 		var r_cost: int = int(ShopConfig.REROLL_COST)
 		var aff_r := ShopAffordability.can_afford(gold, bet, r_cost, in_combat, spent)
@@ -213,6 +230,9 @@ func _refresh_cards_state() -> void:
 func _on_card_clicked(slot_index: int) -> void:
 	if not _has_shop():
 		return
+	if _is_forced_first_fight():
+		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		return
 	var res = Shop.buy_unit(int(slot_index))
 	# Emit promotions for UI effects if present
 	if typeof(res) == TYPE_DICTIONARY:
@@ -228,12 +248,18 @@ func set_enabled(enabled: bool) -> void:
 func _on_reroll() -> void:
 	if not _has_shop():
 		return
+	if _is_forced_first_fight():
+		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		return
 	if Shop:
 		Shop.reroll()
 	_refresh_progress()
 
 func _on_lock() -> void:
 	if not _has_shop():
+		return
+	if _is_forced_first_fight():
+		_show_message("First fight is forced. Win to open the shop.", 2.0)
 		return
 	if Shop:
 		Shop.toggle_lock()
@@ -242,10 +268,31 @@ func _on_lock() -> void:
 func _on_buy_xp() -> void:
 	if not _has_shop():
 		return
+	if _is_forced_first_fight():
+		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		return
 	if Shop:
 		Shop.buy_xp()
 		_refresh_progress()
 		_refresh_cards_state()
+
+func _apply_empty_state() -> void:
+	if _panel == null:
+		return
+	if _is_forced_first_fight():
+		_panel.set_empty_state("FIRST FIGHT", "Win to open shop")
+	else:
+		_panel.set_empty_state("LEDGER", "Reroll to reveal")
+
+func _is_forced_first_fight() -> bool:
+	if not _has_game_state() or not _has_shop():
+		return false
+	var first_stage: bool = int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 1
+	var preview_phase: bool = int(GameState.phase) == int(GameState.GamePhase.PREVIEW)
+	var offers_empty: bool = true
+	if Shop and Shop.state and Shop.state.offers != null:
+		offers_empty = Shop.state.offers.is_empty()
+	return first_stage and preview_phase and offers_empty
 
 func _rebuild_drop_grid() -> void:
 	if _grid == null:

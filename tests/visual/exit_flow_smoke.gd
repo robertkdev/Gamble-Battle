@@ -51,6 +51,7 @@ func _run() -> void:
 	_expect(_node_visible("UnitSelect"), "new run should land on unit select")
 	_expect(int(GameState.stage) == 1, "new run should reset stage to 1")
 	_expect(int(Economy.gold) == 2, "new run should reset gold to starting value")
+	_expect(_unit_select_reset(), "new run should clear unit select choice")
 
 	if _main.has_method("_on_unit_selected"):
 		_main.call("_on_unit_selected", "mortem")
@@ -84,6 +85,7 @@ func _run() -> void:
 	_expect(get_tree().root.get_node_or_null("LossOverlayLayer") == null, "new run should clear defeat overlay layer")
 	_expect(_node_visible("UnitSelect"), "new run from overlay state should land on unit select")
 	_expect(not get_tree().paused, "new run from overlay state should unpause")
+	_expect(_unit_select_reset(), "new run from overlay state should clear unit select choice")
 
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
 	if _failures.is_empty():
@@ -125,6 +127,13 @@ func _node_visible(path: String) -> bool:
 func _embedded_combat_menu_visible() -> bool:
 	var button: Button = _main.get_node_or_null("CombatView/TopBar/MenuButton") as Button
 	return button != null and button.visible
+
+func _unit_select_reset() -> bool:
+	var select: UnitSelect = _main.get_node_or_null("UnitSelect") as UnitSelect
+	if select == null:
+		return false
+	var start: Button = select.get_node_or_null("Center/HBox/Right/StartButton") as Button
+	return select.selected_id == "" and start != null and start.disabled
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

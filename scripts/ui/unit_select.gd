@@ -219,6 +219,29 @@ func show_screen() -> void:
 func hide_screen() -> void:
 	visible = false
 
+func reset_selection() -> void:
+	selected_id = ""
+	_hovered_id = ""
+	for unit_id: String in buttons_by_id.keys():
+		var button: Button = buttons_by_id.get(unit_id, null) as Button
+		if button == null:
+			continue
+		button.button_pressed = false
+		button.scale = Vector2.ONE
+		button.z_index = 0
+		if button.has_meta("hover_tween"):
+			var hover_tween: Tween = button.get_meta("hover_tween") as Tween
+			if hover_tween != null and is_instance_valid(hover_tween):
+				hover_tween.kill()
+	if start_button != null:
+		start_button.disabled = true
+		start_button.scale = Vector2.ONE
+		_style_start_button()
+	if help_label != null:
+		help_label.visible = true
+	_clear_preview()
+	_style_unit_cards()
+
 func _populate_units() -> void:
 	items.clear()
 	items_by_id.clear()

@@ -259,7 +259,7 @@ static func _apply_progress_bar(progress: ProgressBar) -> void:
 
 static func _apply_color_rect(rect: ColorRect) -> void:
 	if _has_ancestor_named(rect, "ShopGrid"):
-		rect.custom_minimum_size = Vector2(168.0, 154.0)
+		rect.custom_minimum_size = Vector2(150.0, 132.0)
 		rect.color = Color(0.047, 0.041, 0.050, 0.80)
 	elif rect.name == "BarBG":
 		rect.color = Color(0.025, 0.026, 0.032, 0.94)
@@ -281,11 +281,11 @@ static func _apply_tile(button: Button, is_player: bool) -> void:
 	button.add_theme_stylebox_override("focus", hover_style)
 
 static func _style_shop_card(button: Button) -> void:
-	button.custom_minimum_size = Vector2(168.0, 176.0)
+	button.custom_minimum_size = Vector2(150.0, 138.0)
 	button.add_theme_stylebox_override("normal", _style(Color(0.036, 0.030, 0.038, 0.98), Color(0.50, 0.37, 0.28, 0.98), 2, 5))
 	button.add_theme_stylebox_override("hover", _hover_style(Color(0.105, 0.046, 0.056, 0.99), COLOR_GOLD_HOT, 2, 5))
 	button.add_theme_stylebox_override("pressed", _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 2, 5))
-	button.add_theme_font_size_override("font_size", 14)
+	button.add_theme_font_size_override("font_size", 13)
 	button.clip_text = false
 
 static func _style_shop_action_button(button: Button) -> void:

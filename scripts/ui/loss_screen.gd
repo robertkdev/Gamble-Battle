@@ -106,6 +106,13 @@ func _populate() -> void:
 func _on_new_game() -> void:
 	# Reset run-related singletons and return to unit select flow
 	var overlay_parent: Node = get_parent()
+	var main: Node = _find_main()
+	if main != null and main.has_method("request_new_run"):
+		main.call("request_new_run")
+		queue_free()
+		if overlay_parent is CanvasLayer and not overlay_parent.is_queued_for_deletion():
+			overlay_parent.queue_free()
+		return
 	var economy: Node = _get_autoload("Economy")
 	if economy != null and economy.has_method("reset_run"):
 		economy.call("reset_run")
@@ -121,14 +128,11 @@ func _on_new_game() -> void:
 			gs.call("set_chapter_and_stage", 1, 1)
 		elif gs.has_method("set_stage"):
 			gs.call("set_stage", 1)
-	var main: Node = get_tree().root.get_node_or_null("Main")
-	if main == null:
-		main = get_tree().root.get_node_or_null("/root/Main")
 	if main and main.has_method("_on_start"):
 		main.call("_on_start")
 	# Close this screen
 	queue_free()
-	if overlay_parent is CanvasLayer:
+	if overlay_parent is CanvasLayer and not overlay_parent.is_queued_for_deletion():
 		overlay_parent.queue_free()
 
 func _get_autoload(autoload_name: String) -> Node:
@@ -141,6 +145,19 @@ func _get_autoload(autoload_name: String) -> Node:
 	if node == null:
 		node = root.get_node_or_null("/root/%s" % String(autoload_name))
 	return node
+
+func _find_main() -> Node:
+	if not is_inside_tree():
+		return null
+	var root: Window = get_tree().root
+	if root == null:
+		return null
+	var main: Node = root.get_node_or_null("Main")
+	if main == null:
+		main = root.get_node_or_null("/root/Main")
+	if main == null:
+		main = root.find_child("Main", true, false)
+	return main
 
 func _apply_styles() -> void:
 	if panel != null:

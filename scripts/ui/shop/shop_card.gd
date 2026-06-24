@@ -211,7 +211,7 @@ func _make_tag_style() -> StyleBoxFlat:
 
 func _apply_static_style() -> void:
 	pivot_offset = size * 0.5
-	custom_minimum_size = Vector2(168.0, 176.0)
+	custom_minimum_size = Vector2(150.0, 138.0)
 	add_theme_stylebox_override("normal", _make_card_style(false, false))
 	add_theme_stylebox_override("hover", _make_card_style(false, true))
 	add_theme_stylebox_override("pressed", _make_card_style(true, true))
@@ -221,10 +221,10 @@ func _apply_static_style() -> void:
 	if _icon:
 		_icon.z_index = 2
 		_icon.modulate = Color(1.0, 0.93, 0.82, 1.0)
-		_icon.anchor_left = 0.08
-		_icon.anchor_top = 0.17
-		_icon.anchor_right = 0.92
-		_icon.anchor_bottom = 0.84
+		_icon.anchor_left = 0.12
+		_icon.anchor_top = 0.21
+		_icon.anchor_right = 0.88
+		_icon.anchor_bottom = 0.78
 		_icon.offset_left = 0.0
 		_icon.offset_top = 0.0
 		_icon.offset_right = 0.0
@@ -245,7 +245,7 @@ func _apply_static_style() -> void:
 	if _legacy_role_label:
 		_legacy_role_label.visible = false
 	if _role_badge:
-		_role_badge.add_theme_font_size_override("font_size", 12)
+		_role_badge.add_theme_font_size_override("font_size", 11)
 		_role_badge.add_theme_color_override("font_color", COLOR_GOLD)
 		_role_badge.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
 		_role_badge.add_theme_constant_override("outline_size", 1)
@@ -253,13 +253,13 @@ func _apply_static_style() -> void:
 		_goal_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _name_label:
 		_name_label.z_index = 6
-		_name_label.add_theme_font_size_override("font_size", 15)
+		_name_label.add_theme_font_size_override("font_size", 13)
 		_name_label.add_theme_color_override("font_color", COLOR_TEXT)
 		_name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_name_label.add_theme_constant_override("outline_size", 1)
 	if _price_label:
 		_price_label.z_index = 6
-		_price_label.add_theme_font_size_override("font_size", 14)
+		_price_label.add_theme_font_size_override("font_size", 13)
 		_price_label.add_theme_color_override("font_color", COLOR_GOLD)
 		_price_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_price_label.add_theme_constant_override("outline_size", 1)

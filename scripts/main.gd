@@ -374,6 +374,9 @@ func _reset_run_state() -> void:
 		if game_state.has_method("set_phase"):
 			game_state.call("set_phase", GameState.GamePhase.MENU)
 
+	if unit_select != null and unit_select.has_method("reset_selection"):
+		unit_select.call("reset_selection")
+
 func _remove_runtime_overlays() -> void:
 	var root: Window = get_tree().root
 	var layer: Node = root.get_node_or_null(LOSS_OVERLAY_LAYER_NAME)

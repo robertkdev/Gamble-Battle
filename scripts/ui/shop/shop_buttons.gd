@@ -81,6 +81,10 @@ func set_reroll_tooltip(text: String) -> void:
 	if _reroll:
 		_reroll.tooltip_text = String(text)
 
+func set_lock_tooltip(text: String) -> void:
+	if _lock:
+		_lock.tooltip_text = String(text)
+
 func set_buy_xp_tooltip(text: String) -> void:
 	if _buy_xp:
 		_buy_xp.tooltip_text = String(text)

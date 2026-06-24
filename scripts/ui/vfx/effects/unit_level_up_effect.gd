@@ -59,6 +59,9 @@ func _spawn_ring() -> void:
 	if parent == null:
 		return
 	var ring: LevelUpVfx = LevelUpVfx.new()
+	if ring_top_level:
+		ring.top_level = true
+		ring.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	parent.add_child(ring)
 	ring.z_index = int(options.get("ring_z_index", 100))
 	var base_color: Color = options.get("ring_color_override", Color()) if options.has("ring_color_override") else ring.color
@@ -92,6 +95,9 @@ func _spawn_flash() -> void:
 	if parent == null:
 		return
 	var flash := ColorRect.new()
+	if flash_top_level:
+		flash.top_level = true
+		flash.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	parent.add_child(flash)
 	flash.z_index = int(options.get("flash_z_index", 120))
 	flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
