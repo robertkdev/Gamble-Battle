@@ -41,21 +41,25 @@ func _ensure_tiles() -> void:
     # Collect existing button children first
     for c in bench_grid.get_children():
         if c is Button:
-            var b := c as Button
+            var b: Button = c as Button
             b.text = ""
             b.toggle_mode = false
             b.focus_mode = Control.FOCUS_NONE
-            b.disabled = true
+            b.disabled = false
+            b.mouse_filter = Control.MOUSE_FILTER_PASS
+            b.mouse_default_cursor_shape = Control.CURSOR_ARROW
             # Always enforce tile size from constants to allow runtime scaling
             b.custom_minimum_size = Vector2(tile_size, tile_size)
             tiles.append(b)
     # Create more tiles if needed to reach capacity
     while tiles.size() < capacity:
-        var nb := Button.new()
+        var nb: Button = Button.new()
         nb.text = ""
         nb.toggle_mode = false
         nb.focus_mode = Control.FOCUS_NONE
-        nb.disabled = true
+        nb.disabled = false
+        nb.mouse_filter = Control.MOUSE_FILTER_PASS
+        nb.mouse_default_cursor_shape = Control.CURSOR_ARROW
         nb.custom_minimum_size = Vector2(tile_size, tile_size)
         bench_grid.add_child(nb)
         tiles.append(nb)

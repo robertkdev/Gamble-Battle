@@ -16,6 +16,7 @@ var _grids: Array[BoardGrid] = [] # Optional multiple targets; first is preferre
 var _dragging: bool = false
 var _mouse_down: bool = false
 var _press_pos: Vector2 = Vector2.ZERO
+var _last_mouse_pos: Vector2 = Vector2.ZERO
 var _orig_tile_idx: int = -1
 
 var _ghost: Control = null
@@ -51,9 +52,9 @@ func can_drag_now() -> bool:
 	if Engine.has_singleton("GameState") or has_node("/root/GameState"):
 		current_phase = GameState.phase
 	else:
-		var main := get_tree().root.get_node_or_null("/root/Main")
-		current_phase = (main.game_phase if main else -1)
-	var phase_ok := (allowed_phases.is_empty() or allowed_phases.has(current_phase))
+		var main: Node = get_tree().root.get_node_or_null("/root/Main")
+		current_phase = main.game_phase if main != null else -1
+	var phase_ok: bool = allowed_phases.is_empty() or allowed_phases.has(current_phase)
 	return phase_ok and _can_drag_extra()
 
 func _can_drag_extra() -> bool:
@@ -67,22 +68,29 @@ func _on_gui_input_base(event: InputEvent) -> void:
 	if not can_drag_now():
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_last_mouse_pos = _event_mouse_position(event)
 		if event.pressed:
 			_mouse_down = true
-			var vp := get_viewport()
-			_press_pos = (vp.get_mouse_position() if vp else Vector2.ZERO)
+			_press_pos = _last_mouse_pos
 		else:
 			_mouse_down = false
 			if _dragging:
 				_end_drag_internal()
 	elif event is InputEventMouseMotion:
-		var vp := get_viewport()
-		var mp := (vp.get_mouse_position() if vp else Vector2.ZERO)
+		_last_mouse_pos = _event_mouse_position(event)
+		var mp: Vector2 = _last_mouse_pos
 		if _mouse_down and not _dragging:
 			if mp.distance_to(_press_pos) > 6.0:
 				_begin_drag_internal()
 		if _dragging and _drag_mgr:
 			_drag_mgr.update()
+
+func _event_mouse_position(event: InputEvent) -> Vector2:
+	var mouse_event: InputEventMouse = event as InputEventMouse
+	if mouse_event != null:
+		return mouse_event.global_position
+	var vp: Viewport = get_viewport()
+	return vp.get_mouse_position() if vp != null else Vector2.ZERO
 
 func _begin_drag_internal() -> void:
 	_dragging = true
@@ -119,7 +127,7 @@ func _begin_drag_internal() -> void:
 	_ghost.size = drag_size
 	_ghost.z_index = 2000
 	if src:
-		var clone := src.duplicate(true)
+		var clone: Node = src.duplicate(true)
 		if clone is Control:
 			_ghost.add_child(clone)
 			# Fill ghost
@@ -133,7 +141,7 @@ func _begin_drag_internal() -> void:
 			(clone as Control).offset_bottom = 0.0
 			_set_mouse_ignore_recursive(clone)
 	# Place ghost at this control's position
-	var rect := get_global_rect()
+	var rect: Rect2 = get_global_rect()
 	_ghost.global_position = rect.position
 	get_tree().root.add_child(_ghost)
 	# Dim original during drag
@@ -150,10 +158,10 @@ func _set_mouse_ignore_recursive(n: Node) -> void:
 func _end_drag_internal() -> void:
 	_dragging = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	var did_drop := false
-	var idx := -1
+	var did_drop: bool = false
+	var idx: int = -1
 	var target_grid: BoardGrid = null
-	var mp: Vector2 = get_viewport().get_mouse_position()
+	var mp: Vector2 = _last_mouse_pos
 	# print debug removed
 	if _grids.size() > 0:
 		for g in _grids:
@@ -178,8 +186,9 @@ func _end_drag_internal() -> void:
 	on_drop(did_drop, idx)
 	if _drag_mgr:
 		_drag_mgr.end()
+		_drag_mgr = null
 	if _ghost:
-		var p := _ghost.get_parent()
+		var p: Node = _ghost.get_parent()
 		if p:
 			p.remove_child(_ghost)
 		_ghost.queue_free()
@@ -195,8 +204,9 @@ func cleanup_drag_artifacts() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if _drag_mgr:
 		_drag_mgr.end()
+		_drag_mgr = null
 	if _ghost:
-		var p := _ghost.get_parent()
+		var p: Node = _ghost.get_parent()
 		if p:
 			p.remove_child(_ghost)
 		_ghost.queue_free()

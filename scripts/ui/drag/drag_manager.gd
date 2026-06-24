@@ -1,8 +1,8 @@
-extends Object
+extends RefCounted
 class_name DragManager
 
-signal began_drag(node)
-signal ended_drag(node, dropped_success: bool)
+signal began_drag(node: Control)
+signal ended_drag(node: Control, dropped_success: bool)
 
 var _dragging: bool = false
 var _target: Control = null
@@ -22,25 +22,25 @@ func begin(control: Control, grid: BoardGrid) -> void:
         _orig_tile_idx = _grid.index_of(control)
     _target.set_as_top_level(true)
     _target.z_index = 1000
-    var vp := _target.get_viewport()
-    var mp := (vp.get_mouse_position() if vp else Vector2.ZERO)
-    var rect := _target.get_global_rect()
+    var vp: Viewport = _target.get_viewport()
+    var mp: Vector2 = vp.get_mouse_position() if vp != null else Vector2.ZERO
+    var rect: Rect2 = _target.get_global_rect()
     _drag_offset = rect.position - mp
     began_drag.emit(_target)
 
 func update() -> void:
     if not _dragging or not _target:
         return
-    var vp := _target.get_viewport()
-    var mp := (vp.get_mouse_position() if vp else Vector2.ZERO)
+    var vp: Viewport = _target.get_viewport()
+    var mp: Vector2 = vp.get_mouse_position() if vp != null else Vector2.ZERO
     _target.global_position = mp + _drag_offset
 
 func end() -> void:
     if not _dragging or not _target:
         return
-    var dropped := false
+    var dropped: bool = false
     if _grid:
-        var idx := _grid.index_at_global(_target.get_viewport().get_mouse_position())
+        var idx: int = _grid.index_at_global(_target.get_viewport().get_mouse_position())
         if idx != -1:
             dropped = true
     _target.set_as_top_level(false)
@@ -51,4 +51,3 @@ func end() -> void:
     _grid = null
     _orig_parent = null
     _orig_tile_idx = -1
-

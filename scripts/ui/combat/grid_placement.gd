@@ -78,22 +78,26 @@ func _build_grids() -> void:
 	if player_grid:
 		for c in player_grid.get_children():
 			if c is Button:
-				var pb := c as Button
+				var pb: Button = c as Button
 				pb.text = ""
 				pb.toggle_mode = false
 				pb.focus_mode = Control.FOCUS_NONE
-				pb.disabled = true
+				pb.disabled = false
+				pb.mouse_filter = Control.MOUSE_FILTER_PASS
+				pb.mouse_default_cursor_shape = Control.CURSOR_ARROW
 				# Always enforce tile size from constants to allow runtime scaling
 				pb.custom_minimum_size = Vector2(tile_size, tile_size)
 				player_tiles.append(pb)
 	if enemy_grid:
 		for c in enemy_grid.get_children():
 			if c is Button:
-				var eb := c as Button
+				var eb: Button = c as Button
 				eb.text = ""
 				eb.toggle_mode = false
 				eb.focus_mode = Control.FOCUS_NONE
-				eb.disabled = true
+				eb.disabled = false
+				eb.mouse_filter = Control.MOUSE_FILTER_PASS
+				eb.mouse_default_cursor_shape = Control.CURSOR_ARROW
 				# Always enforce tile size from constants to allow runtime scaling
 				eb.custom_minimum_size = Vector2(tile_size, tile_size)
 				enemy_tiles.append(eb)
@@ -113,13 +117,13 @@ func rebuild_enemy_views(enemy_team: Array) -> void:
 		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(u)
 		# Items overlay
-		var _items_view_e := UnitItemsView.new()
+		var _items_view_e: UnitItemsView = UnitItemsView.new()
 		_items_view_e.set_unit(u)
 		uv.add_child(_items_view_e)
 		var tile_idx: int = i
 		if enemy_grid_helper:
 			enemy_grid_helper.attach(uv, tile_idx)
-		var slot := UnitSlotView.new()
+		var slot: UnitSlotView = UnitSlotView.new()
 		slot.unit = u
 		slot.view = uv
 		slot.tile_idx = tile_idx
@@ -165,7 +169,7 @@ func rebuild_player_views(player_team: Array, allow_drag: bool) -> void:
 		var tile_idx: int = int(_player_index_by_unit.get(pu, -1))
 		# If missing/invalid or already used by another unit, pick the next free near base
 		if tile_idx < 0 or tile_idx >= tiles_count or used_tiles.has(tile_idx):
-			var base := (_player_base_tile_idx if _player_base_tile_idx >= 0 else 0)
+			var base: int = _player_base_tile_idx if _player_base_tile_idx >= 0 else 0
 			var picked: int = -1
 			if tiles_count > 0:
 				for off in range(tiles_count):
@@ -182,17 +186,17 @@ func rebuild_player_views(player_team: Array, allow_drag: bool) -> void:
 		var uv: UnitView = UnitViewClass.new()
 		uv.set_unit(pu)
 		# Items overlay
-		var _items_view_p := UnitItemsView.new()
+		var _items_view_p: UnitItemsView = UnitItemsView.new()
 		_items_view_p.set_unit(pu)
 		uv.add_child(_items_view_p)
 		if allow_drag:
 			uv.enable_drag(player_grid_helper)
 			# Capture loop index by value to avoid late-binding issues
-			var _i := i
+			var _i: int = i
 			uv.dropped_on_tile.connect(func(idx): _on_player_unit_dropped(_i, idx))
 		if player_grid_helper:
 			player_grid_helper.attach(uv, tile_idx)
-		var slot := UnitSlotView.new()
+		var slot: UnitSlotView = UnitSlotView.new()
 		slot.unit = pu
 		slot.view = uv
 		slot.tile_idx = tile_idx
@@ -210,7 +214,7 @@ func _on_player_unit_dropped(i: int, idx: int) -> void:
 	# Resolve Units for source index and any target occupant
 	var u_i: Unit = player_views[i].unit
 	# Find if some other view currently uses the target tile
-	var j := -1
+	var j: int = -1
 	for k in range(player_views.size()):
 		if k == i:
 			continue
