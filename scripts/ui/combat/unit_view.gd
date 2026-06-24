@@ -26,6 +26,12 @@ func _ready() -> void:
 	drag_size = Vector2(TILE_SIZE, TILE_SIZE)
 	# Drag phases left default (allowed) to avoid compile-time deps
 
+func _exit_tree() -> void:
+	if _effect_player != null and is_instance_valid(_effect_player) and _effect_player.has_method("dispose"):
+		_effect_player.dispose()
+	_effect_player = null
+	unit = null
+
 func _ensure_children() -> void:
 	if _bench_frame == null:
 		_bench_frame = Panel.new()

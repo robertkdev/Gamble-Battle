@@ -31,7 +31,7 @@ func configure(_manager: CombatManager) -> void:
         Items.equipped_changed.connect(_on_items_equipped_changed)
 
 func _exit_tree() -> void:
-    unwire()
+    teardown()
 
 func unwire() -> void:
     # Disconnect from Items
@@ -41,6 +41,17 @@ func unwire() -> void:
     _unwire_manager_signals()
     # Engine/ability system signals
     _unwire_engine_signals()
+
+func teardown() -> void:
+    unwire()
+    _clear_state()
+    if _registry != null and _registry.has_method("clear"):
+        _registry.clear()
+    _registry = null
+    engine = null
+    buff_system = null
+    manager = null
+    _connected_engine = false
 
 func _wire_manager_signals() -> void:
     if manager == null:

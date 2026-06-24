@@ -6,6 +6,8 @@ var bet_slider: HSlider
 var bet_value: Label
 var _root: Node = null
 var _bet_row: Control = null
+var _gold_changed_cb: Callable = Callable()
+var _bet_changed_cb: Callable = Callable()
 
 func configure(_gold_label: Label, _bet_slider: HSlider, _bet_value: Label, root: Node = null) -> void:
 	gold_label = _gold_label
@@ -17,12 +19,39 @@ func configure(_gold_label: Label, _bet_slider: HSlider, _bet_value: Label, root
 		_bet_row = bet_slider.get_parent()
 	refresh()
 	if _has_economy():
-		Economy.gold_changed.connect(func(_g): refresh())
-		Economy.bet_changed.connect(func(_b): refresh())
+		_gold_changed_cb = Callable(self, "_on_economy_gold_changed")
+		_bet_changed_cb = Callable(self, "_on_economy_bet_changed")
+		if not Economy.is_connected("gold_changed", _gold_changed_cb):
+			Economy.gold_changed.connect(_gold_changed_cb)
+		if not Economy.is_connected("bet_changed", _bet_changed_cb):
+			Economy.bet_changed.connect(_bet_changed_cb)
 	# React to phase changes so we can hide/show slider exactly when combat starts/ends
 	var gs = _get_gamestate()
 	if gs and not gs.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
 		gs.phase_changed.connect(_on_phase_changed)
+
+func teardown() -> void:
+	if Engine.has_singleton("Economy"):
+		if _gold_changed_cb.is_valid() and Economy.is_connected("gold_changed", _gold_changed_cb):
+			Economy.gold_changed.disconnect(_gold_changed_cb)
+		if _bet_changed_cb.is_valid() and Economy.is_connected("bet_changed", _bet_changed_cb):
+			Economy.bet_changed.disconnect(_bet_changed_cb)
+	var gs = _get_gamestate()
+	if gs and gs.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
+		gs.phase_changed.disconnect(_on_phase_changed)
+	gold_label = null
+	bet_slider = null
+	bet_value = null
+	_root = null
+	_bet_row = null
+	_gold_changed_cb = Callable()
+	_bet_changed_cb = Callable()
+
+func _on_economy_gold_changed(_gold: int) -> void:
+	refresh()
+
+func _on_economy_bet_changed(_bet: int) -> void:
+	refresh()
 
 func _on_phase_changed(_prev: int, _next: int) -> void:
 	refresh()

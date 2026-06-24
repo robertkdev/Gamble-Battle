@@ -39,6 +39,15 @@ func _ready() -> void:
 	_update_effect_player_sprite()
 	_update_visuals()
 
+func _exit_tree() -> void:
+	if _knockup_tween != null and is_instance_valid(_knockup_tween):
+		_knockup_tween.kill()
+	_knockup_tween = null
+	if _effect_player != null and is_instance_valid(_effect_player) and _effect_player.has_method("dispose"):
+		_effect_player.dispose()
+	_effect_player = null
+	unit = null
+
 func _ensure_focus_plate() -> void:
 	if focus_plate and is_instance_valid(focus_plate):
 		if focus_plate.get_parent() != self:

@@ -51,6 +51,16 @@ func _ensure_bar() -> void:
 func get_bar() -> HBoxContainer:
 	return _bar
 
+func teardown() -> void:
+	if _bar != null and is_instance_valid(_bar):
+		_bar.queue_free()
+	_host = null
+	_bar = null
+	_reroll = null
+	_lock = null
+	_buy_xp = null
+	_progress_label = null
+
 func set_locked(locked: bool) -> void:
 	if _lock:
 		_lock.button_pressed = bool(locked)

@@ -37,6 +37,23 @@ func _ready() -> void:
 	if enemy_col:
 		enemy_col.visible = false
 
+func _exit_tree() -> void:
+	teardown()
+
+func teardown() -> void:
+	set_process(false)
+	if expand_button != null and is_instance_valid(expand_button) and expand_button.is_connected("pressed", Callable(self, "_on_toggle_expand")):
+		expand_button.pressed.disconnect(_on_toggle_expand)
+	_clear_rows(player_col)
+	_clear_rows(enemy_col)
+	_clear_rows(overlay_enemy_col)
+	if overlay != null and is_instance_valid(overlay):
+		overlay.queue_free()
+	overlay = null
+	overlay_enemy_col = null
+	model = null
+	tracker = null
+
 func configure(_tracker: StatsTracker) -> void:
 	tracker = _tracker
 	model = ScoreboardModelLib.new()
@@ -129,6 +146,12 @@ func _apply_rows(col: VBoxContainer, rows: Array, team_total: float) -> void:
 			col.move_child(node, i)
 			if node is ScoreboardRow:
 				node.tween_reorder_hint()
+
+func _clear_rows(col: VBoxContainer) -> void:
+	if col == null or not is_instance_valid(col):
+		return
+	for child: Node in col.get_children():
+		child.queue_free()
 
 func _key(team: String, index: int) -> String:
 	return "%s#%d" % [String(team), int(index)]

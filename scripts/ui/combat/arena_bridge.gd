@@ -85,6 +85,21 @@ func exit_arena() -> void:
         _hidden_nodes.clear()
         _prev_mouse_filters.clear()
 
+func teardown() -> void:
+    exit_arena()
+    if arena != null and arena.has_method("teardown"):
+        arena.teardown()
+    arena = null
+    arena_container = null
+    arena_units = null
+    planning_area = null
+    arena_background = null
+    player_grid_helper = null
+    enemy_grid_helper = null
+    unit_actor_class = null
+    _hidden_nodes.clear()
+    _prev_mouse_filters.clear()
+
 func get_player_actor(index: int) -> UnitActor:
     if arena:
         return arena.get_player_actor(index)

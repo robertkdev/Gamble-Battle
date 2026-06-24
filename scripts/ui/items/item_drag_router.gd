@@ -15,6 +15,13 @@ func configure(_view: Control, _grid_placement, _player_grid_helper: BoardGrid, 
 	player_grid_helper = _player_grid_helper
 	bench_grid_helper = _bench_grid_helper
 
+func teardown() -> void:
+	view = null
+	grid_placement = null
+	player_grid_helper = null
+	bench_grid_helper = null
+	item_grid_helper = null
+
 func attach_card(card: Node) -> void:
 	if card == null:
 		return

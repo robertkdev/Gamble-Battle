@@ -64,6 +64,19 @@ func stop_all() -> void:
 			p.stop()
 	_cleanup_all()
 
+func dispose() -> void:
+	for k in _active.keys():
+		var p: AudioStreamPlayer = _active[int(k)]
+		if p != null and is_instance_valid(p):
+			p.stop()
+			var parent: Node = p.get_parent()
+			if parent != null:
+				parent.remove_child(p)
+			p.free()
+	_active.clear()
+	_meta.clear()
+	_parent = null
+
 func set_volume(id: int, db: float) -> void:
 	var p: AudioStreamPlayer = _active.get(int(id), null)
 	if p != null:

@@ -11,6 +11,9 @@ const LogSchema := preload("res://scripts/util/log_schema.gd")
 const StageRuleRunner := preload("res://scripts/game/progression/stage_rule_runner.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
 const EnemyScaling := preload("res://scripts/game/combat/enemy_scaling.gd")
+const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
+const RoleLibrary := preload("res://scripts/game/units/role_library.gd")
+const UnitFactory := preload("res://scripts/unit_factory.gd")
 
 signal battle_started(stage: int, enemy)
 signal log_line(text: String)
@@ -117,6 +120,41 @@ func get_engine():
 func _ready() -> void:
 	set_process(true)
 
+func _exit_tree() -> void:
+	teardown()
+
+func teardown() -> void:
+	set_process(false)
+	clear_active_battle_runtime()
+	StageRuleRunner.clear_runtime()
+	AbilityCatalog.clear_caches()
+	UnitFactory.clear_cache()
+	RoleLibrary.clear_cache()
+	if _state != null:
+		_state.reset()
+		_state = null
+	enemy = null
+	player_team.clear()
+	enemy_team.clear()
+	select_closest_target = Callable()
+	_pending_tile_size = -1.0
+	_pending_player_pos.clear()
+	_pending_enemy_pos.clear()
+	_pending_bounds = Rect2()
+	_pending_movement_debug_frames = 0
+
+func clear_active_battle_runtime() -> void:
+	if _trait_runtime != null:
+		_trait_runtime.unwire_signals()
+		_trait_runtime = null
+	if _engine != null:
+		_unwire_engine_signals()
+		if _engine.has_method("stop"):
+			_engine.stop()
+		if _engine.has_method("teardown"):
+			_engine.teardown()
+		_engine = null
+
 func is_turn_in_progress() -> bool:
 	return false
 
@@ -171,6 +209,51 @@ func _wire_engine_signals() -> void:
 	if _engine.ability_system != null and _engine.ability_system.has_signal("ability_cast"):
 		if not _engine.ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
 			_engine.ability_system.ability_cast.connect(_on_ability_system_cast)
+
+func _unwire_engine_signals() -> void:
+	if _engine == null or not is_instance_valid(_engine):
+		return
+	if _engine.is_connected("projectile_fired", Callable(self, "_re_emit_projectile")):
+		_engine.projectile_fired.disconnect(_re_emit_projectile)
+	if _engine.is_connected("stats_updated", Callable(self, "_on_engine_stats")):
+		_engine.stats_updated.disconnect(_on_engine_stats)
+	if _engine.is_connected("team_stats_updated", Callable(self, "_on_engine_team_stats")):
+		_engine.team_stats_updated.disconnect(_on_engine_team_stats)
+	if _engine.is_connected("log_line", Callable(self, "_on_engine_log")):
+		_engine.log_line.disconnect(_on_engine_log)
+	if _engine.is_connected("victory", Callable(self, "_on_victory")):
+		_engine.victory.disconnect(_on_victory)
+	if _engine.is_connected("defeat", Callable(self, "_on_defeat")):
+		_engine.defeat.disconnect(_on_defeat)
+	if _engine.is_connected("unit_stat_changed", Callable(self, "_on_engine_unit_stat")):
+		_engine.unit_stat_changed.disconnect(_on_engine_unit_stat)
+	if _engine.is_connected("vfx_knockup", Callable(self, "_on_engine_vfx_knockup")):
+		_engine.vfx_knockup.disconnect(_on_engine_vfx_knockup)
+	if _engine.is_connected("vfx_beam_line", Callable(self, "_on_engine_vfx_beam_line")):
+		_engine.vfx_beam_line.disconnect(_on_engine_vfx_beam_line)
+	if _engine.is_connected("heal_applied", Callable(self, "_on_engine_heal_applied")):
+		_engine.heal_applied.disconnect(_on_engine_heal_applied)
+	if _engine.is_connected("shield_absorbed", Callable(self, "_on_engine_shield_absorbed")):
+		_engine.shield_absorbed.disconnect(_on_engine_shield_absorbed)
+	if _engine.is_connected("hit_mitigated", Callable(self, "_on_engine_hit_mitigated")):
+		_engine.hit_mitigated.disconnect(_on_engine_hit_mitigated)
+	if _engine.is_connected("hit_overkill", Callable(self, "_on_engine_hit_overkill")):
+		_engine.hit_overkill.disconnect(_on_engine_hit_overkill)
+	if _engine.is_connected("hit_components", Callable(self, "_on_engine_hit_components")):
+		_engine.hit_components.disconnect(_on_engine_hit_components)
+	if _engine.is_connected("cc_applied", Callable(self, "_on_engine_cc_applied")):
+		_engine.cc_applied.disconnect(_on_engine_cc_applied)
+	if _engine.is_connected("hit_applied", Callable(self, "_re_emit_hit_applied")):
+		_engine.hit_applied.disconnect(_re_emit_hit_applied)
+	if _engine.has_signal("position_updated") and _engine.is_connected("position_updated", Callable(self, "_on_engine_position_updated")):
+		_engine.position_updated.disconnect(_on_engine_position_updated)
+	if _engine.has_signal("target_start") and _engine.is_connected("target_start", Callable(self, "_on_engine_target_start")):
+		_engine.target_start.disconnect(_on_engine_target_start)
+	if _engine.has_signal("target_end") and _engine.is_connected("target_end", Callable(self, "_on_engine_target_end")):
+		_engine.target_end.disconnect(_on_engine_target_end)
+	if _engine.ability_system != null and _engine.ability_system.has_signal("ability_cast"):
+		if _engine.ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
+			_engine.ability_system.ability_cast.disconnect(_on_ability_system_cast)
 
 func _re_emit_projectile(team: String, sidx: int, tidx: int, dmg: int, crit: bool) -> void:
 	emit_signal("projectile_fired", team, sidx, tidx, dmg, crit)
@@ -238,6 +321,7 @@ func start_stage() -> void:
 	_mirror_stage_from_gamestate()
 	Trace.step("CM.start_stage: begin stage=" + str(stage))
 	_ensure_state()
+	clear_active_battle_runtime()
 	Trace.step("CM.start_stage: state ensured")
 	# Log canonical stage banner using chapter/stage mapping
 	var mapping := ProgressionService.from_global_stage(int(stage))
@@ -346,11 +430,7 @@ func start_custom_battle(player_ids: Array[String], enemy_ids: Array[String], op
 		result["reason"] = "no_enemy_units"
 		return result
 	_ensure_state()
-	if _engine != null:
-		_engine.stop()
-	if _trait_runtime != null:
-		_trait_runtime.unwire_signals()
-		_trait_runtime = null
+	clear_active_battle_runtime()
 	_state.reset()
 	stage = max(1, int(options.get("stage", 1)))
 	_state.stage = stage

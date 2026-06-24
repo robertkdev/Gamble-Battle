@@ -37,13 +37,35 @@ func _finish_if_failed() -> bool:
 
 func _finish() -> void:
 	Engine.time_scale = 1.0
+	var exit_code: int = 0
 	if _failures.is_empty():
 		print("ActualRunLoopSmoke: OK")
-		get_tree().quit(0)
 	else:
 		for failure: String in _failures:
 			push_error("ActualRunLoopSmoke: " + failure)
-		get_tree().quit(1)
+		exit_code = 1
+	_cleanup_runtime()
+	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 2), CONNECT_ONE_SHOT)
+
+func _quit_after_cleanup(exit_code: int, frames_left: int) -> void:
+	if frames_left > 0:
+		get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, frames_left - 1), CONNECT_ONE_SHOT)
+		return
+	get_tree().quit(exit_code)
+
+func _cleanup_runtime() -> void:
+	if _main != null and is_instance_valid(_main):
+		var parent: Node = _main.get_parent()
+		if parent != null:
+			parent.remove_child(_main)
+		_main.free()
+		_main = null
+	var loss_layer: Node = get_tree().root.get_node_or_null("LossOverlayLayer")
+	if loss_layer != null:
+		var parent: Node = loss_layer.get_parent()
+		if parent != null:
+			parent.remove_child(loss_layer)
+		loss_layer.free()
 
 func _play_loss_cycle(unit_id: String, cycle_index: int) -> void:
 	await _ensure_unit_select()

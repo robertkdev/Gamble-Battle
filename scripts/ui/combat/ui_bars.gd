@@ -13,6 +13,11 @@ static func _ensure_loaded() -> void:
     if _pb_mana_fill == null:
         _pb_mana_fill = load("res://themes/pb_mana_fill.tres")
 
+static func clear_runtime() -> void:
+    _pb_bg_style = null
+    _pb_hp_fill = null
+    _pb_mana_fill = null
+
 static func style_bar(pb: ProgressBar, is_mana: bool) -> void:
     if pb == null:
         return
@@ -41,4 +46,3 @@ static func make_mana_bar() -> ProgressBar:
     pb.show_percentage = false
     style_bar(pb, true)
     return pb
-

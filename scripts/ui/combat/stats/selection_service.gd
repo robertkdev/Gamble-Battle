@@ -6,6 +6,7 @@ signal unit_selected(unit)
 var _unit: Unit = null
 var _team: String = ""
 var _index: int = -1
+var _input_connections: Array[Dictionary] = []
 
 func select(team: String, index: int, u: Unit) -> void:
     _team = String(team)
@@ -18,6 +19,15 @@ func clear() -> void:
     _index = -1
     _unit = null
     unit_selected.emit(null)
+
+func teardown() -> void:
+    _disconnect_input_connections()
+    _team = ""
+    _index = -1
+    _unit = null
+
+func reset_bindings() -> void:
+    _disconnect_input_connections()
 
 func get_selected_unit() -> Unit:
     return _unit
@@ -32,8 +42,8 @@ func get_selected_index() -> int:
 func attach_to_unit_view(view: Control, team: String, index: int, unit_provider: Callable = Callable()) -> void:
     if view == null:
         return
-    if not view.is_connected("gui_input", Callable(self, "_on_view_gui_input")):
-        view.gui_input.connect(_on_view_gui_input.bind(view, String(team), int(index), unit_provider))
+    var callback: Callable = Callable(self, "_on_view_gui_input").bind(view, String(team), int(index), unit_provider)
+    _connect_gui_input(view, callback)
 
 # Attach selection to a UnitActor (arena). Adds a lightweight hitbox overlay so clicks don't interfere with actors.
 func attach_to_unit_actor(actor: Control, team: String, index: int, unit_provider: Callable = Callable()) -> void:
@@ -67,16 +77,37 @@ func attach_to_unit_actor(actor: Control, team: String, index: int, unit_provide
         var rect := hit_control as ColorRect
         rect.color = Color(1.0, 0.0, 0.0, 0.25)
         rect.show_behind_parent = false
-    if not hit_control.is_connected("gui_input", Callable(self, "_on_view_gui_input")):
-        hit_control.gui_input.connect(_on_view_gui_input.bind(actor, String(team), int(index), unit_provider))
+    var callback: Callable = Callable(self, "_on_view_gui_input").bind(actor, String(team), int(index), unit_provider)
+    _connect_gui_input(hit_control, callback)
 
 # Clicking on this control clears the selection.
 func attach_clear_on(control: Control) -> void:
     if control == null:
         return
     control.mouse_filter = Control.MOUSE_FILTER_STOP
-    if not control.is_connected("gui_input", Callable(self, "_on_clear_gui_input")):
-        control.gui_input.connect(_on_clear_gui_input)
+    _connect_gui_input(control, Callable(self, "_on_clear_gui_input"))
+
+func _connect_gui_input(control: Control, callback: Callable) -> void:
+    if control == null or not callback.is_valid():
+        return
+    if control.is_connected("gui_input", callback):
+        return
+    control.gui_input.connect(callback)
+    _input_connections.append({
+        "control": control,
+        "callback": callback
+    })
+
+func _disconnect_input_connections() -> void:
+    for record: Dictionary in _input_connections:
+        var raw_control = record.get("control", null)
+        if raw_control == null or not is_instance_valid(raw_control):
+            continue
+        var control: Control = raw_control as Control
+        var callback: Callable = record.get("callback", Callable())
+        if control != null and is_instance_valid(control) and callback.is_valid() and control.is_connected("gui_input", callback):
+            control.gui_input.disconnect(callback)
+    _input_connections.clear()
 
 func _on_view_gui_input(event: InputEvent, _src: Control, team: String, index: int, unit_provider: Callable) -> void:
     if not (event is InputEventMouseButton):

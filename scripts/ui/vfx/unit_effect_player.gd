@@ -13,11 +13,28 @@ var default_flash_parent: Control
 
 var _active_effects: Dictionary = {}
 
+func _exit_tree() -> void:
+	dispose()
+
 func configure(_host: Control, _sprite: Control = null) -> void:
 	host = _host
 	sprite = _sprite
 	default_ring_parent = host
 	default_flash_parent = host
+
+func dispose() -> void:
+	for effect_id in _active_effects.keys():
+		var node: Node = _active_effects.get(effect_id, null) as Node
+		if node != null and is_instance_valid(node):
+			if node.is_inside_tree():
+				node.queue_free()
+			else:
+				node.free()
+	_active_effects.clear()
+	host = null
+	sprite = null
+	default_ring_parent = null
+	default_flash_parent = null
 
 func set_sprite(_sprite: Control) -> void:
 	sprite = _sprite

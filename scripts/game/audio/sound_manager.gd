@@ -22,6 +22,19 @@ func _ready() -> void:
 	_catalog.configure("res://assets/audio")
 	_catalog.reload()
 
+func _exit_tree() -> void:
+	_key_by_id.clear()
+	if _pool != null:
+		if _pool.is_connected("playback_finished", Callable(self, "_on_pool_playback_finished")):
+			_pool.playback_finished.disconnect(_on_pool_playback_finished)
+		_pool.dispose()
+		_pool.free()
+		_pool = null
+	if _catalog != null:
+		_catalog.clear()
+		_catalog.free()
+		_catalog = null
+
 func reload() -> void:
 	_catalog.reload()
 

@@ -26,6 +26,10 @@ static func reload() -> void:
 			push_warning("RoleLibrary: resource at %s is not a PrimaryRoleProfile" % path)
 	_loaded = true
 
+static func clear_cache() -> void:
+	_loaded = false
+	_profiles.clear()
+
 static func get_profile(role_id: String) -> PrimaryRoleProfile:
 	_ensure_loaded()
 	var key := IdentityUtils.normalize_role_id(role_id)

@@ -30,6 +30,12 @@ func reconfigure(manager: CombatManager, engine: CombatEngine, buff_system: Buff
         if h != null and h.has_method("configure"):
             h.configure(manager, engine, buff_system)
 
+func clear() -> void:
+    for h in _handlers.values():
+        if h != null and h.has_method("configure"):
+            h.configure(null, null, null)
+    _handlers.clear()
+
 func _register(effect_id: String, handler) -> void:
     if handler == null:
         return
@@ -41,4 +47,3 @@ func dispatch(effect_id: String, unit: Unit, event: String, data: Dictionary) ->
         return
     if h.has_method("on_event"):
         h.on_event(unit, String(event), (data if data != null else {}))
-

@@ -57,6 +57,21 @@ func get_player_views() -> Array:
 func get_enemy_views() -> Array:
 	return enemy_views
 
+func teardown() -> void:
+	if player_grid_helper != null:
+		player_grid_helper.clear()
+	if enemy_grid_helper != null:
+		enemy_grid_helper.clear()
+	player_tiles.clear()
+	enemy_tiles.clear()
+	player_views.clear()
+	enemy_views.clear()
+	_player_index_by_unit.clear()
+	player_grid_helper = null
+	enemy_grid_helper = null
+	player_grid = null
+	enemy_grid = null
+
 func _build_grids() -> void:
 	player_tiles.clear()
 	enemy_tiles.clear()

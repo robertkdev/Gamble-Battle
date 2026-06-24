@@ -38,6 +38,20 @@ func _ready() -> void:
     _apply_static_styles()
     set_process(true)
 
+func _exit_tree() -> void:
+    teardown()
+
+func teardown() -> void:
+    set_process(false)
+    tracker = null
+    unit_ref = null
+    team = "player"
+    index = -1
+    _clear_stats_grid()
+    if approach_tags != null and is_instance_valid(approach_tags):
+        for child: Node in approach_tags.get_children():
+            child.queue_free()
+
 func configure(_tracker: StatsTracker) -> void:
     tracker = _tracker
 
@@ -302,6 +316,8 @@ func _refresh_bars() -> void:
     mana_bar.value = clamp(unit_ref.mana, 0, unit_ref.mana_max)
 
 func _clear_stats_grid() -> void:
+    if stats_grid == null or not is_instance_valid(stats_grid):
+        return
     for child in stats_grid.get_children():
         stats_grid.remove_child(child)
         child.queue_free()

@@ -55,6 +55,9 @@ var _focus_maps_enemy: Array = []
 func _ready() -> void:
 	set_process(true)
 
+func _exit_tree() -> void:
+	teardown()
+
 func configure(_manager: CombatManager, _sampling_hz: float = 10.0) -> void:
 	manager = _manager
 	sampling_hz = max(1.0, _sampling_hz)
@@ -63,6 +66,19 @@ func configure(_manager: CombatManager, _sampling_hz: float = 10.0) -> void:
 	_wire_manager_signals()
 	_reset_all()
 	set_process(true)
+
+func teardown() -> void:
+	_active = false
+	set_process(false)
+	_disconnect_ability_signals()
+	_disconnect_engine_signals()
+	_disconnect_manager_signals()
+	engine = null
+	ability_system = null
+	manager = null
+	_reset_all()
+	_focus_maps_player.clear()
+	_focus_maps_enemy.clear()
 
 func _wire_manager_signals() -> void:
 	if manager == null:
@@ -74,7 +90,21 @@ func _wire_manager_signals() -> void:
 	if not manager.is_connected("defeat", Callable(self, "_on_battle_end")):
 		manager.defeat.connect(_on_battle_end)
 
+func _disconnect_manager_signals() -> void:
+	if manager == null or not is_instance_valid(manager):
+		return
+	if manager.is_connected("battle_started", Callable(self, "_on_battle_started")):
+		manager.battle_started.disconnect(_on_battle_started)
+	if manager.is_connected("victory", Callable(self, "_on_battle_end")):
+		manager.victory.disconnect(_on_battle_end)
+	if manager.is_connected("defeat", Callable(self, "_on_battle_end")):
+		manager.defeat.disconnect(_on_battle_end)
+
 func _on_battle_started(_stage: int, _enemy) -> void:
+	_disconnect_ability_signals()
+	_disconnect_engine_signals()
+	engine = null
+	ability_system = null
 	_reset_for_new_battle()
 	engine = (manager.get_engine() if manager and manager.has_method("get_engine") else null)
 	if engine != null:
@@ -96,6 +126,10 @@ func _late_bind_engine() -> void:
 
 func _on_battle_end(_stage: int) -> void:
 	_active = false
+	_disconnect_ability_signals()
+	_disconnect_engine_signals()
+	engine = null
+	ability_system = null
 
 func _connect_engine_signals() -> void:
 	if engine == null:
@@ -115,10 +149,34 @@ func _connect_engine_signals() -> void:
 	if engine.has_signal("cc_applied") and not engine.is_connected("cc_applied", Callable(self, "_on_engine_cc_applied")):
 		engine.cc_applied.connect(_on_engine_cc_applied)
 
+func _disconnect_engine_signals() -> void:
+	if engine == null or not is_instance_valid(engine):
+		return
+	if engine.is_connected("hit_applied", Callable(self, "_on_hit_applied")):
+		engine.hit_applied.disconnect(_on_hit_applied)
+	if engine.has_signal("heal_applied") and engine.is_connected("heal_applied", Callable(self, "_on_heal_applied")):
+		engine.heal_applied.disconnect(_on_heal_applied)
+	if engine.has_signal("shield_absorbed") and engine.is_connected("shield_absorbed", Callable(self, "_on_shield_absorbed")):
+		engine.shield_absorbed.disconnect(_on_shield_absorbed)
+	if engine.has_signal("hit_mitigated") and engine.is_connected("hit_mitigated", Callable(self, "_on_hit_mitigated")):
+		engine.hit_mitigated.disconnect(_on_hit_mitigated)
+	if engine.has_signal("hit_components") and engine.is_connected("hit_components", Callable(self, "_on_engine_hit_components")):
+		engine.hit_components.disconnect(_on_engine_hit_components)
+	if engine.has_signal("hit_overkill") and engine.is_connected("hit_overkill", Callable(self, "_on_engine_hit_overkill")):
+		engine.hit_overkill.disconnect(_on_engine_hit_overkill)
+	if engine.has_signal("cc_applied") and engine.is_connected("cc_applied", Callable(self, "_on_engine_cc_applied")):
+		engine.cc_applied.disconnect(_on_engine_cc_applied)
+
 func _connect_ability_signals() -> void:
 	ability_system = (engine.ability_system if engine != null else null)
 	if ability_system != null and not ability_system.is_connected("ability_cast", Callable(self, "_on_ability_cast")):
 		ability_system.ability_cast.connect(_on_ability_cast)
+
+func _disconnect_ability_signals() -> void:
+	if ability_system == null or not is_instance_valid(ability_system):
+		return
+	if ability_system.is_connected("ability_cast", Callable(self, "_on_ability_cast")):
+		ability_system.ability_cast.disconnect(_on_ability_cast)
 
 func _reset_all() -> void:
 	_player_stats.clear()

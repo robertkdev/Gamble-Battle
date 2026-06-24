@@ -23,6 +23,17 @@ func initialize() -> void:
 	_bind_items_signal()
 	rebuild()
 
+func teardown() -> void:
+	var items = _items_singleton()
+	if items != null and items.is_connected("inventory_changed", Callable(self, "_on_inventory_changed")):
+		items.inventory_changed.disconnect(_on_inventory_changed)
+	_clear_grid()
+	_item_grid_helper = null
+	router = null
+	grid = null
+	left_area = null
+	view = null
+
 func _bind_items_signal() -> void:
 	var items = _items_singleton()
 	if items != null and not items.is_connected("inventory_changed", Callable(self, "_on_inventory_changed")):

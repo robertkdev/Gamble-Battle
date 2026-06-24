@@ -55,6 +55,13 @@ func unwire() -> void:
 		engine.defeat.disconnect(_on_outcome)
 	print(LOG_PREFIX, "unwired signals")
 
+func dispose() -> void:
+	unwire()
+	engine = null
+	pool = null
+	_dead_seen.clear()
+	_triggers_done = 0
+
 func _on_outcome(_stage: int) -> void:
 	unwire()
 

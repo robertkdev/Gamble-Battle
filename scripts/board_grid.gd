@@ -1,4 +1,4 @@
-extends Object
+extends RefCounted
 class_name BoardGrid
 
 # Lightweight helper around an existing array of tile Controls.

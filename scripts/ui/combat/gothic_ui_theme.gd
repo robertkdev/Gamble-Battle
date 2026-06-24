@@ -32,6 +32,11 @@ static func apply(root: Control) -> void:
 	_apply_named_nodes(root)
 	_apply_tree(root)
 
+static func clear_runtime() -> void:
+	_theme = null
+	_screen_material = null
+	_arena_material = null
+
 static func _get_theme() -> Theme:
 	if _theme != null:
 		return _theme

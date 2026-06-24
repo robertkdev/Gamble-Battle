@@ -24,6 +24,15 @@ func configure(_manager, _roster, _board_grid, _bench_grid, _grid_placement, _be
 func set_refresh_callback(cb: Callable) -> void:
 	refresh_cb = cb
 
+func teardown() -> void:
+	manager = null
+	roster = null
+	board_grid = null
+	bench_grid = null
+	grid_placement = null
+	bench_placement = null
+	refresh_cb = Callable()
+
 func connect_unit_view(uv: UnitView) -> void:
 	if uv and not uv.is_connected("dropped_on_target", Callable(self, "_on_unit_dropped")):
 		uv.dropped_on_target.connect(_on_unit_dropped.bind(uv))

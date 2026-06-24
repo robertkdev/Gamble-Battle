@@ -42,6 +42,25 @@ func clear() -> void:
     if projectile_manager:
         projectile_manager.clear()
 
+func teardown() -> void:
+    if projectile_manager != null and is_instance_valid(projectile_manager):
+        if manager != null and is_instance_valid(manager):
+            var hit_cb: Callable = Callable(manager, "on_projectile_hit")
+            if projectile_manager.is_connected("projectile_hit", hit_cb):
+                projectile_manager.projectile_hit.disconnect(hit_cb)
+        projectile_manager.clear()
+        if projectile_manager.get_parent() != null:
+            projectile_manager.queue_free()
+        else:
+            projectile_manager.free()
+    projectile_manager = null
+    parent = null
+    arena_bridge = null
+    player_grid_helper = null
+    enemy_grid_helper = null
+    manager = null
+    rng = null
+
 func on_projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool) -> void:
     if not projectile_manager:
         return

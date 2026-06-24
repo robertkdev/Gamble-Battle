@@ -101,6 +101,8 @@ var _post_combat_outcome: String = ""
 var _pending_continue: bool = false
 var view_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _beam_overlay: Control = null
+var _teardown_done: bool = false
+var _shop_grid_updated_cb: Callable = Callable()
 
 func _attach_clear_to_grid_tiles(grid: GridContainer) -> void:
 	if selection == null or grid == null:
@@ -133,6 +135,134 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	bet_slider = nodes.get("bet_slider")
 	bet_value = nodes.get("bet_value")
 	stats_panel = nodes.get("stats_panel")
+
+func teardown() -> void:
+	if _teardown_done:
+		return
+	_teardown_done = true
+	_auto_loop_running = false
+	_disconnect_controller_signals()
+	if Engine.has_singleton("Shop"):
+		if Shop.has_method("set_board_team_provider"):
+			Shop.set_board_team_provider(Callable())
+		if Shop.has_method("set_remove_from_board"):
+			Shop.set_remove_from_board(Callable())
+	if intermission != null:
+		if intermission.has_method("teardown"):
+			intermission.teardown()
+		else:
+			intermission.stop()
+		intermission = null
+	if projectile_bridge != null and projectile_bridge.has_method("teardown"):
+		projectile_bridge.teardown()
+	projectile_bridge = null
+	if stats_panel != null and is_instance_valid(stats_panel) and stats_panel.has_method("teardown"):
+		stats_panel.teardown()
+	if arena_bridge != null and arena_bridge.has_method("teardown"):
+		arena_bridge.teardown()
+	arena_bridge = null
+	if item_runtime != null:
+		if item_runtime.has_method("teardown"):
+			item_runtime.teardown()
+		if item_runtime.is_inside_tree():
+			item_runtime.queue_free()
+		else:
+			item_runtime.free()
+	item_runtime = null
+	if stats_tracker != null:
+		if stats_tracker.has_method("teardown"):
+			stats_tracker.teardown()
+		if stats_tracker.is_inside_tree():
+			stats_tracker.queue_free()
+		else:
+			stats_tracker.free()
+	stats_tracker = null
+	if economy_ui != null and economy_ui.has_method("teardown"):
+		economy_ui.teardown()
+	economy_ui = null
+	if shop_presenter != null and shop_presenter.has_method("teardown"):
+		shop_presenter.teardown()
+	shop_presenter = null
+	if items_presenter != null and items_presenter.has_method("teardown"):
+		items_presenter.teardown()
+	items_presenter = null
+	if traits_presenter != null and traits_presenter.has_method("teardown"):
+		traits_presenter.teardown()
+	traits_presenter = null
+	if item_drag_router != null and item_drag_router.has_method("teardown"):
+		item_drag_router.teardown()
+	item_drag_router = null
+	if move_router != null and move_router.has_method("teardown"):
+		move_router.teardown()
+	move_router = null
+	if grid_placement != null and grid_placement.has_method("teardown"):
+		grid_placement.teardown()
+	grid_placement = null
+	if bench_placement != null and bench_placement.has_method("teardown"):
+		bench_placement.teardown()
+	bench_placement = null
+	if selection != null:
+		if selection.is_connected("unit_selected", Callable(self, "_on_unit_selected")):
+			selection.unit_selected.disconnect(_on_unit_selected)
+		if selection.has_method("teardown"):
+			selection.teardown()
+		else:
+			selection.clear()
+	selection = null
+	if _beam_overlay != null and is_instance_valid(_beam_overlay):
+		_beam_overlay.queue_free()
+	_beam_overlay = null
+	player_views.clear()
+	enemy_views.clear()
+	player_grid_helper = null
+	enemy_grid_helper = null
+	bench_grid_helper = null
+	sell_grid_helper = null
+	manager = null
+	parent = null
+
+func _disconnect_controller_signals() -> void:
+	if manager != null and is_instance_valid(manager):
+		_disconnect_signal(manager, "battle_started", "_on_battle_started")
+		_disconnect_signal(manager, "log_line", "_on_log_line")
+		_disconnect_signal(manager, "stats_updated", "_on_stats_updated")
+		_disconnect_signal(manager, "team_stats_updated", "_on_team_stats_updated")
+		_disconnect_signal(manager, "unit_stat_changed", "_on_unit_stat_changed")
+		_disconnect_signal(manager, "vfx_knockup", "_on_vfx_knockup")
+		_disconnect_signal(manager, "vfx_beam_line", "_on_vfx_beam_line")
+		_disconnect_signal(manager, "hit_applied", "_on_engine_hit_applied")
+		_disconnect_signal(manager, "projectile_fired", "_on_projectile_fired")
+		_disconnect_signal(manager, "victory", "_on_victory")
+		_disconnect_signal(manager, "defeat", "_on_defeat")
+	if Engine.has_singleton("Items") and Items.is_connected("action_log", Callable(self, "_on_items_action_log")):
+		Items.action_log.disconnect(_on_items_action_log)
+	if Engine.has_singleton("Roster") and Roster.is_connected("bench_changed", Callable(self, "_on_bench_changed")):
+		Roster.bench_changed.disconnect(_on_bench_changed)
+	if Engine.has_singleton("GameState"):
+		if GameState.is_connected("chapter_changed", Callable(self, "_on_gs_chapter_changed")):
+			GameState.chapter_changed.disconnect(_on_gs_chapter_changed)
+		if GameState.is_connected("stage_changed", Callable(self, "_on_gs_stage_changed")):
+			GameState.stage_changed.disconnect(_on_gs_stage_changed)
+	if attack_button != null and is_instance_valid(attack_button) and attack_button.is_connected("pressed", Callable(self, "_on_attack_pressed")):
+		attack_button.pressed.disconnect(_on_attack_pressed)
+	if continue_button != null and is_instance_valid(continue_button) and continue_button.is_connected("pressed", Callable(self, "_on_continue_pressed")):
+		continue_button.pressed.disconnect(_on_continue_pressed)
+	if menu_button != null and is_instance_valid(menu_button) and menu_button.is_connected("pressed", Callable(self, "_on_menu_pressed")):
+		menu_button.pressed.disconnect(_on_menu_pressed)
+	if bet_slider != null and is_instance_valid(bet_slider) and bet_slider.is_connected("value_changed", Callable(self, "_on_bet_changed")):
+		bet_slider.value_changed.disconnect(_on_bet_changed)
+	if shop_presenter != null and shop_presenter.is_connected("promotions_emitted", Callable(self, "_on_promotions_emitted")):
+		shop_presenter.promotions_emitted.disconnect(_on_promotions_emitted)
+	if shop_presenter != null and _shop_grid_updated_cb.is_valid() and shop_presenter.is_connected("grid_updated", _shop_grid_updated_cb):
+		shop_presenter.grid_updated.disconnect(_shop_grid_updated_cb)
+	_shop_grid_updated_cb = Callable()
+
+func _disconnect_signal(emitter: Object, signal_name: String, method_name: String) -> void:
+	if emitter == null or not is_instance_valid(emitter):
+		return
+	var callback: Callable = Callable(self, method_name)
+	if emitter.is_connected(signal_name, callback):
+		emitter.disconnect(signal_name, callback)
 
 func initialize() -> void:
 	# Wire manager
@@ -295,40 +425,20 @@ func initialize() -> void:
 			shop_presenter.promotions_emitted.connect(_on_promotions_emitted)
 		# Provide board-aware combine hooks to Shop/Transactions so bench+board triples upgrade.
 		if Engine.has_singleton("Shop"):
-			# Team provider returns the live player_team array
-			var _prov_team := func():
-				return (manager.player_team if manager else [])
 			if Shop.has_method("set_board_team_provider"):
-				Shop.set_board_team_provider(_prov_team)
+				Shop.set_board_team_provider(Callable(self, "_get_shop_board_team"))
 			# Removal callback consumes a specific unit from the board when combining
 			if Shop.has_method("set_remove_from_board"):
-				Shop.set_remove_from_board(func(u: Unit) -> bool:
-					if u == null or manager == null:
-						return false
-					var rem_idx := -1
-					for i in range(manager.player_team.size()):
-						if manager.player_team[i] == u:
-							rem_idx = i
-							break
-					if rem_idx == -1:
-						return false
-					manager.player_team.remove_at(rem_idx)
-					# Refresh views to reflect removal and any promotion on-board
-					if has_method("refresh_all_views"):
-						refresh_all_views()
-					elif grid_placement:
-						grid_placement.rebuild_player_views(manager.player_team, true)
-					return true)
+				Shop.set_remove_from_board(Callable(self, "_remove_shop_board_unit"))
 		# Use cards in the shop grid as a BoardGrid drop target for selling.
 		if shop_presenter.has_method("get_drop_grid"):
 			sell_grid_helper = shop_presenter.get_drop_grid()
 		# Refresh bench views when the shop UI rebuilds so their drop
 		# targets include the up-to-date shop grid tiles.
 		if shop_presenter.has_signal("grid_updated"):
-			shop_presenter.grid_updated.connect(func():
-				sell_grid_helper = shop_presenter.get_drop_grid()
-				_rebuild_bench_views(true)
-			)
+			_shop_grid_updated_cb = Callable(self, "_on_shop_grid_updated")
+			if not shop_presenter.is_connected("grid_updated", _shop_grid_updated_cb):
+				shop_presenter.grid_updated.connect(_shop_grid_updated_cb)
 		# Move economy + start controls into the shop button bar for a single top row.
 		var bar := (shop_presenter.get_button_bar() if shop_presenter and shop_presenter.has_method("get_button_bar") else null)
 		if bar:
@@ -353,6 +463,32 @@ func initialize() -> void:
 				var ar := parent.get_node("MarginContainer/VBoxContainer/ActionsRow")
 				if ar is Control:
 					(ar as Control).visible = false
+
+func _get_shop_board_team() -> Array:
+	return manager.player_team if manager != null else []
+
+func _remove_shop_board_unit(u: Unit) -> bool:
+	if u == null or manager == null:
+		return false
+	var rem_idx: int = -1
+	for i: int in range(manager.player_team.size()):
+		if manager.player_team[i] == u:
+			rem_idx = i
+			break
+	if rem_idx == -1:
+		return false
+	manager.player_team.remove_at(rem_idx)
+	if has_method("refresh_all_views"):
+		refresh_all_views()
+	elif grid_placement != null:
+		grid_placement.rebuild_player_views(manager.player_team, true)
+	return true
+
+func _on_shop_grid_updated() -> void:
+	if shop_presenter == null:
+		return
+	sell_grid_helper = shop_presenter.get_drop_grid()
+	_rebuild_bench_views(true)
 
 func _apply_grid_dimensions(tile: int) -> void:
 	# Compute desired grid size from constants and theme separations
@@ -453,6 +589,8 @@ func _on_items_action_log(t: String) -> void:
 	_on_log_line(t)
 
 func refresh_all_views() -> void:
+	if selection != null and selection.has_method("reset_bindings"):
+		selection.reset_bindings()
 	# Rebuild player and bench views and rewire drag drop targets (KISS/DRY)
 	if grid_placement and manager:
 		# Ensure enemy preview reflects the latest manager.enemy_team (e.g., creep rounds)
@@ -483,6 +621,16 @@ func refresh_all_views() -> void:
 				selection.attach_to_unit_view(_ev.view, "enemy", _ev.tile_idx, __eprov)
 	_rebuild_bench_views(true)
 	# Ensure grid tiles keep the 'clear selection' handler even after rebuilds
+	if selection != null and arena_background != null:
+		selection.attach_clear_on(arena_background)
+	if selection != null and planning_area != null:
+		selection.attach_clear_on(planning_area)
+	if selection != null and player_grid != null:
+		selection.attach_clear_on(player_grid)
+	if selection != null and enemy_grid != null:
+		selection.attach_clear_on(enemy_grid)
+	if selection != null and bench_grid != null:
+		selection.attach_clear_on(bench_grid)
 	if player_grid:
 		_attach_clear_to_grid_tiles(player_grid)
 	if enemy_grid:

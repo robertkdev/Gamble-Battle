@@ -23,6 +23,17 @@ func configure(_bench_grid: GridContainer, _tile_size: int, _capacity: int) -> v
 func get_bench_grid() -> BoardGrid:
     return bench_grid_helper
 
+func teardown() -> void:
+    if bench_grid_helper != null:
+        bench_grid_helper.clear()
+    if _overlay_layer != null and is_instance_valid(_overlay_layer):
+        _overlay_layer.queue_free()
+    tiles.clear()
+    _prev_units.clear()
+    bench_grid_helper = null
+    _overlay_layer = null
+    bench_grid = null
+
 func _ensure_tiles() -> void:
     tiles.clear()
     if bench_grid == null:

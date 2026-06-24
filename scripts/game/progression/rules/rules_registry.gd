@@ -29,6 +29,13 @@ static func ensure_builtins() -> void:
     _register_builtin(StageTypes.KIND_CREEPS, "res://scripts/game/progression/rules/providers/creeps_rule.gd")
     _register_builtin(StageTypes.KIND_BOSS, "res://scripts/game/progression/rules/providers/boss_rule.gd")
 
+static func clear_runtime() -> void:
+    for provider in _registry.values():
+        if provider != null and provider.has_method("teardown"):
+            provider.teardown()
+    _registry.clear()
+    _builtins_registered = false
+
 static func _register_builtin(kind: String, path: String) -> void:
     var inst = _try_new(path)
     if inst == null:

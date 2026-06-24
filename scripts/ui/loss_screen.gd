@@ -40,6 +40,32 @@ func _ready() -> void:
 		_pending_populate = false
 		_populate()
 
+func _exit_tree() -> void:
+	teardown()
+
+func teardown() -> void:
+	if _new_game_hover_tween != null and is_instance_valid(_new_game_hover_tween):
+		_new_game_hover_tween.kill()
+	_new_game_hover_tween = null
+	if new_game_button != null and is_instance_valid(new_game_button):
+		if new_game_button.is_connected("pressed", Callable(self, "_on_new_game")):
+			new_game_button.pressed.disconnect(_on_new_game)
+		if new_game_button.is_connected("mouse_entered", Callable(self, "_on_new_game_hover_entered")):
+			new_game_button.mouse_entered.disconnect(_on_new_game_hover_entered)
+		if new_game_button.is_connected("mouse_exited", Callable(self, "_on_new_game_hover_exited")):
+			new_game_button.mouse_exited.disconnect(_on_new_game_hover_exited)
+		if new_game_button.is_connected("focus_entered", Callable(self, "_on_new_game_hover_entered")):
+			new_game_button.focus_entered.disconnect(_on_new_game_hover_entered)
+		if new_game_button.is_connected("focus_exited", Callable(self, "_on_new_game_hover_exited")):
+			new_game_button.focus_exited.disconnect(_on_new_game_hover_exited)
+		if new_game_button.is_connected("resized", Callable(self, "_sync_new_game_pivot")):
+			new_game_button.resized.disconnect(_sync_new_game_pivot)
+	if scoreboard_holder != null and is_instance_valid(scoreboard_holder):
+		for child: Node in scoreboard_holder.get_children():
+			if child.has_method("teardown"):
+				child.call("teardown")
+	_tracker = null
+
 func configure(tracker: StatsTracker) -> void:
 	_tracker = tracker
 	if _ready_done:

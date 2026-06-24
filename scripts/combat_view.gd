@@ -1,6 +1,7 @@
 extends Control
 
 const GothicUITheme := preload("res://scripts/ui/combat/gothic_ui_theme.gd")
+const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 
 var _controller_script: Script = null
 
@@ -30,6 +31,7 @@ var _controller_script: Script = null
 
 var manager: CombatManager
 var controller
+var _teardown_done: bool = false
 
 var player_name: String = "Hero"
 
@@ -76,6 +78,27 @@ func _ready() -> void:
 	# Initialize timer state for current phase
 	if gs:
 		_on_phase_changed(gs.phase, gs.phase)
+
+func _exit_tree() -> void:
+	_teardown()
+
+func _teardown() -> void:
+	if _teardown_done:
+		return
+	_teardown_done = true
+	set_process(false)
+	var gs: Node = _get_gs()
+	if gs != null and is_instance_valid(gs) and gs.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
+		gs.phase_changed.disconnect(_on_phase_changed)
+	if controller != null and controller.has_method("teardown"):
+		controller.teardown()
+	controller = null
+	if manager != null and is_instance_valid(manager) and manager.has_method("teardown"):
+		manager.teardown()
+	manager = null
+	theme = null
+	GothicUITheme.clear_runtime()
+	UIBars.clear_runtime()
 
 func _init_game() -> void:
 	controller._init_game()
@@ -290,7 +313,8 @@ func _apply_visual_theme_deferred() -> void:
 	GothicUITheme.apply(self)
 
 func _notification(_what: int) -> void:
-	pass
+	if _what == NOTIFICATION_PREDELETE:
+		_teardown()
 
 
 func _log_initial_layout(tag: String = "CombatView snapshot") -> void:

@@ -111,6 +111,9 @@ func clear_for(unit) -> void:
 	if unit.hp > unit.max_hp:
 		unit.hp = unit.max_hp
 
+func clear_all() -> void:
+	_base.clear()
+
 func rebase_unit(unit) -> void:
 	# Treat current values as the new base (e.g., after persistent level-up changes)
 	if unit == null:

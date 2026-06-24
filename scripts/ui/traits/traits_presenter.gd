@@ -24,6 +24,21 @@ func initialize() -> void:
 	_connect_signals()
 	rebuild()
 
+func teardown() -> void:
+	if view != null and is_instance_valid(view) and view.is_connected("resized", Callable(self, "_on_view_resized")):
+		view.resized.disconnect(_on_view_resized)
+	if manager != null and is_instance_valid(manager) and manager.is_connected("team_stats_updated", Callable(self, "_on_team_stats_updated")):
+		manager.team_stats_updated.disconnect(_on_team_stats_updated)
+	if _vbox != null and is_instance_valid(_vbox):
+		for c in _vbox.get_children():
+			if c is Node:
+				c.queue_free()
+	_overlay = null
+	_scroll = null
+	_vbox = null
+	manager = null
+	view = null
+
 func _connect_signals() -> void:
 	if view and not view.is_connected("resized", Callable(self, "_on_view_resized")):
 		view.resized.connect(_on_view_resized)

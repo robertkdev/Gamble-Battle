@@ -52,6 +52,36 @@ func _ready() -> void:
     show_team_metrics()
     set_process_unhandled_input(true)
 
+func _exit_tree() -> void:
+    teardown()
+
+func teardown() -> void:
+    set_process(false)
+    set_process_unhandled_input(false)
+    if manager != null and is_instance_valid(manager):
+        if manager.is_connected("stats_updated", Callable(self, "_on_stats_updated")):
+            manager.stats_updated.disconnect(_on_stats_updated)
+        if manager.is_connected("team_stats_updated", Callable(self, "_on_team_stats_updated")):
+            manager.team_stats_updated.disconnect(_on_team_stats_updated)
+    if btn_all != null and is_instance_valid(btn_all) and btn_all.is_connected("pressed", Callable(self, "_on_window_all")):
+        btn_all.pressed.disconnect(_on_window_all)
+    if btn_3s != null and is_instance_valid(btn_3s) and btn_3s.is_connected("pressed", Callable(self, "_on_window_3s")):
+        btn_3s.pressed.disconnect(_on_window_3s)
+    if metric_tabs != null and is_instance_valid(metric_tabs) and metric_tabs.is_connected("metric_changed", Callable(self, "_on_metric_changed")):
+        metric_tabs.metric_changed.disconnect(_on_metric_changed)
+    reset_runtime()
+    manager = null
+
+func reset_runtime() -> void:
+    mode = Mode.TEAM
+    _unit_team = "player"
+    _unit_index = -1
+    _tracker = null
+    if scoreboard != null and is_instance_valid(scoreboard) and scoreboard.has_method("teardown"):
+        scoreboard.teardown()
+    if unit_panel != null and is_instance_valid(unit_panel) and unit_panel.has_method("teardown"):
+        unit_panel.teardown()
+
 func _unhandled_input(event: InputEvent) -> void:
     if mode != Mode.UNIT:
         return

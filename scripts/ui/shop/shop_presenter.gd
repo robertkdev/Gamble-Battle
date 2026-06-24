@@ -63,6 +63,22 @@ func configure(parent: Node, grid: GridContainer) -> void:
 	_refresh_now()
 	_rebuild_drop_grid()
 
+func teardown() -> void:
+	_unwire()
+	if _buttons != null and _buttons.has_method("teardown"):
+		_buttons.teardown()
+	if _panel != null and _panel.has_method("clear"):
+		_panel.clear()
+	if _message_label != null and is_instance_valid(_message_label):
+		_message_label.queue_free()
+	_message_timer = null
+	_drop_grid = null
+	_message_label = null
+	_buttons = null
+	_panel = null
+	_grid = null
+	_parent = null
+
 func _wire() -> void:
 	if not _has_shop():
 		return
@@ -81,6 +97,22 @@ func _wire() -> void:
 	if _has_game_state():
 		if not GameState.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
 			GameState.phase_changed.connect(_on_phase_changed)
+
+func _unwire() -> void:
+	if Engine.has_singleton("Shop"):
+		if Shop.is_connected("offers_changed", Callable(self, "_on_offers_changed")):
+			Shop.offers_changed.disconnect(_on_offers_changed)
+		if Shop.is_connected("locked_changed", Callable(self, "_on_locked_changed")):
+			Shop.locked_changed.disconnect(_on_locked_changed)
+		if Shop.is_connected("error", Callable(self, "_on_shop_error")):
+			Shop.error.disconnect(_on_shop_error)
+	if Engine.has_singleton("Economy"):
+		if Economy.is_connected("gold_changed", Callable(self, "_on_economy_changed")):
+			Economy.gold_changed.disconnect(_on_economy_changed)
+		if Economy.is_connected("bet_changed", Callable(self, "_on_economy_changed")):
+			Economy.bet_changed.disconnect(_on_economy_changed)
+	if Engine.has_singleton("GameState") and GameState.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
+		GameState.phase_changed.disconnect(_on_phase_changed)
 
 func _refresh_now() -> void:
 	if not _has_shop():

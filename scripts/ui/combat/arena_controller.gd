@@ -144,6 +144,14 @@ func sync_arena_with_positions(player_views, enemy_views, player_positions: Arra
 func exit_arena() -> void:
     _clear()
 
+func teardown() -> void:
+    _clear()
+    arena_container = null
+    arena_units = null
+    player_grid_helper = null
+    enemy_grid_helper = null
+    unit_actor_class = null
+
 func _clear() -> void:
     if arena_units:
         for child in arena_units.get_children():

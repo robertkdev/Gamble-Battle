@@ -15,6 +15,9 @@ func reload() -> void:
 	_by_id.clear()
 	_scan_dir(_root)
 
+func clear() -> void:
+	_by_id.clear()
+
 func exists(id_or_path: String) -> bool:
 	var sid: String = _normalize_id_or_path(id_or_path)
 	return _by_id.has(sid)

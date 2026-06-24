@@ -61,3 +61,8 @@ func on_battle_start(state, engine, spec: Dictionary, _ch: int = 0, _sic: int = 
 	_runtime.configure(engine, pool, options)
 	_runtime.wire()
 	print(LOG_PREFIX, "provider active: pool=", (pool.id if pool != null else "<null>"), " options=", options)
+
+func teardown() -> void:
+	if _runtime != null:
+		_runtime.dispose()
+		_runtime = null

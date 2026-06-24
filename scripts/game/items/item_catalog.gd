@@ -21,6 +21,12 @@ static func reload() -> void:
 	_by_tag.clear()
 	_ensure_loaded()
 
+static func clear_cache() -> void:
+	_loaded = false
+	_items_by_id.clear()
+	_by_type.clear()
+	_by_tag.clear()
+
 static func _scan_dir(path: String) -> void:
 	var dir := DirAccess.open(path)
 	if dir == null:

@@ -25,6 +25,15 @@ func configure(grid: GridContainer, slot_count: int = ShopConfig.SLOT_COUNT) -> 
 func get_host_container() -> Container:
     return _host_container
 
+func clear() -> void:
+    if _grid != null and is_instance_valid(_grid):
+        for c in _grid.get_children():
+            if c is Node:
+                c.queue_free()
+    _cards.clear()
+    _grid = null
+    _host_container = null
+
 func set_empty_state(label_text: String, hint_text: String = "") -> void:
     _empty_label_text = String(label_text).strip_edges()
     _empty_hint_text = String(hint_text).strip_edges()

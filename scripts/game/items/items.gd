@@ -45,6 +45,17 @@ func _ready() -> void:
 	_maybe_seed_dev_inventory()
 	_ensure_inventory_slots()
 
+func reset_run() -> void:
+	_inventory.clear()
+	_equipped.clear()
+	_unit_refs.clear()
+	_inventory_slots.clear()
+	if _equip_service != null and _equip_service.has_method("clear_all"):
+		_equip_service.clear_all()
+	_maybe_seed_dev_inventory()
+	_ensure_inventory_slots()
+	inventory_changed.emit()
+
 func add_to_inventory(id: String, n: int = 1) -> Dictionary:
 	_cleanup_invalid_units()
 	var res := {"ok": false, "reason": ""}

@@ -1,4 +1,4 @@
-extends Object
+extends RefCounted
 class_name RuleProvider
 
 # Contract for stage/chapter behavior providers.
@@ -24,4 +24,7 @@ func on_pre_engine_config(_state, _engine, _spec: Dictionary, _ch: int = 0, _sic
 
 func on_battle_start(_state, _engine, _spec: Dictionary, _ch: int = 0, _sic: int = 0) -> void:
     # Called after engine.start() and before the first process tick.
+    pass
+
+func teardown() -> void:
     pass

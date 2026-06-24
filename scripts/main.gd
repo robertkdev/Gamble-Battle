@@ -361,6 +361,10 @@ func _reset_run_state() -> void:
 	if shop != null and shop.has_method("reset_run"):
 		shop.call("reset_run")
 
+	var items: Node = _get_autoload("Items")
+	if items != null and items.has_method("reset_run"):
+		items.call("reset_run")
+
 	var roster: Node = _get_autoload("Roster")
 	if roster != null and roster.has_method("reset"):
 		roster.call("reset")

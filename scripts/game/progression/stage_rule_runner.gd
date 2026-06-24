@@ -36,6 +36,10 @@ static func on_battle_start(state, engine, spec: Dictionary, ch: int, sic: int) 
 	if p and p.has_method("on_battle_start"):
 		p.on_battle_start(state, engine, spec, int(ch), int(sic))
 
+static func clear_runtime() -> void:
+	_item_warning_logged = false
+	RulesRegistry.clear_runtime()
+
 static func _provider_for(spec: Dictionary, ch: int):
 	RulesRegistry.ensure_builtins()
 	var rid: String = ""

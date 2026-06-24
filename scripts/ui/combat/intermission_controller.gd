@@ -9,6 +9,7 @@ const COLOR_BORDER: Color = Color(0.34, 0.24, 0.20, 0.86)
 var _parent: Node = null
 var _bar: ProgressBar = null
 var _tween: Tween = null
+var _finished_callback: Callable = Callable()
 
 func configure(parent: Node) -> void:
     _parent = parent
@@ -77,17 +78,13 @@ func start(seconds: float, on_finished: Callable) -> void:
     _bar.value = 0.0
     _bar.visible = true
     # Kill any prior tween
-    if _tween and is_instance_valid(_tween):
-        _tween.kill()
+    _clear_tween()
+    _finished_callback = on_finished
     # Create tween on parent for progress animation
     if _parent != null and _parent.has_method("create_tween"):
         _tween = _parent.create_tween()
         _tween.tween_property(_bar, "value", 1.0, max(0.1, float(seconds)))
-        _tween.finished.connect(func():
-            _bar.visible = false
-            if on_finished.is_valid():
-                on_finished.call()
-        )
+        _tween.finished.connect(_on_tween_finished)
     else:
         # Fallback: use SceneTreeTimer and snap to done
         var tree: SceneTree = (_parent.get_tree() if _parent else null)
@@ -106,8 +103,38 @@ func start(seconds: float, on_finished: Callable) -> void:
                 on_finished.call()
 
 func stop() -> void:
-    if _tween and is_instance_valid(_tween):
-        _tween.kill()
-        _tween = null
+    _clear_tween()
+    _finished_callback = Callable()
     if _bar:
         _bar.visible = false
+
+func teardown() -> void:
+    stop()
+    if _bar != null and is_instance_valid(_bar):
+        if _bar.get_parent() != null:
+            _bar.queue_free()
+        else:
+            _bar.free()
+    _bar = null
+    _parent = null
+
+func _clear_tween() -> void:
+    if _tween and is_instance_valid(_tween):
+        var callback: Callable = Callable(self, "_on_tween_finished")
+        if _tween.is_connected("finished", callback):
+            _tween.finished.disconnect(callback)
+        _tween.kill()
+    _tween = null
+
+func _on_tween_finished() -> void:
+    var callback: Callable = _finished_callback
+    _finished_callback = Callable()
+    if _tween != null and is_instance_valid(_tween):
+        var tween_callback: Callable = Callable(self, "_on_tween_finished")
+        if _tween.is_connected("finished", tween_callback):
+            _tween.finished.disconnect(tween_callback)
+    _tween = null
+    if _bar != null and is_instance_valid(_bar):
+        _bar.visible = false
+    if callback.is_valid():
+        callback.call()
