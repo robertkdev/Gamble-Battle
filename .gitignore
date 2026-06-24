@@ -12,6 +12,16 @@ logs/
 debug_logs/
 Godot/app_userdata/
 
+# Local Godot runtime/tooling artifacts
+/.godot-bin/
+/godot-bin/
+/Godot/
+/Godot_v*_win64*.zip
+
+# Generated outputs and transient temp files
+/outputs/
+*.tmp
+
 # OS junk
 .DS_Store
 Thumbs.db
