@@ -12,11 +12,12 @@ var _grid: GridContainer = null
 var _panel: ShopPanel = null
 var _buttons: ShopButtons = null
 var _message_label: Label = null
-var _message_timer: SceneTreeTimer = null
+var _message_timer: Timer = null
 var _drop_grid: BoardGrid = null
 
 signal grid_updated
 signal promotions_emitted(promotions)
+signal first_purchase_needs_deploy(unit_id: String, bench_slot: int)
 
 func _root() -> Node:
 	var tree := (_parent.get_tree() if _parent else null)
@@ -69,8 +70,17 @@ func teardown() -> void:
 		_buttons.teardown()
 	if _panel != null and _panel.has_method("clear"):
 		_panel.clear()
+	if _message_timer != null and is_instance_valid(_message_timer):
+		_message_timer.stop()
+		var timer_parent: Node = _message_timer.get_parent()
+		if timer_parent != null:
+			timer_parent.remove_child(_message_timer)
+		_message_timer.free()
 	if _message_label != null and is_instance_valid(_message_label):
-		_message_label.queue_free()
+		var label_parent: Node = _message_label.get_parent()
+		if label_parent != null:
+			label_parent.remove_child(_message_label)
+		_message_label.free()
 	_message_timer = null
 	_drop_grid = null
 	_message_label = null
@@ -265,12 +275,17 @@ func _on_card_clicked(slot_index: int) -> void:
 	if _is_forced_first_fight():
 		_show_message("First fight is forced. Win to open the shop.", 2.0)
 		return
-	var res = Shop.buy_unit(int(slot_index))
+	var res: Dictionary = Shop.buy_unit(int(slot_index))
 	# Emit promotions for UI effects if present
 	if typeof(res) == TYPE_DICTIONARY:
-		var promos = res.get("promotions", null)
-		if promos is Array and promos.size() > 0:
-			promotions_emitted.emit(promos)
+		if bool(res.get("ok", false)):
+			var unit_id: String = String(res.get("unit_id", "unit"))
+			var bench_slot: int = int(res.get("bench_slot", -1))
+			_show_message("Bought %s. Drag it from bench to board." % unit_id.capitalize(), 3.0)
+			first_purchase_needs_deploy.emit(unit_id, bench_slot)
+			var promos: Variant = res.get("promotions", null)
+			if promos is Array and promos.size() > 0:
+				promotions_emitted.emit(promos)
 	_refresh_progress()
 
 func set_enabled(enabled: bool) -> void:
@@ -312,9 +327,9 @@ func _apply_empty_state() -> void:
 	if _panel == null:
 		return
 	if _is_forced_first_fight():
-		_panel.set_empty_state("FIRST FIGHT", "Win to open shop")
+		_panel.set_empty_state("FIRST FIGHT", "Win to open shop", true)
 	else:
-		_panel.set_empty_state("LEDGER", "Reroll to reveal")
+		_panel.set_empty_state("LEDGER", "Reroll to reveal", false)
 
 func _is_forced_first_fight() -> bool:
 	if not _has_game_state() or not _has_shop():
@@ -354,6 +369,12 @@ func _ensure_message_label() -> void:
 	_message_label.modulate = Color(1,0.6,0.6,0.95)
 	host.add_child(_message_label)
 	host.move_child(_message_label, 1) # below buttons
+	if _message_timer == null or not is_instance_valid(_message_timer):
+		_message_timer = Timer.new()
+		_message_timer.one_shot = true
+		_message_timer.process_callback = Timer.TIMER_PROCESS_IDLE
+		host.add_child(_message_timer)
+		_message_timer.timeout.connect(_on_message_timer_timeout)
 
 func _show_message(text: String, seconds: float = 2.0) -> void:
 	_ensure_message_label()
@@ -361,13 +382,14 @@ func _show_message(text: String, seconds: float = 2.0) -> void:
 		return
 	_message_label.text = String(text)
 	_message_label.visible = true
-	var tree := (_parent.get_tree() if _parent else null)
-	if tree:
-		_message_timer = tree.create_timer(max(0.1, float(seconds)))
-		_message_timer.timeout.connect(func():
-			if _message_label:
-				_message_label.visible = false
-		)
+	if _message_timer != null and is_instance_valid(_message_timer):
+		_message_timer.stop()
+		_message_timer.wait_time = max(0.1, float(seconds))
+		_message_timer.start()
+
+func _on_message_timer_timeout() -> void:
+	if _message_label != null and is_instance_valid(_message_label):
+		_message_label.visible = false
 
 func _on_shop_error(code: String, _context: Dictionary) -> void:
 	var msg := ShopErrors.message(code)

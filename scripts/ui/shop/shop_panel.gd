@@ -13,6 +13,7 @@ var _host_container: Container = null
 var _cards: Array = []
 var _empty_label_text: String = "LEDGER"
 var _empty_hint_text: String = "Reroll to reveal"
+var _single_empty_state: bool = false
 
 func configure(grid: GridContainer, slot_count: int = ShopConfig.SLOT_COUNT) -> void:
     _grid = grid
@@ -29,14 +30,16 @@ func clear() -> void:
     if _grid != null and is_instance_valid(_grid):
         for c in _grid.get_children():
             if c is Node:
-                c.queue_free()
+                _grid.remove_child(c)
+                c.free()
     _cards.clear()
     _grid = null
     _host_container = null
 
-func set_empty_state(label_text: String, hint_text: String = "") -> void:
+func set_empty_state(label_text: String, hint_text: String = "", single_panel: bool = false) -> void:
     _empty_label_text = String(label_text).strip_edges()
     _empty_hint_text = String(hint_text).strip_edges()
+    _single_empty_state = bool(single_panel)
     if _empty_label_text == "":
         _empty_label_text = "LEDGER"
 
@@ -47,6 +50,7 @@ func set_offers(offers: Array) -> void:
         if c is Node:
             c.queue_free()
     _cards.clear()
+    _grid.columns = 1 if _single_empty_state and offers.is_empty() else _slot_count
 
     var shown: int = 0
     var idx: int = 0
@@ -96,6 +100,10 @@ func set_offers(offers: Array) -> void:
         shown += 1
         idx += 1
 
+    if _single_empty_state and offers.is_empty():
+        _grid.add_child(_make_empty())
+        return
+
     while shown < _slot_count:
         _grid.add_child(_make_empty())
         shown += 1
@@ -124,7 +132,7 @@ func _make_sold() -> Control:
 
 func _make_placeholder(sold: bool) -> Control:
     var wrap: PanelContainer = PanelContainer.new()
-    wrap.custom_minimum_size = Vector2(150.0, 138.0)
+    wrap.custom_minimum_size = Vector2(790.0, 138.0) if _single_empty_state and not sold else Vector2(150.0, 138.0)
     wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_theme_stylebox_override("panel", _make_placeholder_style(sold))
 

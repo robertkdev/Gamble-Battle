@@ -53,6 +53,10 @@ func _ready() -> void:
 		help_label.visible = true
 	if not start_button.is_connected("pressed", Callable(self, "_on_StartButton_pressed")):
 		start_button.pressed.connect(_on_StartButton_pressed)
+	if scroll != null:
+		var scroll_bar: VScrollBar = scroll.get_v_scroll_bar()
+		if scroll_bar != null and not scroll_bar.is_connected("value_changed", Callable(self, "_on_scroll_changed")):
+			scroll_bar.value_changed.connect(_on_scroll_changed)
 	resized.connect(_on_resized)
 	_populate_units()
 	_on_resized()
@@ -417,6 +421,16 @@ func _on_unit_unhovered() -> void:
 		_update_preview(selected_id, true)
 		return
 	_clear_preview()
+
+func _on_scroll_changed(_value: float) -> void:
+	if _hovered_id != "":
+		_apply_unit_button_motion(_hovered_id, false)
+		_hovered_id = ""
+		_style_unit_cards()
+	if selected_id != "":
+		_update_preview(selected_id, true)
+	else:
+		_clear_preview()
 
 func _clear_preview() -> void:
 	if selected_label:

@@ -10,6 +10,10 @@ static func reload() -> void:
     GoalCatalog.reload()
     ApproachCatalog.reload()
 
+static func clear_cache() -> void:
+    GoalCatalog.clear_cache()
+    ApproachCatalog.clear_cache()
+
 static func valid_roles() -> PackedStringArray:
     return PackedStringArray(PrimaryRole.ALL)
 

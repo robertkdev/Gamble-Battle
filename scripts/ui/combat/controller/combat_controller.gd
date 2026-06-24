@@ -31,7 +31,7 @@ const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 
 const START_BATTLE_TEXT: String = "Start Battle"
 const START_FORCED_FIGHT_TEXT: String = "Start Forced Fight"
-const BATTLE_LOCKED_TEXT: String = "Battle Locked"
+const BATTLE_LOCKED_TEXT: String = "Combat Resolving..."
 
 # Parent scene (CombatView)
 var parent: Control
@@ -103,6 +103,11 @@ var view_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _beam_overlay: Control = null
 var _teardown_done: bool = false
 var _shop_grid_updated_cb: Callable = Callable()
+var _first_deploy_assist_active: bool = false
+var _first_deploy_assist_seen: bool = false
+var _first_deploy_team_size: int = 0
+
+const FIRST_DEPLOY_TIMER_EXTENSION: float = 20.0
 
 func _attach_clear_to_grid_tiles(grid: GridContainer) -> void:
 	if selection == null or grid == null:
@@ -253,6 +258,8 @@ func _disconnect_controller_signals() -> void:
 		bet_slider.value_changed.disconnect(_on_bet_changed)
 	if shop_presenter != null and shop_presenter.is_connected("promotions_emitted", Callable(self, "_on_promotions_emitted")):
 		shop_presenter.promotions_emitted.disconnect(_on_promotions_emitted)
+	if shop_presenter != null and shop_presenter.has_signal("first_purchase_needs_deploy") and shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
+		shop_presenter.first_purchase_needs_deploy.disconnect(_on_first_purchase_needs_deploy)
 	if shop_presenter != null and _shop_grid_updated_cb.is_valid() and shop_presenter.is_connected("grid_updated", _shop_grid_updated_cb):
 		shop_presenter.grid_updated.disconnect(_shop_grid_updated_cb)
 	_shop_grid_updated_cb = Callable()
@@ -423,6 +430,8 @@ func initialize() -> void:
 		# Listen for combine promotions to play level-up effects on bench/board
 		if not shop_presenter.is_connected("promotions_emitted", Callable(self, "_on_promotions_emitted")):
 			shop_presenter.promotions_emitted.connect(_on_promotions_emitted)
+		if shop_presenter.has_signal("first_purchase_needs_deploy") and not shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
+			shop_presenter.first_purchase_needs_deploy.connect(_on_first_purchase_needs_deploy)
 		# Provide board-aware combine hooks to Shop/Transactions so bench+board triples upgrade.
 		if Engine.has_singleton("Shop"):
 			if Shop.has_method("set_board_team_provider"):
@@ -531,6 +540,9 @@ func process(_delta: float) -> void:
 
 func _init_game() -> void:
 	clear_log()
+	_first_deploy_assist_active = false
+	_first_deploy_assist_seen = false
+	_first_deploy_team_size = 0
 	if continue_button:
 		continue_button.disabled = false
 		continue_button.visible = true
@@ -588,6 +600,23 @@ func _on_items_action_log(t: String) -> void:
 	# Route item logs into the same UI logger used by combat engine
 	_on_log_line(t)
 
+func _on_first_purchase_needs_deploy(unit_id: String, _bench_slot: int) -> void:
+	if _first_deploy_assist_seen:
+		return
+	if manager == null:
+		return
+	_first_deploy_assist_active = true
+	_first_deploy_assist_seen = true
+	_first_deploy_team_size = manager.player_team.size()
+	var display_name: String = String(unit_id).capitalize()
+	_on_log_line("Deploy %s: drag from bench to a highlighted board cell." % display_name)
+	if parent != null:
+		var current_time: float = float(parent.get("planning_time_left"))
+		if current_time < FIRST_DEPLOY_TIMER_EXTENSION:
+			parent.set("planning_time_left", FIRST_DEPLOY_TIMER_EXTENSION)
+	if player_grid != null:
+		player_grid.modulate = Color(1.0, 0.82, 0.42, 1.0)
+
 func refresh_all_views() -> void:
 	if selection != null and selection.has_method("reset_bindings"):
 		selection.reset_bindings()
@@ -637,6 +666,7 @@ func refresh_all_views() -> void:
 		_attach_clear_to_grid_tiles(enemy_grid)
 	if bench_grid:
 		_attach_clear_to_grid_tiles(bench_grid)
+	_update_first_deploy_assist()
 	# Rebuild traits tracker (board-only traits)
 	if traits_presenter:
 		traits_presenter.rebuild()
@@ -684,6 +714,9 @@ func _on_continue_pressed() -> void:
 			continue_button.disabled = false
 			_set_continue_to_start_text()
 			return
+		_first_deploy_assist_active = false
+		if player_grid != null:
+			player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		# Precompute arena positions from current planning layout so engine starts at chosen tiles
 		if grid_placement and arena_bridge and manager:
 			var ts := float(UI.TILE_SIZE)
@@ -762,6 +795,19 @@ func _on_bench_changed() -> void:
 			refresh_all_views()
 			# Play level-up effects for promoted units
 			_play_promotions(promos)
+	_update_first_deploy_assist()
+
+func _update_first_deploy_assist() -> void:
+	if not _first_deploy_assist_active:
+		return
+	if manager == null:
+		return
+	if manager.player_team.size() <= _first_deploy_team_size:
+		return
+	_first_deploy_assist_active = false
+	if player_grid != null:
+		player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	_on_log_line("Unit deployed. Start Battle when ready.")
 
 func _on_promotions_emitted(promotions: Array) -> void:
 	if promotions == null or promotions.size() == 0:

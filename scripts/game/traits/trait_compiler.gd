@@ -3,6 +3,9 @@ class_name TraitCompiler
 
 static var _cache: Dictionary = {} # Dictionary[String, TraitDef]
 
+static func clear_cache() -> void:
+	_cache.clear()
+
 static func _trait_path(id: String) -> String:
 	return "res://data/traits/%s.tres" % id
 

@@ -53,7 +53,10 @@ func get_bar() -> HBoxContainer:
 
 func teardown() -> void:
 	if _bar != null and is_instance_valid(_bar):
-		_bar.queue_free()
+		var bar_parent: Node = _bar.get_parent()
+		if bar_parent != null:
+			bar_parent.remove_child(_bar)
+		_bar.free()
 	_host = null
 	_bar = null
 	_reroll = null

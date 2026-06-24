@@ -36,6 +36,7 @@ func _run() -> void:
 	_main.offset_bottom = 0.0
 	get_tree().root.add_child(_main)
 	await _settle_frames(4)
+	_expect(Items.get_inventory_snapshot().is_empty(), "new run should start with clean item inventory")
 
 	for cycle_index: int in range(1, LOSS_CYCLES + 1):
 		await _play_loss_cycle("paisley", cycle_index)
@@ -125,6 +126,7 @@ func _play_shop_cycle(unit_id: String) -> void:
 	await _settle_frames(4)
 	_set_planning_timer_safe()
 	_expect(_first_fight_placeholder_visible(), "forced first fight shop placeholder was not visible")
+	_expect(_opening_shop_buttons_disabled(), "opening shop controls should be disabled during forced first fight")
 	await _press_continue(true, "shop cycle forced first fight")
 	var shop_ready: bool = await _wait_for_shop_after_win(30.0)
 	_expect(shop_ready, "shop cycle did not open a post-fight shop")
@@ -132,10 +134,13 @@ func _play_shop_cycle(unit_id: String) -> void:
 		return
 	_expect(int(GameState.stage_in_chapter) >= 2, "shop cycle did not advance beyond first fight")
 	_expect(Shop.state != null and Shop.state.offers.size() == int(SHOP_CONFIG.SLOT_COUNT), "post-fight shop did not have full offers")
+	_set_planning_time_left(5.0)
 	var bought: bool = await _press_affordable_shop_card()
 	_expect(bought, "could not buy an affordable post-fight shop unit")
 	await _settle_frames(4)
 	_expect(Roster.compact().size() >= 1, "shop buy did not place a unit on bench")
+	_expect(_deploy_prompt_visible(), "shop buy did not show deploy guidance")
+	_expect(_planning_time_left() >= 19.0, "first deploy assist did not extend short planning timer")
 	var moved_to_board: bool = await _drag_first_bench_unit_to_board()
 	_expect(moved_to_board, "bought bench unit did not move to board through mouse drag")
 	await _settle_frames(4)
@@ -196,6 +201,18 @@ func _set_planning_timer_safe() -> void:
 		return
 	combat.set("planning_timer_total", 9999.0)
 	combat.set("planning_time_left", 9999.0)
+
+func _set_planning_time_left(seconds_left: float) -> void:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return
+	combat.set("planning_time_left", float(seconds_left))
+
+func _planning_time_left() -> float:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return 0.0
+	return float(combat.get("planning_time_left"))
 
 func _set_bet_to_max() -> void:
 	var slider: HSlider = _main.find_child("BetSlider", true, false) as HSlider
@@ -476,11 +493,39 @@ func _first_fight_placeholder_visible() -> bool:
 	var grid: GridContainer = _main.find_child("ShopGrid", true, false) as GridContainer
 	if grid == null:
 		return false
+	if grid.get_child_count() != 1:
+		return false
 	for child: Node in grid.get_children():
 		var label: Label = _find_label_with_text(child, "FIRST FIGHT")
 		if label != null:
 			return true
 	return false
+
+func _opening_shop_buttons_disabled() -> bool:
+	return _button_with_text_disabled("Reroll") and _button_with_text_disabled("Lock") and _button_with_text_disabled("Buy XP")
+
+func _button_with_text_disabled(text: String) -> bool:
+	var buttons: Array[Node] = _main.find_children("*", "Button", true, false)
+	for node: Node in buttons:
+		var button: Button = node as Button
+		if button != null and button.text == text:
+			return button.disabled
+	return false
+
+func _deploy_prompt_visible() -> bool:
+	var root: Node = _main.get_node_or_null("CombatView")
+	if root == null:
+		return false
+	return _find_label_containing_text(root, "Drag it from bench to board") != null
+
+func _find_label_containing_text(root: Node, text: String) -> Label:
+	if root is Label and String((root as Label).text).find(text) >= 0:
+		return root as Label
+	for child: Node in root.get_children():
+		var found: Label = _find_label_containing_text(child, text)
+		if found != null:
+			return found
+	return null
 
 func _find_label_with_text(root: Node, text: String) -> Label:
 	if root is Label and String((root as Label).text) == text:

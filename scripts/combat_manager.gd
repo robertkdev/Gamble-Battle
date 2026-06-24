@@ -14,6 +14,8 @@ const EnemyScaling := preload("res://scripts/game/combat/enemy_scaling.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const RoleLibrary := preload("res://scripts/game/units/role_library.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
+const IdentityRegistry := preload("res://scripts/game/identity/identity_registry.gd")
+const TraitCompiler := preload("res://scripts/game/traits/trait_compiler.gd")
 
 signal battle_started(stage: int, enemy)
 signal log_line(text: String)
@@ -130,6 +132,8 @@ func teardown() -> void:
 	AbilityCatalog.clear_caches()
 	UnitFactory.clear_cache()
 	RoleLibrary.clear_cache()
+	IdentityRegistry.clear_cache()
+	TraitCompiler.clear_cache()
 	if _state != null:
 		_state.reset()
 		_state = null

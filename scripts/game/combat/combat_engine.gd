@@ -103,6 +103,11 @@ var emit_auto_attack_logs: bool = false
 var emit_ability_logs: bool = false
 
 var _resolver_emitters: Dictionary[String, Callable] = {}
+var combat_timeout_s: float = 45.0
+var no_progress_timeout_s: float = 12.0
+var _last_progress_time: float = 0.0
+var _last_progress_total_damage: int = 0
+var _last_progress_positions: Array[Vector2] = []
 
 func set_seed(seed: int) -> void:
 	if rng == null:
@@ -412,6 +417,9 @@ func start() -> void:
 		return
 	state.battle_active = true
 	_first_attack_windup_done.clear()
+	_last_progress_time = 0.0
+	_last_progress_total_damage = 0
+	_last_progress_positions.clear()
 	if outcome_resolver != null:
 		outcome_resolver.reset()
 	attack_resolver.reset_totals()
@@ -470,6 +478,11 @@ func process(delta: float) -> void:
 	state.elapsed_time += delta
 	_retarget_if_due(delta)
 	arena_state.update_movement(state, delta, target_controller.resolver_for_arena())
+	_update_combat_progress_watchdog()
+	var timeout_outcome: String = _combat_timeout_outcome()
+	if timeout_outcome != "":
+		_emit_outcome(timeout_outcome)
+		return
 	_position_emit_accum += delta
 	var __pei: float = (position_emit_interval_override if position_emit_interval_override > 0.0 else POSITION_EMIT_INTERVAL)
 	while _position_emit_accum >= __pei:
@@ -520,6 +533,7 @@ func on_projectile_hit(source_team: String, source_index: int, target_index: int
 	if not result.get("processed", false):
 		return
 	_update_totals_cache()
+	_mark_combat_progress()
 	_reset_debug_counters()
 	_evaluate_outcome()
 
@@ -571,6 +585,76 @@ func _update_totals_cache() -> void:
 	var totals: Dictionary = attack_resolver.totals()
 	total_damage_player = int(totals.get("player", total_damage_player))
 	total_damage_enemy = int(totals.get("enemy", total_damage_enemy))
+
+func _update_combat_progress_watchdog() -> void:
+	if state == null or arena_state == null:
+		return
+	var total_damage: int = total_damage_player + total_damage_enemy
+	var positions: Array[Vector2] = _all_positions()
+	if total_damage > _last_progress_total_damage or _positions_changed(positions, _last_progress_positions):
+		_last_progress_time = float(state.elapsed_time)
+		_last_progress_total_damage = total_damage
+		_last_progress_positions = positions.duplicate()
+
+func _mark_combat_progress() -> void:
+	if state == null:
+		return
+	_last_progress_time = float(state.elapsed_time)
+	_last_progress_total_damage = total_damage_player + total_damage_enemy
+	_last_progress_positions = _all_positions()
+
+func _combat_timeout_outcome() -> String:
+	if state == null or not state.battle_active:
+		return ""
+	if combat_timeout_s > 0.0 and float(state.elapsed_time) >= combat_timeout_s:
+		emit_signal("log_line", "Combat timeout: forcing result from current board state.")
+		return _fallback_timeout_outcome()
+	if no_progress_timeout_s > 0.0 and float(state.elapsed_time) - _last_progress_time >= no_progress_timeout_s:
+		emit_signal("log_line", "Combat no-progress timeout: forcing result from current board state.")
+		return _fallback_timeout_outcome()
+	return ""
+
+func _fallback_timeout_outcome() -> String:
+	if state == null:
+		return "defeat"
+	var player_alive: int = _alive_count(state.player_team)
+	var enemy_alive: int = _alive_count(state.enemy_team)
+	if enemy_alive <= 0 and player_alive > 0:
+		return "victory"
+	if player_alive <= 0 and enemy_alive > 0:
+		return "defeat"
+	if total_damage_player > total_damage_enemy:
+		return "victory"
+	return "defeat"
+
+func _alive_count(units: Array[Unit]) -> int:
+	var count: int = 0
+	for unit: Unit in units:
+		if unit != null and unit.is_alive():
+			count += 1
+	return count
+
+func _all_positions() -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	if arena_state == null:
+		return out
+	var player_positions: Array = arena_state.player_positions_copy()
+	for player_position in player_positions:
+		if player_position is Vector2:
+			out.append(player_position)
+	var enemy_positions: Array = arena_state.enemy_positions_copy()
+	for enemy_position in enemy_positions:
+		if enemy_position is Vector2:
+			out.append(enemy_position)
+	return out
+
+func _positions_changed(current: Array[Vector2], previous: Array[Vector2]) -> bool:
+	if current.size() != previous.size():
+		return true
+	for index: int in range(current.size()):
+		if current[index].distance_to(previous[index]) > 0.5:
+			return true
+	return false
 
 func _reset_debug_counters() -> void:
 	debug_pairs = attack_resolver.debug_pairs

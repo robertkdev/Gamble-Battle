@@ -46,6 +46,18 @@ func _run() -> void:
 		_expect(view.selected_id == "", "selected_id did not clear after reset_selection", failures)
 		_expect(selected_label != null and selected_label.text == "No champion chosen", "Selection label did not reset", failures)
 		_expect(art != null and art.texture == null, "Preview art did not clear after reset_selection", failures)
+		var unit_id: String = String(first_button.get_meta("unit_id")) if first_button.has_meta("unit_id") else ""
+		if unit_id != "":
+			first_button.emit_signal("mouse_entered")
+			await get_tree().process_frame
+			_expect(selected_label != null and selected_label.text.begins_with("Inspecting "), "Hover preview did not show inspecting state", failures)
+			var scroll: ScrollContainer = view.get_node_or_null("Center/HBox/Left/Scroll") as ScrollContainer
+			var scroll_bar: VScrollBar = scroll.get_v_scroll_bar() if scroll != null else null
+			if scroll_bar != null and scroll_bar.max_value > scroll_bar.min_value:
+				scroll_bar.value = scroll_bar.max_value
+				await get_tree().process_frame
+				_expect(view.selected_id == "", "Scroll should not select a unit", failures)
+				_expect(selected_label != null and selected_label.text == "No champion chosen", "Scroll did not clear stale hover preview", failures)
 
 	if failures.size() > 0:
 		for failure: String in failures:

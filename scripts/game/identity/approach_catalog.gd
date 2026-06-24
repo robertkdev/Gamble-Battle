@@ -40,6 +40,10 @@ static func reload() -> void:
 	dir.list_dir_end()
 	_loaded = true
 
+static func clear_cache() -> void:
+	_loaded = false
+	_approach_map.clear()
+
 static func _ensure_loaded() -> void:
 	if not _loaded:
 		reload()

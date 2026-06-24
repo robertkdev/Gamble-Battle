@@ -54,6 +54,11 @@ static func reload() -> void:
         (_role_to_goals[key] as Array).sort()
     _loaded = true
 
+static func clear_cache() -> void:
+    _loaded = false
+    _goal_map.clear()
+    _role_to_goals.clear()
+
 static func _ensure_loaded() -> void:
     if not _loaded:
         reload()

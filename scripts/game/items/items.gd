@@ -24,7 +24,7 @@ var _inventory_slots: Array[String] = []
 
 # DEV: starter inventory seeding (disabled by default)
 # Toggle this on during development to auto‑populate inventory at startup.
-@export var DEV_STARTER_INVENTORY_ENABLED: bool = true
+@export var DEV_STARTER_INVENTORY_ENABLED: bool = false
 # Array of [item_id: String, count: int]
 @export var DEV_STARTER_INVENTORY: Array = [
 	["hammer", 2],
@@ -45,16 +45,24 @@ func _ready() -> void:
 	_maybe_seed_dev_inventory()
 	_ensure_inventory_slots()
 
+func _exit_tree() -> void:
+	_clear_runtime_state()
+	Combiner.configure(Callable(), Callable())
+	ItemCatalog.clear_cache()
+
 func reset_run() -> void:
+	_clear_runtime_state()
+	_maybe_seed_dev_inventory()
+	_ensure_inventory_slots()
+	inventory_changed.emit()
+
+func _clear_runtime_state() -> void:
 	_inventory.clear()
 	_equipped.clear()
 	_unit_refs.clear()
 	_inventory_slots.clear()
 	if _equip_service != null and _equip_service.has_method("clear_all"):
 		_equip_service.clear_all()
-	_maybe_seed_dev_inventory()
-	_ensure_inventory_slots()
-	inventory_changed.emit()
 
 func add_to_inventory(id: String, n: int = 1) -> Dictionary:
 	_cleanup_invalid_units()
