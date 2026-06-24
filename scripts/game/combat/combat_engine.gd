@@ -99,8 +99,8 @@ var _first_attack_windup_done: Dictionary = {}
 
 # Feature toggles
 var abilities_enabled: bool = true
-var emit_auto_attack_logs: bool = true
-var emit_ability_logs: bool = true
+var emit_auto_attack_logs: bool = false
+var emit_ability_logs: bool = false
 
 var _resolver_emitters: Dictionary[String, Callable] = {}
 

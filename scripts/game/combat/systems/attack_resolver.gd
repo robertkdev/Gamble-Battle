@@ -29,7 +29,7 @@ var _impact
 var debug_pairs: int = 0
 var debug_shots: int = 0
 var debug_double_lethals: int = 0
-var emit_auto_attack_logs: bool = true
+var emit_auto_attack_logs: bool = false
 const DEBUG_LOGS: bool = false
 
 func configure(_state: BattleState, _target_controller: TargetController, _rng: RandomNumberGenerator, _player_ref: Unit, _emitters: Dictionary, _ability_system: AbilitySystem = null, _buff_system: BuffSystem = null) -> void:

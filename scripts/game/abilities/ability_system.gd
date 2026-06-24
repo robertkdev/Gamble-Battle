@@ -19,7 +19,7 @@ var cost_adapter: Variant = null
 var _cooldowns: Dictionary = {} # Unit -> float
 var _events: Array = [] # Array[Dictionary]: { name, team, index, t, data }
 var _casting: Dictionary = {} # Unit -> bool reentrancy guard
-var emit_ability_logs: bool = true
+var emit_ability_logs: bool = false
 const LOG_PREFIX_ABILITY := "ABILITY"
 
 func configure(_engine: CombatEngine, _state: BattleState, _rng: RandomNumberGenerator, _buffs: BuffSystem = null) -> void:

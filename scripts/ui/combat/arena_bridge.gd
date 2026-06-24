@@ -203,9 +203,6 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
     if Debug.enabled:
         print("[Arena] tile=", ts, " bounds=", bounds)
     _log_start_positions_and_targets(manager)
-    if manager and manager.has_method("enable_movement_debug"):
-        manager.enable_movement_debug(60)
-
 func _log_start_positions_and_targets(manager: CombatManager) -> void:
     if manager == null:
         return
