@@ -15,6 +15,7 @@ var enemy_targets: Array[int] = []
 
 var battle_active: bool = false
 var regen_tick_accum: float = 0.0
+var elapsed_time: float = 0.0
 
 # Mentor–Pupil pairing (planning-time; frozen for the battle)
 # Arrays map mentor index -> pupil index (or -1 if none)
@@ -34,6 +35,7 @@ func reset() -> void:
 	enemy_targets.clear()
 	battle_active = false
 	regen_tick_accum = 0.0
+	elapsed_time = 0.0
 	player_pupil_map.clear()
 	enemy_pupil_map.clear()
 	player_damage_this_round.clear()

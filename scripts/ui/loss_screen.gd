@@ -4,23 +4,48 @@ class_name LossScreen
 const Scoreboard := preload("res://scenes/ui/stats/Scoreboard.tscn")
 const HighScore := preload("res://scripts/util/high_score.gd")
 
-@onready var title_label: Label = $Panel/Center/VBox/Title
-@onready var stage_label: Label = $Panel/Center/VBox/StageLabel
-@onready var high_label: Label = $Panel/Center/VBox/HighLabel
-@onready var stats_label: Label = $Panel/Center/VBox/Stats
-@onready var scoreboard_holder: Control = $Panel/Center/VBox/ScoreboardHolder
-@onready var new_game_button: Button = $Panel/Center/VBox/NewGameButton
+const BACKDROP_COLOR: Color = Color(0.006, 0.005, 0.008, 1.0)
+const FRAME_COLOR: Color = Color(0.075, 0.057, 0.061, 1.0)
+const FRAME_BORDER: Color = Color(0.48, 0.35, 0.18, 0.92)
+const BLOOD_COLOR: Color = Color(0.74, 0.10, 0.08, 1.0)
+const BONE_COLOR: Color = Color(0.86, 0.80, 0.68, 1.0)
+const DULL_GOLD: Color = Color(0.79, 0.61, 0.32, 1.0)
+const MUTED_TEXT: Color = Color(0.62, 0.57, 0.49, 1.0)
+
+@onready var panel: PanelContainer = $Panel
+@onready var backdrop: ColorRect = $Backdrop
+@onready var frame_panel: PanelContainer = $Panel/Center/Frame
+@onready var content_box: VBoxContainer = $Panel/Center/Frame/VBox
+@onready var title_label: Label = $Panel/Center/Frame/VBox/Title
+@onready var stage_label: Label = $Panel/Center/Frame/VBox/StageLabel
+@onready var high_label: Label = $Panel/Center/Frame/VBox/HighLabel
+@onready var stats_label: Label = $Panel/Center/Frame/VBox/Stats
+@onready var scoreboard_holder: Control = $Panel/Center/Frame/VBox/ScoreboardHolder
+@onready var new_game_button: Button = $Panel/Center/Frame/VBox/NewGameButton
 
 var _tracker: StatsTracker = null
+var _ready_done: bool = false
+var _pending_populate: bool = false
+var _new_game_hover_tween: Tween = null
 
 func _ready() -> void:
+	_ready_done = true
+	_fit_full_rect()
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_apply_styles()
+	_wire_new_game_hover()
 	if new_game_button and not new_game_button.is_connected("pressed", Callable(self, "_on_new_game")):
 		new_game_button.pressed.connect(_on_new_game)
+	if _pending_populate or _tracker != null:
+		_pending_populate = false
+		_populate()
 
 func configure(tracker: StatsTracker) -> void:
 	_tracker = tracker
-	_populate()
+	if _ready_done:
+		_populate()
+	else:
+		_pending_populate = true
 
 func _populate() -> void:
 	# Title
@@ -28,8 +53,9 @@ func _populate() -> void:
 		title_label.text = "Defeat"
 	# Stage reached and high score
 	var stage_reached: int = 1
-	if Engine.has_singleton("GameState"):
-		stage_reached = int(GameState.stage)
+	var gs: Node = _get_autoload("GameState")
+	if gs != null:
+		stage_reached = int(gs.get("stage"))
 	if stage_label:
 		stage_label.text = "Stage Reached: %d" % stage_reached
 	var best: int = HighScore.submit_stage(stage_reached)
@@ -42,14 +68,17 @@ func _populate() -> void:
 		var dmg_total: float = _tracker.get_team_total("player", "damage", "ALL")
 		var heal_total: float = _tracker.get_team_total("player", "healing", "ALL")
 		var kills_total: float = _tracker.get_team_total("player", "kills", "ALL")
-		var rows := _tracker.get_rows("player", "damage", "ALL")
-		var top_name := ""
+		var rows: Array = _tracker.get_rows("player", "damage", "ALL")
+		var top_name: String = ""
 		var top_val: float = -1.0
-		for r in rows:
+		for raw_row in rows:
+			if typeof(raw_row) != TYPE_DICTIONARY:
+				continue
+			var r: Dictionary = raw_row
 			var v: float = float(r.get("value", 0.0))
 			if v > top_val:
 				top_val = v
-				var u: Unit = r.get("unit")
+				var u: Unit = r.get("unit") as Unit
 				top_name = (u.name if u != null else "?")
 		lines.append("Team Damage: %d" % int(dmg_total))
 		lines.append("Team Healing: %d" % int(heal_total))
@@ -61,7 +90,7 @@ func _populate() -> void:
 
 	# Scoreboard (player damage, expanded shows enemy in overlay sidebar)
 	if scoreboard_holder and scoreboard_holder.get_child_count() == 0:
-		var sb = Scoreboard.instantiate()
+		var sb: Node = Scoreboard.instantiate()
 		scoreboard_holder.add_child(sb)
 		if _tracker != null and sb.has_method("configure"):
 			sb.configure(_tracker)
@@ -69,19 +98,148 @@ func _populate() -> void:
 			sb.set_metric("damage")
 		if sb.has_method("set_window"):
 			sb.set_window("ALL")
+		if sb.has_method("set_expand_enabled"):
+			sb.set_expand_enabled(false)
 		if sb.has_method("set_expanded"):
-			sb.set_expanded(true)
+			sb.set_expanded(false)
 
 func _on_new_game() -> void:
 	# Reset run-related singletons and return to unit select flow
-	if Engine.has_singleton("Economy"):
-		Economy.reset_run()
-	if Engine.has_singleton("Shop"):
-		Shop.reset_run()
-	if Engine.has_singleton("Roster") and Roster.has_method("reset"):
-		Roster.reset()
-	var main = get_tree().root.get_node_or_null("/root/Main")
+	var overlay_parent: Node = get_parent()
+	var economy: Node = _get_autoload("Economy")
+	if economy != null and economy.has_method("reset_run"):
+		economy.call("reset_run")
+	var shop: Node = _get_autoload("Shop")
+	if shop != null and shop.has_method("reset_run"):
+		shop.call("reset_run")
+	var roster: Node = _get_autoload("Roster")
+	if roster != null and roster.has_method("reset"):
+		roster.call("reset")
+	var gs: Node = _get_autoload("GameState")
+	if gs != null:
+		if gs.has_method("set_chapter_and_stage"):
+			gs.call("set_chapter_and_stage", 1, 1)
+		elif gs.has_method("set_stage"):
+			gs.call("set_stage", 1)
+	var main: Node = get_tree().root.get_node_or_null("Main")
+	if main == null:
+		main = get_tree().root.get_node_or_null("/root/Main")
 	if main and main.has_method("_on_start"):
 		main.call("_on_start")
 	# Close this screen
 	queue_free()
+	if overlay_parent is CanvasLayer:
+		overlay_parent.queue_free()
+
+func _get_autoload(autoload_name: String) -> Node:
+	if not is_inside_tree():
+		return null
+	var root: Window = get_tree().root
+	if root == null:
+		return null
+	var node: Node = root.get_node_or_null(autoload_name)
+	if node == null:
+		node = root.get_node_or_null("/root/%s" % String(autoload_name))
+	return node
+
+func _apply_styles() -> void:
+	if panel != null:
+		panel.add_theme_stylebox_override("panel", _make_style(Color(0, 0, 0, 0), Color(0, 0, 0, 0), 0, 0))
+	if backdrop != null:
+		backdrop.color = BACKDROP_COLOR
+	if frame_panel != null:
+		frame_panel.add_theme_stylebox_override("panel", _make_style(FRAME_COLOR, FRAME_BORDER, 2, 8))
+	if content_box != null:
+		content_box.add_theme_constant_override("separation", 16)
+	if title_label != null:
+		title_label.add_theme_color_override("font_color", BLOOD_COLOR)
+		title_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.82))
+		title_label.add_theme_constant_override("shadow_offset_x", 2)
+		title_label.add_theme_constant_override("shadow_offset_y", 3)
+	if stage_label != null:
+		stage_label.add_theme_color_override("font_color", DULL_GOLD)
+	if high_label != null:
+		high_label.add_theme_color_override("font_color", BONE_COLOR)
+	if stats_label != null:
+		stats_label.add_theme_color_override("font_color", MUTED_TEXT)
+		stats_label.add_theme_constant_override("line_spacing", 5)
+	if scoreboard_holder != null:
+		scoreboard_holder.custom_minimum_size = Vector2(720.0, 220.0)
+	if new_game_button != null:
+		new_game_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		new_game_button.add_theme_color_override("font_color", BONE_COLOR)
+		new_game_button.add_theme_color_override("font_hover_color", Color(1.0, 0.92, 0.76, 1.0))
+		new_game_button.add_theme_stylebox_override("normal", _make_style(Color(0.14, 0.053, 0.045, 1.0), FRAME_BORDER, 2, 5))
+		new_game_button.add_theme_stylebox_override("hover", _make_style(Color(0.20, 0.07, 0.055, 1.0), DULL_GOLD, 2, 5))
+		new_game_button.add_theme_stylebox_override("pressed", _make_style(Color(0.09, 0.035, 0.035, 1.0), BLOOD_COLOR, 2, 5))
+
+func _wire_new_game_hover() -> void:
+	if new_game_button == null:
+		return
+	new_game_button.pivot_offset = new_game_button.size * 0.5 if new_game_button.size != Vector2.ZERO else new_game_button.custom_minimum_size * 0.5
+	if not new_game_button.is_connected("mouse_entered", Callable(self, "_on_new_game_hover_entered")):
+		new_game_button.mouse_entered.connect(_on_new_game_hover_entered)
+	if not new_game_button.is_connected("mouse_exited", Callable(self, "_on_new_game_hover_exited")):
+		new_game_button.mouse_exited.connect(_on_new_game_hover_exited)
+	if not new_game_button.is_connected("focus_entered", Callable(self, "_on_new_game_hover_entered")):
+		new_game_button.focus_entered.connect(_on_new_game_hover_entered)
+	if not new_game_button.is_connected("focus_exited", Callable(self, "_on_new_game_hover_exited")):
+		new_game_button.focus_exited.connect(_on_new_game_hover_exited)
+	if not new_game_button.is_connected("resized", Callable(self, "_sync_new_game_pivot")):
+		new_game_button.resized.connect(_sync_new_game_pivot)
+
+func _on_new_game_hover_entered() -> void:
+	_apply_new_game_hover_motion(true)
+
+func _on_new_game_hover_exited() -> void:
+	_apply_new_game_hover_motion(false)
+
+func _apply_new_game_hover_motion(active: bool) -> void:
+	if new_game_button == null:
+		return
+	if _new_game_hover_tween != null and is_instance_valid(_new_game_hover_tween):
+		_new_game_hover_tween.kill()
+	_new_game_hover_tween = create_tween()
+	_new_game_hover_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_new_game_hover_tween.tween_property(new_game_button, "scale", Vector2(1.025, 1.025) if active else Vector2.ONE, 0.10)
+
+func _sync_new_game_pivot() -> void:
+	if new_game_button != null:
+		new_game_button.pivot_offset = new_game_button.size * 0.5 if new_game_button.size != Vector2.ZERO else new_game_button.custom_minimum_size * 0.5
+
+func _fit_full_rect() -> void:
+	set_anchors_preset(Control.PRESET_FULL_RECT)
+	offset_left = 0.0
+	offset_top = 0.0
+	offset_right = 0.0
+	offset_bottom = 0.0
+	if panel != null:
+		panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+		panel.offset_left = 0.0
+		panel.offset_top = 0.0
+		panel.offset_right = 0.0
+		panel.offset_bottom = 0.0
+	if backdrop != null:
+		backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop.offset_left = 0.0
+		backdrop.offset_top = 0.0
+		backdrop.offset_right = 0.0
+		backdrop.offset_bottom = 0.0
+
+func _make_style(bg: Color, border: Color, border_width: int, radius: int) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_left = radius
+	style.corner_radius_bottom_right = radius
+	style.content_margin_left = 24
+	style.content_margin_right = 24
+	style.content_margin_top = 22
+	style.content_margin_bottom = 22
+	return style

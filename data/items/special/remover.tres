@@ -11,4 +11,5 @@ icon_path = "res://assets/items/item_frames/item_component_frame.png"
 stat_mods = {}
 effects = ["remover"]
 components = []
+tags = PackedStringArray("support")
 

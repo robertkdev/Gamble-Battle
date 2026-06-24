@@ -86,9 +86,26 @@ func configure(state: BattleState, target_controller: TargetController, rng: Ran
 
     _assert_service_shapes()
 
+func teardown() -> void:
+    events = null
+    roller = null
+    impact = null
+    shield_service = null
+    hooks = null
+    projectile_emitter = null
+    multishot = null
+    mana_service = null
+    cd_service = null
+    stats = null
+    frame_calc = null
+    post_hit = null
+    projectile_policy = null
+    target_assigner = null
+    ordered_processor = null
+
 func _maybe_override(overrides: Dictionary, key: String, def):
     if overrides != null and overrides.has(key):
-        var v = overrides[key]
+        var v: Variant = overrides[key]
         if v != null:
             return v
     return def

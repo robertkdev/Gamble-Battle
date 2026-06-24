@@ -25,14 +25,26 @@ func _root() -> Node:
 func _has_shop() -> bool:
 	if Engine.has_singleton("Shop"):
 		return true
-	var r = _root()
+	var r: Node = _root()
 	return r != null and r.get_node_or_null("Shop") != null
 
 func _has_economy() -> bool:
 	if Engine.has_singleton("Economy"):
 		return true
-	var r = _root()
+	var r: Node = _root()
 	return r != null and r.get_node_or_null("Economy") != null
+
+func _has_game_state() -> bool:
+	if Engine.has_singleton("GameState"):
+		return true
+	var r: Node = _root()
+	return r != null and r.get_node_or_null("GameState") != null
+
+func _roster_node() -> Node:
+	if Engine.has_singleton("Roster"):
+		return Roster
+	var r: Node = _root()
+	return (r.get_node_or_null("Roster") if r != null else null)
 
 func configure(parent: Node, grid: GridContainer) -> void:
 	_parent = parent
@@ -66,7 +78,7 @@ func _wire() -> void:
 			Economy.gold_changed.connect(_on_economy_changed)
 		if not Economy.is_connected("bet_changed", Callable(self, "_on_economy_changed")):
 			Economy.bet_changed.connect(_on_economy_changed)
-	if Engine.has_singleton("GameState"):
+	if _has_game_state():
 		if not GameState.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
 			GameState.phase_changed.connect(_on_phase_changed)
 
@@ -125,11 +137,14 @@ func _refresh_cards_state() -> void:
 	if _has_economy():
 		gold = int(Economy.gold)
 	var bench_full: bool = false
-	if Engine.has_singleton("Roster"):
-		bench_full = (Roster.first_empty_slot() == -1)
+	var roster: Node = _roster_node()
+	if roster != null and roster.has_method("first_empty_slot"):
+		bench_full = (int(roster.call("first_empty_slot")) == -1)
 	var in_combat: bool = false
-	if Engine.has_singleton("GameState"):
+	if _has_game_state():
 		in_combat = (GameState.phase == GameState.GamePhase.COMBAT)
+	if _buttons:
+		_buttons.set_enabled(not in_combat)
 	var bet: int = (int(Economy.current_bet) if _has_economy() else 0)
 	var spent: int = (int(Economy.combat_spent) if _has_economy() and in_combat else 0)
 	var idx: int = 0
@@ -152,7 +167,9 @@ func _refresh_cards_state() -> void:
 				elif reason == ShopAffordability.REASON_CREDIT_LIMIT:
 					msg = "Exceeds combat credit (need +%d)" % max(1, need)
 				sc.tooltip_text = msg
-			if bench_full:
+			if in_combat:
+				sc.set_shop_disabled("Shop locked during battle")
+			elif bench_full:
 				sc.set_shop_disabled("Bench full")
 			else:
 				# Re-enable if previously disabled for bench full (lightweight approach)
@@ -265,8 +282,6 @@ func _show_message(text: String, seconds: float = 2.0) -> void:
 		return
 	_message_label.text = String(text)
 	_message_label.visible = true
-	if _message_timer and is_instance_valid(_message_timer):
-		_message_timer.timeout
 	var tree := (_parent.get_tree() if _parent else null)
 	if tree:
 		_message_timer = tree.create_timer(max(0.1, float(seconds)))
@@ -275,6 +290,6 @@ func _show_message(text: String, seconds: float = 2.0) -> void:
 				_message_label.visible = false
 		)
 
-func _on_shop_error(code: String, context: Dictionary) -> void:
+func _on_shop_error(code: String, _context: Dictionary) -> void:
 	var msg := ShopErrors.message(code)
 	_show_message(msg, 2.0)

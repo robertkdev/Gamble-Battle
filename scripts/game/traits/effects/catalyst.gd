@@ -37,7 +37,7 @@ func on_battle_end(ctx):
 func _items_singleton(_ctx) -> Node:
     if Engine.has_singleton("Items"):
         return Items
-    var root := (_ctx.engine.get_tree().root if _ctx and _ctx.engine else null)
+    var root: Node = (_ctx.engine.get_tree().root if _ctx and _ctx.engine else null)
     if root:
         return root.get_node_or_null("/root/Items")
     return null

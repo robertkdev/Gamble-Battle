@@ -9,11 +9,16 @@ const DataModels = preload("res://tests/rga_testing/core/data_models.gd")
 const CAP_BASE := "base"        # always present: damage/heal/shield/mitigated, basic outcomes
 const CAP_CC := "cc"            # cc_applied/refresh/expired events
 const CAP_MOBILITY := "mobility" # mobility start/end; position_updated cadence
-const CAP_ZONES := "zones"      # zone create/update/expire; occupancy
+const CAP_ZONES := "zones"      # zone exposure/create/update/expire; occupancy
 const CAP_TARGETS := "targets"  # target_start/target_end events
+const CAP_BUFFS := "buffs"      # buff/debuff/cleanse/cc-immunity events
+const CAP_TARGETABILITY := "targetability" # targetability windows and threat-dodge interactions
+const CAP_COOLDOWN_PRESSURE := "cooldown_pressure" # committed ability responses and cooldowns forced
+const CAP_COUNTERPLAY_PRESSURE := "counterplay_pressure" # cleanse pressure, tenacity tax, and CC immunity tax
+const CAP_RAMP_STATE := "ramp_state" # direct stack/window state changes for ramp approaches
 
 static func all_caps() -> PackedStringArray:
-    return PackedStringArray([CAP_BASE, CAP_CC, CAP_MOBILITY, CAP_ZONES, CAP_TARGETS])
+    return PackedStringArray([CAP_BASE, CAP_CC, CAP_MOBILITY, CAP_ZONES, CAP_TARGETS, CAP_BUFFS, CAP_TARGETABILITY, CAP_COOLDOWN_PRESSURE, CAP_COUNTERPLAY_PRESSURE, CAP_RAMP_STATE])
 
 static func normalize(caps) -> PackedStringArray:
     var out: PackedStringArray = []
@@ -51,4 +56,3 @@ static func attach_to_row(row: DataModels.TelemetryRow, caps) -> void:
         norm.append(CAP_BASE)
         norm.sort()
     row.context.capabilities = norm
-

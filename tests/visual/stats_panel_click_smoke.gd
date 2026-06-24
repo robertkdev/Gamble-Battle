@@ -1,0 +1,195 @@
+extends Node
+
+const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
+const UNIT_FACTORY := preload("res://scripts/unit_factory.gd")
+const PLAYER_TEAM: Array[String] = ["mortem", "berebell", "bonko"]
+
+var _main: Control = null
+var _view: Control = null
+var _stats_panel: Control = null
+var _scoreboard: Node = null
+var _unit_panel: Control = null
+var _manager: CombatManager = null
+var _previous_suppress_validation_warnings: bool = false
+var _failures: Array[String] = []
+var _last_activation_target: String = ""
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	call_deferred("_run")
+
+func _run() -> void:
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	_previous_suppress_validation_warnings = UNIT_FACTORY.suppress_validation_warnings
+	UNIT_FACTORY.suppress_validation_warnings = true
+
+	_main = MAIN_SCENE.instantiate() as Control
+	add_child(_main)
+	await _settle_frames(8)
+	if _main.has_method("_on_start"):
+		_main.call("_on_start")
+	await _settle_frames(8)
+	if _main.has_method("_on_unit_selected"):
+		_main.call("_on_unit_selected", "mortem")
+	await _settle_frames(12)
+
+	_view = _main.get_node_or_null("CombatView") as Control
+	if _view == null:
+		_fail("CombatView missing")
+		_finish()
+		return
+	if _view.has_method("set_player_team_ids"):
+		_view.call("set_player_team_ids", PLAYER_TEAM)
+	if _view.has_method("_init_game"):
+		_view.call("_init_game")
+	await _settle_frames(18)
+	_resolve_refs()
+	if _stats_panel == null or _scoreboard == null or _unit_panel == null or _manager == null:
+		_fail("Stats panel refs missing")
+		_finish()
+		return
+
+	await _verify_team_tab_clicks("planning team")
+	await _verify_unit_mode_tab_clicks("planning unit")
+	_start_combat()
+	await _settle_frames(90)
+	await _verify_team_tab_clicks("combat team")
+	await _verify_unit_mode_tab_clicks("combat unit")
+	_finish()
+
+func _resolve_refs() -> void:
+	_stats_panel = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel") as Control
+	if _stats_panel != null:
+		_scoreboard = _stats_panel.find_child("Scoreboard", true, false)
+		_unit_panel = _stats_panel.find_child("UnitPanel", true, false) as Control
+	_manager = _view.get("manager") as CombatManager
+
+func _verify_team_tab_clicks(context: String) -> void:
+	if _stats_panel.has_method("show_team_metrics"):
+		_stats_panel.call("show_team_metrics")
+	await _settle_frames(2)
+	await _click_metric("DPS")
+	await _settle_frames(3)
+	_expect_team_mode("%s DPS click" % context)
+	_expect_metric("dps", "%s DPS click" % context)
+	await _click_metric("Casts")
+	await _settle_frames(3)
+	_expect_team_mode("%s Casts click" % context)
+	_expect_metric("casts", "%s Casts click" % context)
+	await _click_window("Window3s")
+	await _settle_frames(3)
+	_expect_team_mode("%s 3s click" % context)
+	_expect_window("3S", "%s 3s click" % context)
+	await _click_window("WindowAll")
+	await _settle_frames(3)
+	_expect_team_mode("%s All click" % context)
+	_expect_window("ALL", "%s All click" % context)
+
+func _verify_unit_mode_tab_clicks(context: String) -> void:
+	var unit: Unit = _first_player_unit()
+	if unit == null:
+		_fail("%s: player unit missing" % context)
+		return
+	if _stats_panel.has_method("show_unit_metrics_ctx"):
+		_stats_panel.call("show_unit_metrics_ctx", "player", 0, unit)
+	await _settle_frames(3)
+	_expect_unit_mode("%s setup" % context)
+	await _click_metric("Damage")
+	await _settle_frames(3)
+	_expect_team_mode("%s Damage click should leave unit detail" % context)
+	_expect_metric("damage", "%s Damage click" % context)
+	if _stats_panel.has_method("show_unit_metrics_ctx"):
+		_stats_panel.call("show_unit_metrics_ctx", "player", 0, unit)
+	await _settle_frames(3)
+	await _click_window("Window3s")
+	await _settle_frames(3)
+	_expect_team_mode("%s 3s click should leave unit detail" % context)
+	_expect_window("3S", "%s 3s click" % context)
+
+func _start_combat() -> void:
+	if _view.has_method("_on_continue_pressed"):
+		_view.call("_on_continue_pressed")
+
+func _first_player_unit() -> Unit:
+	if _manager == null or _manager.player_team.is_empty():
+		return null
+	return _manager.player_team[0] as Unit
+
+func _click_metric(label: String) -> void:
+	var tabs: Control = _stats_panel.find_child("MetricTabs", true, false) as Control
+	if tabs == null:
+		_fail("MetricTabs missing")
+		return
+	for child: Node in tabs.find_children("*", "Button", true, false):
+		var button: Button = child as Button
+		if button != null and button.text == label:
+			await _click_control(button)
+			return
+	_fail("Metric button missing: %s" % label)
+
+func _click_window(button_name: String) -> void:
+	var button: Button = _stats_panel.find_child(button_name, true, false) as Button
+	if button == null:
+		_fail("Window button missing: %s" % button_name)
+		return
+	await _click_control(button)
+
+func _click_control(control: Control) -> void:
+	_last_activation_target = _node_path(control)
+	var button: Button = control as Button
+	if button == null:
+		_fail("Click target is not a button: %s" % _last_activation_target)
+		return
+	button.emit_signal("pressed")
+	await get_tree().process_frame
+
+func _expect_team_mode(context: String) -> void:
+	if _scoreboard == null or not (_scoreboard as CanvasItem).visible:
+		_fail("%s: scoreboard is not visible" % context)
+	if _unit_panel == null or _unit_panel.visible:
+		_fail("%s: unit panel is still visible" % context)
+
+func _expect_unit_mode(context: String) -> void:
+	if _scoreboard == null or (_scoreboard as CanvasItem).visible:
+		_fail("%s: scoreboard is visible in unit mode" % context)
+	if _unit_panel == null or not _unit_panel.visible:
+		_fail("%s: unit panel is not visible" % context)
+
+func _expect_metric(expected: String, context: String) -> void:
+	if _scoreboard == null:
+		_fail("%s: scoreboard missing for metric check" % context)
+		return
+	var actual: String = String(_scoreboard.get("metric"))
+	if actual != expected:
+		_fail("%s: expected metric %s got %s target=%s" % [context, expected, actual, _last_activation_target])
+
+func _expect_window(expected: String, context: String) -> void:
+	if _scoreboard == null:
+		_fail("%s: scoreboard missing for window check" % context)
+		return
+	var actual: String = String(_scoreboard.get("window"))
+	if actual != expected:
+		_fail("%s: expected window %s got %s target=%s" % [context, expected, actual, _last_activation_target])
+
+func _node_path(node: Node) -> String:
+	if node == null:
+		return "<none>"
+	return String(node.get_path())
+
+func _settle_frames(count: int) -> void:
+	for _frame_index: int in range(count):
+		await get_tree().process_frame
+
+func _fail(message: String) -> void:
+	if not _failures.has(message):
+		_failures.append(message)
+
+func _finish() -> void:
+	UNIT_FACTORY.suppress_validation_warnings = _previous_suppress_validation_warnings
+	if _failures.is_empty():
+		print("StatsPanelClickSmoke: OK")
+		get_tree().quit(0)
+		return
+	for failure: String in _failures:
+		push_error("StatsPanelClickSmoke: " + failure)
+	get_tree().quit(1)

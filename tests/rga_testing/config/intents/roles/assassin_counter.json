@@ -1,0 +1,10 @@
+[
+  {
+    "id": "assassin_counter",
+    "team_size": 3,
+    "team_a_tags": ["Dive"],
+    "team_b_tags": ["Peel"],
+    "scenario_id": "open_field",
+    "capabilities": ["base", "buffs", "cc", "targets", "mobility", "zones"]
+  }
+]

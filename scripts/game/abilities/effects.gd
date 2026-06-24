@@ -4,6 +4,7 @@ class_name AbilityEffects
 const DamageMath = preload("res://scripts/game/combat/damage_math.gd")
 const Health := preload("res://scripts/game/stats/health.gd")
 const HealingService := preload("res://scripts/game/traits/runtime/healing_service.gd")
+const TeamUtils := preload("res://scripts/game/combat/attack/support/team_utils.gd")
 
 # Deals damage to a single target with mitigation.
 # type: "physical" | "magic" | "true" | "hybrid"
@@ -11,68 +12,42 @@ static func damage_single(engine: CombatEngine, state: BattleState, source_team:
 	var result: Dictionary = {"processed": false}
 	if engine == null or state == null:
 		return result
-	var src: Unit = _unit_at(state, source_team, source_index)
-	var tgt_team: String = _other_team(source_team)
-	var tgt: Unit = _unit_at(state, tgt_team, target_index)
+	var src: Unit = TeamUtils.unit_at(state, source_team, source_index)
+	var tgt_team: String = TeamUtils.other_team(source_team)
+	var tgt: Unit = TeamUtils.unit_at(state, tgt_team, target_index)
 	if src == null or tgt == null or not tgt.is_alive():
 		return result
-	result["processed"] = true
-	# Global ability damage amplifier via tag (e.g., Arcanist T4)
+	# Global ability damage amplifier via tag
 	var amt_f: float = max(0.0, amount)
+	var amp_pct: float = 0.0
+	var amp_output_delta: float = 0.0
+	var amp_source_team: String = source_team
+	var amp_source_index: int = source_index
 	if engine != null and engine.buff_system != null:
 		const BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
 		var data: Dictionary = engine.buff_system.get_tag_data(state, source_team, source_index, BuffTags.TAG_ABILITY_AMP)
 		if data != null and not data.is_empty():
-			var amp: float = float(data.get("ability_damage_amp", 0.0))
-			if amp != 0.0:
-				amt_f = max(0.0, amt_f * (1.0 + amp))
-	var before_hp: int = int(tgt.hp)
-	var dealt_f: float = 0.0
-	match type:
-		"physical":
-			dealt_f = DamageMath.apply_reduction(DamageMath.physical_after_armor(max(0.0, amt_f), src, tgt), tgt)
-		"magic":
-			dealt_f = DamageMath.apply_reduction(DamageMath.magic_after_resist(max(0.0, amt_f), src, tgt), tgt)
-		"true":
-			dealt_f = max(0.0, amt_f)
-		"hybrid":
-			var half: float = max(0.0, amt_f) * 0.5
-			var phys := DamageMath.physical_after_armor(half, src, tgt)
-			var mag := DamageMath.magic_after_resist(half, src, tgt)
-			dealt_f = DamageMath.apply_reduction(phys + mag, tgt)
-		_:
-			dealt_f = max(0.0, amt_f)
-	# Apply global flat damage reduction after %DR, before health apply
-	if tgt != null:
-		var flat_dr: float = 0.0
-		if tgt.has_method("get"):
-			flat_dr = max(0.0, float(tgt.get("damage_reduction_flat")))
-		else:
-			flat_dr = max(0.0, float(tgt.damage_reduction_flat))
-		dealt_f = max(0.0, dealt_f - flat_dr)
-	var dealt: int = int(max(0.0, round(dealt_f)))
-	var _hres := Health.apply_damage(tgt, dealt)
-	dealt = int(_hres.dealt)
-	result["dealt"] = dealt
-	result["before_hp"] = before_hp
-	result["after_hp"] = int(tgt.hp)
-	# Emit for analytics/traits: treat as a hit_applied for ability damage
-	if engine != null and engine.has_method("_resolver_emit_hit"):
-		var rolled_val: int = int(max(0.0, round(amt_f)))
-		engine._resolver_emit_hit(source_team, source_index, target_index, rolled_val, dealt, false, before_hp, int(tgt.hp), 0.0, 0.0)
-	# Emit for UI/analytics
-	if source_team == "player":
-		engine._resolver_emit_log("Your ability hits %s for %d." % [tgt.name, dealt])
-	else:
-		engine._resolver_emit_log("%s hits you with an ability for %d." % [src.name, dealt])
-	engine._resolver_emit_unit_stat(tgt_team, target_index, {"hp": tgt.hp})
-	engine._resolver_emit_stats(src, BattleState.first_alive(state.enemy_team))
+			amp_pct = float(data.get("ability_damage_amp", 0.0))
+			amp_source_team = String(data.get("source_team", source_team))
+			amp_source_index = int(data.get("source_index", source_index))
+			if amp_pct != 0.0:
+				var before_amp_amount: float = amt_f
+				amt_f = max(0.0, amt_f * (1.0 + amp_pct))
+				amp_output_delta = max(0.0, amt_f - before_amp_amount)
+	# Delegate to attack resolver's unified pipeline
+	if engine.attack_resolver != null and engine.attack_resolver.has_method("apply_ability_damage"):
+		var res: Dictionary = engine.attack_resolver.apply_ability_damage(source_team, source_index, target_index, amt_f, type)
+		if bool(res.get("processed", false)):
+			if amp_output_delta > 0.0 and engine.has_method("_resolver_emit_amp_output_applied"):
+				engine._resolver_emit_amp_output_applied(amp_source_team, amp_source_index, source_team, source_index, tgt_team, target_index, amp_output_delta, amp_pct, "ability_amp")
+			return res
+	# Fallback (shouldn't trigger): no-op result
 	return result
 
 # Heals a single target (clamped to Max HP)
 static func heal_single(engine: CombatEngine, state: BattleState, target_team: String, target_index: int, amount: float, source_team: String = "", source_index: int = -1) -> Dictionary:
 	var result := {"processed": false}
-	var tgt: Unit = _unit_at(state, target_team, target_index)
+	var tgt: Unit = TeamUtils.unit_at(state, target_team, target_index)
 	if tgt == null or not tgt.is_alive():
 		return result
 	var heal_amt: float = max(0.0, float(amount))
@@ -116,13 +91,24 @@ static func stun(buff_system, engine: CombatEngine, state: BattleState, target_t
 	if buff_system == null:
 		engine._resolver_emit_log("[Ability] Stun requested but BuffSystem not available")
 		return {"processed": false}
+	var pushed_source: bool = false
+	if String(source_team) != "" and int(source_index) >= 0 and buff_system.has_method("push_source"):
+		buff_system.push_source(String(source_team), int(source_index), "ability")
+		pushed_source = true
 	var res: Dictionary = buff_system.apply_stun(state, target_team, target_index, max(0.0, duration_s))
+	if pushed_source and buff_system.has_method("pop_source"):
+		buff_system.pop_source()
 	# Emit CC applied for analytics if we know the effective time
 	if engine != null and res != null and bool(res.get("processed", false)):
+		var resolved_source_team: String = String(source_team)
+		var resolved_source_index: int = int(source_index)
+		if resolved_source_team == "" or resolved_source_index < 0:
+			if buff_system != null and buff_system.has_method("current_source"):
+				var source_info: Dictionary = buff_system.current_source(String(target_team), int(target_index))
+				resolved_source_team = String(source_info.get("team", resolved_source_team))
+				resolved_source_index = int(source_info.get("index", resolved_source_index))
 		var eff: float = float(res.get("effective", res.get("duration", duration_s)))
 		if eff > 0.0 and engine.has_method("_resolver_emit_log"):
-			var st := String(source_team)
-			var si := int(source_index)
 			engine._resolver_emit_log("CC applied: stun %.2fs" % eff)
 		if engine != null and engine.has_method("_resolver_emit_hit") and engine.has_method("_resolver_emit_log"):
 			pass
@@ -145,17 +131,11 @@ static func stun(buff_system, engine: CombatEngine, state: BattleState, target_t
 				pass
 		if engine != null and engine.has_method("_resolver_emit_team_stats"):
 			pass
-		# Use CombatEvents on services instead (simpler): call via engine direct signal
-		if engine != null and engine.has_signal("cc_applied"):
-			engine.emit_signal("cc_applied", String(source_team), int(source_index), String(target_team), int(target_index), "stun", float(eff))
+		# Use the engine-owned signal emitter when available.
+		if engine != null and engine.has_method("_resolver_emit_cc_applied"):
+			engine._resolver_emit_cc_applied(resolved_source_team, resolved_source_index, String(target_team), int(target_index), "stun", float(eff))
+		elif engine != null and engine.has_signal("cc_applied"):
+			engine.emit_signal("cc_applied", resolved_source_team, resolved_source_index, String(target_team), int(target_index), "stun", float(eff))
 	return res
 
 # --- Internal helpers ---
-static func _unit_at(state: BattleState, team: String, idx: int) -> Unit:
-	var arr: Array[Unit] = state.player_team if team == "player" else state.enemy_team
-	if idx < 0 or idx >= arr.size():
-		return null
-	return arr[idx]
-
-static func _other_team(team: String) -> String:
-	return "enemy" if team == "player" else "player"

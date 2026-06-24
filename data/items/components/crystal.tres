@@ -11,4 +11,5 @@ icon_path = "res://assets/items/crystal_icon.png"
 stat_mods = {"pct_as": 0.25}
 effects = []
 components = []
+tags = PackedStringArray("marksman")
 

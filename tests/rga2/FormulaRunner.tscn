@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://cj2h1i81onxo0"]
+
+[ext_resource type="Script" uid="uid://b3thuea63hrot" path="res://tests/rga2/formula_runner.gd" id="1"]
+
+[node name="FormulaRunner" type="Node"]
+script = ExtResource("1")
+roles_to_check = PackedStringArray("tank", "brawler", "marksman", "mage", "assassin", "support")

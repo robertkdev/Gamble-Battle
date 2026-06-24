@@ -1,0 +1,8 @@
+{
+  "schema_version": "rga2_constants_v1",
+  "time_horizon_s": 24.0,
+  "burst_window_s": 4.0,
+  "dr_k_phys": 100.0,
+  "dr_k_magic": 100.0,
+  "damage_mix": { "physical": 0.5, "magic": 0.5 }
+}

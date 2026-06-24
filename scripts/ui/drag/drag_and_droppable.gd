@@ -59,7 +59,7 @@ func can_drag_now() -> bool:
 func _can_drag_extra() -> bool:
 	return true
 
-func on_drop(success: bool, index: int) -> void:
+func on_drop(_success: bool, _index: int) -> void:
 	# Overridable hook for subclasses (e.g., items)
 	pass
 

@@ -20,6 +20,13 @@ This module introduces three core concepts for unit design:
 - scripts/game/units/role_library.gd: loads primary role profiles and exposes lookup/validation helpers.
 - scripts/unit_factory.gd: applies role profile stat templates and fills goal/approach defaults when instantiating units.
 
+## Stat Ownership
+
+- Primary role profiles in `data/identity/primary_role_profiles/` are the single source of truth for base combat stats. Adjust per-role durability, damage, or cadence there.
+- Unit definitions in `data/units/*.tres` (playables) only capture identity metadata (name, identity resource, ability id, traits/roles) plus economy knobs (`cost`, `level`). Any baked combat stats in these resources are ignored, and lint will fail the build if they reappear.
+  - Non-playables (enemy/test) live under `data/other_units/...` and follow the same identity-only rules.
+- Systemic scaling (e.g., `UnitScaler`, `enemy_scaling.gd`) operates on the role-derived baselines. Runtime modifiers (traits, items, buffs) continue to flow through BuffSystem and effect scripts rather than direct property edits.
+
 ## Usage Guidelines
 
 1. Define new goals/approaches by dropping .tres files into the corresponding data/identity subfolder.
@@ -27,6 +34,7 @@ This module introduces three core concepts for unit design:
 3. Reference identity keys from IdentityKeys to avoid magic strings when authoring units.
 4. Always run IdentityRegistry.ensure_identity(...) (or IdentityValidator) when creating or editing a unit profile so misconfigured identity data fails fast.
 5. Keep unit profiles thin: once an identity resource is attached, avoid duplicating role/goal/approach strings inline.
+6. When adjusting unit metadata, run the `tests/lint/UnitStatLint.tscn` headless scene to confirm no banned combat stat keys slipped back into `data/units/`. For non-playables under `data/other_units/`, apply the same rule; these are not scanned by the shop.
 
 ## Current Goal Catalog
 

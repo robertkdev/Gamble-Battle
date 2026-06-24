@@ -7,22 +7,21 @@ class_name RuleProvider
 # StageSpec shape (Dictionary):
 #   { ids: Array[String], kind: String, rules: Dictionary }
 
-func on_pre_spawn(spec: Dictionary, ch: int, sic: int) -> void:
+func on_pre_spawn(_spec: Dictionary, _ch: int, _sic: int) -> void:
     # Called before units are spawned from the spec.
     # May mutate spec["rules"] if needed. No return value.
     pass
 
-func on_post_spawn(units: Array, spec: Dictionary, ch: int, sic: int) -> void:
+func on_post_spawn(_units: Array, _spec: Dictionary, _ch: int, _sic: int) -> void:
     # Called after units are constructed from spec.ids (before engine configure).
     # May mutate units array (e.g., apply tags) or adjust rules.
     pass
 
-func on_pre_engine_config(state, engine, spec: Dictionary, ch: int = 0, sic: int = 0) -> void:
+func on_pre_engine_config(_state, _engine, _spec: Dictionary, _ch: int = 0, _sic: int = 0) -> void:
     # Called after spawner but before engine.configure(...).
     # Can toggle engine/state or set flags via spec.rules.
     pass
 
-func on_battle_start(state, engine, spec: Dictionary, ch: int = 0, sic: int = 0) -> void:
+func on_battle_start(_state, _engine, _spec: Dictionary, _ch: int = 0, _sic: int = 0) -> void:
     # Called after engine.start() and before the first process tick.
     pass
-

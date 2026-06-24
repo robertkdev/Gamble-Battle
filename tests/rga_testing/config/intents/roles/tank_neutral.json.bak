@@ -1,0 +1,10 @@
+[
+  {
+    "id": "tank_neutral",
+    "team_size": 4,
+    "team_a_tags": ["Tenacity"],
+    "team_b_tags": ["Poke"],
+    "scenario_id": "open_field",
+    ,
+  "capabilities": ["base", "cc", "targets", "mobility", "zones"],}
+]

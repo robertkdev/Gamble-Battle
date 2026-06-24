@@ -29,13 +29,16 @@ func _ensure_bar() -> void:
 	_host.move_child(_bar, 0)
 	_reroll = Button.new()
 	_reroll.text = "Reroll"
+	_reroll.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_reroll.pressed.connect(func(): emit_signal("reroll_pressed"))
 	_lock = Button.new()
 	_lock.text = "Lock"
 	_lock.toggle_mode = true
+	_lock.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_lock.pressed.connect(func(): emit_signal("lock_pressed"))
 	_buy_xp = Button.new()
 	_buy_xp.text = "Buy XP"
+	_buy_xp.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_buy_xp.pressed.connect(func(): emit_signal("buy_xp_pressed"))
 	_progress_label = Label.new()
 	_progress_label.text = "Lvl 1 (0/0)"
@@ -56,10 +59,13 @@ func set_enabled(enabled: bool) -> void:
 	var en := bool(enabled)
 	if _reroll:
 		_reroll.disabled = not en
+		_reroll.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if en else Control.CURSOR_ARROW
 	if _lock:
 		_lock.disabled = not en
+		_lock.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if en else Control.CURSOR_ARROW
 	if _buy_xp:
 		_buy_xp.disabled = not en
+		_buy_xp.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if en else Control.CURSOR_ARROW
 
 func set_progress(level: int, xp: int, xp_to_next: int) -> void:
 	if _progress_label == null:

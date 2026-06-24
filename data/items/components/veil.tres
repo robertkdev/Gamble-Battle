@@ -11,4 +11,5 @@ icon_path = "res://assets/items/veil_icon.png"
 stat_mods = {"flat_mr": 30}
 effects = []
 components = []
+tags = PackedStringArray("support", "tank")
 

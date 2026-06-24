@@ -11,4 +11,5 @@ icon_path = "res://assets/items/core_icon.png"
 stat_mods = {"flat_hp": 300}
 effects = []
 components = []
+tags = PackedStringArray("tank", "support")
 

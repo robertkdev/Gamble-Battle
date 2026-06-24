@@ -113,7 +113,7 @@ func neighbors(idx: int) -> Array[int]:
 	if idx < 0 or idx >= _tiles.size():
 		return out
 	var x := idx % _columns
-	var y := idx / _columns
+	var y := int(float(idx) / float(_columns))
 	var dirs = [[1,0],[-1,0],[0,1],[0,-1]]
 	for d in dirs:
 		var nx: int = x + d[0]
@@ -126,7 +126,7 @@ func distance(a: int, b: int) -> int:
 	if a < 0 or b < 0:
 		return 0
 	var ax := a % _columns
-	var ay := a / _columns
+	var ay := int(float(a) / float(_columns))
 	var bx := b % _columns
-	var by := b / _columns
+	var by := int(float(b) / float(_columns))
 	return abs(ax - bx) + abs(ay - by)

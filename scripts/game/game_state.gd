@@ -30,7 +30,7 @@ func set_stage(s: int) -> void:
 		return
 	var prev_stage := stage
 	var prev_ch := chapter
-	var prev_sic := stage_in_chapter
+	var _prev_sic := stage_in_chapter
 	stage = ns
 	var map := ProgressionService.from_global_stage(stage)
 	chapter = int(map.get("chapter", chapter))

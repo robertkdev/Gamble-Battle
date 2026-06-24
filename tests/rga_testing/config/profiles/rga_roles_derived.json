@@ -1,0 +1,21 @@
+{
+  "run_id": "rga_roles_derived",
+  "sim_seed_start": 525600,
+  "deterministic": true,
+  "team_sizes": [5],
+  "repeats": 6,
+  "timeout_s": 120.0,
+  "abilities": true,
+  "ability_metrics": true,
+  "out_path": "user://out/rga_roles_derived/",
+  "aggregates_only": false,
+  "include_swapped": true,
+  "capabilities": ["base", "buffs", "cc", "targets", "mobility", "zones"],
+  "metadata": { "scenario_intents": "res://tests/rga_testing/config/intents/roles/tank_neutral.json" },
+  "sharding": {
+    "enabled": true,
+    "rows_per_shard": 5000,
+    "dir": "user://out/rga_roles_derived/"
+  },
+  "notes": "Enables events+derived runs for roles. Declares caps for CC/targets/mobility/zones. Uses directory output with optional sharding."
+}

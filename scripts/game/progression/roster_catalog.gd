@@ -15,11 +15,11 @@ const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.
 
 static var _entries: Dictionary = {
 	1: {
-		1: { StageTypes.KEY_IDS: [ {"id": "bonko", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "bonko", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ {"id": "bonko", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 3}, {"id": "bonko", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		5: { StageTypes.KEY_IDS: [ {"id": "bonko", "level": 3}, {"id": "creep", "level": 1}, {"id": "grint", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		1: { StageTypes.KEY_IDS: [ "drubble", "beegle" ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
+		2: { StageTypes.KEY_IDS: [ "drubble", "drueling", "beegle" ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		3: { StageTypes.KEY_IDS: [ "drubble", "drueling", "beegle", "faeling" ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
+		4: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "bonko", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		5: { StageTypes.KEY_IDS: [ {"id": "bonko", "level": 2}, {"id": "creep", "level": 1}, {"id": "luna", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 4} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {} },
 	},
 	# Chapter 2: examples with item loadouts applied via rules.items

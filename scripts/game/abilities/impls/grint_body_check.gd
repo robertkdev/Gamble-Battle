@@ -4,11 +4,15 @@ extends AbilityImplBase
 # Swipe the current target for 100/150/225 + 0.6×AD physical damage, then dash into the
 # target and knock them back 1 tile.
 
-const BASE_BY_LEVEL := [100, 150, 225]
-const AD_MULT := 0.60
+const BASE_BY_LEVEL := [170, 240, 360]
+const AD_MULT := 0.90
 const KNOCKBACK_TILES := 1.0
-const DASH_MAX_TILES := 1.0
+const DASH_MAX_TILES := 1.2
 const MOVE_DURATION := 0.20
+const FOLLOW_UP_RATIO := 1.00
+const TRUE_SHOCK_RATIO := 0.40
+const ATTACK_BUFF_PCT := 0.20
+const ATTACK_BUFF_DURATION := 3.0
 
 func _level_index(u: Unit) -> int:
     var lvl: int = (int(u.level) if u != null else 1)
@@ -34,8 +38,9 @@ func cast(ctx: AbilityContext) -> bool:
 
     # 1) Swipe damage (physical)
     var li: int = _level_index(caster)
-    var dmg: int = int(max(0.0, round(float(BASE_BY_LEVEL[li]) + AD_MULT * float(caster.attack_damage))))
-    ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, float(dmg), "physical")
+    var dmg: float = max(0.0, float(BASE_BY_LEVEL[li]) + AD_MULT * float(caster.attack_damage))
+    var res := ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, dmg, "physical")
+    var dealt_primary: float = float(res.get("dealt", dmg))
 
     # If target died, skip movement
     target = ctx.unit_at(tgt_team, target_idx)
@@ -68,6 +73,25 @@ func cast(ctx: AbilityContext) -> bool:
             ctx.engine.arena_state.notify_forced_movement(ctx.caster_team, ctx.caster_index, dash_vec, MOVE_DURATION)
         ctx.engine.arena_state.notify_forced_movement(tgt_team, target_idx, kb_vec, MOVE_DURATION)
 
-    ctx.log("Body Check: dealt %d and knocked back 1 tile" % dmg)
-    return true
+    # 3) Driving shoulder check follow-through delivers a secondary hit
+    var follow_up: float = dealt_primary * FOLLOW_UP_RATIO
+    if follow_up > 0.0:
+        ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, follow_up, "physical")
+    var true_shock: float = dealt_primary * TRUE_SHOCK_RATIO
+    if true_shock > 0.0:
+        ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, true_shock, "true")
 
+    # Self-sustain buff to keep pressure after connecting
+    var bs = ctx.buff_system
+    if bs != null:
+        var delta_ad: float = float(caster.attack_damage) * ATTACK_BUFF_PCT
+        if delta_ad > 0.0:
+            bs.apply_stats_buff(ctx.state, ctx.caster_team, ctx.caster_index, {"attack_damage": delta_ad}, ATTACK_BUFF_DURATION)
+        bs.apply_stats_buff(ctx.state, tgt_team, target_idx, {"armor": -30.0}, ATTACK_BUFF_DURATION)
+
+    ctx.log("Body Check: dealt %d + %d + %d true and knocked back 1 tile" % [
+        int(round(dealt_primary)),
+        int(round(follow_up)),
+        int(round(true_shock))
+    ])
+    return true

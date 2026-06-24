@@ -35,7 +35,6 @@ func rebuild() -> void:
 	if grid == null or left_area == null:
 		return
 	_clear_grid()
-	var inv: Dictionary = _inventory_snapshot()
 	var layout: Array[String] = _inventory_layout()
 	var cols: int = int(grid.columns) if grid and grid.has_method("get") else 1
 	cols = max(1, cols)

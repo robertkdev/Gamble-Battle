@@ -11,5 +11,6 @@ icon_path = "res://assets/items/lifetaker_icon.png"
 stat_mods = {"pct_ad": 0.30, "flat_mr": 30, "pct_lifesteal": 0.20}
 effects = []
 components = ["hammer", "veil"]
+tags = PackedStringArray("assassin", "marksman")
 
 

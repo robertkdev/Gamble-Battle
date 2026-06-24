@@ -8,18 +8,33 @@ role_id = "support"
 display_name = "Support"
 description = "Utility specialists focused on amplifying allies and protecting carries."
 base_stats = {
-"armor": 25.0,
-"attack_damage": 45.0,
-"attack_range": 3.0,
-"magic_resist": 25.0,
-"max_hp": 650.0,
-"spell_power": 50.0
+	"max_hp": 1190.0,
+	"hp_regen": 0.0,
+	"attack_damage": 14.0,
+	"spell_power": 0.0,
+	"attack_speed": 0.7,
+	"crit_chance": 0.0,
+	"crit_damage": 1.5,
+	"true_damage": 0.0,
+	"lifesteal": 0.0,
+	"attack_range": 3.0,
+	"armor": 45.0,
+	"magic_resist": 55.0,
+	"armor_pen_flat": 0.0,
+	"armor_pen_pct": 0.0,
+	"mr_pen_flat": 0.0,
+	"mr_pen_pct": 0.0,
+	"mana_max": 0.0,
+	"mana_regen": 0.0,
+	"mana_start": 0.0,
+	"cast_speed": 1.0,
+	"mana_gain_per_attack": 10.0
 }
 validation_rules = Array[Dictionary]([{
 "label": "Support HP",
-"max": 850.0,
+"max": 2000.0,
 "metric": "max_hp",
-"min": 550.0
+"min": 200.0
 }, {
 "label": "Support Range",
 "metric": "attack_range",
@@ -27,7 +42,7 @@ validation_rules = Array[Dictionary]([{
 }, {
 "label": "Support Utility",
 "metric": "spell_power",
-"min": 30.0
+"min": 0.0
 }])
-default_goals = Array[String](["support.team_amplification", "support.peel_carry", "support.enemy_lockdown", "support.initiate_fight"])
-default_approaches = Array[String](["amp", "peel", "disrupt", "lockdown"])
+default_goals = Array[String]([])
+default_approaches = Array[String]([])

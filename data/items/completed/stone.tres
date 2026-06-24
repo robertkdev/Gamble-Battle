@@ -11,4 +11,5 @@ icon_path = "res://assets/items/stone_icon.png"
 stat_mods = {"flat_armor": 80, "flat_mr": 80}
 effects = ["stone"]
 components = ["plate", "veil"]
+tags = PackedStringArray("tank")
 

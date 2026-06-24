@@ -17,15 +17,25 @@ var enemy_positions: Array[Vector2] = []
 var player_last_target: Array[int] = []
 var enemy_last_target: Array[int] = []
 
+# Slot assignment memory (for hysteresis)
+var player_slot_id: Array[int] = []
+var enemy_slot_id: Array[int] = []
+var player_slot_timer: Array[int] = []
+var enemy_slot_timer: Array[int] = []
+
 var debug_log_frames: int = 0
 
-func configure(tile_size: float, player_pos: Array[Vector2], enemy_pos: Array[Vector2], bounds: Rect2) -> void:
-	tile_size_px = tile_size
+func configure(config_tile_size: float, player_pos: Array[Vector2], enemy_pos: Array[Vector2], bounds: Rect2) -> void:
+	tile_size_px = config_tile_size
 	arena_bounds = Rect2(bounds.position, bounds.size)
 	player_positions = player_pos.duplicate()
 	enemy_positions = enemy_pos.duplicate()
 	player_last_target = _resize_int_array(player_last_target, player_positions.size())
 	enemy_last_target = _resize_int_array(enemy_last_target, enemy_positions.size())
+	player_slot_id = _resize_int_array(player_slot_id, player_positions.size())
+	enemy_slot_id = _resize_int_array(enemy_slot_id, enemy_positions.size())
+	player_slot_timer = _resize_int_array(player_slot_timer, player_positions.size(), true)
+	enemy_slot_timer = _resize_int_array(enemy_slot_timer, enemy_positions.size(), true)
 
 func ensure_capacity(player_count: int, enemy_count: int) -> void:
 	var fill: Vector2 = _default_position()
@@ -33,6 +43,10 @@ func ensure_capacity(player_count: int, enemy_count: int) -> void:
 	_resize_vector_array(enemy_positions, enemy_count, fill)
 	player_last_target = _resize_int_array(player_last_target, player_count)
 	enemy_last_target = _resize_int_array(enemy_last_target, enemy_count)
+	player_slot_id = _resize_int_array(player_slot_id, player_count)
+	enemy_slot_id = _resize_int_array(enemy_slot_id, enemy_count)
+	player_slot_timer = _resize_int_array(player_slot_timer, player_count, true)
+	enemy_slot_timer = _resize_int_array(enemy_slot_timer, enemy_count, true)
 
 func set_debug_log_frames(n: int) -> void:
 	debug_log_frames = max(0, int(n))
@@ -69,7 +83,7 @@ func _resize_vector_array(arr: Array[Vector2], length: int, fill: Vector2) -> vo
 	elif current > length:
 		arr.resize(length)
 
-func _resize_int_array(existing: Array, desired: int) -> Array[int]:
+func _resize_int_array(existing: Array, desired: int, zero_fill: bool = false) -> Array[int]:
 	var out: Array[int] = []
 	if desired < 0:
 		desired = 0
@@ -77,8 +91,40 @@ func _resize_int_array(existing: Array, desired: int) -> Array[int]:
 	for i in range(count):
 		out.append(int(existing[i]))
 	while out.size() < desired:
-		out.append(-1)
+		out.append(0 if zero_fill else -1)
 	return out
 
 func _default_position() -> Vector2:
 	return arena_bounds.position + arena_bounds.size * 0.5
+
+func tick_slot_memory() -> void:
+	for i in range(player_slot_timer.size()):
+		if player_slot_timer[i] > 0:
+			player_slot_timer[i] -= 1
+	for j in range(enemy_slot_timer.size()):
+		if enemy_slot_timer[j] > 0:
+			enemy_slot_timer[j] -= 1
+
+func get_slot_id(team: String, idx: int) -> int:
+	if team == "player":
+		return (player_slot_id[idx] if idx >= 0 and idx < player_slot_id.size() else -1)
+	return (enemy_slot_id[idx] if idx >= 0 and idx < enemy_slot_id.size() else -1)
+
+func get_slot_timer(team: String, idx: int) -> int:
+	if team == "player":
+		return (player_slot_timer[idx] if idx >= 0 and idx < player_slot_timer.size() else 0)
+	return (enemy_slot_timer[idx] if idx >= 0 and idx < enemy_slot_timer.size() else 0)
+
+func set_slot_memory(team: String, idx: int, slot_id_value: int, frames: int) -> void:
+	if idx < 0:
+		return
+	if team == "player":
+		if idx >= player_slot_id.size():
+			return
+		player_slot_id[idx] = slot_id_value
+		player_slot_timer[idx] = max(0, frames)
+	else:
+		if idx >= enemy_slot_id.size():
+			return
+		enemy_slot_id[idx] = slot_id_value
+		enemy_slot_timer[idx] = max(0, frames)

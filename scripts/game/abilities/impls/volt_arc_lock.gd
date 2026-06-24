@@ -3,6 +3,8 @@ extends AbilityImplBase
 # Volt — Arc Lock
 # Deals 215/325/485 × SP magic damage to the current target and stuns it for 1s.
 
+const AbilityEffects := preload("res://scripts/game/abilities/effects.gd")
+
 const STUN_DURATION := 1.0
 const SP_MULT := [2.15, 3.25, 4.85]
 
@@ -29,7 +31,6 @@ func cast(ctx: AbilityContext) -> bool:
     var li: int = _level_index(caster)
     var dmg: float = SP_MULT[li] * float(caster.spell_power)
     ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, max(0.0, dmg), "magic")
-    bs.apply_stun(ctx.state, tgt_team, target_idx, STUN_DURATION)
+    AbilityEffects.stun(bs, ctx.engine, ctx.state, tgt_team, target_idx, STUN_DURATION, ctx.caster_team, ctx.caster_index)
     ctx.log("Arc Lock: dealt %d magic and stunned %.1fs" % [int(round(dmg)), STUN_DURATION])
     return true
-

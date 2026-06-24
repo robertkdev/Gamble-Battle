@@ -7,6 +7,8 @@ const ItemCatalogLib := preload("res://scripts/game/items/item_catalog.gd")
 const ItemModSchema := preload("res://scripts/game/items/mod_schema.gd")
 const PhaseRules := preload("res://scripts/game/items/phase_rules.gd")
 
+const MAX_ATTACK_SPEED := 4.0
+
 var _base: Dictionary = {}   # Map[Unit -> Dictionary(base_fields)]
 
 func can_equip_now() -> bool:
@@ -40,7 +42,7 @@ func recompute_for(unit) -> Dictionary:
 
 	# Derived values from base + mods
 	var nv_ad: float = float(base.attack_damage) * (1.0 + float(acc[ItemModSchema.PCT_AD]))
-	var nv_as: float = max(0.01, float(base.attack_speed) * (1.0 + float(acc[ItemModSchema.PCT_AS])))
+	var nv_as: float = clamp(float(base.attack_speed) * (1.0 + float(acc[ItemModSchema.PCT_AS])), 0.01, MAX_ATTACK_SPEED)
 	var nv_sp: float = float(base.spell_power) + float(acc[ItemModSchema.FLAT_SP])
 	var nv_armor: float = max(0.0, float(base.armor) + float(acc[ItemModSchema.FLAT_ARMOR]))
 	var nv_mr: float = max(0.0, float(base.magic_resist) + float(acc[ItemModSchema.FLAT_MR]))
@@ -94,7 +96,7 @@ func clear_for(unit) -> void:
 	var b = _base[unit]
 	# Restore base snapshot
 	unit.attack_damage = float(b.attack_damage)
-	unit.attack_speed = float(b.attack_speed)
+	unit.attack_speed = clamp(float(b.attack_speed), 0.01, MAX_ATTACK_SPEED)
 	unit.spell_power = float(b.spell_power)
 	unit.armor = float(b.armor)
 	unit.magic_resist = float(b.magic_resist)

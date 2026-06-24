@@ -89,8 +89,8 @@ func _process(delta: float) -> void:
 		var speed: float = float(p.get("speed", 600.0))
 		var tc = p.get("target_control", null)
 		if tc and is_instance_valid(tc):
-			var target_rect: Rect2 = (tc as Control).get_global_rect()
-			var target_center: Vector2 = target_rect.get_center()
+			var control_rect: Rect2 = (tc as Control).get_global_rect()
+			var target_center: Vector2 = control_rect.get_center()
 			var cur_pos: Vector2 = p["pos"]
 			var d: Vector2 = target_center - cur_pos
 			if d.length() > 0.001:

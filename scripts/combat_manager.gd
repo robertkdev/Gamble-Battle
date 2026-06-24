@@ -22,12 +22,17 @@ signal defeat(stage: int)
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal vfx_knockup(team: String, index: int, duration: float)
 signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
+signal hit_applied(team: String, source_index: int, target_index: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float)
 signal heal_applied(source_team: String, source_index: int, target_team: String, target_index: int, healed: int, overheal: int, before_hp: int, after_hp: int)
 signal shield_absorbed(target_team: String, target_index: int, absorbed: int)
 signal hit_mitigated(source_team: String, source_index: int, target_team: String, target_index: int, pre_mit: int, post_pre_shield: int)
 signal hit_overkill(source_team: String, source_index: int, target_team: String, target_index: int, overkill: int)
 signal hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int)
 signal cc_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration: float)
+signal position_updated(team: String, index: int, x: float, y: float)
+signal target_start(source_team: String, source_index: int, target_team: String, target_index: int)
+signal target_end(source_team: String, source_index: int, target_team: String, target_index: int)
+signal ability_cast(source_team: String, source_index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2)
 
 var enemy: Unit
 
@@ -82,7 +87,7 @@ func cache_arena_config(tile_size: float, player_pos: Array, enemy_pos: Array, b
 	_pending_enemy_pos = enemy_pos.duplicate(true)
 	_pending_bounds = bounds
 
-func _pair_for_team(team: String, units: Array[Unit], positions: Array) -> Array[int]:
+func _pair_for_team(_team: String, units: Array[Unit], positions: Array) -> Array[int]:
 	# Legacy helper retained for safety; delegate to MentorLink
 	return MentorLink.compute_for_team(units, positions)
 
@@ -155,6 +160,17 @@ func _wire_engine_signals() -> void:
 		_engine.hit_components.connect(_on_engine_hit_components)
 	if not _engine.is_connected("cc_applied", Callable(self, "_on_engine_cc_applied")):
 		_engine.cc_applied.connect(_on_engine_cc_applied)
+	if not _engine.is_connected("hit_applied", Callable(self, "_re_emit_hit_applied")):
+		_engine.hit_applied.connect(_re_emit_hit_applied)
+	if _engine.has_signal("position_updated") and not _engine.is_connected("position_updated", Callable(self, "_on_engine_position_updated")):
+		_engine.position_updated.connect(_on_engine_position_updated)
+	if _engine.has_signal("target_start") and not _engine.is_connected("target_start", Callable(self, "_on_engine_target_start")):
+		_engine.target_start.connect(_on_engine_target_start)
+	if _engine.has_signal("target_end") and not _engine.is_connected("target_end", Callable(self, "_on_engine_target_end")):
+		_engine.target_end.connect(_on_engine_target_end)
+	if _engine.ability_system != null and _engine.ability_system.has_signal("ability_cast"):
+		if not _engine.ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
+			_engine.ability_system.ability_cast.connect(_on_ability_system_cast)
 
 func _re_emit_projectile(team: String, sidx: int, tidx: int, dmg: int, crit: bool) -> void:
 	emit_signal("projectile_fired", team, sidx, tidx, dmg, crit)
@@ -195,6 +211,18 @@ func _on_engine_hit_components(st: String, si: int, tt: String, ti: int, phys: i
 
 func _on_engine_cc_applied(st: String, si: int, tt: String, ti: int, kind: String, dur: float) -> void:
 	emit_signal("cc_applied", st, si, tt, ti, kind, dur)
+
+func _on_engine_position_updated(team: String, index: int, x: float, y: float) -> void:
+	emit_signal("position_updated", team, index, x, y)
+
+func _on_engine_target_start(source_team: String, source_index: int, target_team: String, target_index: int) -> void:
+	emit_signal("target_start", source_team, source_index, target_team, target_index)
+
+func _on_engine_target_end(source_team: String, source_index: int, target_team: String, target_index: int) -> void:
+	emit_signal("target_end", source_team, source_index, target_team, target_index)
+
+func _on_ability_system_cast(source_team: String, source_index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
+	emit_signal("ability_cast", source_team, source_index, ability_id, target_team, target_index, target_point)
 
 func _ensure_default_player_team_into(arr: Array) -> void:
 	# Append default units into the provided array
@@ -307,6 +335,138 @@ func start_stage() -> void:
 	_log_trait_summary("Enemy team", e_traits)
 	Trace.step("CM.start_stage: end")
 
+func start_custom_battle(player_ids: Array[String], enemy_ids: Array[String], options: Dictionary[String, Variant] = {}) -> Dictionary[String, Variant]:
+	var result: Dictionary[String, Variant] = {"ok": false, "reason": ""}
+	var spawned_player: Array[Unit] = _spawn_unit_ids(player_ids)
+	var spawned_enemy: Array[Unit] = _spawn_unit_ids(enemy_ids)
+	if spawned_player.is_empty():
+		result["reason"] = "no_player_units"
+		return result
+	if spawned_enemy.is_empty():
+		result["reason"] = "no_enemy_units"
+		return result
+	_ensure_state()
+	if _engine != null:
+		_engine.stop()
+	if _trait_runtime != null:
+		_trait_runtime.unwire_signals()
+		_trait_runtime = null
+	_state.reset()
+	stage = max(1, int(options.get("stage", 1)))
+	_state.stage = stage
+	for player_unit: Unit in spawned_player:
+		_state.player_team.append(player_unit)
+	for enemy_unit: Unit in spawned_enemy:
+		_state.enemy_team.append(enemy_unit)
+	_apply_custom_item_loadouts(_state.player_team, _packed_loadouts_from_options(options, "player_items"))
+	_apply_custom_item_loadouts(_state.enemy_team, _packed_loadouts_from_options(options, "enemy_items"))
+
+	player_team = _state.player_team
+	enemy_team = _state.enemy_team
+	enemy = BattleState.first_alive(_state.enemy_team)
+	var label: String = String(options.get("label", "Agent Battle Lab")).strip_edges()
+	if label == "":
+		label = "Agent Battle Lab"
+	emit_signal("battle_started", stage, enemy)
+	emit_signal("log_line", "=== %s: %d vs %d ===" % [label, _state.player_team.size(), _state.enemy_team.size()])
+	var pref: Unit = BattleState.first_alive(_state.player_team)
+	if pref == null and _state.player_team.size() > 0:
+		pref = _state.player_team[0]
+	emit_signal("stats_updated", pref, enemy)
+
+	_engine = load("res://scripts/game/combat/combat_engine.gd").new()
+	_engine.deterministic_rolls = bool(options.get("deterministic_rolls", true))
+	_engine.alternate_order = bool(options.get("alternate_order", false))
+	_engine.abilities_enabled = bool(options.get("abilities_enabled", true))
+	if options.has("seed"):
+		_engine.set_seed(int(options.get("seed", 1)))
+	_engine.configure(_state, pref, stage, select_closest_target)
+	if _pending_tile_size > 0.0:
+		_engine.set_arena(_pending_tile_size, _pending_player_pos, _pending_enemy_pos, _pending_bounds)
+		_compute_mentor_pairs(_pending_player_pos, _pending_enemy_pos)
+		_pending_tile_size = -1.0
+		_pending_player_pos = []
+		_pending_enemy_pos = []
+	_wire_engine_signals()
+	_trait_runtime = TraitRuntimeLib.new()
+	_trait_runtime.configure(_engine, _state, _engine.buff_system, _engine.ability_system)
+	_trait_runtime.wire_signals()
+	_engine.start()
+	if _trait_runtime != null:
+		_trait_runtime.on_battle_start()
+	if _pending_movement_debug_frames > 0 and _engine and _engine.has_method("set_movement_debug_frames"):
+		_engine.set_movement_debug_frames(_pending_movement_debug_frames)
+		_pending_movement_debug_frames = 0
+
+	var tc: Script = load("res://scripts/game/traits/trait_compiler.gd")
+	var p_traits: Dictionary = tc.compile(_state.player_team)
+	var e_traits: Dictionary = tc.compile(_state.enemy_team)
+	_log_trait_summary("Lab player team", p_traits)
+	_log_trait_summary("Lab enemy team", e_traits)
+	result["ok"] = true
+	result["player_count"] = _state.player_team.size()
+	result["enemy_count"] = _state.enemy_team.size()
+	return result
+
+func _spawn_unit_ids(ids: Array[String]) -> Array[Unit]:
+	var units: Array[Unit] = []
+	var uf: Script = load("res://scripts/unit_factory.gd")
+	for raw_id: String in ids:
+		var unit_id: String = String(raw_id).strip_edges().to_lower()
+		if unit_id == "":
+			continue
+		var spawned: Unit = uf.spawn(unit_id)
+		if spawned != null:
+			units.append(spawned)
+	return units
+
+func _packed_loadouts_from_options(options: Dictionary[String, Variant], key: String) -> Array[PackedStringArray]:
+	var loadouts: Array[PackedStringArray] = []
+	var raw_value: Variant = options.get(key, [])
+	if raw_value is Array:
+		for entry: Variant in raw_value:
+			var packed: PackedStringArray = PackedStringArray()
+			if entry is PackedStringArray:
+				packed = entry
+			elif entry is Array:
+				for raw_item: Variant in entry:
+					var item_id: String = String(raw_item).strip_edges().to_lower()
+					if item_id != "":
+						packed.append(item_id)
+			elif entry != null:
+				var single_id: String = String(entry).strip_edges().to_lower()
+				if single_id != "":
+					packed.append(single_id)
+			loadouts.append(packed)
+	return loadouts
+
+func _apply_custom_item_loadouts(units: Array[Unit], loadouts: Array[PackedStringArray]) -> void:
+	if units.is_empty() or loadouts.is_empty():
+		return
+	var items_node: Node = _items_singleton()
+	if items_node == null or not items_node.has_method("force_set_equipped"):
+		emit_signal("log_line", "[Lab] Items singleton unavailable; skipped custom item loadouts.")
+		return
+	var count: int = min(units.size(), loadouts.size())
+	for index: int in range(count):
+		var unit: Unit = units[index]
+		if unit == null:
+			continue
+		var ids: PackedStringArray = loadouts[index]
+		if ids.is_empty():
+			continue
+		var item_array: Array[String] = []
+		for raw_id in ids:
+			var item_id: String = String(raw_id).strip_edges().to_lower()
+			if item_id != "":
+				item_array.append(item_id)
+		items_node.force_set_equipped(unit, item_array)
+
+func _items_singleton() -> Node:
+	if has_node("/root/Items"):
+		return get_node("/root/Items")
+	return null
+
 func setup_stage_preview() -> void:
 	_mirror_stage_from_gamestate()
 	_ensure_state()
@@ -321,8 +481,16 @@ func setup_stage_preview() -> void:
 	for u2 in saved_team:
 		if u2:
 			_state.player_team.append(u2)
+	# Build a preview enemy team using the same spec+rules path as combat,
+	# so the planning board reflects the upcoming round (creeps/items/levels).
 	var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
-	_state.enemy_team = spawner.build_for_stage(stage)
+	var mapping := ProgressionService.from_global_stage(int(stage))
+	var ch: int = int(mapping.get("chapter", 1))
+	var sic: int = int(mapping.get("stage_in_chapter", 1))
+	var spec: Dictionary = RosterCatalog.get_spec(ch, sic)
+	StageRuleRunner.pre_spawn(spec, ch, sic)
+	_state.enemy_team = spawner.build_for_spec(spec, ch, sic)
+	StageRuleRunner.post_spawn(_state.enemy_team, spec, ch, sic)
 
 	for u in _state.player_team:
 		if u:
@@ -402,6 +570,11 @@ func _log_trait_summary(label: String, compiled: Dictionary) -> void:
 
 func finalize_post_combat() -> void:
 	# Public entry to reset health/mana after view intermission completes
+	# Extra safety: ensure any lingering temporary stat buffs are reverted
+	# before we present planning/preview stats. Engine should already clear
+	# these on outcome, but double-check here to be robust.
+	if _engine != null and _engine.buff_system != null and _engine.buff_system.has_method("clear_reverting_stats"):
+		_engine.buff_system.clear_reverting_stats()
 	_reset_units_after_combat()
 	emit_signal("stats_updated", BattleState.first_alive(player_team), enemy)
 	emit_signal("team_stats_updated", player_team, enemy_team)
@@ -411,3 +584,9 @@ func enable_movement_debug(frames: int) -> void:
 	if _engine and _engine.arena_state and _engine.arena_state.has_method("set_debug_log_frames"):
 		_engine.arena_state.set_debug_log_frames(_pending_movement_debug_frames)
 		_pending_movement_debug_frames = 0
+	# Re-emit hit_applied to provide a stable UI signal across engine swaps
+	if _engine and not _engine.is_connected("hit_applied", Callable(self, "_re_emit_hit_applied")):
+		_engine.hit_applied.connect(_re_emit_hit_applied)
+
+func _re_emit_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float) -> void:
+	emit_signal("hit_applied", team, si, ti, rolled, dealt, crit, before_hp, after_hp, player_cd, enemy_cd)

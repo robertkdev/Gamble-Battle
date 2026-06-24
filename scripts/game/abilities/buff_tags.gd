@@ -8,6 +8,7 @@ const TAG_KORATH := "korath_absorb_active"
 const TAG_CC_IMMUNE := "cc_immune"
 const TAG_KYTHERA := "kythera_siphon_active"
 const TAG_BONKO := "bonko_buddy_active"
+const TAG_BONKO_EMPOWER := "bonko_empower"
 const TAG_BEREBELL := "berebell_unstable_active"
 
 # Generic ability-damage amplifier tag; data may include { ability_damage_amp: 0.40 }

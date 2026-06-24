@@ -2,13 +2,14 @@ extends RefCounted
 class_name UnitCatalog
 
 const Debug := preload("res://scripts/util/debug.gd")
+const ShopOdds := preload("res://scripts/game/shop/shop_odds.gd")
 
 # Read-only catalog of unit definitions indexed by cost.
-# Scans `res://data/units` for UnitProfile/UnitDef resources and caches ID->meta.
+# Scans `res://data/units` for UnitProfile resources and caches ID->meta.
 
 var _scanned: bool = false
 var _cost_to_ids: Dictionary = {}        # int cost -> Array[String] ids
-var _meta_by_id: Dictionary = {}          # id -> { name, sprite_path, cost, roles, traits, identity }
+var _meta_by_id: Dictionary = {}          # id -> { name, sprite_path, cost, roles, traits, identity, flags }
 
 func refresh() -> void:
 	_scanned = false
@@ -42,6 +43,7 @@ func refresh() -> void:
 		var cost := 0
 		var roles: Array = []
 		var traits: Array = []
+		var flags: Dictionary = {}
 		if res is UnitProfile:
 			var p: UnitProfile = res
 			id = String(p.id)
@@ -50,14 +52,14 @@ func refresh() -> void:
 			cost = int(p.cost)
 			roles = _duplicate_string_array(p.roles)
 			traits = _duplicate_string_array(p.traits)
-		elif res is UnitDef:
-			var d: UnitDef = res
-			id = String(d.id)
-			name = String(d.name)
-			sprite_path = String(d.sprite_path)
-			cost = int(d.cost)
-			roles = _duplicate_string_array(d.roles)
-			traits = _duplicate_string_array(d.traits)
+			flags = {
+				"shop_eligible": bool(p.shop_eligible),
+				"starter_eligible": bool(p.starter_eligible),
+				"hidden": bool(p.hidden),
+				"enemy_only": bool(p.enemy_only),
+			}
+		else:
+			continue
 		if id == "" or cost <= 0:
 			continue
 		if seen.has(id):
@@ -75,6 +77,7 @@ func refresh() -> void:
 			"approaches": identity.get("approaches", PackedStringArray()),
 			"alt_goals": identity.get("alt_goals", PackedStringArray()),
 			"identity_path": identity.get("identity_path", ""),
+			"flags": flags,
 		}
 		if not _cost_to_ids.has(cost):
 			_cost_to_ids[cost] = []
@@ -206,6 +209,38 @@ func get_alt_goals(id: String) -> Array[String]:
 func get_identity_path(id: String) -> String:
 	return String(get_unit_meta(id).get("identity_path", ""))
 
+func list_starter_ids(level: int = 1) -> Array[String]:
+	# Starter-eligible ids filtered by flags and early-level shop tiers.
+	ensure_ready()
+	var out: Array[String] = []
+	var allowed_costs: Dictionary = {}
+	var odds: Dictionary = ShopOdds.get_cost_probabilities(int(level))
+	if not odds.is_empty():
+		for k in odds.keys():
+			allowed_costs[int(k)] = true
+	else:
+		# Fallback to all known costs if odds not configured
+		for k2 in get_all_costs():
+			allowed_costs[int(k2)] = true
+	for id in _meta_by_id.keys():
+		var meta: Dictionary = _meta_by_id[id]
+		var cost: int = int(meta.get("cost", 0))
+		if not allowed_costs.has(cost):
+			continue
+		var flags: Dictionary = meta.get("flags", {})
+		var starter_ok: bool = bool(flags.get("starter_eligible", true))
+		var hidden: bool = bool(flags.get("hidden", false))
+		var enemy_only: bool = bool(flags.get("enemy_only", false))
+		# Enforce cost>0 and visibility even if flags are mis-set
+		if starter_ok and (not hidden) and (not enemy_only) and cost > 0:
+			out.append(String(id))
+	out.sort_custom(func(a, b):
+		var na := String(_meta_by_id.get(String(a), {}).get("name", ""))
+		var nb := String(_meta_by_id.get(String(b), {}).get("name", ""))
+		return na.nocasecmp_to(nb) < 0
+	)
+	return out
+
 func pick_id_by_cost(cost: int, rng = null) -> String:
 	var ids := get_ids_by_cost(cost)
 	if ids.is_empty():
@@ -242,22 +277,6 @@ func _extract_identity(res, unit_id: String, fallback_roles: Array) -> Dictionar
 			approaches = _make_packed(p.approaches, Callable(self, "_normalize_key"))
 		if alt_goals.is_empty():
 			alt_goals = _make_packed(p.alt_goals, Callable(self, "_normalize_key"))
-	elif res is UnitDef:
-		var d: UnitDef = res
-		if d.identity != null:
-			primary_role = _normalize_role(d.identity.primary_role)
-			primary_goal = _normalize_key(d.identity.primary_goal)
-			approaches = _make_packed(d.identity.approaches, Callable(self, "_normalize_key"))
-			alt_goals = _make_packed(d.identity.alt_goals, Callable(self, "_normalize_key"))
-			identity_path = String(d.identity.resource_path)
-		if primary_role == "":
-			primary_role = _normalize_role(d.primary_role)
-		if primary_goal == "":
-			primary_goal = _normalize_key(d.primary_goal)
-		if approaches.is_empty():
-			approaches = _make_packed(d.approaches, Callable(self, "_normalize_key"))
-		if alt_goals.is_empty():
-			alt_goals = _make_packed(d.alt_goals, Callable(self, "_normalize_key"))
 
 	if primary_role == "" and fallback_roles.size() > 0:
 		primary_role = _normalize_role(fallback_roles[0])

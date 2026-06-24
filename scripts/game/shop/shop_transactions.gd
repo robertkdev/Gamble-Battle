@@ -106,7 +106,7 @@ func buy_xp(progress: PlayerProgress, available_gold: int) -> Dictionary:
 		"xp_to_next": int(progress.xp_to_next()),
 	}
 
-func buy_unit(state: ShopState, slot_index: int, available_gold: int, level: int) -> Dictionary:
+func buy_unit(state: ShopState, slot_index: int, available_gold: int, _level: int) -> Dictionary:
 	# Returns { ok, state?, gold_spent?, bench_slot?, unit_id?, error? }
 	if _roller == null:
 		return { "ok": false, "error": ShopErrors.UNKNOWN }

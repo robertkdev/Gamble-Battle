@@ -42,7 +42,7 @@ func _snapshot_allies_in_radius(ctx: AbilityContext, radius_tiles: float) -> Arr
 func cast(ctx: AbilityContext) -> bool:
     if ctx == null:
         return false
-    var bs = ctx.buff_system
+    var bs: BuffSystem = ctx.buff_system
     if bs == null:
         ctx.log("[Harden] BuffSystem not available; cast aborted")
         return false
@@ -57,7 +57,7 @@ func cast(ctx: AbilityContext) -> bool:
     var targets: Array[int] = _snapshot_allies_in_radius(ctx, RADIUS_TILES)
     var applied: int = 0
     for i in targets:
-        var r := bs.apply_tag(ctx.state, ctx.caster_team, i, BuffTags.TAG_CC_IMMUNE, DURATION_S, {})
+        var r: Dictionary = bs.apply_tag(ctx.state, ctx.caster_team, i, BuffTags.TAG_CC_IMMUNE, DURATION_S, {})
         if bool(r.get("processed", true)):
             applied += 1
 
@@ -65,5 +65,6 @@ func cast(ctx: AbilityContext) -> bool:
     if ctx.engine != null and ctx.engine.ability_system != null:
         ctx.engine.ability_system.schedule_event("veyra_harden_end", ctx.caster_team, ctx.caster_index, DURATION_S, {})
 
+    ctx.emit_ramp_state("timed_window", max(1, stacks), flat_dr, 0, DURATION_S, "veyra_harden_flat_dr_window")
     ctx.log("Harden: +%d flat DR for %.1fs; CC-immune %d ally(ies) (stacks=%d)" % [int(flat_dr), DURATION_S, applied, stacks])
     return true

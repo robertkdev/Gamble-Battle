@@ -13,7 +13,7 @@ var map_id: String = "open_field_variable"
 var extras: Dictionary = {}
 
 static func from_dict(values: Dictionary) -> RGAMapParams:
-    var p := RGAMapParams.new()
+    var p: RGAMapParams = RGAMapParams.new()
     p.apply(values)
     return p
 
@@ -31,14 +31,14 @@ func apply(values: Dictionary) -> void:
     if values.has("tile_size"):
         tile_size = float(values.get("tile_size", tile_size))
     if values.has("center"):
-        var c := values.get("center")
+        var c: Variant = values.get("center")
         if c is Vector2:
             center = c
         elif c is Array and c.size() >= 2:
             center = Vector2(float(c[0]), float(c[1]))
     if values.has("map_id"):
         map_id = String(values.get("map_id", map_id))
-    var known := {
+    var known: Dictionary = {
         "openness": true,
         "choke_count": true,
         "obstacle_density": true,
@@ -53,7 +53,7 @@ func apply(values: Dictionary) -> void:
             extras[key] = values[key]
 
 func to_dict(include_extras: bool = true) -> Dictionary:
-    var out := {
+    var out: Dictionary = {
         "openness": openness,
         "choke_count": choke_count,
         "obstacle_density": obstacle_density,
@@ -68,7 +68,7 @@ func to_dict(include_extras: bool = true) -> Dictionary:
     return out
 
 func clone() -> RGAMapParams:
-    var c := RGAMapParams.new()
+    var c: RGAMapParams = RGAMapParams.new()
     c.openness = openness
     c.choke_count = choke_count
     c.obstacle_density = obstacle_density
@@ -80,7 +80,7 @@ func clone() -> RGAMapParams:
     return c
 
 func validate() -> bool:
-    var ok := true
+    var ok: bool = true
     if is_nan(openness) or openness < 0.1:
         openness = clamp(openness if not is_nan(openness) else 0.7, 0.1, 1.0)
         ok = false
@@ -122,7 +122,7 @@ func validate() -> bool:
     return ok
 
 func hash() -> String:
-    var quant := [
+    var quant: Array[float] = [
         _quantize(openness),
         float(choke_count),
         _quantize(obstacle_density),
@@ -133,18 +133,18 @@ func hash() -> String:
     ]
     var parts: Array[String] = []
     for val in quant:
-        parts.append(String(val))
+        parts.append(str(val))
     parts.append(map_id)
-    var extras_keys := extras.keys()
+    var extras_keys: Array = extras.keys()
     extras_keys.sort()
     for k in extras_keys:
         parts.append(String(k) + "=" + String(extras[k]))
-    var builder := ""
+    var builder: String = ""
     for i in range(parts.size()):
         if i > 0:
             builder += "|"
         builder += parts[i]
-    var h := RGARandom.hash_string64(builder)
+    var h: int = RGARandom.hash_string64(builder)
     return "%016X" % (h & RGARandom.MASK64)
 
 func _quantize(value: float, step: float = 0.001) -> float:

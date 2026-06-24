@@ -9,6 +9,7 @@ const Targeting := preload("res://scripts/game/combat/targeting.gd")
 var state: BattleState
 var selector: Callable = Callable()
 var _arena_resolver: Callable
+var _resolving: Dictionary = {}
 
 func _init() -> void:
 	_arena_resolver = Callable(self, "_resolve_for_arena")
@@ -26,10 +27,26 @@ func current_target(team: String, shooter_index: int) -> int:
 	var targets: Array[int] = _targets_for(team)
 	if shooter_index >= targets.size():
 		return -1
+	var key: String = "%s:%d" % [team, shooter_index]
+	if bool(_resolving.get(key, false)):
+		return _safe_target(team, shooter_index, targets)
+	_resolving[key] = true
+	var result: int = _current_target_impl(team, shooter_index, targets)
+	_resolving.erase(key)
+	return result
+
+func _current_target_impl(team: String, shooter_index: int, targets: Array[int]) -> int:
 	var idx: int = int(targets[shooter_index])
 	if _is_target_alive(team, idx):
 		return idx
 	return refresh_target(team, shooter_index)
+
+func _safe_target(team: String, shooter_index: int, targets: Array[int]) -> int:
+	var idx: int = (int(targets[shooter_index]) if shooter_index < targets.size() else -1)
+	var enemy_team: Array[Unit] = _enemy_team_for(team)
+	if BattleState.is_target_alive(enemy_team, idx):
+		return idx
+	return Targeting.pick_first_alive(enemy_team)
 
 func refresh_target(team: String, shooter_index: int) -> int:
 	_sync_arrays()
@@ -60,6 +77,21 @@ func target_array(team: String) -> Array[int]:
 # Useful to reprime after arena positions become available.
 func prime_targets() -> void:
 	_prime_targets()
+
+# Public: periodically re-score live targets. This lets smarter selectors react
+# to backline access, low-health enemies, and peel threats without per-frame AI.
+func refresh_live_targets() -> void:
+	if not state:
+		return
+	_sync_arrays()
+	for i in range(state.player_team.size()):
+		var player_unit: Unit = state.player_team[i]
+		if player_unit != null and player_unit.is_alive():
+			refresh_target("player", i)
+	for j in range(state.enemy_team.size()):
+		var enemy_unit: Unit = state.enemy_team[j]
+		if enemy_unit != null and enemy_unit.is_alive():
+			refresh_target("enemy", j)
 
 func _resolve_for_arena(team: String, shooter_index: int) -> int:
 	return current_target(team, shooter_index)

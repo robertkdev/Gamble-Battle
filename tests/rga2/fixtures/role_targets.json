@@ -1,0 +1,102 @@
+{
+  "schema_version": "rga2_role_targets_v1",
+  "cost": 1,
+  "roles": {
+	"tank": {
+	  "hp": 1610.0,
+	  "armor": 80.0,
+	  "mr": 80.0,
+	  "shield_per_cast": 315.0,
+	  "shield_cd_s": 8.0,
+	  "heals_24": 245.0,
+	  "ad": 35.0,
+	  "as": 1.0,
+	  "crit_chance": 0.0,
+	  "crit_mult": 1.75,
+	  "abilities": [ { "damage_per_cast": 84.0, "cooldown_s": 12.0 } ],
+	  "sustained_dps_target": 42.0,
+	  "ehp_24_target": 5040.0
+	},
+	"brawler": {
+	  "hp": 1400.0,
+	  "armor": 60.0,
+	  "mr": 60.0,
+	  "shield_per_cast": 105.0,
+	  "shield_cd_s": 12.0,
+	  "heals_24": 490.0,
+	  "ad": 56.0,
+	  "as": 1.8,
+	  "crit_chance": 0.0,
+	  "crit_mult": 1.75,
+	  "abilities": [ { "damage_per_cast": 210.0, "cooldown_s": 6.0 } ],
+	  "sustained_dps_target": 140.0,
+	  "ehp_24_target": 3360.0
+	},
+	"marksman": {
+	  "hp": 1190.0,
+	  "armor": 45.0,
+	  "mr": 45.0,
+	  "shield_per_cast": 252.0,
+	  "shield_cd_s": 12.0,
+	  "heals_24": 42.0,
+	  "ad": 48.3,
+	  "as": 2.5,
+	  "crit_chance": 0.20,
+	  "crit_mult": 1.75,
+	  "abilities": [ { "damage_per_cast": 280.0, "cooldown_s": 4.0 } ],
+	  "sustained_dps_target": 208.9,
+	  "ehp_24_target": 2517.2
+	},
+	"mage": {
+	  "hp": 1050.0,
+	  "armor": 35.0,
+	  "mr": 55.0,
+	  "shield_per_cast": 56.0,
+	  "shield_cd_s": 12.0,
+	  "heals_24": 0.0,
+	  "ad": 31.5,
+	  "as": 1.6,
+	  "crit_chance": 0.0,
+	  "crit_mult": 1.75,
+	  "abilities": [
+		{ "damage_per_cast": 224.0, "cooldown_s": 3.5 },
+		{ "damage_per_cast": 420.0, "cooldown_s": 8.0 }
+	  ],
+	  "sustained_dps_target": 168.0,
+	  "ehp_24_target": 1676.9
+	},
+	"assassin": {
+	  "hp": 980.0,
+	  "armor": 30.0,
+	  "mr": 35.0,
+	  "shield_per_cast": 98.0,
+	  "shield_cd_s": 8.0,
+	  "heals_24": 0.0,
+	  "ad": 40.6,
+	  "as": 1.8,
+	  "crit_chance": 0.15,
+	  "crit_mult": 1.75,
+	  "abilities": [ { "damage_per_cast": 136.0, "cooldown_s": 6.0 } ],
+	  "sustained_dps_target": 109.0,
+	  "ehp_24_target": 1687.4
+	},
+	"support": {
+	  "hp": 1190.0,
+	  "armor": 45.0,
+	  "mr": 55.0,
+	  "shield_per_cast": 210.0,
+	  "shield_cd_s": 12.0,
+	  "heals_24": 70.0,
+	  "ad": 14.0,
+	  "as": 1.0,
+	  "crit_chance": 0.0,
+	  "crit_mult": 1.75,
+	  "abilities": [
+		{ "damage_per_cast": 84.0, "cooldown_s": 12.0 },
+		{ "damage_per_cast": 168.0, "cooldown_s": 24.0 }
+	  ],
+	  "sustained_dps_target": 28.0,
+	  "ehp_24_target": 2517.2
+	}
+  }
+}

@@ -73,10 +73,11 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 4
 columns = 4
 
-[node name="Footer" type="HBoxContainer" parent="VBox"]
+[node name="Footer" type="FlowContainer" parent="VBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 12
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 4
 
 [node name="DPSLabel" type="Label" parent="VBox/Footer"]
 layout_mode = 2

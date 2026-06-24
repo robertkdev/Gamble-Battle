@@ -41,7 +41,7 @@ func _ensure_container() -> void:
 func _subscribe_items() -> void:
 	if _connected:
 		return
-	var items = _items_singleton()
+	var items: Variant = _items_singleton()
 	if items != null:
 		if not items.is_connected("equipped_changed", Callable(self, "_on_items_equipped_changed")):
 			items.equipped_changed.connect(_on_items_equipped_changed)
@@ -54,11 +54,11 @@ func _on_items_equipped_changed(changed_unit) -> void:
 func _refresh() -> void:
 	_ensure_container()
 	var ids: Array[String] = []
-	var items = _items_singleton()
+	var items: Variant = _items_singleton()
 	if unit != null and items != null and items.has_method("get_equipped"):
-		var raw = items.get_equipped(unit)
+		var raw: Variant = items.get_equipped(unit)
 		if raw is Array:
-			for v in raw:
+			for v: Variant in raw:
 				ids.append(String(v))
 	_render_ids(ids)
 
@@ -72,34 +72,58 @@ func _render_ids(ids: Array[String]) -> void:
 	for i in range(n):
 		var id: String = String(ids[i])
 		var tex: Texture2D = _icon_for(id)
-		var tr := TextureRect.new()
-		tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tr.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tr.custom_minimum_size = Vector2(18, 18)
-		tr.size = Vector2(18, 18)
-		tr.texture = tex
-		_container.add_child(tr)
+		var chip: PanelContainer = PanelContainer.new()
+		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		chip.custom_minimum_size = Vector2(20, 20)
+		chip.add_theme_stylebox_override("panel", _make_chip_style())
+		var icon_rect: TextureRect = TextureRect.new()
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_rect.custom_minimum_size = Vector2(18, 18)
+		icon_rect.size = Vector2(18, 18)
+		icon_rect.texture = tex
+		icon_rect.modulate = Color(0.98, 0.91, 0.80, 0.98)
+		chip.add_child(icon_rect)
+		_container.add_child(chip)
+
+func _make_chip_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.030, 0.025, 0.032, 0.86)
+	style.border_color = Color(0.58, 0.38, 0.20, 0.82)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
+	style.content_margin_left = 1
+	style.content_margin_top = 1
+	style.content_margin_right = 1
+	style.content_margin_bottom = 1
+	return style
 
 func _icon_for(id: String) -> Texture2D:
-	var def = ItemCatalog.get_def(id)
+	var def: ItemDef = ItemCatalog.get_def(id)
 	if def != null and String(def.icon_path) != "":
 		var t: Texture2D = load(def.icon_path)
 		if t != null:
 			return t
 	return TextureUtils.make_circle_texture(Color(0.85, 0.85, 0.85), 32)
 
-func _items_singleton():
+func _items_singleton() -> Variant:
 	if Engine.has_singleton("Items"):
 		return Items
 	# Safely resolve the root before accessing it to avoid null instance warnings
-	var root_node = null
-	if has_method("get_tree"):
-		var tree = get_tree()
-		if tree and tree.has_method("get_root"):
+	var root_node: Node = null
+	if is_inside_tree():
+		var tree: SceneTree = get_tree()
+		if tree != null:
 			root_node = tree.get_root()
 	if root_node == null:
-		var ml = Engine.get_main_loop()
+		var ml: Variant = Engine.get_main_loop()
 		if ml and ml.has_method("get_root"):
 			root_node = ml.get_root()
 	if root_node and root_node.has_node("/root/Items"):

@@ -49,7 +49,7 @@ func _heal_on_execute(ctx: AbilityContext, amount: int) -> void:
 func cast(ctx: AbilityContext) -> bool:
     if ctx == null or ctx.engine == null or ctx.state == null:
         return false
-    var bs = ctx.buff_system
+    var bs: Variant = ctx.buff_system
     if bs == null:
         ctx.log("[Reaping Line] BuffSystem not available; cast aborted")
         return false
@@ -82,18 +82,21 @@ func cast(ctx: AbilityContext) -> bool:
     var hits: Array[int] = ctx.enemies_in_line(ctx.caster_team, ctx.caster_index, target_idx, LINE_LENGTH_TILES, LINE_WIDTH_TILES)
     var exec_thresh: float = _execute_threshold(execs)
     var executes: int = 0
+    var target_team: String = ctx._other_team(ctx.caster_team)
     for idx in hits:
-        var before := ctx.unit_at(ctx._other_team(ctx.caster_team), idx)
+        var before: Unit = ctx.unit_at(target_team, idx)
         if before == null or not before.is_alive():
             continue
-        ctx.damage_single(ctx.caster_team, ctx.caster_index, idx, float(total_dmg), "physical")
-        var tgt := ctx.unit_at(ctx._other_team(ctx.caster_team), idx)
+        var hit_res: Dictionary = ctx.damage_single(ctx.caster_team, ctx.caster_index, idx, float(total_dmg), "physical")
+        var base_dealt: float = float(hit_res.get("dealt", total_dmg))
+        var tgt: Unit = ctx.unit_at(target_team, idx)
         if tgt != null and tgt.is_alive():
             var hp_pct: float = (float(tgt.hp) / max(1.0, float(tgt.max_hp)))
             if hp_pct <= exec_thresh:
                 # Execute: deal true damage equal to current HP
                 var to_kill: float = float(tgt.hp)
                 if to_kill > 0.0:
+                    ctx.emit_execute_bonus(target_team, idx, base_dealt, to_kill, exec_thresh, hp_pct, "morrak_reaping_line")
                     ctx.damage_single(ctx.caster_team, ctx.caster_index, idx, to_kill, "true")
                     executes += 1
     if executes > 0:

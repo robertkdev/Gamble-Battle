@@ -58,7 +58,9 @@ func cast(ctx: AbilityContext) -> bool:
         # Recast at 75% damage on a new current target
         var next_idx: int = ctx.current_target(ctx.caster_team, ctx.caster_index)
         if next_idx >= 0 and ctx.is_alive(ctx._other_team(ctx.caster_team), next_idx):
-            _slash(ctx, next_idx, raw_dmg * RECAST_DMG_SCALE)
+            var recast_res: Dictionary = _slash(ctx, next_idx, raw_dmg * RECAST_DMG_SCALE)
+            if bool(recast_res.get("processed", false)) and ctx.engine.has_method("_resolver_emit_reset_triggered"):
+                ctx.engine._resolver_emit_reset_triggered(ctx.caster_team, ctx.caster_index, ctx._other_team(ctx.caster_team), next_idx, "repo_kill_recast", 1, 0.0, RECAST_DMG_SCALE)
             ctx.log("Writ of Severance: recast at 75%")
     else:
         ctx.log("Writ of Severance: dealt %d (raw %.0f)" % [dealt, raw_dmg])

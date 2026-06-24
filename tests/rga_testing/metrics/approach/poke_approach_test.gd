@@ -1,0 +1,109 @@
+extends RefCounted
+
+# Approach: Poke (per-unit subject)
+# Pass condition: subject's median attacks_over_2_tiles_pct >= threshold.
+
+const VERSION := "1.0.0"
+const METRIC_ID := "approach_poke"
+
+const RoleCommon := preload("res://tests/rga_testing/metrics/_shared/role_common.gd")
+
+const REQUIRED_CAPS = ["targets"]
+
+func get_metadata() -> Dictionary:
+	return {
+		"id": METRIC_ID,
+		"version": VERSION,
+		"required_capabilities": REQUIRED_CAPS,
+		"description": "Poke: subject median attacks over 2 tiles share meets threshold."
+	}
+
+func run_metric(payload: Dictionary = {}) -> Dictionary:
+	var ctx: Dictionary = payload.get("context", {})
+	var sims: Dictionary = ctx.get("sims", {}) if (ctx is Dictionary) else {}
+	if sims.is_empty():
+		return RoleCommon.fail_result([], ["no_sims_in_context"])
+
+	var subject_set: Dictionary = RoleCommon.subject_set_from_payload(payload)
+	if subject_set.is_empty():
+		return RoleCommon.fail_result([], ["no_subject_specified"])
+	var subject_id: String = String(subject_set.keys()[0])
+	var ident: Dictionary = RoleCommon.get_identity(subject_id)
+	var cost_band: int = int(ident.get("cost", 3))
+	var scenario_label: String = String(ctx.get("scenario", "neutral"))
+	var thresholds_all: Dictionary = RoleCommon.load_thresholds()
+	var cfg: Dictionary = RoleCommon.approach_threshold(thresholds_all, "poke")
+	var metrics_cfg: Dictionary = cfg.get("metrics", {})
+	var share_cfg: Dictionary = metrics_cfg.get("attacks_over_2_tiles_share", {})
+	var share_req: float = float(RoleCommon.resolve_min_threshold(share_cfg, cost_band, scenario_label))
+
+	var samples: Array[float] = []
+	for key in sims.keys():
+		var entry: Dictionary = sims.get(key, {})
+		var side: String = _subject_side(entry, subject_id)
+		if side == "":
+			continue
+		var kernels: Dictionary = entry.get("kernels", {})
+		var kpi: Dictionary = kernels.get("per_unit_kpis", {})
+		if not (kpi is Dictionary):
+			continue
+		var side_map: Dictionary = kpi.get(side, {})
+		if not (side_map is Dictionary):
+			continue
+		var rec: Dictionary = side_map.get(subject_id, {})
+		if not (rec is Dictionary):
+			continue
+		var v: float = float(rec.get("attacks_over_2_tiles_pct", -1.0))
+		if v >= 0.0:
+			samples.append(v)
+
+	var med: float = _median(samples)
+	var pass_flag: bool = (med >= share_req and samples.size() > 0)
+	var spans: Array = []
+	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, ("no_samples" if samples.is_empty() else ""))
+	RoleCommon.append_span(spans, "subject_attacks_over_2_tiles_med", med, share_req, pass_flag, extras)
+
+	var messages: Array = []
+	messages.append("scenario=%s" % scenario_label)
+	messages.append("samples=%d" % samples.size())
+
+	return {
+		"id": METRIC_ID,
+		"version": VERSION,
+		"pass": pass_flag,
+		"spans": spans,
+		"message": "; ".join(messages)
+	}
+
+func _median(arr: Array[float]) -> float:
+	if arr.is_empty():
+		return 0.0
+	var a: Array = []
+	for v in arr:
+		a.append(float(v))
+	a.sort()
+	var n := a.size()
+	var mid := n / 2
+	if (n % 2) == 1:
+		return float(a[mid])
+	return 0.5 * (float(a[mid - 1]) + float(a[mid]))
+
+func _subject_side(entry: Dictionary, subject_id: String) -> String:
+	var c: Dictionary = entry.get("context", {})
+	var a: Array = c.get("team_a_ids", [])
+	var b: Array = c.get("team_b_ids", [])
+	var sid := String(subject_id)
+	for x in a:
+		if String(x) == sid:
+			return "a"
+	for y in b:
+		if String(y) == sid:
+			return "b"
+	return ""
+
+func _any_side_for_subject(sims: Dictionary, subject_id: String) -> String:
+	for k in sims.keys():
+		var s := _subject_side(sims.get(k, {}), subject_id)
+		if s != "":
+			return s
+	return ""

@@ -194,7 +194,7 @@ func exile_upgrade_level(team: String, index: int) -> int:
 	return int(data.get("level", 0))
 
 func _other_team(team: String) -> String:
-	return "enemy" if team == "player" else "player"
+	return TeamUtils.other_team(team)
 
 # --- Mentor–Pupil pairing ---
 func pupil_for(team: String, mentor_index: int) -> int:
@@ -217,6 +217,59 @@ func damage_single(source_team: String, source_index: int, target_index: int, am
 func heal_single(target_team: String, target_index: int, amount: float) -> Dictionary:
 	return AbilityEffects.heal_single(engine, state, target_team, target_index, amount, caster_team, caster_index)
 
+func emit_execute_bonus(target_team: String, target_index: int, base_damage: float, bonus_damage: float, threshold_pct: float, target_hp_pct: float, kind: String) -> void:
+	if engine == null:
+		return
+	var base_amount: int = int(max(0.0, round(float(base_damage))))
+	var bonus_amount: int = int(max(0.0, round(float(bonus_damage))))
+	if bonus_amount <= 0:
+		return
+	if engine.has_method("_resolver_emit_execute_bonus_applied"):
+		engine._resolver_emit_execute_bonus_applied(caster_team, caster_index, String(target_team), int(target_index), base_amount, bonus_amount, float(threshold_pct), float(target_hp_pct), String(kind))
+	elif engine.has_signal("execute_bonus_applied"):
+		engine.emit_signal("execute_bonus_applied", caster_team, caster_index, String(target_team), int(target_index), base_amount, bonus_amount, float(threshold_pct), float(target_hp_pct), String(kind))
+
+func emit_ramp_state(kind: String, stacks: int, value: float, peak_stacks: int, duration_s: float, reason: String) -> void:
+	if engine == null:
+		return
+	var stack_count: int = max(0, int(stacks))
+	var peak_count: int = max(0, int(peak_stacks))
+	var amount: float = max(0.0, float(value))
+	var duration: float = max(0.0, float(duration_s))
+	if engine.has_method("_resolver_emit_ramp_state_changed"):
+		engine._resolver_emit_ramp_state_changed(caster_team, caster_index, String(kind), stack_count, amount, peak_count, duration, String(reason))
+	elif engine.has_signal("ramp_state_changed"):
+		engine.emit_signal("ramp_state_changed", caster_team, caster_index, String(kind), stack_count, amount, peak_count, duration, String(reason))
+
+func emit_zone_exposure(target_team: String, target_index: int, kind: String, duration_s: float, damage: float = 0.0, radius_tiles: float = 0.0) -> void:
+	if engine == null:
+		return
+	var duration: float = max(0.0, float(duration_s))
+	var amount: float = max(0.0, float(damage))
+	var radius: float = max(0.0, float(radius_tiles))
+	if duration <= 0.0 and amount <= 0.0 and radius <= 0.0:
+		return
+	if engine.has_method("_resolver_emit_zone_exposure_applied"):
+		engine._resolver_emit_zone_exposure_applied(caster_team, caster_index, String(target_team), int(target_index), String(kind), duration, amount, radius)
+	elif engine.has_signal("zone_exposure_applied"):
+		engine.emit_signal("zone_exposure_applied", caster_team, caster_index, String(target_team), int(target_index), String(kind), duration, amount, radius)
+
+func emit_redirect_semantic(target_team: String, target_index: int, kind: String, duration_s: float = 0.0, amount: float = 0.0, risk_s: float = 0.0) -> void:
+	if engine == null:
+		return
+	var duration: float = max(0.0, float(duration_s))
+	var value: float = max(0.0, float(amount))
+	var risk: float = max(0.0, float(risk_s))
+	if duration <= 0.0 and value <= 0.0 and risk <= 0.0:
+		return
+	if engine.has_method("_resolver_emit_redirect_semantic_applied"):
+		engine._resolver_emit_redirect_semantic_applied(caster_team, caster_index, String(target_team), int(target_index), String(kind), duration, value, risk)
+	elif engine.has_signal("redirect_semantic_applied"):
+		engine.emit_signal("redirect_semantic_applied", caster_team, caster_index, String(target_team), int(target_index), String(kind), duration, value, risk)
+
+func stun(target_team: String, target_index: int, duration_s: float) -> Dictionary:
+	return AbilityEffects.stun(buff_system, engine, state, target_team, target_index, duration_s, caster_team, caster_index)
+
 func log(text: String) -> void:
 	if text == "" or engine == null:
 		return
@@ -231,7 +284,7 @@ func _range_epsilon() -> float:
 # ranges. This keeps ability radii consistent with approach/attack bands.
 func _band_max_for(team: String, idx: int) -> float:
 	if engine != null and engine.arena_state != null and engine.arena_state.has_method("get_profile"):
-		var prof = engine.arena_state.get_profile(team, idx)
+		var prof: Variant = engine.arena_state.get_profile(team, idx)
 		if prof != null and typeof(prof.band_max) in [TYPE_FLOAT, TYPE_INT]:
 			return float(prof.band_max)
 	return 1.0

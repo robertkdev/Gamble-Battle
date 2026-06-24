@@ -1,0 +1,400 @@
+{
+  "schema": {
+	"version": "1.1.0",
+	"notes": "Centralized per-role KPI thresholds by cost band with scenario relaxations. All tests must read from here (no magic numbers). Targets normalized for team EHP = 100 and team sustained DPS = 100 (≈24s mirror).",
+	"cost_bands": [1, 2, 3, 4, 5],
+	"scenarios": ["neutral", "peel", "burst"],
+	"default_tolerance": 0.10
+  },
+  "targets": {
+	"notes": "Role targets used for balancing guidance; included for reference in tests and reports.",
+	"roles": {
+	  "tank": { "ehp_share": 0.30, "sustained_dps_share": 0.06, "burst_share_first4s": 0.06, "focus_ttk_vs_150_dps_s": 12.0 },
+	  "brawler": { "ehp_share": 0.20, "sustained_dps_share": 0.20, "burst_share_first4s": 0.16, "focus_ttk_vs_150_dps_s": 8.0 },
+	  "marksman": { "ehp_share": 0.15, "sustained_dps_share": 0.30, "burst_share_first4s": 0.14, "focus_ttk_vs_150_dps_s": 6.0 },
+	  "mage": { "ehp_share": 0.10, "sustained_dps_share": 0.24, "burst_share_first4s": 0.30, "focus_ttk_vs_150_dps_s": 5.0 },
+	  "assassin": { "ehp_share": 0.10, "sustained_dps_share": 0.16, "burst_share_first4s": 0.30, "focus_ttk_vs_150_dps_s": 5.0 },
+	  "support": { "ehp_share": 0.15, "sustained_dps_share": 0.04, "burst_share_first4s": 0.04, "focus_ttk_vs_150_dps_s": 7.0 }
+	}
+  },
+  "roles": {
+	"tank": {
+	  "k_of_n": { "k": 2, "n": 2 },
+	  "metrics": {
+		"focus_survival_s": {
+		  "min_by_cost": { "1": 12.0, "2": 12.0, "3": 12.0, "4": 12.0, "5": 12.0 },
+		  "relaxations": {
+			"burst": { "multiplier": 0.0, "offset": 2.0 }
+		  },
+		  "tolerance": 0.10
+		},
+		"soak_index": {
+		  "min_by_cost": { "1": 0.55, "2": 0.55, "3": 0.55, "4": 0.55, "5": 0.55 },
+		  "tolerance": 0.10
+		},
+		"damage_taken_total": {
+		  "metric": "damage_taken_total",
+		  "min_by_cost": { "1": 200.0, "2": 280.0, "3": 360.0, "4": 440.0, "5": 520.0 },
+		  "tolerance": 0.10
+		},
+		"team_damage_share": {
+		  "max_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 },
+		  "tolerance": 0.10
+		}
+	  },
+	  "fallback": {
+		"time_alive_s": { "min_by_cost": { "1": 8.0, "2": 8.0, "3": 8.0, "4": 8.0, "5": 8.0 } }
+	  }
+	},
+	"brawler": {
+	  "k_of_n": { "k": 2, "n": 2 },
+	  "metrics": {
+		"can_take_damage": {
+		  "notes": "Composite survivability target. Prefer focus/hits kernels; fall back to time alive when kernels are unavailable in fast smoke probes.",
+		  "composite_any": [
+			{ "metric": "focus_survival_s", "min_by_cost": { "1": 8.0, "2": 8.0, "3": 8.0, "4": 8.0, "5": 8.0 }, "tolerance": 0.10 },
+			{ "metric": "hits_survived", "min_by_cost": { "1": 2.0, "2": 2.0, "3": 2.0, "4": 2.0, "5": 2.0 }, "tolerance": 0.10 }
+		  ]
+		},
+		"sustained_damage_rate": {
+		  "comparison": {
+			"median_multiplier": 1.05,
+			"z_min": 0.25
+		  },
+		  "min_by_cost": { "1": 1.05, "2": 1.05, "3": 1.05, "4": 1.10, "5": 1.10 },
+		  "tolerance": 0.10
+		},
+		"damage_taken_total": { "metric": "damage_taken_total", "min_by_cost": { "1": 180.0, "2": 230.0, "3": 280.0, "4": 330.0, "5": 380.0 }, "tolerance": 0.10 }
+	  },
+	  "fallback": {
+		"all": [
+		  { "metric": "time_alive_s", "min_by_cost": { "1": 8.0, "2": 8.0, "3": 8.0, "4": 8.0, "5": 8.0 }, "tolerance": 0.10 }
+		]
+	  }
+	},
+	"assassin": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"first_backline_contact": {
+		  "rank_required": 1,
+		  "pass_fraction": { "min_by_cost": { "1": 0.60, "2": 0.60, "3": 0.60, "4": 0.60, "5": 0.60 }, "tolerance": 0.10 },
+		  "time_s": {
+			"max_by_cost": { "1": 3.5, "2": 3.5, "3": 3.5, "4": 3.5, "5": 3.5 },
+			"relaxations": {
+			  "peel": { "max_time_s": 4.0 }
+			}
+		  },
+		  "cast_window_s": {
+			"max_by_cost": { "1": 1.5, "2": 1.5, "3": 1.5, "4": 1.5, "5": 1.5 }
+		  },
+		  "cast_pre_signal_grace_s": {
+			"max_by_cost": { "1": 0.1, "2": 0.1, "3": 0.1, "4": 0.1, "5": 0.1 }
+		  }
+		}
+	  }
+	},
+	"marksman": {
+	  "k_of_n": { "k": 2, "n": 2 },
+	  "metrics": {
+		"sustained_damage_rate": {
+		  "comparison": {
+			"median_multiplier": 1.25,
+			"z_min": 1.0
+		  },
+		  "min_by_cost": { "1": 1.25, "2": 1.25, "3": 1.25, "4": 1.25, "5": 1.25 },
+		  "tolerance": 0.10
+		},
+		"team_damage_share": {
+		  "min_by_cost": { "1": 0.30, "2": 0.30, "3": 0.30, "4": 0.30, "5": 0.30 },
+		  "max_by_cost": { "1": 0.45, "2": 0.45, "3": 0.45, "4": 0.45, "5": 0.45 },
+		  "tolerance": 0.10
+		},
+		"backline_zone_share": { "min_by_cost": { "1": 0.60, "2": 0.60, "3": 0.60, "4": 0.60, "5": 0.60 }, "tolerance": 0.10 }
+	  }
+	},
+	"mage": {
+	  "k_of_n": { "k": 1, "n": 2 },
+	  "metrics": {
+		"periodicity": {
+		  "any": [
+			{ "metric": "top_2s_magic_damage_share", "min_by_cost": { "1": 0.35, "2": 0.35, "3": 0.35, "4": 0.35, "5": 0.35 }, "tolerance": 0.10 },
+			{ "metric": "magic_peak_over_mean", "min_by_cost": { "1": 1.7, "2": 1.7, "3": 1.7, "4": 1.7, "5": 1.7 }, "tolerance": 0.10 }
+		  ]
+		},
+		"frontline_first": {
+		  "time_window_s": 4.0,
+		  "comparison": "frontline_vs_backline_share",
+		  "per_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }
+		}
+	  }
+	},
+	"support": {
+	  "k_of_n": { "k": 1, "n": 2 },
+	  "metrics": {
+		"buff_presence": {
+		  "events_per_ally_min": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		  "requires_events": ["buff_applied", "debuff_applied"],
+		  "unsupported_fallback": "use_proxy"
+		},
+		"proxies": {
+		  "any": [
+			{ "metric": "ehp_ratio", "min_by_cost": { "1": 0.15, "2": 0.15, "3": 0.15, "4": 0.15, "5": 0.15 }, "tolerance": 0.10 },
+			{ "metric": "peel_saves", "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10, "scenario": "dive" }
+		  ]
+		}
+	  }
+	}
+  }
+  ,
+  "goals": {
+	"periodicity": {
+	  "any": [
+		{ "metric": "top_2s_magic_damage_share", "min_by_cost": { "1": 0.35, "2": 0.35, "3": 0.35, "4": 0.35, "5": 0.35 }, "tolerance": 0.10 },
+		{ "metric": "magic_peak_over_mean", "min_by_cost": { "1": 1.7, "2": 1.7, "3": 1.7, "4": 1.7, "5": 1.7 }, "tolerance": 0.10 }
+	  ]
+	},
+	"frontline_first": {
+	  "time_window_s": 4.0,
+	  "comparison": "frontline_vs_backline_share",
+	  "per_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }
+	}
+  },
+  "approaches": {
+	"access_backline": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"first_backline_contact": {
+		  "rank_required": 1,
+		  "pass_fraction": { "min_by_cost": { "1": 0.60, "2": 0.60, "3": 0.60, "4": 0.60, "5": 0.60 }, "tolerance": 0.10 },
+		  "time_s": {
+			"max_by_cost": { "1": 3.5, "2": 3.5, "3": 3.5, "4": 3.5, "5": 3.5 },
+			"relaxations": { "peel": { "max_time_s": 4.0 } }
+		  }
+		}
+	  }
+	},
+	"burst": {
+	  "k_of_n": { "k": 1, "n": 2 },
+	  "metrics": {
+		"peak_1s_damage_share": { "min_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 },
+		"peak_1s_dps": { "min_by_cost": { "1": 25.0, "2": 30.0, "3": 35.0, "4": 40.0, "5": 45.0 }, "tolerance": 0.10 },
+		"overkill_rate": { "max_by_cost": { "1": 0.45, "2": 0.45, "3": 0.45, "4": 0.45, "5": 0.45 }, "tolerance": 0.10 }
+	  }
+	},
+	"execute": {
+	  "k_of_n": { "k": 4, "n": 5 },
+	  "metrics": {
+		"execute_bonus_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"execute_bonus_damage_share": { "min_by_cost": { "1": 0.10, "2": 0.10, "3": 0.10, "4": 0.10, "5": 0.10 }, "tolerance": 0.10 },
+		"low_hp_kill_share": { "min_by_cost": { "1": 0.50, "2": 0.50, "3": 0.50, "4": 0.50, "5": 0.50 }, "tolerance": 0.10 },
+		"low_hp_kills": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"overkill_rate": { "max_by_cost": { "1": 0.60, "2": 0.60, "3": 0.60, "4": 0.60, "5": 0.60 }, "tolerance": 0.10 }
+	  }
+	},
+	"dot": {
+	  "k_of_n": { "k": 2, "n": 5 },
+	  "metrics": {
+		"debuff_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"on_hit_effects": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"late_early_dps_ratio": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"dot_uptime_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"debuff_duration": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"reset_mechanic": {
+	  "k_of_n": { "k": 2, "n": 4 },
+	  "metrics": {
+		"reset_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"reset_chain_length": { "min_by_cost": { "1": 2.0, "2": 2.0, "3": 2.0, "4": 2.0, "5": 2.0 }, "tolerance": 0.10 },
+		"time_between_resets_s": { "max_by_cost": { "1": 5.0, "2": 5.0, "3": 5.0, "4": 5.0, "5": 5.0 }, "tolerance": 0.10 },
+		"kill_count": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"reset_chain_length_proxy": { "min_by_cost": { "1": 2.0, "2": 2.0, "3": 2.0, "4": 2.0, "5": 2.0 }, "tolerance": 0.10 },
+		"low_hp_kill_share": { "min_by_cost": { "1": 0.50, "2": 0.50, "3": 0.50, "4": 0.50, "5": 0.50 }, "tolerance": 0.10 },
+		"falloff_after_peak": { "min_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 }
+	  }
+	},
+	"aoe": {
+	  "k_of_n": { "k": 1, "n": 3 },
+	  "metrics": {
+		"targets_hit_median": { "min_by_cost": { "1": 1.5, "2": 1.5, "3": 1.5, "4": 1.5, "5": 1.5 }, "tolerance": 0.10 },
+		"max_targets_hit": { "min_by_cost": { "1": 2.0, "2": 2.0, "3": 2.0, "4": 2.0, "5": 2.0 }, "tolerance": 0.10 },
+		"aoe_dps": { "min_by_cost": { "1": 4.0, "2": 5.0, "3": 6.0, "4": 7.0, "5": 8.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"dive": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"first_backline_contact": {
+		  "rank_required": 1,
+		  "pass_fraction": { "min_by_cost": { "1": 0.60, "2": 0.60, "3": 0.60, "4": 0.60, "5": 0.60 }, "tolerance": 0.10 },
+		  "time_s": {
+			"max_by_cost": { "1": 3.5, "2": 3.5, "3": 3.5, "4": 3.5, "5": 3.5 },
+			"relaxations": { "peel": { "max_time_s": 4.0 } }
+		  }
+		}
+	  }
+	},
+	"peel": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"peel_saves": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"ehp_ratio": { "min_by_cost": { "1": 0.15, "2": 0.15, "3": 0.15, "4": 0.15, "5": 0.15 }, "tolerance": 0.10 }
+	  }
+	},
+	"poke": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"attacks_over_2_tiles_share": { "min_by_cost": { "1": 0.50, "2": 0.50, "3": 0.50, "4": 0.50, "5": 0.50 }, "tolerance": 0.10 },
+		"backline_zone_share": { "min_by_cost": { "1": 0.55, "2": 0.55, "3": 0.55, "4": 0.55, "5": 0.55 }, "tolerance": 0.10 }
+	  },
+	  "relaxations": { "burst": { "multiplier": 0.9, "floor": 0.45 } }
+	},
+	"long_range": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"attacks_over_2_tiles_share": { "min_by_cost": { "1": 0.50, "2": 0.50, "3": 0.50, "4": 0.50, "5": 0.50 }, "tolerance": 0.10 },
+		"backline_zone_share": { "min_by_cost": { "1": 0.55, "2": 0.55, "3": 0.55, "4": 0.55, "5": 0.55 }, "tolerance": 0.10 }
+	  },
+	  "relaxations": { "burst": { "multiplier": 0.9, "floor": 0.45 } }
+	},
+	"ramp": {
+	  "k_of_n": { "k": 2, "n": 3 },
+	  "direct_k_of_n": { "k": 2, "n": 4 },
+	  "metrics": {
+		"ramp_state_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"ramp_stack_max": { "min_by_cost": { "1": 2.0, "2": 2.0, "3": 2.0, "4": 2.0, "5": 2.0 }, "tolerance": 0.10 },
+		"ramp_peak_duration_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"ramp_window_duration_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"late_early_dps_ratio": { "min_by_cost": { "1": 1.15, "2": 1.15, "3": 1.15, "4": 1.15, "5": 1.15 }, "tolerance": 0.10 },
+		"time_to_peak_s": { "min_by_cost": { "1": 5.0, "2": 5.0, "3": 5.0, "4": 5.0, "5": 5.0 }, "tolerance": 0.10 },
+		"falloff_after_peak": { "min_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 }
+	  }
+	},
+	"sustain": {
+	  "k_of_n": { "k": 1, "n": 2 },
+	  "metrics": {
+		"ehp_ratio": { "min_by_cost": { "1": 0.10, "2": 0.10, "3": 0.10, "4": 0.10, "5": 0.10 }, "tolerance": 0.10 },
+		"effective_hps": { "min_by_cost": { "1": 2.0, "2": 2.0, "3": 2.0, "4": 2.0, "5": 2.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"damage_reduction": {
+	  "k_of_n": { "k": 1, "n": 2 },
+	  "metrics": {
+		"mitigation_ratio": { "min_by_cost": { "1": 0.08, "2": 0.08, "3": 0.08, "4": 0.08, "5": 0.08 }, "tolerance": 0.10 },
+		"prevented_damage": { "min_by_cost": { "1": 25.0, "2": 35.0, "3": 45.0, "4": 55.0, "5": 65.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"disrupt": {
+	  "k_of_n": { "k": 1, "n": 3 },
+	  "metrics": {
+		"cc_seconds": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cc_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cc_unique_targets": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"engage": {
+	  "k_of_n": { "k": 2, "n": 3 },
+	  "metrics": {
+		"early_engage_displacement_tiles": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"time_to_first_action_s": { "max_by_cost": { "1": 5.0, "2": 5.0, "3": 5.0, "4": 5.0, "5": 5.0 }, "tolerance": 0.10 },
+		"time_to_first_cc_s": { "max_by_cost": { "1": 6.0, "2": 6.0, "3": 6.0, "4": 6.0, "5": 6.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"lockdown": {
+	  "k_of_n": { "k": 1, "n": 4 },
+	  "metrics": {
+		"lockdown_seconds_on_priority": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"lockdown_events_on_priority": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cleanse_pressure": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"tenacity_tax_s": { "min_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 }
+	  }
+	},
+	"reposition": {
+	  "k_of_n": { "k": 1, "n": 3 },
+	  "metrics": {
+		"max_step_tiles": { "min_by_cost": { "1": 0.75, "2": 0.75, "3": 0.75, "4": 0.75, "5": 0.75 }, "tolerance": 0.10 },
+		"post_cast_displacement_tiles": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"total_path_tiles": { "min_by_cost": { "1": 3.0, "2": 3.0, "3": 3.0, "4": 3.0, "5": 3.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"amp": {
+	  "k_of_n": { "k": 1, "n": 3 },
+	  "metrics": {
+		"ally_buffs_to_others": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"ally_buff_magnitude_to_others": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"amp_output_delta": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"debuff": {
+	  "k_of_n": { "k": 1, "n": 4 },
+	  "metrics": {
+		"enemy_debuffs": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"debuff_magnitude": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cleanse_pressure": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cleanse_bait_rate": { "min_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 }
+	  }
+	},
+	"cc_immunity": {
+	  "k_of_n": { "k": 1, "n": 3 },
+	  "metrics": {
+		"cc_immunity_applied": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cc_prevented": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"counter_cooldown_trade_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"untargetable": {
+	  "k_of_n": { "k": 2, "n": 4 },
+	  "metrics": {
+		"untargetable_frames_pct": { "min_by_cost": { "1": 0.05, "2": 0.05, "3": 0.05, "4": 0.05, "5": 0.05 }, "tolerance": 0.10 },
+		"untargetable_time_s": { "min_by_cost": { "1": 0.50, "2": 0.50, "3": 0.50, "4": 0.50, "5": 0.50 }, "tolerance": 0.10 },
+		"key_threat_dodge_rate": { "min_by_cost": { "1": 0.50, "2": 0.50, "3": 0.50, "4": 0.50, "5": 0.50 }, "tolerance": 0.10 },
+		"cooldown_trade_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"incoming_share": { "max_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 },
+		"survival_s": { "min_by_cost": { "1": 8.0, "2": 8.0, "3": 8.0, "4": 8.0, "5": 8.0 }, "tolerance": 0.10 },
+		"post_cast_displacement_tiles": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"cc_prevented": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"redirect": {
+	  "k_of_n": { "k": 1, "n": 2 },
+	  "metrics": {
+		"redirect_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"redirected_damage_prevented": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"focus_start_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"target_swap_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"enemy_focus_time_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"taunt_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"body_block_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"body_block_damage_prevented": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"redirect_end_risk_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"redirect_end_risk_s": { "min_by_cost": { "1": 0.5, "2": 0.5, "3": 0.5, "4": 0.5, "5": 0.5 }, "tolerance": 0.10 },
+		"incoming_share": { "min_by_cost": { "1": 0.25, "2": 0.25, "3": 0.25, "4": 0.25, "5": 0.25 }, "tolerance": 0.10 },
+		"incoming_total": { "min_by_cost": { "1": 80.0, "2": 100.0, "3": 120.0, "4": 140.0, "5": 160.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"on_hit_effect": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"on_hit_effects": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	},
+	"kite": {
+	  "k_of_n": { "k": 1, "n": 1 },
+	  "metrics": {
+		"attacks_over_2_tiles_share": { "min_by_cost": { "1": 0.55, "2": 0.55, "3": 0.55, "4": 0.55, "5": 0.55 }, "tolerance": 0.10 },
+		"time_on_target_share": { "min_by_cost": { "1": 0.40, "2": 0.40, "3": 0.40, "4": 0.40, "5": 0.40 }, "tolerance": 0.10 }
+	  }
+	},
+	"zone": {
+	  "k_of_n": { "k": 2, "n": 5 },
+	  "metrics": {
+		"frontline_zone_share": { "min_by_cost": { "1": 0.55, "2": 0.55, "3": 0.55, "4": 0.55, "5": 0.55 }, "tolerance": 0.10 },
+		"zone_exposure_events": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"zone_exposure_targets": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"zone_exposure_time_s": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"zone_exposure_damage": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 },
+		"zone_radius_tiles_max": { "min_by_cost": { "1": 1.0, "2": 1.0, "3": 1.0, "4": 1.0, "5": 1.0 }, "tolerance": 0.10 }
+	  }
+	}
+  }
+}

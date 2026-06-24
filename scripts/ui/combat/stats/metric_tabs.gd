@@ -1,10 +1,10 @@
 extends Control
 class_name MetricTabs
 
-signal metric_changed(metric)
+signal metric_changed(metric: String)
 
 # Default metrics per category (minimal MVP mapping)
-var metrics_by_category: Dictionary = {
+var metrics_by_category: Dictionary[String, Array] = {
     "damage": [
         {"key": "damage", "label": "Total"},
         {"key": "dps", "label": "DPS"},
@@ -33,13 +33,14 @@ var metrics_by_category: Dictionary = {
 
 var category: String = "damage"
 var selected_metric: String = "damage"
-var _buttons: Dictionary = {}
+var _buttons: Dictionary[String, Button] = {}
 
 func _ready() -> void:
+    mouse_filter = Control.MOUSE_FILTER_PASS
     _build_for(category)
 
 func set_category(cat: String) -> void:
-    var key := String(cat)
+    var key: String = String(cat)
     if key == category:
         return
     category = key
@@ -51,7 +52,7 @@ func set_metrics_for_category(cat: String, list: Array) -> void:
         _build_for(category)
 
 func set_selected_metric(metric: String) -> void:
-    var key := String(metric)
+    var key: String = String(metric)
     selected_metric = key
     _update_states()
     metric_changed.emit(selected_metric)
@@ -62,7 +63,13 @@ func get_selected_metric() -> String:
 func _build_for(cat: String) -> void:
     _buttons.clear()
     _clear_children()
-    var row := HBoxContainer.new()
+    mouse_filter = Control.MOUSE_FILTER_PASS
+    custom_minimum_size = Vector2(0.0, 34.0)
+    var row: HBoxContainer = HBoxContainer.new()
+    row.mouse_filter = Control.MOUSE_FILTER_PASS
+    row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+    row.add_theme_constant_override("separation", 8)
     add_child(row)
     row.anchor_left = 0.0
     row.anchor_top = 1.0
@@ -79,13 +86,18 @@ func _build_for(cat: String) -> void:
     var first_key: String = String(list[0].get("key", "damage"))
     if not _has_key(list, selected_metric):
         selected_metric = first_key
-    for m in list:
+    for m: Dictionary in list:
         var k: String = String(m.get("key", ""))
         if k == "":
             continue
         var label: String = String(m.get("label", k.capitalize()))
-        var b := Button.new()
+        var b: Button = Button.new()
         b.text = label
+        b.mouse_filter = Control.MOUSE_FILTER_STOP
+        b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        b.focus_mode = Control.FOCUS_ALL
+        b.custom_minimum_size = Vector2(58.0, 30.0)
+        b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         b.toggle_mode = true
         b.pressed.connect(func(): set_selected_metric(k))
         row.add_child(b)
@@ -106,6 +118,6 @@ func _update_states() -> void:
             b.button_pressed = (String(k) == String(selected_metric))
 
 func _clear_children() -> void:
-    for child in get_children():
+    for child: Node in get_children():
         remove_child(child)
         child.queue_free()

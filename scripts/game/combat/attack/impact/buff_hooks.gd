@@ -1,24 +1,24 @@
 extends RefCounted
 class_name BuffHooks
 
-func nyxa_extra_shots(state: BattleState, team: String, index: int) -> int:
+func nyxa_extra_shots(_state: BattleState, _team: String, _index: int) -> int:
 	return 0
 
-func nyxa_per_shot_bonus(state: BattleState, team: String, index: int) -> int:
+func nyxa_per_shot_bonus(_state: BattleState, _team: String, _index: int) -> int:
 	return 0
 
-func korath_absorb_pct(state: BattleState, team: String, index: int) -> float:
+func korath_absorb_pct(_state: BattleState, _team: String, _index: int) -> float:
 	return 0.0
 
-func korath_accumulate_pool(state: BattleState, team: String, index: int, amount: int) -> void:
+func korath_accumulate_pool(_state: BattleState, _team: String, _index: int, _amount: int) -> void:
 	pass
 
-func unstable_pre_phys_bonus(state: BattleState, team: String, index: int, tgt_team: String, target_index: int) -> float:
+func unstable_pre_phys_bonus(_state: BattleState, _team: String, _index: int, _tgt_team: String, _target_index: int) -> float:
 	return 0.0
 
 # Executioner specials
-func exec_ignore_shields_on_crit(state: BattleState, team: String, index: int) -> bool:
+func exec_ignore_shields_on_crit(_state: BattleState, _team: String, _index: int) -> bool:
 	return false
 
-func exec_true_bonus_pct(state: BattleState, team: String, index: int) -> float:
+func exec_true_bonus_pct(_state: BattleState, _team: String, _index: int) -> float:
 	return 0.0

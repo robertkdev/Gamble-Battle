@@ -11,3 +11,4 @@ icon_path = "res://assets/items/wand_icon.png"
 stat_mods = {"flat_sp": 40.0}
 effects = []
 components = []
+tags = PackedStringArray("mage")

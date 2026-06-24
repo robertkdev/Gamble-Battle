@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://tcub42c61gvc"]
+
+[node name="root" type="Node"]
+
+[node name="IdentityProbe" type="Node" parent="."]
+script = "res://tests/rga_testing/validation/identity_probe.gd"

@@ -3,6 +3,7 @@ class_name UnitView
 
 const UI = preload("res://scripts/constants/ui_constants.gd")
 const TextureUtils = preload("res://scripts/util/texture_utils.gd")
+const UnitEffectPlayer = preload("res://scripts/ui/vfx/unit_effect_player.gd")
 
 var unit
 var sprite
@@ -10,21 +11,33 @@ var hp_bar
 var mana_bar
 var hp_ticks
 var mana_ticks
-var _levelup_flash_tween: Tween
-var _scan_material: ShaderMaterial
-var _scan_tween: Tween
+var _effect_player: UnitEffectPlayer
+var _bench_mode: bool = false
+var _bench_frame: Panel = null
 
 const TILE_SIZE = UI.TILE_SIZE
 
 func _ready() -> void:
 	super._ready()
 	_ensure_children()
+	_ensure_effect_player()
 	# Drag base config
 	content_root_path = NodePath(".")
 	drag_size = Vector2(TILE_SIZE, TILE_SIZE)
 	# Drag phases left default (allowed) to avoid compile-time deps
 
 func _ensure_children() -> void:
+	if _bench_frame == null:
+		_bench_frame = Panel.new()
+		_bench_frame.name = "BenchFrame"
+		_bench_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_bench_frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_bench_frame.offset_left = 0.0
+		_bench_frame.offset_top = 0.0
+		_bench_frame.offset_right = 0.0
+		_bench_frame.offset_bottom = 0.0
+		_bench_frame.z_index = -1
+		add_child(_bench_frame)
 	if not sprite:
 		sprite = TextureRect.new()
 		sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -39,6 +52,7 @@ func _ensure_children() -> void:
 		sprite.offset_top = 0.0
 		sprite.offset_right = 0.0
 		sprite.offset_bottom = 0.0
+	_update_effect_player_sprite()
 	if not hp_bar:
 		hp_bar = load("res://scripts/ui/combat/ui_bars.gd").make_hp_bar()
 		add_child(hp_bar)
@@ -95,7 +109,72 @@ func _ensure_children() -> void:
 			mana_ticks.major_step = 50
 			mana_ticks.minor_color = Color(0, 0, 0, 0.5)
 			mana_ticks.major_color = Color(0, 0, 0, 0.7)
+	_apply_display_mode()
 	# DragAndDroppable wires gui_input
+
+func set_bench_mode(enabled: bool) -> void:
+	_bench_mode = bool(enabled)
+	_ensure_children()
+	_apply_display_mode()
+
+func _apply_display_mode() -> void:
+	if _bench_frame:
+		_bench_frame.visible = _bench_mode
+		if _bench_mode:
+			_bench_frame.add_theme_stylebox_override("panel", _make_bench_frame_style())
+	if hp_bar:
+		hp_bar.offset_left = 8.0 if _bench_mode else 0.0
+		hp_bar.offset_top = 5.0 if _bench_mode else -22.0
+		hp_bar.offset_right = -8.0 if _bench_mode else 0.0
+		hp_bar.offset_bottom = 11.0 if _bench_mode else -14.0
+	if hp_ticks:
+		hp_ticks.offset_left = 8.0 if _bench_mode else 0.0
+		hp_ticks.offset_top = 5.0 if _bench_mode else -22.0
+		hp_ticks.offset_right = -8.0 if _bench_mode else 0.0
+		hp_ticks.offset_bottom = 11.0 if _bench_mode else -14.0
+	if mana_bar:
+		mana_bar.offset_left = 8.0 if _bench_mode else 0.0
+		mana_bar.offset_top = 13.0 if _bench_mode else -12.0
+		mana_bar.offset_right = -8.0 if _bench_mode else 0.0
+		mana_bar.offset_bottom = 18.0 if _bench_mode else -6.0
+	if mana_ticks:
+		mana_ticks.offset_left = 8.0 if _bench_mode else 0.0
+		mana_ticks.offset_top = 13.0 if _bench_mode else -12.0
+		mana_ticks.offset_right = -8.0 if _bench_mode else 0.0
+		mana_ticks.offset_bottom = 18.0 if _bench_mode else -6.0
+	if sprite:
+		sprite.offset_left = 7.0 if _bench_mode else 0.0
+		sprite.offset_top = 14.0 if _bench_mode else 0.0
+		sprite.offset_right = -7.0 if _bench_mode else 0.0
+		sprite.offset_bottom = -5.0 if _bench_mode else 0.0
+		sprite.modulate = Color(0.94, 0.90, 0.82, 1.0) if _bench_mode else Color(1.0, 1.0, 1.0, 1.0)
+	_set_bars_visible(_bench_mode)
+
+func _set_bars_visible(visible_bars: bool) -> void:
+	if hp_bar:
+		hp_bar.visible = visible_bars
+	if hp_ticks:
+		hp_ticks.visible = visible_bars
+	if mana_bar:
+		mana_bar.visible = visible_bars
+	if mana_ticks:
+		mana_ticks.visible = visible_bars
+
+func _make_bench_frame_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.015, 0.022, 0.78)
+	style.border_color = Color(0.33, 0.25, 0.22, 0.78)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_right = 4
+	style.corner_radius_bottom_left = 4
+	style.shadow_size = 4
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
+	return style
 
 func set_unit(u: Unit) -> void:
 	unit = u
@@ -124,89 +203,22 @@ func _refresh_visual() -> void:
 		if mana_ticks:
 			mana_ticks.max_value = max(0, unit.mana_max)
 
-func play_level_up(to_level: int = 0) -> void:
-	# Scale punch + quick flash on sprite, plus expanding ring VFX
+func play_level_up(to_level: int = 0, opts: Dictionary = {}) -> void:
 	_ensure_children()
-	# Debug print to verify this is firing
-	var uname: String = (String(unit.name) if unit != null else "")
-	print("[UnitView] play_level_up -> ", uname, " to ", int(to_level))
-	if sprite:
-		# Kill existing tween
-		if _levelup_flash_tween and is_instance_valid(_levelup_flash_tween):
-			_levelup_flash_tween.kill()
-		var base_scale = sprite.scale
-		var base_mod = sprite.modulate
-		sprite.modulate = Color(1, 1, 1, 1)
-		_levelup_flash_tween = create_tween()
-		_levelup_flash_tween.set_parallel(true)
-		_levelup_flash_tween.tween_property(sprite, "scale", base_scale * 1.15, 0.12).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		_levelup_flash_tween.tween_property(sprite, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.05)
-		_levelup_flash_tween.chain().set_parallel(true)
-		_levelup_flash_tween.tween_property(sprite, "scale", base_scale, 0.14).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		_levelup_flash_tween.tween_property(sprite, "modulate", base_mod, 0.14)
-	# Spawn ring VFX centered over the tile
-	var ring = load("res://scripts/ui/vfx/level_up_vfx.gd").new()
-	add_child(ring)
-	ring.z_index = 100
-	ring.anchor_left = 0.0
-	ring.anchor_top = 0.0
-	ring.anchor_right = 1.0
-	ring.anchor_bottom = 1.0
-	ring.offset_left = 0
-	ring.offset_top = 0
-	ring.offset_right = 0
-	ring.offset_bottom = 0
-	# Slightly increase radii on higher level ups
-	if to_level >= 3:
-		ring.end_radius = 40.0
-		ring.color = Color(1.0, 0.92, 0.55, 0.95)
+	_ensure_effect_player()
+	_update_effect_player_sprite()
 
-	# Strong debug flash overlay to guarantee visibility during testing
-	var flash := ColorRect.new()
-	flash.color = Color(1, 1, 1, 0.45)
-	add_child(flash)
-	flash.z_index = 120
-	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
-	flash.offset_left = 0
-	flash.offset_top = 0
-	flash.offset_right = 0
-	flash.offset_bottom = 0
-	var ft := create_tween()
-	ft.tween_property(flash, "modulate:a", 0.0, 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	ft.finished.connect(func(): if is_instance_valid(flash): flash.queue_free())
+	var payload: Dictionary = opts.duplicate(true)
+	payload["level"] = to_level
+	_effect_player.play(UnitEffectPlayer.EFFECT_LEVEL_UP, payload)
 
-	# Bottom-up scan highlight over the sprite's non-transparent pixels
-	_play_scan_highlight(0.55)
+func play_hit_flash(opts: Dictionary = {}) -> void:
+	_ensure_children()
+	_ensure_effect_player()
+	_update_effect_player_sprite()
+	var payload: Dictionary = opts.duplicate(true)
 
-func _play_scan_highlight(duration: float = 0.6) -> void:
-	if sprite == null:
-		return
-	# Build/reuse shader material
-	if _scan_material == null or not is_instance_valid(_scan_material):
-		var sh: Shader = load("res://shaders/scan_highlight.gdshader")
-		var mat := ShaderMaterial.new()
-		mat.shader = sh
-		_scan_material = mat
-	_scan_material.set_shader_parameter("width", 0.22)
-	_scan_material.set_shader_parameter("strength", 0.85)
-	_scan_material.set_shader_parameter("alpha_threshold", 0.01)
-	_scan_material.set_shader_parameter("color", Color(1.0, 0.9, 0.3, 1.0))
-	_scan_material.set_shader_parameter("progress", 0.0)
-	# Apply to sprite
-	sprite.material = _scan_material
-	# Animate progress 0->1 (bottom to top)
-	if _scan_tween and is_instance_valid(_scan_tween):
-		_scan_tween.kill()
-	_scan_tween = create_tween()
-	_scan_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	var setter := func(v): if _scan_material and is_instance_valid(_scan_material): _scan_material.set_shader_parameter("progress", float(v))
-	_scan_tween.tween_method(setter, 0.0, 1.0, max(0.1, float(duration)))
-	_scan_tween.finished.connect(func():
-		if is_instance_valid(self) and is_instance_valid(sprite):
-			# Clear material to avoid affecting normal rendering
-			if sprite.material == _scan_material:
-				sprite.material = null
-	)
+	_effect_player.play(UnitEffectPlayer.EFFECT_HIT, payload)
 
 func update_from_unit(u: Unit) -> void:
 	if unit != u:
@@ -230,10 +242,22 @@ func attach_to(tile: Control) -> void:
 	offset_bottom = 0.0
 	if _grid:
 		_orig_tile_idx = _grid.index_of(self)
+	_apply_display_mode()
 
 func enable_drag(grid: BoardGrid) -> void:
 	set_drop_grid(grid)
 
+func _ensure_effect_player() -> void:
+	if _effect_player and is_instance_valid(_effect_player):
+		return
+	_effect_player = UnitEffectPlayer.new()
+	_effect_player.name = "UnitEffectPlayer"
+	add_child(_effect_player)
+	_effect_player.configure(self, sprite)
+
+func _update_effect_player_sprite() -> void:
+	if _effect_player and is_instance_valid(_effect_player):
+		_effect_player.set_sprite(sprite)
 
 
 

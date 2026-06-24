@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6wj7sp4ryerc"]
+
+[ext_resource type="Script" uid="uid://b3rj5x7p8x4ge" path="res://tests/rga_testing_3/dps_runner2.gd" id="1"]
+
+[node name="DPSTest" type="Node"]
+script = ExtResource("1")

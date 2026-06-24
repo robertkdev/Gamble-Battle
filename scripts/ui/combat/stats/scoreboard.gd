@@ -22,6 +22,7 @@ var metric: String = "damage"
 var window: String = "ALL"
 var norm_mode: int = ScoreboardModel.NormMode.TEAM_SHARE
 var expanded: bool = false
+var expand_enabled: bool = true
 
 var refresh_interval: float = 0.3
 var _accum: float = 0.0
@@ -31,6 +32,7 @@ func _ready() -> void:
 	if expand_button and not expand_button.is_connected("pressed", Callable(self, "_on_toggle_expand")):
 		expand_button.pressed.connect(_on_toggle_expand)
 	_build_overlay()
+	set_expanded(false)
 	# Ensure in-panel enemy column never forces layout
 	if enemy_col:
 		enemy_col.visible = false
@@ -44,7 +46,15 @@ func configure(_tracker: StatsTracker) -> void:
 func set_metric(m: String) -> void: metric = m
 func set_window(w: String) -> void: window = w
 func set_norm_mode(n: int) -> void: norm_mode = n
+func set_expand_enabled(flag: bool) -> void:
+	expand_enabled = flag
+	if not expand_enabled:
+		set_expanded(false)
+	_sync_expand_button()
+
 func set_expanded(flag: bool) -> void:
+	if flag and not expand_enabled:
+		flag = false
 	expanded = flag
 	if overlay:
 		overlay.visible = expanded
@@ -52,10 +62,12 @@ func set_expanded(flag: bool) -> void:
 	# Keep embedded enemy column hidden to avoid container expansion
 	if enemy_col:
 		enemy_col.visible = false
-	if expand_button:
-		expand_button.text = ("<<" if expanded else ">>")
+	_sync_expand_button()
 
 func _on_toggle_expand() -> void:
+	if not expand_enabled:
+		set_expanded(false)
+		return
 	set_expanded(not expanded)
 
 func _process(delta: float) -> void:
@@ -91,15 +103,16 @@ func _apply_rows(col: VBoxContainer, rows: Array, team_total: float) -> void:
 		if row_node == null:
 			row_node = load("res://scenes/ui/stats/ScoreboardRow.tscn").instantiate()
 			col.add_child(row_node)
+		r["metric"] = metric
 		row_node.set_row_data(r)
 		# Tooltip using window + team_total context
-		var uname := ""
+		var uname: String = ""
 		var u: Unit = r.get("unit")
 		if u != null:
 			uname = String(u.name)
-		var tip := TooltipSvc.row_tooltip(metric, window, float(r.get("value", 0.0)), float(r.get("share", 0.0)), uname, team_total)
+		var tip: String = TooltipSvc.row_tooltip(metric, window, float(r.get("value", 0.0)), float(r.get("share", 0.0)), uname, team_total)
 		if metric == "damage" and tracker != null:
-			var br := tracker.damage_breakdown(String(r.get("team")), int(r.get("index", -1)))
+			var br: Dictionary = tracker.damage_breakdown(String(r.get("team")), int(r.get("index", -1)))
 			if br != null and not br.is_empty():
 				tip = TooltipSvc.row_tooltip(metric, window, float(r.get("value", 0.0)), float(r.get("share", 0.0)), uname, team_total, br)
 		row_node.tooltip_text = tip
@@ -133,7 +146,8 @@ func _build_overlay() -> void:
 	overlay.z_index = 1000
 	add_child(overlay)
 	# Container inside overlay
-	var panel := PanelContainer.new()
+	var panel: PanelContainer = PanelContainer.new()
+	panel.name = "EnemyLedgerPanel"
 	overlay.add_child(panel)
 	panel.anchor_left = 0.0
 	panel.anchor_right = 1.0
@@ -144,18 +158,52 @@ func _build_overlay() -> void:
 	panel.offset_top = 0.0
 	panel.offset_bottom = 0.0
 	panel.clip_contents = true
+	panel.add_theme_stylebox_override("panel", _make_overlay_style())
 	overlay_enemy_col = VBoxContainer.new()
 	overlay_enemy_col.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	overlay_enemy_col.add_theme_constant_override("separation", 8)
 	panel.add_child(overlay_enemy_col)
 
 func _layout_overlay() -> void:
 	if overlay == null:
 		return
 	# Desired rect: match Body rows area and extend left
-	var area_rect := (body_box.get_global_rect() if body_box != null else get_global_rect())
-	var pc_rect := (player_col.get_global_rect() if player_col != null else Rect2())
+	var area_rect: Rect2 = (body_box.get_global_rect() if body_box != null else get_global_rect())
+	var pc_rect: Rect2 = (player_col.get_global_rect() if player_col != null else Rect2())
 	var w: float = pc_rect.size.x
 	if w <= 0.0:
 		w = float(overlay_width)
+	var row_count: int = 0
+	if overlay_enemy_col != null:
+		row_count = overlay_enemy_col.get_child_count()
+	var target_height: float = clampf(18.0 + float(row_count) * 62.0, 96.0, area_rect.size.y)
 	overlay.position = Vector2(area_rect.position.x - w, area_rect.position.y)
-	overlay.size = Vector2(w, area_rect.size.y)
+	overlay.size = Vector2(w, target_height)
+
+func _make_overlay_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.018, 0.015, 0.022, 0.96)
+	style.border_color = Color(0.42, 0.050, 0.070, 0.88)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.shadow_size = 10
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48)
+	style.content_margin_left = 8
+	style.content_margin_top = 8
+	style.content_margin_right = 8
+	style.content_margin_bottom = 8
+	return style
+
+func _sync_expand_button() -> void:
+	if expand_button == null:
+		return
+	expand_button.visible = expand_enabled
+	expand_button.disabled = not expand_enabled
+	expand_button.text = (">>" if expanded else "<<")
+	expand_button.tooltip_text = "Hide enemy ledger" if expanded else "Show enemy ledger"

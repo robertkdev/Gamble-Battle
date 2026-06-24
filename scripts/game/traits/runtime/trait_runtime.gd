@@ -62,13 +62,13 @@ func unwire_signals() -> void:
 
 func on_battle_start() -> void:
 	for _k in handlers.keys():
-		var h = handlers[_k]
+		var h: Variant = handlers[_k]
 		if h != null and h.has_method("on_battle_start"):
 			h.on_battle_start(ctx)
 
 func on_battle_end() -> void:
 	for _k in handlers.keys():
-		var h = handlers[_k]
+		var h: Variant = handlers[_k]
 		if h != null and h.has_method("on_battle_end"):
 			h.on_battle_end(ctx)
 
@@ -76,7 +76,7 @@ func process(delta: float) -> void:
 	if delta <= 0.0:
 		return
 	for _k in handlers.keys():
-		var h = handlers[_k]
+		var h: Variant = handlers[_k]
 		if h != null and h.has_method("on_tick"):
 			h.on_tick(ctx, float(delta))
 
@@ -90,18 +90,18 @@ func _instantiate_handlers() -> void:
 	for k2 in e.get("counts", {}).keys(): traits.append(String(k2))
 	var seen: Dictionary = {}
 	for t in traits:
-		var tid := String(t)
+		var tid: String = String(t)
 		if seen.has(tid):
 			continue
 		seen[tid] = true
-		var h = registry.instantiate(tid)
+		var h: Variant = registry.instantiate(tid)
 		if h != null:
 			handlers[tid] = h
 
 # === Signal handlers ===
 func _on_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
 	for _k in handlers.keys():
-		var h = handlers[_k]
+		var h: Variant = handlers[_k]
 		if h == null or not h.has_method("on_ability_cast"):
 			continue
 		var argc: int = _resolve_method_argc(h, "on_ability_cast")
@@ -121,12 +121,12 @@ func _resolve_method_argc(obj, method_name: String) -> int:
 		return -1
 	for meta in obj.get_method_list():
 		if String(meta.get("name", "")) == method_name:
-			var args = meta.get("args", [])
+			var args: Variant = meta.get("args", [])
 			return args.size() if args is Array else 0
 	return -1
 
 func _on_hit_applied(team: String, shooter_index: int, target_index: int, rolled_damage: int, dealt_damage: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float) -> void:
-	var evt := {
+	var evt: Dictionary = {
 		"team": String(team),
 		"source_index": int(shooter_index),
 		"target_index": int(target_index),
@@ -142,16 +142,21 @@ func _on_hit_applied(team: String, shooter_index: int, target_index: int, rolled
 	if kill_events != null:
 		var tgt_team: String = ("enemy" if team == "player" else "player")
 		kill_events.on_damage(String(team), int(shooter_index), tgt_team, int(target_index), int(dealt_damage), int(after_hp), "attack")
+	var is_basic_attack: bool = not (float(player_cd) == 0.0 and float(enemy_cd) == 0.0)
 	for _k in handlers.keys():
-		var h = handlers[_k]
+		var h: Variant = handlers[_k]
 		if h != null and h.has_method("on_hit_applied"):
+			if is_basic_attack and buff_system != null and buff_system.has_method("push_source"):
+				buff_system.push_source(String(team), int(shooter_index), "on_hit")
 			h.on_hit_applied(ctx, evt)
+			if is_basic_attack and buff_system != null and buff_system.has_method("pop_source"):
+				buff_system.pop_source()
 
 func _on_outcome(_stage: int) -> void:
 	on_battle_end()
 
 func _on_unit_killed(source_team: String, source_index: int, target_team: String, target_index: int, _kind: String = "") -> void:
 	for _k in handlers.keys():
-		var h = handlers[_k]
+		var h: Variant = handlers[_k]
 		if h != null and h.has_method("on_unit_killed"):
 			h.on_unit_killed(ctx, String(source_team), int(source_index), String(target_team), int(target_index))

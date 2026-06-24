@@ -54,6 +54,7 @@ static func _build_unit_timelines(team: Array) -> Array:
     var out: Array = []
     if not (team is Array):
         return out
+    var priority_found: bool = false
     for idx in range(team.size()):
         var unit = team[idx]
         if unit == null:
@@ -64,13 +65,25 @@ static func _build_unit_timelines(team: Array) -> Array:
             entries.append(_static_timeline(TAG_CARRY))
         if _is_frontline(unit):
             entries.append(_static_timeline(TAG_FRONTLINE))
-        if _is_priority_target(unit):
+        var is_priority: bool = _is_priority_target(unit)
+        if is_priority:
             entries.append(_static_timeline(TAG_PRIORITY))
+            priority_found = true
         out.append({
             "unit_index": idx,
             "unit_id": String(unit.id),
             "entries": entries
         })
+    if not priority_found:
+        for entry_value in out:
+            if not (entry_value is Dictionary):
+                continue
+            var entry: Dictionary = entry_value
+            if String(entry.get("unit_id", "")).strip_edges() == "":
+                continue
+            var entries_for_unit: Array = entry.get("entries", [])
+            entries_for_unit.append(_static_timeline(TAG_PRIORITY))
+            entry["entries"] = entries_for_unit
     return out
 
 static func _static_timeline(tag: String) -> Dictionary:
@@ -110,7 +123,7 @@ static func _is_priority_target(unit) -> bool:
     var goal := String(unit.primary_goal).strip_edges().to_lower()
     if goal.find("support") >= 0 and goal.find("carry") >= 0:
         return true
-    var approaches := unit.approaches if unit.approaches is Array else []
+    var approaches: Array = unit.approaches if unit.approaches is Array else []
     for app in approaches:
         var s := String(app).strip_edges().to_lower()
         if s in ["backline", "amplify", "pick", "execute"]:
@@ -139,6 +152,7 @@ static func _build_zones(team: Array, team_positions: Array, enemy_team: Array, 
         var back_max := 0.0
         var lateral_weight := 0.0
         var lateral_total := 0.0
+        var lateral_max: float = 0.0
         for idx in range(team_positions.size()):
             var pos = team_positions[idx]
             if not (pos is Vector2):
@@ -148,23 +162,25 @@ static func _build_zones(team: Array, team_positions: Array, enemy_team: Array, 
                 unit = team[idx]
             if unit == null:
                 continue
-            var hp_weight := max(1.0, float(unit.max_hp))
-            var offset := pos - centroid_self
-            var proj := offset.dot(forward)
+            var hp_weight: float = max(1.0, float(unit.max_hp))
+            var offset: Vector2 = pos - centroid_self
+            var proj: float = offset.dot(forward)
             if proj >= 0.0:
                 front_weight += hp_weight
                 front_total += proj * hp_weight
                 if proj > front_max:
                     front_max = proj
             else:
-                var back_proj := -proj
+                var back_proj: float = -proj
                 back_weight += hp_weight
                 back_total += back_proj * hp_weight
                 if back_proj > back_max:
                     back_max = back_proj
-            var lateral := abs(offset.dot(perp))
+            var lateral: float = abs(offset.dot(perp))
             lateral_weight += hp_weight
             lateral_total += lateral * hp_weight
+            if lateral > lateral_max:
+                lateral_max = lateral
         if front_weight > 0.0:
             front_offset = front_total / front_weight
         else:
@@ -175,6 +191,7 @@ static func _build_zones(team: Array, team_positions: Array, enemy_team: Array, 
             back_offset = back_max
         if lateral_weight > 0.0:
             half_width = lateral_total / lateral_weight
+        half_width = max(half_width, lateral_max)
     var front_center := centroid_self + forward * front_offset
     var back_center := centroid_self - forward * back_offset
     return {
@@ -206,7 +223,7 @@ static func _hp_weighted_centroid(team: Array, positions: Array) -> Vector2:
             unit = team[idx]
         if unit == null:
             continue
-        var hp_weight := max(1.0, float(unit.max_hp))
+        var hp_weight: float = max(1.0, float(unit.max_hp))
         accum += pos * hp_weight
         total += hp_weight
     if total <= 0.0:

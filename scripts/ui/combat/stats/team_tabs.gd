@@ -56,6 +56,8 @@ func _build() -> void:
         var b := Button.new()
         b.text = label
         b.toggle_mode = true
+        b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        b.focus_mode = Control.FOCUS_ALL
         b.pressed.connect(func(): set_selected_category(key))
         row.add_child(b)
         _buttons[key] = b
@@ -71,4 +73,3 @@ func _clear_children() -> void:
     for child in get_children():
         remove_child(child)
         child.queue_free()
-

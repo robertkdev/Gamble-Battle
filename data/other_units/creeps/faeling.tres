@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource path="res://data/identity/unit_identities/faeling_identity.tres" type="Resource" id=2]
+
+[resource]
+script = ExtResource( 1 )
+id = "faeling"
+name = "Faeling"
+sprite_path = "res://assets/creeps/faeling.png"
+ability_id = "creep_eavesdropping"
+traits = []
+roles = ["mage"]
+cost = 0
+level = 1
+identity = ExtResource( 2 )

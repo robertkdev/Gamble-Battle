@@ -3,6 +3,7 @@ class_name Unit
 const Health := preload("res://scripts/game/stats/health.gd")
 const Mana := preload("res://scripts/game/stats/mana.gd")
 const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
+const UnitDefaults := preload("res://scripts/game/units/unit_defaults.gd")
 
 # Identity
 var id: String = ""
@@ -20,30 +21,30 @@ var alt_goals: Array[String] = []
 var identity: UnitIdentity = null
 
 # Health
-var max_hp: int = 1
-var hp: int = 1
-var hp_regen: float = 0.0
+var max_hp: int = int(UnitDefaults.BASELINE_STATS["max_hp"])
+var hp: int = int(UnitDefaults.BASELINE_STATS["max_hp"])
+var hp_regen: float = float(UnitDefaults.BASELINE_STATS["hp_regen"])
 
 # Offense
-var attack_damage: float = 0.0 # AD
-var spell_power: float = 0.0   # SP
-var attack_speed: float = 1.0 # AS attacks/second (rate of fire)
-var crit_chance: float = 0.05 # 0..1
-var crit_damage: float = 2.0  # 1.0 = no bonus, 2.0 = double
-var true_damage: float = 0.0  # flat true damage
-var lifesteal: float = 0.0    # 0..1
-var attack_range: int = 1
+var attack_damage: float = float(UnitDefaults.BASELINE_STATS["attack_damage"]) # AD
+var spell_power: float = float(UnitDefaults.BASELINE_STATS["spell_power"])   # SP
+var attack_speed: float = float(UnitDefaults.BASELINE_STATS["attack_speed"]) # AS attacks/second (rate of fire)
+var crit_chance: float = float(UnitDefaults.BASELINE_STATS["crit_chance"]) # 0..1
+var crit_damage: float = float(UnitDefaults.BASELINE_STATS["crit_damage"])  # 1.0 = no bonus, 2.0 = double
+var true_damage: float = float(UnitDefaults.BASELINE_STATS["true_damage"])  # flat true damage
+var lifesteal: float = float(UnitDefaults.BASELINE_STATS["lifesteal"])    # 0..1
+var attack_range: int = int(UnitDefaults.BASELINE_STATS["attack_range"])
 var move_speed: float = 120.0 #120
 
 # Defense
-var armor: float = 0.0
-var magic_resist: float = 0.0
+var armor: float = float(UnitDefaults.BASELINE_STATS["armor"])
+var magic_resist: float = float(UnitDefaults.BASELINE_STATS["magic_resist"])
 var block_chance: float = 0.0     # 0..1
 var damage_reduction: float = 0.0 # 0..1 (reserved)
-var armor_pen_flat: float = 0.0
-var armor_pen_pct: float = 0.0
-var mr_pen_flat: float = 0.0
-var mr_pen_pct: float = 0.0
+var armor_pen_flat: float = float(UnitDefaults.BASELINE_STATS["armor_pen_flat"])
+var armor_pen_pct: float = float(UnitDefaults.BASELINE_STATS["armor_pen_pct"])
+var mr_pen_flat: float = float(UnitDefaults.BASELINE_STATS["mr_pen_flat"])
+var mr_pen_pct: float = float(UnitDefaults.BASELINE_STATS["mr_pen_pct"])
 
 # Global flat damage reduction (applies after armor/MR and percent DR, before shields)
 var damage_reduction_flat: float = 0.0
@@ -53,11 +54,11 @@ var tenacity: float = 0.0
 
 # Mana
 var mana: int = 0
-var mana_max: int = 0      # ability cost
-var mana_start: int = 0
-var mana_regen: float = 0.0
-var cast_speed: float = 1.0
-var mana_gain_per_attack: int = 30
+var mana_max: int = int(UnitDefaults.BASELINE_STATS["mana_max"])      # ability cost
+var mana_start: int = int(UnitDefaults.BASELINE_STATS["mana_start"])
+var mana_regen: float = float(UnitDefaults.BASELINE_STATS["mana_regen"])
+var cast_speed: float = float(UnitDefaults.BASELINE_STATS["cast_speed"])
+var mana_gain_per_attack: int = int(UnitDefaults.BASELINE_STATS["mana_gain_per_attack"])
 
 # UI helper: total active shield amount (for rendering). Updated by BuffSystem.
 var ui_shield: int = 0
@@ -77,14 +78,13 @@ func take_damage(amount: int) -> int:
 	return int(res.get("dealt", int(max(0, amount))))
 
 func attack_roll(rng: RandomNumberGenerator) -> Dictionary:
-	# returns { damage:int, crit:bool }
-	var crit := rng.randf() < crit_chance
-	var dmg_f := float(attack_damage) * (crit_damage if crit else 1.0) + true_damage
-	return { "damage": int(round(dmg_f)), "crit": crit }
+	# Deprecated: prefer AttackRoller.roll; keep for compatibility
+	var roller := preload("res://scripts/game/combat/attack/roll/attack_roller.gd").new()
+	roller.deterministic = false
+	return roller.roll(self, rng)
 
 func end_of_turn() -> void:
-	# Delegate to centralized systems for regen
-	Health.regen_tick(self, 1.0)
+	# Delegate to centralized systems for regen (mana only; health handled elsewhere)
 	Mana.regen_tick(self, 1.0)
 
 func summary() -> String:

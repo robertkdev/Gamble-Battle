@@ -61,7 +61,13 @@ func on_hit_applied(ctx, event: Dictionary):
     })
     # Optional: tag target for visibility
     if ctx.buff_system != null:
+        var pushed_source: bool = false
+        if ctx.buff_system.has_method("push_source"):
+            ctx.buff_system.push_source(team, src_idx, "trait")
+            pushed_source = true
         ctx.buff_system.apply_tag(ctx.state, tgt_team, tgt_idx, BuffTags.TAG_EXEC_BLEED, BLEED_DURATION, {"dps": float(per_tick) / max(0.001, BLEED_TICK)})
+        if pushed_source and ctx.buff_system.has_method("pop_source"):
+            ctx.buff_system.pop_source()
 
 func on_tick(ctx, delta: float):
     if _bleeds.is_empty():
@@ -84,7 +90,9 @@ func on_tick(ctx, delta: float):
             if tgt == null or not tgt.is_alive():
                 remain = 0.0
                 break
-            AbilityEffects.damage_single(ctx.engine, ctx.state, src_team, src_index, tgt_index, per_tick, "true")
+            var tick_result: Dictionary = AbilityEffects.damage_single(ctx.engine, ctx.state, src_team, src_index, tgt_index, per_tick, "true")
+            if bool(tick_result.get("processed", false)) and ctx.engine != null and ctx.engine.has_method("_resolver_emit_dot_tick_applied"):
+                ctx.engine._resolver_emit_dot_tick_applied(src_team, src_index, tgt_team, tgt_index, per_tick, "executioner_bleed")
         if remain > 0.0:
             b["remain"] = remain
             b["acc"] = acc

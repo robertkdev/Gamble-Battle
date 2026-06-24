@@ -21,6 +21,7 @@ var _unit_team: String = "player"
 var _unit_index: int = -1
 
 func _ready() -> void:
+    _configure_input_routing()
     set_process(false)
     # Wire header window buttons
     if btn_all and not btn_all.is_connected("pressed", Callable(self, "_on_window_all")):
@@ -56,13 +57,13 @@ func _unhandled_input(event: InputEvent) -> void:
         return
     if not (event is InputEventMouseButton):
         return
-    var mb := event as InputEventMouseButton
+    var mb: InputEventMouseButton = event as InputEventMouseButton
     if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
         return
     # If click is outside the unit panel rect, revert to team view
     if unit_panel and unit_panel.visible:
-        var r := unit_panel.get_global_rect()
-        var mp := get_viewport().get_mouse_position()
+        var r: Rect2 = unit_panel.get_global_rect()
+        var mp: Vector2 = get_viewport().get_mouse_position()
         if not r.has_point(mp):
             show_team_metrics()
 
@@ -89,6 +90,7 @@ func show_team_metrics() -> void:
     mode = Mode.TEAM
     if title_label:
         title_label.text = "Team Metrics"
+        title_label.add_theme_color_override("font_color", Color(0.92, 0.68, 0.34, 1.0))
     if scoreboard:
         scoreboard.visible = true
     if unit_panel:
@@ -104,7 +106,8 @@ func show_unit_metrics_ctx(team: String, index: int, u: Unit) -> void:
 func show_unit_metrics(u: Unit) -> void:
     mode = Mode.UNIT
     if title_label:
-        title_label.text = "Unit Metrics"
+        title_label.text = "Enemy Unit" if _unit_team == "enemy" else "Player Unit"
+        title_label.add_theme_color_override("font_color", Color(0.95, 0.45, 0.36, 1.0) if _unit_team == "enemy" else Color(0.92, 0.68, 0.34, 1.0))
     if unit_panel:
         unit_panel.set_unit(u)
         unit_panel.visible = true
@@ -112,20 +115,42 @@ func show_unit_metrics(u: Unit) -> void:
         scoreboard.visible = false
 
 func _on_window_all() -> void:
+    if mode == Mode.UNIT:
+        show_team_metrics()
     if btn_all: btn_all.button_pressed = true
     if btn_3s: btn_3s.button_pressed = false
     if scoreboard:
         scoreboard.set_window("ALL")
 
 func _on_window_3s() -> void:
+    if mode == Mode.UNIT:
+        show_team_metrics()
     if btn_all: btn_all.button_pressed = false
     if btn_3s: btn_3s.button_pressed = true
     if scoreboard:
         scoreboard.set_window("3S")
 
 func _on_metric_changed(key: String) -> void:
+    if mode == Mode.UNIT:
+        show_team_metrics()
     if scoreboard:
         scoreboard.set_metric(key)
+
+func _configure_input_routing() -> void:
+    mouse_filter = Control.MOUSE_FILTER_PASS
+    var shell_nodes: Array[Control] = [
+        $"VBox" as Control,
+        $"VBox/Header" as Control,
+        $"VBox/Header/Spacer" as Control,
+        $"VBox/Body" as Control,
+    ]
+    for shell: Control in shell_nodes:
+        if shell != null:
+            shell.mouse_filter = Control.MOUSE_FILTER_PASS
+    var clickable_nodes: Array[Button] = [btn_all, btn_3s]
+    for button: Button in clickable_nodes:
+        if button != null:
+            button.mouse_filter = Control.MOUSE_FILTER_STOP
 
 func _on_stats_updated(_player: Unit, _enemy: Unit) -> void:
     # No-op for now; UI pulls from tracker periodically

@@ -111,12 +111,12 @@ func _copy_count_map(map: Dictionary) -> Dictionary:
 		return out
 	for key in map.keys():
 		var arr = map[key]
-		var count: int = 0
+		var item_count: int = 0
 		if arr is Array:
-			count = arr.size()
+			item_count = arr.size()
 		elif arr is PackedInt32Array:
-			count = arr.size()
-		out[String(key)] = count
+			item_count = arr.size()
+		out[String(key)] = item_count
 	return out
 
 func _normalize_role(role_id: String) -> String:

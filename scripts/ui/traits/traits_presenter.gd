@@ -77,9 +77,6 @@ func rebuild() -> void:
 		for c in _vbox.get_children():
 			c.queue_free()
 
-	var team: Array = []
-	if manager and manager.has_method("get"): # loose guard; not used
-		pass
 	# Pull on-board team only
 	var board_team: Array = (manager.player_team if manager else [])
 	var compiled: Dictionary = {}
@@ -91,7 +88,7 @@ func rebuild() -> void:
 	# Build visible list: traits on board only (count > 0)
 	var ids: Array[String] = []
 	for k in counts.keys():
-		var c := int(counts[k])
+		var c: int = int(counts[k])
 		if c > 0:
 			ids.append(String(k))
 
@@ -99,16 +96,16 @@ func rebuild() -> void:
 	var active: Array[String] = []
 	var inactive: Array[String] = []
 	for id in ids:
-		var tier := int(tiers.get(id, -1))
+		var tier: int = int(tiers.get(id, -1))
 		if tier >= 0:
 			active.append(id)
 		else:
 			inactive.append(id)
 
-	# Sort each block: count desc, then name A–Z
-	var _by_count_then_name := func(a: String, b: String) -> bool:
-		var ca := int(counts.get(a, 0))
-		var cb := int(counts.get(b, 0))
+	# Sort each block: count desc, then name A-Z
+	var _by_count_then_name: Callable = func(a: String, b: String) -> bool:
+		var ca: int = int(counts.get(a, 0))
+		var cb: int = int(counts.get(b, 0))
 		if ca == cb:
 			return String(a) < String(b)
 		return ca > cb
@@ -121,13 +118,15 @@ func rebuild() -> void:
 
 	# Create icons (icons only; highlight active)
 	for id in ordered:
-		var icon = TraitIconScene.instantiate()
+		var icon: Node = TraitIconScene.instantiate()
 		if icon == null:
 			continue
 		if icon.has_method("set_trait"):
 			icon.call("set_trait", id)
 		if icon.has_method("set_active"):
 			icon.call("set_active", active.has(id))
+		if icon.has_method("set_trait_state"):
+			icon.call("set_trait_state", int(counts.get(id, 0)), int(tiers.get(id, -1)))
 		_vbox.add_child(icon)
 
 	_update_layout()

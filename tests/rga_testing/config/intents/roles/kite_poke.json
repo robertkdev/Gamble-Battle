@@ -1,0 +1,11 @@
+[
+  {
+    "id": "kite_poke",
+    "team_size": 4,
+    "team_a_tags": ["Poke"],
+    "team_b_tags": ["Tenacity"],
+    "scenario_id": "open_field",
+    "map_params": { "artillery_range": 10.0, "openness": 0.8 },
+    "capabilities": ["base", "buffs", "cc", "targets", "mobility", "zones"]
+  }
+]

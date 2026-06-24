@@ -11,6 +11,7 @@ const BenchConstants := preload("res://scripts/constants/bench_constants.gd")
 const ArenaBridge := preload("res://scripts/ui/combat/arena_bridge.gd")
 const GridPlacement := preload("res://scripts/ui/combat/grid_placement.gd")
 const BenchPlacement := preload("res://scripts/ui/combat/bench_placement.gd")
+const UnitEffectPlayer := preload("res://scripts/ui/vfx/unit_effect_player.gd")
 const MoveRouter := preload("res://scripts/ui/combat/move_router.gd")
 const ProjectileBridge := preload("res://scripts/ui/combat/projectile_bridge.gd")
 const EconomyUI := preload("res://scripts/ui/combat/economy_ui.gd")
@@ -96,7 +97,6 @@ var _post_combat_outcome: String = ""
 var _pending_continue: bool = false
 var view_rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _beam_overlay: Control = null
-var _layout_debug: bool = true
 
 func _attach_clear_to_grid_tiles(grid: GridContainer) -> void:
 	if selection == null or grid == null:
@@ -149,6 +149,9 @@ func initialize() -> void:
 			manager.vfx_knockup.connect(_on_vfx_knockup)
 		if not manager.is_connected("vfx_beam_line", Callable(self, "_on_vfx_beam_line")):
 			manager.vfx_beam_line.connect(_on_vfx_beam_line)
+		# Stable hit signal from manager (re-emitted from engine)
+		if not manager.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
+			manager.hit_applied.connect(_on_engine_hit_applied)
 
 	# Items runtime: orchestrates combat item effects based on equipped items
 	if item_runtime == null:
@@ -162,14 +165,17 @@ func initialize() -> void:
 	# Configure StatsPanel shell (optional)
 	if stats_panel and stats_panel.has_method("configure"):
 		stats_panel.configure(parent, manager)
-		if not manager.is_connected("victory", Callable(self, "_on_victory")):
-			manager.victory.connect(_on_victory)
-		if not manager.is_connected("defeat", Callable(self, "_on_defeat")):
-			manager.defeat.connect(_on_defeat)
+		# Outcome connections handled unconditionally below
 
 	# Layout debug disabled by default; enable and add prints as needed
 	if not manager.is_connected("projectile_fired", Callable(self, "_on_projectile_fired")):
 		manager.projectile_fired.connect(_on_projectile_fired)
+
+	# Always receive outcome signals regardless of optional panels
+	if manager and not manager.is_connected("victory", Callable(self, "_on_victory")):
+		manager.victory.connect(_on_victory)
+	if manager and not manager.is_connected("defeat", Callable(self, "_on_defeat")):
+		manager.defeat.connect(_on_defeat)
 
 	# UI-side stats tracker
 	if stats_tracker == null:
@@ -338,7 +344,6 @@ func initialize() -> void:
 					if prev3: prev3.remove_child(bet_row)
 					bar.add_child(bet_row)
 			# Hide the original actions row container if empty/unused.
-			var actions_row := (gold_label.get_parent() if gold_label else null)
 			# gold_label was moved, so we cannot resolve original directly. Instead, use known path if available.
 			if parent and parent.has_node("MarginContainer/VBoxContainer/ActionsRow"):
 				var ar := parent.get_node("MarginContainer/VBoxContainer/ActionsRow")
@@ -359,8 +364,8 @@ func _apply_grid_dimensions(tile: int) -> void:
 	# Center enemy grid at top of its area
 	enemy_grid.anchor_left = 0.5
 	enemy_grid.anchor_right = 0.5
-	enemy_grid.offset_left = -grid_w / 2
-	enemy_grid.offset_right = grid_w / 2
+	enemy_grid.offset_left = -float(grid_w) * 0.5
+	enemy_grid.offset_right = float(grid_w) * 0.5
 	enemy_grid.offset_bottom = grid_h
 
 	# Center player grid at bottom of its area
@@ -368,8 +373,8 @@ func _apply_grid_dimensions(tile: int) -> void:
 	player_grid.anchor_right = 0.5
 	player_grid.anchor_top = 1.0
 	player_grid.anchor_bottom = 1.0
-	player_grid.offset_left = -grid_w / 2
-	player_grid.offset_right = grid_w / 2
+	player_grid.offset_left = -float(grid_w) * 0.5
+	player_grid.offset_right = float(grid_w) * 0.5
 	player_grid.offset_top = -grid_h
 
 	# Make sure the containers holding the grids are tall enough
@@ -380,7 +385,7 @@ func _apply_grid_dimensions(tile: int) -> void:
 	if bottom_area:
 		bottom_area.custom_minimum_size.y = grid_h
 
-func process(delta: float) -> void:
+func process(_delta: float) -> void:
 	if arena_container and arena_container.visible:
 		_sync_arena_units()
 
@@ -445,6 +450,8 @@ func _on_items_action_log(t: String) -> void:
 func refresh_all_views() -> void:
 	# Rebuild player and bench views and rewire drag drop targets (KISS/DRY)
 	if grid_placement and manager:
+		# Ensure enemy preview reflects the latest manager.enemy_team (e.g., creep rounds)
+		grid_placement.rebuild_enemy_views(manager.enemy_team)
 		grid_placement.rebuild_player_views(manager.player_team, true)
 		player_views = grid_placement.get_player_views()
 		for pv in player_views:
@@ -462,6 +469,13 @@ func refresh_all_views() -> void:
 				var _pv = pv
 				var __prov := func(): return _pv.unit
 				selection.attach_to_unit_view(_pv.view, "player", _pv.tile_idx, __prov)
+		# Ensure enemy grid unit views are selectable for metrics during planning
+		enemy_views = grid_placement.get_enemy_views()
+		for ev in enemy_views:
+			if ev and ev.view and selection:
+				var _ev = ev
+				var __eprov := func(): return _ev.unit
+				selection.attach_to_unit_view(_ev.view, "enemy", _ev.tile_idx, __eprov)
 	_rebuild_bench_views(true)
 	# Ensure grid tiles keep the 'clear selection' handler even after rebuilds
 	if player_grid:
@@ -508,6 +522,7 @@ func _on_continue_pressed() -> void:
 			return
 		Trace.step("Economy bet accepted")
 		continue_button.disabled = true
+		continue_button.text = "Battle Locked"
 		if economy_ui:
 			economy_ui.set_bet_editable(false)
 		if manager.player_team.is_empty():
@@ -575,7 +590,8 @@ func _on_continue_pressed() -> void:
 		attack_button.disabled = false
 	if economy_ui:
 		economy_ui.set_bet_editable(false)
-	manager.continue_to_next_stage()
+	# Do not advance stage here; start whatever GameState currently points to
+	manager.start_stage()
 
 func _on_bench_changed() -> void:
 	# Rebuild bench views first so visuals reflect any immediate bench changes
@@ -617,44 +633,79 @@ func _play_promotions(promotions: Array) -> void:
 func _play_bench_promo(bench_index: int, to_level: int, delay: float) -> void:
 	if bench_grid == null:
 		return
-	# BenchPlacement attaches UnitView as child of button tile at same index
 	var tiles: Array = bench_grid.get_children()
 	if bench_index < 0 or bench_index >= tiles.size():
 		return
 	var tile = tiles[bench_index]
 	if tile is Control:
-		# Locate UnitView under this tile
 		for c in (tile as Control).get_children():
 			if c is UnitView:
 				var uv: UnitView = c
-				if delay > 0.0:
-					var tree := parent.get_tree() if parent else null
-					if tree:
-						var tmr := tree.create_timer(delay)
-						tmr.timeout.connect(func(): uv.play_level_up(to_level))
-						return
-				uv.play_level_up(to_level)
+				var opts: Dictionary = {}
+				if bench_placement and bench_placement.has_method("make_level_up_effect_opts"):
+					opts = bench_placement.make_level_up_effect_opts(bench_index, to_level)
+				_queue_unit_level_up_effect(uv, to_level, opts, delay)
 				return
 
 func _play_board_promo(team_index: int, to_level: int, delay: float) -> void:
-	# Resolve unit by team index, then find its UnitView and play effect
 	if manager == null or team_index < 0 or team_index >= manager.player_team.size():
 		return
 	var u: Unit = manager.player_team[team_index]
 	if u == null:
 		return
-	# Find matching UnitView in current player_views
 	for sv in player_views:
 		if sv != null and sv.unit == u and sv.view is UnitView:
 			var uv: UnitView = sv.view
-			if delay > 0.0:
-				var tree := parent.get_tree() if parent else null
-				if tree:
-					var tmr := tree.create_timer(delay)
-					tmr.timeout.connect(func(): uv.play_level_up(to_level))
-					return
-			uv.play_level_up(to_level)
+			_queue_unit_level_up_effect(uv, to_level, {}, delay)
 			return
+
+func _queue_unit_level_up_effect(view: UnitView, to_level: int, options: Dictionary = {}, delay: float = 0.0) -> void:
+	var params: Dictionary = {"level": to_level}
+	if typeof(options) == TYPE_DICTIONARY:
+		params["options"] = (options as Dictionary).duplicate(true)
+	_queue_unit_effect(UnitEffectPlayer.EFFECT_LEVEL_UP, view, params, delay)
+
+
+func _queue_unit_effect(effect_id: String, target: Object, params: Dictionary = {}, delay: float = 0.0) -> void:
+	if target == null or not is_instance_valid(target):
+		return
+	var data: Dictionary = {}
+	if typeof(params) == TYPE_DICTIONARY:
+		data = (params as Dictionary).duplicate(true)
+	data["view"] = target
+	if delay > 0.0:
+		var tree := parent.get_tree() if parent else null
+		if tree:
+			var payload := data.duplicate(true)
+			tree.create_timer(delay).timeout.connect(func():
+				var tgt: Object = payload.get("view")
+				if tgt == null or not is_instance_valid(tgt):
+					return
+				_request_unit_effect(effect_id, payload)
+			)
+		return
+	_request_unit_effect(effect_id, data)
+
+func _request_unit_effect(effect_id: String, data: Dictionary) -> void:
+
+	var target: Object = data.get("view")
+	if target == null or not is_instance_valid(target):
+		return
+	var opts: Dictionary = {}
+	var raw_opts = data.get("options")
+	if typeof(raw_opts) == TYPE_DICTIONARY:
+		opts = raw_opts
+	match effect_id:
+		UnitEffectPlayer.EFFECT_LEVEL_UP:
+			var level := int(data.get("level", opts.get("level", 0)))
+			if target.has_method("play_level_up"):
+				target.play_level_up(level, opts)
+		UnitEffectPlayer.EFFECT_HIT:
+			if target.has_method("play_hit_flash"):
+
+				target.play_hit_flash(opts)
+		_:
+			push_warning("[CombatController] Unknown unit effect id: %s" % effect_id)
 
 func _rebuild_bench_views(allow_drag: bool) -> void:
 	if bench_placement == null:
@@ -724,7 +775,7 @@ func _on_bet_changed(val: float) -> void:
 	if economy_ui:
 		economy_ui.on_bet_changed(val)
 
-func _on_battle_started(stage: int, enemy: Unit) -> void:
+func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 	Trace.step("CombatView._on_battle_started: begin")
 	_on_log_line("Prepare to fight.")
 	_refresh_hud()
@@ -746,19 +797,22 @@ func _on_battle_started(stage: int, enemy: Unit) -> void:
 	if economy_ui:
 		economy_ui.refresh()
 
-	# Wire engine events for stats panel/tracker and ability casts
+	# Provide ability system to stats panel if supported
 	var eng = (manager.get_engine() if manager and manager.has_method("get_engine") else null)
-	if eng:
-		if not eng.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
-			eng.hit_applied.connect(_on_engine_hit_applied)
-		if eng.ability_system and not eng.ability_system.is_connected("ability_cast", Callable(self, "_on_engine_ability_cast")):
-			eng.ability_system.ability_cast.connect(_on_engine_ability_cast)
-		# Provide ability system to stats panel if supported
-		if stats_panel and stats_panel.has_method("set_ability_system"):
-			stats_panel.set_ability_system(eng.ability_system)
+	if eng and stats_panel and stats_panel.has_method("set_ability_system"):
+		stats_panel.set_ability_system(eng.ability_system)
 
 	# Attach selection overlays to arena actors
 	_attach_selection_to_arena()
+
+	# Debug: schedule a one-time broad hit flash to verify overlay rendering
+	# Gate behind Debug.enabled to avoid confusing real hit flashes.
+	if Debug.enabled:
+		var __tree := (parent.get_tree() if parent else null)
+		if __tree:
+			__tree.create_timer(0.5).timeout.connect(func():
+				_debug_trigger_hit_flash_test()
+			)
 
 func _attach_selection_to_arena() -> void:
 	if arena_bridge == null or manager == null:
@@ -778,10 +832,49 @@ func _attach_selection_to_arena() -> void:
 				return (manager.enemy_team[_j] if _j < manager.enemy_team.size() else null)
 			selection.attach_to_unit_actor(eactor, "enemy", _j, _prov2)
 
+
+func _debug_trigger_hit_flash_test() -> void:
+	if arena_bridge == null or manager == null:
+		return
+
+	for i in range(manager.player_team.size()):
+		var a: UnitActor = arena_bridge.get_player_actor(i)
+		if a and is_instance_valid(a):
+			var opts := {
+				"flash_color": Color(1.0, 1.0, 1.0, 1.0),
+				"hold_duration": 0.12,
+				"fade_duration": 0.35
+			}
+			a.play_hit_flash(opts)
+	for j in range(manager.enemy_team.size()):
+		var e: UnitActor = arena_bridge.get_enemy_actor(j)
+		if e and is_instance_valid(e):
+			var opts2 := {
+				"flash_color": Color(1.0, 1.0, 1.0, 1.0),
+				"hold_duration": 0.12,
+				"fade_duration": 0.35
+			}
+			e.play_hit_flash(opts2)
+
+func _ensure_engine_hooks() -> void:
+	pass
+
 func _on_engine_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: int, crit: bool, before_hp: int, after_hp: int, player_cd: float, enemy_cd: float) -> void:
 	# Forward to StatsPanel if it exposes a handler (non-breaking)
 	if stats_panel and stats_panel.has_method("_on_hit_applied"):
 		stats_panel._on_hit_applied(team, si, ti, rolled, dealt, crit, before_hp, after_hp, player_cd, enemy_cd)
+	if dealt > 0 and after_hp < before_hp:
+		var target_team := ("enemy" if team == "player" else "player")
+		if arena_bridge:
+			var actor: UnitActor = arena_bridge.get_actor(target_team, ti)
+			if actor and is_instance_valid(actor):
+				_queue_unit_effect(UnitEffectPlayer.EFFECT_HIT, actor)
+
+		var views: Array[UnitSlotView] = (player_views if target_team == "player" else enemy_views)
+		if ti >= 0 and ti < views.size():
+			var slot: UnitSlotView = views[ti]
+			if slot and slot.view and slot.view.has_method("play_hit_flash"):
+				_queue_unit_effect(UnitEffectPlayer.EFFECT_HIT, slot.view)
 
 func _on_engine_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
 	if stats_panel and stats_panel.has_method("_on_ability_cast"):
@@ -924,6 +1017,12 @@ func _on_intermission_finished() -> void:
 		# Build a fresh preview for the next attempt (next stage on win, same stage on defeat)
 		if manager.has_method("setup_stage_preview"):
 			manager.setup_stage_preview()
+			# Force enemy grid to reflect upcoming round immediately (e.g., creeps)
+			if grid_placement and manager:
+				grid_placement.rebuild_enemy_views(manager.enemy_team)
+				enemy_views = grid_placement.get_enemy_views()
+			# Ensure HUD labels reflect the previewed enemy immediately
+			_refresh_stats()
 		# Rebuild UI after state changes
 		refresh_all_views()
 		if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
@@ -942,34 +1041,46 @@ func _on_intermission_finished() -> void:
 					Shop.reroll()
 	# Refresh label to reflect the stage/round the player will fight next
 	_update_stage_label()
+	# Return to planning phase after post-combat housekeeping
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		GameState.set_phase(GameState.GamePhase.PREVIEW)
 	if _post_combat_outcome == "defeat" and (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")) and Economy.is_broke():
 		# Show loss screen instead of flipping the continue button to Restart
-		var Loss = load("res://scenes/ui/LossScreen.tscn")
-		if Loss:
-			var screen: Control = Loss.instantiate()
+		var loss_scene: PackedScene = load("res://scenes/ui/LossScreen.tscn") as PackedScene
+		if loss_scene != null:
+			var screen: Control = loss_scene.instantiate() as Control
 			if screen:
-				screen.z_index = 10000
+				screen.z_index = 100
+				screen.z_as_relative = false
 				# Configure with last battle stats if available
 				if screen.has_method("configure") and stats_tracker != null:
 					screen.call("configure", stats_tracker)
-				# Add above CombatView
-				if parent and parent is Control:
+				# Add on a high canvas layer so menu, stats, and shop layers cannot draw over defeat.
+				var tree: SceneTree = parent.get_tree() if parent != null else null
+				if tree != null and tree.root != null:
+					var layer: CanvasLayer = CanvasLayer.new()
+					layer.name = "LossOverlayLayer"
+					layer.layer = 100
+					tree.root.add_child(layer)
+					layer.add_child(screen)
+				elif parent and parent is Control:
 					(parent as Control).add_child(screen)
 				else:
-					var ml := Engine.get_main_loop()
+					var ml: MainLoop = Engine.get_main_loop()
 					if ml is SceneTree:
-						(ml as SceneTree).root.add_child(screen)
+						var fallback_layer: CanvasLayer = CanvasLayer.new()
+						fallback_layer.name = "LossOverlayLayer"
+						fallback_layer.layer = 100
+						(ml as SceneTree).root.add_child(fallback_layer)
+						fallback_layer.add_child(screen)
 		# Hide/disable continue button under overlay
 		if continue_button:
 			continue_button.disabled = true
 			continue_button.visible = false
 	else:
 		if continue_button:
-			# After victory we've already advanced and built a preview; use Start Battle.
-			if _post_combat_outcome == "victory":
-				continue_button.text = "Start Battle"
-			else:
-				continue_button.text = "Continue"
+			# After intermission (win or loss), planning is ready; always show Start Battle.
+			continue_button.text = "Start Battle"
 			continue_button.disabled = false
 			continue_button.visible = true
 	_pending_continue = false
@@ -1048,7 +1159,7 @@ func _get_player_sprite_by_index(i: int) -> Control:
 func _on_team_stats_updated(_pteam, _eteam) -> void:
 	_refresh_hud()
 
-func _on_unit_stat_changed(team: String, index: int, fields: Dictionary) -> void:
+func _on_unit_stat_changed(team: String, index: int, _fields: Dictionary) -> void:
 	var views: Array[UnitSlotView] = (player_views if team == "player" else enemy_views)
 	if index < 0 or index >= views.size():
 		return

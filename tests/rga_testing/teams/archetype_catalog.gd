@@ -68,7 +68,7 @@ func list_ids() -> PackedStringArray:
             ids.append(raw)
     return ids
 
-func get(id: String) -> Dictionary:
+func get_by_id(id: String) -> Dictionary:
     var want := String(id).strip_edges()
     if want == "":
         return {}
@@ -84,8 +84,8 @@ func with_tag(tag: String) -> Array:
     var want_lower := want.to_lower()
     var out: Array = []
     for entry in _ARCHETYPES:
-        var tags: Array = entry.get("tags", [])
-        for raw_tag in tags:
+        var entry_tags: Array = entry.get("tags", [])
+        for raw_tag in entry_tags:
             if String(raw_tag).to_lower() == want_lower:
                 out.append(entry.duplicate(true))
                 break
@@ -95,4 +95,4 @@ func tags() -> PackedStringArray:
     return PackedStringArray([TAG_DIVE, TAG_POKE, TAG_SUSTAIN, TAG_TENACITY, TAG_PEEL, TAG_ANTI_HEAL])
 
 func has(id: String) -> bool:
-    return not get(id).is_empty()
+    return not get_by_id(id).is_empty()

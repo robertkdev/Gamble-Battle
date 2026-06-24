@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/units/unit_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "dummy_inf"
+name = "Dummy Infinite"
+sprite_path = ""
+ability_id = ""
+traits = []
+roles = ["support"]
+cost = 1
+level = 1
+primary_role = "support"
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = null
+shop_eligible = false
+starter_eligible = false
+hidden = true
+enemy_only = true

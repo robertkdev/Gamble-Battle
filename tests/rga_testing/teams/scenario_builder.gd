@@ -76,11 +76,11 @@ func build(settings: RGASettings, intents: Array = []) -> Array:
             var key2 := _pair_key(String(arch_a.get("id")), String(arch_b.get("id")))
             if not allow_duplicates and seen_pairs.has(key2):
                 continue
-            var team_a_ids := _select_units(arch_a, team_size)
-            var team_b_ids := _select_units(arch_b, team_size)
+            var team_a_ids: Array[String] = _select_units(arch_a, team_size)
+            var team_b_ids: Array[String] = _select_units(arch_b, team_size)
             if team_a_ids.is_empty() or team_b_ids.is_empty():
                 continue
-            var resolved_size := min(team_a_ids.size(), team_b_ids.size())
+            var resolved_size: int = min(team_a_ids.size(), team_b_ids.size())
             if resolved_size <= 0:
                 continue
             var job := RGADataModels.SimJob.new()
@@ -99,7 +99,7 @@ func build(settings: RGASettings, intents: Array = []) -> Array:
             job.ability_metrics = bool(settings.ability_metrics)
             job.alternate_order = bool(intent.get("alternate_order", false))
             job.bridge_projectile_to_hit = bool(intent.get("bridge_projectile_to_hit", true))
-            job.capabilities = _resolve_capabilities(intent.get("capabilities", []))
+            job.capabilities = _resolve_capabilities(intent.get("capabilities", []), settings.capabilities)
             job.metadata = _compose_metadata(intent, arch_a, arch_b, side_a_spec, side_b_spec)
             jobs.append(job)
             seen_pairs[key2] = true
@@ -282,17 +282,17 @@ func _stratified_sample(intent_id: String, combos: Array, limit: int) -> Array:
     var remaining := pool.duplicate()
     while selected.size() < limit and not remaining.is_empty():
         var best_index := 0
-        var best_score := null
+        var best_score: Array = []
         for i in range(remaining.size()):
             var item: Dictionary = remaining[i]
             var a_id := String(item.get("a").get("id"))
             var b_id := String(item.get("b").get("id"))
             var a_used := int(usage_a.get(a_id, 0))
             var b_used := int(usage_b.get(b_id, 0))
-            var score_primary := max(a_used, b_used)
-            var score_secondary := min(a_used, b_used)
+            var score_primary: int = max(a_used, b_used)
+            var score_secondary: int = min(a_used, b_used)
             var tie := int(item.get("_hash"))
-            var score = [score_primary, score_secondary, tie]
+            var score: Array = [score_primary, score_secondary, tie]
             if best_score == null or _score_less(score, best_score):
                 best_score = score
                 best_index = i
@@ -317,7 +317,7 @@ func _combo_hash(intent_id: String, a_id: String, b_id: String) -> int:
     seed = RGARandom.combine64(seed, RGARandom.hash_string64(String(b_id)))
     return seed
 
-func _select_units(archetype: Dictionary, team_size: int) -> Array:
+func _select_units(archetype: Dictionary, team_size: int) -> Array[String]:
     var ids: Array = archetype.get("unit_ids", [])
     if ids == null or ids.is_empty():
         push_warning("ScenarioBuilder: archetype %s has no unit_ids" % String(archetype.get("id", "")))
@@ -327,7 +327,7 @@ func _select_units(archetype: Dictionary, team_size: int) -> Array:
     if ids.size() < team_size:
         push_warning("ScenarioBuilder: archetype %s lacks units for team size %d" % [String(archetype.get("id", "")), team_size])
         return []
-    var out: Array = []
+    var out: Array[String] = []
     for i in range(team_size):
         out.append(String(ids[i]))
     return out
@@ -339,10 +339,27 @@ func _compose_metadata(intent: Dictionary, arch_a: Dictionary, arch_b: Dictionar
     meta["intent_tags_b"] = _normalize_string_array(spec_b.get("tags", []))
     meta["team_a_archetype"] = String(arch_a.get("id", ""))
     meta["team_b_archetype"] = String(arch_b.get("id", ""))
+    # Derive a coarse scenario label used by threshold relaxations.
+    # Mapping:
+    #  - If defender (team B) tags contain "Peel" => scenario_label = "peel"
+    #  - Else if tags contain "Poke" or "AntiHeal" => scenario_label = "burst"
+    #  - Else => "neutral"
+    var scen := "neutral"
+    var tags_b: Array = meta.get("intent_tags_b", [])
+    if tags_b is Array:
+        var set_b := _to_string_set(tags_b)
+        if set_b.has("Peel"):
+            scen = "peel"
+        elif set_b.has("Poke") or set_b.has("AntiHeal"):
+            scen = "burst"
+    meta["scenario_label"] = scen
     return meta
 
-func _resolve_capabilities(raw) -> PackedStringArray:
-    var list := _normalize_string_array(raw)
+func _resolve_capabilities(raw, baseline = null) -> PackedStringArray:
+    var list: Array = _normalize_string_array(baseline)
+    for cap in _normalize_string_array(raw):
+        if not list.has(cap):
+            list.append(cap)
     if list.is_empty():
         list = ["base"]
     elif not list.has("base"):

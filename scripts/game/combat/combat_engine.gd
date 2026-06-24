@@ -5,6 +5,8 @@ const AbilitySystemLib := preload("res://scripts/game/abilities/ability_system.g
 const BuffSystemLib := preload("res://scripts/game/abilities/buff_system.gd")
 # Use a minimal service to allow loading while iterating on movement.
 const MovementServiceLib := preload("res://scripts/game/combat/movement/movement_service2.gd")
+const MovementProfileLib := preload("res://scripts/game/combat/movement/movement_profile.gd")
+const Targeting := preload("res://scripts/game/combat/targeting.gd")
 
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal stats_updated(player, enemy)
@@ -19,8 +21,12 @@ signal position_updated(team: String, index: int, x: float, y: float)
 signal target_start(source_team: String, source_index: int, target_team: String, target_index: int)
 signal target_end(source_team: String, source_index: int, target_team: String, target_index: int)
 signal ability_cast(source_team: String, source_index: int, target_team: String, target_index: int, position: Vector2)
+signal ability_committed(source_team: String, source_index: int, ability_id: String, target_team: String, target_index: int, position: Vector2, cooldown_s: float, commitment_kind: String)
 
 const POSITION_EMIT_INTERVAL: float = 0.1
+var position_emit_interval_override: float = -1.0
+var target_recheck_interval_s: float = 0.35
+var _target_recheck_accum: float = 0.0
 
 # Emitted after damage is applied (single or paired)
 # Provides detailed data for deterministic logging/analytics.
@@ -32,7 +38,23 @@ signal shield_absorbed(target_team: String, target_index: int, absorbed: int)
 signal hit_mitigated(source_team: String, source_index: int, target_team: String, target_index: int, pre_mit: int, post_pre_shield: int)
 signal hit_overkill(source_team: String, source_index: int, target_team: String, target_index: int, overkill: int)
 signal hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int)
+signal amp_output_applied(source_team: String, source_index: int, beneficiary_team: String, beneficiary_index: int, target_team: String, target_index: int, amount: float, amp_pct: float, kind: String)
+signal damage_redirected(source_team: String, source_index: int, original_target_team: String, original_target_index: int, redirect_team: String, redirect_index: int, amount: int, kind: String)
+signal redirect_semantic_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration_s: float, amount: float, risk_s: float)
 signal cc_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration: float)
+signal buff_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, fields: Dictionary, magnitude: float, duration: float)
+signal debuff_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, fields: Dictionary, magnitude: float, duration: float)
+signal on_hit_proc(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, fields: Dictionary, magnitude: float)
+signal dot_tick_applied(source_team: String, source_index: int, target_team: String, target_index: int, amount: int, kind: String)
+signal execute_bonus_applied(source_team: String, source_index: int, target_team: String, target_index: int, base_damage: int, bonus_damage: int, threshold_pct: float, target_hp_pct: float, kind: String)
+signal reset_triggered(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, chain_index: int, time_since_previous_s: float, power_scale: float)
+signal ramp_state_changed(source_team: String, source_index: int, kind: String, stacks: int, value: float, peak_stacks: int, duration_s: float, reason: String)
+signal targetability_window(team: String, index: int, is_targetable: bool, duration: float, reason: String)
+signal targetability_threat_interaction(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, cooldown_s: float, key_threat: bool, dodged: bool)
+signal cc_prevented(source_team: String, source_index: int, target_team: String, target_index: int, kind: String)
+signal cc_taxed(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, raw_duration: float, effective_duration: float, tenacity: float, prevented: bool)
+signal cleanse_applied(source_team: String, source_index: int, target_team: String, target_index: int, removed: int)
+signal zone_exposure_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration_s: float, damage: float, radius_tiles: float)
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var state: BattleState
@@ -58,7 +80,7 @@ var _last_enemy_positions: Array = []
 var _last_targets_player: Array = []
 var _last_targets_enemy: Array = []
 
-var arena_state = MovementServiceLib.new()
+var arena_state: Variant = MovementServiceLib.new()
 var target_controller: TargetController = TargetController.new()
 var cooldown_scheduler: CooldownScheduler = CooldownScheduler.new()
 var attack_resolver: AttackResolver = AttackResolver.new()
@@ -68,9 +90,17 @@ var regen_system: RegenSystem = RegenSystem.new()
 var ability_system: AbilitySystem = null
 var buff_system: BuffSystem = null
 var _connected_ability_system: AbilitySystem = null
+var _connected_buff_system: BuffSystem = null
+## Removed passive damage system (was: tick accumulator + constants)
+
+# First-attack wind-up to reduce immediate burst on entering range
+var first_attack_windup_s: float = 0.25
+var _first_attack_windup_done: Dictionary = {}
 
 # Feature toggles
 var abilities_enabled: bool = true
+var emit_auto_attack_logs: bool = true
+var emit_ability_logs: bool = true
 
 var _resolver_emitters: Dictionary[String, Callable] = {}
 
@@ -110,10 +140,12 @@ func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Calla
 	if abilities_enabled:
 		if ability_system == null:
 			ability_system = AbilitySystemLib.new()
+		ability_system.emit_ability_logs = emit_ability_logs
 		ability_system.configure(self, state, rng, buff_system)
 	else:
 		ability_system = null
 	attack_resolver.configure(state, target_controller, rng, player_ref, _resolver_emitters, ability_system, buff_system)
+	attack_resolver.emit_auto_attack_logs = emit_auto_attack_logs
 	attack_resolver.set_deterministic_rolls(deterministic_rolls)
 	outcome_resolver.configure(state, rng)
 	projectile_handler.configure(attack_resolver)
@@ -125,13 +157,59 @@ func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Calla
 	if arena_state and arena_state.has_method("set_buff_system"):
 		arena_state.set_buff_system(buff_system)
 	arena_state.ensure_capacity(state.player_team.size(), state.enemy_team.size())
+	_sync_movement_profiles()
 	_reset_position_tracking()
 	_reset_target_tracking()
 	_position_emit_accum = 0.0
+	_target_recheck_accum = 0.0
 	_refresh_signal_bindings()
 	_update_totals_cache()
 	_reset_debug_counters()
 	Trace.step("CombatEngine.configure: done")
+
+func teardown() -> void:
+	_disconnect_signal_bindings()
+	if ability_system != null and ability_system.has_method("teardown"):
+		ability_system.teardown()
+	if buff_system != null and buff_system.has_method("clear"):
+		buff_system.clear()
+	if attack_resolver != null and attack_resolver.has_method("teardown"):
+		attack_resolver.teardown()
+	if projectile_handler != null:
+		projectile_handler.resolver = null
+	if regen_system != null:
+		regen_system.buff_system = null
+		regen_system.ability_system = null
+	if target_controller != null:
+		target_controller.state = null
+		target_controller.selector = Callable()
+		target_controller._resolving.clear()
+	if cooldown_scheduler != null:
+		cooldown_scheduler.state = null
+		cooldown_scheduler.target_controller = null
+		cooldown_scheduler.buff_system = null
+		cooldown_scheduler.rng = null
+		cooldown_scheduler._player_order.clear()
+		cooldown_scheduler._enemy_order.clear()
+	if outcome_resolver != null:
+		outcome_resolver.state = null
+		outcome_resolver.rng = null
+	if arena_state != null and arena_state.has_method("configure"):
+		arena_state.configure(1.0, [], [], Rect2())
+	state = null
+	player_ref = null
+	select_closest_target = Callable()
+	ability_system = null
+	buff_system = null
+	_connected_ability_system = null
+	_connected_buff_system = null
+	_resolver_emitters.clear()
+	_last_player_positions.clear()
+	_last_enemy_positions.clear()
+	_last_targets_player.clear()
+	_last_targets_enemy.clear()
+	_first_attack_windup_done.clear()
+	_target_recheck_accum = 0.0
 
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	# Cast/convert to typed arrays of Vector2 for movement.configure signature
@@ -149,33 +227,165 @@ func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Re
 	# selections can use real distances (closest enemy at round start).
 	if target_controller != null:
 		target_controller.prime_targets()
+	_sync_movement_profiles()
 
 func _engine_select_closest_target(my_team: String, my_index: int, enemy_team: String) -> int:
-	# Default target selection: nearest alive enemy by engine arena positions.
 	if state == null:
 		return -1
+	var ally_arr: Array[Unit] = state.player_team if my_team == "player" else state.enemy_team
 	var enemy_arr: Array[Unit] = state.enemy_team if enemy_team == "enemy" else state.player_team
-	var alive_indices: Array[int] = []
-	for i in range(enemy_arr.size()):
-		var u: Unit = enemy_arr[i]
-		if u and u.is_alive():
-			alive_indices.append(i)
-	if alive_indices.is_empty():
+	if my_index < 0 or my_index >= ally_arr.size():
 		return -1
-	var src_pos: Vector2 = Vector2.ZERO
-	if my_team == "player":
-		src_pos = arena_state.get_player_position(my_index)
+	var attacker: Unit = ally_arr[my_index]
+	if attacker == null or not attacker.is_alive():
+		return -1
+	var ally_positions: Array[Vector2] = _positions_for_team(my_team)
+	var enemy_positions: Array[Vector2] = _positions_for_team(enemy_team)
+	var src_pos: Vector2 = _position_at(ally_positions, my_index, Vector2.ZERO)
+	var current_target: int = _current_target_index(my_team, my_index)
+	return Targeting.pick_by_priority(
+		attacker,
+		my_index,
+		my_team,
+		src_pos,
+		ally_arr,
+		ally_positions,
+		enemy_arr,
+		enemy_positions,
+		current_target,
+		arena_state.tile_size())
+
+func _positions_for_team(team: String) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	if arena_state == null:
+		return out
+	var raw_positions: Array = arena_state.player_positions_copy() if team == "player" else arena_state.enemy_positions_copy()
+	for raw_position in raw_positions:
+		if raw_position is Vector2:
+			out.append(raw_position)
+	return out
+
+func _position_at(positions: Array[Vector2], index: int, fallback: Vector2) -> Vector2:
+	if index >= 0 and index < positions.size():
+		return positions[index]
+	return fallback
+
+func _current_target_index(team: String, index: int) -> int:
+	if state == null or index < 0:
+		return -1
+	var targets: Array[int] = state.player_targets if team == "player" else state.enemy_targets
+	if index >= targets.size():
+		return -1
+	return int(targets[index])
+
+func _sync_movement_profiles() -> void:
+	if arena_state == null or state == null or not arena_state.has_method("set_profiles"):
+		return
+	arena_state.set_profiles("player", _movement_profiles_for_team("player", state.player_team))
+	arena_state.set_profiles("enemy", _movement_profiles_for_team("enemy", state.enemy_team))
+
+func _movement_profiles_for_team(team: String, units: Array[Unit]) -> Array[MovementProfile]:
+	var profiles: Array[MovementProfile] = []
+	for i in range(units.size()):
+		var unit: Unit = units[i]
+		profiles.append(_movement_profile_for_unit(team, i, unit, units))
+	return profiles
+
+func _movement_profile_for_unit(team: String, index: int, unit: Unit, units: Array[Unit]) -> MovementProfile:
+	var side_bias: float = 1.0 if ((index + (0 if team == "player" else 1)) % 2 == 0) else -1.0
+	var profile: MovementProfile
+	if unit == null:
+		return MovementProfileLib.new("approach", 0.95, 1.00, 0.0, 0.0, side_bias)
+	var role: String = String(unit.get_primary_role()).strip_edges().to_lower()
+	var attack_range_tiles: float = float(unit.attack_range)
+	var has_long_range: bool = _unit_has_approach(unit, "long_range")
+	var has_reposition: bool = _unit_has_approach(unit, "reposition")
+	var has_access_backline: bool = _unit_has_approach(unit, "access_backline")
+	if role == "marksman":
+		profile = MovementProfileLib.new("kite", 0.72, 1.02, 0.18, 1.0, side_bias)
+	elif role == "mage":
+		if attack_range_tiles >= 3.0 or has_long_range or _unit_has_approach(unit, "zone"):
+			profile = MovementProfileLib.new("kite", 0.76, 1.02, 0.12, 0.75, side_bias)
+		else:
+			profile = MovementProfileLib.new("strafe", 0.88, 1.00, 0.08, 0.0, side_bias)
+	elif role == "support":
+		if attack_range_tiles >= 3.0 or has_long_range:
+			profile = MovementProfileLib.new("kite", 0.78, 1.02, 0.10, 0.65, side_bias)
+		else:
+			profile = MovementProfileLib.new("strafe", 0.88, 1.00, 0.08, 0.0, side_bias)
+	elif role == "assassin":
+		profile = MovementProfileLib.new("strafe", 0.86, 0.98, 0.16, 0.10, side_bias)
+	elif role == "brawler":
+		if has_access_backline or has_reposition:
+			profile = MovementProfileLib.new("strafe", 0.86, 0.98, 0.12, 0.0, side_bias)
+		else:
+			profile = MovementProfileLib.new("approach", 0.88, 0.98, 0.0, 0.0, side_bias)
+	elif role == "tank":
+		profile = MovementProfileLib.new("approach", 0.86, 0.94, 0.0, 0.0, side_bias)
+	elif attack_range_tiles >= 3.0:
+		profile = MovementProfileLib.new("kite", 0.78, 1.02, 0.10, 0.65, side_bias)
 	else:
-		src_pos = arena_state.get_enemy_position(my_index)
-	var best_idx := alive_indices[0]
-	var best_d2: float = INF
-	for idx in alive_indices:
-		var tgt_pos: Vector2 = (arena_state.get_enemy_position(idx) if enemy_team == "enemy" else arena_state.get_player_position(idx))
-		var d2 := tgt_pos.distance_squared_to(src_pos)
-		if d2 < best_d2:
-			best_d2 = d2
-			best_idx = idx
-	return best_idx
+		profile = MovementProfileLib.new("strafe" if has_reposition else "approach", 0.88, 1.00, 0.08 if has_reposition else 0.0, 0.0, side_bias)
+	_configure_movement_anchor(profile, index, unit, units)
+	return profile
+
+func _configure_movement_anchor(profile: MovementProfile, index: int, unit: Unit, units: Array[Unit]) -> void:
+	if profile == null or unit == null:
+		return
+	var role: String = String(unit.get_primary_role()).strip_edges().to_lower()
+	var wants_anchor: bool = role == "support" or _unit_has_approach(unit, "peel") or _unit_has_approach(unit, "amp") or _unit_has_approach(unit, "cc_immunity")
+	if not wants_anchor:
+		return
+	var anchor_index: int = _movement_anchor_index(index, units)
+	if anchor_index < 0:
+		return
+	profile.anchor_index = anchor_index
+	profile.anchor_min_tiles = 0.75
+	profile.anchor_max_tiles = 2.85
+	profile.anchor_strength = 0.55
+
+func _movement_anchor_index(source_index: int, units: Array[Unit]) -> int:
+	var best_index: int = -1
+	var best_score: float = 0.0
+	for i in range(units.size()):
+		if i == source_index:
+			continue
+		var ally: Unit = units[i]
+		if ally == null or not ally.is_alive():
+			continue
+		var score: float = _movement_anchor_score(ally)
+		if score > best_score:
+			best_score = score
+			best_index = i
+	return best_index
+
+func _movement_anchor_score(unit: Unit) -> float:
+	if unit == null:
+		return 0.0
+	var role: String = String(unit.get_primary_role()).strip_edges().to_lower()
+	var score: float = 0.0
+	if role == "marksman":
+		score += 4.0
+	elif role == "mage":
+		score += 3.0
+	elif role == "support":
+		score += 0.5
+	if _unit_has_approach(unit, "long_range"):
+		score += 1.0
+	if _unit_has_approach(unit, "ramp"):
+		score += 0.75
+	if float(unit.attack_range) >= 3.0:
+		score += 0.5
+	return score
+
+func _unit_has_approach(unit: Unit, approach_id: String) -> bool:
+	if unit == null:
+		return false
+	var key: String = String(approach_id).strip_edges().to_lower()
+	for raw_approach in unit.get_approaches():
+		if String(raw_approach).strip_edges().to_lower() == key:
+			return true
+	return false
 
 func get_arena_bounds_copy() -> Rect2:
 	return arena_state.bounds_copy()
@@ -201,11 +411,13 @@ func start() -> void:
 	if not state:
 		return
 	state.battle_active = true
+	_first_attack_windup_done.clear()
 	if outcome_resolver != null:
 		outcome_resolver.reset()
 	attack_resolver.reset_totals()
 	attack_resolver.begin_frame()
 	state.regen_tick_accum = 0.0
+	state.elapsed_time = 0.0
 	state.player_cds = BattleState.fill_cds_for(state.player_team)
 	state.enemy_cds = BattleState.fill_cds_for(state.enemy_team)
 	state.player_targets.clear()
@@ -234,6 +446,9 @@ func stop() -> void:
 	if not state:
 		return
 	state.battle_active = false
+	# Revert and clear any lingering stat buffs so unit bases don't persist between rounds
+	if buff_system != null and buff_system.has_method("clear_reverting_stats"):
+		buff_system.clear_reverting_stats()
 
 func process(delta: float) -> void:
 	if not state or (outcome_resolver != null and outcome_resolver.outcome_sent):
@@ -252,11 +467,14 @@ func process(delta: float) -> void:
 			_update_totals_cache()
 			_emit_outcome(idle_outcome)
 		return
+	state.elapsed_time += delta
+	_retarget_if_due(delta)
 	arena_state.update_movement(state, delta, target_controller.resolver_for_arena())
 	_position_emit_accum += delta
-	while _position_emit_accum >= POSITION_EMIT_INTERVAL:
+	var __pei: float = (position_emit_interval_override if position_emit_interval_override > 0.0 else POSITION_EMIT_INTERVAL)
+	while _position_emit_accum >= __pei:
 		_emit_position_updates()
-		_position_emit_accum -= POSITION_EMIT_INTERVAL
+		_position_emit_accum -= __pei
 	var board_pre: String = ""
 	if outcome_resolver != null:
 		board_pre = outcome_resolver.evaluate_board(attack_resolver.totals())
@@ -264,6 +482,7 @@ func process(delta: float) -> void:
 		_update_totals_cache()
 		_emit_outcome(board_pre)
 		return
+	# Passive damage disabled
 	var frame_data: Dictionary = cooldown_scheduler.advance(delta)
 	_apply_regen(int(frame_data.get("regen_ticks", 0)))
 	if buff_system != null:
@@ -282,6 +501,18 @@ func process(delta: float) -> void:
 	_update_totals_cache()
 	_reset_debug_counters()
 
+func _retarget_if_due(delta: float) -> void:
+	if target_controller == null:
+		return
+	if target_recheck_interval_s <= 0.0:
+		return
+	_target_recheck_accum += max(0.0, delta)
+	if _target_recheck_accum < target_recheck_interval_s:
+		return
+	while _target_recheck_accum >= target_recheck_interval_s:
+		_target_recheck_accum -= target_recheck_interval_s
+	target_controller.refresh_live_targets()
+
 func on_projectile_hit(source_team: String, source_index: int, target_index: int, damage: int, crit: bool) -> void:
 	if not state or not state.battle_active or (outcome_resolver != null and outcome_resolver.outcome_sent):
 		return
@@ -294,6 +525,8 @@ func on_projectile_hit(source_team: String, source_index: int, target_index: int
 
 func _apply_regen(ticks: int) -> void:
 	regen_system.apply_ticks(state, ticks, player_ref, _resolver_emitters)
+
+## Passive damage removed
 
 func _evaluate_outcome() -> bool:
 	var frame_outcome: String = ""
@@ -317,7 +550,10 @@ func _emit_outcome(kind: String) -> void:
 		return
 	if outcome_resolver != null:
 		outcome_resolver.mark_emitted()
+	# Mark inactive and revert any lingering stat buffs BEFORE notifying listeners,
+	# so planning UI and intermission handlers see base stats.
 	state.battle_active = false
+	stop()
 	match kind:
 		"victory":
 			emit_signal("victory", stage)
@@ -326,7 +562,6 @@ func _emit_outcome(kind: String) -> void:
 		_:
 			# Fallback: default to defeat if unknown outcome
 			emit_signal("defeat", stage)
-	stop()
 
 func _emit_stats_snapshot() -> void:
 	emit_signal("stats_updated", player_ref, BattleState.first_alive(state.enemy_team))
@@ -346,15 +581,49 @@ func _refresh_signal_bindings() -> void:
 	if ability_system != null and ability_system.has_signal("ability_cast"):
 		if not ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
 			ability_system.ability_cast.connect(_on_ability_system_cast)
+		if ability_system.has_signal("ability_committed") and not ability_system.is_connected("ability_committed", Callable(self, "_on_ability_system_committed")):
+			ability_system.ability_committed.connect(_on_ability_system_committed)
 		_connected_ability_system = ability_system
 	else:
 		_connected_ability_system = null
+	if buff_system != null:
+		if buff_system.has_signal("buff_applied") and not buff_system.is_connected("buff_applied", Callable(self, "_on_buff_system_buff_applied")):
+			buff_system.buff_applied.connect(_on_buff_system_buff_applied)
+		if buff_system.has_signal("debuff_applied") and not buff_system.is_connected("debuff_applied", Callable(self, "_on_buff_system_debuff_applied")):
+			buff_system.debuff_applied.connect(_on_buff_system_debuff_applied)
+		if buff_system.has_signal("on_hit_proc") and not buff_system.is_connected("on_hit_proc", Callable(self, "_on_buff_system_on_hit_proc")):
+			buff_system.on_hit_proc.connect(_on_buff_system_on_hit_proc)
+		if buff_system.has_signal("cc_prevented") and not buff_system.is_connected("cc_prevented", Callable(self, "_on_buff_system_cc_prevented")):
+			buff_system.cc_prevented.connect(_on_buff_system_cc_prevented)
+		if buff_system.has_signal("cc_taxed") and not buff_system.is_connected("cc_taxed", Callable(self, "_on_buff_system_cc_taxed")):
+			buff_system.cc_taxed.connect(_on_buff_system_cc_taxed)
+		if buff_system.has_signal("cleanse_applied") and not buff_system.is_connected("cleanse_applied", Callable(self, "_on_buff_system_cleanse_applied")):
+			buff_system.cleanse_applied.connect(_on_buff_system_cleanse_applied)
+		_connected_buff_system = buff_system
+	else:
+		_connected_buff_system = null
 
 func _disconnect_signal_bindings() -> void:
 	if _connected_ability_system != null and _connected_ability_system.has_signal("ability_cast"):
 		if _connected_ability_system.is_connected("ability_cast", Callable(self, "_on_ability_system_cast")):
 			_connected_ability_system.ability_cast.disconnect(_on_ability_system_cast)
+		if _connected_ability_system.has_signal("ability_committed") and _connected_ability_system.is_connected("ability_committed", Callable(self, "_on_ability_system_committed")):
+			_connected_ability_system.ability_committed.disconnect(_on_ability_system_committed)
 	_connected_ability_system = null
+	if _connected_buff_system != null:
+		if _connected_buff_system.has_signal("buff_applied") and _connected_buff_system.is_connected("buff_applied", Callable(self, "_on_buff_system_buff_applied")):
+			_connected_buff_system.buff_applied.disconnect(_on_buff_system_buff_applied)
+		if _connected_buff_system.has_signal("debuff_applied") and _connected_buff_system.is_connected("debuff_applied", Callable(self, "_on_buff_system_debuff_applied")):
+			_connected_buff_system.debuff_applied.disconnect(_on_buff_system_debuff_applied)
+		if _connected_buff_system.has_signal("on_hit_proc") and _connected_buff_system.is_connected("on_hit_proc", Callable(self, "_on_buff_system_on_hit_proc")):
+			_connected_buff_system.on_hit_proc.disconnect(_on_buff_system_on_hit_proc)
+		if _connected_buff_system.has_signal("cc_prevented") and _connected_buff_system.is_connected("cc_prevented", Callable(self, "_on_buff_system_cc_prevented")):
+			_connected_buff_system.cc_prevented.disconnect(_on_buff_system_cc_prevented)
+		if _connected_buff_system.has_signal("cc_taxed") and _connected_buff_system.is_connected("cc_taxed", Callable(self, "_on_buff_system_cc_taxed")):
+			_connected_buff_system.cc_taxed.disconnect(_on_buff_system_cc_taxed)
+		if _connected_buff_system.has_signal("cleanse_applied") and _connected_buff_system.is_connected("cleanse_applied", Callable(self, "_on_buff_system_cleanse_applied")):
+			_connected_buff_system.cleanse_applied.disconnect(_on_buff_system_cleanse_applied)
+	_connected_buff_system = null
 
 func _reset_position_tracking() -> void:
 	_last_player_positions = []
@@ -376,11 +645,14 @@ func _emit_position_updates(force: bool = false) -> void:
 				_last_player_positions[i] = null
 				continue
 			var pos: Vector2 = arena_state.get_player_position(i)
-			var last = _last_player_positions[i] if i < _last_player_positions.size() else null
+			var last: Variant = _last_player_positions[i] if i < _last_player_positions.size() else null
 			var emit_now: bool = force
 			if not emit_now:
 				emit_now = not (last is Vector2 and pos.is_equal_approx(last))
 			if emit_now:
+				# Debug: print player position when it changes (guarded)
+				if log_position_updates:
+					print("[Move] player ", i, " ", (unit.name if unit != null else "?"), " pos=", pos)
 				emit_signal("position_updated", "player", i, pos.x, pos.y)
 			_last_player_positions[i] = pos
 	else:
@@ -394,11 +666,14 @@ func _emit_position_updates(force: bool = false) -> void:
 				_last_enemy_positions[j] = null
 				continue
 			var epos: Vector2 = arena_state.get_enemy_position(j)
-			var elast = _last_enemy_positions[j] if j < _last_enemy_positions.size() else null
+			var elast: Variant = _last_enemy_positions[j] if j < _last_enemy_positions.size() else null
 			var emit_enemy: bool = force
 			if not emit_enemy:
 				emit_enemy = not (elast is Vector2 and epos.is_equal_approx(elast))
 			if emit_enemy:
+				# Debug: print enemy position when it changes (guarded)
+				if log_position_updates:
+					print("[Move] enemy  ", j, " ", (enemy.name if enemy != null else "?"), " pos=", epos)
 				emit_signal("position_updated", "enemy", j, epos.x, epos.y)
 			_last_enemy_positions[j] = epos
 	else:
@@ -452,8 +727,18 @@ func _build_resolver_emitters() -> Dictionary[String, Callable]:
 		"heal_applied": Callable(self, "_resolver_emit_heal_applied"),
 		"shield_absorbed": Callable(self, "_resolver_emit_shield_absorbed"),
 		"hit_mitigated": Callable(self, "_resolver_emit_hit_mitigated"),
-		"hit_overkill": Callable(self, "_resolver_emit_hit_overkill")
-		,"hit_components": Callable(self, "_resolver_emit_hit_components")
+		"hit_overkill": Callable(self, "_resolver_emit_hit_overkill"),
+		"hit_components": Callable(self, "_resolver_emit_hit_components"),
+		"amp_output_applied": Callable(self, "_resolver_emit_amp_output_applied"),
+		"damage_redirected": Callable(self, "_resolver_emit_damage_redirected"),
+		"redirect_semantic_applied": Callable(self, "_resolver_emit_redirect_semantic_applied"),
+		"dot_tick_applied": Callable(self, "_resolver_emit_dot_tick_applied"),
+		"reset_triggered": Callable(self, "_resolver_emit_reset_triggered"),
+		"ramp_state_changed": Callable(self, "_resolver_emit_ramp_state_changed"),
+		"targetability_window": Callable(self, "_resolver_emit_targetability_window"),
+		"targetability_threat_interaction": Callable(self, "_resolver_emit_targetability_threat_interaction"),
+		"cc_taxed": Callable(self, "_resolver_emit_cc_taxed"),
+		"zone_exposure_applied": Callable(self, "_resolver_emit_zone_exposure_applied")
 	}
 
 func _filter_events_in_range(events: Array[AttackEvent]) -> Array[AttackEvent]:
@@ -486,6 +771,19 @@ func _filter_events_in_range(events: Array[AttackEvent]) -> Array[AttackEvent]:
 		var prof: Variant = arena_state.get_profile(team, idx) if arena_state and arena_state.has_method("get_profile") else null
 		var band_mult: float = (prof.band_max if prof != null else 1.0)
 		if MovementMath.within_range(shooter, spos, tpos, ts, epsilon, band_mult):
+			# One-time wind-up on first attack after being in range
+			var cds: Array[float] = state.player_cds if team == "player" else state.enemy_cds
+			var key: String = String(team) + ":" + str(idx)
+			if not _first_attack_windup_done.has(key):
+				_first_attack_windup_done[key] = true
+				if idx >= 0 and idx < cds.size():
+					cds[idx] = max(float(cds[idx]), float(first_attack_windup_s))
+					if team == "player":
+						state.player_cds = cds
+					else:
+						state.enemy_cds = cds
+				# Skip scheduling this immediate event; it will fire after wind-up
+				continue
 			out.append(evt)
 		else:
 			# Not in range: keep shooter ready without accumulating extra cooldown debt.
@@ -532,15 +830,54 @@ func _resolver_emit_hit_overkill(source_team: String, source_index: int, target_
 func _resolver_emit_hit_components(source_team: String, source_index: int, target_team: String, target_index: int, phys: int, mag: int, tru: int) -> void:
 	emit_signal("hit_components", source_team, source_index, target_team, target_index, phys, mag, tru)
 
+func _resolver_emit_amp_output_applied(source_team: String, source_index: int, beneficiary_team: String, beneficiary_index: int, target_team: String, target_index: int, amount: float, amp_pct: float, kind: String) -> void:
+	emit_signal("amp_output_applied", source_team, source_index, beneficiary_team, beneficiary_index, target_team, target_index, max(0.0, float(amount)), float(amp_pct), String(kind))
+
+func _resolver_emit_damage_redirected(source_team: String, source_index: int, original_target_team: String, original_target_index: int, redirect_team: String, redirect_index: int, amount: int, kind: String) -> void:
+	emit_signal("damage_redirected", source_team, source_index, original_target_team, original_target_index, redirect_team, redirect_index, amount, kind)
+
+func _resolver_emit_redirect_semantic_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration_s: float, amount: float, risk_s: float) -> void:
+	emit_signal("redirect_semantic_applied", source_team, source_index, target_team, target_index, String(kind), max(0.0, float(duration_s)), max(0.0, float(amount)), max(0.0, float(risk_s)))
+
+func _resolver_emit_dot_tick_applied(source_team: String, source_index: int, target_team: String, target_index: int, amount: int, kind: String) -> void:
+	emit_signal("dot_tick_applied", source_team, source_index, target_team, target_index, amount, kind)
+
+func _resolver_emit_execute_bonus_applied(source_team: String, source_index: int, target_team: String, target_index: int, base_damage: int, bonus_damage: int, threshold_pct: float, target_hp_pct: float, kind: String) -> void:
+	emit_signal("execute_bonus_applied", source_team, source_index, target_team, target_index, max(0, int(base_damage)), max(0, int(bonus_damage)), clamp(float(threshold_pct), 0.0, 1.0), clamp(float(target_hp_pct), 0.0, 1.0), String(kind))
+
+func _resolver_emit_reset_triggered(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, chain_index: int, time_since_previous_s: float, power_scale: float) -> void:
+	emit_signal("reset_triggered", source_team, source_index, target_team, target_index, kind, chain_index, time_since_previous_s, power_scale)
+
+func _resolver_emit_ramp_state_changed(source_team: String, source_index: int, kind: String, stacks: int, value: float, peak_stacks: int, duration_s: float, reason: String) -> void:
+	emit_signal("ramp_state_changed", source_team, source_index, String(kind), max(0, int(stacks)), max(0.0, float(value)), max(0, int(peak_stacks)), max(0.0, float(duration_s)), String(reason))
+
+func _resolver_emit_targetability_window(team: String, index: int, is_targetable: bool, duration: float, reason: String) -> void:
+	emit_signal("targetability_window", team, index, is_targetable, duration, reason)
+
+func _resolver_emit_targetability_threat_interaction(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, cooldown_s: float, key_threat: bool, dodged: bool) -> void:
+	emit_signal("targetability_threat_interaction", source_team, source_index, target_team, target_index, kind, cooldown_s, key_threat, dodged)
+
+func _resolver_emit_ability_committed(source_team: String, source_index: int, ability_id: String, target_team: String, target_index: int, position: Vector2, cooldown_s: float, commitment_kind: String) -> void:
+	emit_signal("ability_committed", source_team, source_index, ability_id, target_team, target_index, position, max(0.0, float(cooldown_s)), commitment_kind)
+
+func _resolver_emit_cc_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration: float) -> void:
+	emit_signal("cc_applied", source_team, source_index, target_team, target_index, kind, duration)
+
+func _resolver_emit_cc_taxed(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, raw_duration: float, effective_duration: float, tenacity: float, prevented: bool) -> void:
+	emit_signal("cc_taxed", source_team, source_index, target_team, target_index, kind, max(0.0, float(raw_duration)), max(0.0, float(effective_duration)), max(0.0, float(tenacity)), bool(prevented))
+
+func _resolver_emit_zone_exposure_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, duration_s: float, damage: float, radius_tiles: float) -> void:
+	emit_signal("zone_exposure_applied", source_team, source_index, target_team, target_index, String(kind), max(0.0, float(duration_s)), max(0.0, float(damage)), max(0.0, float(radius_tiles)))
+
 func _resolver_emit_vfx_knockup(team: String, index: int, duration: float) -> void:
 	emit_signal("vfx_knockup", team, index, duration)
 
-func _resolver_emit_vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float) -> void:
+func _resolver_emit_vfx_beam_line(start_pos: Vector2, end: Vector2, color: Color, width: float, duration: float) -> void:
 	# Visual-only signal to draw a transient beam line in the arena UI.
-	emit_signal("vfx_beam_line", start, end, color, width, duration)
+	emit_signal("vfx_beam_line", start_pos, end, color, width, duration)
 
-func _on_ability_system_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
-	var tgt_team := String(target_team)
+func _on_ability_system_cast(team: String, index: int, _ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
+	var tgt_team: String = String(target_team)
 	if tgt_team == "":
 		tgt_team = ("enemy" if team == "player" else "player")
 	var tgt_index: int = int(target_index)
@@ -562,3 +899,32 @@ func _on_ability_system_cast(team: String, index: int, ability_id: String, targe
 			elif team == "enemy" and index >= 0 and index < state.enemy_team.size():
 				pos = arena_state.get_enemy_position(index)
 	emit_signal("ability_cast", team, index, tgt_team, tgt_index, pos)
+
+func _on_ability_system_committed(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2, cooldown_s: float, commitment_kind: String) -> void:
+	var tgt_team: String = String(target_team)
+	if tgt_team == "":
+		tgt_team = ("enemy" if team == "player" else "player")
+	var tgt_index: int = int(target_index)
+	if tgt_index < 0:
+		tgt_team = String(team)
+		tgt_index = index
+	emit_signal("ability_committed", team, index, ability_id, tgt_team, tgt_index, target_point, max(0.0, float(cooldown_s)), commitment_kind)
+
+func _on_buff_system_buff_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, fields: Dictionary, magnitude: float, duration: float) -> void:
+	emit_signal("buff_applied", source_team, source_index, target_team, target_index, kind, fields, magnitude, duration)
+
+func _on_buff_system_debuff_applied(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, fields: Dictionary, magnitude: float, duration: float) -> void:
+	emit_signal("debuff_applied", source_team, source_index, target_team, target_index, kind, fields, magnitude, duration)
+
+func _on_buff_system_on_hit_proc(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, fields: Dictionary, magnitude: float) -> void:
+	emit_signal("on_hit_proc", source_team, source_index, target_team, target_index, kind, fields, magnitude)
+
+func _on_buff_system_cc_prevented(source_team: String, source_index: int, target_team: String, target_index: int, kind: String) -> void:
+	emit_signal("cc_prevented", source_team, source_index, target_team, target_index, kind)
+
+func _on_buff_system_cc_taxed(source_team: String, source_index: int, target_team: String, target_index: int, kind: String, raw_duration: float, effective_duration: float, tenacity: float, prevented: bool) -> void:
+	emit_signal("cc_taxed", source_team, source_index, target_team, target_index, kind, max(0.0, float(raw_duration)), max(0.0, float(effective_duration)), max(0.0, float(tenacity)), bool(prevented))
+
+func _on_buff_system_cleanse_applied(source_team: String, source_index: int, target_team: String, target_index: int, removed: int) -> void:
+	emit_signal("cleanse_applied", source_team, source_index, target_team, target_index, removed)
+var log_position_updates: bool = false

@@ -68,6 +68,10 @@ func _resolve_profile_path(name: String) -> String:
 			return "res://tests/rga_testing/config/profiles/designer_quick.json"
 		"ci_full":
 			return "res://tests/rga_testing/config/profiles/ci_full.json"
+		"rga_roles_base":
+			return "res://tests/rga_testing/config/profiles/rga_roles_base.json"
+		"rga_roles_derived":
+			return "res://tests/rga_testing/config/profiles/rga_roles_derived.json"
 		_:
 			return ""
 
@@ -86,6 +90,8 @@ func _cli_to_settings_dict(kv: Dictionary) -> Dictionary:
 		d["cost_filter"] = kv["cost"]
 	if kv.has("ids"):
 		d["ids"] = kv["ids"]
+	if kv.has("intents"):
+		d["metadata"] = {"scenario_intents": kv["intents"]}
 	return d
 
 func _map_key(k: String) -> String:

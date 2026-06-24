@@ -3,6 +3,9 @@ class_name SlotStrategy
 const Debug := preload("res://scripts/util/debug.gd")
 
 const TAU := PI * 2.0
+const HYST_STICKINESS := 0.05
+const HYST_SWITCH_COST := 0.1
+const SINGLE_CORRIDOR_EPS_FACTOR := 0.12
 
 # Computes per-attacker slot destinations around their chosen targets.
 # Five evenly spaced slots per target, order-preserving assignment to avoid
@@ -10,144 +13,242 @@ const TAU := PI * 2.0
 # angular error.
 
 static func _angle_to(from: Vector2, to: Vector2) -> float:
-    var ang: float = atan2(to.y - from.y, to.x - from.x)
-    if ang < 0.0:
-        ang += TAU
-    return ang
+	var ang: float = atan2(to.y - from.y, to.x - from.x)
+	if ang < 0.0:
+		ang += TAU
+	return ang
 
 static func _circ_dist(a: float, b: float) -> float:
-    var d: float = abs(a - b)
-    if d > PI:
-        d = TAU - d
-    return d
+	var d: float = abs(a - b)
+	if d > PI:
+		d = TAU - d
+	return d
 
 static func _slot_angles(count: int) -> Array[float]:
-    var out: Array[float] = []
-    if count <= 0:
-        return out
-    var step: float = TAU / float(count)
-    for i in range(count):
-        out.append(step * float(i))
-    return out
+	var out: Array[float] = []
+	if count <= 0:
+		return out
+	var step: float = TAU / float(count)
+	for i in range(count):
+		out.append(step * float(i))
+	return out
+
+static func _wrap_angle(a: float) -> float:
+	var r: float = fmod(a, TAU)
+	if r < 0.0:
+		r += TAU
+	return r
+
+static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_slot_assignments: Dictionary, hysteresis_frames: int) -> Dictionary:
+	var rows: int = pairs.size()
+	var cols: int = ring_angles.size()
+	var costs: Array = []
+	for i in range(rows):
+		var row_cost: Array[float] = []
+		var entry = pairs[i]
+		var idx: int = int(entry["idx"])
+		var prev = prev_slot_assignments.get(idx, {})
+		var prev_slot: int = int(prev.get("slot", -1))
+		var prev_frames: int = int(prev.get("frames", 0))
+		var frame_factor: float = 1.0
+		if hysteresis_frames > 0:
+			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
+		for j in range(cols):
+			var base_cost: float = _circ_dist(float(entry["angle"]), ring_angles[j])
+			if prev_slot == j and prev_frames > 0:
+				base_cost = max(0.0, base_cost - HYST_STICKINESS * frame_factor)
+			elif prev_slot != -1 and prev_slot != j and prev_frames > 0:
+				base_cost += HYST_SWITCH_COST * frame_factor
+			row_cost.append(base_cost)
+		costs.append(row_cost)
+	return _best_assignment(costs)
+
+static func _best_assignment(costs: Array) -> Dictionary:
+	var n: int = costs.size()
+	if n == 0:
+		return {"assignment": [], "cost": 0.0}
+	var indices: Array[int] = []
+	for i in range(n):
+		indices.append(i)
+	var best := [1e30, []]
+	_permute_assign(indices, 0, costs, best)
+	return {"assignment": (best[1] as Array).duplicate(), "cost": float(best[0])}
+
+static func _permute_assign(indices: Array[int], start: int, costs: Array, best: Array) -> void:
+	var n: int = indices.size()
+	if start >= n:
+		var current_cost: float = 0.0
+		for r in range(n):
+			current_cost += float((costs[r] as Array)[indices[r]])
+			if current_cost >= float(best[0]):
+				break
+		if current_cost < float(best[0]):
+			best[0] = current_cost
+			best[1] = indices.duplicate()
+		return
+	for i in range(start, n):
+		var tmp := indices[start]
+		indices[start] = indices[i]
+		indices[i] = tmp
+		_permute_assign(indices, start + 1, costs, best)
+		tmp = indices[start]
+		indices[start] = indices[i]
+		indices[i] = tmp
 
 # Assigns slots for a single target; attackers is an Array[int] of indices into
 # attacker_positions and attacker_ranges_world (Dictionary idx->float).
-static func assign_for_target(target_pos: Vector2, attackers: Array, attacker_positions: Array[Vector2], attacker_ranges_world: Dictionary, slot_count: int, tile_size: float) -> Dictionary:
-    var res: Dictionary = {}
-    if attackers == null or attackers.size() == 0:
-        return res
-    var pairs: Array = [] # [idx, angle]
-    for idx in attackers:
-        var p: Vector2 = attacker_positions[idx]
-        var ang: float = _angle_to(target_pos, p)
-        pairs.append([idx, ang])
-    pairs.sort_custom(func(a, b): return a[1] < b[1])
+static func assign_for_target(_team: String, _target_idx: int, target_pos: Vector2, attackers: Array, attacker_positions: Array[Vector2], attacker_ranges_world: Dictionary, tile_size: float, prev_slot_assignments: Dictionary, hysteresis_frames: int) -> Dictionary:
+	var res: Dictionary = {}
+	if attackers == null or attackers.size() == 0:
+		return res
 
-    # Use as many slots as attackers to avoid stacking duplicates on the same angle.
-    var slots_needed: int = max(1, max(slot_count, attackers.size()))
-    var base: Array[float] = _slot_angles(slots_needed)
-    var best_offset: int = 0
-    var best_cost: float = 1e30
-    for off in range(base.size()):
-        var cost: float = 0.0
-        for i in range(pairs.size()):
-            var ang_a: float = float(pairs[i][1])
-            var ang_s: float = base[(off + i) % base.size()]
-            cost += _circ_dist(ang_a, ang_s)
-        if cost < best_cost:
-            best_cost = cost
-            best_offset = off
+	var pairs: Array = [] # [{"idx":int,"angle":float,"pos":Vector2}]
+	for attacker_idx in attackers:
+		var pos: Vector2 = attacker_positions[attacker_idx]
+		var ang: float = _angle_to(target_pos, pos)
+		pairs.append({
+			"idx": int(attacker_idx),
+			"angle": ang,
+			"pos": pos
+		})
+	pairs.sort_custom(func(a, b): return a["angle"] < b["angle"])
 
-    # Ensure adjacent slots have at least one unit diameter spacing around the ring
-    # Unit diameter ~= 2 * (tile_size * 0.35) = 0.7 * tile_size
-    var min_spacing_world: float = max(0.0, tile_size) * 0.7
-    var min_required_radius: float = 0.0
-    if slots_needed >= 2:
-        var chord_factor: float = 2.0 * sin(PI / float(slots_needed))
-        if chord_factor > 0.0:
-            min_required_radius = min_spacing_world / chord_factor
+	var min_spacing_world: float = max(0.0, tile_size) * 0.7
 
-    for i2 in range(pairs.size()):
-        var idx2: int = int(pairs[i2][0])
-        var ang_s2: float = base[(best_offset + i2) % base.size()]
-        var r_base: float = float(attacker_ranges_world.get(idx2, 0.0))
-        var r: float = max(r_base, min_required_radius)
-        var dir := Vector2(cos(ang_s2), sin(ang_s2))
-        res[idx2] = target_pos + dir * r
-    return res
+	if pairs.size() == 1:
+		var single = pairs[0]
+		var idx_single: int = int(single["idx"])
+		var dir_single: Vector2 = (single["pos"] - target_pos).normalized()
+		if dir_single == Vector2.ZERO:
+			dir_single = Vector2.UP
+		var desired_single: float = float(attacker_ranges_world.get(idx_single, 0.0))
+		if desired_single <= 0.0:
+			desired_single = min_spacing_world
+		var slot_pos_single: Vector2 = target_pos + dir_single * desired_single
+		res[idx_single] = {
+			"position": slot_pos_single,
+			"slot_index": 0,
+			"angle": float(single["angle"]),
+			"mode": "los_arrive",
+			"slow_radius": max(desired_single * 1.5, tile_size),
+			"corridor_radius": max(desired_single, tile_size * 0.9),
+			"corridor_eps": max(tile_size * SINGLE_CORRIDOR_EPS_FACTOR, 1.0)
+		}
+		return res
+
+	var count: int = pairs.size()
+	var step: float = TAU / float(count)
+	var candidates: Array[float] = []
+	for entry in pairs:
+		candidates.append(float(entry["angle"]))
+
+	var best_assignment: Array[int] = []
+	var best_ring_angles: Array[float] = []
+	var best_cost: float = 1e30
+
+	for base in candidates:
+		var ring_angles: Array[float] = []
+		for s in range(count):
+			ring_angles.append(_wrap_angle(base + step * float(s)))
+		var eval := _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames)
+		var current_cost: float = float(eval.get("cost", 1e30))
+		if current_cost < best_cost:
+			best_cost = current_cost
+			best_assignment = eval.get("assignment", []).duplicate()
+			best_ring_angles = ring_angles.duplicate()
+	if best_assignment.is_empty():
+		return res
+
+	var chord_factor: float = 2.0 * sin(PI / float(count))
+	var min_required_radius: float = 0.0
+	if chord_factor > 0.0:
+		min_required_radius = min_spacing_world / chord_factor
+
+	for i in range(count):
+		var entry2 = pairs[i]
+		var attacker_index: int = int(entry2["idx"])
+		var slot_index: int = int(best_assignment[i])
+		var slot_angle: float = best_ring_angles[slot_index]
+		var desired_r: float = float(attacker_ranges_world.get(attacker_index, 0.0))
+		var radius_world: float = max(desired_r, min_required_radius)
+		var dir_slot: Vector2 = Vector2(cos(slot_angle), sin(slot_angle))
+		if dir_slot == Vector2.ZERO:
+			dir_slot = Vector2.UP
+		var slot_position: Vector2 = target_pos + dir_slot * radius_world
+		res[attacker_index] = {
+			"position": slot_position,
+			"slot_index": slot_index,
+			"angle": slot_angle,
+			"mode": "ring",
+			"slow_radius": max(radius_world * 1.5, tile_size),
+			"corridor_radius": max(radius_world, tile_size),
+			"corridor_eps": max(tile_size * SINGLE_CORRIDOR_EPS_FACTOR, 1.0)
+		}
+	return res
 
 # Public: compute slot world positions for all attackers of a team.
 func assign_slots_for_team(team: String,
-        attackers_units: Array,            # Array[Unit]
-        attacker_positions: Array[Vector2],
-        attackers_alive: Array,
-        attackers_targets: Array[int],
-        target_positions: Array[Vector2],
-        targets_alive: Array,
-        groups: Dictionary,                # target_idx -> Array[int] of attacker indices
-        profiles: Array,                   # Array[MovementProfile]
-        tile_size: float,
-        debug_frames_left: int = 0,
-        watch_indices: Array = []) -> Dictionary:
-    var ranges_world: Dictionary = {} # idx -> float
-    for i in range(attackers_units.size()):
-        var u = attackers_units[i]
-        var band: float = 1.0
-        if i < profiles.size() and profiles[i] != null:
-            band = max(0.0, float(profiles[i].band_max))
-        var desired: float = 0.0
-        if u != null:
-            desired = max(0.0, float(u.attack_range)) * max(0.0, tile_size) * band
-        ranges_world[i] = desired
+		attackers_units: Array,            # Array[Unit]
+		attacker_positions: Array[Vector2],
+		_attackers_alive: Array,
+		_attackers_targets: Array[int],
+		target_positions: Array[Vector2],
+		_targets_alive: Array,
+		groups: Dictionary,                # target_idx -> Array[int] of attacker indices
+		profiles: Array,                   # Array[MovementProfile]
+		tile_size: float,
+		debug_frames_left: int = 0,
+		watch_indices: Array = [],
+		prev_slot_assignments: Dictionary = {},
+		hysteresis_frames: int = 0) -> Dictionary:
+	var ranges_world: Dictionary = {} # idx -> float
+	for i in range(attackers_units.size()):
+		var u = attackers_units[i]
+		var band: float = 1.0
+		if i < profiles.size() and profiles[i] != null:
+			band = max(0.0, float(profiles[i].band_max))
+		var desired: float = 0.0
+		if u != null:
+			desired = max(0.0, float(u.attack_range)) * max(0.0, tile_size) * band
+		ranges_world[i] = desired
 
-    var slot_map: Dictionary = {}
-    for t_idx in groups.keys():
-        var attackers: Array = groups[t_idx]
-        if attackers == null or attackers.size() == 0:
-            continue
-        if t_idx < 0 or t_idx >= target_positions.size():
-            continue
-        var tgt_pos: Vector2 = target_positions[t_idx]
-        var m: Dictionary = assign_for_target(tgt_pos, attackers, attacker_positions, ranges_world, 5, tile_size)
-        # Debug: print assignment summary when enabled. If watch_indices is non-empty,
-        # only print for groups that include any watched attacker.
-        if Debug.enabled and debug_frames_left > 0:
-            var should_print: bool = true
-            if watch_indices != null and watch_indices.size() > 0:
-                should_print = false
-                for wi in watch_indices:
-                    if attackers.has(int(wi)):
-                        should_print = true
-                        break
-            if should_print:
-                # Build attacker angle list for context
-                var pairs_dbg: Array = []
-                for idx in attackers:
-                    var p_dbg: Vector2 = attacker_positions[idx]
-                    pairs_dbg.append([idx, _angle_to(tgt_pos, p_dbg)])
-                pairs_dbg.sort_custom(func(a, b): return a[1] < b[1])
-                var base_dbg := _slot_angles(max(5, attackers.size()))
-                # Try all offsets to compute the one we used
-                var best_off: int = 0
-                var best_cost: float = 1e30
-                for off in range(base_dbg.size()):
-                    var cost: float = 0.0
-                    for i in range(pairs_dbg.size()):
-                        cost += _circ_dist(float(pairs_dbg[i][1]), base_dbg[(off + i) % base_dbg.size()])
-                    if cost < best_cost:
-                        best_cost = cost
-                        best_off = off
-                var idxs: Array = []
-                var angs: Array = []
-                for pr in pairs_dbg:
-                    idxs.append(int(pr[0]))
-                    angs.append(float(pr[1]))
-                print("[Slots] team=", team, " target=", t_idx, " idxs=", idxs, " angles=", angs,
-                      " slot_angles=", base_dbg, " offset=", best_off, " cost=", best_cost)
-                for k in m.keys():
-                    var pos_k: Vector2 = m[k]
-                    var ang_k: float = _angle_to(tgt_pos, pos_k)
-                    print("[Slots] team=", team, " target=", t_idx, " idx=", k, " -> slot_ang=", ang_k, " pos=", pos_k)
-        for k in m.keys():
-            slot_map[k] = m[k]
-    return slot_map
+	var slot_map: Dictionary = {}
+	for t_idx in groups.keys():
+		var attackers: Array = groups[t_idx]
+		if attackers == null or attackers.size() == 0:
+			continue
+		if t_idx < 0 or t_idx >= target_positions.size():
+			continue
+		var tgt_pos: Vector2 = target_positions[t_idx]
+		var m: Dictionary = assign_for_target(team, int(t_idx), tgt_pos, attackers, attacker_positions, ranges_world, tile_size, prev_slot_assignments, hysteresis_frames)
+		# Debug: print assignment summary when enabled. If watch_indices is non-empty,
+		# only print for groups that include any watched attacker.
+		if Debug.enabled and debug_frames_left > 0:
+			var should_print: bool = true
+			if watch_indices != null and watch_indices.size() > 0:
+				should_print = false
+				for wi in watch_indices:
+					if attackers.has(int(wi)):
+						should_print = true
+						break
+			if should_print:
+				# Build attacker angle list for context
+				var pairs_dbg: Array = []
+				for idx in attackers:
+					var p_dbg: Vector2 = attacker_positions[idx]
+					pairs_dbg.append([idx, _angle_to(tgt_pos, p_dbg)])
+				pairs_dbg.sort_custom(func(a, b): return a[1] < b[1])
+				var idxs: Array = []
+				var angs: Array = []
+				for pr in pairs_dbg:
+					idxs.append(int(pr[0]))
+					angs.append(float(pr[1]))
+				print("[Slots] team=", team, " target=", t_idx, " idxs=", idxs, " angles=", angs)
+				for k in m.keys():
+					var slot_data: Dictionary = m[k]
+					var pos_k: Vector2 = slot_data.get("position", tgt_pos)
+					var ang_k: float = float(slot_data.get("angle", 0.0))
+					print("[Slots] team=", team, " target=", t_idx, " idx=", k, " -> slot_ang=", ang_k, " pos=", pos_k)
+		for k in m.keys():
+			slot_map[k] = m[k]
+	return slot_map

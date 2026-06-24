@@ -11,4 +11,5 @@ icon_path = "res://assets/items/plate_icon.png"
 stat_mods = {"flat_armor": 30}
 effects = []
 components = []
+tags = PackedStringArray("tank", "brawler")
 

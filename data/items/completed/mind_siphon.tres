@@ -11,4 +11,5 @@ icon_path = "res://assets/items/mind_siphon_icon.png"
 stat_mods = {"pct_ad": 0.20, "flat_start_mana": 20}
 effects = ["mind_siphon"]
 components = ["hammer", "orb"]
+tags = PackedStringArray("assassin", "brawler")
 

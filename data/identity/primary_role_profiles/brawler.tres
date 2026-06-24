@@ -1,33 +1,46 @@
-[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2]
+[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2 format=3 uid="uid://du0ss472ifhnt"]
 
-[ext_resource path="res://scripts/game/identity/primary_role_profile.gd" type="Script" id=1]
+[ext_resource type="Script" uid="uid://boj4iou4o6ucc" path="res://scripts/game/identity/primary_role_profile.gd" id="1"]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource("1")
 role_id = "brawler"
 display_name = "Brawler"
 description = "Frontline bruisers who win extended fights through pressure."
 base_stats = {
-    "attack_damage": 75.0,
-    "attack_range": 1.0,
-    "armor": 30.0,
-    "magic_resist": 10.0,
-    "max_hp": 800.0,
-    "spell_power": 0.0
+"armor": 60.0,
+"armor_pen_flat": 0.0,
+"armor_pen_pct": 0.0,
+"attack_damage": 56.0,
+"attack_range": 1.0,
+"attack_speed": 0.7,
+"cast_speed": 1.0,
+"crit_chance": 0.0,
+"crit_damage": 1.5,
+"hp_regen": 0.0,
+"lifesteal": 0.0,
+"magic_resist": 60.0,
+"mana_gain_per_attack": 10.0,
+"mana_max": 0.0,
+"mana_regen": 0.0,
+"mana_start": 0.0,
+"max_hp": 1400.0,
+"mr_pen_flat": 0.0,
+"mr_pen_pct": 0.0,
+"spell_power": 0.0,
+"true_damage": 0.0
 }
-validation_rules = [{
-        "label": "Brawler HP",
-        "metric": "max_hp",
-        "min": 700.0
-    }, {
-        "label": "Brawler Durability",
-        "metric": "armor_plus_mr",
-        "min": 35.0
-    }, {
-        "label": "Brawler Damage",
-        "metric": "attack_damage",
-        "min": 50.0,
-        "max": 95.0
-    }]
-default_goals = ["brawler.attrition_dps", "brawler.frontline_disruption", "brawler.skirmish_dive"]
-default_approaches = ["sustain", "disrupt", "reposition"]
+validation_rules = Array[Dictionary]([{
+"label": "Brawler HP",
+"metric": "max_hp",
+"min": 200.0
+}, {
+"label": "Brawler Durability",
+"metric": "armor_plus_mr",
+"min": 35.0
+}, {
+"label": "Brawler Damage",
+"max": 260.0,
+"metric": "attack_damage",
+"min": 40.0
+}])

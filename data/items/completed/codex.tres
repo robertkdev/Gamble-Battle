@@ -11,4 +11,5 @@ icon_path = "res://assets/items/codex_icon.png"
 stat_mods = {"flat_sp": 60.0, "flat_armor": 40}
 effects = ["codex"]
 components = ["wand", "plate"]
+tags = PackedStringArray("mage", "support")
 

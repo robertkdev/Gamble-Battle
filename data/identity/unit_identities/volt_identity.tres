@@ -5,6 +5,6 @@
 [resource]
 script = ExtResource( 1 )
 primary_role = "mage"
-primary_goal = "mage.area_denial_zone"
-approaches = ["zone", "burst", "debuff"]
+primary_goal = "mage.pick_burst"
+approaches = ["burst", "lockdown"]
 alt_goals = []

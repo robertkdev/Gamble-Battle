@@ -69,8 +69,8 @@ Phase Rules
 - Affordability differs by phase:
   - Planning/Post-combat: must keep at least 1 health. A purchase is allowed only if `gold - cost >= 1`.
   - Combat: you may borrow against your bet this round. A purchase is allowed if `cost <= gold + (2*bet - 1) - combat_spent`.
-    - `combat_spent` is the total shop spending done during the current combat (rerolls, XP, unit buys). Selling reduces it.
-    - Bet is escrowed at combat start; on win you receive `2*bet`, on loss `0`. Settlement happens before the next planning phase.
+	- `combat_spent` is the total shop spending done during the current combat (rerolls, XP, unit buys). Selling reduces it.
+	- Bet is escrowed at combat start; on win you receive `2*bet`, on loss `0`. Settlement happens before the next planning phase.
   - Failed affordability due to these rules surface as `WOULD_KILL_YOU` with a user-facing tooltip.
 
 Error Codes
@@ -78,7 +78,7 @@ Error Codes
 
 Extension Points
 - Odds: edit `ODDS_BY_LEVEL` and `VALID_COSTS` in config; logic lives in `ShopOdds`.
-- Catalog: place unit `.tres` in `res://data/units` (`UnitProfile`/`UnitDef`); `UnitCatalog` scans and groups by cost.
+- Catalog: place playable unit `.tres` in `res://data/units` as `UnitProfile`; `UnitCatalog` scans and groups by cost. Non-playables (creeps/dummies) live under `res://data/other_units/...` and are excluded from the shop.
 - Combining: `CombineService` promotes three-of-a-kind on bench post-purchase; adjust rules there.
 - UI: `ShopPresenter` mediates Shop -> UI; buttons/labels live under `shop_buttons.gd`, cards in `shop_panel.gd` and `ShopCard.tscn`.
 - Economy: `Economy` singleton provides gold and bet; all spending/credits route through it.

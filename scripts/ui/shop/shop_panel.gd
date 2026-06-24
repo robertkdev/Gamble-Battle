@@ -5,6 +5,7 @@ const UI := preload("res://scripts/constants/ui_constants.gd")
 const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const ShopCardScene := preload("res://scenes/ui/shop/ShopCard.tscn")
 const ShopOffer := preload("res://scripts/game/shop/shop_offer.gd")
+const EmptySigilTexture: Texture2D = preload("res://assets/ui/gold icon.png")
 
 var _grid: GridContainer = null
 var _slot_count: int = ShopConfig.SLOT_COUNT
@@ -95,27 +96,64 @@ func _make_card(offer, index: int) -> Control:
     return placeholder
 
 func _make_empty() -> Control:
-    var placeholder := ColorRect.new()
-    placeholder.custom_minimum_size = Vector2(UI.TILE_SIZE * 2, UI.TILE_SIZE + 24)
-    placeholder.color = Color(0.1, 0.1, 0.12, 0.4)
-    return placeholder
+    return _make_placeholder(false)
 
 func get_cards() -> Array:
     return _cards.duplicate()
 
 func _make_sold() -> Control:
-    var wrap := VBoxContainer.new()
-    wrap.custom_minimum_size = Vector2(UI.TILE_SIZE * 2, UI.TILE_SIZE + 24)
-    var tile := ColorRect.new()
-    tile.custom_minimum_size = Vector2(UI.TILE_SIZE, UI.TILE_SIZE)
-    tile.color = Color(0.1, 0.1, 0.12, 0.6)
-    var lbl := Label.new()
-    lbl.text = "SOLD"
-    lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    lbl.modulate = Color(1, 0.5, 0.5, 0.9)
-    wrap.add_child(tile)
-    wrap.add_child(lbl)
+    return _make_placeholder(true)
+
+func _make_placeholder(sold: bool) -> Control:
+    var wrap: PanelContainer = PanelContainer.new()
+    wrap.custom_minimum_size = Vector2(168.0, 176.0)
+    wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    wrap.add_theme_stylebox_override("panel", _make_placeholder_style(sold))
+
+    var stack: VBoxContainer = VBoxContainer.new()
+    stack.alignment = BoxContainer.ALIGNMENT_CENTER
+    stack.add_theme_constant_override("separation", 8)
+    stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    wrap.add_child(stack)
+
+    var icon: TextureRect = TextureRect.new()
+    icon.texture = EmptySigilTexture
+    icon.custom_minimum_size = Vector2(78.0, 78.0)
+    icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+    icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+    icon.modulate = Color(0.82, 0.58, 0.34, 0.30) if not sold else Color(0.82, 0.14, 0.14, 0.34)
+    icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    stack.add_child(icon)
+
+    var label: Label = Label.new()
+    label.text = "SEALED" if sold else "LEDGER"
+    label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    label.add_theme_font_size_override("font_size", 12)
+    label.add_theme_color_override("font_color", Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.74, 0.48, 0.44, 0.88))
+    label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.80))
+    label.add_theme_constant_override("outline_size", 1)
+    label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    stack.add_child(label)
     return wrap
+
+func _make_placeholder_style(sold: bool) -> StyleBoxFlat:
+    var style: StyleBoxFlat = StyleBoxFlat.new()
+    style.bg_color = Color(0.030, 0.026, 0.034, 0.88)
+    style.border_color = Color(0.34, 0.29, 0.28, 0.86)
+    if sold:
+        style.bg_color = Color(0.062, 0.026, 0.034, 0.90)
+        style.border_color = Color(0.48, 0.090, 0.090, 0.86)
+    style.border_width_left = 1
+    style.border_width_top = 1
+    style.border_width_right = 1
+    style.border_width_bottom = 1
+    style.corner_radius_top_left = 5
+    style.corner_radius_top_right = 5
+    style.corner_radius_bottom_right = 5
+    style.corner_radius_bottom_left = 5
+    style.shadow_size = 8
+    style.shadow_color = Color(0.0, 0.0, 0.0, 0.44)
+    return style
 
 func _duplicate_strings(values) -> Array:
     var out: Array = []

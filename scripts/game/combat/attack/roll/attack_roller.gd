@@ -11,7 +11,6 @@ func roll(u: Unit, rng: RandomNumberGenerator) -> Dictionary:
     if deterministic:
         var dmg_f: float = float(u.attack_damage) + float(u.true_damage)
         return {"damage": int(round(dmg_f)), "crit": false}
-    if u.has_method("attack_roll"):
-        return u.attack_roll(rng)
-    return {"damage": int(max(0.0, float(u.attack_damage) + float(u.true_damage))), "crit": false}
-
+    var crit: bool = rng.randf() < float(u.crit_chance)
+    var rolled_dmg_f: float = float(u.attack_damage) * (float(u.crit_damage) if crit else 1.0) + float(u.true_damage)
+    return {"damage": int(max(0.0, round(rolled_dmg_f))), "crit": crit}

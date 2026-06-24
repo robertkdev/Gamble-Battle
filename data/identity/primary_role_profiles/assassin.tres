@@ -1,32 +1,52 @@
-[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2]
+[gd_resource type="Resource" script_class="PrimaryRoleProfile" load_steps=2 format=3 uid="uid://bd2s7kuilxskp"]
 
-[ext_resource path="res://scripts/game/identity/primary_role_profile.gd" type="Script" id=1]
+[ext_resource type="Script" uid="uid://boj4iou4o6ucc" path="res://scripts/game/identity/primary_role_profile.gd" id="1"]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource("1")
 role_id = "assassin"
 display_name = "Assassin"
 description = "High-mobility eliminators who burst priority targets."
 base_stats = {
-    "attack_damage": 90.0,
-    "attack_range": 1.0,
-    "armor": 20.0,
-    "magic_resist": 5.0,
-    "max_hp": 400.0,
-    "spell_power": 10.0
+"armor": 30.0,
+"armor_pen_flat": 0.0,
+"armor_pen_pct": 0.0,
+"attack_damage": 40.6,
+"attack_range": 1.0,
+"attack_speed": 0.7,
+"cast_speed": 1.0,
+"crit_chance": 0.15,
+"crit_damage": 1.5,
+"hp_regen": 0.0,
+"lifesteal": 0.0,
+"magic_resist": 35.0,
+"mana_gain_per_attack": 10.0,
+"mana_max": 0.0,
+"mana_regen": 0.0,
+"mana_start": 0.0,
+"max_hp": 980.0,
+"mr_pen_flat": 0.0,
+"mr_pen_pct": 0.0,
+"spell_power": 0.0,
+"true_damage": 0.0
 }
-validation_rules = [{
-        "label": "Assassin HP",
-        "metric": "max_hp",
-        "max": 750.0
-    }, {
-        "label": "Assassin Range",
-        "metric": "attack_range",
-        "max": 2.0
-    }, {
-        "label": "Assassin Burst",
-        "metric": "burst_proxy",
-        "min": 60.0
-    }]
-default_goals = ["assassin.backline_elimination", "assassin.cleanup_execution", "assassin.disrupt_and_escape"]
-default_approaches = ["access_backline", "burst", "execute", "untargetable"]
+validation_rules = Array[Dictionary]([{
+"label": "Assassin HP",
+"max": 1500.0,
+"max_by_cost": {
+"1": 1500.0,
+"2": 2000.0,
+"3": 2400.0,
+"4": 3600.0,
+"5": 5400.0
+},
+"metric": "max_hp"
+}, {
+"label": "Assassin Range",
+"max": 1.0,
+"metric": "attack_range"
+}, {
+"label": "Assassin Burst",
+"metric": "burst_proxy",
+"min": 0.0
+}])

@@ -46,8 +46,8 @@ func _ready() -> void:
 	_progress = PlayerProgress.new()
 	reset_run()
 
-func _has_autoload(name: String) -> bool:
-	var n = String(name)
+func _has_autoload(autoload_name: String) -> bool:
+	var n = String(autoload_name)
 	var path = "/root/%s" % n
 	var node = get_tree().root.get_node_or_null(path)
 	return node != null
@@ -70,7 +70,6 @@ func get_level() -> int:
 
 func set_level(lv: int) -> void:
 	if _progress:
-		var old := _progress.level
 		_progress.set_level(int(lv))
 		# No signal bridging here; UI can subscribe to PlayerProgress later if needed
 

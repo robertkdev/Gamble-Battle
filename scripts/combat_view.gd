@@ -1,11 +1,14 @@
 extends Control
 
+const GothicUITheme := preload("res://scripts/ui/combat/gothic_ui_theme.gd")
+
 var _controller_script: Script = null
 
 @onready var log_label: RichTextLabel = get_node_or_null("MarginContainer/VBoxContainer/Log") as RichTextLabel
 @onready var player_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/PlayerStatsLabel"
 @onready var enemy_stats_label: Label = $"MarginContainer/VBoxContainer/HBoxContainer/EnemyStatsLabel"
 @onready var stage_label: Label = $"MarginContainer/VBoxContainer/StageLabel"
+@onready var planning_timer_label: Label = $"MarginContainer/VBoxContainer/PlanningTimerLabel"
 @onready var player_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerUnitHolder/PlayerSprite"
 @onready var enemy_sprite: TextureRect = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyUnitHolder/EnemySprite"
 @onready var player_grid: GridContainer = $"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid"
@@ -29,6 +32,13 @@ var manager: CombatManager
 var controller
 
 var player_name: String = "Hero"
+
+# Planning phase timer
+var planning_timer_total: float = 60.0
+var planning_time_left: float = 0.0
+var planning_warn_at: float = 11.0
+var _planning_warn_played: bool = false
+var _planning_autostart_done: bool = false
 
 ## Intermission orchestration handled by controller
 
@@ -54,7 +64,18 @@ func _ready() -> void:
 		controller = null
 	controller.configure(self, manager, _collect_nodes())
 	controller.initialize()
+	_apply_visual_theme()
 	set_process(true)
+	# Timer label hidden by default
+	if planning_timer_label:
+		planning_timer_label.visible = false
+	# React to phase changes (autoload guard via root node)
+	var gs: Variant = _get_gs()
+	if gs and not gs.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
+		gs.phase_changed.connect(_on_phase_changed)
+	# Initialize timer state for current phase
+	if gs:
+		_on_phase_changed(gs.phase, gs.phase)
 
 func _init_game() -> void:
 	controller._init_game()
@@ -96,6 +117,7 @@ func _refresh_hud() -> void:
 
 func _refresh_stats() -> void:
 	controller._refresh_stats()
+	_apply_visual_theme_deferred()
 
 func _on_victory(_stage: int) -> void:
 	controller._on_victory(_stage)
@@ -140,6 +162,77 @@ func _set_sprite_texture(rect: TextureRect, path: String, fallback_color: Color)
 
 func _process(_delta: float) -> void:
 	controller.process(_delta)
+	_update_planning_timer(_delta)
+
+
+func _get_gs() -> Node:
+	# Resolve GameState autoload safely in editor/headless contexts.
+	# Prefer autoload by name; fall back to root node lookup.
+	var root: Node = (get_tree().root if get_tree() else null)
+	var node: Node = (root.get_node_or_null("/root/GameState") if root else null)
+	# Accessing GameState by name works when autoloaded; guard for tests/tools.
+	if typeof(GameState) != TYPE_NIL:
+		return GameState
+	return node
+
+func _get_sound() -> Node:
+	# Resolve Sound autoload safely.
+	var root: Node = (get_tree().root if get_tree() else null)
+	var node: Node = (root.get_node_or_null("/root/Sound") if root else null)
+	if typeof(Sound) != TYPE_NIL:
+		return Sound
+	return node
+
+func _on_phase_changed(_prev: int, next: int) -> void:
+	# Start/reset timer when entering planning (PREVIEW). Hide otherwise.
+	var gp: Variant = _get_gs()
+	if gp == null:
+		return
+	var is_preview: bool = (int(next) == int(gp.GamePhase.PREVIEW))
+	if is_preview:
+		planning_time_left = float(planning_timer_total)
+		_planning_warn_played = false
+		_planning_autostart_done = false
+		if planning_timer_label:
+			planning_timer_label.visible = true
+			planning_timer_label.text = _format_time(planning_time_left)
+	else:
+		if planning_timer_label:
+			planning_timer_label.visible = false
+	_apply_visual_theme_deferred()
+
+
+func _update_planning_timer(delta: float) -> void:
+	if not planning_timer_label:
+		return
+	var gp: Variant = _get_gs()
+	if gp == null:
+		return
+	if int(gp.phase) != int(gp.GamePhase.PREVIEW):
+		return
+	var prev_time: float = planning_time_left
+	planning_time_left = max(0.0, float(planning_time_left) - float(delta))
+	planning_timer_label.text = _format_time(planning_time_left)
+	# Warning sound at T-11s
+	if not _planning_warn_played and planning_time_left <= float(planning_warn_at):
+		var s: Variant = _get_sound()
+		if s and s.has_method("play_id"):
+			s.play_id("fx/planning_phase_timer")
+		_planning_warn_played = true
+	# Auto-start combat at T-0
+	if not _planning_autostart_done and prev_time > 0.0 and planning_time_left <= 0.0:
+		_planning_autostart_done = true
+		if planning_timer_label:
+			planning_timer_label.visible = false
+		# Use controller hook which handles bet bump and start
+		if controller and controller.has_method("_auto_start_battle"):
+			controller._auto_start_battle()
+
+func _format_time(seconds_left: float) -> String:
+	var s: int = int(ceil(max(0.0, seconds_left)))
+	var m: int = int(float(s) / 60.0)
+	var ss: int = int(s % 60)
+	return "Planning: %d:%02d" % [m, ss]
 
 ## Ally sprite direct drag removed
 
@@ -187,8 +280,16 @@ func _log_start_positions_and_targets() -> void:
 
 func set_player_team_ids(ids: Array) -> void:
 	controller.set_player_team_ids(ids)
+	_apply_visual_theme_deferred()
 
-func _notification(what: int) -> void:
+func _apply_visual_theme() -> void:
+	GothicUITheme.apply(self)
+	call_deferred("_apply_visual_theme_deferred")
+
+func _apply_visual_theme_deferred() -> void:
+	GothicUITheme.apply(self)
+
+func _notification(_what: int) -> void:
 	pass
 
 

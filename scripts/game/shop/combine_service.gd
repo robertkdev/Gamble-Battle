@@ -265,18 +265,8 @@ func _promote_one_level(u: Unit) -> void:
 	if u == null:
 		return
 	var steps := 1
-	var keys := [
-		"max_hp",
-		"hp_regen",
-		"attack_damage",
-		"spell_power",
-		"lifesteal",
-		"armor",
-		"magic_resist",
-		"true_damage",
-	]
 	for _i in range(steps):
-		for k in keys:
+		for k in UnitScaler.SCALE_KEYS:
 			var curv: float = float(u.get(k))
 			curv *= 1.5
 			match k:

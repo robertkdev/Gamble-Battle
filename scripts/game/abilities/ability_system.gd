@@ -2,6 +2,7 @@ extends RefCounted
 class_name AbilitySystem
 
 signal ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2)
+signal ability_committed(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2, cooldown_s: float, commitment_kind: String)
 
 const AbilityCatalog = preload("res://scripts/game/abilities/ability_catalog.gd")
 const AbilityContext = preload("res://scripts/game/abilities/ability_context.gd")
@@ -12,11 +13,14 @@ var engine: CombatEngine
 var state: BattleState
 var rng: RandomNumberGenerator
 var buff_system: BuffSystem = null
-var cost_adapter = null
+var cost_adapter: Variant = null
 
 # Per-unit cooldowns (seconds remaining)
 var _cooldowns: Dictionary = {} # Unit -> float
 var _events: Array = [] # Array[Dictionary]: { name, team, index, t, data }
+var _casting: Dictionary = {} # Unit -> bool reentrancy guard
+var emit_ability_logs: bool = true
+const LOG_PREFIX_ABILITY := "ABILITY"
 
 func configure(_engine: CombatEngine, _state: BattleState, _rng: RandomNumberGenerator, _buffs: BuffSystem = null) -> void:
 	engine = _engine
@@ -25,6 +29,16 @@ func configure(_engine: CombatEngine, _state: BattleState, _rng: RandomNumberGen
 	buff_system = _buffs
 	cost_adapter = null
 	_cooldowns.clear()
+
+func teardown() -> void:
+	engine = null
+	state = null
+	rng = null
+	buff_system = null
+	cost_adapter = null
+	_cooldowns.clear()
+	_events.clear()
+	_casting.clear()
 
 func tick(delta: float) -> void:
 	if delta <= 0.0:
@@ -95,7 +109,7 @@ func _autocast_totem_if_needed(team: String, index: int) -> void:
 	# Require Exile trait active on team (count > 0)
 	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
 	ctx.buff_system = buff_system
-	var ability_id := "totem_cleanse"
+	var ability_id: String = "totem_cleanse"
 	var exile_count: int = 0
 	if ctx.has_method("trait_count"):
 		exile_count = ctx.trait_count(team, "Exile")
@@ -107,23 +121,32 @@ func _autocast_totem_if_needed(team: String, index: int) -> void:
 	# Gate: simple per-unit cooldown to avoid spamming
 	if _cooldowns.get(state.player_team[index] if team == "player" else state.enemy_team[index], 0.0) > 0.0:
 		return
-	_emit_ability_cast_event(team, index, ability_id, ctx, team, index)
+	var cast_info: Dictionary = _emit_ability_cast_event(team, index, ability_id, ctx, team, index)
 	# Attempt to cast immediately, ignoring mana threshold; consume mana on success
-	var impl = AbilityCatalog.new_instance(ability_id)
+	var impl: Variant = AbilityCatalog.new_instance(ability_id)
 	if impl == null or not impl.has_method("cast"):
 		return
+	var pushed: bool = _push_buff_source(team, index, "autocast")
 	var ok: bool = bool(impl.cast(ctx))
+	if pushed:
+		_pop_buff_source()
 	if not ok:
 		return
+	_log_ability_cast(team, index, ability_id)
 	# Consume mana and start a brief cooldown
 	var unit: Unit = _unit_at(team, index)
+	var committed_cooldown_s: float = 0.5
 	if unit != null:
 		unit.mana = 0
 		engine._resolver_emit_unit_stat(team, index, {"mana": unit.mana})
 		engine._resolver_emit_stats(unit, BattleState.first_alive(state.enemy_team))
 		_cooldowns[unit] = 0.5
+	_emit_ability_committed_event(team, index, ability_id, cast_info, committed_cooldown_s, "autocast")
 func _handle_event(evt: Dictionary) -> void:
 	var name: String = String(evt.get("name", ""))
+	var source_team: String = String(evt.get("team", "player"))
+	var source_index: int = int(evt.get("index", -1))
+	var pushed: bool = _push_buff_source(source_team, source_index, "scheduled")
 	match name:
 		"korath_release":
 			_handle_korath_release(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
@@ -139,8 +162,16 @@ func _handle_event(evt: Dictionary) -> void:
 			_handle_bo_wos_dash_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"bo_wos_land":
 			_handle_bo_wos_land(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
+		"autocast_deferred":
+			# Deferred autocast to break synchronous recursion; best-effort try next tick
+			var t: String = String(evt.get("team", ""))
+			var i: int = int(evt.get("index", -1))
+			if t != "" and i >= 0:
+				try_cast(t, i)
 		_:
 			pass
+	if pushed:
+		_pop_buff_source()
 
 func _handle_creep_eaves_tick(team: String, index: int, data: Dictionary) -> void:
 	if state == null or engine == null:
@@ -172,6 +203,9 @@ func _handle_creep_eaves_tick(team: String, index: int, data: Dictionary) -> voi
 		if vi < 0:
 			continue
 		var res: Dictionary = AbilityEffects.damage_single(engine, state, team, index, int(vi), dmg, "physical")
+		if bool(res.get("processed", false)):
+			var dealt_amount: float = float(res.get("dealt", dmg))
+			ctx.emit_zone_exposure(tgt_team, int(vi), "eavesdropping_spin_zone", interval, dealt_amount, radius)
 		var after_hp: int = int(res.get("after_hp", 1))
 		if after_hp <= 0:
 			any_kill = true
@@ -213,7 +247,7 @@ func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 		stacks_at_cast = int(meta.get("stacks_at_cast", 0))
 		# Clear remaining time on tag if still present (not required, but tidy)
 		if buff_system != null and buff_system.has_tag(state, team, index, BuffTags.TAG_KORATH):
-			var tag = buff_system.get_tag(state, team, index, BuffTags.TAG_KORATH)
+			var tag: Dictionary = buff_system.get_tag(state, team, index, BuffTags.TAG_KORATH)
 			if not tag.is_empty():
 				tag["remaining"] = 0.0
 	# Find ally with greatest missing HP (include self)
@@ -245,7 +279,7 @@ func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 		if dmg_amt > 0:
 			AbilityEffects.damage_single(engine, state, team, index, enemy_idx, float(dmg_amt), "magic")
 			# Brief stun to create a window to capitalize
-			AbilityEffects.stun(buff_system, engine, state, ("enemy" if team == "player" else "player"), enemy_idx, 0.4)
+			AbilityEffects.stun(buff_system, engine, state, ("enemy" if team == "player" else "player"), enemy_idx, 0.4, team, index)
 	engine._resolver_emit_log("Absorb & Release: healed %d (pool=%d, base=%d, stacks=%d)" % [heal_amt, pool, heal_base, stacks_at_cast])
 
 func _handle_veyra_harden_end(team: String, index: int) -> void:
@@ -288,9 +322,8 @@ func _handle_kythera_siphon_tick(team: String, index: int, data: Dictionary) -> 
 		AbilityEffects.damage_single(engine, state, team, index, tgt_idx, dmg, "magic")
 	# Apply incremental MR drain this tick and accumulate drained_total on caster tag
 	if buff_system != null:
-		var BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
 		if buff_system.has_tag(state, team, index, BuffTags.TAG_KYTHERA):
-			var tag := buff_system.get_tag(state, team, index, BuffTags.TAG_KYTHERA)
+			var tag: Dictionary = buff_system.get_tag(state, team, index, BuffTags.TAG_KYTHERA)
 			var meta: Dictionary = tag.get("data", {})
 			var per_sec: float = float(meta.get("per_sec", 0.0))
 			var drained_total: float = float(meta.get("drained_total", 0.0))
@@ -304,7 +337,7 @@ func _handle_kythera_siphon_tick(team: String, index: int, data: Dictionary) -> 
 			meta["drained_total"] = drained_total
 			tag["data"] = meta
 
-func _handle_kythera_siphon_end(team: String, index: int, data: Dictionary) -> void:
+func _handle_kythera_siphon_end(team: String, index: int, _data: Dictionary) -> void:
 	if state == null or engine == null:
 		return
 	var caster: Unit = _unit_at(team, index)
@@ -312,9 +345,8 @@ func _handle_kythera_siphon_end(team: String, index: int, data: Dictionary) -> v
 		return
 	var gain_total: int = 0
 	if buff_system != null:
-		var BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
 		if buff_system.has_tag(state, team, index, BuffTags.TAG_KYTHERA):
-			var tag := buff_system.get_tag(state, team, index, BuffTags.TAG_KYTHERA)
+			var tag: Dictionary = buff_system.get_tag(state, team, index, BuffTags.TAG_KYTHERA)
 			var meta: Dictionary = tag.get("data", {})
 			var drained_total: float = float(meta.get("drained_total", 0.0))
 			gain_total = int(max(0, round(drained_total)))
@@ -336,8 +368,8 @@ func _handle_bo_wos_dash_tick(team: String, index: int, data: Dictionary) -> voi
 	if data == null:
 		return
 	var remain: float = float(data.get("remain", 0.0))
-	var tick: float = float(data.get("tick", 0.06))
-	if remain <= 0.0 or tick <= 0.0:
+	var tick_s: float = float(data.get("tick", 0.06))
+	if remain <= 0.0 or tick_s <= 0.0:
 		return
 	var width_tiles: float = float(data.get("width_tiles", 0.6))
 	var dmg: int = int(max(0, int(data.get("damage", 0))))
@@ -349,7 +381,7 @@ func _handle_bo_wos_dash_tick(team: String, index: int, data: Dictionary) -> voi
 	# Compute new position along the dash path and write to arena for visible movement
 	var dur: float = float(data.get("dur", remain))
 	var start_pos: Vector2 = data.get("start_pos", (engine.get_player_position(index) if team == "player" else engine.get_enemy_position(index)))
-	var next_remain: float = max(0.0, remain - tick)
+	var next_remain: float = max(0.0, remain - tick_s)
 	var t2: float = 0.0 if dur <= 0.0 else clamp(1.0 - (next_remain / dur), 0.0, 1.0)
 	var cur_pos: Vector2 = start_pos.lerp(end_pos, t2)
 	if engine.arena_state != null:
@@ -391,7 +423,7 @@ func _handle_bo_wos_dash_tick(team: String, index: int, data: Dictionary) -> voi
 		var perp: float = abs(rel.cross(fwd))
 		if perp <= half_w:
 			# Hit once per dash
-			AbilityEffects.stun(buff_system, engine, state, tgt_team, vi, kdur)
+			AbilityEffects.stun(buff_system, engine, state, tgt_team, vi, kdur, team, index)
 			if engine and engine.has_method("_resolver_emit_vfx_knockup"):
 				engine._resolver_emit_vfx_knockup(tgt_team, vi, kdur)
 			AbilityEffects.damage_single(engine, state, team, index, vi, dmg, "physical")
@@ -403,7 +435,7 @@ func _handle_bo_wos_dash_tick(team: String, index: int, data: Dictionary) -> voi
 	data["last_pos"] = cur_pos
 	data["hit"] = hit
 	if remain > 0.0:
-		schedule_event("bo_wos_dash_tick", team, index, max(0.0, tick), data)
+		schedule_event("bo_wos_dash_tick", team, index, max(0.0, tick_s), data)
 	else:
 		# Ensure we schedule landing (handler snaps and retargets)
 		schedule_event("bo_wos_land", team, index, 0.0, {"end_pos": end_pos})
@@ -428,13 +460,17 @@ func _handle_bo_wos_land(team: String, index: int, data: Dictionary) -> void:
 		engine._resolver_emit_log("Writ of Severance: retargeted -> %d" % new_idx)
 
 func try_cast(team: String, index: int) -> Dictionary:
-	var result := {"cast": false, "reason": ""}
+	var result: Dictionary = {"cast": false, "reason": ""}
 	if state == null or engine == null:
 		result.reason = "no_state_or_engine"
 		return result
 	var unit: Unit = _unit_at(team, index)
 	if unit == null:
 		result.reason = "no_unit"
+		return result
+	# Reentrancy guard: avoid nested casts for the same unit within one call chain
+	if bool(_casting.get(unit, false)):
+		result.reason = "in_cast"
 		return result
 	var ability_id: String = String(unit.ability_id)
 	if ability_id == "":
@@ -445,7 +481,7 @@ func try_cast(team: String, index: int) -> Dictionary:
 		result.reason = "on_cooldown"
 		return result
 	# Resolve def and cost
-	var def = AbilityCatalog.get_def(ability_id)
+	var def: Variant = AbilityCatalog.get_def(ability_id)
 	var cost: int = int(unit.mana_max)
 	if def != null:
 		var bcost: int = int(def.base_cost)
@@ -458,28 +494,46 @@ func try_cast(team: String, index: int) -> Dictionary:
 		result.reason = "not_enough_mana"
 		return result
 	# Resolve implementation
-	var impl = AbilityCatalog.new_instance(ability_id)
+	var impl: Variant = AbilityCatalog.new_instance(ability_id)
 	if impl == null or not impl.has_method("cast"):
 		result.reason = "no_impl"
 		return result
 	# Build context
 	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
 	ctx.buff_system = buff_system
-	_emit_ability_cast_event(team, index, ability_id, ctx)
+	var cast_info: Dictionary = _emit_ability_cast_event(team, index, ability_id, ctx)
 	# Call ability implementation
 	var ok: bool = false
 	# Guard against exceptions in ability scripts
-	
+	# Mark as actively casting to prevent re-entrant chains (e.g., mana-on-attack during ability damage)
+	_casting[unit] = true
+	var pushed: bool = _push_buff_source(team, index, "ability")
 	ok = bool(impl.cast(ctx))
+	if pushed:
+		_pop_buff_source()
+	_casting.erase(unit)
 	
 	if not ok:
 		result.reason = "cast_failed"
 		return result
+	_log_ability_cast(team, index, ability_id)
 	# Success: reset mana and start cooldown (if present)
 	unit.mana = 0
 	var cd_s: float = 0.0
 	if cd_s > 0.0:
 		_cooldowns[unit] = cd_s
+	# After ability, impose at least one basic-attack cooldown to prevent immediate auto chain
+	var atk_cd: float = 0.0
+	if engine != null and state != null:
+		atk_cd = 1.0 / max(0.01, float(unit.attack_speed))
+		var cds: Array[float] = (state.player_cds if String(team) == "player" else state.enemy_cds)
+		if index >= 0 and index < cds.size():
+			cds[index] = max(float(cds[index]), atk_cd)
+			if String(team) == "player":
+				state.player_cds = cds
+			else:
+				state.enemy_cds = cds
+	_emit_ability_committed_event(team, index, ability_id, cast_info, max(cd_s, atk_cd), "ability")
 	# Emit updates
 	engine._resolver_emit_unit_stat(team, index, {"mana": unit.mana})
 	engine._resolver_emit_stats(unit, BattleState.first_alive(state.enemy_team))
@@ -490,11 +544,11 @@ func try_cast(team: String, index: int) -> Dictionary:
 	result.cast = true
 	return result
 
-func set_cost_resolver(resolver) -> void:
+func set_cost_resolver(resolver: Variant) -> void:
 	# Back-compat name; stores adapter implementing effective_cost(unit, base_cost)
 	cost_adapter = resolver
 
-func set_cost_adapter(adapter) -> void:
+func set_cost_adapter(adapter: Variant) -> void:
 	# Alias for clarity
 	set_cost_resolver(adapter)
 
@@ -504,25 +558,70 @@ func is_on_cooldown(unit: Unit) -> bool:
 func cooldown_remaining(unit: Unit) -> float:
 	return float(_cooldowns.get(unit, 0.0))
 
+func _log_ability_cast(team: String, index: int, ability_id: String) -> void:
+	if not emit_ability_logs:
+		return
+	if state == null:
+		return
+	var timestamp: float = float(state.elapsed_time)
+	var unit: Unit = _unit_at(team, index)
+	var unit_label: String = "Unit"
+	if unit != null:
+		var raw_name: String = String(unit.name).strip_edges()
+		if raw_name != "":
+			unit_label = raw_name
+		else:
+			var raw_id: String = String(unit.id).strip_edges()
+			if raw_id != "":
+				unit_label = raw_id
+	var ability_label: String = String(ability_id)
+	var def: Variant = AbilityCatalog.get_def(ability_id)
+	if def != null:
+		var def_name: String = String(def.name).strip_edges()
+		if def_name != "":
+			ability_label = def_name
+	var ts_str: String = _format_time_2dec(timestamp)
+	var msg: String = "[" + ts_str + "] " + LOG_PREFIX_ABILITY + " " + unit_label
+	msg += " (" + team + ":" + str(index) + ") cast " + ability_label
+	print(msg)
+
+func _format_time_2dec(seconds: float) -> String:
+	var s: float = abs(seconds)
+	var int_part: int = int(s)
+	var frac: int = int(round((s - float(int_part)) * 100.0))
+	if frac >= 100:
+		int_part += 1
+		frac = 0
+	var sign: String = ("-" if seconds < 0.0 else "")
+	var frac_str: String = (("0" if frac < 10 else "") + str(frac))
+	return sign + str(int_part) + "." + frac_str
+
 func _unit_at(team: String, idx: int) -> Unit:
 	var arr: Array[Unit] = state.player_team if team == "player" else state.enemy_team
 	if idx < 0 or idx >= arr.size():
 		return null
 	return arr[idx]
 
-func _emit_ability_cast_event(team: String, index: int, ability_id: String, ctx: AbilityContext, target_team_override: String = "", target_index_override: int = -1, target_point_override: Variant = null) -> void:
-	var info := _compose_cast_target(team, index, ctx, target_team_override, target_index_override, target_point_override)
+func _emit_ability_cast_event(team: String, index: int, ability_id: String, ctx: AbilityContext, target_team_override: String = "", target_index_override: int = -1, target_point_override: Variant = null) -> Dictionary:
+	var info: Dictionary = _compose_cast_target(team, index, ctx, target_team_override, target_index_override, target_point_override)
 	emit_signal("ability_cast", team, index, ability_id, info.target_team, info.target_index, info.point)
+	return info
+
+func _emit_ability_committed_event(team: String, index: int, ability_id: String, cast_info: Dictionary, cooldown_s: float, commitment_kind: String) -> void:
+	var target_team: String = String(cast_info.get("target_team", team))
+	var target_index: int = int(cast_info.get("target_index", index))
+	var target_point: Vector2 = cast_info.get("point", Vector2.ZERO)
+	emit_signal("ability_committed", team, index, ability_id, target_team, target_index, target_point, max(0.0, float(cooldown_s)), commitment_kind)
 
 func _compose_cast_target(team: String, index: int, ctx: AbilityContext, target_team_override: String = "", target_index_override: int = -1, target_point_override: Variant = null) -> Dictionary:
-	var target_team := String(target_team_override)
+	var target_team: String = String(target_team_override)
 	if target_team == "":
 		target_team = ("enemy" if String(team) == "player" else "player")
 	var target_index: int = int(target_index_override)
 	if ctx != null and target_index < 0:
 		target_index = int(ctx.current_target(team, index))
 	var point: Vector2 = Vector2.ZERO
-	var override_point_valid := target_point_override is Vector2
+	var override_point_valid: bool = target_point_override is Vector2
 	if override_point_valid:
 		point = target_point_override
 	elif ctx != null and target_index >= 0:
@@ -535,3 +634,18 @@ func _compose_cast_target(team: String, index: int, ctx: AbilityContext, target_
 		if ctx != null and not override_point_valid:
 			point = ctx.position_of(team, index)
 	return {"target_team": String(target_team), "target_index": int(target_index), "point": point}
+
+func _push_buff_source(team: String, index: int, kind: String) -> bool:
+	if buff_system == null:
+		return false
+	if not buff_system.has_method("push_source"):
+		return false
+	buff_system.push_source(String(team), int(index), String(kind))
+	return true
+
+func _pop_buff_source() -> void:
+	if buff_system == null:
+		return
+	if not buff_system.has_method("pop_source"):
+		return
+	buff_system.pop_source()

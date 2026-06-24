@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3 format=3 uid="uid://cashuj7nv2kja"]
 
 [ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
-[ext_resource path="res://data/identity/unit_identities/bonko_identity.tres" type="Resource" id=2]
+[ext_resource type="Resource" uid="uid://c33gkw2vbql1w" path="res://data/identity/unit_identities/bonko_identity.tres" id="2"]
 
 [resource]
 script = ExtResource( 1 )
@@ -9,12 +9,6 @@ id = "bonko"
 name = "Bonko"
 sprite_path = "res://assets/units/bonko.png"
 ability_id = "bonko_bonk"
-traits = ["Cartel", "Chronomancer"]
-roles = ["brawler"]
-cost = 1
-level = 1
-primary_role = ""
-primary_goal = ""
-approaches = []
-alt_goals = []
+traits = Array[String](["Cartel", "Chronomancer"])
+roles = Array[String](["brawler"])
 identity = ExtResource( 2 )

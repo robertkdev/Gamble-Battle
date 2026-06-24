@@ -28,3 +28,7 @@ class_name ItemDef
 # For components/specials: leave empty.
 @export var components: PackedStringArray = PackedStringArray()
 
+# General tag system for items. Primary use: role suitability.
+# Allowed role tags: "tank", "brawler", "marksman", "assassin", "mage", "support".
+# Items should have at least one applicable role tag.
+@export var tags: PackedStringArray = PackedStringArray()

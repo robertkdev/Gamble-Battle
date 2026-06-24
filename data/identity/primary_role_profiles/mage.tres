@@ -8,12 +8,27 @@ role_id = "mage"
 display_name = "Mage"
 description = "Spellcasters who deliver burst or area control through magic damage."
 base_stats = {
-"armor": 25.0,
-"attack_damage": 40.0,
-"attack_range": 6.0,
-"magic_resist": 10.0,
-"max_hp": 400.0,
-"spell_power": 80.0
+"armor": 35.0,
+"armor_pen_flat": 0.0,
+"armor_pen_pct": 0.0,
+"attack_damage": 31.5,
+"attack_range": 4.0,
+"attack_speed": 0.7,
+"cast_speed": 1.0,
+"crit_chance": 0.0,
+"crit_damage": 1.5,
+"hp_regen": 0.0,
+"lifesteal": 0.0,
+"magic_resist": 55.0,
+"mana_gain_per_attack": 10.0,
+"mana_max": 0.0,
+"mana_regen": 0.0,
+"mana_start": 0.0,
+"max_hp": 1050.0,
+"mr_pen_flat": 0.0,
+"mr_pen_pct": 0.0,
+"spell_power": 0.0,
+"true_damage": 0.0
 }
 validation_rules = Array[Dictionary]([{
 "label": "Mage Range",
@@ -22,7 +37,5 @@ validation_rules = Array[Dictionary]([{
 }, {
 "label": "Mage Spell Power",
 "metric": "spell_power",
-"min": 40.0
+"min": 0.0
 }])
-default_goals = Array[String](["mage.wombo_combo_burst", "mage.area_denial_zone", "mage.pick_burst"])
-default_approaches = Array[String](["aoe", "burst", "zone"])

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "support_counter",
+    "team_size": 4,
+    "team_a_tags": ["Sustain"],
+    "team_b_tags": ["Dive"],
+    "scenario_id": "open_field",
+    "capabilities": ["base", "buffs", "cc", "targets", "mobility", "zones"]
+  }
+]

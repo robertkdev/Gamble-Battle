@@ -11,4 +11,5 @@ icon_path = "res://assets/items/orb_icon.png"
 stat_mods = {"flat_start_mana": 20, "pct_mana_regen": 0.15}
 effects = []
 components = []
+tags = PackedStringArray("mage", "support")
 

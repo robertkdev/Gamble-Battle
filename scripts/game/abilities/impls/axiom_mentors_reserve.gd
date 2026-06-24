@@ -1,13 +1,17 @@
 extends AbilityImplBase
 
 # Axiom — Mentor's Reserve
-# Instantly grants the Pupil 5/10/20 mana and shields Axiom for 240/320/460 + 0.6×SP for 3s.
+# Instantly grants the Pupil 5/10/20 mana, empowers their damage, and shields Axiom for 240/320/460 + 0.6×SP for 3s.
 # If no Pupil is alive, only the shield applies.
+
+const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 
 const SHIELD_BASE := [240, 320, 460]
 const SHIELD_SP_MULT := 0.60
 const SHIELD_DURATION := 3.0
 const MANA_GRANT := [5, 10, 20]
+const PUPIL_DAMAGE_AMP := [0.10, 0.15, 0.25]
+const PUPIL_AMP_DURATION := 6.0
 
 func _level_index(u: Unit) -> int:
     var lvl: int = (int(u.level) if u != null else 1)
@@ -41,6 +45,9 @@ func cast(ctx: AbilityContext) -> bool:
             pupil.mana = min(int(pupil.mana_max), before + amt)
             granted = int(pupil.mana) - before
             ctx.engine._resolver_emit_unit_stat(ctx.caster_team, pupil_idx, {"mana": pupil.mana})
+            if granted > 0 and bs.has_method("record_buff"):
+                bs.record_buff(ctx.state, ctx.caster_team, pupil_idx, "mana_grant", {"mana": granted}, float(granted), 0.0)
+            _apply_pupil_amp(ctx, bs, pupil_idx, float(PUPIL_DAMAGE_AMP[li]))
 
     if granted > 0:
         ctx.log("Mentor's Reserve: +%d mana to Pupil; shield %d" % [granted, shield_val])
@@ -48,3 +55,20 @@ func cast(ctx: AbilityContext) -> bool:
         ctx.log("Mentor's Reserve: shield %d" % shield_val)
     return true
 
+func _apply_pupil_amp(ctx: AbilityContext, bs: BuffSystem, pupil_idx: int, amp_pct: float) -> void:
+    if ctx == null or bs == null or amp_pct <= 0.0 or pupil_idx < 0:
+        return
+    var pushed_source: bool = false
+    if bs.has_method("push_source"):
+        bs.push_source(ctx.caster_team, ctx.caster_index, "ability")
+        pushed_source = true
+    bs.apply_tag(ctx.state, ctx.caster_team, pupil_idx, BuffTags.TAG_DAMAGE_AMP, PUPIL_AMP_DURATION, {
+        "damage_amp_pct": amp_pct,
+        "kind": "mentor_damage_amp"
+    })
+    bs.apply_tag(ctx.state, ctx.caster_team, pupil_idx, BuffTags.TAG_ABILITY_AMP, PUPIL_AMP_DURATION, {
+        "ability_damage_amp": amp_pct,
+        "kind": "mentor_ability_amp"
+    })
+    if pushed_source and bs.has_method("pop_source"):
+        bs.pop_source()

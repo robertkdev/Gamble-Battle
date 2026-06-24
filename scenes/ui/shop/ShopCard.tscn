@@ -3,18 +3,18 @@
 [ext_resource type="Script" uid="uid://5ldqccl3b20s" path="res://scripts/ui/shop/shop_card.gd" id="1"]
 
 [sub_resource type="Gradient" id="Gradient_2qg5p"]
-colors = PackedColorArray(0.0588235, 0.129412, 0.113725, 1, 0.0352941, 0.219608, 0.113725, 1)
+colors = PackedColorArray(0.035, 0.031, 0.039, 1, 0.18, 0.038, 0.055, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_1ap5a"]
 gradient = SubResource("Gradient_2qg5p")
 
 [node name="ShopCard" type="Button"]
-custom_minimum_size = Vector2(144, 144)
+custom_minimum_size = Vector2(168, 176)
 anchors_preset = -1
 anchor_right = 0.075
 anchor_bottom = 0.137037
-offset_right = -144.0
-offset_bottom = -148.0
+offset_right = -168.0
+offset_bottom = -176.0
 script = ExtResource("1")
 metadata/_edit_use_anchors_ = true
 
@@ -56,11 +56,43 @@ metadata/_edit_use_anchors_ = true
 [node name="Role" type="Label" parent="."]
 modulate = Color(1, 1, 1, 0.8)
 layout_mode = 1
-offset_right = 144.0
+anchor_right = 1.0
+offset_left = 8.0
+offset_right = -8.0
 offset_bottom = 23.0
-theme_override_colors/font_color = Color(0, 1, 1, 1)
+theme_override_colors/font_color = Color(0.82, 0.73, 0.62, 1)
 text = "Role"
 horizontal_alignment = 2
+
+[node name="IdentityPanel" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.0416667
+anchor_top = 0.065
+anchor_right = 0.958333
+anchor_bottom = 0.53
+theme_override_constants/separation = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="RoleBadge" type="Label" parent="IdentityPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.72, 0.42, 0.96)
+theme_override_font_sizes/font_size = 12
+text = "Role"
+horizontal_alignment = 1
+
+[node name="GoalLabel" type="Label" parent="IdentityPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.68, 0.62, 0.92)
+theme_override_font_sizes/font_size = 11
+text = "Goal"
+horizontal_alignment = 1
+
+[node name="ApproachTags" type="FlowContainer" parent="IdentityPanel"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 3
 
 [node name="bottom_gradient" type="TextureRect" parent="."]
 layout_mode = 1
@@ -77,25 +109,30 @@ metadata/_edit_use_anchors_ = true
 [node name="Name" type="Label" parent="."]
 modulate = Color(1, 1, 1, 0.9)
 layout_mode = 1
-anchors_preset = 2
+anchors_preset = -1
 anchor_top = 1.0
+anchor_right = 0.76
 anchor_bottom = 1.0
+offset_left = 8.0
 offset_top = -23.0
-offset_right = 8.0
+offset_right = -4.0
+offset_bottom = -2.0
 grow_vertical = 0
 text = "?"
 horizontal_alignment = 1
 
 [node name="Price" type="Label" parent="."]
-modulate = Color(1, 1, 0.8, 0.95)
+modulate = Color(0.95, 0.72, 0.36, 0.95)
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = -1
+anchor_left = 0.76
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -19.0
+offset_left = 0.0
 offset_top = -23.0
+offset_right = -8.0
+offset_bottom = -2.0
 grow_horizontal = 0
 grow_vertical = 0
 size_flags_horizontal = 8

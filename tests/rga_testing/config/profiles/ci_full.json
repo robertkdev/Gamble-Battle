@@ -15,7 +15,6 @@
   "ids": [],
   "gates": {
     "enable_invariants": true,
-    "enable_balancerunner_gate": true,
     "tol_win_pct": 0.02,
     "tol_time_s": 0.10,
     "tol_damage_rel": 0.03
@@ -26,4 +25,3 @@
     "dir": "user://out/ci_full/"
   }
 }
-

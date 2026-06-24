@@ -4,6 +4,14 @@ class_name UnitPanel
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 
+const COLOR_PANEL: Color = Color(0.026, 0.022, 0.030, 0.92)
+const COLOR_PANEL_SOFT: Color = Color(0.046, 0.039, 0.048, 0.94)
+const COLOR_GOLD: Color = Color(0.92, 0.68, 0.34, 1.0)
+const COLOR_TEXT: Color = Color(0.90, 0.87, 0.80, 1.0)
+const COLOR_MUTED: Color = Color(0.66, 0.61, 0.54, 1.0)
+const COLOR_PLAYER: Color = Color(0.19, 0.34, 0.36, 0.95)
+const COLOR_ENEMY: Color = Color(0.52, 0.045, 0.070, 0.95)
+
 @onready var portrait: TextureRect = $"VBox/Header/Portrait"
 @onready var name_label: Label = $"VBox/Header/Info/Name"
 @onready var role_badge: Label = $"VBox/Header/Info/RoleBadge"
@@ -27,6 +35,7 @@ var mana_bar: ProgressBar
 func _ready() -> void:
     _ensure_bars()
     _ensure_identity_styles()
+    _apply_static_styles()
     set_process(true)
 
 func configure(_tracker: StatsTracker) -> void:
@@ -74,17 +83,17 @@ func _refresh_dynamic() -> void:
     dps_label.text = "DPS (3s): " + _fmt(dps3)
     casts_label.text = "Casts: " + str(int(round(casts)))
     _ensure_extra_footer()
-    var f: HBoxContainer = $"VBox/Footer"
-    if f and f.get_child_count() >= 10:
-        var hps_lbl: Label = f.get_child(2)
-        var ab_lbl: Label = f.get_child(3)
-        var cci_lbl: Label = f.get_child(4)
-        var ccr_lbl: Label = f.get_child(5)
-        var ovh_lbl: Label = f.get_child(6)
-        var kil_lbl: Label = f.get_child(7)
-        var ded_lbl: Label = f.get_child(8)
-        var tim_lbl: Label = f.get_child(9)
-        var foc_lbl: Label = f.get_child(10)
+    var f: FlowContainer = $"VBox/Footer"
+    if f != null and f.get_child_count() >= 11:
+        var hps_lbl: Label = f.get_child(2) as Label
+        var ab_lbl: Label = f.get_child(3) as Label
+        var cci_lbl: Label = f.get_child(4) as Label
+        var ccr_lbl: Label = f.get_child(5) as Label
+        var ovh_lbl: Label = f.get_child(6) as Label
+        var kil_lbl: Label = f.get_child(7) as Label
+        var ded_lbl: Label = f.get_child(8) as Label
+        var tim_lbl: Label = f.get_child(9) as Label
+        var foc_lbl: Label = f.get_child(10) as Label
         if hps_lbl is Label:
             (hps_lbl as Label).text = "HPS (3s): " + _fmt(hps3)
         if ab_lbl is Label:
@@ -103,29 +112,45 @@ func _refresh_dynamic() -> void:
             (tim_lbl as Label).text = "Time: " + String.num(time_alive, 1) + "s"
         if foc_lbl is Label:
             (foc_lbl as Label).text = "Focus: " + String.num(focus_pct, 0) + "%"
+    _style_footer_labels()
     # Bars track current unit stats
     _refresh_bars()
 
 func _ensure_extra_footer() -> void:
     if _extra_labels_added:
         return
-    var f: HBoxContainer = $"VBox/Footer"
+    var f: FlowContainer = $"VBox/Footer"
     if f == null:
         return
-    var hps_lbl := Label.new()
+    var hps_lbl: Label = Label.new()
     hps_lbl.text = "HPS (3s): 0"
     f.add_child(hps_lbl)
-    var ab_lbl := Label.new()
+    var ab_lbl: Label = Label.new()
     ab_lbl.text = "Shield Abs: 0"
     f.add_child(ab_lbl)
-    var cci_lbl := Label.new(); cci_lbl.text = "CC Inf(s): 0"; f.add_child(cci_lbl)
-    var ccr_lbl := Label.new(); ccr_lbl.text = "CC Rec(s): 0"; f.add_child(ccr_lbl)
-    var ovh_lbl := Label.new(); ovh_lbl.text = "Overheal: 0"; f.add_child(ovh_lbl)
-    var kil_lbl := Label.new(); kil_lbl.text = "Kills: 0"; f.add_child(kil_lbl)
-    var ded_lbl := Label.new(); ded_lbl.text = "Deaths: 0"; f.add_child(ded_lbl)
-    var tim_lbl := Label.new(); tim_lbl.text = "Time: 0s"; f.add_child(tim_lbl)
-    var foc_lbl := Label.new(); foc_lbl.text = "Focus: 0%"; f.add_child(foc_lbl)
+    var cci_lbl: Label = Label.new()
+    cci_lbl.text = "CC Inf(s): 0"
+    f.add_child(cci_lbl)
+    var ccr_lbl: Label = Label.new()
+    ccr_lbl.text = "CC Rec(s): 0"
+    f.add_child(ccr_lbl)
+    var ovh_lbl: Label = Label.new()
+    ovh_lbl.text = "Overheal: 0"
+    f.add_child(ovh_lbl)
+    var kil_lbl: Label = Label.new()
+    kil_lbl.text = "Kills: 0"
+    f.add_child(kil_lbl)
+    var ded_lbl: Label = Label.new()
+    ded_lbl.text = "Deaths: 0"
+    f.add_child(ded_lbl)
+    var tim_lbl: Label = Label.new()
+    tim_lbl.text = "Time: 0s"
+    f.add_child(tim_lbl)
+    var foc_lbl: Label = Label.new()
+    foc_lbl.text = "Focus: 0%"
+    f.add_child(foc_lbl)
     _extra_labels_added = true
+    _style_footer_labels()
 
 func _ensure_bars() -> void:
     if hp_bar == null:
@@ -139,6 +164,39 @@ func _ensure_identity_styles() -> void:
     if role_badge and not role_badge.has_theme_stylebox_override("normal"):
         role_badge.add_theme_stylebox_override("normal", _make_badge_style())
 
+func _apply_static_styles() -> void:
+    custom_minimum_size = Vector2(max(custom_minimum_size.x, 294.0), max(custom_minimum_size.y, 360.0))
+    var root_box: VBoxContainer = $"VBox"
+    if root_box != null:
+        root_box.add_theme_constant_override("separation", 10)
+    var header: HBoxContainer = $"VBox/Header"
+    if header != null:
+        header.add_theme_constant_override("separation", 12)
+        header.custom_minimum_size = Vector2(0.0, 78.0)
+    if portrait != null:
+        portrait.custom_minimum_size = Vector2(72.0, 72.0)
+        portrait.modulate = Color(0.96, 0.91, 0.84, 1.0)
+    if name_label != null:
+        name_label.add_theme_font_size_override("font_size", 18)
+        name_label.add_theme_color_override("font_color", COLOR_TEXT)
+        name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.74))
+        name_label.add_theme_constant_override("outline_size", 1)
+    if goal_label != null:
+        goal_label.add_theme_font_size_override("font_size", 12)
+        goal_label.add_theme_color_override("font_color", COLOR_MUTED)
+    if traits_label != null:
+        traits_label.add_theme_font_size_override("font_size", 13)
+        traits_label.add_theme_color_override("font_color", Color(0.84, 0.78, 0.68, 1.0))
+        traits_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    if stats_grid != null:
+        stats_grid.add_theme_constant_override("h_separation", 7)
+        stats_grid.add_theme_constant_override("v_separation", 7)
+    var footer: FlowContainer = $"VBox/Footer"
+    if footer != null:
+        footer.add_theme_constant_override("h_separation", 6)
+        footer.add_theme_constant_override("v_separation", 6)
+    _style_footer_labels()
+
 func _refresh_header() -> void:
     var tex: Texture2D = null
     if unit_ref != null and String(unit_ref.sprite_path) != "":
@@ -146,12 +204,13 @@ func _refresh_header() -> void:
     if tex == null:
         tex = TextureUtils.make_circle_texture(Color(0.7, 0.7, 0.9), 64)
     portrait.texture = tex
+    portrait.modulate = Color(0.92, 0.86, 0.78, 1.0) if team == "enemy" else Color(0.98, 0.93, 0.84, 1.0)
     name_label.text = (unit_ref.name if unit_ref != null else "Unit")
 
-    var primary_role := ""
-    var primary_goal := ""
+    var primary_role: String = ""
+    var primary_goal: String = ""
     var approaches: Array = []
-    var trait_text := ""
+    var trait_text: String = ""
     if unit_ref != null:
         primary_role = String(unit_ref.get_primary_role())
         if primary_role == "" and unit_ref.roles.size() > 0:
@@ -172,22 +231,24 @@ func _refresh_header() -> void:
 func _set_role_badge(text: String) -> void:
     if role_badge == null:
         return
-    var clean := String(text).strip_edges()
+    var clean: String = String(text).strip_edges()
     role_badge.text = clean
     role_badge.visible = clean != ""
+    role_badge.add_theme_stylebox_override("normal", _make_badge_style())
 
 func _set_goal_label(text: String) -> void:
     if goal_label == null:
         return
-    var clean := String(text).strip_edges()
+    var clean: String = String(text).strip_edges()
     goal_label.text = clean
     goal_label.visible = clean != ""
     goal_label.tooltip_text = clean
+    goal_label.add_theme_color_override("font_color", COLOR_MUTED)
 
 func _set_traits(text: String) -> void:
     if traits_label == null:
         return
-    var clean := String(text).strip_edges()
+    var clean: String = String(text).strip_edges()
     if clean == "":
         traits_label.visible = false
         traits_label.text = ""
@@ -196,6 +257,7 @@ func _set_traits(text: String) -> void:
         traits_label.visible = true
         traits_label.text = "Traits: " + clean
         traits_label.tooltip_text = clean
+        traits_label.add_theme_color_override("font_color", Color(0.84, 0.78, 0.68, 1.0))
 
 func _set_approach_tags(approaches: Array) -> void:
     if approach_tags == null:
@@ -205,18 +267,19 @@ func _set_approach_tags(approaches: Array) -> void:
     if approaches == null:
         approach_tags.visible = false
         return
-    var seen: Dictionary = {}
-    var shown := 0
-    for raw in approaches:
-        var label_text := _prettify_token(String(raw))
+    var seen: Dictionary[String, bool] = {}
+    var shown: int = 0
+    for raw: Variant in approaches:
+        var label_text: String = _prettify_token(String(raw))
         if label_text == "" or seen.has(label_text):
             continue
         seen[label_text] = true
-        var lbl := Label.new()
+        var lbl: Label = Label.new()
         lbl.text = label_text
         lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-        lbl.modulate = Color(1, 1, 1, 0.92)
+        lbl.add_theme_font_size_override("font_size", 13)
+        lbl.add_theme_color_override("font_color", COLOR_TEXT)
         lbl.add_theme_stylebox_override("normal", _make_tag_style())
         approach_tags.add_child(lbl)
         shown += 1
@@ -247,7 +310,7 @@ func _build_stats_grid() -> void:
     _clear_stats_grid()
     if unit_ref == null:
         return
-    var entries := [
+    var entries: Array[Array] = [
         ["LVL", str(unit_ref.level)],
         ["HP", str(unit_ref.max_hp)],
         ["AD", _fmt(unit_ref.attack_damage)],
@@ -260,17 +323,29 @@ func _build_stats_grid() -> void:
         ["Move", _fmt(unit_ref.move_speed)],
         ["Mana", str(unit_ref.mana_start) + "/" + str(unit_ref.mana_max)],
     ]
-    for e in entries:
-        var box := VBoxContainer.new()
-        var icon := Label.new()
+    for e: Array in entries:
+        var card: PanelContainer = PanelContainer.new()
+        card.custom_minimum_size = Vector2(64.0, 50.0)
+        card.add_theme_stylebox_override("panel", _make_stat_card_style())
+        var box: VBoxContainer = VBoxContainer.new()
+        box.add_theme_constant_override("separation", 2)
+        box.alignment = BoxContainer.ALIGNMENT_CENTER
+        var icon: Label = Label.new()
         icon.text = String(e[0])
         icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-        var val := Label.new()
+        icon.add_theme_font_size_override("font_size", 11)
+        icon.add_theme_color_override("font_color", COLOR_MUTED)
+        var val: Label = Label.new()
         val.text = String(e[1])
         val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        val.add_theme_font_size_override("font_size", 16)
+        val.add_theme_color_override("font_color", COLOR_TEXT)
+        val.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
+        val.add_theme_constant_override("outline_size", 1)
         box.add_child(icon)
         box.add_child(val)
-        stats_grid.add_child(box)
+        card.add_child(box)
+        stats_grid.add_child(card)
 
 func _fmt(v) -> String:
     var f: float = 0.0
@@ -289,25 +364,25 @@ func _fmt(v) -> String:
     return String.num(f, 2)
 
 func _format_role(role_id: String) -> String:
-    var raw := String(role_id).strip_edges()
+    var raw: String = String(role_id).strip_edges()
     if raw == "":
         return ""
-    var parts := raw.to_lower().split("_", false)
-    var pretty := PackedStringArray()
-    for part in parts:
+    var parts: PackedStringArray = raw.to_lower().split("_", false)
+    var pretty: PackedStringArray = PackedStringArray()
+    for part: String in parts:
         if part == "":
             continue
         pretty.append(part.capitalize())
     return " ".join(pretty)
 
 func _format_goal(goal_id: String) -> String:
-    var raw := String(goal_id).strip_edges()
+    var raw: String = String(goal_id).strip_edges()
     if raw == "":
         return ""
-    var parts := raw.split(".", false, 2)
+    var parts: PackedStringArray = raw.split(".", false, 2)
     if parts.size() >= 2:
-        var role_part := _format_role(parts[0])
-        var goal_part := _prettify_token(parts[1])
+        var role_part: String = _format_role(parts[0])
+        var goal_part: String = _prettify_token(parts[1])
         if role_part != "":
             if goal_part != "":
                 return "%s - %s" % [role_part, goal_part]
@@ -315,20 +390,25 @@ func _format_goal(goal_id: String) -> String:
     return _prettify_token(raw)
 
 func _prettify_token(value: String) -> String:
-    var text := String(value).strip_edges().to_lower()
+    var text: String = String(value).strip_edges().to_lower()
     if text == "":
         return ""
-    var parts := text.split("_", false)
-    var pretty := PackedStringArray()
-    for part in parts:
+    var parts: PackedStringArray = text.split("_", false)
+    var pretty: PackedStringArray = PackedStringArray()
+    for part: String in parts:
         if part == "":
             continue
         pretty.append(part.capitalize())
     return " ".join(pretty)
 
 func _make_badge_style() -> StyleBoxFlat:
-    var sb := StyleBoxFlat.new()
-    sb.bg_color = Color(0.121569, 0.211765, 0.266667, 0.95)
+    var sb: StyleBoxFlat = StyleBoxFlat.new()
+    sb.bg_color = COLOR_ENEMY if team == "enemy" else COLOR_PLAYER
+    sb.border_color = Color(0.82, 0.54, 0.28, 0.70)
+    sb.border_width_left = 1
+    sb.border_width_top = 1
+    sb.border_width_right = 1
+    sb.border_width_bottom = 1
     sb.corner_radius_top_left = 7
     sb.corner_radius_top_right = 7
     sb.corner_radius_bottom_right = 7
@@ -340,8 +420,13 @@ func _make_badge_style() -> StyleBoxFlat:
     return sb
 
 func _make_tag_style() -> StyleBoxFlat:
-    var sb := StyleBoxFlat.new()
-    sb.bg_color = Color(0.0941177, 0.137255, 0.211765, 0.95)
+    var sb: StyleBoxFlat = StyleBoxFlat.new()
+    sb.bg_color = Color(0.090, 0.076, 0.088, 0.95)
+    sb.border_color = Color(0.32, 0.25, 0.22, 0.82)
+    sb.border_width_left = 1
+    sb.border_width_top = 1
+    sb.border_width_right = 1
+    sb.border_width_bottom = 1
     sb.corner_radius_top_left = 6
     sb.corner_radius_top_right = 6
     sb.corner_radius_bottom_right = 6
@@ -351,3 +436,51 @@ func _make_tag_style() -> StyleBoxFlat:
     sb.content_margin_top = 2
     sb.content_margin_bottom = 2
     return sb
+
+func _make_stat_card_style() -> StyleBoxFlat:
+    var sb: StyleBoxFlat = StyleBoxFlat.new()
+    sb.bg_color = COLOR_PANEL_SOFT
+    sb.border_color = Color(0.24, 0.21, 0.22, 0.88)
+    sb.border_width_left = 1
+    sb.border_width_top = 1
+    sb.border_width_right = 1
+    sb.border_width_bottom = 1
+    sb.corner_radius_top_left = 4
+    sb.corner_radius_top_right = 4
+    sb.corner_radius_bottom_right = 4
+    sb.corner_radius_bottom_left = 4
+    sb.content_margin_left = 4
+    sb.content_margin_right = 4
+    sb.content_margin_top = 4
+    sb.content_margin_bottom = 4
+    return sb
+
+func _make_footer_chip_style() -> StyleBoxFlat:
+    var sb: StyleBoxFlat = StyleBoxFlat.new()
+    sb.bg_color = Color(0.030, 0.026, 0.034, 0.90)
+    sb.border_color = Color(0.30, 0.24, 0.22, 0.78)
+    sb.border_width_left = 1
+    sb.border_width_top = 1
+    sb.border_width_right = 1
+    sb.border_width_bottom = 1
+    sb.corner_radius_top_left = 4
+    sb.corner_radius_top_right = 4
+    sb.corner_radius_bottom_right = 4
+    sb.corner_radius_bottom_left = 4
+    sb.content_margin_left = 6
+    sb.content_margin_right = 6
+    sb.content_margin_top = 2
+    sb.content_margin_bottom = 2
+    return sb
+
+func _style_footer_labels() -> void:
+    var footer: FlowContainer = $"VBox/Footer"
+    if footer == null:
+        return
+    for child: Node in footer.get_children():
+        var label: Label = child as Label
+        if label == null:
+            continue
+        label.add_theme_font_size_override("font_size", 12)
+        label.add_theme_color_override("font_color", COLOR_TEXT)
+        label.add_theme_stylebox_override("normal", _make_footer_chip_style())

@@ -94,18 +94,30 @@ func _key_for(ctx: DataModels.MatchContext) -> String:
     return "%s|%d" % [String(ctx.run_id), int(ctx.sim_index)]
 
 func _row_to_dict(row: DataModels.TelemetryRow, include_events: bool) -> Dictionary:
+    var aggregates: Dictionary = {}
+    if row.aggregates != null:
+        aggregates = row.aggregates
+    var events_value: Variant = null
+    if include_events and row.events != null and row.events.size() > 0:
+        events_value = row.events
     return {
         "schema_version": String(row.schema_version),
         "context": _ctx_to_dict(row.context),
         "engine_outcome": _outcome_to_dict(row.engine_outcome),
-        "aggregates": (row.aggregates if row.aggregates != null else {}),
-        "events": (row.events if (include_events and row.events != null and row.events.size() > 0) else null)
+        "aggregates": aggregates,
+        "events": events_value
     }
 
 # -- Helpers for converting DTOs --
 func _ctx_to_dict(ctx: DataModels.MatchContext) -> Dictionary:
     if ctx == null:
         return {}
+    var map_params: Dictionary = {}
+    if ctx.map_params != null:
+        map_params = ctx.map_params
+    var capabilities_value: Variant = []
+    if ctx.capabilities != null:
+        capabilities_value = ctx.capabilities
     return {
         "run_id": String(ctx.run_id),
         "sim_index": int(ctx.sim_index),
@@ -114,7 +126,7 @@ func _ctx_to_dict(ctx: DataModels.MatchContext) -> Dictionary:
         "asset_hash": String(ctx.asset_hash),
         "scenario_id": String(ctx.scenario_id),
         "map_id": String(ctx.map_id),
-        "map_params": (ctx.map_params if ctx.map_params != null else {}),
+        "map_params": map_params,
         "team_a_ids": ctx.team_a_ids.duplicate(),
         "team_b_ids": ctx.team_b_ids.duplicate(),
         "team_size": int(ctx.team_size),
@@ -122,7 +134,7 @@ func _ctx_to_dict(ctx: DataModels.MatchContext) -> Dictionary:
         "arena_bounds": _rect_to_obj(ctx.arena_bounds),
         "spawn_a": _vec2_array(ctx.spawn_a),
         "spawn_b": _vec2_array(ctx.spawn_b),
-        "capabilities": (ctx.capabilities if ctx.capabilities != null else [])
+        "capabilities": capabilities_value
     }
 
 func _outcome_to_dict(o: DataModels.EngineOutcome) -> Dictionary:

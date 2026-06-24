@@ -87,13 +87,19 @@ func _init_unit_arrays() -> void:
     var arr_a: Array = _state_array_for("a")
     var arr_b: Array = _state_array_for("b")
     for i in range(arr_a.size()):
-        _units["a"].append(_new_unit_entry())
+        var entry_a := _new_unit_entry()
         var unit_a = arr_a[i]
+        if unit_a != null:
+            entry_a["unit_id"] = String(unit_a.id)
+        _units["a"].append(entry_a)
         _mana_last_a.append(int(unit_a.mana) if unit_a else 0)
         _death_time_a.append(-1.0)
     for j in range(arr_b.size()):
-        _units["b"].append(_new_unit_entry())
+        var entry_b := _new_unit_entry()
         var unit_b = arr_b[j]
+        if unit_b != null:
+            entry_b["unit_id"] = String(unit_b.id)
+        _units["b"].append(entry_b)
         _mana_last_b.append(int(unit_b.mana) if unit_b else 0)
         _death_time_b.append(-1.0)
 
@@ -117,6 +123,9 @@ func _new_unit_entry() -> Dictionary:
         "healing": 0,
         "shield": 0,
         "mitigated": 0,
+        "incoming": 0,
+        "pre_mit_incoming": 0,
+        "post_mit_incoming": 0,
         "overkill": 0,
         "kills": 0,
         "deaths": 0,
@@ -204,6 +213,8 @@ func _on_hit_applied(team: String, sidx: int, tidx: int, _rolled: int, dealt: in
     var dealt_amt: int = max(0, int(dealt))
     if dealt_amt > 0:
         _add_team_and_unit(src_key, sidx, "damage", dealt_amt)
+        # Per-unit defensive intake (post-mit): attribute to defender unit
+        _increase_unit(dst_key, tidx, "incoming", dealt_amt)
         _maybe_set_first_hit(src_key, sidx)
     if int(after_hp) <= 0:
         _mark_death(dst_key, tidx)
@@ -221,11 +232,14 @@ func _on_shield_absorbed(tt: String, ti: int, absorbed: int) -> void:
         return
     _add_team_and_unit(dst_key, ti, "shield", int(absorbed))
 
-func _on_hit_mitigated(_st: String, _si: int, tt: String, ti: int, pre_mit: int, _post_pre_shield: int) -> void:
+func _on_hit_mitigated(_st: String, _si: int, tt: String, ti: int, pre_mit: int, post_pre_shield: int) -> void:
     var dst_key := _team_key(tt)
     if dst_key == "":
         return
     _add_team_and_unit(dst_key, ti, "mitigated", int(pre_mit))
+    # Also track pre-mit incoming per defender unit for soak calculations
+    _increase_unit(dst_key, ti, "pre_mit_incoming", int(pre_mit))
+    _increase_unit(dst_key, ti, "post_mit_incoming", int(max(0, post_pre_shield)))
 
 func _on_hit_overkill(st: String, si: int, _tt: String, _ti: int, overkill: int) -> void:
     var src_key := _team_key(st)

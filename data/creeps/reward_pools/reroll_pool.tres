@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CreepRewardPool" load_steps=5 format=3 uid="uid://c0flu8u4yx7bp"]
+
+[ext_resource type="Script" uid="uid://dt2unkhpo4tbl" path="res://scripts/game/progression/creeps/reward_pool.gd" id="1"]
+[ext_resource type="Script" uid="uid://b61rgkd4xqjeh" path="res://scripts/game/progression/creeps/reward_entry.gd" id="2"]
+
+[sub_resource type="Resource" id="3"]
+script = ExtResource("2")
+id = "reroll_1"
+weight = 80.0
+action_id = "grant_rerolls"
+action_params = {
+"count": 1
+}
+
+[sub_resource type="Resource" id="4"]
+script = ExtResource("2")
+id = "reroll_2"
+weight = 20.0
+action_id = "grant_rerolls"
+action_params = {
+"count": 2
+}
+
+[resource]
+script = ExtResource("1")
+id = "reroll_pool"
+entries = Array[ExtResource("2")]([SubResource("3"), SubResource("4")])

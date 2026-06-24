@@ -1,6 +1,10 @@
 extends RefCounted
 class_name IntermissionController
 
+const COLOR_PANEL_DEEP: Color = Color(0.025, 0.020, 0.028, 0.92)
+const COLOR_BLOOD: Color = Color(0.50, 0.025, 0.050, 0.98)
+const COLOR_GOLD: Color = Color(0.88, 0.56, 0.22, 0.88)
+const COLOR_BORDER: Color = Color(0.34, 0.24, 0.20, 0.86)
 
 var _parent: Node = null
 var _bar: ProgressBar = null
@@ -15,19 +19,52 @@ func _ensure_bar() -> void:
     if _parent == null:
         return
     _bar = ProgressBar.new()
+    _bar.name = "GothicIntermissionBar"
     _parent.add_child(_bar)
-    _bar.anchor_left = 0.0
+    _bar.anchor_left = 0.5
     _bar.anchor_top = 0.0
-    _bar.anchor_right = 1.0
+    _bar.anchor_right = 0.5
     _bar.anchor_bottom = 0.0
-    _bar.offset_left = 16.0
-    _bar.offset_right = -16.0
-    _bar.offset_top = 8.0
-    _bar.offset_bottom = 18.0
+    _bar.offset_left = -280.0
+    _bar.offset_right = 280.0
+    _bar.offset_top = 92.0
+    _bar.offset_bottom = 102.0
+    _bar.z_index = 2000
+    _bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
     _bar.min_value = 0.0
     _bar.max_value = 1.0
     _bar.value = 0.0
+    _bar.show_percentage = false
+    _bar.add_theme_stylebox_override("background", _make_bar_background_style())
+    _bar.add_theme_stylebox_override("fill", _make_bar_fill_style())
     _bar.visible = false
+
+func _make_bar_background_style() -> StyleBoxFlat:
+    var style: StyleBoxFlat = StyleBoxFlat.new()
+    style.bg_color = COLOR_PANEL_DEEP
+    style.border_color = COLOR_BORDER
+    style.border_width_left = 1
+    style.border_width_top = 1
+    style.border_width_right = 1
+    style.border_width_bottom = 1
+    style.corner_radius_top_left = 3
+    style.corner_radius_top_right = 3
+    style.corner_radius_bottom_right = 3
+    style.corner_radius_bottom_left = 3
+    style.shadow_size = 8
+    style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+    return style
+
+func _make_bar_fill_style() -> StyleBoxFlat:
+    var style: StyleBoxFlat = StyleBoxFlat.new()
+    style.bg_color = COLOR_BLOOD
+    style.border_color = COLOR_GOLD
+    style.border_width_top = 1
+    style.corner_radius_top_left = 3
+    style.corner_radius_top_right = 3
+    style.corner_radius_bottom_right = 3
+    style.corner_radius_bottom_left = 3
+    return style
 
 func start(seconds: float, on_finished: Callable) -> void:
     _ensure_bar()
@@ -53,9 +90,9 @@ func start(seconds: float, on_finished: Callable) -> void:
         )
     else:
         # Fallback: use SceneTreeTimer and snap to done
-        var t = (_parent.get_tree() if _parent else null)
-        if t:
-            var timer = t.create_timer(max(0.1, float(seconds)))
+        var tree: SceneTree = (_parent.get_tree() if _parent else null)
+        if tree:
+            var timer: SceneTreeTimer = tree.create_timer(max(0.1, float(seconds)))
             timer.timeout.connect(func():
                 _bar.value = 1.0
                 _bar.visible = false

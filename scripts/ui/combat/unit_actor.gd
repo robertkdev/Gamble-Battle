@@ -2,8 +2,10 @@ extends Control
 class_name UnitActor
 
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
+const UnitEffectPlayer := preload("res://scripts/ui/vfx/unit_effect_player.gd")
 
 var unit: Unit
+var focus_plate: Panel
 var sprite: TextureRect
 var hp_bar: ProgressBar
 var mana_bar: ProgressBar
@@ -12,6 +14,8 @@ var hp_ticks: TickMarks
 var mana_ticks: TickMarks
 var shield_ticks: TickMarks
 var size_px: Vector2 = Vector2(64, 64)
+var _effect_player: UnitEffectPlayer
+var _team_tint: Color = Color(0.40, 0.08, 0.10, 0.68)
 var _base_screen_pos: Vector2 = Vector2.ZERO
 var _effect_offset: Vector2 = Vector2.ZERO
 var _knockup_offset_y: float = 0.0
@@ -28,9 +32,50 @@ func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
 	size = size_px
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ensure_focus_plate()
 	_ensure_sprite()
 	_ensure_bars()
+	_ensure_effect_player()
+	_update_effect_player_sprite()
 	_update_visuals()
+
+func _ensure_focus_plate() -> void:
+	if focus_plate and is_instance_valid(focus_plate):
+		if focus_plate.get_parent() != self:
+			add_child(focus_plate)
+		_apply_focus_plate_style()
+		return
+	focus_plate = Panel.new()
+	focus_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	focus_plate.z_index = 0
+	focus_plate.anchor_left = 0.0
+	focus_plate.anchor_top = 0.0
+	focus_plate.anchor_right = 1.0
+	focus_plate.anchor_bottom = 1.0
+	focus_plate.offset_left = -9.0
+	focus_plate.offset_top = -9.0
+	focus_plate.offset_right = 9.0
+	focus_plate.offset_bottom = 9.0
+	add_child(focus_plate)
+	_apply_focus_plate_style()
+
+func _apply_focus_plate_style() -> void:
+	if focus_plate == null:
+		return
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, min(_team_tint.a, 0.46))
+	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.96)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	style.shadow_size = 14
+	style.shadow_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.30)
+	focus_plate.add_theme_stylebox_override("panel", style)
 
 func _ensure_sprite() -> void:
 	if sprite and is_instance_valid(sprite):
@@ -48,7 +93,9 @@ func _ensure_sprite() -> void:
 	sprite.offset_top = 0.0
 	sprite.offset_right = 0.0
 	sprite.offset_bottom = 0.0
+	sprite.z_index = 4
 	add_child(sprite)
+	_update_effect_player_sprite()
 
 func _ensure_bars() -> void:
 	if not (hp_bar and is_instance_valid(hp_bar)):
@@ -62,7 +109,7 @@ func _ensure_bars() -> void:
 		hp_bar.offset_top = -22.0
 		hp_bar.offset_right = 0.0
 		hp_bar.offset_bottom = -14.0
-		hp_bar.z_index = 1
+		hp_bar.z_index = 8
 		# HP tick marks
 		if not (hp_ticks and is_instance_valid(hp_ticks)):
 			hp_ticks = load("res://scripts/ui/combat/tick_marks.gd").new()
@@ -75,7 +122,7 @@ func _ensure_bars() -> void:
 			hp_ticks.offset_top = -22.0
 			hp_ticks.offset_right = 0.0
 			hp_ticks.offset_bottom = -14.0
-			hp_ticks.z_index = 2
+			hp_ticks.z_index = 9
 			hp_ticks.minor_step = 200
 			hp_ticks.major_step = 1000
 			hp_ticks.minor_color = Color(0, 0, 0, 0.45)
@@ -91,7 +138,7 @@ func _ensure_bars() -> void:
 		mana_bar.offset_top = -12.0
 		mana_bar.offset_right = 0.0
 		mana_bar.offset_bottom = -6.0
-		mana_bar.z_index = 1
+		mana_bar.z_index = 8
 		# Mana tick marks
 		if not (mana_ticks and is_instance_valid(mana_ticks)):
 			mana_ticks = load("res://scripts/ui/combat/tick_marks.gd").new()
@@ -104,7 +151,7 @@ func _ensure_bars() -> void:
 			mana_ticks.offset_top = -12.0
 			mana_ticks.offset_right = 0.0
 			mana_ticks.offset_bottom = -6.0
-			mana_ticks.z_index = 2
+			mana_ticks.z_index = 9
 			mana_ticks.minor_step = 10
 			mana_ticks.major_step = 50
 			mana_ticks.minor_color = Color(0, 0, 0, 0.5)
@@ -163,9 +210,18 @@ func _ensure_bars() -> void:
 
 func set_unit(u: Unit) -> void:
 	unit = u
+	_ensure_focus_plate()
 	_ensure_sprite()
 	_ensure_bars()
+	_ensure_effect_player()
+	_update_effect_player_sprite()
 	_update_visuals()
+
+func play_hit_flash(opts: Dictionary = {}) -> void:
+	_ensure_effect_player()
+	_update_effect_player_sprite()
+	var payload := opts.duplicate(true)
+	_effect_player.play(UnitEffectPlayer.EFFECT_HIT, payload)
 
 func update_bars(updated_unit: Unit = null) -> void:
 	if updated_unit:
@@ -176,6 +232,18 @@ func update_bars(updated_unit: Unit = null) -> void:
 func set_screen_position(pos: Vector2) -> void:
 	_base_screen_pos = pos
 	_update_screen_position()
+
+func _ensure_effect_player() -> void:
+	if _effect_player and is_instance_valid(_effect_player):
+		return
+	_effect_player = UnitEffectPlayer.new()
+	_effect_player.name = "UnitEffectPlayer"
+	add_child(_effect_player)
+	_effect_player.configure(self, sprite)
+
+func _update_effect_player_sprite() -> void:
+	if _effect_player and is_instance_valid(_effect_player):
+		_effect_player.set_sprite(sprite)
 
 func _update_screen_position() -> void:
 	global_position = _base_screen_pos - size * 0.5 + _effect_offset
@@ -245,6 +313,10 @@ func set_size_px(new_size: Vector2) -> void:
 	size_px = new_size
 	size = size_px
 	_update_visuals()
+
+func set_team_tint(color: Color) -> void:
+	_team_tint = color
+	_ensure_focus_plate()
 
 func play_knockup(duration_s: float) -> void:
 	# Simple up-then-down bounce using a vertical effect offset; non-intrusive to arena positioning.

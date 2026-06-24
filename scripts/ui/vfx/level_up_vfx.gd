@@ -1,7 +1,7 @@
 extends Control
 class_name LevelUpVfx
 
-@export var color: Color = Color(1.0, 0.85, 0.2, 0.95)
+@export var color: Color = Color(0.05, 1.0, 0.0, 0.741)
 @export var duration: float = 0.6
 @export var start_radius: float = 6.0
 @export var end_radius: float = 56.0

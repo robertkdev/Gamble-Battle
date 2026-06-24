@@ -1,20 +1,14 @@
-[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3 format=3 uid="uid://cou4qcytuqxhp"]
 
-[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
-[ext_resource path="res://data/identity/unit_identities/brute_identity.tres" type="Resource" id=2]
+[ext_resource type="Script" uid="uid://cddjbq35b1ory" path="res://scripts/game/units/unit_profile.gd" id="1"]
+[ext_resource type="Resource" path="res://data/identity/unit_identities/brute_identity.tres" id="2"]
 
 [resource]
-script = ExtResource( 1 )
+script = ExtResource("1")
 id = "brute"
 name = "Brute"
 sprite_path = "res://assets/units/brute.png"
 ability_id = "brute_slam"
-traits = ["Titan", "Fortified"]
-roles = ["tank"]
-cost = 1
-level = 1
-primary_role = ""
-primary_goal = ""
-approaches = []
-alt_goals = []
-identity = ExtResource( 2 )
+traits = Array[String](["Titan", "Fortified"])
+roles = Array[String](["tank"])
+identity = ExtResource("2")

@@ -1,0 +1,10 @@
+[
+  {
+    "id": "mage_neutral",
+    "team_size": 4,
+    "team_a_tags": ["Poke"],
+    "team_b_tags": ["Sustain"],
+    "scenario_id": "open_field",
+    "capabilities": ["base", "buffs", "cc", "targets", "mobility", "zones"]
+  }
+]

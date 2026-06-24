@@ -6,7 +6,6 @@
 script = ExtResource( 1 )
 id = "totem_cleanse"
 name = "Cleanse"
-description = "Cleanses the living ally who has dealt the most damage this round and strikes Totem's target for magic damage. Exile: auto-triggers when any ally is debuffed."
+description = "Protects the allied carry by cleansing, shielding, granting brief CC immunity, and amplifying their damage, then strikes Totem's target for magic damage. Exile: auto-triggers when any ally is debuffed."
 base_cost = 60
-tags = ["cleanse", "support", "damage"]
-
+tags = ["cleanse", "support", "damage", "shield", "cc_immunity", "amp"]

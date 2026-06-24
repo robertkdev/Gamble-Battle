@@ -54,6 +54,11 @@ theme_override_font_sizes/font_size = 61
 text = "Stage 1"
 horizontal_alignment = 1
 
+[node name="PlanningTimerLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = ""
+horizontal_alignment = 1
+
 [node name="BattleArea" type="Control" parent="MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(0, 640)
 layout_mode = 2

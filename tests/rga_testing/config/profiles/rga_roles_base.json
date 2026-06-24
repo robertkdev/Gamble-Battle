@@ -1,0 +1,15 @@
+{
+  "run_id": "rga_roles_base",
+  "sim_seed_start": 424242,
+  "deterministic": true,
+  "team_sizes": [1],
+  "repeats": 3,
+  "timeout_s": 90.0,
+  "abilities": true,
+  "ability_metrics": false,
+  "out_path": "user://out/rga_roles_base.ndjson",
+  "aggregates_only": true,
+  "include_swapped": true,
+  "capabilities": ["base"],
+  "notes": "Base aggregates only; fast sanity profile for roles. Writes a single NDJSON file."
+}

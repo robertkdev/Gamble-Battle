@@ -4,7 +4,7 @@ class_name MetricRegistry
 const METRIC_ROOT := "res://tests/rga_testing/metrics"
 const TEST_SUFFIX := "_test.gd"
 
-static func run_all(available_caps: PackedStringArray = PackedStringArray(), context: Dictionary = {}, filters: Array = []) -> Dictionary:
+static func run_all(available_caps: PackedStringArray = PackedStringArray(), context: Dictionary = {}, filters: Array = [], subject_unit_ids: Array = []) -> Dictionary:
     var descriptors := _discover(filters)
     var norm_caps := _normalize_caps(available_caps)
     var cap_set := {}
@@ -31,7 +31,7 @@ static func run_all(available_caps: PackedStringArray = PackedStringArray(), con
                 "required_capabilities": required_caps
             })
             continue
-        var run_result := _run_metric(desc, norm_caps, context)
+        var run_result := _run_metric(desc, norm_caps, context, subject_unit_ids)
         var status := String(run_result.get("status", "error"))
         match status:
             "pass":
@@ -77,6 +77,31 @@ static func _discover(filters: Array = []) -> Array:
         filter_set[String(f)] = true
     var descriptors: Array = []
     for path in files:
+        # Early filter by filename-derived id to avoid loading unrelated scripts.
+        # Accept both the file stem (e.g., "tank_role_identity") and the common
+        # metadata id form with a "role_" prefix (e.g., "role_tank_identity").
+        if filter_set.size() > 0:
+            var id_guess := _id_from_path(path)
+            var ok := filter_set.has(id_guess)
+            if not ok:
+                var alt := "role_" + id_guess
+                ok = filter_set.has(alt)
+            # Handle common file-id pattern "*_role_identity" vs metadata id "role_*_identity"
+            # e.g., file: "brawler_role_identity_test.gd" -> id_guess: "brawler_role_identity"
+            # metadata id: "role_brawler_identity"
+            if not ok and id_guess.ends_with("_role_identity"):
+                var root := id_guess.substr(0, id_guess.length() - String("_role_identity").length())
+                var alt2 := "role_" + root + "_identity"
+                ok = filter_set.has(alt2)
+            # Handle common approach file-id pattern "*_approach" vs metadata id "approach_*"
+            # e.g., file: "access_backline_approach_test.gd" -> id_guess: "access_backline_approach"
+            # metadata id: "approach_access_backline"
+            if not ok and id_guess.ends_with("_approach"):
+                var approach_root := id_guess.substr(0, id_guess.length() - String("_approach").length())
+                var approach_alt := "approach_" + approach_root
+                ok = filter_set.has(approach_alt)
+            if not ok:
+                continue
         var script := load(path)
         if script == null:
             push_warning("MetricRegistry: failed to load metric script at " + path)
@@ -93,10 +118,12 @@ static func _discover(filters: Array = []) -> Array:
         if instance is RefCounted:
             instance = null
         var desc := _normalize_descriptor(meta, path)
-        if filter_set.size() > 0 and not filter_set.has(desc.get("id")):
+        # Final filter by declared id; also accept the file-id form to be lenient.
+        if filter_set.size() > 0 and not filter_set.has(desc.get("id")) and not filter_set.has(_id_from_path(path)):
             continue
         descriptors.append(desc)
-    descriptors.sort_custom(_DescriptorSorter.new(), "compare")
+    var _sorter := _DescriptorSorter.new()
+    descriptors.sort_custom(Callable(_sorter, "compare"))
     return descriptors
 
 class _DescriptorSorter:
@@ -147,7 +174,7 @@ static func _collect_recursive(dir_path: String, out: Array) -> void:
 
 # --- execution -----------------------------------------------------------
 
-static func _run_metric(desc: Dictionary, norm_caps: PackedStringArray, context: Dictionary) -> Dictionary:
+static func _run_metric(desc: Dictionary, norm_caps: PackedStringArray, context: Dictionary, subject_unit_ids: Array) -> Dictionary:
     var path := String(desc.get("path", ""))
     var script := load(path)
     if script == null:
@@ -178,7 +205,8 @@ static func _run_metric(desc: Dictionary, norm_caps: PackedStringArray, context:
         "context": context,
         "available_capabilities": norm_caps,
         "id": desc.get("id"),
-        "version": desc.get("version")
+        "version": desc.get("version"),
+        "subject_unit_ids": subject_unit_ids
     }
     var run_callable := Callable()
     if instance.has_method("run_metric"):

@@ -4,9 +4,17 @@ class_name ShopCard
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const TraitIconScene := preload("res://scenes/ui/traits/TraitIcon.tscn")
 
+const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
+const COLOR_MUTED: Color = Color(0.66, 0.60, 0.52, 1.0)
+const COLOR_GOLD: Color = Color(0.92, 0.66, 0.32, 1.0)
+const COLOR_BLOOD: Color = Color(0.52, 0.040, 0.072, 1.0)
+const COLOR_PANEL: Color = Color(0.045, 0.037, 0.047, 0.97)
+const COLOR_IRON: Color = Color(0.40, 0.34, 0.32, 0.94)
+
 @onready var _icon: TextureRect = $Icon
 @onready var _name_label: Label = $Name
 @onready var _price_label: Label = $Price
+@onready var _legacy_role_label: Label = get_node_or_null("Role") as Label
 @onready var _traits_box: VBoxContainer = $TraitIcons
 @onready var _identity_panel: VBoxContainer = $IdentityPanel
 @onready var _role_badge: Label = $"IdentityPanel/RoleBadge"
@@ -16,6 +24,7 @@ const TraitIconScene := preload("res://scenes/ui/traits/TraitIcon.tscn")
 var offer_id: String = ""
 var _disabled_reason: String = ""
 var slot_index: int = -1
+var _hover_tween: Tween = null
 
 func _resolve_child(paths: Array) -> Node:
 	for p in paths:
@@ -29,6 +38,9 @@ func _ready() -> void:
 	toggle_mode = false
 	clip_text = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_apply_static_style()
+	_wire_hover()
 	if not is_connected("pressed", Callable(self, "_on_pressed")):
 		pressed.connect(_on_pressed)
 
@@ -67,6 +79,7 @@ func set_data(props: Dictionary) -> void:
 
 	_update_identity_panel(display_role, display_goal, approaches)
 	_set_traits(traits)
+	_apply_static_style()
 
 	var tooltip_lines: Array[String] = []
 	if display_role != "":
@@ -94,21 +107,17 @@ func _update_identity_panel(display_role: String, display_goal: String, approach
 	var has_identity := false
 	if _role_badge:
 		if display_role != "":
-			_role_badge.text = display_role
+			_role_badge.text = display_role.to_upper()
 			_role_badge.visible = true
 			has_identity = true
 		else:
 			_role_badge.visible = false
 	if _goal_label:
-		if display_goal != "":
-			_goal_label.text = display_goal
-			_goal_label.visible = true
-			has_identity = true
-		else:
-			_goal_label.visible = false
+		_goal_label.text = display_goal
+		_goal_label.visible = false
 	_set_approach_tags(approaches)
-	if _approach_tags and _approach_tags.get_child_count() > 0:
-		has_identity = true
+	if _approach_tags:
+		_approach_tags.visible = false
 	if _identity_panel:
 		_identity_panel.visible = has_identity
 
@@ -125,6 +134,7 @@ func set_affordable(affordable: bool) -> void:
 	if _price_label:
 		_price_label.modulate = Color(1, 1, 0.8, 0.95) if ok else Color(1, 0.5, 0.5, 0.85)
 	tooltip_text = base_tip if ok else "Not enough gold"
+	_refresh_cursor()
 
 func set_shop_disabled(reason) -> void:
 	_disabled_reason = String(reason)
@@ -132,6 +142,7 @@ func set_shop_disabled(reason) -> void:
 	disabled = true
 	tooltip_text = _disabled_reason
 	modulate = Color(1, 1, 1, 0.6)
+	_refresh_cursor()
 
 func set_slot_index(i: int) -> void:
 	slot_index = int(i)
@@ -146,12 +157,12 @@ func _set_traits(traits: Array) -> void:
 		var trait_id := String(t).strip_edges()
 		if trait_id == "":
 			continue
-		var icon = (TraitIconScene.instantiate() if TraitIconScene else null)
-		if icon == null:
+		var trait_icon = (TraitIconScene.instantiate() if TraitIconScene else null)
+		if trait_icon == null:
 			continue
-		if icon.has_method("set_trait"):
-			icon.call("set_trait", trait_id)
-		_traits_box.add_child(icon)
+		if trait_icon.has_method("set_trait"):
+			trait_icon.call("set_trait", trait_id)
+		_traits_box.add_child(trait_icon)
 		shown += 1
 		if shown >= 3:
 			break
@@ -182,7 +193,12 @@ func _set_approach_tags(approaches: Array) -> void:
 	_approach_tags.visible = shown > 0
 func _make_tag_style() -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.0941177, 0.137255, 0.211765, 0.95)
+	sb.bg_color = Color(0.046, 0.043, 0.050, 0.96)
+	sb.border_color = Color(0.36, 0.28, 0.22, 0.86)
+	sb.border_width_left = 1
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
 	sb.corner_radius_top_left = 6
 	sb.corner_radius_top_right = 6
 	sb.corner_radius_bottom_right = 6
@@ -192,6 +208,124 @@ func _make_tag_style() -> StyleBoxFlat:
 	sb.content_margin_top = 2
 	sb.content_margin_bottom = 2
 	return sb
+
+func _apply_static_style() -> void:
+	pivot_offset = size * 0.5
+	custom_minimum_size = Vector2(168.0, 176.0)
+	add_theme_stylebox_override("normal", _make_card_style(false, false))
+	add_theme_stylebox_override("hover", _make_card_style(false, true))
+	add_theme_stylebox_override("pressed", _make_card_style(true, true))
+	add_theme_stylebox_override("disabled", _make_card_style(false, false, true))
+	add_theme_stylebox_override("focus", _make_card_style(false, true))
+	add_theme_color_override("font_disabled_color", Color(0.74, 0.67, 0.56, 0.92))
+	if _icon:
+		_icon.z_index = 2
+		_icon.modulate = Color(1.0, 0.93, 0.82, 1.0)
+		_icon.anchor_left = 0.08
+		_icon.anchor_top = 0.17
+		_icon.anchor_right = 0.92
+		_icon.anchor_bottom = 0.84
+		_icon.offset_left = 0.0
+		_icon.offset_top = 0.0
+		_icon.offset_right = 0.0
+		_icon.offset_bottom = 0.0
+	if _traits_box:
+		_traits_box.z_index = 4
+		_traits_box.visible = false
+	if _identity_panel:
+		_identity_panel.z_index = 5
+		_identity_panel.anchor_left = 0.06
+		_identity_panel.anchor_top = 0.040
+		_identity_panel.anchor_right = 0.94
+		_identity_panel.anchor_bottom = 0.18
+		_identity_panel.offset_left = 0.0
+		_identity_panel.offset_top = 0.0
+		_identity_panel.offset_right = 0.0
+		_identity_panel.offset_bottom = 0.0
+	if _legacy_role_label:
+		_legacy_role_label.visible = false
+	if _role_badge:
+		_role_badge.add_theme_font_size_override("font_size", 12)
+		_role_badge.add_theme_color_override("font_color", COLOR_GOLD)
+		_role_badge.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
+		_role_badge.add_theme_constant_override("outline_size", 1)
+	if _goal_label:
+		_goal_label.add_theme_color_override("font_color", COLOR_MUTED)
+	if _name_label:
+		_name_label.z_index = 6
+		_name_label.add_theme_font_size_override("font_size", 15)
+		_name_label.add_theme_color_override("font_color", COLOR_TEXT)
+		_name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
+		_name_label.add_theme_constant_override("outline_size", 1)
+	if _price_label:
+		_price_label.z_index = 6
+		_price_label.add_theme_font_size_override("font_size", 14)
+		_price_label.add_theme_color_override("font_color", COLOR_GOLD)
+		_price_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
+		_price_label.add_theme_constant_override("outline_size", 1)
+
+func _make_card_style(pressed_state: bool, highlighted: bool, disabled_state: bool = false) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = COLOR_PANEL
+	style.border_color = COLOR_IRON
+	if highlighted:
+		style.bg_color = Color(0.092, 0.054, 0.062, 0.99)
+		style.border_color = COLOR_GOLD
+	if pressed_state:
+		style.bg_color = Color(0.13, 0.026, 0.040, 0.98)
+		style.border_color = COLOR_BLOOD
+	if disabled_state:
+		style.bg_color = Color(0.038, 0.032, 0.040, 0.96)
+		style.border_color = Color(0.33, 0.29, 0.29, 0.88)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.shadow_size = 12 if highlighted else 8
+	style.shadow_color = Color(0.58, 0.18, 0.060, 0.30) if highlighted else Color(0.0, 0.0, 0.0, 0.46)
+	return style
+
+func _wire_hover() -> void:
+	if not is_connected("mouse_entered", Callable(self, "_on_hover_entered")):
+		mouse_entered.connect(_on_hover_entered)
+	if not is_connected("mouse_exited", Callable(self, "_on_hover_exited")):
+		mouse_exited.connect(_on_hover_exited)
+	if not is_connected("resized", Callable(self, "_sync_pivot")):
+		resized.connect(_sync_pivot)
+	_sync_pivot()
+
+func _sync_pivot() -> void:
+	pivot_offset = size * 0.5
+
+func _on_hover_entered() -> void:
+	_apply_hover_motion(true)
+
+func _on_hover_exited() -> void:
+	_apply_hover_motion(false)
+
+func _apply_hover_motion(active: bool) -> void:
+	if _hover_tween != null and is_instance_valid(_hover_tween):
+		_hover_tween.kill()
+	var target_scale: Vector2 = Vector2.ONE
+	if active and not disabled:
+		target_scale = Vector2(1.035, 1.035)
+		z_index = 70
+		if _icon != null:
+			_icon.modulate = Color(1.0, 0.93, 0.78, 1.0)
+	else:
+		z_index = 0
+		if _icon != null:
+			_icon.modulate = Color(0.96, 0.91, 0.84, 1.0)
+	_hover_tween = create_tween()
+	_hover_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_hover_tween.tween_property(self, "scale", target_scale, 0.10)
+
+func _refresh_cursor() -> void:
+	mouse_default_cursor_shape = Control.CURSOR_ARROW if disabled else Control.CURSOR_POINTING_HAND
 
 func _coerce_array(values) -> Array:
 	var out: Array = []
@@ -206,24 +340,24 @@ func _coerce_array(values) -> Array:
 	return out
 
 func _format_role(role_value) -> String:
-	var text := String(role_value).replace("_", " ").strip_edges()
-	if text == "":
+	var role_text := String(role_value).replace("_", " ").strip_edges()
+	if role_text == "":
 		return ""
-	var parts := text.split(" ", false)
+	var parts := role_text.split(" ", false)
 	var pretty := PackedStringArray()
 	for part in parts:
 		if part == "":
 			continue
 		pretty.append(part.capitalize())
 	if pretty.size() == 0:
-		return text.capitalize()
+		return role_text.capitalize()
 	return " ".join(pretty)
 
 func _format_goal(goal_value) -> String:
-	var goal := String(goal_value).strip_edges()
-	if goal == "":
+	var goal_text := String(goal_value).strip_edges()
+	if goal_text == "":
 		return ""
-	var parts := goal.split(".", false, 2)
+	var parts := goal_text.split(".", false, 2)
 	if parts.size() >= 2:
 		var role_part := _format_role(parts[0])
 		var goal_part := _prettify_token(parts[1])
@@ -231,7 +365,7 @@ func _format_goal(goal_value) -> String:
 			if goal_part != "":
 				return "%s - %s" % [role_part, goal_part]
 			return role_part
-	return _prettify_token(goal)
+	return _prettify_token(goal_text)
 
 func _format_list(values: Array, limit: int) -> String:
 	if values == null or values.is_empty():
@@ -246,10 +380,10 @@ func _format_list(values: Array, limit: int) -> String:
 	return ", ".join(formatted)
 
 func _prettify_token(value: String) -> String:
-	var text := String(value).strip_edges().to_lower()
-	if text == "":
+	var token_text := String(value).strip_edges().to_lower()
+	if token_text == "":
 		return ""
-	var parts := text.split("_", false)
+	var parts := token_text.split("_", false)
 	var pretty := PackedStringArray()
 	for part in parts:
 		if part == "":

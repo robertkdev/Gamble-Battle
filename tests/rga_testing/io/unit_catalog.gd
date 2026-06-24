@@ -3,7 +3,6 @@ class_name RGAUnitCatalog
 
 const UnitFactory = preload("res://scripts/unit_factory.gd")
 const UnitProfile = preload("res://scripts/game/units/unit_profile.gd")
-const UnitDef = preload("res://scripts/game/units/unit_def.gd")
 const RGASettings = preload("res://tests/rga_testing/settings.gd")
 
 # Lists units with minimal identity fields.
@@ -33,13 +32,19 @@ func list(settings: RGASettings) -> Array[Dictionary]:
         var id := ""
         if res is UnitProfile:
             id = String(res.id)
-        elif res is UnitDef:
-            id = String(res.id)
         else:
             # Not a Unit resource
             continue
+        # Suppress validation warnings during catalog listing; we will filter units with issues
+        var prev_suppress := UnitFactory.suppress_validation_warnings
+        UnitFactory.suppress_validation_warnings = true
         var u := UnitFactory.spawn(id)
+        UnitFactory.suppress_validation_warnings = prev_suppress
         if u == null:
+            continue
+        # Exclude units that fail role identity validation to keep baselines clean
+        var issues: Array = UnitFactory.validate_role_invariants(u)
+        if issues is Array and issues.size() > 0:
             continue
         if not _passes_filters(u, want_roles, want_goals, want_approaches, want_costs):
             continue

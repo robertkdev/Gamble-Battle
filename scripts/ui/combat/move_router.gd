@@ -71,6 +71,8 @@ func _bench_to_board(uv: UnitView, tile_idx: int) -> void:
 	if u == null:
 		_snap_back(uv)
 		return
+	if uv.has_method("set_bench_mode"):
+		uv.set_bench_mode(false)
 
 	# Team size cap (only when enabled)
 	var cap: int = (int(roster.max_team_size) if roster else -1)
@@ -119,6 +121,8 @@ func _board_to_bench(uv: UnitView, tile_idx: int) -> void:
 	if u == null:
 		_snap_back(uv)
 		return
+	if uv.has_method("set_bench_mode"):
+		uv.set_bench_mode(true)
 
 	# Prefer the exact target bench tile when available
 	var slot: int = int(tile_idx)
@@ -180,6 +184,8 @@ func _bench_to_bench(uv: UnitView, tile_idx: int) -> void:
 	if u == null:
 		_snap_back(uv)
 		return
+	if uv.has_method("set_bench_mode"):
+		uv.set_bench_mode(true)
 
 	var dest_u: Unit = (roster.get_slot(tile_idx) as Unit)
 

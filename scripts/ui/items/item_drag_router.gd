@@ -48,9 +48,9 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 		return
 	# Handle inventory-to-inventory combination BEFORE resolving a unit.
 	if grid == item_grid_helper:
-		var items = _items_singleton()
-		print("[ItemDrag] Items singleton node=", items)
-		if items == null:
+		var inventory_items = _items_singleton()
+		print("[ItemDrag] Items singleton node=", inventory_items)
+		if inventory_items == null:
 			return
 		var src_idx := -1
 		if card.has_method("get_slot_index"):
@@ -68,15 +68,15 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 				target_id = String(target_ctrl.get_item_id())
 		print("[ItemDrag] inventory drop src=", iid, " tgt=", target_id, " src_idx=", src_idx, " dst=", tile_idx)
 		var did_combine := false
-		if target_id != "" and items.has_method("combine_inventory_slots"):
-			var cres = items.combine_inventory_slots(src_idx, tile_idx)
+		if target_id != "" and inventory_items.has_method("combine_inventory_slots"):
+			var cres = inventory_items.combine_inventory_slots(src_idx, tile_idx)
 			print("[ItemDrag] combine result => ", cres)
 			if cres is Dictionary and bool(cres.get("ok", false)):
 				did_combine = true
 		if did_combine:
 			return
-		if items.has_method("swap_inventory_slots"):
-			items.swap_inventory_slots(src_idx, tile_idx)
+		if inventory_items.has_method("swap_inventory_slots"):
+			inventory_items.swap_inventory_slots(src_idx, tile_idx)
 		return
 	# Otherwise, resolve the unit at the drop location on a board grid.
 	var unit: Unit = _resolve_unit(grid, tile_idx)
@@ -84,25 +84,25 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 	if unit == null:
 		return
 	# Route to Items service (robustly resolve the autoload/node)
-	var items = _items_singleton()
-	print("[ItemDrag] Items singleton node=", items)
-	if items == null:
+	var items_node = _items_singleton()
+	print("[ItemDrag] Items singleton node=", items_node)
+	if items_node == null:
 		return
 	if iid == "remover":
 		print("[ItemDrag] calling remove_all on Items node")
 		var rr = null
-		if items.has_method("remove_all"):
-			rr = items.remove_all(unit)
+		if items_node.has_method("remove_all"):
+			rr = items_node.remove_all(unit)
 		else:
-			rr = items.call_deferred("remove_all", unit)
+			rr = items_node.call_deferred("remove_all", unit)
 		print("[ItemDrag] remove_all => ", rr)
 	else:
 		print("[ItemDrag] calling equip on Items node with ", iid)
 		var res = null
-		if items.has_method("equip"):
-			res = items.equip(unit, iid)
+		if items_node.has_method("equip"):
+			res = items_node.equip(unit, iid)
 		else:
-			res = items.call_deferred("equip", unit, iid)
+			res = items_node.call_deferred("equip", unit, iid)
 		print("[ItemDrag] equip result => ", res)
 
 func _resolve_unit(grid, tile_idx: int) -> Unit:
@@ -114,7 +114,6 @@ func _resolve_unit(grid, tile_idx: int) -> Unit:
 				for v in pviews:
 					if v != null and int(v.tile_idx) == int(tile_idx):
 						return v.unit
-	return null
 	if grid == bench_grid_helper:
 		# Bench slots map 1:1 with grid indices
 		if Engine.has_singleton("Roster"):

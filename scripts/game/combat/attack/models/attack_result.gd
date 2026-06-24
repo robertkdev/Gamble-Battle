@@ -5,6 +5,7 @@ var processed: bool = false
 var blocked: bool = false
 var dealt: int = 0
 var absorbed: int = 0
+var redirected: int = 0
 var heal: int = 0
 var before_hp: int = 0
 var after_hp: int = 0
@@ -14,6 +15,11 @@ var before_cap: int = 0           # After shields, before HP cap
 var comp_phys: int = 0            # Post-mitigation, pre-shield component breakdown
 var comp_mag: int = 0
 var comp_true: int = 0
+var amp_output_delta: float = 0.0
+var amp_output_pct: float = 0.0
+var amp_output_kind: String = ""
+var amp_source_team: String = ""
+var amp_source_index: int = -1
 var messages: Array[String] = []
 
 func to_dictionary() -> Dictionary:
@@ -22,6 +28,7 @@ func to_dictionary() -> Dictionary:
         "blocked": blocked,
         "dealt": dealt,
         "absorbed": absorbed,
+        "redirected": redirected,
         "heal": heal,
         "before_hp": before_hp,
         "after_hp": after_hp,
@@ -31,5 +38,10 @@ func to_dictionary() -> Dictionary:
         "comp_phys": comp_phys,
         "comp_mag": comp_mag,
         "comp_true": comp_true,
+        "amp_output_delta": amp_output_delta,
+        "amp_output_pct": amp_output_pct,
+        "amp_output_kind": amp_output_kind,
+        "amp_source_team": amp_source_team,
+        "amp_source_index": amp_source_index,
         "messages": messages
     }

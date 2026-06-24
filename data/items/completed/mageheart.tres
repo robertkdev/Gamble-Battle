@@ -11,4 +11,5 @@ icon_path = "res://assets/items/mage_heart_icon.png"
 stat_mods = {"flat_sp": 60.0, "flat_hp": 300}
 effects = ["mageheart"]
 components = ["wand", "core"]
+tags = PackedStringArray("mage")
 

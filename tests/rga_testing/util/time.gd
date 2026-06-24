@@ -9,12 +9,8 @@ const US_PER_SEC: int = 1_000_000
 const DEFAULT_TICK_US: int = 50_000   # 20 Hz (delta = 0.05s)
 
 static func now_us() -> int:
-    # Monotonic-ish time in microseconds (best effort, engine-dependent).
-    if Engine.has_singleton("Time") and Time.has_method("get_ticks_usec"):
-        return int(Time.get_ticks_usec())
-    if OS.has_method("get_ticks_msec"):
-        return int(OS.get_ticks_msec()) * US_PER_MS
-    return 0
+    # Monotonic time in microseconds from Godot's Time singleton.
+    return int(Time.get_ticks_usec())
 
 static func sec_to_us(seconds: float) -> int:
     # Convert seconds (float) to microseconds (int), rounded to nearest us.
@@ -36,8 +32,8 @@ static func ticks_from_us(us: int, tick_us: int = DEFAULT_TICK_US) -> int:
 
 static func ticks_from_seconds(seconds: float, tick_us: int = DEFAULT_TICK_US, mode: String = "round") -> int:
     # Convert seconds (float) to integer ticks using the chosen rounding mode.
-    var us := sec_to_us(seconds)
-    var denom := int(max(1, tick_us))
+    var us: int = sec_to_us(seconds)
+    var denom: int = int(max(1, tick_us))
     match String(mode).to_lower():
         "floor":
             return us / denom
@@ -49,4 +45,3 @@ static func ticks_from_seconds(seconds: float, tick_us: int = DEFAULT_TICK_US, m
 
 static func clamp_nonneg(v: int) -> int:
     return (v if v >= 0 else 0)
-

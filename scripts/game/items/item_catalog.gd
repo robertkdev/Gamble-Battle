@@ -6,6 +6,7 @@ const ItemDef := preload("res://scripts/game/items/item_def.gd")
 static var _loaded: bool = false
 static var _items_by_id: Dictionary = {}           # id -> ItemDef
 static var _by_type: Dictionary = {}               # type -> Array[ItemDef]
+static var _by_tag: Dictionary = {}                # tag -> Array[ItemDef]
 
 static func _ensure_loaded() -> void:
 	if _loaded:
@@ -17,6 +18,7 @@ static func reload() -> void:
 	_loaded = false
 	_items_by_id.clear()
 	_by_type.clear()
+	_by_tag.clear()
 	_ensure_loaded()
 
 static func _scan_dir(path: String) -> void:
@@ -58,6 +60,15 @@ static func _add_item(def: ItemDef) -> void:
 	if not _by_type.has(t):
 		_by_type[t] = []
 	(_by_type[t] as Array).append(def)
+	# Index by tags (lowercased strings)
+	if def.tags is PackedStringArray:
+		for raw in (def.tags as PackedStringArray):
+			var tag := String(raw).strip_edges().to_lower()
+			if tag == "":
+				continue
+			if not _by_tag.has(tag):
+				_by_tag[tag] = []
+			(_by_tag[tag] as Array).append(def)
 
 static func get_def(id: String) -> ItemDef:
 	_ensure_loaded()
@@ -71,6 +82,29 @@ static func by_type(kind: String) -> Array:
 		return []
 	# Return a shallow copy to avoid external mutation of cache
 	return (_by_type[t] as Array).duplicate()
+
+static func by_tag(tag: String) -> Array:
+	_ensure_loaded()
+	var k := String(tag).strip_edges().to_lower()
+	if not _by_tag.has(k):
+		return []
+	return (_by_tag[k] as Array).duplicate()
+
+static func with_any_tags(tags: PackedStringArray) -> Array:
+	_ensure_loaded()
+	var out: Array = []
+	var seen: Dictionary = {}
+	for raw in tags:
+		var k := String(raw).strip_edges().to_lower()
+		if k == "":
+			continue
+		var arr: Array = by_tag(k)
+		for d in arr:
+			var id := String((d as ItemDef).id)
+			if not seen.has(id):
+				seen[id] = true
+				out.append(d)
+	return out
 
 static func is_component(id: String) -> bool:
 	var def: ItemDef = get_def(id)

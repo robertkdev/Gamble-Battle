@@ -81,6 +81,8 @@ func rebuild_bench_views(units: Array, allow_drag: bool) -> void:
             continue
         var uv: UnitView = UnitViewClass.new()
         uv.set_unit(u)
+        if uv.has_method("set_bench_mode"):
+            uv.set_bench_mode(true)
         if allow_drag:
             uv.enable_drag(bench_grid_helper)
         bench_grid_helper.attach(uv, i)
@@ -89,9 +91,8 @@ func rebuild_bench_views(units: Array, allow_drag: bool) -> void:
             print("[BenchPlacement] Added to bench slot=", i, " unit=", (u.name if u else "?"), " level=", int(u.level))
             # Fire in-UnitView animation (may be cleared by immediate rebuilds)
             if uv.has_method("play_level_up"):
-                uv.play_level_up(int(u.level))
-            # Also spawn a top-level overlay at the tile position so it's always visible
-            _spawn_overlay_for_tile(i, int(u.level))
+                var effect_opts: Dictionary = make_level_up_effect_opts(i, int(u.level))
+                uv.play_level_up(int(u.level), effect_opts)
     # Snapshot for next rebuild
     _prev_units.clear()
     for i2 in range(capacity):
@@ -113,33 +114,26 @@ func _ensure_overlay_layer() -> void:
         _overlay_layer.offset_right = 0
         _overlay_layer.offset_bottom = 0
 
-func _spawn_overlay_for_tile(tile_index: int, to_level: int) -> void:
+func make_level_up_effect_opts(tile_index: int, level: int) -> Dictionary:
     if bench_grid == null or tile_index < 0 or tile_index >= tiles.size():
-        return
-    _ensure_overlay_layer()
+        return {}
     var tile: Control = tiles[tile_index]
     if tile == null:
-        return
-    var r: Rect2 = tile.get_global_rect()
-    # Level-up ring overlay (top-level control positioned over the tile)
-    var ring = load("res://scripts/ui/vfx/level_up_vfx.gd").new()
-    ring.top_level = true
-    ring.global_position = r.position
-    ring.size = r.size
-    ring.z_index = 12000
-    if to_level >= 3:
-        ring.end_radius = 40.0
-        ring.color = Color(1.0, 0.92, 0.55, 0.95)
-    _overlay_layer.add_child(ring)
-    # Strong white flash overlay
-    var flash := ColorRect.new()
-    flash.top_level = true
-    flash.global_position = r.position
-    flash.size = r.size
-    flash.z_index = 12010
-    flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
-    flash.color = Color(1,1,1,0.4)
-    _overlay_layer.add_child(flash)
-    var ft := flash.create_tween()
-    ft.tween_property(flash, "modulate:a", 0.0, 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-    ft.finished.connect(func(): if is_instance_valid(flash): flash.queue_free())
+        return {}
+    _ensure_overlay_layer()
+    if _overlay_layer == null or not is_instance_valid(_overlay_layer):
+        return {}
+    var rect: Rect2 = tile.get_global_rect()
+    var opts: Dictionary = {
+        "ring_parent": _overlay_layer,
+        "flash_parent": _overlay_layer,
+        "ring_rect": rect,
+        "flash_rect": rect,
+        "ring_top_level": true,
+        "flash_top_level": true,
+        "ring_z_index": 12000,
+        "flash_z_index": 12010,
+        "flash_color": Color(1, 1, 1, 0.4)
+    }
+    opts["level"] = level
+    return opts

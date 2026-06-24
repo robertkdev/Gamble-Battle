@@ -16,7 +16,6 @@ var enemy_grid_helper: BoardGrid
 var unit_actor_class
 var tile_size: int = 72
 
-var _planning_area_prev_mouse_filter: int = 0
 var _hidden_nodes: Array = []
 var _prev_mouse_filters: Dictionary = {}
 
@@ -82,7 +81,7 @@ func exit_arena() -> void:
                 m.a = 1.0
                 c.modulate = m
                 if _prev_mouse_filters.has(c):
-                    c.mouse_filter = int(_prev_mouse_filters[c])
+                    c.mouse_filter = int(_prev_mouse_filters[c]) as Control.MouseFilter
         _hidden_nodes.clear()
         _prev_mouse_filters.clear()
 

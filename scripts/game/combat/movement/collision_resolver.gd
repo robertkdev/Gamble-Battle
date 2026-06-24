@@ -30,7 +30,7 @@ func resolve(
         all_alive.append((player_alive[i] if i < player_alive.size() else true))
         caps.append((player_step_caps[i] if i < player_step_caps.size() else 0.0))
         tags.append(["player", i])
-    var offset_enemy: int = all_pos.size()
+    var _offset_enemy: int = all_pos.size()
     for j in range(enemy_positions.size()):
         all_pos.append(enemy_positions[j])
         all_alive.append((enemy_alive[j] if j < enemy_alive.size() else true))

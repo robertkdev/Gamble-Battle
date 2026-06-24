@@ -20,6 +20,16 @@ const UnitIdentity := preload("res://scripts/game/identity/unit_identity.gd")
 @export var alt_goals: Array[String] = []
 @export var identity: UnitIdentity = null
 
+# Availability flags (explicit visibility controls)
+# shop_eligible: may appear in shop offers
+# starter_eligible: may appear on the starting unit picker
+# hidden: never shown in UI lists (dev/test content)
+# enemy_only: intended only for enemy teams (e.g., creeps)
+@export var shop_eligible: bool = true
+@export var starter_eligible: bool = true
+@export var hidden: bool = false
+@export var enemy_only: bool = false
+
 func role_names() -> PackedStringArray:
 	var out := PackedStringArray()
 	# Only use legacy string list now

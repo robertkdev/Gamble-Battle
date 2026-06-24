@@ -11,4 +11,5 @@ icon_path = "res://assets/items/blood_engine_icon.png"
 stat_mods = {"pct_ad": 0.20, "flat_hp": 200}
 effects = ["blood_engine"]
 components = ["hammer", "core"]
+tags = PackedStringArray("brawler")
 

@@ -34,7 +34,7 @@ func emit_shots(team: String, shooter_index: int, default_target: int, rolled_da
 	if hooks != null and hooks.has_method("bonko_clone_count"):
 		var clone_n: int = int(hooks.bonko_clone_count(state, team, shooter_index))
 		if clone_n > 0:
-			var pct: float = 0.5
+			var pct: float = 0.35
 			if hooks.has_method("bonko_clone_damage_pct"):
 				pct = float(hooks.bonko_clone_damage_pct(state, team, shooter_index))
 			var clone_damage: int = int(max(0.0, round(float(rolled_damage) * max(0.0, pct))))

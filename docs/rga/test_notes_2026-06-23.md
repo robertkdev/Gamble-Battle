@@ -1,0 +1,246 @@
+# RGA Test Notes - 2026-06-23
+
+Source compared
+- Game design source: private Google Doc `gamble battle`.
+- Local implementation inspected: `tests/rga_testing/`, role metrics, role thresholds, 6v6 probe scenes, and RGA harness output.
+
+Design doc expectations
+- Roles under test: Tank, Brawler, Assassin, Marksman, Mage, Support.
+- Tank should absorb/frontline pressure.
+- Brawler should survive extended fights while applying attrition pressure.
+- Assassin should access and threaten high-value backline units; ability-gated access can still be valid if it happens around the assassin cast window.
+- Marksman should show sustained long-range pressure and target uptime; team-wide damage share is useful context but not a hard identity gate by itself.
+- Mage should show magic burst, area pressure, control, or utility. Burst periodicity can pass through either top-window magic share or peak-over-mean behavior.
+- Support should enable allies or disable enemies through buffs, shields, sustain, peel, CC, or other effective-health contribution.
+- Scenario packs should cover neutral, counter, peel, burst, poke/kite, and sustain/anti-heal style contexts where applicable.
+- Runs should be deterministic, seeded, and produce reusable telemetry/report artifacts.
+
+Current test entry points
+- `tests/rga_testing/ci/RoleMatrixSmoke.tscn`
+  - Fast six-role wrapper.
+  - Runs one representative subject per role: `korath`, `bonko`, `nyxa`, `hexeon`, `paisley`, `axiom`.
+  - Uses unique output roots per subject under `user://rga_smoke/<unit>`.
+  - Disables resume so each run regenerates rows and reports.
+- `tests/rga_testing/validation/RoleMatrixProbe.tscn`
+  - Main subject probe with quick 1v1 and full 6v6 profiles.
+  - Writes `user://identity_reports/<unit>.json`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn`
+  - Multi-scenario 6v6 probe. Current default checks Bonko as brawler across `neutral`, `burst`, and `peel`.
+- `tests/rga_testing/validation/OnHitProcProbe.tscn`
+  - Fixed-team positive control for explicit basic-attack on-hit telemetry.
+  - Uses two active Vindicator units on team A and verifies the subject receives source-attributed `on_hit_proc` counts.
+- `tests/rga_testing/validation/DisruptionKernelProbe.tscn`
+  - Direct positive control for post-control disruption telemetry.
+  - Verifies forced reposition, target swap, formation spread break, and follow-up kill attribution against a manual `DerivedStatsAggregator` harness.
+- `tests/rga_testing/validation/RedirectThreatKernelProbe.tscn`
+  - Direct positive control for redirect focus/threat-swap telemetry.
+  - Verifies enemy focus starts, target swaps onto the subject, focus duration, and direct `approach_redirect` target-swap evaluation.
+- `tests/rga_testing/validation/AmpOutputKernelProbe.tscn`
+  - Direct positive control for buff-output telemetry.
+  - Applies a source-attributed damage amp to an ally, runs a real buffed projectile hit, and verifies amp output events, output delta, beneficiary capture, direct `approach_amp`, and direct `support.team_amplification` goal consumption.
+- `tests/rga_testing/validation/MageSustainedDpsGoalProbe.tscn`
+  - Direct positive/negative control for the `mage.sustained_dps` goal.
+  - Verifies that direct sustained-magic evidence passes while AoE-only damage no longer satisfies the goal.
+- `tests/rga_testing/validation/ApproachCatalogCoverage.tscn`
+  - Loads every metric descriptor and verifies each identity catalog approach has an `approach_*` metric.
+  - Also checks that every doc-listed goal resource exists.
+- `tests/rga_testing/validation/GoalPrimaryCatalogProbe.tscn`
+  - Direct semantic positive/negative control for all 22 doc primary goal IDs.
+  - Installs synthetic identities, feeds `goal_primary` purpose-built positive payloads and empty/control negative payloads, and verifies each expected goal span prefix is emitted.
+- Targeted 6v6 scenes
+  - `RoleMatrixProbe6v6Nyxa.tscn`: marksman.
+  - `RoleMatrixProbe6v6Hexeon.tscn`: assassin.
+  - `RoleMatrixProbe6v6Paisley.tscn`: mage wombo/aoe/peel.
+  - `RoleMatrixProbe6v6Faeling.tscn`: mage area denial zone / AoE / zone.
+  - `RoleMatrixProbe6v6Volt.tscn`: mage pick burst / burst / lockdown.
+  - `RoleMatrixProbe6v6Axiom.tscn`: support.
+  - `RoleMatrixProbe6v6Grint.tscn`: tank engage/disrupt/damage_reduction.
+  - `RoleMatrixProbe6v6Berebell.tscn`: brawler disrupt/reposition/sustain.
+  - `RoleMatrixProbe6v6Sari.tscn`: marksman sustained DPS/on-hit.
+  - `RoleMatrixProbe6v6Kythera.tscn`: tank fortification/debuff/sustain.
+  - `RoleMatrixProbe6v6Totem.tscn`: support peel/amp/CC immunity.
+  - `RoleMatrixProbe6v6Korath.tscn`: tank frontline absorb/redirect/engage.
+  - `RoleMatrixProbe6v6Teller.tscn`: marksman tank shredding/debuff/ramp.
+- `tests/rga_testing/RGATesting.tscn`
+  - Broader RGA pipeline harness using the configured profile resource.
+- `tests/lint/UnitStatLint.tscn`
+  - Stat lint baseline. Useful for detecting whether Godot exit leak warnings are RGA-specific or project baseline.
+
+Coverage clarification
+- Role identity tests are testable and passing for the six core roles.
+- Every identity catalog approach now has an executable RGA verdict path.
+- Every doc-listed primary goal ID now has an executable `goal_primary` verdict path.
+- Direct post-control enemy-response telemetry now exists for target swaps, forced reposition, formation spread breaks, and follow-up kills.
+- Direct cooldown-pressure quality telemetry now exists for threat-draw caster/ability diversity, key-threat share, and cooldown-trade efficiency.
+- Direct buff-output telemetry now exists for source-attributed output lift, output events, and beneficiaries.
+- Coverage is still not complete to the Google Doc's full standard because several goal spans and approaches remain proxy-backed where direct semantic telemetry does not exist yet.
+- Detailed coverage matrix: `docs/rga/role_goal_approach_coverage_2026-06-23.md`.
+- Current doc-name approach tests:
+  - `approach_access_backline` for the backline-entry kernel.
+  - `approach_long_range` for the range/over-2-tiles kernel.
+  - `approach_sustain` for healing plus absorbed-shield sustain over incoming pressure or time alive.
+  - `approach_damage_reduction` for pre-mitigation to post-mitigation prevention before shields.
+  - `approach_lockdown` for per-source CC seconds/events on priority targets, forced-cleanse pressure, tenacity tax, and scenario-level cleanse/high-tenacity deltas when those scenario labels are present.
+  - `approach_burst` for subject peak 1-second damage, peak share, overkill, and cast-to-peak counterplay.
+  - `approach_execute` for direct execute bonus event count, bonus damage share, low-health kill share/count, and overkill guardrail.
+  - `approach_aoe` for subject multi-target hit groups, max targets hit, and AoE DPS.
+  - `approach_ramp` for direct stack/window ramp events, max stack, time-to-peak, and peak/window duration when current telemetry is present; older rows fall back to late/early DPS, time-to-peak, and post-peak falloff.
+  - `approach_disrupt` for subject CC seconds/events and unique controlled targets.
+  - `approach_engage` for early displacement plus early hit/cast/CC initiation evidence.
+  - `approach_reposition` for max movement step, post-cast movement, and total path distance.
+  - `approach_amp` for ally-directed buffs or utility applied to other allies, plus direct output delta/events/beneficiary spans when amp-output telemetry is present.
+  - `approach_debuff` for source-attributed enemy debuff events, magnitude, forced-cleanse pressure, cleanse-bait rate, and scenario-level cleanse delta when those scenario labels are present.
+  - `approach_cc_immunity` for CC-immunity application/receipt, prevented CC while immune, counter-cooldown trade, threat-draw diversity, key-threat share, and cooldown-trade efficiency when direct cooldown-pressure telemetry is present.
+  - `approach_redirect` for direct absorb/redirect events, redirected damage-prevention telemetry, enemy focus starts, target swaps onto the subject, and enemy focus duration, with pressure-share retained as a fallback diagnostic.
+  - `approach_on_hit_effect` for explicit basic-attack on-hit proc evidence.
+  - `approach_dot` for source-owned DoT tick events, tick damage, touched targets, active uptime, and applied duration when direct telemetry is present; older rows still fall back to debuff/on-hit/sustained-damage proxy evidence.
+  - `approach_reset_mechanic` for direct reset/recast event count, chain length, reset timing, and touched targets when direct telemetry is present; older rows still fall back to kill/low-health/post-peak proxy evidence.
+  - `approach_untargetable` for direct untargetable frame share, key-threat dodge rate, and cooldown-trade evidence when targetability telemetry is present; older rows still fall back to low incoming share, survival, mobility, and CC-prevention proxies.
+  - `approach_peel` now reads source-attributed ally protection utility from the subject, including ally buffs/shields, CC-immunity grants, cleanses, and retained self-EHP/team-peel fallback spans.
+  - Existing `approach_zone` remains active.
+- Probe reports now fill `verdicts.goals` and `verdicts.approaches` with pass/fail, proxy, missing-run, or untested statuses instead of leaving both maps empty. Direct `goal_primary` verdicts are preferred over older goal-proxy verdicts.
+
+Fixes from this pass
+- Full 6v6 formation now uses role-aware seats without exact duplicate backline positions.
+- Tile size is propagated into RGA context/metrics instead of defaulting to `1.0`.
+- Projectile bridge pending hits are mutated in place, preventing stale hit queues.
+- Ability damage now emits the same analytics signals as projectile/basic hits for shield, mitigation, overkill, and component damage.
+- Headless lockstep disables auto-attack and ability console logs to reduce output churn without changing telemetry.
+- Simulator disconnects engine signal connections and tears down combat objects after collector detach. This reduced RGA-specific exit leaks; the remaining 8-resource exit tail also appears in `UnitStatLint`.
+- Assassin backline access now evaluates the subject's own backline entry and allows contact inside a cast-relative window.
+- Marksman identity uses subject sustained/ranged/time-on-target signals and keeps team damage share as diagnostic context.
+- Mage reporting now separates `magic_share` from `magic_peak_over_mean`, so pass reasons match displayed thresholds.
+- Brawler full 6v6 now uses the configured sustained-damage tolerance when survivability also passes, matching `roles_thresholds.json`.
+- Combat stats now preserve `post_mit_incoming` so damage-reduction tests can compare pre-mitigation and post-mitigation damage without conflating shields.
+- Derived lockdown telemetry now records per-source CC on priority targets, allowing subject-level `lockdown` approach verdicts.
+- Added `CombatPatternKernel`, which derives per-subject `burst`, `execute`, `aoe`, and `ramp` KPIs from combat hit, overkill, ability-cast, and target-health signals.
+- Added `approach_burst`, `approach_execute`, `approach_aoe`, and `approach_ramp` metrics and wired them into quick metric selection, thresholds, goal proxies, and report verdicts.
+- Added `ControlMobilityKernel`, which derives per-subject control and movement KPIs from position, target, hit, ability-cast, and CC signals.
+- Added `approach_disrupt`, `approach_engage`, and `approach_reposition` metrics and wired them into quick metric selection, thresholds, stricter goal proxies, and report verdicts.
+- Tightened goal proxies so broad role identity no longer masks failed goal-specific approaches such as Grint's `tank.initiate_fight`.
+- Added `buffs` as a telemetry capability and wired `BuffSystem` events through `CombatEngine`.
+- Added source attribution around ability casts, autocasts, scheduled ability callbacks, direct buff/debuff records, CC-prevention, cleanse, and stun effects.
+- Rebuilt `BuffPresenceKernel` to report per-source and per-target buff/debuff records, including ally-directed buffs, enemy debuffs, CC immunity, cleanse, and CC-prevention.
+- Added `approach_amp`, `approach_debuff`, `approach_cc_immunity`, `approach_redirect`, and `approach_on_hit_effect` metrics with thresholds, quick metric mapping, report verdict mapping, and goal proxies.
+- Tightened `approach_amp` so self-shields no longer count as team amplification.
+- Added explicit `on_hit_proc` telemetry from basic-attack trait effects by source-attributing on-hit handler outputs through `BuffSystem` and `CombatEngine`.
+- RGA lockstep now wires `TraitRuntime` and Mentor pupil maps like live combat, so trait effects are visible to role/goal/approach probes.
+- Added `OnHitProcProbe.tscn` as a fixed-team positive control; after explicit ability-vs-basic hit separation it passed with `repo` recording 9 subject on-hit effects and team A recording 21 total on-hit effects.
+- Added direct `damage_redirected` telemetry through `AttackResult`, `CombatEvents`, `CombatEngine`, and `RedirectKernel`.
+- `approach_redirect` now prefers direct redirect event/prevented-damage spans; pressure-share spans remain visible as fallback diagnostics.
+- Extended `RedirectKernel` to consume `target_start`/`target_end` for enemy focus starts, target swaps onto the subject, and enemy focus duration, and extended `approach_redirect` so direct threat-swap/focus evidence can satisfy the doc's focus-manipulation side of redirect.
+- Added `RedirectThreatKernelProbe.tscn` as a positive control for redirect focus and target-swap capture.
+- Added `goal_primary`, a direct goal-level metric covering all 22 doc primary goal IDs. Some spans remain explicitly proxy-labeled where direct doc telemetry is absent.
+- Added `approach_dot`, `approach_reset_mechanic`, and `approach_untargetable` so every identity catalog approach now has an executable verdict path. `approach_dot` now prefers direct tick ownership telemetry, `approach_reset_mechanic` now prefers direct reset/recast telemetry, and `approach_untargetable` now prefers direct targetability-window and threat-dodge telemetry.
+- Added `ApproachCatalogCoverage.tscn` to mechanically verify 22 identity approaches, 22 doc goal resources, and metric registry discovery.
+- Added direct derived `disruption` telemetry for post-control enemy responses: forced reposition distance/events, target swaps, formation spread breaks, and follow-up kills.
+- Updated `goal_primary` so `brawler.frontline_disruption`, `mage.area_denial_zone`, and `support.formation_breaking` prefer direct enemy-response spans over the earlier CC/movement proxies when the derived kernel is present.
+- Added `DisruptionKernelProbe.tscn` as a positive control for the new disruption kernel.
+- Added direct `dot_tick_applied` telemetry through `CombatEngine`, wired Executioner bleed ticks into it, extended `BuffPresenceKernel` with per-source and per-target DoT tick, applied-duration, and active-uptime fields, and updated `approach_dot` to prefer direct tick/uptime spans over proxy spans.
+- Added `DotTickKernelProbe.tscn` as a positive control for source-owned DoT tick capture, DoT uptime/duration capture, direct `approach_dot` evaluation, and synthetic neutral-vs-anti-DoT scenario-delta spans.
+- Added direct `execute_bonus_applied` telemetry through `CombatEngine`, wired Hexeon and Morrak execute branches into it, extended `CombatPatternKernel` with execute bonus event/damage/share fields, and updated `approach_execute` to require direct bonus-damage evidence when current rows provide it.
+- Added `ExecuteBonusKernelProbe.tscn` as a positive control for execute bonus capture and direct `approach_execute` evaluation.
+- Added `HexeonExecuteLiveProbe.tscn` as a live threshold-sensitivity positive control for Hexeon's real `Prismatic Guillotine`: low-HP targets execute and above-threshold targets do not, with direct `approach_execute` consuming the combined evidence.
+- Added direct `ramp_state_changed` telemetry through `CombatEngine`, added `AbilityContext.emit_ramp_state`, wired Nyxa, Sari, Bonko, and Veyra ramp/timed-window casts into it, extended `CombatPatternKernel` with ramp event/max-stack/time-to-peak/peak-duration/window-duration fields, and updated `approach_ramp` to prefer direct ramp-state spans when current rows provide them.
+- Added `RampStateKernelProbe.tscn` as a positive control for ramp stack/window capture, direct `approach_ramp` evaluation, and direct goal-level ramp consumption.
+- Updated `goal_primary` so ramp-bearing goals can consume direct ramp-state spans when current rows provide them. This covers brawler attrition DPS, marksman sustained DPS, marksman backline siege, and mage sustained DPS while preserving separate approach failures such as `on_hit_effect`.
+- Added direct `reset_triggered` telemetry through `CombatEngine`, wired Hexeon execute recasts and Repo kill recasts into it, extended `CombatPatternKernel` with reset event/chain/timing plus post-first-reset impact fields, and updated `approach_reset_mechanic` to prefer direct reset spans over proxy spans.
+- Added `ResetMechanicKernelProbe.tscn` as a positive control for reset/recast capture, post-first-reset damage/kills/follow-up timing, reset counter-scenario deltas, and direct `approach_reset_mechanic` evaluation.
+- Added direct `targetability_window` and `targetability_threat_interaction` telemetry through `CombatEngine`, added `TargetabilityKernel`, extended `approach_untargetable` with direct frame-share, key-threat dodge-rate, and cooldown-trade spans, and updated `assassin.disrupt_and_escape` goal evaluation to use those direct fields when present.
+- Added `UntargetableKernelProbe.tscn` as a positive control for targetability-window capture and direct `approach_untargetable` evaluation.
+- Added direct `ability_committed` telemetry through `AbilitySystem` and `CombatEngine`, added `CooldownPressureKernel`, extended `goal_primary` skirmish-dive/disrupt-escape/peel spans with direct cooldown-pressure evidence, and added a counter-cooldown trade span to `approach_cc_immunity`.
+- Added `CooldownPressureKernelProbe.tscn` as a positive control for committed ability responses, cooldowns forced, and direct `approach_cc_immunity` counter-cooldown evaluation.
+- Extended `CooldownPressureKernel` with doc-oriented cooldown-pressure quality fields: threat-draw events/seconds, unique enemy casters, unique enemy abilities, key-threat share, and cooldown-trade efficiency.
+- Extended `goal_primary` and `approach_cc_immunity` spans so skirmish-dive, disrupt-and-escape, and peel-carry reports can expose threat draw and cooldown-trade quality instead of only raw cooldown seconds.
+- Extended `approach_lockdown` and `approach_debuff` with scenario-level counterplay deltas. When neutral plus cleanse/counter/high-tenacity scenario labels are present, the metrics now expose cleanse-pressure deltas, high-tenacity tax deltas, and effective-CC drop spans instead of only aggregate direct events.
+- Added direct `zone_exposure_applied` telemetry through `CombatEngine`, added `ZoneExposureKernel`, extended `approach_zone` and `goal_primary` area-denial spans with direct source-owned zone/hazard exposure evidence, and kept positioning occupancy as a fallback diagnostic.
+- Added `ZoneExposureKernelProbe.tscn` as a positive control for direct zone events, unique targets, duration, damage, radius, direct `approach_zone`, and direct `mage.area_denial_zone` goal consumption.
+- Wired live Eavesdropping spin ticks into direct `zone_exposure_applied` telemetry and assigned `creep_eavesdropping` to Faeling so a zone-tagged live kit can prove source-owned lingering-zone exposure.
+- Retagged Faeling from `mage.sustained_dps` to `mage.area_denial_zone`, because the live Eavesdropping kit is a persistent 2.3-tile spin zone and matches the Google Doc's area-denial goal more directly than generic sustained DPS.
+- Added targeted Faeling and Volt 6v6 probe scenes.
+- Added direct `redirect_semantic_applied` telemetry through `CombatEngine`, added `AbilityContext.emit_redirect_semantic`, extended `RedirectKernel` with explicit taunt, body-block, body-block prevention, explicit threat-swap, and redirect end-risk fields, and extended `approach_redirect` with spans for those doc-specific modes.
+- Extended `RedirectThreatKernelProbe.tscn` so it now covers target swaps plus explicit taunt/body-block/end-risk redirect semantics.
+- Wired live Korath absorb/redirect damage events into `redirect_semantic_applied` as `body_block_absorb_redirect`, using real diverted damage as body-block prevention and the remaining absorb window as redirect end-risk evidence.
+- Updated `goal_primary` for `tank.frontline_absorb` so direct body-block protection can satisfy the goal when semantic redirect telemetry is present, instead of relying only on damage-taken share and the old frontline-zone proxy.
+- Added direct `amp_output_applied` telemetry through `CombatEngine`, credited timed buff tags with their source metadata, emitted basic-attack and ability amp output deltas, extended `BuffPresenceKernel` with amp output events/delta/beneficiary fields, and extended `approach_amp` plus `goal_primary` team-amplification spans with direct output telemetry.
+- Added `AmpOutputKernelProbe.tscn` as a positive control for source-owned amp output capture from a real buffed projectile hit, direct `approach_amp` evaluation, and direct `support.team_amplification` goal consumption.
+- Updated Axiom's `Mentor's Reserve` live kit so the Pupil receives a short source-attributed basic/ability damage amp in addition to mana, giving `support.team_amplification` direct downstream output proof instead of only buff-presence proxy evidence.
+- Updated Totem's `Cleanse` live kit so it now protects the allied carry with a source-attributed cleanse attempt, shield, brief CC immunity, and basic/ability damage amp before damaging Totem's current target.
+- Updated `approach_peel`, `support.peel_carry`, and `role_support_identity` so source-owned ally support actions from the subject count as support evidence, rather than only self-EHP or broad team peel-save proxies.
+- Added `TotemCleanseLiveProbe.tscn` as a live positive control for Totem's real `Cleanse` implementation against a debuffed allied carry. It verifies actual debuff removal, source-owned cleanse/CC-immunity telemetry, enemy cleanse-pressure attribution, and direct `approach_peel`, `approach_cc_immunity`, support role, and `support.peel_carry` goal consumption.
+- Fixed `role_support_identity` span reporting so eHP and peel-save spans each show their own pass/fail state instead of inheriting the combined proxy pass.
+- Retagged Paisley and Volt away from `mage.area_denial_zone`/`zone` after rechecking the Google Doc. Paisley's documented Bubbles kit is ally shields plus split bubble damage, so its identity is now `mage.wombo_combo_burst` with `aoe` and `peel`. Volt's documented Arc Lock kit is single-target magic damage plus a 1s stun, so its identity is now `mage.pick_burst` with `burst` and `lockdown`.
+- Tightened `goal_primary` for `mage.sustained_dps`: it now requires team damage share plus at least one direct sustained-magic mechanism from DoT ticks/uptime, persistent zone exposure, ramp state, or on-hit proc evidence. AoE DPS remains visible as a diagnostic span and no longer satisfies the goal by itself.
+- Added `MageSustainedDpsGoalProbe.tscn` as a positive/negative control for direct sustained-magic goal evidence and the old AoE-only false-positive path.
+- Added `GoalPrimaryCatalogProbe.tscn` so every Google-doc primary goal branch has a direct semantic positive case, an empty/control negative case, and expected goal-span validation.
+- Added `ApproachSemanticCatalogProbe.tscn` so every Google-doc approach branch has a direct semantic positive case, an empty/control negative case, and expected approach-span validation.
+- Added `RoleSemanticCatalogProbe.tscn` so every Google-doc role identity branch has a direct semantic positive case, an empty/control negative case, and expected role-span validation.
+
+Verification results
+- Current coverage pass:
+  - `ApproachCatalogCoverage.tscn`: PASS; `approaches=22`, `goals=22`, `metrics=32`.
+  - `RoleSemanticCatalogProbe.tscn`: PASS; all 6 role identity metrics passed their synthetic positive payload, failed their empty/control negative payload, and emitted the expected role span prefix.
+  - `GoalPrimaryCatalogProbe.tscn`: PASS; all 22 doc primary goals passed their synthetic positive payload, failed their empty/control negative payload, and emitted the expected goal span prefix.
+  - `ApproachSemanticCatalogProbe.tscn`: PASS; all 22 doc approach metrics passed their synthetic positive payload, failed their empty/control negative payload, and emitted the expected approach span prefix.
+  - `MageSustainedDpsGoalProbe.tscn`: PASS; direct sustained-magic positive case passed, AoE-only negative case failed, and direct DoT/zone/ramp spans plus the AoE diagnostic span were emitted.
+  - `AmpOutputKernelProbe.tscn`: PASS; real buffed projectile hit processed, direct amp-output signal supported, source record captured `1` ally buff, `1` output event, `25.0` output delta, `1` beneficiary, direct `approach_amp` pass, and direct `goal_primary` team-amplification output span pass.
+  - Latest `RoleMatrixProbe6v6Totem.tscn`: PASS overall; support role PASS, direct `goal support.peel_carry: PASS`, `approach_peel: PASS`, `approach_cc_immunity: PASS`, and `approach_amp: PASS`. Direct live evidence includes `subject_peel_ally_protection_events=76`, `subject_peel_ally_protection_magnitude=2356`, `subject_peel_cc_immunity_grants=19`, `subject_amp_output_delta=149.19`, `subject_amp_output_events=22`, `subject_amp_output_beneficiaries=1`, and `goal_peel_carry_cc_immunity_applied=19`.
+  - Latest `RoleMatrixProbe6v6Axiom.tscn`: PASS overall after the support reporting change; `approach_amp`, `approach_peel`, `approach_sustain`, `goal_primary`, and support identity pass, with `subject_amp_output_delta=120.46`, `subject_amp_output_events=17`, `subject_amp_output_beneficiaries=1`, and `goal_team_amplification_amp_output_delta=120.46` through `reason=direct_buff_output`.
+  - `TotemCleanseLiveProbe.tscn`: PASS; real carry debuff applied and removed, armor restored, Totem cast succeeded, `cleanse_applied=1`, `carry_cleanse_received=1`, `cc_immunity_applied=1`, `carry_immunity_received=1`, enemy `cleanse_pressure_events=1`, enemy `cleanse_pressure_removed=1`, and direct peel, CC-immunity, support identity, and `support.peel_carry` goal metrics all PASS.
+  - Latest `RoleMatrixProbe6v6Korath.tscn`: tank role PASS; `approach_damage_reduction: PASS`; `approach_redirect: PASS` through direct redirect, focus, and live body-block evidence (`19` redirect events, `280` damage prevented, `5` focus starts, `1` target swap, `63.0s` enemy focus, `19` body-block events, `280` body-block prevented damage, `19` end-risk events, `31.40s` end-risk); direct `goal_primary: PASS` for `tank.frontline_absorb` through body-block protection; `approach_engage: FAIL`.
+  - Latest `RoleMatrixProbe6v6Berebell.tscn`: brawler role PASS; `approach_reposition: PASS`; `approach_disrupt: FAIL`; `approach_sustain: FAIL`; direct `goal_primary: FAIL` for `brawler.frontline_disruption` with zero CC/disruption and zero direct enemy-response events.
+  - Latest `RoleMatrixProbe6v6Paisley.tscn`: updated identity `mage.wombo_combo_burst` with `aoe`/`peel`; `approach_aoe: PASS`; `approach_peel: PASS` through source-attributed ally shield evidence (`3` ally protection events, `321` magnitude); mage identity is LEAN/FAIL and direct `goal_primary: FAIL` because burst share and CC-sync evidence are below threshold.
+  - `DisruptionKernelProbe.tscn`: PASS; forced reposition events `1`, forced distance `1.5` tiles, target swaps `1`, formation breaks `1`, spread delta `0.75` tiles, follow-up kills `1`.
+  - `DotTickKernelProbe.tscn`: PASS; direct DoT signal supported, source events `2`, source damage `15`, touched targets `1`, applied duration `3.0`, source uptime `1.25`, target received events `2`, target received damage `15`, target uptime `1.25`, direct `approach_dot` passes without proxy spans, and synthetic anti-DoT scenario-delta spans are present.
+  - `ExecuteBonusKernelProbe.tscn`: PASS; direct execute bonus signal supported, bonus events `1`, bonus damage `50`, bonus share `0.25`, low-HP kills `1`, outside-threshold events `0`, and direct `approach_execute` passes.
+  - `HexeonExecuteLiveProbe.tscn`: PASS; Hexeon's real ability cast in both cases, the low-HP target was executed with `1` execute event, `110` bonus damage, target HP pct `0.11 <= 0.12`, `1` low-HP kill, and `0` outside-threshold events, while the above-threshold target survived with `0` execute events and `0` kills; direct `approach_execute` passed on the combined evidence.
+  - `RampStateKernelProbe.tscn`: PASS; direct ramp-state signal supported, ramp events `2`, max stack `4`, time-to-peak `3.0`, peak duration `3.0`, window duration `3.0`, direct `approach_ramp`, and direct goal-level ramp consumption pass.
+  - `ResetMechanicKernelProbe.tscn`: PASS; direct reset signal supported, reset events `2`, chain length `3`, reset time-between `1.25`, touched targets `2`, post-first-reset damage `150`, post-first-reset kills `2`, first follow-up `0.1s`, direct `approach_reset_mechanic` passes without proxy spans, and synthetic neutral-vs-counter scenario-delta spans are present.
+  - `UntargetableKernelProbe.tscn`: PASS; direct targetability signals supported, untargetable windows `1`, frame share `0.20`, key-threat dodge rate `0.50`, cooldown trade `5.5`, and direct `approach_untargetable` passes without proxy spans.
+  - `CooldownPressureKernelProbe.tscn`: PASS; direct cooldown-pressure signal supported, cooldowns forced `1`, forced cooldown seconds `1.5`, key cooldowns forced `1`, and direct `approach_cc_immunity` counter-cooldown span passes.
+  - `CounterplayPressureKernelProbe.tscn`: PASS; direct counterplay-pressure signal supported, forced-cleanse attribution `1`, cleanse-bait rate `1.0`, tenacity tax events `1`, tenacity tax seconds `1.0`, direct `approach_lockdown`/`approach_debuff` counterplay spans pass, and the synthetic neutral-vs-high-tenacity-cleanse payload exposes `subject_lockdown_cleanse_scenario_delta`, `subject_lockdown_high_tenacity_tax_delta_s`, `subject_lockdown_high_tenacity_effective_drop_s`, and `subject_debuff_cleanse_scenario_delta`.
+  - `RedirectThreatKernelProbe.tscn`: PASS; direct target and redirect-semantic signals supported, focus starts `1`, target swaps onto subject `1`, enemy focus duration `1.25`, taunts `1`, body blocks `1`, body-block prevented damage `18.0`, end-risk events `1`, end-risk duration `0.75`, and direct `approach_redirect` passes.
+  - `ZoneExposureKernelProbe.tscn`: PASS; direct zone-exposure signal supported, source events `2`, unique targets `2`, exposure time `2.5`, damage `20.0`, radius `2.0`, and direct `approach_zone` plus `goal_primary` area-denial consumption pass.
+  - Latest `RoleMatrixProbe6v6Faeling.tscn`: PASS after retagging Faeling to `mage.area_denial_zone`; mage role PASS, direct `goal mage.area_denial_zone: PASS`, `approach_aoe: PASS`, and `approach_zone: PASS` through live Eavesdropping spin-zone exposure (`18` events, `3` targets, `3.60s` exposure time, `327` damage, max radius `2.30`, `12.73` AoE DPS).
+  - Latest `RoleMatrixProbe6v6Volt.tscn`: updated identity `mage.pick_burst` with `burst`/`lockdown`; mage role PASS, but direct `goal mage.pick_burst: FAIL`, `approach_burst: FAIL`, and `approach_lockdown: FAIL` because the live run produced only `20.00` peak DPS, no kill, and zero priority-lockdown evidence.
+  - Latest `RoleMatrixProbe6v6Repo.tscn`: loaded the combined kernel bundle with `counterplay_pressure` capability present and no parse/runtime errors; Repo still FAILS tank identity, `approach_lockdown`, and direct `goal_primary` single-target lockdown because the run produced zero priority-control, forced-cleanse, or tenacity-tax subject evidence.
+  - Latest `RoleMatrixProbe6v6Hexeon.tscn`: loaded the combined kernel bundle with direct execute bonus spans present and no parse/runtime errors; role and goal PASS, `access_backline` and `burst` PASS, `execute` FAIL because direct execute bonus events and low-HP kills are both zero in the live counter scenario.
+  - Latest `RoleMatrixProbe6v6Nyxa.tscn`: loaded the combined kernel bundle with `ramp_state` capability present and no parse/runtime errors; marksman role, direct `marksman.backline_siege` goal, `long_range`, `ramp`, and `aoe` PASS, with direct ramp spans visible under both `approach_ramp` and `goal_primary`.
+  - Latest `RoleMatrixProbe6v6Sari.tscn`: loaded the combined kernel bundle with `ramp_state` capability present and no parse/runtime errors; direct `marksman.sustained_dps` goal, `long_range`, and direct `ramp` PASS, while marksman identity remains LEAN/FAIL and `on_hit_effect` FAILS as a known kit/tag mismatch.
+  - Latest `RoleMatrixProbe6v6Veyra.tscn`: loaded the combined kernel bundle with `ramp_state` capability present and no parse/runtime errors; `damage_reduction` PASS, while tank identity, direct `tank.frontline_absorb`, `sustain`, and direct `ramp` FAIL with zero subject ramp-state events.
+  - `RoleMatrixProbe6v6Repo.tscn`: loaded Repo kill-recast integration without parse/runtime errors; `damage_reduction` and `burst` PASS, while tank identity, lockdown, and direct single-target-lockdown goal still FAIL as known content/behavior mismatches.
+  - Earlier targeted runs before direct `goal_primary` remain useful as approach evidence, but their `PROXY_*` goal statuses should be rerun before being treated as current direct goal verdicts. Those runs showed real content mismatches in Sari on-hit, Teller debuff/ramp, Repo lockdown/burst, Hexeon execute, Grint engage/disrupt, and Berebell disrupt; the older Paisley peel/zone finding is superseded by the Google Doc retag.
+  - Earlier targeted coverage still shows real mismatches: Repo fails lockdown/burst, Hexeon fails execute, Grint fails engage/disrupt, and Berebell fails disrupt. Paisley's current retagged probe instead passes `aoe`/`peel` but fails the `mage.wombo_combo_burst` goal and mage identity.
+  - Latest `RoleMatrixSmoke.tscn`: FAIL as a roster/content smoke, not as a missing-category failure. Korath, Nyxa, Hexeon, and Axiom passed their representative role/goal/approach reports. Bonko passed brawler role, attrition goal, and ramp but failed live `approach_sustain` with `subject_sustain_ehp_ratio=0.00 < 0.10` and `subject_sustain_effective_hps=0.00 < 2.00`. Paisley passed `aoe` and `peel`, but mage identity was LEAN/FAIL and direct `mage.wombo_combo_burst` failed with `peak_1s_share=0.16 < 0.25` and `cc_sync=0`. This confirms role/goal/approach are testable while live content still has honest failures.
+  - Earlier `RoleMatrixSmoke.tscn`: PASS for the six role reports, but it was not a complete approach gate; latest smoke should supersede it for current roster status.
+  - Earlier `RGATesting.tscn`: PASS, 48 rows, `RolesMetrics: PASS`.
+- `RoleMatrixProbe6v6Nyxa.tscn`: PASS.
+  - Marksman passes through subject sustained multiplier/z, ranged proxy, and time-on-target. Backline/team-share spans remain diagnostic.
+- `RoleMatrixProbe6v6Hexeon.tscn`: PASS.
+  - Assassin passes through subject first-backline contact in the cast-relative window.
+  - Current wall time is the slowest targeted edge case, around 12-14 seconds for one 6v6 sim.
+- `RoleMatrixProbe6v6Paisley.tscn`: PASS.
+  - Mage share is below threshold, but peak-over-mean passes clearly.
+- `RoleMatrixProbe6v6Axiom.tscn`: PASS.
+  - Support passes through subject effective-health contribution; several team-wide diagnostics still fail and should stay visible.
+- `RoleMatrixProbe6v6.tscn`: PASS.
+  - Bonko brawler passes the multi-scenario 6v6 edge through survivability plus sustained-damage tolerance; latest run also passes direct `ramp` with a finite empowered-hit window duration of `3.0`.
+- `RoleMatrixSmoke.tscn`: PASS for all 6 units.
+- `RGATesting.tscn`: PASS, 48 rows, `RolesMetrics: PASS`.
+- `UnitStatLint.tscn`: OK, but shows the same 8-resource Godot exit tail as RGA runs.
+- `OnHitProcProbe.tscn`: PASS; subject `repo` recorded 9 explicit on-hit proc events and team A recorded 21.
+
+Known caveats
+- Godot debug output still contains baseline exit warnings:
+  - `ObjectDB instances leaked at exit`
+  - `8 resources still in use at exit`
+- This is not unique to RGA; it also appears on `UnitStatLint.tscn`.
+- Do not treat team-wide diagnostic spans as identity failures when subject-level spans pass. The report should preserve both.
+- Avoid enabling adaptive stepping or light movement by default until it is proven not to change timing-sensitive role metrics.
+
+Next useful checks
+- Add a tiny baseline quit scene or investigate the addon/project source of the 8-resource exit tail.
+- Wire live redirect-tagged kits into explicit taunt-command or threat-swap telemetry where those mechanics are intended, and improve ally-damage-prevented attribution when redirects protect a different ally.
+- Decide whether Sari's assigned `on_hit_effect` tag is a design/content issue or whether Sari needs a real basic-attack proc implementation.
+- Latest execute validation: `RoleMatrixProbe6v6Hexeon.tscn` reran after direct execute bonus telemetry with no parse/runtime errors; role and direct `goal_primary` pass, `access_backline` and `burst` pass, and `execute` remains the exposed content failure because the scenario produced no execute bonus events or low-HP kills.
+- Tighten currently proxy-backed or shallow metrics where the doc wants more semantic precision: live kit-level taunt-command or explicit threat-swap behavior if a future/current kit actually claims that redirect submode, and a design decision for whether a future mage should own `mage.sustained_dps` now that Faeling is the live area-denial owner. The `mage.sustained_dps` metric itself is now strict and probe-guarded, but no current mage primary identity owns it.

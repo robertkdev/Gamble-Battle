@@ -106,7 +106,7 @@ func cast(ctx: AbilityContext) -> bool:
             var dmg2: float = float(BREAK_BASE[li]) + BREAK_SP * float(caster.spell_power)
             ctx.damage_single(ctx.caster_team, ctx.caster_index, t_idx, max(0.0, dmg2), "magic")
             var enemy_team: String = _other(ctx.caster_team)
-            AbilityEffects.stun(bs, ctx.engine, ctx.state, enemy_team, t_idx, BREAK_KNOCK)
+            AbilityEffects.stun(bs, ctx.engine, ctx.state, enemy_team, t_idx, BREAK_KNOCK, ctx.caster_team, ctx.caster_index)
             if ctx.engine and ctx.engine.has_method("_resolver_emit_vfx_knockup"):
                 ctx.engine._resolver_emit_vfx_knockup(enemy_team, t_idx, BREAK_KNOCK)
             # Brief active window to suppress mana gain
@@ -128,4 +128,3 @@ func cast(ctx: AbilityContext) -> bool:
 
     _advance(bs, ctx.state, ctx.caster_team, ctx.caster_index)
     return true
-

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/QuickProbe.gd" id="1"]
+
+[node name="QuickProbe" type="Node"]
+script = ExtResource("1")
+unit_id = "bonko"
+opponents_per_pack = 1
+repeats = 1
+include_swapped = false
+max_sims = 12

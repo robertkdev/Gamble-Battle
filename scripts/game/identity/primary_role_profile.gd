@@ -1,14 +1,7 @@
 extends Resource
 class_name PrimaryRoleProfile
 const Unit := preload("res://scripts/unit.gd")
-const DEFAULT_BASE_STATS := {
-	"max_hp": 500,
-	"attack_damage": 50,
-	"spell_power": 0,
-	"attack_range": 1,
-	"armor": 20,
-	"magic_resist": 0,
-}
+const UnitDefaults := preload("res://scripts/game/units/unit_defaults.gd")
 
 @export var role_id: String = ""
 @export var display_name: String = ""
@@ -19,17 +12,7 @@ const DEFAULT_BASE_STATS := {
 @export var default_approaches: Array[String] = []
 
 func base_stat_value(stat: String) -> float:
-	return float(base_stats.get(stat, DEFAULT_BASE_STATS.get(stat, 0)))
-
-func modifier() -> Dictionary:
-	var delta: Dictionary = {}
-	for key in DEFAULT_BASE_STATS.keys():
-		if not base_stats.has(key):
-			continue
-		var desired := float(base_stats[key])
-		var baseline := float(DEFAULT_BASE_STATS.get(key, 0))
-		delta[key] = desired - baseline
-	return delta
+	return float(base_stats.get(stat, UnitDefaults.BASELINE_STATS.get(stat, 0)))
 
 func validate_unit(unit: Unit) -> Array[String]:
 	if unit == null:
@@ -41,18 +24,33 @@ func validate_unit(unit: Unit) -> Array[String]:
 			continue
 		var value := _metric_value(unit, metric)
 		var label := String(rule.get("label", metric))
-		if rule.has("min"):
-			var min_v := float(rule["min"])
+		if rule.has("min") or rule.has("min_by_cost"):
+			var min_v: float = _resolve_rule_bound(rule, "min", unit, -INF)
 			if value < min_v:
 				var msg := String(rule.get("message", "%s: %.2f < %.2f"))
 				issues.append(msg % [label, value, min_v])
 				continue
-		if rule.has("max"):
-			var max_v := float(rule["max"])
+		if rule.has("max") or rule.has("max_by_cost"):
+			var max_v: float = _resolve_rule_bound(rule, "max", unit, INF)
 			if value > max_v:
 				var msg2 := String(rule.get("message", "%s: %.2f > %.2f"))
 				issues.append(msg2 % [label, value, max_v])
 	return issues
+
+func _resolve_rule_bound(rule: Dictionary, bound_key: String, unit: Unit, default_value: float) -> float:
+	var by_cost_key: String = "%s_by_cost" % bound_key
+	if rule.has(by_cost_key):
+		var raw_by_cost: Variant = rule.get(by_cost_key)
+		if raw_by_cost is Dictionary:
+			var by_cost: Dictionary = raw_by_cost
+			var cost_key: String = str(max(1, int(unit.cost)))
+			if by_cost.has(cost_key):
+				return float(by_cost.get(cost_key))
+			if by_cost.has("*"):
+				return float(by_cost.get("*"))
+	if rule.has(bound_key):
+		return float(rule[bound_key])
+	return default_value
 
 func _metric_value(unit: Unit, metric: String) -> float:
 	match metric:

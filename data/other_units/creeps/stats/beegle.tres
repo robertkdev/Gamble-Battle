@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="UnitStatsProfile" load_steps=2 format=3 uid="uid://df2cdbyk2vj7k"]
+
+[ext_resource type="Script" uid="uid://neeldoqhtbtr" path="res://scripts/game/units/unit_stats_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+base_stats = {
+"armor": 8.0,
+"armor_pen_flat": 0.0,
+"armor_pen_pct": 0.0,
+"attack_damage": 100.0,
+"attack_range": 3,
+"attack_speed": 0.85,
+"cast_speed": 1.0,
+"crit_chance": 0.0,
+"crit_damage": 1.5,
+"hp_regen": 0.0,
+"lifesteal": 0.0,
+"magic_resist": 8.0,
+"mana_gain_per_attack": 60,
+"mana_max": 0,
+"mana_regen": 0.0,
+"mana_start": 0,
+"max_hp": 200,
+"mr_pen_flat": 0.0,
+"mr_pen_pct": 0.0,
+"spell_power": 0.0,
+"true_damage": 0.0
+}

@@ -95,4 +95,3 @@ SRP Boundaries
 Testing Notes
 
 - Add focused tests in `tests/items/` (e.g., equip overlay application/reversion, mid-combat combine behavior, remover gating, runtime effect triggers/ICDs).
-

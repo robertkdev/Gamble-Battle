@@ -17,7 +17,10 @@ var timeout_s: float = 120.0
 var abilities: bool = false
 var ability_metrics: bool = false
 var out_path: String = "user://rga_out.jsonl"
-var aggregates_only: bool = false                # if true, write one aggregated row per pair (BalanceRunner-style)
+var capabilities: PackedStringArray = PackedStringArray(["base"])
+var metadata: Dictionary = {}
+var quiet: bool = true                           # suppress verbose pipeline prints by default
+var aggregates_only: bool = false                # if true, write one aggregated row per matchup instead of per-sim rows
 var include_swapped: bool = true                 # if true, run both orientations per repeat (A→B and B→A)
 
 static func parse_cli(argv: PackedStringArray) -> RGASettings:
@@ -40,6 +43,7 @@ static func parse_cli(argv: PackedStringArray) -> RGASettings:
 	s.approach_filter = _split_csv(String(args.get("approach", "")))
 	s.cost_filter = _csv_to_ints(String(args.get("cost", "")))
 	s.ids = _parse_id_pairs(String(args.get("ids", "")))
+	s.quiet = _parse_bool(String(args.get("quiet", str(s.quiet))))
 	return s
 
 func to_dict() -> Dictionary:
@@ -53,6 +57,8 @@ func to_dict() -> Dictionary:
 		"abilities": abilities,
 		"ability_metrics": ability_metrics,
 		"out_path": out_path,
+		"capabilities": capabilities,
+		"quiet": quiet,
 		"aggregates_only": aggregates_only,
 		"include_swapped": include_swapped,
 		"role_filter": role_filter,
@@ -60,6 +66,7 @@ func to_dict() -> Dictionary:
 		"approach_filter": approach_filter,
 		"cost_filter": cost_filter,
 		"ids": ids,
+		"metadata": metadata,
 	}
 
 # Layering helper: apply values from a Dictionary onto this instance.
@@ -103,12 +110,31 @@ func from_dict(d: Dictionary) -> void:
 	if d.has("out_path"):
 		# Use str() to coerce to a path string (avoids constructor call errors)
 		out_path = str(d.get("out_path", out_path))
+	if d.has("capabilities"):
+		var cv: Variant = d.get("capabilities")
+		if cv is PackedStringArray:
+			capabilities = cv
+		elif cv is Array:
+			var acc_caps: PackedStringArray = []
+			for cap in cv:
+				var cap_s: String = str(cap).strip_edges().to_lower()
+				if cap_s != "":
+					acc_caps.append(cap_s)
+			capabilities = acc_caps
+		else:
+			capabilities = _split_csv(str(cv))
+		if not capabilities.has("base"):
+			capabilities.append("base")
+			capabilities.sort()
 	if d.has("aggregates_only"):
 		var ao = d.get("aggregates_only")
 		aggregates_only = (bool(ao) if typeof(ao) == TYPE_BOOL else _parse_bool(str(ao)))
 	if d.has("include_swapped"):
 		var isw = d.get("include_swapped")
 		include_swapped = (bool(isw) if typeof(isw) == TYPE_BOOL else _parse_bool(str(isw)))
+	if d.has("quiet"):
+		var qv = d.get("quiet")
+		quiet = (bool(qv) if typeof(qv) == TYPE_BOOL else _parse_bool(str(qv)))
 	if d.has("role_filter"):
 		var rf = d.get("role_filter")
 		if rf is PackedStringArray:
@@ -163,6 +189,10 @@ func from_dict(d: Dictionary) -> void:
 			ids = iv
 		elif typeof(iv) == TYPE_STRING:
 			ids = _parse_id_pairs(str(iv))
+	if d.has("metadata"):
+		var md = d.get("metadata")
+		if md is Dictionary:
+			metadata = md
 
 # --- Helpers (private, simple, DRY) ---
 

@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://dawdoey76fadm"]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/RoleMatrixProbe.gd" id="1"]
+
+[node name="RoleMatrixProbe" type="Node"]
+script = ExtResource("1")
+quick_balance_mode = true
+quick_balance_seed_count = 2
+quick_balance_labels = PackedStringArray("neutral")
+subject_unit_id = "bonko"
+subject_unit_ids = PackedStringArray()
+seeds = PackedInt32Array()
+write_reports = true
+metric_ids = PackedStringArray()
+scenario_packs_to_run = PackedStringArray()
+include_swapped = true
+dump_json = false

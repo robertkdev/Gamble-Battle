@@ -18,7 +18,7 @@ static func validate(row: DataModels.TelemetryRow) -> Array:
     return issues
 
 static func fail_fast(row: DataModels.TelemetryRow) -> void:
-    var issues := validate(row)
+    var issues: Array = validate(row)
     if issues.size() > 0:
         var msg_parts: Array[String] = []
         for issue in issues:
@@ -38,18 +38,18 @@ static func _check_damage_conservation(aggregates: Dictionary) -> Array:
     var team_b: Dictionary = teams.get("b", {})
     if not (team_a is Dictionary and team_b is Dictionary):
         return issues
-    var dmg_a := _safe_int(team_a.get("damage", 0))
-    var dmg_b := _safe_int(team_b.get("damage", 0))
-    var deaths_a := _safe_int(team_a.get("deaths", 0))
-    var deaths_b := _safe_int(team_b.get("deaths", 0))
-    var mitigated_a := _safe_int(team_a.get("mitigated", 0))
-    var mitigated_b := _safe_int(team_b.get("mitigated", 0))
-    var shield_a := _safe_int(team_a.get("shield", 0))
-    var shield_b := _safe_int(team_b.get("shield", 0))
+    var dmg_a: int = _safe_int(team_a.get("damage", 0))
+    var dmg_b: int = _safe_int(team_b.get("damage", 0))
+    var deaths_a: int = _safe_int(team_a.get("deaths", 0))
+    var deaths_b: int = _safe_int(team_b.get("deaths", 0))
+    var mitigated_a: int = _safe_int(team_a.get("mitigated", 0))
+    var mitigated_b: int = _safe_int(team_b.get("mitigated", 0))
+    var shield_a: int = _safe_int(team_a.get("shield", 0))
+    var shield_b: int = _safe_int(team_b.get("shield", 0))
 
-    var lhs := dmg_a + mitigated_b + shield_b
-    var rhs := dmg_b + mitigated_a + shield_a
-    var delta := abs(lhs - rhs)
+    var lhs: int = dmg_a + mitigated_b + shield_b
+    var rhs: int = dmg_b + mitigated_a + shield_a
+    var delta: int = abs(lhs - rhs)
     # Allow minor discrepancy for rounding/int conversions. Use 1 as epsilon for integer values.
     if delta > 1:
         issues.append({
