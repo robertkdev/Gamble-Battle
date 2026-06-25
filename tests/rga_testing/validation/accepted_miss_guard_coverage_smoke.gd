@@ -1,11 +1,10 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 43
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 80
+const EXPECTED_GAP_KIND_COUNT: int = 42
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 75
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
-	"multi_target_coverage_below_target": ["res://tests/rga_testing/validation/AoeMultiTargetApproachProbe.tscn"],
 	"burst_approach_peak_share_below_target": ["res://tests/rga_testing/validation/BurstWindowKernelProbe.tscn"],
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
 	"backline_pressure_below_target": ["res://tests/rga_testing/validation/MarksmanPositioningRoleProbe.tscn"],

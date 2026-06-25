@@ -30,15 +30,15 @@ func _run() -> void:
 		var low_pass: bool = bool(low_metric.get("pass", false))
 		var low_targets_median: float = float(low_rec.get("targets_hit_median", 0.0))
 		var low_max_targets: int = int(low_rec.get("max_targets_hit", 0))
-		var low_median_fail_span: bool = _has_span(low_metric, "subject_targets_hit_median", false)
+		var low_median_diagnostic_span: bool = _has_diagnostic_span(low_metric, "subject_targets_hit_median")
 		if full_pass and full_median_span and full_targets_median >= 2.0:
 			full_passes += 1
 		else:
 			failures.append("AoeMultiTargetApproachProbe: FAIL %s full AoE proof pass=%s median=%.2f median_span=%s" % [subject_id, str(full_pass), full_targets_median, str(full_median_span)])
-		if low_pass and low_median_fail_span and low_targets_median < 1.5 and low_max_targets >= 2:
+		if low_pass and low_median_diagnostic_span and low_targets_median < 1.5 and low_max_targets >= 2:
 			low_median_passes += 1
 		else:
-			failures.append("AoeMultiTargetApproachProbe: FAIL %s low-median aggregate path pass=%s median=%.2f max=%d fail_span=%s" % [subject_id, str(low_pass), low_targets_median, low_max_targets, str(low_median_fail_span)])
+			failures.append("AoeMultiTargetApproachProbe: FAIL %s low-median aggregate path pass=%s median=%.2f max=%d diagnostic_span=%s" % [subject_id, str(low_pass), low_targets_median, low_max_targets, str(low_median_diagnostic_span)])
 
 	var weak_result: Dictionary = _run_case("weak_single_target_aoe", SUBJECT_IDS[0], "weak")
 	var weak_metric: Dictionary = weak_result.get("metric", {})
@@ -164,6 +164,17 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
 			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok"):
+			return String(span.get("reason", "")) == "alternate_aoe_evidence_satisfied"
 	return false
 
 func _quit(code: int) -> void:

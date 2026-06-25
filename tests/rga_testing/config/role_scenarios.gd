@@ -18,7 +18,7 @@ static func list_roles() -> PackedStringArray:
 	return out
 
 static func get_packs_for_role(role_id: String) -> Array[Dictionary]:
-	var r := String(role_id).strip_edges().to_lower()
+	var r: String = String(role_id).strip_edges().to_lower()
 	match r:
 		"tank":
 			return _tank_packs()
@@ -58,14 +58,18 @@ static func _brawler_packs() -> Array[Dictionary]:
 	return [
 		_scen("brawler.neutral", "neutral", "front", _open_field(0.7, 7.5), ["open_field"]),
 		_scen("brawler.burst", "burst", "front", _burst_lane(), ["burst"]),
-		_scen("brawler.peel", "peel", "front", _peel_map(), ["peel"])
+		_scen("brawler.peel", "peel", "front", _peel_map(), ["peel"]),
+		_scen("brawler.clustered_targets", "clustered", "front", _clustered_targets("clustered_targets_brawler"), ["aoe", "line"]),
+		_scen("brawler.clustered_crossfire", "clustered_alt", "front", _clustered_crossfire("clustered_crossfire_brawler"), ["aoe", "line"])
 	]
 
 static func _marksman_packs() -> Array[Dictionary]:
 	return [
 		_scen("marksman.kite_poke", "kite", "back", _kite_field(), ["kite", "poke"]),
 		_scen("marksman.open_field", "neutral", "back", _open_field(0.8, 10.0), ["open_field"]),
-		_scen("marksman.backline_start", "neutral", "back", _backline_bias(), ["backline"])
+		_scen("marksman.backline_start", "neutral", "back", _backline_bias(), ["backline"]),
+		_scen("marksman.clustered_targets", "clustered", "back", _clustered_targets("clustered_targets_marksman"), ["aoe", "line"]),
+		_scen("marksman.clustered_crossfire", "clustered_alt", "back", _clustered_crossfire("clustered_crossfire_marksman"), ["aoe", "line"])
 	]
 
 static func _assassin_packs() -> Array[Dictionary]:
@@ -77,7 +81,9 @@ static func _assassin_packs() -> Array[Dictionary]:
 static func _mage_packs() -> Array[Dictionary]:
 	return [
 		_scen("mage.periodic_friendly", "neutral", "back", _periodicity_friendly(), ["periodic"]),
-		_scen("mage.mixed", "neutral", "back", _mixed_field(), ["mixed"])
+		_scen("mage.mixed", "neutral", "back", _mixed_field(), ["mixed"]),
+		_scen("mage.clustered_targets", "clustered", "back", _clustered_targets("clustered_targets_mage"), ["aoe", "wombo"]),
+		_scen("mage.clustered_crossfire", "clustered_alt", "back", _clustered_crossfire("clustered_crossfire_mage"), ["aoe", "wombo"])
 	]
 
 static func _support_packs() -> Array[Dictionary]:
@@ -180,3 +186,26 @@ static func _periodicity_friendly() -> Dictionary:
 static func _mixed_field() -> Dictionary:
 	# Balanced default; neither extreme burst nor kite
 	return _open_field(0.7, 8.0)
+
+static func _clustered_targets(map_id: String) -> Dictionary:
+	# Intentionally tight target spacing for AoE and line-skill proof contexts.
+	return {
+		"openness": 0.6,
+		"choke_count": 0,
+		"obstacle_density": 0.1,
+		"artillery_range": 5.0,
+		"tile_size": 96.0,
+		"half_width_tiles": 4.5,
+		"half_height_tiles": 3.0,
+		"spawn_x_tiles": 2.4,
+		"row_spacing_tiles": 0.18,
+		"depth_gap": 0.18,
+		"map_id": String(map_id)
+	}
+
+static func _clustered_crossfire(map_id: String) -> Dictionary:
+	var params: Dictionary = _clustered_targets(map_id)
+	params["spawn_x_tiles"] = 2.1
+	params["row_spacing_tiles"] = 0.24
+	params["depth_gap"] = 0.12
+	return params

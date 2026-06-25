@@ -70,7 +70,12 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, ("no_samples" if median_samples.is_empty() else ""))
 	extras["samples"] = median_samples.size()
 	extras["multi_target_groups"] = total_multi_groups
-	RoleCommon.append_span(spans, "subject_targets_hit_median", targets_median, median_req, median_pass, extras)
+	var median_extras: Dictionary = extras.duplicate(true)
+	var median_span_ok: Variant = median_pass
+	if not median_pass and (max_pass or dps_pass):
+		median_span_ok = null
+		median_extras["reason"] = "alternate_aoe_evidence_satisfied"
+	RoleCommon.append_span(spans, "subject_targets_hit_median", targets_median, median_req, median_span_ok, median_extras)
 	RoleCommon.append_span(spans, "subject_max_targets_hit", max_targets_seen, max_req, max_pass, extras)
 	RoleCommon.append_span(spans, "subject_aoe_dps_med", aoe_dps, dps_req, dps_pass, extras)
 

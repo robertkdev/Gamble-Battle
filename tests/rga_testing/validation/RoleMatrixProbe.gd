@@ -1060,7 +1060,8 @@ func _print_metric_details(result: Dictionary) -> void:
 			var want_str: String = (" vs " + _fmt_num(w, 2) if w != null else "")
 			var side_str: String = (" side=" + side if side.strip_edges() != "" else "")
 			var reason_str: String = (" reason=" + reason if reason.strip_edges() != "" else "")
-			print("    ", label, ": ", _fmt_num(v, 2), want_str, " -> ", ("OK" if ok else "FAIL"), side_str, reason_str, extras)
+			var status_text: String = "DIAG" if ok == null else ("OK" if bool(ok) else "FAIL")
+			print("    ", label, ": ", _fmt_num(v, 2), want_str, " -> ", status_text, side_str, reason_str, extras)
 			var crit: Array[String] = []
 			if sd.has("sustained_ok"):
 				crit.append("      sustained: " + ("OK" if bool(sd.get("sustained_ok")) else "FAIL"))
