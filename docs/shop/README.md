@@ -72,6 +72,7 @@ Phase Rules
 	- `combat_spent` is the total shop spending done during the current combat (rerolls, XP, unit buys). Selling reduces it.
 	- Bet is escrowed at combat start; on win you receive `2*bet`, on loss `0`. Settlement happens before the next planning phase.
   - Failed affordability due to these rules surface as `WOULD_KILL_YOU` with a user-facing tooltip.
+- A non-broke Chapter 1 Stage 1 defeat receives enough opening retry recovery to return to 2 gold, so a support starter can buy exactly one 1-cost helper while still keeping the 1-health planning reserve.
 
 Error Codes
 - `UNKNOWN`, `COMBAT_PHASE`, `INVALID_SLOT`, `NO_OFFERS`, `INSUFFICIENT_GOLD`, `BENCH_FULL`, `SHOP_LOCKED`, `INVALID_UNIT`, `NOT_FOUND`, `ACTION_FAILED`.

@@ -36,6 +36,7 @@ const RESOLVING_PROGRESS_DELAY_SECONDS: float = 3.0
 const RESOLVING_STUCK_WARNING_SECONDS: int = 10
 const RESOLVING_FALLBACK_TEXT: String = "Resolving fallback..."
 const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
+const OPENING_RETRY_MIN_GOLD: int = 2
 
 # Parent scene (CombatView)
 var parent: Control
@@ -1321,6 +1322,7 @@ func _on_intermission_finished() -> void:
 			if _post_combat_outcome != "":
 				var win: bool = (_post_combat_outcome == "victory")
 				Economy.resolve(win)
+				_apply_opening_retry_recovery(win)
 			if economy_ui:
 				economy_ui.refresh()
 				economy_ui.set_bet_editable(true)
@@ -1382,6 +1384,23 @@ func _on_intermission_finished() -> void:
 			continue_button.visible = true
 	_pending_continue = false
 	_post_combat_outcome = ""
+
+func _apply_opening_retry_recovery(win: bool) -> void:
+	if win:
+		return
+	if not (Engine.has_singleton("GameState") or parent.has_node("/root/GameState")):
+		return
+	if not (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")):
+		return
+	if Economy.is_broke():
+		return
+	if int(GameState.chapter) != 1 or int(GameState.stage_in_chapter) != 1:
+		return
+	var missing_gold: int = max(0, OPENING_RETRY_MIN_GOLD - int(Economy.gold))
+	if missing_gold <= 0:
+		return
+	Economy.add_gold(missing_gold)
+	_on_log_line("Opening retry recovery: +%d gold." % missing_gold)
 
 func _start_auto_loop() -> void:
 	if not auto_combat:
