@@ -15,6 +15,9 @@ func _run() -> void:
 	add_child(view)
 	await get_tree().process_frame
 	await get_tree().process_frame
+	if view.has_method("_init_game"):
+		view.call("_init_game")
+		await get_tree().process_frame
 	var failures: Array[String] = []
 	_expect(view.theme != null, "CombatView theme is missing", failures)
 	var stage_label: Label = view.get_node_or_null("MarginContainer/VBoxContainer/StageLabel") as Label
@@ -46,6 +49,7 @@ func _run() -> void:
 		_expect(command_bar != null, "Command bar missing", failures)
 		if command_bar != null:
 			_expect(command_bar.get_theme_constant("separation") >= 16, "Command controls are too tightly grouped", failures)
+	_verify_forced_first_fight_bet_controls(view, failures)
 	await _verify_forced_first_fight_placeholder(failures)
 	await _verify_forced_first_fight_presenter_feedback(failures)
 	var player_tile: Button = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid/TileP_00") as Button
@@ -71,6 +75,21 @@ func _run() -> void:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _verify_forced_first_fight_bet_controls(view: Control, failures: Array[String]) -> void:
+	var continue_button: Button = view.find_child("ContinueButton", true, false) as Button
+	_expect(continue_button != null and String(continue_button.text) == "Start Forced Fight", "Forced opener should show Start Forced Fight", failures)
+	var bet_slider: HSlider = view.find_child("BetSlider", true, false) as HSlider
+	_expect(bet_slider != null, "BetSlider missing", failures)
+	if bet_slider != null:
+		_expect(not bet_slider.visible, "Forced opener should hide the adjustable bet slider", failures)
+		_expect(not bet_slider.editable, "Forced opener bet slider should not be editable", failures)
+	var bet_value: Label = view.find_child("BetValue", true, false) as Label
+	_expect(bet_value != null and String(bet_value.text) == "Opening bet: 1", "Forced opener should show fixed opening bet copy", failures)
+	var bet_row: Control = null
+	if bet_slider != null:
+		bet_row = bet_slider.get_parent() as Control
+	_expect(bet_row != null and String(bet_row.tooltip_text).contains("Betting opens after the first shop"), "Forced opener bet row should explain deferred betting", failures)
 
 func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 	var host: VBoxContainer = VBoxContainer.new()

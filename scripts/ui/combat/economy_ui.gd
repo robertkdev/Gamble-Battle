@@ -26,7 +26,7 @@ func configure(_gold_label: Label, _bet_slider: HSlider, _bet_value: Label, root
 		if not Economy.is_connected("bet_changed", _bet_changed_cb):
 			Economy.bet_changed.connect(_bet_changed_cb)
 	# React to phase changes so we can hide/show slider exactly when combat starts/ends
-	var gs = _get_gamestate()
+	var gs: Variant = _get_gamestate()
 	if gs and not gs.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
 		gs.phase_changed.connect(_on_phase_changed)
 
@@ -36,7 +36,7 @@ func teardown() -> void:
 			Economy.gold_changed.disconnect(_gold_changed_cb)
 		if _bet_changed_cb.is_valid() and Economy.is_connected("bet_changed", _bet_changed_cb):
 			Economy.bet_changed.disconnect(_bet_changed_cb)
-	var gs = _get_gamestate()
+	var gs: Variant = _get_gamestate()
 	if gs and gs.is_connected("phase_changed", Callable(self, "_on_phase_changed")):
 		gs.phase_changed.disconnect(_on_phase_changed)
 	gold_label = null
@@ -60,17 +60,47 @@ func _has_economy() -> bool:
 	if Engine.has_singleton("Economy"):
 		return true
 	if _root and _root.get_tree():
-		var econ = _root.get_tree().root.get_node_or_null("Economy")
+		var econ: Node = _root.get_tree().root.get_node_or_null("Economy")
 		return econ != null
 	return false
 
-func _get_gamestate():
+func _has_shop() -> bool:
+	if Engine.has_singleton("Shop"):
+		return true
+	if _root and _root.get_tree():
+		var shop_node: Node = _root.get_tree().root.get_node_or_null("Shop")
+		return shop_node != null
+	return false
+
+func _get_gamestate() -> Variant:
 	# Resolve GameState autoload via globals or the scene tree
 	if Engine.has_singleton("GameState"):
 		return GameState
 	if _root and _root.get_tree():
 		return _root.get_tree().root.get_node_or_null("GameState")
 	return null
+
+func _get_shop() -> Variant:
+	if Engine.has_singleton("Shop"):
+		return Shop
+	if _root and _root.get_tree():
+		return _root.get_tree().root.get_node_or_null("Shop")
+	return null
+
+func _is_forced_first_fight() -> bool:
+	var gs: Variant = _get_gamestate()
+	if gs == null:
+		return false
+	var first_stage: bool = int(gs.chapter) == 1 and int(gs.stage_in_chapter) == 1
+	var preview_phase: bool = int(gs.phase) == int(gs.GamePhase.PREVIEW)
+	if not first_stage or not preview_phase:
+		return false
+	if not _has_shop():
+		return true
+	var shop: Variant = _get_shop()
+	if shop == null or shop.state == null or shop.state.offers == null:
+		return true
+	return shop.state.offers.is_empty()
 
 func refresh() -> void:
 	if not _has_economy():
@@ -79,7 +109,8 @@ func refresh() -> void:
 		gold_label.text = "Gold: " + str(Economy.gold)
 
 	var in_combat: bool = false
-	var gs = _get_gamestate()
+	var forced_first_fight: bool = _is_forced_first_fight()
+	var gs: Variant = _get_gamestate()
 	if gs != null:
 		in_combat = (int(gs.phase) == int(gs.GamePhase.COMBAT))
 
@@ -92,26 +123,30 @@ func refresh() -> void:
 			target = max(0, int(Economy.current_bet))
 		else:
 			if Engine.has_singleton("Economy"):
-				var _pref = Economy.get("preferred_bet")
-				if _pref != null:
-					target = int(_pref)
+				var pref: Variant = Economy.get("preferred_bet")
+				if pref != null:
+					target = int(pref)
 			elif int(Economy.current_bet) > 0:
 				target = int(Economy.current_bet)
 			target = int(clamp(target, bet_slider.min_value, bet_slider.max_value))
 		bet_slider.value = target
-		# Toggle visibility based on phase
-		bet_slider.visible = not in_combat
+		bet_slider.editable = not in_combat and not forced_first_fight
+		bet_slider.visible = not in_combat and not forced_first_fight
 
-	# Hide any static label siblings (e.g., left-side "Bet:") in combat
+	# Hide static "Bet:" labels whenever the slider is hidden; bet_value carries the state copy.
 	if _bet_row:
-		for ch in _bet_row.get_children():
+		_bet_row.tooltip_text = "Opening fight uses the default wager. Betting opens after the first shop." if forced_first_fight else ""
+		for ch: Node in _bet_row.get_children():
 			if ch is Label and ch != bet_value:
-				ch.visible = not in_combat
+				(ch as Label).visible = not in_combat and not forced_first_fight
 
 	if bet_value:
 		if in_combat:
 			var locked_bet: int = int(Economy.current_bet)
 			bet_value.text = "Bet: %d (locked)" % max(0, locked_bet)
+			bet_value.visible = true
+		elif forced_first_fight:
+			bet_value.text = "Opening bet: %d" % max(1, int(Economy.current_bet))
 			bet_value.visible = true
 		else:
 			if bet_slider:
