@@ -169,23 +169,25 @@ Audit implication: first-purchase bench deployment is now covered by both behavi
 
 Fresh RoleMatrix evidence was regenerated again on 2026-06-25 with `tests/rga_testing/ci/RoleMatrixSmoke.tscn`. The MCP debug run completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`. The current run occupies `godot.log` lines 4-1139, report files were written under `user://identity_reports/*.json`, and one stale `faeling.json` from 2026-06-23 was ignored. The refreshed parser output is stored in `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`.
 
-Follow-up instrumentation on 2026-06-25 moved the accepted-miss detail into the saved report JSON itself. `ProbeReportCompiler` now writes `diagnostics.lower_level_fail_span_count`, `diagnostics.lower_level_fail_spans`, and per-verdict `failed_span_count` / `span_details` fields under `user://identity_reports/<unit>.json`. A fresh MCP `RoleMatrixSmoke` rerun again completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`; parsing the saved report JSON found 22 current reports, 0 reports missing diagnostics, and the same 130 accepted lower-level fail spans.
+Follow-up instrumentation on 2026-06-25 moved the accepted-miss detail into the saved report JSON itself. `ProbeReportCompiler` now writes `diagnostics.lower_level_fail_span_count`, `diagnostics.lower_level_fail_spans`, and per-verdict `failed_span_count` / `span_details` fields under `user://identity_reports/<unit>.json`. A fresh MCP `RoleMatrixSmoke` rerun again completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`.
+
+A second 2026-06-25 report-compiler pass filtered side-aggregate diagnostics to the audited unit's side. This removed opponent-side/control noise such as `b_unit_pass_count` from saved per-unit reports while preserving raw console visibility. The latest saved report parse found 22 current reports, 0 reports missing diagnostics, 0 reports with `b_unit_pass_count` in diagnostics, and 117 subject-side accepted lower-level fail spans.
 
 Aggregate result:
 - Every current unit role verdict is still `PASS`, and all assigned primary goals and approaches passed in the smoke run.
-- The log-level parser found 130 lower-level `-> FAIL` spans accepted by aggregate verdicts: 47 role spans, 45 approach spans, and 38 goal spans.
-- The saved report JSON now records the same 130 lower-level fail spans directly, so future accepted-miss audits do not need to parse console text or `godot.log`.
-- All 22 current units have at least one accepted lower-level fail span. Role-report JSON is narrower: 21 of 22 reports contain at least one negative role delta, and Cashmere is clean only at role identity level while still logging `goal_pick_burst_kill_count 0.00 < 1.00`.
+- The log-level parser found 130 lower-level `-> FAIL` spans accepted by aggregate verdicts, but that includes opponent-side aggregate/control spans that are still printed in raw metric output.
+- The saved report JSON now records the subject-side backlog directly: 117 lower-level fail spans, split as 34 role spans, 45 approach spans, and 38 goal spans. Future accepted-miss audits should prefer this JSON field over parsing console text or `godot.log`.
+- 21 of 22 current units have at least one subject-side accepted lower-level fail span in saved reports; Bonko is clean after opponent-side aggregate filtering. Cashmere is clean at role identity level while still logging `goal_pick_burst_kill_count 0.00 < 1.00`.
 - Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
-Recurring accepted-miss buckets from the refreshed log/report evidence:
-- Support/peel/cleanse/CC is still the largest bucket at 28 spans in the refreshed artifact. Axiom and Totem pass support, but peel saves remain 0 in multiple spans; Axiom still has 0 cc-immunity grants and 0 cleanse applied in approach and role spans.
+Recurring accepted-miss buckets from the refreshed subject-side report evidence:
+- Support/peel/cleanse/CC is still the largest bucket at 27 spans in the refreshed report diagnostics. Axiom and Totem pass support, but peel saves remain 0 in multiple spans; Axiom still has 0 cc-immunity grants and 0 cleanse applied in approach and role spans.
 - Ramp-state misses account for 23 spans. Several non-ramp attrition and marksman goals still show 0 ramp-state events, stacks, peak duration, and window duration while passing through other requirements.
-- Marksman positioning and damage-share misses account for 17 spans. Sari, Teller, and Nyxa pass marksman while backline share, team share, subject sustained z, or subject team damage share remain below threshold.
-- Subject-side control count remains a recurring 12-span artifact: many subject-side smokes pass the tested unit while `b_unit_pass_count` is 0.
-- Tank/frontline semantics still have 8 direct redirect/body-block/taunt/frontline misses plus related counterplay and cleanse-pressure misses. Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank through aggregate thresholds while direct body-block or redirect semantics are often absent.
-- Burst/execute/kill and AoE/wombo misses remain visible: 9 spans in burst/execute/kill and 6 in AoE/wombo. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
+- Marksman positioning and damage-share misses account for 16 spans. Sari, Teller, and Nyxa pass marksman while backline share, team share, subject sustained z, or subject team damage share remain below threshold.
+- Opponent-side aggregate noise is now filtered out of saved reports: `b_unit_pass_count` no longer appears in `diagnostics.lower_level_fail_spans`.
+- Tank/frontline semantics still have 9 direct redirect/body-block/taunt/frontline/engage misses plus related counterplay and cleanse-pressure misses. Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank through aggregate thresholds while direct body-block or redirect semantics are often absent.
+- Burst/execute/kill and AoE/wombo misses remain visible: 10 spans in burst/execute/kill and 7 in AoE/wombo. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
 
 Implication:
 - The current all-unit RGA gate is green and should not block the starter/shop audit.

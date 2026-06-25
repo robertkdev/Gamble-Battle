@@ -285,13 +285,14 @@ static func _verdict_from_metric_ids(metric_ids: Array, metrics: Array, proxy: b
 		if message != "":
 			messages.append(message)
 		var spans: Array = metric.get("spans", [])
+		var subject_sides: Dictionary = _subject_sides_from_spans(spans, subject_id)
 		for span in spans:
 			if not (span is Dictionary):
 				continue
 			var label: String = String((span as Dictionary).get("label", "")).strip_edges()
 			if label != "":
 				span_labels.append(label)
-			if _span_matches_subject(span as Dictionary, subject_id):
+			if _span_matches_subject(span as Dictionary, subject_id, subject_sides):
 				span_details.append(_compact_span(span as Dictionary))
 
 	if matched_metric_ids.is_empty():
@@ -340,11 +341,12 @@ static func _span_details_for_metric(subject_id: String, metric: Dictionary) -> 
 	if metric.is_empty():
 		return out
 	var spans: Array = metric.get("spans", [])
+	var subject_sides: Dictionary = _subject_sides_from_spans(spans, subject_id)
 	for raw_span in spans:
 		if not (raw_span is Dictionary):
 			continue
 		var span: Dictionary = raw_span as Dictionary
-		if _span_matches_subject(span, subject_id):
+		if _span_matches_subject(span, subject_id, subject_sides):
 			out.append(_compact_span(span))
 	return out
 
@@ -477,10 +479,11 @@ static func _role_from_metric_id(metric_id: String) -> String:
 
 static func _spans_for_subject(spans: Array, subject_id: String) -> Array:
 	var out: Array = []
+	var subject_sides: Dictionary = _subject_sides_from_spans(spans, subject_id)
 	for s in spans:
 		if not (s is Dictionary):
 			continue
-		if _span_matches_subject(s, subject_id):
+		if _span_matches_subject(s, subject_id, subject_sides):
 			out.append(s)
 	return out
 
@@ -523,11 +526,43 @@ static func _labels_from_spans(spans: Array) -> Array[String]:
 	out.sort()
 	return out
 
-static func _span_matches_subject(span: Dictionary, subject_id: String) -> bool:
-	var uid := String(span.get("unit_id", ""))
+static func _span_matches_subject(span: Dictionary, subject_id: String, subject_sides: Dictionary = {}) -> bool:
+	var uid: String = String(span.get("unit_id", ""))
 	if uid != "":
 		return uid == String(subject_id)
+	var side: String = String(span.get("subject_side", "")).strip_edges().to_lower()
+	if side == "":
+		side = _side_from_span_label(String(span.get("label", "")))
+	if side != "":
+		if subject_sides.has(side):
+			return true
+		# Current report generation is non-swapped with the audited unit on side A.
+		# Keep side-A aggregates when a role metric has no unit-attributed spans.
+		if subject_sides.is_empty():
+			return side == "a"
+		return false
 	return true
+
+static func _subject_sides_from_spans(spans: Array, subject_id: String) -> Dictionary:
+	var out: Dictionary = {}
+	for raw_span in spans:
+		if not (raw_span is Dictionary):
+			continue
+		var span: Dictionary = raw_span as Dictionary
+		if String(span.get("unit_id", "")) != String(subject_id):
+			continue
+		var side: String = String(span.get("subject_side", "")).strip_edges().to_lower()
+		if side != "":
+			out[side] = true
+	return out
+
+static func _side_from_span_label(label: String) -> String:
+	var value: String = label.strip_edges().to_lower()
+	if value.begins_with("a_"):
+		return "a"
+	if value.begins_with("b_"):
+		return "b"
+	return ""
 
 static func _deltas_from_spans(spans: Array) -> Dictionary:
 	var out: Dictionary = {}
