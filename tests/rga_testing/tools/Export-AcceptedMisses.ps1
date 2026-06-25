@@ -135,9 +135,10 @@ function Get-SupportPeelNextAction($GapKind) {
 	}
 }
 
-function Get-AuditGapKind($Topic, $Label) {
+function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	$topicText = [string]$Topic
 	$text = [string]$Label
+	$blockText = [string]$Block
 	if ($topicText -eq "support_peel_cleanse_cc") {
 		return Get-SupportPeelGapKind $Label
 	}
@@ -176,6 +177,18 @@ function Get-AuditGapKind($Topic, $Label) {
 	}
 	if ($text -match 'time_to_first_cc') {
 		return "engage_cc_timing_unproven"
+	}
+	if ($text -match 'subject_sustain_ehp_ratio') {
+		return "sustain_approach_ehp_ratio_below_target"
+	}
+	if ($text -match 'subject_ehp_ratio' -and $blockText -eq "peel") {
+		return "peel_approach_ehp_ratio_below_target"
+	}
+	if ($text -match 'subject_ehp_ratio' -and $blockText -eq "support") {
+		return "support_role_subject_ehp_diagnostic_below_target"
+	}
+	if ($text -match '^ehp_ratio_') {
+		return "support_role_team_ehp_proxy_below_target"
 	}
 	if ($text -match 'ehp_ratio') {
 		return "effective_health_ratio_below_target"
@@ -224,6 +237,10 @@ function Get-AuditNextAction($GapKind) {
 		"engage_success_targets_below_target" { return "Tune engage setup, CC application, or success-target thresholds for initiate-fight identities." }
 		"redirect_threat_swap_or_taunt_absent" { return "Create redirect/taunt threat-swap contexts or retune redirect tags if explicit swaps are not required." }
 		"engage_cc_timing_unproven" { return "Clarify and tune the engage timing scenario so first-CC evidence consistently proves the intended engage window." }
+		"sustain_approach_ehp_ratio_below_target" { return "Tune self sustain, shield absorption, incoming-pressure scenario setup, or sustain EHP ratio threshold for sustain-tagged identities." }
+		"peel_approach_ehp_ratio_below_target" { return "Tune peel shielding/healing, carry-threat pressure, or the peel EHP threshold when direct ally-protection evidence should not be the only pass path." }
+		"support_role_subject_ehp_diagnostic_below_target" { return "Treat this as a support-role subject EHP diagnostic unless the support identity should require self/subject EHP proxy in addition to buffs, ally protection, or peel saves." }
+		"support_role_team_ehp_proxy_below_target" { return "Tune team-level support healing/shield contribution, incoming-pressure setup, or support EHP proxy threshold if team EHP should be direct support proof." }
 		"effective_health_ratio_below_target" { return "Tune sustain/protection output, survival pressure, or effective-health thresholds for this identity." }
 		"multi_target_coverage_below_target" { return "Create clustered-target contexts or tune AoE targeting/radius thresholds for multi-target identities." }
 		"movement_distance_below_target" { return "Tune movement/reposition ability output or distance thresholds for reposition-tagged identities." }
@@ -313,16 +330,18 @@ foreach ($report in $reports) {
 		$label = [string](Get-OptionalProperty $span "label" "")
 		$unitId = [string](Get-OptionalProperty $j "unit_id" "")
 		$topic = Get-SpanTopic $label
+		$blockType = [string](Get-OptionalProperty $span "block_type" "")
+		$block = [string](Get-OptionalProperty $span "block" "")
 		$supportGapKind = Get-SupportPeelGapKind $label
-		$auditGapKind = Get-AuditGapKind $topic $label
+		$auditGapKind = Get-AuditGapKind $topic $label $blockType $block
 		$rows += [pscustomobject]@{
 			unit = $unitId
 			role = [string](Get-OptionalProperty $identity "primary_role" "")
 			goal = [string](Get-OptionalProperty $identity "primary_goal" "")
 			approaches = ($approaches -join ",")
 			cost = [int](Get-OptionalProperty $identity "cost" 0)
-			block_type = [string](Get-OptionalProperty $span "block_type" "")
-			block = [string](Get-OptionalProperty $span "block" "")
+			block_type = $blockType
+			block = $block
 			metric_id = [string](Get-OptionalProperty $span "metric_id" "")
 			label = $label
 			value = Get-OptionalProperty $span "value" $null
