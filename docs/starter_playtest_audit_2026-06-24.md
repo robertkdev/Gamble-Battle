@@ -207,6 +207,7 @@ The `support_peel_triage` column in `accepted_lower_level_fail_spans.csv` and `s
 Implication:
 - The current all-unit RGA gate is green and should not block the starter/shop audit.
 - The pass is threshold/aggregate based, not proof that every role/goal/approach semantic subspan is expressed cleanly. Treat the accepted spans as a balance, scenario, and identity-tag backlog before declaring identity semantics fully proven.
+- `tests/rga_testing/validation/CounterplayContextTriageSmoke.tscn` now guards the counterplay interpretation above. It feeds synthetic cleanse/high-tenacity response pressure to the exact current bucket units and proves Brute's lockdown spans plus Grint/Kythera/Sari debuff spans pass when that scenario context exists, so the all-unit misses remain scenario/content evidence gaps rather than missing metric support.
 
 ## Current Loss And Exit Modal Framebuffer Recheck
 

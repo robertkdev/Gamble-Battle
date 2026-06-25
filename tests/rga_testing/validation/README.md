@@ -80,6 +80,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/CounterplayPressureKernelProbe.tscn`
   - Directly drives `CombatEngine.debuff_applied`, `CombatEngine.cc_taxed`, and `CombatEngine.cleanse_applied`; fails if forced-cleanse attribution, cleanse-bait rate, tenacity tax, direct `approach_lockdown`/`approach_debuff` counterplay spans, or synthetic cleanse/high-tenacity scenario-delta spans are missing.
 
+- Counterplay context triage smoke
+  - Scene: `tests/rga_testing/validation/CounterplayContextTriageSmoke.tscn`
+  - Synthetic accepted-miss guard for Brute, Grint, Kythera, and Sari; fails if the current debuff/lockdown counterplay spans stop passing when cleanse/high-tenacity response pressure is present.
+
 - Totem live cleanse positive control
   - Scene: `tests/rga_testing/validation/TotemCleanseLiveProbe.tscn`
   - Runs Totem's real `Cleanse` implementation against a genuinely debuffed allied carry; fails if the debuff is not removed, source-owned cleanse/CC-immunity telemetry is missing, enemy cleanse-pressure attribution is missing, or direct `approach_peel`, `approach_cc_immunity`, `role_support_identity`, and `support.peel_carry` goal consumption do not pass.
