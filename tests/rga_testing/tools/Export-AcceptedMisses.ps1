@@ -235,6 +235,12 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	if ($text -match 'magic_share') {
 		return "magic_damage_share_below_target"
 	}
+	if ($text -match 'goal_marksman_sustained_dps_ramp_stack_max') {
+		return "marksman_sustained_goal_ramp_stack_below_target"
+	}
+	if ($text -match 'subject_ramp_stack_max') {
+		return "ramp_approach_stack_below_target"
+	}
 	if ($text -match 'ramp') {
 		return "ramp_stack_evidence_below_target"
 	}
@@ -274,6 +280,8 @@ function Get-AuditNextAction($GapKind) {
 		"dive_backline_contact_absent" { return "Create a backline-access dive context or retune the skirmish-dive goal if backline contact is optional." }
 		"direct_attrition_evidence_below_target" { return "Tune direct attrition output or threshold expectations for brawler attrition identities." }
 		"magic_damage_share_below_target" { return "Tune magic damage output/attribution or mage thresholds so magic share is directly proven." }
+		"marksman_sustained_goal_ramp_stack_below_target" { return "Tune Sari's sustained-DPS ramp stack buildup, encounter duration, or the goal ramp-stack threshold." }
+		"ramp_approach_stack_below_target" { return "Tune ramp-tagged approach stack buildup, stack generation, encounter duration, or approach ramp thresholds." }
 		"ramp_stack_evidence_below_target" { return "Tune ramp stack buildup duration, stack generation, or thresholds for ramp-tagged identities." }
 		"assassin_opening_presence_below_target" { return "Tune assassin opening access/targeting or role threshold expectations for first-action presence." }
 		"team_fortification_buff_uptime_absent" { return "Create or tune a fortification context that records enough ally buff uptime for this tank goal." }
