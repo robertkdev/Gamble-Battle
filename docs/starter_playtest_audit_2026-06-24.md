@@ -378,8 +378,8 @@ Premium Stage 2 helper probe:
 
 Runner implication:
 - Cost-2 premium value exists mechanically once a second unit actually reaches the board. Bonko plus any cost-2 premium beat the Stage 2 direct-combat check, and support opener Axiom can flip Stage 2 with Nyxa, Teller, or Vykos.
-- The audit risk is therefore UI reliability and comprehension: the player must notice the premium, buy it, understand that it landed on the bench, and deploy it before the next fight. The old manual risk around unclear buying/deployment remains valid even though premium units are not underpowered in the direct-combat probe.
-- The duplicate-name scoreboard probe produced two separate model rows for two Berebells (`index 1` damage 1487, `index 0` damage 1433). That confirms duplicate rows are expected for duplicate copies, but the visual design still needs copy/star/index context so players do not read it as a display bug.
+- The audit risk is therefore UI reliability and comprehension: the player must notice the premium, buy it, understand that it landed on the bench, and deploy it before the next fight. Later current-branch evidence covers the core transaction/deploy correctness with `ShopPurchaseFeedbackSmoke`, `RapidShopPressureSmoke`, `PremiumDeployAuditRunner`, and the live cost-2 Buy XP/deploy screenshot pass; remaining risk is natural long-form feel, not known missing transaction state.
+- The duplicate-name scoreboard probe produced two separate model rows for two Berebells (`index 1` damage 1487, `index 0` damage 1433). That confirmed duplicate rows are expected for duplicate copies; the later `ScoreboardDuplicateDisambiguationSmoke` closes the visual ambiguity by adding copy suffixes for repeated display names.
 
 ## Current Rapid Shop Input Recheck
 
@@ -495,7 +495,7 @@ Visual/UX read:
 - The first real shop is readable at 1920x1080, but the cards sit close to the bottom edge. Labels and prices are readable on this desktop capture, but the layout still feels compressed under timer pressure.
 
 Limit:
-- Immediately after the first shop-card purchase, a broad Godot-AI scene-tree inspection timed out and the bridge then dropped with a keepalive timeout. The newest debug process from this run was stopped manually. This pass confirms the pointer-coordinate purchase event, but it did not capture accepted post-purchase bench/deploy screenshots and does not close the live drag-feel or manual cost-2 deployment gaps.
+- Immediately after the first shop-card purchase, a broad Godot-AI scene-tree inspection timed out and the bridge then dropped with a keepalive timeout. The newest debug process from this run was stopped manually. This pass confirmed the pointer-coordinate purchase event only. Later evidence supersedes this limitation for core correctness: cost-1 deployment has real-window drag proof, cost-2 Buy XP/deploy has audit-assisted live-window screenshots, and `RapidShopPressureSmoke` covers the committed burst-buy/deploy path.
 
 ## Current Live Window Capture Fallback Attempt
 
@@ -510,7 +510,7 @@ Result:
 Implication:
 - The stale-window captures are not accepted as gameplay proof; they only explain why the fallback did not close the post-buy/deploy screenshot gap.
 - The accepted evidence for post-leveling cost-2 buy/deploy remains the refreshed `PremiumDeployAuditRunner` JSON/debug-output path.
-- This gap was later partially closed for cost-1 post-buy deployment by the live Bonko-to-Brute recheck below; manual cost-2 deployment after leveling remains open.
+- This fallback gap was later closed for cost-1 post-buy deployment by the live Bonko-to-Brute recheck and for audit-assisted cost-2 deployment by the live cost-2 Buy XP/deploy screenshot pass below. Natural long-form cost-2 feel remains a future playtest/polish topic.
 
 ## Current Live Bonko Shop And Deployment Recheck
 
@@ -532,7 +532,7 @@ Runtime state saved with the drag-attempt screenshot:
 Live-run implication:
 - The current level-1 shop behavior is correct: no cost-2 premium appeared before leveling.
 - The premium helper result from the runner remains mechanically meaningful, but live UI value still depends on leveling, seeing the premium offer, buying it, and fielding it in time.
-- Even the simpler cost-1 Brute helper did not enter the board on the first real drag attempt before timer pressure. That keeps first-shop deployment clarity as a current live blocker, not just a stale pre-fix finding.
+- At this checkpoint, even the simpler cost-1 Brute helper did not enter the board on the first real drag attempt before timer pressure. Later drag-release work and the current deploy-drag recheck closed the core drop correctness issue; first-shop deployment clarity is now a preservation/polish concern rather than a current live blocker.
 - This run restored fresh screenshot evidence through the live editor path, but `editor_screenshot(source="game")` later timed out and Godot-AI lost its active session. Computer Use could see the `Gamble Battle (DEBUG)` window, but `get_window_state` failed with `SetIsBorderRequired failed: No such interface supported (0x80004002)`, so OS-level coordinate dragging could not continue in this pass.
 
 Follow-up live max-bet/XP recheck:
@@ -567,7 +567,7 @@ Run result:
 
 Implication:
 - The cost-1 live post-buy path is now visually covered: purchase-to-bench is confirmed by state and screenshot, and bench-to-board deployment is confirmed by real-window drag evidence.
-- The remaining deployment gap is narrower: live manual cost-2 buy/deploy after leveling still needs a real-window screenshot pass, and the Godot-AI bridge remains too fragile for uninterrupted long-form manual play.
+- The remaining deployment gap was later narrowed again by the live cost-2 Buy XP/deploy screenshot pass below. The Godot-AI bridge remains too fragile for uninterrupted long-form manual play, but cost-2 purchase, prompt, and bench-to-board deployment are no longer unsupported by real-window evidence.
 - Final validation after this doc update reran `tests/visual/ActualRunLoopSmoke.tscn` through legacy MCP; it printed `ActualRunLoopSmoke: OK` with `errors: []`. `git diff --check`, direct trailing-whitespace checks for this doc and brain notes, and canonical brain vault validation also passed.
 
 ## Current Live Cost-2 Buy XP And Deployment Attempt
@@ -604,7 +604,7 @@ Signal-path live-window recheck:
 Updated implication:
 - The live-window Buy XP input path works when the visible economy state is valid and refreshed through normal signals.
 - The cost-2 level-2 shop, purchase, deploy prompt, and bench-to-board drag are now covered by live-window screenshots under audit-assisted economy setup.
-- The remaining proof gap is narrower: an unassisted live run still needs to show whether ordinary play naturally reaches enough gold/health for Buy XP at the moment a player expects it, and the reserve-floor rejection at 4 gold still needs clearer visible feedback.
+- This live-window pass was audit-assisted for economy setup. The later natural Buy XP runner below closes the natural-economy model path and the 4-gold reserve-floor message mechanically; a fully unassisted real-window screenshot run remains optional feel/visual proof rather than evidence required to trust the Buy XP model/presenter path.
 
 ## Current Buy XP Code And Harness Diagnostic
 
