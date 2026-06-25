@@ -91,7 +91,7 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var overkill_ok: bool = overkill_samples.size() <= 0 or overkill_value <= overkill_max
 	var kcfg: Dictionary = cfg.get("k_of_n", {"k": 3, "n": 5})
 	var eval_result: Dictionary = RoleCommon.k_of_n([bonus_events_pass, bonus_share_pass, share_pass, kills_pass, overkill_ok], int(kcfg.get("k", 3)), int(kcfg.get("n", 5)))
-	var pass_flag: bool = bonus_events_pass and bonus_share_pass and bool(eval_result.get("pass", false)) and outside_threshold_ok
+	var pass_flag: bool = bonus_events_pass and bool(eval_result.get("pass", false)) and outside_threshold_ok
 	if not direct_supported:
 		pass_flag = share_pass and kills_pass and overkill_ok
 

@@ -141,6 +141,10 @@ func apply_projectile_hit(source_team: String, source_index: int, target_index: 
 		var ctrue: int = int(response.get("comp_true", 0))
 		if cphys > 0 or cmag > 0 or ctrue > 0:
 			_events.hit_components(source_team, source_index, tgt_team, target_index, cphys, cmag, ctrue)
+		var heal: int = int(response.get("heal", 0))
+		var heal_overheal: int = int(response.get("heal_overheal", 0))
+		if heal > 0 or heal_overheal > 0:
+			_events.heal_applied(source_team, source_index, source_team, source_index, heal, heal_overheal, int(response.get("heal_before_hp", 0)), int(response.get("heal_after_hp", 0)))
 		var amp_delta: float = float(response.get("amp_output_delta", 0.0))
 		if amp_delta > 0.0:
 			var amp_source_team: String = String(response.get("amp_source_team", source_team))
@@ -199,6 +203,10 @@ func apply_ability_damage(source_team: String, source_index: int, target_index: 
 		var ctrue: int = int(response.get("comp_true", 0))
 		if cphys > 0 or cmag > 0 or ctrue > 0:
 			_events.hit_components(source_team, source_index, tgt_team, target_index, cphys, cmag, ctrue)
+		var heal: int = int(response.get("heal", 0))
+		var heal_overheal: int = int(response.get("heal_overheal", 0))
+		if heal > 0 or heal_overheal > 0:
+			_events.heal_applied(source_team, source_index, source_team, source_index, heal, heal_overheal, int(response.get("heal_before_hp", 0)), int(response.get("heal_after_hp", 0)))
 		var amp_delta: float = float(response.get("amp_output_delta", 0.0))
 		if amp_delta > 0.0:
 			var amp_source_team: String = String(response.get("amp_source_team", source_team))

@@ -6,7 +6,7 @@ class_name PostHitCoordinator
 
 const TeamUtils := preload("res://scripts/game/combat/attack/support/team_utils.gd")
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
-const Health := preload("res://scripts/game/stats/health.gd")
+const HealingService := preload("res://scripts/game/traits/runtime/healing_service.gd")
 
 var state: BattleState
 var events: CombatEvents
@@ -70,9 +70,9 @@ func apply(source_team: String, source_index: int, target_team: String, target_i
 				var missing: int = max(0, int(src.max_hp) - int(src.hp))
 				var heal_amt: int = int(max(0.0, floor(float(missing) * max(0.0, heal_pct))))
 				if heal_amt > 0:
-					var _before_src: int = int(src.hp)
-					var _h: Dictionary = Health.heal(src, heal_amt)
-					# Emit stat change for source
+					var hres: Dictionary = HealingService.apply_heal(state, bs, source_team, source_index, float(heal_amt))
+					if bool(hres.get("processed", false)):
+						events.heal_applied(source_team, source_index, source_team, source_index, int(hres.get("healed", 0)), int(hres.get("overheal", 0)), int(hres.get("before_hp", 0)), int(hres.get("after_hp", 0)))
 					events.unit_stat_changed(source_team, source_index, {"hp": src.hp})
 			# Decrement hits and update mana-block tag state after mana gain
 			var new_hits: int = max(0, hits_left - 1)

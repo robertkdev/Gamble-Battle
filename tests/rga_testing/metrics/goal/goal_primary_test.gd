@@ -246,7 +246,7 @@ func _eval_pick_burst(summary: Dictionary, spans: Array) -> bool:
 	var burst_ok: bool = _append_span(spans, summary, "goal_pick_burst_peak_1s_dps", float(summary.get("peak_1s_dps", 0.0)), 35.0, float(summary.get("peak_1s_dps", 0.0)) >= 35.0)
 	var kill_ok: bool = _append_span(spans, summary, "goal_pick_burst_kill_count", float(summary.get("kill_count", 0)), 1.0, int(summary.get("kill_count", 0)) >= 1)
 	var counterplay_value: float = float(summary.get("counterplay_window_ms", -1.0))
-	var counterplay_ok: bool = _append_span(spans, summary, "goal_pick_burst_counterplay_window_ms", counterplay_value, 400.0, counterplay_value < 0.0 or counterplay_value >= 400.0)
+	var counterplay_ok: bool = _append_span(spans, summary, "goal_pick_burst_counterplay_window_ms", counterplay_value, 400.0, counterplay_value <= 0.0 or counterplay_value >= 400.0)
 	return _k_of_n([burst_ok, kill_ok, counterplay_ok], 2)
 
 func _eval_mage_sustained_dps(summary: Dictionary, spans: Array) -> bool:

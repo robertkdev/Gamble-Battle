@@ -15,6 +15,7 @@ const DMG_BASE := [110, 165, 260]
 const DMG_SP_MULT := 0.70
 const DMG_KALEI_PER_STACK := 12.0
 const DMG_ARCA_PER_STACK := 8.0
+const BUBBLE_STUN_DURATION := 0.4
 
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const KEY_KALEIDOSCOPE := "kaleidoscope_stacks" # Legacy fallback; TODO remove after validation
@@ -57,7 +58,7 @@ func _ally_indices_by_lowest_ratio(ctx: AbilityContext, team: String) -> Array[i
 func cast(ctx: AbilityContext) -> bool:
 	if ctx == null or ctx.engine == null or ctx.state == null:
 		return false
-	var bs = ctx.buff_system
+	var bs: BuffSystem = ctx.buff_system
 	if bs == null:
 		ctx.log("[Bubbles] BuffSystem not available; cast aborted")
 		return false
@@ -81,7 +82,7 @@ func cast(ctx: AbilityContext) -> bool:
 	var targets: Array[int] = _ally_indices_by_lowest_ratio(ctx, ctx.caster_team)
 	var applied: int = 0
 	for i in targets:
-		var res := bs.apply_shield(ctx.state, ctx.caster_team, i, shield_val, SHIELD_DURATION)
+		var res: Dictionary = bs.apply_shield(ctx.state, ctx.caster_team, i, shield_val, SHIELD_DURATION)
 		if bool(res.get("processed", false)):
 			applied += 1
 
@@ -98,12 +99,15 @@ func cast(ctx: AbilityContext) -> bool:
 		return true
 	elif enemy_idxs.size() == 1:
 		ctx.damage_single(ctx.caster_team, ctx.caster_index, enemy_idxs[0], float(total_dmg), "magic")
-		ctx.log("Bubbles: shield %d for %d; dealt %d to one enemy" % [applied, shield_val, total_dmg])
+		ctx.stun(ctx._other_team(ctx.caster_team), enemy_idxs[0], BUBBLE_STUN_DURATION)
+		ctx.log("Bubbles: shield %d for %d; dealt %d and stunned one enemy" % [applied, shield_val, total_dmg])
 		return true
 	else:
 		var a: int = int(floor(float(total_dmg) * 0.5))
 		var b: int = total_dmg - a
 		ctx.damage_single(ctx.caster_team, ctx.caster_index, enemy_idxs[0], float(a), "magic")
+		ctx.stun(ctx._other_team(ctx.caster_team), enemy_idxs[0], BUBBLE_STUN_DURATION)
 		ctx.damage_single(ctx.caster_team, ctx.caster_index, enemy_idxs[1], float(b), "magic")
-		ctx.log("Bubbles: shield %d for %d; split %d/%d dmg" % [applied, shield_val, a, b])
+		ctx.stun(ctx._other_team(ctx.caster_team), enemy_idxs[1], BUBBLE_STUN_DURATION)
+		ctx.log("Bubbles: shield %d for %d; split %d/%d dmg and stunned targets" % [applied, shield_val, a, b])
 		return true

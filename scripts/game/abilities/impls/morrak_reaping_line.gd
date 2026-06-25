@@ -87,6 +87,14 @@ func cast(ctx: AbilityContext) -> bool:
         var before: Unit = ctx.unit_at(target_team, idx)
         if before == null or not before.is_alive():
             continue
+        var before_hp_pct: float = float(before.hp) / max(1.0, float(before.max_hp))
+        if before_hp_pct <= exec_thresh:
+            var execute_damage: float = float(before.hp)
+            if execute_damage > 0.0:
+                ctx.emit_execute_bonus(target_team, idx, 0.0, execute_damage, exec_thresh, before_hp_pct, "morrak_reaping_line")
+                ctx.damage_single(ctx.caster_team, ctx.caster_index, idx, execute_damage, "true")
+                executes += 1
+            continue
         var hit_res: Dictionary = ctx.damage_single(ctx.caster_team, ctx.caster_index, idx, float(total_dmg), "physical")
         var base_dealt: float = float(hit_res.get("dealt", total_dmg))
         var tgt: Unit = ctx.unit_at(target_team, idx)

@@ -178,8 +178,12 @@ func apply_hit(source_team: String, source_index: int, src: Unit, tgt_team: Stri
 	result.comp_true = int(max(0, round(true_post)))
 
 	# Lifesteal
-	var heal_amt: int = lifesteal.apply(source_team, source_index, dealt)
+	var heal_result: Dictionary = lifesteal.apply_result(source_team, source_index, dealt)
+	var heal_amt: int = int(heal_result.get("healed", 0))
 	result.heal = heal_amt
+	result.heal_overheal = int(heal_result.get("overheal", 0))
+	result.heal_before_hp = int(heal_result.get("before_hp", 0))
+	result.heal_after_hp = int(heal_result.get("after_hp", 0))
 
 	# Final log
 	var crit_str: String = (" (CRIT)" if crit else "")
@@ -282,8 +286,12 @@ func apply_ability_hit(source_team: String, source_index: int, src: Unit, tgt_te
 	result.comp_true = int(max(0, round(true_post)))
 
 	# Lifesteal (if any baseline/buffs grant it)
-	var heal_amt: int = lifesteal.apply(source_team, source_index, dealt)
+	var heal_result: Dictionary = lifesteal.apply_result(source_team, source_index, dealt)
+	var heal_amt: int = int(heal_result.get("healed", 0))
 	result.heal = heal_amt
+	result.heal_overheal = int(heal_result.get("overheal", 0))
+	result.heal_before_hp = int(heal_result.get("before_hp", 0))
+	result.heal_after_hp = int(heal_result.get("after_hp", 0))
 
 	# Final log (ability-flavored)
 	if source_team == "player":

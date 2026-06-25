@@ -5,7 +5,7 @@ extends AbilityImplBase
 # excess damage continues to the next unit in that line. On kill, 25% chance to drop 1 gold.
 # Exile trait active at 1, 3, or 5 adds +1 extra shot (total 3).
 
-# Reduce damage multipliers ~20% to curb extreme burst vs Tanks/Bruisers
+# Reduced damage multipliers keep repeated line shots from deleting tanks.
 const AD_MULT := [3.50, 5.20, 8.20]
 const LINE_LEN_TILES := 6.0
 const LINE_WIDTH_TILES := 0.6

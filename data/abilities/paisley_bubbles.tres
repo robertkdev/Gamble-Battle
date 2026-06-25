@@ -6,7 +6,6 @@
 script = ExtResource( 1 )
 id = "paisley_bubbles"
 name = "Bubbles"
-description = "Shields the two lowest-HP allies and throws damaging bubbles at two enemies."
+description = "Shields the two lowest-HP allies and throws stunning damaging bubbles at two enemies."
 base_cost = 70
-tags = ["shield", "damage"]
-
+tags = ["shield", "damage", "cc"]

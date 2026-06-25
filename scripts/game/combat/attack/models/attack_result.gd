@@ -7,6 +7,9 @@ var dealt: int = 0
 var absorbed: int = 0
 var redirected: int = 0
 var heal: int = 0
+var heal_overheal: int = 0
+var heal_before_hp: int = 0
+var heal_after_hp: int = 0
 var before_hp: int = 0
 var after_hp: int = 0
 var premit: int = 0                # Pre-mitigation total (approx)
@@ -30,6 +33,9 @@ func to_dictionary() -> Dictionary:
         "absorbed": absorbed,
         "redirected": redirected,
         "heal": heal,
+        "heal_overheal": heal_overheal,
+        "heal_before_hp": heal_before_hp,
+        "heal_after_hp": heal_after_hp,
         "before_hp": before_hp,
         "after_hp": after_hp,
         "premit": premit,
