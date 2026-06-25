@@ -128,6 +128,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/UnitIdentityMapDocSmoke.tscn`
   - Compares `docs/unit_identity_map.md` against current playable `UnitCatalog` identity metadata so stale role/goal/approach retags do not mislead audits.
 
+- Goal primary ramp applicability smoke
+  - Scene: `tests/rga_testing/validation/GoalPrimaryRampApplicabilitySmoke.tscn`
+  - Ensures goal-level ramp diagnostics are emitted for ramp-tagged identities and skipped for non-ramp identities that pass the same primary goal through other assigned evidence.
+
 Artifacts
 - Telemetry rows: `user://rga_out.jsonl` (or configured `out_path` ending with .jsonl/.ndjson; file is cleared each run)
 - Probe reports: `user://identity_reports/<unit>.json`

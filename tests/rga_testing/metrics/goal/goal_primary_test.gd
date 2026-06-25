@@ -35,6 +35,7 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 		return RoleCommon.fail_result([], ["subject_has_no_primary_goal"])
 	var scenario_label: String = String(ctx.get("scenario", "neutral"))
 	var summary: Dictionary = _summarize_subject(sims, subject_id)
+	summary["has_ramp_approach"] = _identity_has_approach(ident, "ramp")
 	if int(summary.get("samples", 0)) <= 0:
 		return RoleCommon.fail_result([], ["no_subject_samples"])
 	var spans: Array = []
@@ -614,6 +615,21 @@ func _has_direct_on_hit(summary: Dictionary) -> bool:
 func _has_direct_ramp_state(summary: Dictionary) -> bool:
 	return bool(summary.get("direct_ramp_state_supported", false)) or summary.has("ramp_state_events") or summary.has("ramp_stack_max") or summary.has("ramp_peak_duration_s") or summary.has("ramp_window_duration_s")
 
+func _identity_has_approach(ident: Dictionary, approach_id: String) -> bool:
+	var expected: String = String(approach_id).strip_edges().to_lower()
+	var raw_approaches: Variant = ident.get("approaches", [])
+	if raw_approaches is Array:
+		for value: Variant in raw_approaches:
+			if String(value).strip_edges().to_lower() == expected:
+				return true
+	elif raw_approaches is PackedStringArray:
+		for packed_value: String in raw_approaches:
+			if String(packed_value).strip_edges().to_lower() == expected:
+				return true
+	elif typeof(raw_approaches) == TYPE_STRING:
+		return String(raw_approaches).strip_edges().to_lower() == expected
+	return false
+
 func _goal_dot_ok(summary: Dictionary, spans: Array, prefix: String) -> bool:
 	if not _has_direct_dot(summary):
 		_append_span(spans, summary, "%s_dot_tick_events" % prefix, 0.0, 2.0, false, "direct_dot_missing")
@@ -641,6 +657,8 @@ func _goal_on_hit_ok(summary: Dictionary, spans: Array, prefix: String) -> bool:
 	return events_ok and magnitude_ok
 
 func _goal_ramp_ok(summary: Dictionary, spans: Array, prefix: String) -> bool:
+	if not bool(summary.get("has_ramp_approach", false)):
+		return false
 	if _has_direct_ramp_state(summary):
 		var events: int = int(summary.get("ramp_state_events", 0))
 		var stack_max: float = float(summary.get("ramp_stack_max", 0.0))
