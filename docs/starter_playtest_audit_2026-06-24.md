@@ -182,7 +182,7 @@ Aggregate result:
 - Raw console output still includes lower-level `-> FAIL` spans accepted by aggregate verdicts, including opponent-side aggregate/control spans that are still printed for visibility.
 - The saved report JSON now records the subject-side backlog directly: 80 lower-level fail spans, split as 20 role spans, 42 approach spans, and 18 goal spans. Future accepted-miss audits should prefer this JSON field over parsing console text or `godot.log`.
 - 21 of 22 current units have at least one subject-side accepted lower-level fail span in saved reports. Bonko is currently the only unit without a saved lower-level accepted miss.
-- `tests/rga_testing/tools/Export-AcceptedMisses.ps1` now exports the ignored audit CSV and summary from `user://identity_reports/*.json`, keeping the saved artifact aligned with the subject-side report semantics instead of stale raw console counts. The export also includes `support_peel_triage`, `support_peel_gap_kind`, and `support_peel_next_action` fields for the largest current bucket.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1` now exports the ignored audit CSV and summary from `user://identity_reports/*.json`, keeping the saved artifact aligned with the subject-side report semantics instead of stale raw console counts. The export includes `topic`, `audit_gap_kind`, and `audit_next_action` for every recognized accepted span, plus `support_peel_triage`, `support_peel_gap_kind`, and `support_peel_next_action` fields for the support/peel bucket.
 - Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
@@ -195,6 +195,10 @@ Recurring accepted-miss buckets from the refreshed subject-side report evidence,
 - Sustain/survival accounts for 6 spans, mobility/reposition for 6, brawler direct attrition for 4, and magic share for 3.
 - The old residual `other` bucket is now explicit: engage/CC timing has 3 spans, assassin opening presence has 1 span, and team-fortification buff uptime has 1 span.
 - Opponent-side aggregate noise is now filtered out of saved reports: `b_unit_pass_count` and `_b` suffix labels no longer appear in `diagnostics.lower_level_fail_spans`.
+
+General accepted-miss gap-kind triage from the current export:
+- Largest non-support gap kinds are team damage share below target (7), effective-health ratio below target (6), burst peak share below target (5), multi-target coverage below target (5), body-block evidence absent (4), direct attrition evidence below target (4), backline pressure below target (3), engage CC timing unproven (3), magic damage share below target (3), movement distance below target (3), ramp stack evidence below target (3), and redirect threat-swap/taunt absent (3).
+- `audit_gap_kind_counts` in `rga_accepted_misses_summary.json` now covers all 80 rows, while support-specific `support_peel_gap_kind_counts` remains the focused view for the support/peel bucket.
 
 Support/peel/cleanse/CC bucket triage from the current saved report JSON:
 

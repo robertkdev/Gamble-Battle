@@ -135,6 +135,101 @@ function Get-SupportPeelNextAction($GapKind) {
 	}
 }
 
+function Get-AuditGapKind($Topic, $Label) {
+	$topicText = [string]$Topic
+	$text = [string]$Label
+	if ($topicText -eq "support_peel_cleanse_cc") {
+		return Get-SupportPeelGapKind $Label
+	}
+	if ($text -match 'backline_share') {
+		return "backline_pressure_below_target"
+	}
+	if ($text -match 'team_damage_share|team_share') {
+		return "team_damage_share_below_target"
+	}
+	if ($text -match 'peak_1s') {
+		return "burst_peak_share_below_target"
+	}
+	if ($text -match 'pick_burst_kill_count') {
+		return "pick_burst_kill_count_absent"
+	}
+	if ($text -match 'execute_bonus') {
+		return "execute_bonus_share_absent"
+	}
+	if ($text -match 'body_block') {
+		return "body_block_evidence_absent"
+	}
+	if ($text -match 'damage_taken_share') {
+		return "frontline_damage_share_below_target"
+	}
+	if ($text -match 'engage_success_targets') {
+		return "engage_success_targets_below_target"
+	}
+	if ($text -match 'redirect') {
+		return "redirect_threat_swap_or_taunt_absent"
+	}
+	if ($text -match 'time_to_first_cc') {
+		return "engage_cc_timing_unproven"
+	}
+	if ($text -match 'ehp_ratio') {
+		return "effective_health_ratio_below_target"
+	}
+	if ($text -match 'targets_hit') {
+		return "multi_target_coverage_below_target"
+	}
+	if ($text -match 'max_step_tiles') {
+		return "movement_distance_below_target"
+	}
+	if ($text -match 'post_cast_displacement') {
+		return "post_cast_displacement_below_target"
+	}
+	if ($text -match 'backline_contact') {
+		return "dive_backline_contact_absent"
+	}
+	if ($text -match 'direct_attrition') {
+		return "direct_attrition_evidence_below_target"
+	}
+	if ($text -match 'magic_share') {
+		return "magic_damage_share_below_target"
+	}
+	if ($text -match 'ramp') {
+		return "ramp_stack_evidence_below_target"
+	}
+	if ($text -match 'a_first_frac') {
+		return "assassin_opening_presence_below_target"
+	}
+	if ($text -match 'team_fortification_buff_uptime') {
+		return "team_fortification_buff_uptime_absent"
+	}
+	return ""
+}
+
+function Get-AuditNextAction($GapKind) {
+	switch ([string]$GapKind) {
+		"backline_pressure_below_target" { return "Tune marksman targeting/positioning scenarios or thresholds so backline pressure is directly proven when the identity claims it." }
+		"team_damage_share_below_target" { return "Tune sustained-damage output, encounter duration, or threshold expectations for identities that should prove team damage share." }
+		"burst_peak_share_below_target" { return "Tune burst windows, scenario grouping, or peak-share thresholds for burst-tagged identities." }
+		"pick_burst_kill_count_absent" { return "Create or tune a pick-burst scenario where the subject can secure kills, or retune pick-burst goal requirements." }
+		"execute_bonus_share_absent" { return "Create lower-health execute windows or retune execute attribution for identities that claim execute evidence." }
+		"body_block_evidence_absent" { return "Create a live frontline/body-block threat path that records body-block events and prevented damage, or retune frontline requirements." }
+		"frontline_damage_share_below_target" { return "Tune encounter focus, tank durability, or damage-share thresholds so frontline identities absorb enough pressure." }
+		"engage_success_targets_below_target" { return "Tune engage setup, CC application, or success-target thresholds for initiate-fight identities." }
+		"redirect_threat_swap_or_taunt_absent" { return "Create redirect/taunt threat-swap contexts or retune redirect tags if explicit swaps are not required." }
+		"engage_cc_timing_unproven" { return "Clarify and tune the engage timing scenario so first-CC evidence consistently proves the intended engage window." }
+		"effective_health_ratio_below_target" { return "Tune sustain/protection output, survival pressure, or effective-health thresholds for this identity." }
+		"multi_target_coverage_below_target" { return "Create clustered-target contexts or tune AoE targeting/radius thresholds for multi-target identities." }
+		"movement_distance_below_target" { return "Tune movement/reposition ability output or distance thresholds for reposition-tagged identities." }
+		"post_cast_displacement_below_target" { return "Tune post-cast displacement telemetry, ability behavior, or thresholds for reposition identities." }
+		"dive_backline_contact_absent" { return "Create a backline-access dive context or retune the skirmish-dive goal if backline contact is optional." }
+		"direct_attrition_evidence_below_target" { return "Tune direct attrition output or threshold expectations for brawler attrition identities." }
+		"magic_damage_share_below_target" { return "Tune magic damage output/attribution or mage thresholds so magic share is directly proven." }
+		"ramp_stack_evidence_below_target" { return "Tune ramp stack buildup duration, stack generation, or thresholds for ramp-tagged identities." }
+		"assassin_opening_presence_below_target" { return "Tune assassin opening access/targeting or role threshold expectations for first-action presence." }
+		"team_fortification_buff_uptime_absent" { return "Create or tune a fortification context that records enough ally buff uptime for this tank goal." }
+		default { return Get-SupportPeelNextAction $GapKind }
+	}
+}
+
 function Count-By($Rows, $PropertyName) {
 	$map = [ordered]@{}
 	foreach ($row in $Rows) {
@@ -200,7 +295,9 @@ foreach ($report in $reports) {
 	foreach ($span in $spans) {
 		$label = [string](Get-OptionalProperty $span "label" "")
 		$unitId = [string](Get-OptionalProperty $j "unit_id" "")
-		$gapKind = Get-SupportPeelGapKind $label
+		$topic = Get-SpanTopic $label
+		$supportGapKind = Get-SupportPeelGapKind $label
+		$auditGapKind = Get-AuditGapKind $topic $label
 		$rows += [pscustomobject]@{
 			unit = $unitId
 			role = [string](Get-OptionalProperty $identity "primary_role" "")
@@ -215,10 +312,12 @@ foreach ($report in $reports) {
 			want = Get-OptionalProperty $span "want" $null
 			reason = [string](Get-OptionalProperty $span "reason" "")
 			subject_side = [string](Get-OptionalProperty $span "subject_side" "")
-			topic = Get-SpanTopic $label
+			topic = $topic
+			audit_gap_kind = $auditGapKind
+			audit_next_action = Get-AuditNextAction $auditGapKind
 			support_peel_triage = Get-SupportPeelTriageGroup $unitId $label
-			support_peel_gap_kind = $gapKind
-			support_peel_next_action = Get-SupportPeelNextAction $gapKind
+			support_peel_gap_kind = $supportGapKind
+			support_peel_next_action = Get-SupportPeelNextAction $supportGapKind
 		}
 	}
 	$verdicts = Get-OptionalProperty $j "verdicts" $null
@@ -248,6 +347,9 @@ $supportPeelTriageCounts = Count-By $supportPeelRows "support_peel_triage"
 $supportPeelTriageSummary = ($supportPeelTriageCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
 $supportPeelGapKindCounts = Count-By $supportPeelRows "support_peel_gap_kind"
 $supportPeelGapKindSummary = ($supportPeelGapKindCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
+$auditGapRows = @($rows | Where-Object { [string]$_.audit_gap_kind -ne "" })
+$auditGapKindCounts = Count-By $auditGapRows "audit_gap_kind"
+$auditGapKindSummary = ($auditGapKindCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
 $primaryTopicCounts = Count-By $rows "topic"
 $primaryTopicSummary = ($primaryTopicCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
 $keywordBucketCounts = Count-KeywordBuckets $rows
@@ -274,6 +376,7 @@ $summary = [ordered]@{
 	block_type_counts = Count-By $rows "block_type"
 	primary_topic_counts = $primaryTopicCounts
 	keyword_bucket_counts = $keywordBucketCounts
+	audit_gap_kind_counts = $auditGapKindCounts
 	support_peel_triage_counts = $supportPeelTriageCounts
 	support_peel_gap_kind_counts = $supportPeelGapKindCounts
 	highest_unit_fail_counts = @($rows | Group-Object unit | Sort-Object -Property @{Expression="Count"; Descending=$true}, @{Expression="Name"; Descending=$false} | ForEach-Object {
@@ -297,6 +400,7 @@ $readme = @(
 	"- Ramp spans: $rampFailCount",
 	"- Non-ramp goal-ramp spans: $nonRampGoalRampCount",
 	"- Primary topic counts: $primaryTopicSummary",
+	"- Audit gap kinds: $auditGapKindSummary",
 	"- Support/peel triage: $supportPeelTriageSummary",
 	"- Support/peel gap kinds: $supportPeelGapKindSummary",
 	"",
