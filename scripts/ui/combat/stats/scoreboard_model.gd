@@ -14,7 +14,7 @@ func configure(_tracker: StatsTracker) -> void:
     tracker = _tracker
 
 func build(metric: String, window: String, norm_mode: int = NormMode.TEAM_SHARE) -> Dictionary:
-    var out := {
+    var out: Dictionary = {
         "player_rows": [],
         "enemy_rows": [],
         "player_total": 0.0,
@@ -47,6 +47,8 @@ func build(metric: String, window: String, norm_mode: int = NormMode.TEAM_SHARE)
 
 func _decorate_and_sort_rows(rows: Array, team_total: float, cross_max: float, norm_mode: int) -> Array:
     var out: Array = []
+    var duplicate_counts: Dictionary = _duplicate_counts(rows)
+    var duplicate_seen: Dictionary = {}
     var denom_team: float = max(0.0, float(team_total))
     var denom_cross: float = max(0.0, float(cross_max))
     for r in rows:
@@ -56,10 +58,21 @@ func _decorate_and_sort_rows(rows: Array, team_total: float, cross_max: float, n
             share = (v / denom_team) if denom_team > 0.0 else 0.0
         else:
             share = (v / denom_cross) if denom_cross > 0.0 else 0.0
-        var row := {
+        var base_name: String = _unit_name_from_row(r)
+        var duplicate_count: int = int(duplicate_counts.get(base_name, 0))
+        var copy_number: int = int(duplicate_seen.get(base_name, 0)) + 1
+        duplicate_seen[base_name] = copy_number
+        var display_name: String = base_name
+        if duplicate_count > 1:
+            display_name = "%s #%d" % [base_name, copy_number]
+        var row: Dictionary = {
             "team": r.get("team"),
             "index": int(r.get("index", -1)),
             "unit": r.get("unit"),
+            "base_name": base_name,
+            "display_name": display_name,
+            "copy_number": copy_number,
+            "duplicate_count": duplicate_count,
             "value": v,
             "share": share,                 # 0..1 for bar fill
             "share_pct": int(round(share * 100.0)),
@@ -73,3 +86,15 @@ func _decorate_and_sort_rows(rows: Array, team_total: float, cross_max: float, n
     )
     return out
 
+func _duplicate_counts(rows: Array) -> Dictionary:
+    var counts: Dictionary = {}
+    for row in rows:
+        var base_name: String = _unit_name_from_row(row)
+        counts[base_name] = int(counts.get(base_name, 0)) + 1
+    return counts
+
+func _unit_name_from_row(row: Dictionary) -> String:
+    var unit_ref: Unit = row.get("unit") as Unit
+    if unit_ref != null and String(unit_ref.name).strip_edges() != "":
+        return String(unit_ref.name).strip_edges()
+    return "Unit"

@@ -19,6 +19,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Live-window fallback diagnostics: `outputs/audit_playtest/window_capture_2026_06_25/`
 - Debug audit QA exports: `user://audit_exports/audit_state_*.json`; `F8` opens the debug-only in-game Audit QA panel for state export, screenshot attempt, timer hold, restart, and speed controls.
 - Live Audit QA panel screenshot proof: `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`, `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`, and `user://audit_exports/audit_shot_1782371342_158480.png`
+- Duplicate scoreboard disambiguation validation: `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
 
@@ -77,7 +78,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Buy XP live-window affordance | The first live attempt exposed stale UI after a raw `Economy.gold` write. The follow-up assist used `Economy.add_gold(...)`, visibly updated to `Gold: 5`, and a real OS Buy XP click updated to `Lvl 2 (2/6)`. `NaturalBuyXPAudit` confirms the same model path succeeds naturally at `Gold: 6`, and the 4-gold denial now shows `Need +1 gold to buy XP and keep 1 health.` | Input path covered under valid visible preconditions; natural behavior and reserve-floor denial feedback covered mechanically | Natural real-window screenshot of the Stage 1 Round 3 Buy XP success remains optional; preserve the explicit denial message in future shop UI passes. |
 | Rapid shop input | `RapidShopInputAudit` covers same-frame rendered-card burst and deployment fallback. `outputs/audit_playtest/rapid_shop_os_burst/` adds audit-assisted real-window OS-coordinate evidence: before/after screenshots, preserved card centers, click coordinates, five bench additions, five sold placeholders, and no shop errors. | Covered behaviorally and audit-assisted visually/input-wise | Natural full-run rapid human-speed buying remains optional; preserve hit clarity, purchase feedback, and deployment guidance. |
 | Start Battle transition | `StartBattleFeedbackAudit` covers stages 2-4 switching immediately to disabled `Combat Resolving...`; `outputs/audit_playtest/live_start_battle_transition_2026_06_25/` now provides real-window screenshots from Round 2 planning, immediate post-click resolving, mid-combat resolving, and restored planning. | Covered behaviorally and visually | Polish only: add progress/stuck-state feedback if combat remains resolving longer than expected. |
-| Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` screenshot proves duplicate Berebell rows are readable but ambiguous. | Covered visually | Design decision needed: copy indicators, star/level labels, or aggregation. |
+| Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` exposed the ambiguity, and `ScoreboardDuplicateDisambiguationSmoke` now covers duplicate-copy labels in the model and rendered row scene. | Covered behaviorally | Optional real-window screenshot refresh only; preserve copy suffixes for duplicate display names. |
 | Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current real-window visual state. | Covered visually and behaviorally with caveats | Broader modal polish only if a future visual pass finds contrast, spacing, or system-menu dimming issues. |
 | RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; the 2026-06-25 accepted-miss parser found 130 accepted lower-level `FAIL` spans across all 22 units, plus negative role deltas in 21/22 reports. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
 | Tooling reliability | Multiple runs reproduced Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. `AuditPanelSmoke` covers a debug-only in-game Audit QA panel for state export, screenshot status, timer hold, restart, and speed controls. A real debug-window OS click on the panel's Screenshot button saved `user://audit_exports/audit_shot_1782371342_158480.png`; `02_after_screenshot_click.png` shows the panel confirming the save path. | Covered for in-game audit controls; Godot-AI helper remains fragile | Keep fallback OS screenshots for visual evidence when `_mcp_game_helper` does not register; continue using the panel for state/screenshot/timer control during manual audits. |
@@ -279,16 +280,21 @@ Implication:
 
 Fresh ignored-runner evidence was generated on 2026-06-24 at `outputs/audit_playtest/duplicate_scoreboard_visual/duplicate_scoreboard_visual_results.json` using `outputs/audit_playtest/DuplicateScoreboardVisualAudit.tscn`. The MCP debug run completed with `DuplicateScoreboardVisualAudit: OK` and `errors: []`. A live editor run also saved `outputs/audit_playtest/duplicate_scoreboard_visual/duplicate_berebell_scoreboard.png`.
 
-Run result:
+Original run result:
 - The duplicate Berebell custom fight started and resolved as victory, with 66 hits, 2920 player damage, and 649 enemy damage.
 - Model rows remained separate by internal index: `index 1` Berebell had 1487 damage and `index 0` Berebell had 1433 damage.
 - The rendered scoreboard showed two visible player rows: `Berebell 1.5k` and `Berebell 1.4k`.
 - There was no name/value overlap in the rendered rows.
 - The rendered rows had zero visible identity disambiguators. The only visible texts were the duplicate name and each damage value, so the player cannot tell which Berebell copy is which from the scoreboard alone.
 
+2026-06-25 fix and validation:
+- Duplicate scoreboard rows now keep separate combat rows but add copy suffixes when a team has repeated display names, for example `Berebell #1` and `Berebell #2`.
+- The suffix is produced in `ScoreboardModel`, then reused by `ScoreboardRow` and tooltip copy so rendered labels and hover context stay consistent.
+- `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn` passed through MCP with `ScoreboardDuplicateDisambiguationSmoke: OK` and `errors: []`. The existing `StatsPanelClickSmoke` also passed afterward with `errors: []`.
+
 Implication:
 - Duplicate scoreboard rendering is numerically readable, and the row split is intentional rather than a model aggregation bug.
-- The UX problem is identity ambiguity: duplicate copies need a visible copy number, board slot, star/level marker, or an intentional aggregate row design.
+- The identity ambiguity is closed for duplicate display names. A future polish pass can replace the copy suffix with board slot, star/level, or aggregate-row design if that becomes the preferred UX.
 
 ## Current Start Battle Feedback Recheck
 
@@ -650,10 +656,10 @@ Key manual evidence captured in this continuation:
    - The natural Buy XP runner confirmed a non-granted route: Bonko plus a bought/deployed cost-1 helper reached `Gold: 6` after the next max-bet win, and Buy XP then advanced naturally to `Lvl 2 (2/6)`.
    - The refreshed natural Buy XP runner also confirms the denied 4-gold click now emits `Need +1 gold to buy XP and keep 1 health.` as visible UI feedback.
 
-13. Scoreboard identity is unclear with duplicates.
-   - Morrak's Stage 5 run showed two separate `Berebell` scoreboard rows. This is mechanically plausible if two copies are fielded, but there is no star/level/copy indicator to explain whether this is a duplicate unit, a combined unit bug, or a display bug.
-   - The current duplicate visual runner confirms this with rendered evidence: two rows display as `Berebell 1.5k` and `Berebell 1.4k`, with no overlap but no visible identity disambiguator.
-   - Better solution: add copy numbers, star levels, or merged aggregate rows for duplicate unit names.
+13. Scoreboard identity was unclear with duplicates. Closed in the current branch.
+   - Morrak's Stage 5 run showed two separate `Berebell` scoreboard rows, and the duplicate visual runner confirmed they originally rendered as `Berebell 1.5k` and `Berebell 1.4k` with no visible identity disambiguator.
+   - The current branch adds copy suffixes for repeated display names and covers them with `ScoreboardDuplicateDisambiguationSmoke`.
+   - Future polish can still choose star levels, board slots, or merged aggregate rows, but duplicate copy labels are no longer a blocker.
 
 14. Hexeon exists in data but is not starter-selectable.
    - Live Unit Select exposes 21 starter buttons.
@@ -759,3 +765,4 @@ Summary from supporting data:
 14. Preserve Buy XP transactional feedback: if the click is unaffordable, show the reserve-floor reason; if it succeeds, keep gold/level/XP labels repainting immediately and make any reroll/shop refresh rules visible.
 15. Preserve the now-fixed defeat modal ownership: the top-right system Menu hides, disables, and cannot open while the defeat overlay is active.
 16. Preserve the now-explicit player-only defeat scoreboard: keep enemy ledger rows out of the loss modal unless a future design pass intentionally adds an enemy-comparison section.
+17. Preserve duplicate scoreboard copy suffixes for repeated unit names unless a future stats UX pass deliberately replaces them with board slot, star/level, or aggregate-row context.

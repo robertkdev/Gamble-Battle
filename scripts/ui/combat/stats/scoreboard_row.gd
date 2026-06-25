@@ -9,6 +9,7 @@ var unit_ref: Unit = null
 var value: float = 0.0
 var share: float = 0.0
 var metric_key: String = "damage"
+var display_name: String = ""
 
 @onready var portrait: TextureRect = $"HBox/Portrait"
 @onready var bar_bg: ColorRect = $"HBox/Content/BarBG"
@@ -26,6 +27,7 @@ func set_row_data(row: Dictionary) -> void:
 	team = String(row.get("team", team))
 	index = int(row.get("index", index))
 	unit_ref = row.get("unit")
+	display_name = String(row.get("display_name", ""))
 	value = float(row.get("value", 0.0))
 	share = clamp(float(row.get("share", 0.0)), 0.0, 1.0)
 	metric_key = String(row.get("metric", metric_key))
@@ -63,7 +65,9 @@ func _update_identity() -> void:
 	if name_label == null:
 		return
 	var unit_name: String = "Unit"
-	if unit_ref != null and String(unit_ref.name).strip_edges() != "":
+	if display_name.strip_edges() != "":
+		unit_name = display_name.strip_edges()
+	elif unit_ref != null and String(unit_ref.name).strip_edges() != "":
 		unit_name = String(unit_ref.name)
 	name_label.text = unit_name
 

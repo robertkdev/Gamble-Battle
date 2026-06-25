@@ -142,9 +142,9 @@ func _apply_rows(col: VBoxContainer, rows: Array, team_total: float) -> void:
 		r["metric"] = metric
 		row_node.set_row_data(r)
 		# Tooltip using window + team_total context
-		var uname: String = ""
+		var uname: String = String(r.get("display_name", "")).strip_edges()
 		var u: Unit = r.get("unit")
-		if u != null:
+		if uname == "" and u != null:
 			uname = String(u.name)
 		var tip: String = TooltipSvc.row_tooltip(metric, window, float(r.get("value", 0.0)), float(r.get("share", 0.0)), uname, team_total)
 		if metric == "damage" and tracker != null:
