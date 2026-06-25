@@ -192,9 +192,19 @@ Recurring accepted-miss buckets from the refreshed subject-side report evidence:
 - Tank/frontline semantics still have 9 direct redirect/body-block/taunt/frontline/engage misses plus related counterplay and cleanse-pressure misses. Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank through aggregate thresholds while direct body-block or redirect semantics are often absent.
 - Burst/execute/kill and AoE/wombo misses remain visible: 10 spans in burst/execute/kill and 7 in AoE/wombo. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
 
+Support/peel/cleanse/CC bucket triage from the current saved report JSON:
+
+| Area | Rows | Current evidence gap | Audit decision |
+| --- | ---: | --- | --- |
+| Axiom `support.team_amplification` with `amp,peel,sustain` | 6 | `approach_peel` and `role_support_identity` still show 0 direct CC-immunity grants, 0 cleanse applications, and 0 team peel saves. | Axiom's aggregate support pass is real, but the current live row does not prove hard peel/cleanse. Next audit work should either retag away from those semantics or create/tune a peel scenario that forces direct ally-protection evidence. |
+| Paisley `mage.wombo_combo_burst` with `aoe,peel` | 3 | `approach_peel` still reports 0 CC-immunity grants, 0 cleanse applications, and 0 team peel saves. | Treat this as shield-peel live-evidence debt, not missing instrumentation; earlier evidence shows Paisley can pass peel through ally shield/protection magnitude. |
+| Totem `support.peel_carry` with `peel,cc_immunity,amp` | 7 | The all-unit RoleMatrix row still lacks team peel saves, interrupt events, `subject_cc_prevented_as_target`, and enough cooldown-trade efficiency, even though it has direct shield/amp/CC-immunity evidence. | This is scenario/threshold debt in the all-unit smoke, not proof that Totem cleanse telemetry is absent. `TotemCleanseLiveProbe.tscn` remains the explicit positive control for real debuff removal, source-owned cleanse/CC-immunity telemetry, direct `approach_peel`, `approach_cc_immunity`, support role, and `support.peel_carry` goal consumption. |
+| Debuff/lockdown counterplay on Brute, Grint, Kythera, and Sari | 8 | `approach_lockdown` and `approach_debuff` rows show 0 cleanse pressure, cleanse-bait, or tenacity-tax response in the current live scenarios. | Counterplay telemetry exists, but these live unit rows need a scenario that actually presents cleanse/high-tenacity response pressure, or the affected tags should be retuned/retagged. |
+| Luna `mage.wombo_combo_burst` | 1 | `goal_wombo_combo_burst_cc_sync_proxy` remains 0 while the goal can still pass through burst/AoE evidence. | Decide whether wombo should require direct CC-sync in live rows or remain an accepted aggregate-path pass. |
+
 Implication:
 - The current all-unit RGA gate is green and should not block the starter/shop audit.
-- The pass is threshold/aggregate based, not proof that every role/goal/approach semantic subspan is expressed cleanly. Treat the accepted spans as a balance and instrumentation backlog before declaring identity semantics fully proven.
+- The pass is threshold/aggregate based, not proof that every role/goal/approach semantic subspan is expressed cleanly. Treat the accepted spans as a balance, scenario, and identity-tag backlog before declaring identity semantics fully proven.
 
 ## Current Loss And Exit Modal Framebuffer Recheck
 
