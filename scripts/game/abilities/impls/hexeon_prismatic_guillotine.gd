@@ -10,8 +10,8 @@ const BASE := [260, 390, 900]
 const SP_MULT := 0.90
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
-const KALEI_KEY := "kaleidoscope_stacks" # Legacy fallback; TODO remove after validation
-const EXEC_KEY := "executioner_stacks"    # Legacy fallback; TODO remove after validation
+const KALEI_KEY := "kaleidoscope_stacks" # Legacy fallback for old saved/test state.
+const EXEC_KEY := "executioner_stacks"    # Legacy fallback for old saved/test state.
 const RECAST_SCALE := 0.70
 const BLINK_OFFSET_TILES: float = 0.55
 
