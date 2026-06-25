@@ -120,10 +120,14 @@ func _populate() -> void:
 		scoreboard_holder.add_child(sb)
 		if _tracker != null and sb.has_method("configure"):
 			sb.configure(_tracker)
+		if sb.has_method("set_title"):
+			sb.set_title("Player Damage")
 		if sb.has_method("set_metric"):
 			sb.set_metric("damage")
 		if sb.has_method("set_window"):
 			sb.set_window("ALL")
+		if sb.has_method("set_enemy_rows_enabled"):
+			sb.set_enemy_rows_enabled(false)
 		if sb.has_method("set_expand_enabled"):
 			sb.set_expand_enabled(false)
 		if sb.has_method("set_expanded"):

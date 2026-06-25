@@ -9,6 +9,7 @@ const TooltipSvc := preload("res://scripts/ui/combat/stats/tooltip_service.gd")
 @onready var body_box: HBoxContainer = $"Body"
 @onready var player_col: VBoxContainer = $"Body/PlayerColumn"
 @onready var enemy_col: VBoxContainer = $"Body/EnemyColumn" # kept for non-overlay mode (currently unused)
+@onready var title_label: Label = $"Header/Title"
 
 # Floating overlay to show enemy column without reflowing the main layout
 var overlay: Control
@@ -23,6 +24,7 @@ var window: String = "ALL"
 var norm_mode: int = ScoreboardModel.NormMode.TEAM_SHARE
 var expanded: bool = false
 var expand_enabled: bool = true
+var enemy_rows_enabled: bool = true
 
 var refresh_interval: float = 0.3
 var _accum: float = 0.0
@@ -63,14 +65,27 @@ func configure(_tracker: StatsTracker) -> void:
 func set_metric(m: String) -> void: metric = m
 func set_window(w: String) -> void: window = w
 func set_norm_mode(n: int) -> void: norm_mode = n
+func set_title(text: String) -> void:
+	if title_label != null:
+		title_label.text = text
+
 func set_expand_enabled(flag: bool) -> void:
 	expand_enabled = flag
 	if not expand_enabled:
 		set_expanded(false)
 	_sync_expand_button()
 
+func set_enemy_rows_enabled(flag: bool) -> void:
+	enemy_rows_enabled = flag
+	if not enemy_rows_enabled:
+		set_expanded(false)
+		_clear_rows(enemy_col)
+		_clear_rows(overlay_enemy_col)
+	_sync_expand_button()
+	_rebuild_now()
+
 func set_expanded(flag: bool) -> void:
-	if flag and not expand_enabled:
+	if flag and (not expand_enabled or not enemy_rows_enabled):
 		flag = false
 	expanded = flag
 	if overlay:
@@ -100,6 +115,10 @@ func _rebuild_now() -> void:
 		return
 	var data: Dictionary = model.build(metric, window, norm_mode)
 	_apply_rows(player_col, data.get("player_rows", []), float(data.get("player_total", 0.0)))
+	if not enemy_rows_enabled:
+		_clear_rows(enemy_col)
+		_clear_rows(overlay_enemy_col)
+		return
 	var enemy_target: VBoxContainer = (overlay_enemy_col if expanded and overlay_enemy_col != null else enemy_col)
 	_apply_rows(enemy_target, data.get("enemy_rows", []), float(data.get("enemy_total", 0.0)))
 
@@ -226,7 +245,7 @@ func _make_overlay_style() -> StyleBoxFlat:
 func _sync_expand_button() -> void:
 	if expand_button == null:
 		return
-	expand_button.visible = expand_enabled
-	expand_button.disabled = not expand_enabled
+	expand_button.visible = expand_enabled and enemy_rows_enabled
+	expand_button.disabled = not expand_enabled or not enemy_rows_enabled
 	expand_button.text = (">>" if expanded else "<<")
 	expand_button.tooltip_text = "Hide enemy ledger" if expanded else "Show enemy ledger"

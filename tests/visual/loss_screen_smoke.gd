@@ -9,6 +9,7 @@ func _ready() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_prepare_dirty_run_state()
+	var tracker: StatsTracker = _make_populated_tracker()
 
 	var layer: CanvasLayer = CanvasLayer.new()
 	layer.name = "LossOverlayLayer"
@@ -18,7 +19,7 @@ func _ready() -> void:
 	var screen: LossScreen = LossScreenScene.instantiate() as LossScreen
 	screen.z_index = 100
 	screen.z_as_relative = false
-	screen.configure(null)
+	screen.configure(tracker)
 	layer.add_child(screen)
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -30,6 +31,8 @@ func _ready() -> void:
 	var scoreboard: Node = screen.get_node_or_null("Panel/Center/Frame/VBox/ScoreboardHolder/Scoreboard")
 	_expect(scoreboard != null, "Loss scoreboard missing", failures)
 	if scoreboard != null:
+		var title_label: Label = scoreboard.get_node_or_null("Header/Title") as Label
+		_expect(title_label != null and title_label.text == "Player Damage", "Loss scoreboard title should clarify player-only rows", failures)
 		var expand_button: Button = scoreboard.find_child("ExpandButton", true, false) as Button
 		_expect(expand_button != null, "Loss scoreboard expand button missing", failures)
 		if expand_button != null:
@@ -39,6 +42,12 @@ func _ready() -> void:
 			scoreboard.call("set_expanded", true)
 		var overlay: Control = scoreboard.get("overlay") as Control
 		_expect(overlay == null or not overlay.visible, "Loss scoreboard overlay escaped modal", failures)
+		var enemy_column: VBoxContainer = scoreboard.get_node_or_null("Body/EnemyColumn") as VBoxContainer
+		_expect(enemy_column != null and enemy_column.get_child_count() == 0, "Loss scoreboard should not keep hidden enemy rows", failures)
+		var labels: Array[String] = _label_texts(screen)
+		_expect(labels.has("Axiom"), "Loss scoreboard should show player row", failures)
+		_expect(not labels.has("Beegle"), "Loss scoreboard should not expose hidden enemy name", failures)
+		_expect(not labels.has("1.2k"), "Loss scoreboard should not expose hidden enemy damage", failures)
 	_save_capture("loss_overlay_modal_fixed.png")
 
 	screen.call("_on_new_game")
@@ -65,6 +74,44 @@ func _prepare_dirty_run_state() -> void:
 	var unit: Unit = UnitFactory.spawn("mortem")
 	if unit != null:
 		Roster.set_slot(0, unit)
+
+func _make_populated_tracker() -> StatsTracker:
+	var manager: CombatManager = CombatManager.new()
+	add_child(manager)
+	var player_unit: Unit = UnitFactory.spawn("axiom")
+	var enemy_unit: Unit = UnitFactory.spawn("beegle")
+	if enemy_unit == null:
+		enemy_unit = UnitFactory.spawn("drubble")
+	var player_team: Array[Unit] = []
+	if player_unit != null:
+		player_team.append(player_unit)
+	var enemy_team: Array[Unit] = []
+	if enemy_unit != null:
+		enemy_team.append(enemy_unit)
+	manager.player_team = player_team
+	manager.enemy_team = enemy_team
+	var tracker: StatsTracker = StatsTracker.new()
+	add_child(tracker)
+	tracker.configure(manager)
+	tracker._on_battle_started(1, enemy_unit)
+	tracker._on_hit_applied("player", 0, 0, 143, 143, false, 100, 0, 0.0, 0.0)
+	tracker._on_hit_applied("enemy", 0, 0, 1200, 1200, false, 100, 0, 0.0, 0.0)
+	tracker._on_battle_end(1)
+	return tracker
+
+func _label_texts(root: Node) -> Array[String]:
+	var texts: Array[String] = []
+	if root == null:
+		return texts
+	var labels: Array[Node] = root.find_children("*", "Label", true, false)
+	for node: Node in labels:
+		var label: Label = node as Label
+		if label == null:
+			continue
+		var text: String = String(label.text).strip_edges()
+		if not text.is_empty():
+			texts.append(text)
+	return texts
 
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
