@@ -3,6 +3,9 @@ extends Node
 const COMBAT_VIEW_SCENE: PackedScene = preload("res://scenes/CombatView.tscn")
 const SCOREBOARD_ROW_SCENE: PackedScene = preload("res://scenes/ui/stats/ScoreboardRow.tscn")
 const ShopPanelLib: Script = preload("res://scripts/ui/shop/shop_panel.gd")
+const ShopPresenterLib: Script = preload("res://scripts/ui/shop/shop_presenter.gd")
+
+var _first_fight_placeholder_clicks: int = 0
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -44,6 +47,7 @@ func _run() -> void:
 		if command_bar != null:
 			_expect(command_bar.get_theme_constant("separation") >= 16, "Command controls are too tightly grouped", failures)
 	await _verify_forced_first_fight_placeholder(failures)
+	await _verify_forced_first_fight_presenter_feedback(failures)
 	var player_tile: Button = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid/TileP_00") as Button
 	_expect(player_tile != null, "Player tile missing", failures)
 	if player_tile != null:
@@ -75,6 +79,8 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 	host.add_child(grid)
 	var panel: ShopPanel = ShopPanelLib.new()
 	panel.configure(grid, 5)
+	_first_fight_placeholder_clicks = 0
+	panel.first_fight_placeholder_pressed.connect(_on_first_fight_placeholder_pressed_for_test)
 	panel.set_empty_state("FIRST FIGHT", "Win to open shop", true)
 	panel.set_offers([])
 	await get_tree().process_frame
@@ -91,6 +97,15 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 		if panel_style != null:
 			_expect(panel_style.border_width_top >= 2, "First fight placeholder border is too subtle", failures)
 			_expect(panel_style.border_color.r >= 0.70 and panel_style.border_color.g >= 0.40, "First fight placeholder border is not prominent enough", failures)
+		_expect(placeholder.mouse_filter == Control.MOUSE_FILTER_STOP, "First fight placeholder should accept clicks for explanatory feedback", failures)
+		_expect(placeholder.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "First fight placeholder should show an interactive cursor", failures)
+		_expect(placeholder.focus_mode == Control.FOCUS_ALL, "First fight placeholder should be keyboard focusable", failures)
+		var mouse_event: InputEventMouseButton = InputEventMouseButton.new()
+		mouse_event.button_index = MOUSE_BUTTON_LEFT
+		mouse_event.pressed = true
+		placeholder.emit_signal("gui_input", mouse_event)
+		await get_tree().process_frame
+		_expect(_first_fight_placeholder_clicks == 1, "First fight placeholder click did not emit feedback signal", failures)
 	var label: Label = _find_label_with_text(host, "FIRST FIGHT")
 	_expect(label != null, "FIRST FIGHT label missing", failures)
 	if label != null:
@@ -104,6 +119,60 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 	panel.clear()
 	remove_child(host)
 	host.free()
+
+func _verify_forced_first_fight_presenter_feedback(failures: Array[String]) -> void:
+	var game_state_node: Node = get_tree().root.get_node_or_null("GameState")
+	var shop_node: Node = get_tree().root.get_node_or_null("Shop")
+	if game_state_node == null or shop_node == null:
+		_expect(false, "Shop presenter feedback test requires GameState and Shop autoloads", failures)
+		return
+	GameState.set_chapter_and_stage(1, 1)
+	GameState.set_phase(GameState.GamePhase.PREVIEW)
+	Shop.reset_run()
+	var host: VBoxContainer = VBoxContainer.new()
+	add_child(host)
+	var grid: GridContainer = GridContainer.new()
+	host.add_child(grid)
+	var presenter: ShopPresenter = ShopPresenterLib.new()
+	presenter.configure(self, grid)
+	await get_tree().process_frame
+	var label: Label = _find_label_with_text(host, "FIRST FIGHT")
+	_expect(label != null, "Presenter first fight placeholder label missing", failures)
+	if label == null:
+		presenter.teardown()
+		remove_child(host)
+		host.free()
+		return
+	var placeholder: PanelContainer = _find_ancestor_panel(label)
+	_expect(placeholder != null, "Presenter first fight placeholder panel missing", failures)
+	if placeholder == null:
+		presenter.teardown()
+		remove_child(host)
+		host.free()
+		return
+	var mouse_event: InputEventMouseButton = InputEventMouseButton.new()
+	mouse_event.button_index = MOUSE_BUTTON_LEFT
+	mouse_event.pressed = true
+	placeholder.emit_signal("gui_input", mouse_event)
+	await get_tree().process_frame
+	var feedback: Label = _find_label_with_text(host, "First fight is forced. Win to open the shop.")
+	_expect(feedback != null, "First fight placeholder click did not show explanatory shop feedback", failures)
+	if feedback != null:
+		_expect(feedback.visible, "First fight shop feedback should be visible after clicking placeholder", failures)
+	presenter.teardown()
+	remove_child(host)
+	host.free()
+
+func _find_ancestor_panel(node: Node) -> PanelContainer:
+	var current: Node = node
+	while current != null:
+		if current is PanelContainer:
+			return current as PanelContainer
+		current = current.get_parent()
+	return null
+
+func _on_first_fight_placeholder_pressed_for_test() -> void:
+	_first_fight_placeholder_clicks += 1
 
 func _find_label_with_text(root: Node, text: String) -> Label:
 	if root is Label and String((root as Label).text) == text:

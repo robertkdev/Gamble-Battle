@@ -43,7 +43,7 @@ MCP validation run on 2026-06-24:
 - `tests/visual/DragGlobalReleaseSmoke.tscn`: `DragGlobalReleaseSmoke: OK` with `errors: []`; validates that a drag started on one control ends and emits a drop after global mouse release over a different tile.
 - `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`
-- `tests/visual/UIThemeSmoke.tscn`: rerun on 2026-06-25 with `errors: []`, including shop-card gutter, command-strip spacing, and first-fight placeholder prominence assertions.
+- `tests/visual/UIThemeSmoke.tscn`: rerun on 2026-06-25 with `errors: []`, including shop-card gutter, command-strip spacing, first-fight placeholder prominence, and locked-placeholder click feedback assertions.
 - `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`. Rerun on 2026-06-25 with `errors: []` now also covers run-total damage/kills surviving a later final-battle stats reset.
 - `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`; later live editor run saved `outputs/visual_iter/exit_menu_pass/01_unit_select_system_menu.png` and `outputs/visual_iter/exit_menu_pass/02_combat_system_menu.png`.
 - `tests/rga_testing/validation/StageProgressionProbe.tscn`: `StageProgressionProbe: PASS`
@@ -55,7 +55,7 @@ MCP validation run on 2026-06-24:
 
 Confirmed current fixes/coverage:
 - Normal new runs start with clean item inventory; `Items.DEV_STARTER_INVENTORY_ENABLED` is currently false and `ActualRunLoopSmoke` asserts an empty starting inventory.
-- The forced first fight now has an explicit `FIRST FIGHT` / `Win to open shop` placeholder and disabled opening shop buttons.
+- The forced first fight now has an explicit `FIRST FIGHT` / `Win to open shop` placeholder, disabled opening shop buttons, and click/keyboard feedback on the locked placeholder.
 - The actual run loop now covers repeated New Game resets, all-in loss cycles, first-board-unit drag repositioning, post-fight shop purchase, first-purchase deploy prompt, first-purchase bench-slot highlight, planning-time assist, bench-to-board drag, highlight clearing after deploy, and second-fight resolution.
 - Real-window deploy recheck exposed and fixed a drag-release edge case: after an OS mouse drag began from a bench unit, releasing outside the source `UnitView` could leave a drag ghost stuck and the bought unit on the bench. `DragAndDroppable` now listens for global mouse motion/release only while a drag is active, and the patched OS-window pass moves Cashmere from bench to board.
 - Combat no-progress and absolute timeout handling are covered by `CombatWatchdogSmoke`.
@@ -66,7 +66,7 @@ Confirmed current fixes/coverage:
 - Unit stats still come from role baselines rather than playable unit resources, as verified by `UnitStatAudit`.
 - Stage progression, creep spawning, and creep reward actions now have focused pass signals.
 - A debug-only `F8` Audit QA panel now provides in-game state JSON export, screenshot capture attempt with explicit headless/dummy skip reasons, planning-timer hold, New Run restart, and 1x/4x speed controls. `AuditPanelSmoke` verifies the panel stays hidden by default, exports parseable state, reports screenshot status safely, controls speed, holds the planning timer, and returns to Unit Select through New Run.
-- The bottom shop/command band now has wider card gutters and command-control separation, covered by `UIThemeSmoke` assertions. The forced first-fight shop placeholder now uses a brighter border, larger `FIRST FIGHT` label, and clearer `Win to open shop` hint; fresh OS-window captures under `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/` confirm the locked opener and first real shop still fit the 1080p debug window.
+- The bottom shop/command band now has wider card gutters and command-control separation, covered by `UIThemeSmoke` assertions. The forced first-fight shop placeholder now uses a brighter border, larger `FIRST FIGHT` label, clearer `Win to open shop` hint, and direct feedback when clicked or activated from keyboard; fresh OS-window captures under `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/` confirm the locked opener and first real shop still fit the 1080p debug window.
 - The Start Battle button still changes immediately to disabled `Combat Resolving...`; if combat keeps running past the short delay it now shows elapsed resolving seconds, then a `Still resolving` warning after 10 seconds. If the engine watchdog fires, the button switches to `Resolving fallback...` while the existing post-combat recovery finishes.
 - The system menu pause overlay now uses a lighter backdrop alpha so the underlying Unit Select or combat state remains readable enough for resume/new-run context; `ExitFlowSmoke` asserts the backdrop stays in the intended alpha range.
 - A non-broke Chapter 1 Stage 1 defeat now receives opening retry recovery up to 2 gold. `AxiomRetryEconomySmoke` proves Axiom's forced opener loss returns to a same-stage retry shop with 2 gold, buys a 1-cost helper while preserving 1 gold, shows deploy guidance, deploys the helper to board, and clears the first-deploy highlight.
@@ -86,7 +86,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Audit surface | Current strongest evidence | Status | Remaining proof needed |
 | --- | --- | --- | --- |
 | Starter-select surface | Unit Select live screenshots and `UnitSelectSmoke` cover the current 12 cost-1 starter grid. | Covered for current cost-tier branch | None unless starter roster changes again. |
-| Forced first fight and opening shop lockout | Live screenshots plus `ActualRunLoopSmoke` cover disabled opening shop controls and `Start Forced Fight`. `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/06_forced_first_fight_retry.png` refreshes the locked shop strip after the placeholder contrast pass. | Covered behaviorally and visually | Polish only: add direct click feedback if players still try disabled opener controls. |
+| Forced first fight and opening shop lockout | Live screenshots plus `ActualRunLoopSmoke` cover disabled opening shop controls and `Start Forced Fight`. `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/06_forced_first_fight_retry.png` refreshes the locked shop strip after the placeholder contrast pass. `UIThemeSmoke` now proves the locked placeholder is clickable/focusable and shows `First fight is forced. Win to open the shop.` | Covered behaviorally and visually | Preserve the explicit placeholder, tooltip, and click/keyboard feedback. |
 | All current starters through first Main-flow loop | `AllStarterMainFlowAudit` covers 12 starters: Axiom retry plus 11 first-shop buy/deploy/second-fight paths. `AxiomRetryEconomySmoke` now covers the former outlier by proving the retry shop can buy and deploy a helper after the nonlethal opening loss. | Covered behaviorally | Fresh human real-window replay of every starter remains optional but not mechanically required for current blockers. |
 | Cost-1 post-buy bench/deploy | Live Bonko-to-Brute run confirms purchase-to-bench and OS-level bench-to-board drag. `outputs/audit_playtest/current_deploy_drag_recheck/` adds a fresh real-window pass: the pre-fix OS drag left a ghost stuck while the unit stayed on bench; after the global release fix, an OS click bought Cashmere, the prompt appeared, and an OS drag moved Cashmere from bench to board with `completion_reported=true`. `ActualRunLoopSmoke` asserts the first-purchase prompt, bought bench-slot highlight, timer extension, bench-to-board drag, and highlight clearing after deploy. | Covered visually and behaviorally | Preserve global drag-release handling, board-cell guidance, and bench-slot guidance. Future manual passes can focus on speed/pressure polish rather than known drop correctness. |
 | Cost-2 premium behavior after leveling | `PremiumDeployAuditRunner` repeatedly covers reserve-floor denial, level 2, cost-2 purchase, deploy prompt, and final board. `NaturalBuyXPAudit` proves a normal Bonko + cost-1 helper line can naturally reach `Gold: 6` at Stage 1 Round 3 and level to `Lvl 2 (2/6)`. `outputs/audit_playtest/live_cost2_recheck_2026_06_25/` includes audit-assisted live-window screenshots where OS clicks level to 2, reroll into 2g offers, buy Teller, and drag Teller to board. | Covered behaviorally and audit-assisted visually | Natural real-window screenshot of the Stage 1 Round 3 Buy XP success remains optional; the mechanical progression is now proven. |
@@ -129,7 +129,7 @@ Result:
 ## Current Shop Spacing And First-Fight Placeholder Recheck
 
 Fresh evidence was generated on 2026-06-25 after the bottom-band spacing pass:
-- `tests/visual/UIThemeSmoke.tscn` printed `UIThemeSmoke: OK` with `errors: []`. The smoke now asserts shop-card horizontal gutters of at least 16 px, command-strip separation of at least 16 px, BottomStorageArea separation of at least 14 px, and a single wide forced-first-fight placeholder with a stronger border, larger `FIRST FIGHT` label, and larger `Win to open shop` hint.
+- `tests/visual/UIThemeSmoke.tscn` printed `UIThemeSmoke: OK` with `errors: []`. The smoke now asserts shop-card horizontal gutters of at least 16 px, command-strip separation of at least 16 px, BottomStorageArea separation of at least 14 px, a single wide forced-first-fight placeholder with a stronger border, larger `FIRST FIGHT` label, larger `Win to open shop` hint, interactive cursor/focus behavior, and a visible explanatory message when the locked placeholder is clicked.
 - `tests/visual/ActualRunLoopSmoke.tscn` printed `ActualRunLoopSmoke: OK` with `errors: []`, preserving starter selection, first-board drag, repeated loss/New Game resets, forced opener, first shop purchase, deploy prompt, bench-to-board movement, and second-fight resolution.
 - `outputs/audit_playtest/RapidShopInputAudit.tscn` printed `RapidShopInputAudit: OK findings=0` with `errors: []`, preserving same-frame rendered-card burst buying, sealed placeholders, deployment guidance, five bench-to-board deploys, and post-burst fight resolution.
 - Godot-AI game screenshots were still blocked by `_mcp_game_helper` registration timeout, so accepted visual proof came from the OS-window capture helper, matching the earlier live-window fallback path.
@@ -671,6 +671,7 @@ Key manual evidence captured in this continuation:
    - Reroll, Lock, Buy XP, and empty shop cards did not change gold, XP, offers, or level during the forced first fight state.
    - The UI still presents these controls in the player decision area, so the player naturally tries them.
    - Better solution: render the opening shop as a single disabled "Win first fight to open shop" panel, or give the player an actual first recruit/shop decision before combat.
+   - Current branch resolution: the opening shop now renders as one explicit `FIRST FIGHT` / `Win to open shop` panel, and activating that locked panel shows `First fight is forced. Win to open the shop.` via the existing shop message label.
 
 3. Normal runs currently start with dev item inventory enabled.
    - Components and remover are visible immediately in the left item panel.
@@ -846,7 +847,7 @@ Summary from supporting data:
 1. Add a real opening decision before first combat, or explicitly frame the first fight as a short tutorial/prologue.
 2. Rebalance Chapter 1 Round 2 so a good Round 1 result plus one or two reasonable purchases can survive.
 3. Gate dev starter inventory out of normal playtests.
-4. Preserve the clearer forced-first-fight placeholder and add direct feedback if players still click disabled opener controls.
+4. Preserve the clearer forced-first-fight placeholder and its direct click/keyboard feedback if players still try the locked opener controls.
 5. Preserve the widened spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
 6. Register or remove missing completed item dynamic effects before trusting item strategy.
 7. Preserve and extend the debug in-game Audit QA controls for manual playtests: state export, screenshot status, restart, timer hold, and speed controls that do not require fragile repeated Godot-AI eval calls.

@@ -54,6 +54,7 @@ func configure(parent: Node, grid: GridContainer) -> void:
 		_grid.columns = ShopConfig.SLOT_COUNT
 	_panel = ShopPanel.new()
 	_panel.configure(_grid, ShopConfig.SLOT_COUNT)
+	_panel.first_fight_placeholder_pressed.connect(_on_first_fight_placeholder_pressed)
 	# Button bar mounted above grid inside the host container
 	_buttons = ShopButtons.new()
 	_buttons.configure(_panel.get_host_container())
@@ -287,6 +288,10 @@ func _on_card_clicked(slot_index: int) -> void:
 			if promos is Array and promos.size() > 0:
 				promotions_emitted.emit(promos)
 	_refresh_progress()
+
+func _on_first_fight_placeholder_pressed() -> void:
+	if _is_forced_first_fight():
+		_show_message("First fight is forced. Win to open the shop.", 2.5)
 
 func set_enabled(enabled: bool) -> void:
 	if _buttons:

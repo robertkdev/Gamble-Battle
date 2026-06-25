@@ -1,6 +1,8 @@
 extends RefCounted
 class_name ShopPanel
 
+signal first_fight_placeholder_pressed()
+
 const UI := preload("res://scripts/constants/ui_constants.gd")
 const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const ShopCardScene := preload("res://scenes/ui/shop/ShopCard.tscn")
@@ -134,7 +136,12 @@ func _make_placeholder(sold: bool) -> Control:
     var first_fight_placeholder: bool = _single_empty_state and not sold
     var wrap: PanelContainer = PanelContainer.new()
     wrap.custom_minimum_size = Vector2(790.0, 138.0) if first_fight_placeholder else Vector2(150.0, 138.0)
-    wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder else Control.MOUSE_FILTER_IGNORE
+    if first_fight_placeholder:
+        wrap.tooltip_text = "First fight is forced. Win to open the shop."
+        wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        wrap.focus_mode = Control.FOCUS_ALL
+        wrap.gui_input.connect(Callable(self, "_on_first_fight_placeholder_gui_input"))
     wrap.add_theme_stylebox_override("panel", _make_placeholder_style(sold))
 
     var stack: VBoxContainer = VBoxContainer.new()
@@ -176,6 +183,17 @@ func _make_placeholder(sold: bool) -> Control:
         hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
         stack.add_child(hint)
     return wrap
+
+func _on_first_fight_placeholder_gui_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton:
+        var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+        if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+            first_fight_placeholder_pressed.emit()
+            return
+    if event is InputEventKey:
+        var key_event: InputEventKey = event as InputEventKey
+        if key_event.pressed and not key_event.echo and (key_event.keycode == KEY_ENTER or key_event.keycode == KEY_SPACE):
+            first_fight_placeholder_pressed.emit()
 
 func _make_placeholder_style(sold: bool) -> StyleBoxFlat:
     var style: StyleBoxFlat = StyleBoxFlat.new()
