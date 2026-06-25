@@ -202,6 +202,12 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	if ($text -match 'execute_bonus') {
 		return "execute_bonus_share_absent"
 	}
+	if ($text -match 'body_block_events') {
+		return "body_block_events_absent"
+	}
+	if ($text -match 'body_block_damage_prevented') {
+		return "body_block_prevented_damage_absent"
+	}
 	if ($text -match 'body_block') {
 		return "body_block_evidence_absent"
 	}
@@ -281,6 +287,8 @@ function Get-AuditNextAction($GapKind) {
 		"peak_share_below_target" { return "Tune burst windows, scenario grouping, or peak-share thresholds for identities that should prove peak-share evidence." }
 		"pick_burst_kill_count_absent" { return "Create or tune a pick-burst scenario where the subject can secure kills, or retune pick-burst goal requirements." }
 		"execute_bonus_share_absent" { return "Create lower-health execute windows or retune execute attribution for identities that claim execute evidence." }
+		"body_block_events_absent" { return "Create or tune a live frontline/body-block threat path that records direct body-block events for frontline-absorb identities." }
+		"body_block_prevented_damage_absent" { return "Create or tune a live frontline/body-block threat path that records enough prevented damage for frontline-absorb identities." }
 		"body_block_evidence_absent" { return "Create a live frontline/body-block threat path that records body-block events and prevented damage, or retune frontline requirements." }
 		"frontline_damage_share_below_target" { return "Tune encounter focus, tank durability, or damage-share thresholds so frontline identities absorb enough pressure." }
 		"engage_success_targets_below_target" { return "Tune engage setup, CC application, or success-target thresholds for initiate-fight identities." }
