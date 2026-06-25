@@ -225,6 +225,15 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	if ($text -match 'engage_success_targets') {
 		return "engage_success_targets_below_target"
 	}
+	if ($text -match 'redirect_explicit_threat_swap_events') {
+		return "redirect_explicit_threat_swap_absent"
+	}
+	if ($text -match 'redirect_target_swap_events') {
+		return "redirect_target_swap_absent"
+	}
+	if ($text -match 'redirect_taunt_events') {
+		return "redirect_taunt_absent"
+	}
 	if ($text -match 'redirect') {
 		return "redirect_threat_swap_or_taunt_absent"
 	}
@@ -300,6 +309,9 @@ function Get-AuditNextAction($GapKind) {
 		"body_block_evidence_absent" { return "Create a live frontline/body-block threat path that records body-block events and prevented damage, or retune frontline requirements." }
 		"frontline_damage_share_below_target" { return "Tune encounter focus, tank durability, or damage-share thresholds so frontline identities absorb enough pressure." }
 		"engage_success_targets_below_target" { return "Tune engage setup, CC application, or success-target thresholds for initiate-fight identities." }
+		"redirect_explicit_threat_swap_absent" { return "Create or tune explicit redirect threat-swap behavior, or retag if Korath should prove redirect through body-blocking rather than threat swapping." }
+		"redirect_target_swap_absent" { return "Create or tune redirect contexts that cause enemies to swap targets onto the subject, or retune target-swap thresholds." }
+		"redirect_taunt_absent" { return "Create or tune taunt-command redirect behavior, or retag if taunt is not an intended Korath redirect submode." }
 		"redirect_threat_swap_or_taunt_absent" { return "Create redirect/taunt threat-swap contexts or retune redirect tags if explicit swaps are not required." }
 		"engage_cc_timing_unproven" { return "Clarify and tune the engage timing scenario so first-CC evidence consistently proves the intended engage window." }
 		"sustain_approach_ehp_ratio_below_target" { return "Tune self sustain, shield absorption, incoming-pressure scenario setup, or sustain EHP ratio threshold for sustain-tagged identities." }
