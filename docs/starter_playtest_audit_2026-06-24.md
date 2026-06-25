@@ -167,7 +167,7 @@ Audit implication: first-purchase bench deployment is now covered by both behavi
 
 ## Current RoleMatrix Accepted-Miss Recheck
 
-Fresh RoleMatrix evidence was regenerated again on 2026-06-25 with `tests/rga_testing/ci/RoleMatrixSmoke.tscn`. The MCP debug run completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`. The current run occupies `godot.log` lines 4-1139, report files were written under `user://identity_reports/*.json`, and one stale `faeling.json` from 2026-06-23 was ignored. The refreshed parser output is stored in `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`.
+Fresh RoleMatrix evidence was regenerated again on 2026-06-25 with `tests/rga_testing/ci/RoleMatrixSmoke.tscn`. The MCP debug run completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`. The current run occupies `godot.log` lines 4-1139, report files were written under `user://identity_reports/*.json`, and one stale `faeling.json` from 2026-06-23 was ignored. The refreshed parser output is stored in `outputs/audit_playtest/rga_accepted_misses_2026_06_25/` and can be regenerated from current report JSON with `tests/rga_testing/tools/Export-AcceptedMisses.ps1`.
 
 Follow-up instrumentation on 2026-06-25 moved the accepted-miss detail into the saved report JSON itself. `ProbeReportCompiler` now writes `diagnostics.lower_level_fail_span_count`, `diagnostics.lower_level_fail_spans`, and per-verdict `failed_span_count` / `span_details` fields under `user://identity_reports/<unit>.json`. A fresh MCP `RoleMatrixSmoke` rerun again completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`.
 
@@ -180,6 +180,7 @@ Aggregate result:
 - The log-level parser found 130 lower-level `-> FAIL` spans accepted by aggregate verdicts, but that includes opponent-side aggregate/control spans that are still printed in raw metric output.
 - The saved report JSON now records the subject-side backlog directly: 85 lower-level fail spans, split as 22 role spans, 45 approach spans, and 18 goal spans. Future accepted-miss audits should prefer this JSON field over parsing console text or `godot.log`.
 - 21 of 22 current units have at least one subject-side accepted lower-level fail span in saved reports. Cashmere is clean at role identity level while still logging `goal_pick_burst_kill_count 0.00 < 1.00`.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1` now exports the ignored audit CSV and summary from `user://identity_reports/*.json`, keeping the saved artifact aligned with the subject-side report semantics instead of stale raw console counts.
 - Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
