@@ -32,6 +32,9 @@ const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 const START_BATTLE_TEXT: String = "Start Battle"
 const START_FORCED_FIGHT_TEXT: String = "Start Forced Fight"
 const BATTLE_LOCKED_TEXT: String = "Combat Resolving..."
+const RESOLVING_PROGRESS_DELAY_SECONDS: float = 3.0
+const RESOLVING_STUCK_WARNING_SECONDS: int = 10
+const RESOLVING_FALLBACK_TEXT: String = "Resolving fallback..."
 
 # Parent scene (CombatView)
 var parent: Control
@@ -106,6 +109,10 @@ var _shop_grid_updated_cb: Callable = Callable()
 var _first_deploy_assist_active: bool = false
 var _first_deploy_assist_seen: bool = false
 var _first_deploy_team_size: int = 0
+var _combat_resolving_active: bool = false
+var _combat_resolving_elapsed: float = 0.0
+var _combat_resolving_last_second: int = -1
+var _combat_resolving_watchdog_seen: bool = false
 
 const FIRST_DEPLOY_TIMER_EXTENSION: float = 20.0
 
@@ -146,6 +153,7 @@ func teardown() -> void:
 		return
 	_teardown_done = true
 	_auto_loop_running = false
+	_end_combat_resolving_feedback()
 	_disconnect_controller_signals()
 	if Engine.has_singleton("Shop"):
 		if Shop.has_method("set_board_team_provider"):
@@ -537,12 +545,14 @@ func _apply_grid_dimensions(tile: int) -> void:
 func process(_delta: float) -> void:
 	if arena_container and arena_container.visible:
 		_sync_arena_units()
+	_update_combat_resolving_feedback(_delta)
 
 func _init_game() -> void:
 	clear_log()
 	_first_deploy_assist_active = false
 	_first_deploy_assist_seen = false
 	_first_deploy_team_size = 0
+	_end_combat_resolving_feedback()
 	if continue_button:
 		continue_button.disabled = false
 		continue_button.visible = true
@@ -705,7 +715,7 @@ func _on_continue_pressed() -> void:
 			return
 		Trace.step("Economy bet accepted")
 		continue_button.disabled = true
-		continue_button.text = BATTLE_LOCKED_TEXT
+		_begin_combat_resolving_feedback()
 		if economy_ui:
 			economy_ui.set_bet_editable(false)
 		if manager.player_team.is_empty():
@@ -773,6 +783,7 @@ func _on_continue_pressed() -> void:
 			print("[CombatView] Place a bet > 0 to continue")
 		return
 	continue_button.disabled = true
+	_begin_combat_resolving_feedback()
 	if attack_button:
 		attack_button.disabled = false
 	if economy_ui:
@@ -1097,6 +1108,8 @@ func _on_unit_selected(u: Unit) -> void:
 func _on_log_line(text: String) -> void:
 	if Debug.enabled:
 		print(text)
+	if _is_combat_watchdog_log(text):
+		_mark_combat_resolving_fallback()
 	if log_label:
 		log_label.append_text(text + "\n")
 		log_label.scroll_to_line(log_label.get_line_count() - 1)
@@ -1180,6 +1193,7 @@ func _refresh_stats() -> void:
 func _on_victory(_stage: int) -> void:
 	if attack_button:
 		attack_button.disabled = true
+	_end_combat_resolving_feedback()
 	_post_combat_outcome = "victory"
 	_auto_loop_running = false
 	_start_intermission(2.0)
@@ -1187,6 +1201,7 @@ func _on_victory(_stage: int) -> void:
 func _on_defeat(_stage: int) -> void:
 	if attack_button:
 		attack_button.disabled = true
+	_end_combat_resolving_feedback()
 	_post_combat_outcome = "defeat"
 	_start_intermission(2.0)
 	_auto_loop_running = false
@@ -1452,7 +1467,52 @@ func _is_continue_start_text() -> bool:
 func _set_continue_to_start_text() -> void:
 	if continue_button == null:
 		return
+	_end_combat_resolving_feedback()
 	continue_button.text = START_FORCED_FIGHT_TEXT if _is_forced_first_fight() else START_BATTLE_TEXT
+
+func _begin_combat_resolving_feedback() -> void:
+	_combat_resolving_active = true
+	_combat_resolving_elapsed = 0.0
+	_combat_resolving_last_second = -1
+	_combat_resolving_watchdog_seen = false
+	if continue_button != null:
+		continue_button.text = BATTLE_LOCKED_TEXT
+
+func _end_combat_resolving_feedback() -> void:
+	_combat_resolving_active = false
+	_combat_resolving_elapsed = 0.0
+	_combat_resolving_last_second = -1
+	_combat_resolving_watchdog_seen = false
+
+func _update_combat_resolving_feedback(delta: float) -> void:
+	if not _combat_resolving_active:
+		return
+	if _combat_resolving_watchdog_seen:
+		return
+	if continue_button == null:
+		return
+	_combat_resolving_elapsed += max(0.0, float(delta))
+	if _combat_resolving_elapsed < RESOLVING_PROGRESS_DELAY_SECONDS:
+		return
+	var elapsed_seconds: int = int(floor(_combat_resolving_elapsed))
+	if elapsed_seconds == _combat_resolving_last_second:
+		return
+	_combat_resolving_last_second = elapsed_seconds
+	if elapsed_seconds >= RESOLVING_STUCK_WARNING_SECONDS:
+		continue_button.text = "Still resolving %ds..." % elapsed_seconds
+	else:
+		continue_button.text = "Resolving %ds..." % elapsed_seconds
+
+func _mark_combat_resolving_fallback() -> void:
+	if not _combat_resolving_active:
+		return
+	_combat_resolving_watchdog_seen = true
+	if continue_button != null:
+		continue_button.text = RESOLVING_FALLBACK_TEXT
+
+func _is_combat_watchdog_log(text: String) -> bool:
+	var message: String = String(text)
+	return message.begins_with("Combat timeout:") or message.begins_with("Combat no-progress timeout:")
 
 func _is_forced_first_fight() -> bool:
 	var has_game_state: bool = Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))
