@@ -114,6 +114,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/FrontlineBodyBlockGoalProbe.tscn`
   - Directly drives `CombatEngine.damage_redirected` and `redirect_semantic_applied`; fails unless the real Brute `tank.frontline_absorb` goal consumes both direct body-block events and enough prevented damage, while event-only, damage-only, and weak-prevention controls fail.
 
+- Brute frontline damage-share accepted-miss probe
+  - Scene: `tests/rga_testing/validation/BruteFrontlineShareGoalProbe.tscn`
+  - Feeds the real Brute `tank.frontline_absorb` goal direct incoming-share evidence; fails unless the damage-taken-share span can pass, an aggregate prevention-plus-frontline-position control keeps the damage-share span failing while the goal passes, and a weak frontline control fails.
+
 - Zone exposure telemetry positive control
   - Scene: `tests/rga_testing/validation/ZoneExposureKernelProbe.tscn`
   - Directly drives `CombatEngine.zone_exposure_applied`; fails if source-owned zone/hazard exposure events, unique targets, duration, damage, radius, direct `approach_zone`, or direct `mage.area_denial_zone` goal consumption is missing.
@@ -242,6 +246,7 @@ Notes
 - `WomboComboGoalProbe.tscn` proves real Luna/Paisley `mage.wombo_combo_burst` goal rows can consume direct peak-share, multi-target, and CC-event evidence; it also preserves aggregate-pass controls where Luna passes without CC-sync and Paisley passes with a low peak-share span.
 - `MarksmanSustainedDpsGoalProbe.tscn` proves real Sari/Teller `marksman.sustained_dps` goal rows can consume direct team damage share, range/time-on-target, survival, and Sari ramp-state evidence; it also preserves aggregate-pass controls where Sari/Teller pass with low team damage share and Sari passes with a low ramp-stack span.
 - `FrontlineBodyBlockGoalProbe.tscn` proves real redirect-kernel telemetry can feed Brute's `tank.frontline_absorb` body-block event and prevented-damage spans, while event-only, damage-only, and weak-prevention controls fail; current Brute/Repo body-block rows are live body-block scenario/tuning debt rather than missing metric support.
+- `BruteFrontlineShareGoalProbe.tscn` proves Brute's `tank.frontline_absorb` damage-taken-share span can pass from direct incoming-share evidence; it also preserves an aggregate-pass control where prevention plus frontline presence pass the goal while `goal_frontline_absorb_damage_taken_share` remains below target.
 - `TeamFortificationBuffGoalProbe.tscn` proves source-owned `buff_applied` telemetry can feed Kythera's `tank.team_fortification` ally-buff span, while an aggregate EHP/prevention pass still preserves the failed buff span when no ally buff is present; the current Kythera buff-uptime row is live fortification-context debt rather than missing metric support.
 - `SkirmishDiveBacklineGoalProbe.tscn` proves per-unit hit attribution can feed Bo's `brawler.skirmish_dive` backline-contact span through `damage_to_frontline_pct`, while an all-frontline damage control fails; the current Bo dive-contact row is live backline-access scenario debt rather than missing metric support.
 - `amp` now exposes direct output-delta/events/beneficiary spans when `amp_output_applied` telemetry is present, with `AmpOutputKernelProbe.tscn` as the positive control. Latest live Axiom proves team amplification through source-attributed Pupil output lift, and latest live Totem proves the support peel-carry path through source-attributed ally shield, real debuff removal, CC-immunity, amp, and downstream output evidence; `TotemCleanseLiveProbe.tscn` guards the explicit debuffed-carry cleanse path.
