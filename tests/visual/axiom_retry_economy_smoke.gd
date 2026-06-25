@@ -2,6 +2,7 @@ extends "res://tests/visual/actual_run_loop_smoke.gd"
 
 const SMOKE_NAME: String = "AxiomRetryEconomySmoke"
 const RETRY_TIMEOUT_SECONDS: float = 30.0
+const RETRY_FIGHT_TIMEOUT_SECONDS: float = 35.0
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
@@ -65,6 +66,15 @@ func _run() -> void:
 	await _settle_frames(4)
 	_expect(_player_team_size() >= 2, "Axiom retry board did not widen after helper deployment")
 	_expect(not _first_deploy_bench_highlight_visible(), "Axiom retry bench highlight did not clear after deployment")
+	if _finish_if_failed():
+		return
+
+	await _press_continue(false, "Axiom retry fight")
+	var retry_fight_resolved: bool = await _wait_for_preview_or_loss(RETRY_FIGHT_TIMEOUT_SECONDS)
+	_expect(retry_fight_resolved, "Axiom retry fight did not resolve")
+	_expect(get_tree().root.get_node_or_null("LossOverlayLayer") == null, "Axiom retry fight should not end in a loss overlay")
+	_expect(int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) >= 2, "Axiom retry fight should progress to Chapter 1 Stage 2")
+	_expect(Shop.state != null and Shop.state.offers.size() == int(SHOP_CONFIG.SLOT_COUNT), "Axiom retry fight should return to a full planning shop")
 	_finish()
 
 func _wait_for_retry_shop(timeout_seconds: float) -> bool:
