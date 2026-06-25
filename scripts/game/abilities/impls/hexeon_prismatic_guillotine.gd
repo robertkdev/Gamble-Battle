@@ -45,19 +45,31 @@ func _strike(ctx: AbilityContext, target_idx: int, power_scale: float) -> Dictio
     var li: int = _level_index(caster)
     var kalei: int = _stack(bs, ctx.state, ctx.caster_team, ctx.caster_index, KALEI_KEY)
     var execs: int = _stack(bs, ctx.state, ctx.caster_team, ctx.caster_index, EXEC_KEY)
+    var target_team: String = ctx._other_team(ctx.caster_team)
+    var threshold: float = _exec_threshold(execs)
+    var target_before: Unit = ctx.unit_at(target_team, target_idx)
+    if target_before != null and target_before.is_alive():
+        var before_hp_pct: float = float(target_before.hp) / max(1.0, float(target_before.max_hp))
+        if before_hp_pct <= threshold:
+            var execute_damage: float = float(target_before.hp)
+            var execute_res: Dictionary = {}
+            if execute_damage > 0.0:
+                ctx.emit_execute_bonus(target_team, target_idx, 0.0, execute_damage, threshold, before_hp_pct, "hexeon_prismatic_guillotine")
+                execute_res = ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, execute_damage, "true")
+            execute_res["executed"] = true
+            return execute_res
     var dmg_f: float = float(BASE[li]) + SP_MULT * float(caster.spell_power) + 12.0 * float(max(0, kalei))
     dmg_f = max(0.0, dmg_f * max(0.0, power_scale))
     var res: Dictionary = ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, dmg_f, "magic")
     var base_dealt: float = float(res.get("dealt", dmg_f))
     # Execute check (post-hit HP%)
-    var target_team: String = ctx._other_team(ctx.caster_team)
     var tgt: Unit = ctx.unit_at(target_team, target_idx)
     if tgt != null and tgt.is_alive():
         var hp_pct: float = float(tgt.hp) / max(1.0, float(tgt.max_hp))
-        if hp_pct <= _exec_threshold(execs):
+        if hp_pct <= threshold:
             var to_kill: float = float(tgt.hp)
             if to_kill > 0.0:
-                ctx.emit_execute_bonus(target_team, target_idx, base_dealt, to_kill, _exec_threshold(execs), hp_pct, "hexeon_prismatic_guillotine")
+                ctx.emit_execute_bonus(target_team, target_idx, base_dealt, to_kill, threshold, hp_pct, "hexeon_prismatic_guillotine")
                 ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, to_kill, "true")
             res["executed"] = true
     else:

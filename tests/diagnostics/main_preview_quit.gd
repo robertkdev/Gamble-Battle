@@ -16,7 +16,7 @@ func _run() -> void:
 	await _settle_frames(4)
 
 	await _ensure_unit_select()
-	await _select_starter("paisley")
+	await _select_starter("axiom")
 	await _settle_frames(4)
 	_expect(_node_visible("CombatView"), "combat view did not open")
 	_finish()

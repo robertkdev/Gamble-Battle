@@ -11,4 +11,6 @@ sprite_path = "res://assets/units/brute.png"
 ability_id = "brute_slam"
 traits = Array[String](["Titan", "Fortified"])
 roles = Array[String](["tank"])
+cost = 1
+level = 1
 identity = ExtResource("2")

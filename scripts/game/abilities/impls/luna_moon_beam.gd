@@ -6,7 +6,7 @@ extends AbilityImplBase
 
 const LINE_LEN_TILES := 6.0
 const LINE_WIDTH_TILES := 0.5
-const BASE_BY_LEVEL := [170, 255, 380]
+const BASE_BY_LEVEL := [260, 390, 580]
 const SP_MULT := 0.75
 
 func _level_index(u: Unit) -> int:
@@ -50,4 +50,3 @@ func cast(ctx: AbilityContext) -> bool:
 
     ctx.log("Moon Beam: hit %d for %d magic" % [hits.size(), dmg])
     return true
-

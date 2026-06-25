@@ -8,5 +8,4 @@ id = "morrak_reaping_line"
 name = "Reaping Line"
 description = "Cleaves in a line for heavy physical damage scaling with AD and stacks; executes enemies under a threshold and briefly gains defenses."
 base_cost = 60
-tags = ["damage", "execute", "buff"]
-
+tags = ["damage", "execute", "aoe", "line", "buff"]

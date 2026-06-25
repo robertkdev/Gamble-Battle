@@ -24,19 +24,19 @@ Key Constants
 - `DEFAULT_ROLL_LEVEL`: fallback for undefined levels.
 
 Odds & Costs (Initial)
-- Costs present: 1-cost (most units), 3-cost (few units).
+- Costs present: 1-cost foundations, 2-cost premium kits, and 3-cost capstones.
 - Reroll cost: 2g; Buy XP: 4g for +4 XP.
-- Odds by level (minimal for current content):
+- Odds by level:
   - L1: 100% 1-cost
-  - L2: 95% 1-cost, 5% 3-cost
-  - L3: 90% 1-cost, 10% 3-cost
-  - L4: 85% 1-cost, 15% 3-cost
-  - L5: 80% 1-cost, 20% 3-cost
-  - L6: 75% 1-cost, 25% 3-cost
+  - L2: 80% 1-cost, 20% 2-cost
+  - L3: 65% 1-cost, 30% 2-cost, 5% 3-cost
+  - L4: 50% 1-cost, 40% 2-cost, 10% 3-cost
+  - L5: 40% 1-cost, 45% 2-cost, 15% 3-cost
+  - L6: 30% 1-cost, 50% 2-cost, 20% 3-cost
 
 Minimal Odds (Initial Content)
-- Project currently contains mostly 1-cost units with a few 3-cost.
-- `ODDS_BY_LEVEL` reflects that; extend as additional cost tiers (2/4/5) are added.
+- Project currently contains mostly 1-cost and 2-cost units with a small capstone tier.
+- `ODDS_BY_LEVEL` reflects that; extend as additional cost tiers (4/5) are added.
 
 Change Guidelines
 - DRY/KISS: change values here; avoid scattering numbers in code.

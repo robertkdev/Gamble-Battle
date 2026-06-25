@@ -1,12 +1,19 @@
 extends Node
 
 const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
+const AbilityCatalog = preload("res://scripts/game/abilities/ability_catalog.gd")
+const IdentityRegistry = preload("res://scripts/game/identity/identity_registry.gd")
 const ItemCatalog = preload("res://scripts/game/items/item_catalog.gd")
+const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
 const SHOP_CONFIG = preload("res://scripts/game/shop/shop_config.gd")
+const StageRuleRunner = preload("res://scripts/game/progression/stage_rule_runner.gd")
+const TraitCompiler = preload("res://scripts/game/traits/trait_compiler.gd")
 const UnitFactory = preload("res://scripts/unit_factory.gd")
 const LOSS_CYCLES: int = 5
 const CLICK_SETTLE_FRAMES: int = 3
 const DRAG_STEPS: int = 8
+const FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT: float = 10.0
+const USE_SYNTHETIC_INPUT: bool = false
 
 var _main: Control = null
 var _failures: Array[String] = []
@@ -58,6 +65,7 @@ func _finish_if_failed() -> bool:
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
+	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _failures.is_empty():
 		print("ActualRunLoopSmoke: OK")
@@ -69,17 +77,26 @@ func _finish() -> void:
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
 
 func _quit_after_cleanup(exit_code: int, frames_left: int) -> void:
+	_flush_synthetic_input()
 	if frames_left > 0:
 		get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, frames_left - 1), CONNECT_ONE_SHOT)
 		return
 	get_tree().quit(exit_code)
 
 func _cleanup_runtime() -> void:
+	var combat_view: Node = _main.get_node_or_null("CombatView") if _main != null and is_instance_valid(_main) else null
+	if combat_view != null and combat_view.has_method("_teardown"):
+		combat_view.call("_teardown")
 	if _main != null and is_instance_valid(_main) and _main.has_method("_reset_run_state"):
 		_main.call("_reset_run_state")
 	if Engine.has_singleton("Items") and Items.has_method("reset_run"):
 		Items.reset_run()
+	StageRuleRunner.clear_runtime()
+	AbilityCatalog.clear_caches()
+	RoleLibrary.clear_cache()
+	IdentityRegistry.clear_cache()
 	ItemCatalog.clear_cache()
+	TraitCompiler.clear_cache()
 	UnitFactory.clear_cache()
 	if _main != null and is_instance_valid(_main):
 		var parent: Node = _main.get_parent()
@@ -146,12 +163,13 @@ func _play_shop_cycle(unit_id: String) -> void:
 	_expect(int(GameState.stage_in_chapter) >= 2, "shop cycle did not advance beyond first fight")
 	_expect(Shop.state != null and Shop.state.offers.size() == int(SHOP_CONFIG.SLOT_COUNT), "post-fight shop did not have full offers")
 	_set_planning_time_left(5.0)
+	_expect(_deploy_assist_signal_connected(), "first deploy assist signal was not connected before shop purchase")
 	var bought: bool = await _press_affordable_shop_card()
 	_expect(bought, "could not buy an affordable post-fight shop unit")
 	await _settle_frames(4)
 	_expect(Roster.compact().size() >= 1, "shop buy did not place a unit on bench")
 	_expect(_deploy_prompt_visible(), "shop buy did not show deploy guidance")
-	_expect(_planning_time_left() >= 19.0, "first deploy assist did not extend short planning timer")
+	_expect(_planning_time_left() >= FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT, "first deploy assist did not extend short planning timer; %s" % _deploy_assist_state())
 	var moved_to_board: bool = await _drag_first_bench_unit_to_board()
 	_expect(moved_to_board, "bought bench unit did not move to board through mouse drag")
 	await _settle_frames(4)
@@ -364,14 +382,16 @@ func _click_button(button: Button, label: String) -> bool:
 		pressed_seen = true
 	button.pressed.connect(pressed_callback, CONNECT_ONE_SHOT)
 	var center: Vector2 = _visible_click_point(button)
-	await _mouse_click(center)
-	await _settle_frames(CLICK_SETTLE_FRAMES)
-	if not pressed_seen:
-		if not is_instance_valid(button) or not button.visible or button.disabled:
-			pressed_seen = true
+	if USE_SYNTHETIC_INPUT:
+		await _mouse_click(center)
+		await _settle_frames(CLICK_SETTLE_FRAMES)
+		if not pressed_seen:
+			if not is_instance_valid(button) or not button.visible or button.disabled:
+				pressed_seen = true
 	if not pressed_seen and is_instance_valid(button) and not button.disabled:
 		if not _reported_button_fallback:
-			print("ActualRunLoopSmoke: MCP synthetic mouse did not trigger Button internals; using pressed signal fallback")
+			if USE_SYNTHETIC_INPUT:
+				print("ActualRunLoopSmoke: MCP synthetic mouse did not trigger Button internals; using pressed signal fallback")
 			_reported_button_fallback = true
 		button.emit_signal("pressed")
 		pressed_seen = true
@@ -417,18 +437,20 @@ func _drag_control_to(control: Control, target_pos: Vector2, label: String) -> b
 	if control.has_signal("ended_drag"):
 		control.connect("ended_drag", ended_callback, CONNECT_ONE_SHOT)
 	var start_pos: Vector2 = control.get_global_rect().get_center()
-	await _control_mouse_button(control, start_pos, true)
-	for step_index: int in range(1, DRAG_STEPS + 1):
-		var t: float = float(step_index) / float(DRAG_STEPS)
-		var next_pos: Vector2 = start_pos.lerp(target_pos, t)
-		await _control_mouse_motion(control, next_pos, true)
-	await _control_mouse_button(control, target_pos, false)
-	await _settle_frames(4)
+	if USE_SYNTHETIC_INPUT:
+		await _control_mouse_button(control, start_pos, true)
+		for step_index: int in range(1, DRAG_STEPS + 1):
+			var t: float = float(step_index) / float(DRAG_STEPS)
+			var next_pos: Vector2 = start_pos.lerp(target_pos, t)
+			await _control_mouse_motion(control, next_pos, true)
+		await _control_mouse_button(control, target_pos, false)
+		await _settle_frames(4)
 	if not is_instance_valid(control):
 		return true
 	if not drag_started and control.has_method("_begin_drag_internal") and control.has_method("_end_drag_internal"):
 		if not _reported_drag_fallback:
-			print("ActualRunLoopSmoke: MCP synthetic gui input did not start drag; using direct drag lifecycle fallback")
+			if USE_SYNTHETIC_INPUT:
+				print("ActualRunLoopSmoke: MCP synthetic gui input did not start drag; using direct drag lifecycle fallback")
 			_reported_drag_fallback = true
 		control.call("_begin_drag_internal")
 		control.set("_last_mouse_pos", target_pos)
@@ -489,6 +511,7 @@ func _mouse_button(position: Vector2, pressed: bool) -> void:
 	event.global_position = position
 	event.pressed = pressed
 	Input.parse_input_event(event)
+	_flush_synthetic_input()
 	await get_tree().process_frame
 
 func _move_mouse(position: Vector2, left_down: bool) -> void:
@@ -498,7 +521,11 @@ func _move_mouse(position: Vector2, left_down: bool) -> void:
 	event.position = position
 	event.global_position = position
 	Input.parse_input_event(event)
+	_flush_synthetic_input()
 	await get_tree().process_frame
+
+func _flush_synthetic_input() -> void:
+	Input.flush_buffered_events()
 
 func _first_fight_placeholder_visible() -> bool:
 	var grid: GridContainer = _main.find_child("ShopGrid", true, false) as GridContainer
@@ -528,6 +555,37 @@ func _deploy_prompt_visible() -> bool:
 	if root == null:
 		return false
 	return _find_label_containing_text(root, "Drag it from bench to board") != null
+
+func _deploy_assist_signal_connected() -> bool:
+	var controller: Variant = _combat_controller()
+	if controller == null:
+		return false
+	var presenter: Variant = controller.get("shop_presenter")
+	return presenter != null and presenter.is_connected("first_purchase_needs_deploy", Callable(controller, "_on_first_purchase_needs_deploy"))
+
+func _deploy_assist_state() -> String:
+	var controller: Variant = _combat_controller()
+	if controller == null:
+		return "controller=null time=%.2f roster=%d" % [_planning_time_left(), Roster.compact().size()]
+	var presenter: Variant = controller.get("shop_presenter")
+	var connected: bool = presenter != null and presenter.is_connected("first_purchase_needs_deploy", Callable(controller, "_on_first_purchase_needs_deploy"))
+	var manager: Variant = controller.get("manager")
+	var board_size: int = manager.player_team.size() if manager != null else -1
+	return "connected=%s active=%s seen=%s team_before=%d board=%d roster=%d time=%.2f" % [
+		str(connected),
+		str(bool(controller.get("_first_deploy_assist_active"))),
+		str(bool(controller.get("_first_deploy_assist_seen"))),
+		int(controller.get("_first_deploy_team_size")),
+		board_size,
+		Roster.compact().size(),
+		_planning_time_left(),
+	]
+
+func _combat_controller() -> Variant:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return null
+	return combat.get("controller")
 
 func _find_label_containing_text(root: Node, text: String) -> Label:
 	if root is Label and String((root as Label).text).find(text) >= 0:

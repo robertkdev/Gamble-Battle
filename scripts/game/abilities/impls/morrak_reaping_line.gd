@@ -9,7 +9,7 @@ extends AbilityImplBase
 
 const BUFF_DURATION := 3.0
 const LINE_LENGTH_TILES := 4.0
-const LINE_WIDTH_TILES := 0.6
+const LINE_WIDTH_TILES := 1.1
 
 const BASE_BY_LEVEL := [110, 165, 250]
 const BUFF_BY_LEVEL := [25, 35, 45] # Armor/MR

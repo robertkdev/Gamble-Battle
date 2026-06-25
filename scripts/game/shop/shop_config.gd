@@ -35,15 +35,15 @@ const CLEAR_LOCK_ON_REROLL := true                # Any manual reroll clears loc
 const CLEAR_LOCK_ON_NEW_RUN := true               # Starting a new run clears lock
 
 # Minimal roll odds by player level. Probabilities per cost tier sum to 1.0.
-# Current content mostly has 1-cost units with some 3-cost; extend as new costs are added.
-const VALID_COSTS := [1, 3]
+# Current content spans 1-cost foundations, 2-cost premium kits, and 3-cost capstones.
+const VALID_COSTS := [1, 2, 3]
 const ODDS_BY_LEVEL := {
     1: {1: 1.00},
-    2: {1: 0.95, 3: 0.05},
-    3: {1: 0.90, 3: 0.10},
-    4: {1: 0.85, 3: 0.15},
-    5: {1: 0.80, 3: 0.20},
-    6: {1: 0.75, 3: 0.25},
+    2: {1: 0.80, 2: 0.20},
+    3: {1: 0.65, 2: 0.30, 3: 0.05},
+    4: {1: 0.50, 2: 0.40, 3: 0.10},
+    5: {1: 0.40, 2: 0.45, 3: 0.15},
+    6: {1: 0.30, 2: 0.50, 3: 0.20},
 }
 
 # Fallback behavior for undefined levels (e.g., clamp to last defined)

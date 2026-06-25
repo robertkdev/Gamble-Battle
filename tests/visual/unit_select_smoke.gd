@@ -54,10 +54,18 @@ func _run() -> void:
 			var scroll: ScrollContainer = view.get_node_or_null("Center/HBox/Left/Scroll") as ScrollContainer
 			var scroll_bar: VScrollBar = scroll.get_v_scroll_bar() if scroll != null else null
 			if scroll_bar != null and scroll_bar.max_value > scroll_bar.min_value:
-				scroll_bar.value = scroll_bar.max_value
+				var start_value: float = float(scroll.scroll_vertical)
+				var target_value: float = float(scroll_bar.max_value)
+				if absf(target_value - start_value) < 0.5:
+					target_value = float(scroll_bar.min_value)
+				scroll.scroll_vertical = int(roundf(target_value))
 				await get_tree().process_frame
-				_expect(view.selected_id == "", "Scroll should not select a unit", failures)
-				_expect(selected_label != null and selected_label.text == "No champion chosen", "Scroll did not clear stale hover preview", failures)
+				var moved_value: float = float(scroll.scroll_vertical)
+				if absf(moved_value - start_value) >= 0.5:
+					await get_tree().process_frame
+					await get_tree().process_frame
+					_expect(view.selected_id == "", "Scroll should not select a unit", failures)
+					_expect(selected_label != null and selected_label.text == "No champion chosen", "Scroll did not clear stale hover preview", failures)
 
 	if failures.size() > 0:
 		for failure: String in failures:

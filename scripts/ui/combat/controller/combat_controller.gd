@@ -258,7 +258,7 @@ func _disconnect_controller_signals() -> void:
 		bet_slider.value_changed.disconnect(_on_bet_changed)
 	if shop_presenter != null and shop_presenter.is_connected("promotions_emitted", Callable(self, "_on_promotions_emitted")):
 		shop_presenter.promotions_emitted.disconnect(_on_promotions_emitted)
-	if shop_presenter != null and shop_presenter.has_signal("first_purchase_needs_deploy") and shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
+	if shop_presenter != null and shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
 		shop_presenter.first_purchase_needs_deploy.disconnect(_on_first_purchase_needs_deploy)
 	if shop_presenter != null and _shop_grid_updated_cb.is_valid() and shop_presenter.is_connected("grid_updated", _shop_grid_updated_cb):
 		shop_presenter.grid_updated.disconnect(_shop_grid_updated_cb)
@@ -430,7 +430,7 @@ func initialize() -> void:
 		# Listen for combine promotions to play level-up effects on bench/board
 		if not shop_presenter.is_connected("promotions_emitted", Callable(self, "_on_promotions_emitted")):
 			shop_presenter.promotions_emitted.connect(_on_promotions_emitted)
-		if shop_presenter.has_signal("first_purchase_needs_deploy") and not shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
+		if not shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
 			shop_presenter.first_purchase_needs_deploy.connect(_on_first_purchase_needs_deploy)
 		# Provide board-aware combine hooks to Shop/Transactions so bench+board triples upgrade.
 		if Engine.has_singleton("Shop"):

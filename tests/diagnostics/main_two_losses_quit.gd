@@ -16,9 +16,9 @@ func _run() -> void:
 	add_child(_main)
 	await _settle_frames(4)
 
-	await _play_loss_cycle("paisley", 1)
+	await _play_loss_cycle("axiom", 1)
 	if _failures.is_empty():
-		await _play_loss_cycle("paisley", 2)
+		await _play_loss_cycle("axiom", 2)
 	_finish()
 
 func _play_loss_cycle(unit_id: String, cycle_index: int) -> void:

@@ -43,6 +43,7 @@ var _start_button_hover_tween: Tween = null
 var _left_plate: Panel = null
 var _right_plate: Panel = null
 var _preview_art_plate: Panel = null
+var _last_scroll_bar_value: float = 0.0
 
 func _ready() -> void:
 	_ensure_preview_panel()
@@ -53,13 +54,33 @@ func _ready() -> void:
 		help_label.visible = true
 	if not start_button.is_connected("pressed", Callable(self, "_on_StartButton_pressed")):
 		start_button.pressed.connect(_on_StartButton_pressed)
-	if scroll != null:
-		var scroll_bar: VScrollBar = scroll.get_v_scroll_bar()
-		if scroll_bar != null and not scroll_bar.is_connected("value_changed", Callable(self, "_on_scroll_changed")):
-			scroll_bar.value_changed.connect(_on_scroll_changed)
+	_wire_scroll_observers()
+	set_process(true)
 	resized.connect(_on_resized)
 	_populate_units()
 	_on_resized()
+
+func _process(_delta: float) -> void:
+	if scroll == null:
+		return
+	var scroll_bar: VScrollBar = scroll.get_v_scroll_bar()
+	if scroll_bar == null:
+		return
+	var current_value: float = float(scroll_bar.value)
+	if absf(current_value - _last_scroll_bar_value) < 0.5:
+		return
+	_last_scroll_bar_value = current_value
+	_clear_hover_for_scroll()
+
+func _wire_scroll_observers() -> void:
+	if scroll == null:
+		return
+	var scroll_bar: VScrollBar = scroll.get_v_scroll_bar()
+	if scroll_bar == null:
+		return
+	_last_scroll_bar_value = float(scroll_bar.value)
+	if not scroll_bar.is_connected("value_changed", Callable(self, "_on_scroll_changed")):
+		scroll_bar.value_changed.connect(_on_scroll_changed)
 
 func _ensure_preview_panel() -> void:
 	var right: VBoxContainer = $"Center/HBox/Right"
@@ -423,6 +444,10 @@ func _on_unit_unhovered() -> void:
 	_clear_preview()
 
 func _on_scroll_changed(_value: float) -> void:
+	_last_scroll_bar_value = float(_value)
+	_clear_hover_for_scroll()
+
+func _clear_hover_for_scroll() -> void:
 	if _hovered_id != "":
 		_apply_unit_button_motion(_hovered_id, false)
 		_hovered_id = ""

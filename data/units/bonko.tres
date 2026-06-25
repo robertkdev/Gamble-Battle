@@ -11,4 +11,6 @@ sprite_path = "res://assets/units/bonko.png"
 ability_id = "bonko_bonk"
 traits = Array[String](["Cartel", "Chronomancer"])
 roles = Array[String](["brawler"])
+cost = 1
+level = 1
 identity = ExtResource( 2 )
