@@ -18,6 +18,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Fresh live cost-2 Buy XP/deploy attempt screenshots and notes: `outputs/audit_playtest/live_cost2_recheck_2026_06_25/`
 - Live-window fallback diagnostics: `outputs/audit_playtest/window_capture_2026_06_25/`
 - Debug audit QA exports: `user://audit_exports/audit_state_*.json`; `F8` opens the debug-only in-game Audit QA panel for state export, screenshot attempt, timer hold, restart, and speed controls.
+- Live Audit QA panel screenshot proof: `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`, `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`, and `user://audit_exports/audit_shot_1782371342_158480.png`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
 
@@ -60,7 +61,7 @@ Remaining audit gaps:
 - The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor and OS-window runs did. Remaining modal risk is visual polish only: the current defeat modal screenshot is refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, while the separate system menu overlay still dims the underlying game heavily. The earlier hidden enemy label and top-right Menu-behind-defeat conflicts are now covered by `LossScreenSmoke`, `ExitFlowSmoke`, and the current OS-window screenshot.
 - RoleMatrixSmoke passes all 22 units, but the fresh 2026-06-25 detail recheck found 130 accepted lower-level `FAIL` spans across all 22 current units. Role-report JSON is narrower: 21 of 22 reports still contain negative role deltas, with Cashmere clean only at the role-identity level.
 - Long manual play still has real-window fragility around mouse feel, but cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message. The debug Audit QA panel reduces the repeated-eval/session-capture dependency by moving state export, timer hold, restart, and speed controls into the running game.
-- A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive. The Audit QA screenshot control now skips safely with an explicit reason under dummy/headless renderers.
+- A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive. The Audit QA screenshot control skips safely with an explicit reason under dummy/headless renderers, and a 2026-06-25 real debug-window run verified the non-dummy save path by producing `user://audit_exports/audit_shot_1782371342_158480.png`.
 
 ## Current Audit Closure Matrix
 
@@ -79,7 +80,20 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` screenshot proves duplicate Berebell rows are readable but ambiguous. | Covered visually | Design decision needed: copy indicators, star/level labels, or aggregation. |
 | Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current real-window visual state. | Covered visually and behaviorally with caveats | Broader modal polish only if a future visual pass finds contrast, spacing, or system-menu dimming issues. |
 | RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; the 2026-06-25 accepted-miss parser found 130 accepted lower-level `FAIL` spans across all 22 units, plus negative role deltas in 21/22 reports. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
-| Tooling reliability | Multiple runs reproduced Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. `AuditPanelSmoke` now covers a debug-only in-game Audit QA panel for state export, screenshot status, timer hold, restart, and speed controls. | Mitigated for manual audits | Real non-dummy screenshot save should be rechecked in a live window; keep fallback OS screenshots for visual evidence when renderer/session capture is fragile. |
+| Tooling reliability | Multiple runs reproduced Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. `AuditPanelSmoke` covers a debug-only in-game Audit QA panel for state export, screenshot status, timer hold, restart, and speed controls. A real debug-window OS click on the panel's Screenshot button saved `user://audit_exports/audit_shot_1782371342_158480.png`; `02_after_screenshot_click.png` shows the panel confirming the save path. | Covered for in-game audit controls; Godot-AI helper remains fragile | Keep fallback OS screenshots for visual evidence when `_mcp_game_helper` does not register; continue using the panel for state/screenshot/timer control during manual audits. |
+
+## Current Audit QA Panel Live Screenshot Recheck
+
+Fresh real-window evidence was generated on 2026-06-25 from the running `Gamble Battle (DEBUG)` window after `godot-ai editor_screenshot(source="game")` failed with `_mcp_game_helper` registration timeout.
+
+Accepted files:
+- `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`: OS-window capture showing the debug-only Audit QA panel open over the title screen after pressing `F8`.
+- `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`: OS-window capture after clicking the panel's Screenshot button; the panel reports a saved path under `C:/Users/Flipm/AppData/Roaming/Godot/app_userdata/Gamble Battle/audit_exports/`.
+- `user://audit_exports/audit_shot_1782371342_158480.png`: the PNG written by the panel's own viewport screenshot path. It opens correctly and shows the title screen plus Audit QA panel.
+
+Result:
+- The panel's non-dummy screenshot save path is verified in a live debug window.
+- The remaining infrastructure caveat is not the panel; it is the Godot-AI game helper sometimes failing to register debugger capture/eval for the running game.
 
 ## Current RoleMatrix Accepted-Miss Recheck
 
