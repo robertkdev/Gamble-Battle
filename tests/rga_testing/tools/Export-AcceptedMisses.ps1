@@ -37,6 +37,15 @@ function Get-SpanTopic($Label) {
 	if ($text -match 'peel|cleanse|cc_immunity|cc_prevented|cc_sync|debuff_cleanse|tenacity|cooldown_trade') {
 		return "support_peel_cleanse_cc"
 	}
+	if ($text -match 'time_to_first_cc') {
+		return "engage_cc_timing"
+	}
+	if ($text -match 'a_first_frac') {
+		return "assassin_opening_presence"
+	}
+	if ($text -match 'team_fortification_buff_uptime') {
+		return "team_fortification_buff_uptime"
+	}
 	if ($text -match 'backline_share|team_share|sustained_z|team_damage_share|long_range_damage_share|pressure_without_exposure') {
 		return "marksman_damage_positioning"
 	}
@@ -46,7 +55,7 @@ function Get-SpanTopic($Label) {
 	if ($text -match 'frontline|body_block|redirect|taunt|engage') {
 		return "tank_redirect_frontline"
 	}
-	if ($text -match 'sustain|ehp_ratio') {
+	if ($text -match 'sustain(?!ed)|ehp_ratio') {
 		return "sustain_survival"
 	}
 	if ($text -match 'targets_hit|aoe|wombo') {
@@ -141,8 +150,11 @@ function Count-By($Rows, $PropertyName) {
 function Count-KeywordBuckets($Rows) {
 	$buckets = [ordered]@{
 		support_peel_cleanse_cc = 'peel|cleanse|cc_immunity|cc_prevented|cc_sync|debuff_cleanse|tenacity|cooldown_trade'
+		engage_cc_timing = 'time_to_first_cc'
+		assassin_opening_presence = 'a_first_frac'
+		team_fortification_buff_uptime = 'team_fortification_buff_uptime'
 		ramp_state = 'ramp'
-		sustain_survival = 'sustain|ehp_ratio'
+		sustain_survival = 'sustain(?!ed)|ehp_ratio'
 		marksman_damage_positioning = 'backline_share|team_share|sustained_z|team_damage_share|long_range_damage_share|pressure_without_exposure'
 		burst_execute_kill = 'burst|execute|kill|peak_1s'
 		tank_redirect_frontline = 'frontline|body_block|redirect|taunt|engage'
@@ -236,6 +248,9 @@ $supportPeelTriageCounts = Count-By $supportPeelRows "support_peel_triage"
 $supportPeelTriageSummary = ($supportPeelTriageCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
 $supportPeelGapKindCounts = Count-By $supportPeelRows "support_peel_gap_kind"
 $supportPeelGapKindSummary = ($supportPeelGapKindCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
+$primaryTopicCounts = Count-By $rows "topic"
+$primaryTopicSummary = ($primaryTopicCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
+$keywordBucketCounts = Count-KeywordBuckets $rows
 
 if (-not (Test-Path -LiteralPath $OutputDir)) {
 	New-Item -ItemType Directory -Path $OutputDir | Out-Null
@@ -257,8 +272,8 @@ $summary = [ordered]@{
 	units_with_any_lower_level_fail = $unitsWithRows
 	units_without_lower_level_fail = $unitsWithoutRows
 	block_type_counts = Count-By $rows "block_type"
-	primary_topic_counts = Count-By $rows "topic"
-	keyword_bucket_counts = Count-KeywordBuckets $rows
+	primary_topic_counts = $primaryTopicCounts
+	keyword_bucket_counts = $keywordBucketCounts
 	support_peel_triage_counts = $supportPeelTriageCounts
 	support_peel_gap_kind_counts = $supportPeelGapKindCounts
 	highest_unit_fail_counts = @($rows | Group-Object unit | Sort-Object -Property @{Expression="Count"; Descending=$true}, @{Expression="Name"; Descending=$false} | ForEach-Object {
@@ -281,6 +296,7 @@ $readme = @(
 	"- Units with at least one span: $($unitsWithRows.Count)",
 	"- Ramp spans: $rampFailCount",
 	"- Non-ramp goal-ramp spans: $nonRampGoalRampCount",
+	"- Primary topic counts: $primaryTopicSummary",
 	"- Support/peel triage: $supportPeelTriageSummary",
 	"- Support/peel gap kinds: $supportPeelGapKindSummary",
 	"",

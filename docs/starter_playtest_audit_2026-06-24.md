@@ -186,13 +186,15 @@ Aggregate result:
 - Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
-Recurring accepted-miss buckets from the refreshed subject-side report evidence:
+Recurring accepted-miss buckets from the refreshed subject-side report evidence, using the primary topic classification in `rga_accepted_misses_summary.json`:
 - Support/peel/cleanse/CC is still the largest bucket at 20 spans in the refreshed report diagnostics. Soft-peel identities no longer persist missing hard-peel cleanse/CC-immunity subspans unless their identity claims `support.peel_carry` or `cc_immunity`; Axiom and Paisley now remain only as team peel-save scenario attribution gaps. The new live counterplay rows remove Grint from the debuff/lockdown context group, but add fresh counterplay-delta evidence rows for remaining content/scenario tuning.
-- Ramp-state misses now account for 3 spans, all on ramp-tagged identities. The prior non-ramp attrition and marksman goal ramp misses were instrumentation noise, not product debt.
 - Marksman positioning and damage-share misses account for 10 spans. Sari, Teller, and Nyxa pass marksman while backline share, team share, subject sustained z, or subject team damage share remain below threshold.
-- Opponent-side aggregate noise is now filtered out of saved reports: `b_unit_pass_count` and `_b` suffix labels no longer appear in `diagnostics.lower_level_fail_spans`.
 - Tank/frontline semantics still have 9 direct redirect/body-block/taunt/frontline/engage misses plus related counterplay and cleanse-pressure misses. Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank through aggregate thresholds while direct body-block or redirect semantics are often absent.
-- Burst/execute/kill and AoE/wombo misses remain visible: 10 spans in burst/execute/kill and 7 in AoE/wombo. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
+- Burst/execute/kill accounts for 9 primary spans and AoE/wombo targeting accounts for 5 primary spans. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
+- Ramp-state misses now account for 3 spans, all on ramp-tagged identities. The prior non-ramp attrition and marksman goal ramp misses were instrumentation noise, not product debt; the export classifier also avoids treating `sustained_dps` as sustain/survival.
+- Sustain/survival accounts for 6 spans, mobility/reposition for 6, brawler direct attrition for 4, and magic share for 3.
+- The old residual `other` bucket is now explicit: engage/CC timing has 3 spans, assassin opening presence has 1 span, and team-fortification buff uptime has 1 span.
+- Opponent-side aggregate noise is now filtered out of saved reports: `b_unit_pass_count` and `_b` suffix labels no longer appear in `diagnostics.lower_level_fail_spans`.
 
 Support/peel/cleanse/CC bucket triage from the current saved report JSON:
 
