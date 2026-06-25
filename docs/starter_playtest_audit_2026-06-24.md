@@ -25,14 +25,14 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 
 ## Current Revalidation After Follow-Up Fixes
 
-Current branch snapshot: `4016944` (`Record rapid shop OS burst evidence`), with local branch `main` 13 commits ahead of `origin/main`.
+Current branch snapshot: `9b3f81c` (`Document Unit Select preview coverage`), with local branch `main` 18 commits ahead of `origin/main`.
 
 MCP validation run on 2026-06-24:
-- `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`
+- `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`; rerun on 2026-06-25 with `errors: []`
 - `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`
 - `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`; rerun on 2026-06-25 with `errors: []`
 - `tests/rga_testing/validation/UnitStatAudit.tscn`: `UnitStatAudit: OK`
-- `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`
+- `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`; rerun on 2026-06-25 with `errors: []`
 - `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`
 - `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`.
@@ -605,22 +605,26 @@ Key manual evidence captured in this continuation:
    - The current rapid rendered-card runner did not reproduce a battle lock: five same-frame shop-card presses stayed in preview, produced five bench units, and resolved the next fight. That lowers transaction-risk but does not eliminate live pointer/hit-target risk.
    - Better solution: separate combat-start from shop cards more strongly, increase vertical spacing, and add a clear confirmation/transition when combat starts.
 
-6. Bench-to-board deployment is mechanically required but not obvious enough under pressure.
+6. Bench-to-board deployment is mechanically required and now has first-purchase assist, but manual drag clarity still needs watching.
    - Existing shop docs and `tests/visual/actual_run_loop_smoke.gd` confirm shop purchases go to `BenchGrid`; bought units must then move from bench to board before they help.
    - Berebell's Vykos/Brute purchases succeeded, but the visual affordance was unclear and the player timer was nearly expired before I could confidently deploy them.
    - Bo's Round 2 shop offered `Grint`, `Luna`, `Totem`, `Bonko`, and `Mortem`. I attempted to buy Grint frontline plus Bonko/Mortem brawler pressure; only one visible purchase/deployment clearly landed before the run entered `Battle Locked`.
    - Grint's retry bought a backline damage unit from the shop, but a real mouse drag from the first bench slot to `TileP_16` did not move it. The bought unit remained selected on the bench and the right stats panel updated to that unit instead.
    - Korath's recovered run proved the intended drag can work after the later interaction fixes: a bought Berebell moved from the first bench slot to the board, then additional units were deployed in later rounds.
    - Current live Bonko recheck repeated the problem after the cost-tier pass: buying Brute from the Round 2 level-1 shop worked, but a first drag attempt left `board_ids` as `["bonko"]` and `bench_ids` as `["brute"]` with about 8 seconds left in planning.
-   - Better solution: after the first post-fight purchase, guide the player with a direct "Drag from bench to board" prompt, highlight legal board cells, and consider pausing/extending the timer for the first bench placement.
+   - Current branch mitigation: first post-fight purchase now shows `Bought <unit>. Drag it from bench to board.`, emits the first-deploy assist path, logs `Deploy <unit>: drag from bench to a highlighted board cell.`, highlights the player grid, and extends short planning time to 20 seconds.
+   - Fresh `ActualRunLoopSmoke` proves the prompt, signal connection, timer extension, bench placement, bench-to-board move, next fight resolution, and reset recovery with `errors: []`.
+   - Remaining UX risk: physical mouse drag/hit clarity can still feel fragile under real pressure, so future visual/manual passes should keep checking board-cell highlighting, bench flash, and drag affordance.
 
-7. Round 2 can stall in Battle Locked with no visible progress.
+7. Round 2 used to stall in Battle Locked with no visible progress; indefinite hangs are now guarded mechanically.
    - Bo reached Round 2 with 4 gold, showed a nonzero Round 1 scoreboard, then entered a battle-locked Round 2 state after the shop-buy attempt.
    - After 50 seconds, the screenshot still showed the same active-board state, `Battle Locked`, `Gold: 1`, `Bet: 1 (locked)`, and scoreboard Bo damage at 0.
    - Brute reproduced the stall from a cleaner external-screenshot run: Round 2 shop was `Luna`, `Teller`, `Teller`, `Bonko`, `Bo`; clicking Teller spent 1 gold, immediately battle-locked the run, overlapped a pink unit/effect on Brute, and after 50 seconds still showed `Battle Locked`, `Gold: 1`, and 0 scoreboard damage.
    - Cashmere reached Round 2 and then reproduced a battle-locked no-resolution state after the planning timer elapsed. The final capture still showed Stage 1 - Round 2/6, `Battle Locked`, and 0 Cashmere scoreboard damage.
    - `get_debug_output()` reported no script errors, while Godot-AI game logs still marked the run as active and showed repeated movement-vector lines. This looks like a combat progression/movement stall, not a clean defeat.
-   - Better solution: add a combat timeout/assertion and a visible fail state for no-damage/no-resolution battles so manual playtests cannot hang indefinitely.
+   - Current branch mitigation: `CombatEngine` has a 45-second absolute combat timeout and 12-second no-progress timeout, each forcing a result from the current board state.
+   - Fresh `CombatWatchdogSmoke` proves both timeout paths stop battle, emit the expected watchdog log line, and finish with `errors: []`.
+   - Remaining UX risk: the player-facing screen still mostly communicates `Combat Resolving...`; a later polish pass can add visible timeout/stuck-state feedback if a watchdog fires during manual play.
 
 8. Late-round Start Battle feedback is easy to misread.
    - Luna's Round 3 and Morrak's Round 5 both had moments where Start Battle appeared not to take immediately; a later capture showed the game had either entered `Battle Locked` or eventually resolved after a second click/wait.
@@ -678,10 +682,10 @@ Key manual evidence captured in this continuation:
    - The current rapid rendered-card runner now covers the same-frame transaction path and five direct drag-lifecycle deploys cleanly, so the remaining risk is visual/physical interaction clarity rather than known transaction corruption.
    - Better solution: make shop purchases transactional and loudly visible: bench flash, gold delta, purchase sound, disabled sold card, and clear "unit is on bench, deploy it" state.
 
-17. First-fight movement/edge cases can make viable starters look broken.
+17. First-fight movement/edge cases can make viable starters look broken, though no-progress hangs are now bounded.
    - Paisley, Totem, and Veyra all produced long first-fight waits or edge-position oddities before either resolving or continuing to Round 2.
    - Veyra's max-bet opener remained in `Battle Locked` across multiple waits, but the same starter reached Round 2 on a default-bet item retry.
-   - Better solution: add stuck-position recovery, no-progress combat timeout telemetry, and visible combat status so long fights do not masquerade as a frozen game.
+   - Current branch now has no-progress and absolute combat timeout telemetry. Remaining work is stuck-position recovery and clearer visible combat status if long fights still read as frozen.
 
 ## Supporting All-Starter Runner Results
 
@@ -756,12 +760,12 @@ Summary from supporting data:
 5. Increase spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
 6. Register or remove missing completed item dynamic effects before trusting item strategy.
 7. Preserve and extend the debug in-game Audit QA controls for manual playtests: state export, screenshot status, restart, timer hold, and speed controls that do not require fragile repeated Godot-AI eval calls.
-8. Add a first-purchase bench deployment tutorial or temporary planning-time extension so bought units are actually fielded in early manual runs.
-9. Add a combat no-progress timeout/debug readout for battles that stay locked without damage or resolution.
+8. Preserve first-purchase deploy assist: prompt text, highlighted board cells, and short-timer extension must stay covered so bought units are actually fielded in early manual runs.
+9. Preserve the combat no-progress and absolute-timeout watchdogs; add visible stuck-state/timeout feedback if manual play ever sees the watchdog fire.
 10. Add a short post-win pause or explicit "continue planning" beat; Korath advanced through a planning window while the auditor was waiting on fight resolution, which can cause missed shop decisions.
 11. Preserve the now-passing rapid rendered-card buy/deploy behavior and the audit-assisted real-window OS-coordinate burst result; broaden only if future natural full-run play exposes human-speed hit-target or feedback issues.
 12. Preserve the now-covered Unit Select scroll/focus behavior: scrolling away from a hovered starter should clear stale inspection copy instead of leaving the previous unit in the preview panel.
-13. Preserve and visually verify the current `Combat Resolving...` Start Battle transition in real-window play, and add a timeout if no combat progress occurs.
+13. Preserve and visually verify the current `Combat Resolving...` Start Battle transition in real-window play, with the watchdogs as the mechanical fallback if combat makes no progress.
 14. Preserve Buy XP transactional feedback: if the click is unaffordable, show the reserve-floor reason; if it succeeds, keep gold/level/XP labels repainting immediately and make any reroll/shop refresh rules visible.
 15. Preserve the now-fixed defeat modal ownership: the top-right system Menu hides, disables, and cannot open while the defeat overlay is active.
 16. Preserve the now-explicit player-only defeat scoreboard: keep enemy ledger rows out of the loss modal unless a future design pass intentionally adds an enemy-comparison section.
