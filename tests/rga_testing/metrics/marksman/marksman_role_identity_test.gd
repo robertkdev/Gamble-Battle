@@ -1,9 +1,9 @@
 extends RefCounted
 
 # Marksman Role Identity Test
-# Pass condition: 2-of-2
-#  - sustained DPS leader (z or multiplier) AND team_damage_share >= threshold
-#  - backline_zone_share >= threshold (fallback to ranged attack share when zones unavailable)
+# Pass condition: sustained DPS leader (z or multiplier) plus backline/ranged
+# positional presence. Team damage share is emitted as an auxiliary diagnostic,
+# not as a required role pass condition.
 
 const VERSION := "1.0.0"
 const METRIC_ID := "role_marksman_identity"

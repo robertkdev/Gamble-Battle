@@ -144,8 +144,14 @@ function Get-AuditGapKind($Topic, $Label) {
 	if ($text -match 'backline_share') {
 		return "backline_pressure_below_target"
 	}
+	if ($text -match 'goal_marksman_sustained_dps_team_damage_share') {
+		return "marksman_sustained_goal_damage_share_below_target"
+	}
+	if ($text -match 'subject_team_damage_share_med|team_share_med') {
+		return "marksman_role_damage_share_diagnostic_below_target"
+	}
 	if ($text -match 'team_damage_share|team_share') {
-		return "team_damage_share_below_target"
+		return "damage_share_below_target"
 	}
 	if ($text -match 'peak_1s') {
 		return "burst_peak_share_below_target"
@@ -207,7 +213,9 @@ function Get-AuditGapKind($Topic, $Label) {
 function Get-AuditNextAction($GapKind) {
 	switch ([string]$GapKind) {
 		"backline_pressure_below_target" { return "Tune marksman targeting/positioning scenarios or thresholds so backline pressure is directly proven when the identity claims it." }
-		"team_damage_share_below_target" { return "Tune sustained-damage output, encounter duration, or threshold expectations for identities that should prove team damage share." }
+		"marksman_sustained_goal_damage_share_below_target" { return "Tune Sari/Teller sustained-DPS output, encounter duration, or the 0.25 goal threshold so sustained-DPS identities prove direct team damage share." }
+		"marksman_role_damage_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman role diagnostic unless the role contract should require team share; tune output/scenario only if the identity should carry more team damage." }
+		"damage_share_below_target" { return "Tune damage output, encounter duration, or threshold expectations for identities that should prove team damage share." }
 		"burst_peak_share_below_target" { return "Tune burst windows, scenario grouping, or peak-share thresholds for burst-tagged identities." }
 		"pick_burst_kill_count_absent" { return "Create or tune a pick-burst scenario where the subject can secure kills, or retune pick-burst goal requirements." }
 		"execute_bonus_share_absent" { return "Create lower-health execute windows or retune execute attribution for identities that claim execute evidence." }
