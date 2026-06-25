@@ -88,11 +88,14 @@ static func compile(subject_id: String, ctx: Dictionary, registry_result: Dictio
 		var v: Dictionary = role_verdicts.get(rk, {})
 		if v is Dictionary:
 			v["deltas"] = deltas_per_role.get(rk, {})
+			v["span_details"] = _span_details_for_role(uid, String(rk), metrics)
+			v["failed_span_count"] = _count_failed_spans(v.get("span_details", []))
 			role_verdicts[rk] = v
+	var lower_level_fail_spans: Array[Dictionary] = _lower_level_fail_spans_for_identity(uid, assigned_identity, metrics)
 	var verdicts := {
 		"roles": role_verdicts,
-		"goals": _compile_goal_verdicts(assigned_identity, metrics),
-		"approaches": _compile_approach_verdicts(assigned_identity, metrics)
+		"goals": _compile_goal_verdicts(uid, assigned_identity, metrics),
+		"approaches": _compile_approach_verdicts(uid, assigned_identity, metrics)
 	}
 
 	return {
@@ -109,6 +112,10 @@ static func compile(subject_id: String, ctx: Dictionary, registry_result: Dictio
 			"scenario_counts": _scenario_counts(sims)
 		},
 		"verdicts": verdicts,
+		"diagnostics": {
+			"lower_level_fail_span_count": lower_level_fail_spans.size(),
+			"lower_level_fail_spans": lower_level_fail_spans
+		},
 		"evidence": {
 			"rows_path": rows_path,
 			"files": files_arr
@@ -210,20 +217,20 @@ static func _scenario_counts(sims: Dictionary) -> Dictionary:
 			counts[scen] = int(counts.get(scen, 0)) + 1
 	return counts
 
-static func _compile_goal_verdicts(assigned_identity: Dictionary, metrics: Array) -> Dictionary:
+static func _compile_goal_verdicts(subject_id: String, assigned_identity: Dictionary, metrics: Array) -> Dictionary:
 	var out: Dictionary = {}
 	var goal_id: String = String(assigned_identity.get("primary_goal", "")).strip_edges().to_lower()
 	if goal_id == "":
 		return out
 	var direct_metric: Dictionary = _metric_by_id(metrics, GOAL_DIRECT_METRIC_ID)
 	if not direct_metric.is_empty():
-		out[goal_id] = _verdict_from_metric_ids([GOAL_DIRECT_METRIC_ID], metrics, false)
+		out[goal_id] = _verdict_from_metric_ids([GOAL_DIRECT_METRIC_ID], metrics, false, subject_id)
 		return out
 	var proxy_metric_ids: Array = GOAL_PROXY_METRIC_IDS.get(goal_id, [])
-	out[goal_id] = _verdict_from_metric_ids(proxy_metric_ids, metrics, true)
+	out[goal_id] = _verdict_from_metric_ids(proxy_metric_ids, metrics, true, subject_id)
 	return out
 
-static func _compile_approach_verdicts(assigned_identity: Dictionary, metrics: Array) -> Dictionary:
+static func _compile_approach_verdicts(subject_id: String, assigned_identity: Dictionary, metrics: Array) -> Dictionary:
 	var out: Dictionary = {}
 	var approaches: Array = assigned_identity.get("approaches", [])
 	for raw_approach in approaches:
@@ -234,10 +241,10 @@ static func _compile_approach_verdicts(assigned_identity: Dictionary, metrics: A
 		var metric_ids: Array = []
 		if metric_id != "":
 			metric_ids.append(metric_id)
-		out[approach_id] = _verdict_from_metric_ids(metric_ids, metrics, false)
+		out[approach_id] = _verdict_from_metric_ids(metric_ids, metrics, false, subject_id)
 	return out
 
-static func _verdict_from_metric_ids(metric_ids: Array, metrics: Array, proxy: bool) -> Dictionary:
+static func _verdict_from_metric_ids(metric_ids: Array, metrics: Array, proxy: bool, subject_id: String = "") -> Dictionary:
 	var ids: Array[String] = []
 	for raw_id in metric_ids:
 		var id_value: String = String(raw_id).strip_edges()
@@ -254,6 +261,7 @@ static func _verdict_from_metric_ids(metric_ids: Array, metrics: Array, proxy: b
 	var matched_metric_ids: Array[String] = []
 	var messages: Array[String] = []
 	var span_labels: Array[String] = []
+	var span_details: Array[Dictionary] = []
 	var any_pass: bool = false
 	var any_fail: bool = false
 	var any_error: bool = false
@@ -283,6 +291,8 @@ static func _verdict_from_metric_ids(metric_ids: Array, metrics: Array, proxy: b
 			var label: String = String((span as Dictionary).get("label", "")).strip_edges()
 			if label != "":
 				span_labels.append(label)
+			if _span_matches_subject(span as Dictionary, subject_id):
+				span_details.append(_compact_span(span as Dictionary))
 
 	if matched_metric_ids.is_empty():
 		return {
@@ -307,6 +317,8 @@ static func _verdict_from_metric_ids(metric_ids: Array, metrics: Array, proxy: b
 		"matched_metric_ids": matched_metric_ids,
 		"messages": messages,
 		"span_labels": span_labels,
+		"span_details": span_details,
+		"failed_span_count": _count_failed_spans(span_details),
 		"proxy": proxy
 	}
 
@@ -317,6 +329,90 @@ static func _metric_by_id(metrics: Array, metric_id: String) -> Dictionary:
 		if String((metric as Dictionary).get("id", "")) == metric_id:
 			return metric as Dictionary
 	return {}
+
+static func _span_details_for_role(subject_id: String, role_id: String, metrics: Array) -> Array[Dictionary]:
+	var metric_id: String = "role_%s_identity" % String(role_id).strip_edges().to_lower()
+	var metric: Dictionary = _metric_by_id(metrics, metric_id)
+	return _span_details_for_metric(subject_id, metric)
+
+static func _span_details_for_metric(subject_id: String, metric: Dictionary) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	if metric.is_empty():
+		return out
+	var spans: Array = metric.get("spans", [])
+	for raw_span in spans:
+		if not (raw_span is Dictionary):
+			continue
+		var span: Dictionary = raw_span as Dictionary
+		if _span_matches_subject(span, subject_id):
+			out.append(_compact_span(span))
+	return out
+
+static func _lower_level_fail_spans_for_identity(subject_id: String, assigned_identity: Dictionary, metrics: Array) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var role_id: String = String(assigned_identity.get("primary_role", "")).strip_edges().to_lower()
+	if role_id != "":
+		_append_failed_metric_spans(out, subject_id, metrics, "role_%s_identity" % role_id, "role", role_id)
+	var goal_id: String = String(assigned_identity.get("primary_goal", "")).strip_edges().to_lower()
+	if goal_id != "":
+		_append_failed_metric_spans(out, subject_id, metrics, GOAL_DIRECT_METRIC_ID, "goal", "primary")
+	var approaches: Array = assigned_identity.get("approaches", [])
+	for raw_approach in approaches:
+		var approach_id: String = String(raw_approach).strip_edges().to_lower()
+		var metric_id: String = String(APPROACH_METRIC_IDS.get(approach_id, ""))
+		if approach_id != "" and metric_id != "":
+			_append_failed_metric_spans(out, subject_id, metrics, metric_id, "approach", approach_id)
+	return out
+
+static func _append_failed_metric_spans(out: Array[Dictionary], subject_id: String, metrics: Array, metric_id: String, block_type: String, block: String) -> void:
+	var metric: Dictionary = _metric_by_id(metrics, metric_id)
+	if metric.is_empty():
+		return
+	var details: Array[Dictionary] = _span_details_for_metric(subject_id, metric)
+	for span in details:
+		if not _span_failed(span):
+			continue
+		span["metric_id"] = String(metric_id)
+		span["block_type"] = String(block_type)
+		span["block"] = String(block)
+		out.append(span)
+
+static func _compact_span(span: Dictionary) -> Dictionary:
+	var out: Dictionary = {
+		"label": String(span.get("label", "")),
+		"value": span.get("value", null)
+	}
+	if span.has("want"):
+		out["want"] = span.get("want")
+	if span.has("ok"):
+		out["ok"] = bool(span.get("ok", false))
+	for key in ["unit_id", "subject_side", "subject_role", "reason"]:
+		if span.has(key):
+			out[key] = span.get(key)
+	for key2 in [
+		"sustained_mult_vs_median",
+		"sustained_z",
+		"focus_survival_avg_s",
+		"time_alive_avg_s",
+		"soak_index"
+	]:
+		if span.has(key2):
+			out[key2] = span.get(key2)
+	return out
+
+static func _count_failed_spans(spans: Array) -> int:
+	var count: int = 0
+	for raw_span in spans:
+		if not (raw_span is Dictionary):
+			continue
+		if _span_failed(raw_span as Dictionary):
+			count += 1
+	return count
+
+static func _span_failed(span: Dictionary) -> bool:
+	if not span.has("ok"):
+		return false
+	return not bool(span.get("ok", false))
 
 static func _compile_role_verdicts(subject_id: String, registry_result: Dictionary, sims_count: int) -> Dictionary:
 	var out: Dictionary = {}

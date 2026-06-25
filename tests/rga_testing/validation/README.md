@@ -123,6 +123,8 @@ Run these scenes via MCP for headless validation and reports.
 Artifacts
 - Telemetry rows: `user://rga_out.jsonl` (or configured `out_path` ending with .jsonl/.ndjson; file is cleared each run)
 - Probe reports: `user://identity_reports/<unit>.json`
+  - `diagnostics.lower_level_fail_spans` lists role/goal/approach span misses that were accepted by aggregate verdicts, with `lower_level_fail_span_count` for backlog triage.
+  - Role, goal, and approach verdict objects also include `span_details` and `failed_span_count` for local inspection without parsing console logs.
 
 Notes
 - Latest doc-vs-test comparison: `docs/rga/test_notes_2026-06-23.md`

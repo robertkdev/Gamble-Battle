@@ -169,9 +169,12 @@ Audit implication: first-purchase bench deployment is now covered by both behavi
 
 Fresh RoleMatrix evidence was regenerated again on 2026-06-25 with `tests/rga_testing/ci/RoleMatrixSmoke.tscn`. The MCP debug run completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`. The current run occupies `godot.log` lines 4-1139, report files were written under `user://identity_reports/*.json`, and one stale `faeling.json` from 2026-06-23 was ignored. The refreshed parser output is stored in `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`.
 
+Follow-up instrumentation on 2026-06-25 moved the accepted-miss detail into the saved report JSON itself. `ProbeReportCompiler` now writes `diagnostics.lower_level_fail_span_count`, `diagnostics.lower_level_fail_spans`, and per-verdict `failed_span_count` / `span_details` fields under `user://identity_reports/<unit>.json`. A fresh MCP `RoleMatrixSmoke` rerun again completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`; parsing the saved report JSON found 22 current reports, 0 reports missing diagnostics, and the same 130 accepted lower-level fail spans.
+
 Aggregate result:
 - Every current unit role verdict is still `PASS`, and all assigned primary goals and approaches passed in the smoke run.
 - The log-level parser found 130 lower-level `-> FAIL` spans accepted by aggregate verdicts: 47 role spans, 45 approach spans, and 38 goal spans.
+- The saved report JSON now records the same 130 lower-level fail spans directly, so future accepted-miss audits do not need to parse console text or `godot.log`.
 - All 22 current units have at least one accepted lower-level fail span. Role-report JSON is narrower: 21 of 22 reports contain at least one negative role delta, and Cashmere is clean only at role identity level while still logging `goal_pick_burst_kill_count 0.00 < 1.00`.
 - Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
