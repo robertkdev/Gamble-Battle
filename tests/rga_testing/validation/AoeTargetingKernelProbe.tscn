@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/aoe_targeting_kernel_probe.gd" id="1"]
+
+[node name="AoeTargetingKernelProbe" type="Node"]
+script = ExtResource("1")
