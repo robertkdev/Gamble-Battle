@@ -118,6 +118,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn`
   - Directly drives `CombatEngine.buff_applied`; fails unless the real Kythera `tank.team_fortification` goal emits a passing ally-buff span when source-owned ally-buff telemetry is present, preserves an aggregate no-buff pass through EHP/prevention with a failed buff span, and rejects buff-only or weak controls.
 
+- Skirmish-dive backline goal positive control
+  - Scene: `tests/rga_testing/validation/SkirmishDiveBacklineGoalProbe.tscn`
+  - Directly drives `CombatEngine.hit_applied` through `PerUnitKpisKernel`; fails unless the real Bo `brawler.skirmish_dive` goal emits a passing backline-contact span when most damage lands on an untagged backline target, and rejects an all-frontline control.
+
 - Approach semantic catalog coverage
   - Scene: `tests/rga_testing/validation/ApproachSemanticCatalogProbe.tscn`
   - Directly feeds every Google-doc approach metric synthetic positive and negative payloads; fails if any approach cannot pass on purpose-built evidence, if an empty/control payload passes, or if the expected approach span prefix is missing.
@@ -205,6 +209,7 @@ Notes
 - `PickBurstKillGoalProbe.tscn` proves lethal combat-pattern telemetry can feed the real Cashmere `mage.pick_burst` kill-count span, while the nonlethal aggregate pass keeps that span failing; current Cashmere/Volt pick-burst kill-count rows are live kill-securing/scenario debt rather than missing metric support.
 - `FrontlineBodyBlockGoalProbe.tscn` proves real redirect-kernel telemetry can feed Brute's `tank.frontline_absorb` body-block event and prevented-damage spans, while event-only, damage-only, and weak-prevention controls fail; current Brute/Repo body-block rows are live body-block scenario/tuning debt rather than missing metric support.
 - `TeamFortificationBuffGoalProbe.tscn` proves source-owned `buff_applied` telemetry can feed Kythera's `tank.team_fortification` ally-buff span, while an aggregate EHP/prevention pass still preserves the failed buff span when no ally buff is present; the current Kythera buff-uptime row is live fortification-context debt rather than missing metric support.
+- `SkirmishDiveBacklineGoalProbe.tscn` proves per-unit hit attribution can feed Bo's `brawler.skirmish_dive` backline-contact span through `damage_to_frontline_pct`, while an all-frontline damage control fails; the current Bo dive-contact row is live backline-access scenario debt rather than missing metric support.
 - `amp` now exposes direct output-delta/events/beneficiary spans when `amp_output_applied` telemetry is present, with `AmpOutputKernelProbe.tscn` as the positive control. Latest live Axiom proves team amplification through source-attributed Pupil output lift, and latest live Totem proves the support peel-carry path through source-attributed ally shield, real debuff removal, CC-immunity, amp, and downstream output evidence; `TotemCleanseLiveProbe.tscn` guards the explicit debuffed-carry cleanse path.
 
 Legacy
