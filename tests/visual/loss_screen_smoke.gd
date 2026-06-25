@@ -32,7 +32,7 @@ func _ready() -> void:
 	_expect(scoreboard != null, "Loss scoreboard missing", failures)
 	if scoreboard != null:
 		var title_label: Label = scoreboard.get_node_or_null("Header/Title") as Label
-		_expect(title_label != null and title_label.text == "Player Damage", "Loss scoreboard title should clarify player-only rows", failures)
+		_expect(title_label != null and title_label.text == "Final Battle Damage", "Loss scoreboard title should clarify final-battle rows", failures)
 		var expand_button: Button = scoreboard.find_child("ExpandButton", true, false) as Button
 		_expect(expand_button != null, "Loss scoreboard expand button missing", failures)
 		if expand_button != null:
@@ -45,6 +45,10 @@ func _ready() -> void:
 		var enemy_column: VBoxContainer = scoreboard.get_node_or_null("Body/EnemyColumn") as VBoxContainer
 		_expect(enemy_column != null and enemy_column.get_child_count() == 0, "Loss scoreboard should not keep hidden enemy rows", failures)
 		var labels: Array[String] = _label_texts(screen)
+		var all_label_text: String = "\n".join(labels)
+		_expect(all_label_text.find("Run Damage: 143") >= 0, "Loss summary should preserve run damage across battle resets", failures)
+		_expect(all_label_text.find("Run Kills: 1") >= 0, "Loss summary should preserve run kills across battle resets", failures)
+		_expect(all_label_text.find("Top Run Damage: Axiom (143)") >= 0, "Loss summary should preserve top run damage", failures)
 		_expect(labels.has("Axiom"), "Loss scoreboard should show player row", failures)
 		_expect(not labels.has("Beegle"), "Loss scoreboard should not expose hidden enemy name", failures)
 		_expect(not labels.has("1.2k"), "Loss scoreboard should not expose hidden enemy damage", failures)
@@ -95,8 +99,10 @@ func _make_populated_tracker() -> StatsTracker:
 	tracker.configure(manager)
 	tracker._on_battle_started(1, enemy_unit)
 	tracker._on_hit_applied("player", 0, 0, 143, 143, false, 100, 0, 0.0, 0.0)
-	tracker._on_hit_applied("enemy", 0, 0, 1200, 1200, false, 100, 0, 0.0, 0.0)
 	tracker._on_battle_end(1)
+	tracker._on_battle_started(2, enemy_unit)
+	tracker._on_hit_applied("enemy", 0, 0, 1200, 1200, false, 100, 0, 0.0, 0.0)
+	tracker._on_battle_end(2)
 	return tracker
 
 func _label_texts(root: Node) -> Array[String]:

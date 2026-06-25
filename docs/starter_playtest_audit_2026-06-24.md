@@ -39,7 +39,7 @@ MCP validation run on 2026-06-24:
 - `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: rerun on 2026-06-25 with `errors: []`, including shop-card gutter, command-strip spacing, and first-fight placeholder prominence assertions.
-- `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`.
+- `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`. Rerun on 2026-06-25 with `errors: []` now also covers run-total damage/kills surviving a later final-battle stats reset.
 - `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`; later live editor run saved `outputs/visual_iter/exit_menu_pass/01_unit_select_system_menu.png` and `outputs/visual_iter/exit_menu_pass/02_combat_system_menu.png`.
 - `tests/rga_testing/validation/StageProgressionProbe.tscn`: `StageProgressionProbe: PASS`
 - `tests/rga_testing/validation/RewardsKillProbe.tscn`: `RewardsKillProbe: PASS`
@@ -64,6 +64,7 @@ Confirmed current fixes/coverage:
 - The Start Battle button still changes immediately to disabled `Combat Resolving...`; if combat keeps running past the short delay it now shows elapsed resolving seconds, then a `Still resolving` warning after 10 seconds. If the engine watchdog fires, the button switches to `Resolving fallback...` while the existing post-combat recovery finishes.
 - The system menu pause overlay now uses a lighter backdrop alpha so the underlying Unit Select or combat state remains readable enough for resume/new-run context; `ExitFlowSmoke` asserts the backdrop stays in the intended alpha range.
 - A non-broke Chapter 1 Stage 1 defeat now receives opening retry recovery up to 2 gold. `AxiomRetryEconomySmoke` proves Axiom's forced opener loss returns to a same-stage retry shop with 2 gold, buys a 1-cost helper while preserving 1 gold, shows deploy guidance, deploys the helper to board, and clears the first-deploy highlight.
+- The defeat modal now separates run summary from final-battle ledger: summary lines use run totals (`Run Damage`, `Run Healing`, `Run Kills`, `Top Run Damage`), while the embedded player-only scoreboard is titled `Final Battle Damage`. `LossScreenSmoke` verifies previous-battle player damage remains visible after the current battle tracker resets.
 
 Remaining audit gaps:
 - The current validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier and stage/reward changes, but not a fresh human real-window/screenshot replay of every starter.
@@ -87,7 +88,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Rapid shop input | `RapidShopInputAudit` covers same-frame rendered-card burst and deployment fallback. `outputs/audit_playtest/rapid_shop_os_burst/` adds audit-assisted real-window OS-coordinate evidence: before/after screenshots, preserved card centers, click coordinates, five bench additions, five sold placeholders, and no shop errors. `UIThemeSmoke` now asserts wider shop-card gutters and command-strip spacing; `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/08_round2_shop_wait.png` refreshes the first real shop view. | Covered behaviorally and audit-assisted visually/input-wise | Natural full-run rapid human-speed buying remains optional; preserve hit clarity, purchase feedback, deployment guidance, and the widened bottom-band spacing. |
 | Start Battle transition | `StartBattleFeedbackAudit` covers stages 2-4 switching immediately to disabled `Combat Resolving...`; `CombatResolvingFeedbackSmoke` covers elapsed `Resolving Ns...`, `Still resolving Ns...`, and watchdog `Resolving fallback...` labels; `outputs/audit_playtest/live_start_battle_transition_2026_06_25/` provides real-window screenshots from Round 2 planning, immediate post-click resolving, mid-combat resolving, and restored planning. | Covered behaviorally and visually for immediate transition; elapsed/fallback labels covered by smoke | Optional real-window screenshot refresh if a future manual pass catches a naturally long/stalled fight. |
 | Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` exposed the ambiguity, and `ScoreboardDuplicateDisambiguationSmoke` now covers duplicate-copy labels in the model and rendered row scene. | Covered behaviorally | Optional real-window screenshot refresh only; preserve copy suffixes for duplicate display names. |
-| Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active, and now asserts the pause backdrop alpha stays context-readable. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current defeat visual state. | Covered visually and behaviorally with caveats | Future real-window screenshot refresh is optional for the lighter system-menu dim; no current modal blocker remains from the audit. |
+| Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat modal keeps run-total summary stats after a later final-battle reset, uses an explicit `Final Battle Damage` player-only ledger, and does not keep hidden enemy row labels in the tree. `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active, and now asserts the pause backdrop alpha stays context-readable. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the modal before the run-total title change. | Covered behaviorally; visually covered with older screenshot caveat | Future real-window screenshot refresh can update the current `Run Damage` / `Final Battle Damage` labels, but no current modal blocker remains from the audit. |
 | RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; the 2026-06-25 accepted-miss parser found 130 accepted lower-level `FAIL` spans across all 22 units, plus negative role deltas in 21/22 reports. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
 | Tooling reliability | Multiple runs reproduced Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. `AuditPanelSmoke` covers a debug-only in-game Audit QA panel for state export, screenshot status, timer hold, restart, and speed controls. A real debug-window OS click on the panel's Screenshot button saved `user://audit_exports/audit_shot_1782371342_158480.png`; `02_after_screenshot_click.png` shows the panel confirming the save path. | Covered for in-game audit controls; Godot-AI helper remains fragile | Keep fallback OS screenshots for visual evidence when `_mcp_game_helper` does not register; continue using the panel for state/screenshot/timer control during manual audits. |
 
@@ -166,16 +167,22 @@ Generated files:
 
 Axiom first-loss result:
 - The real defeat overlay is centered and legible.
-- Summary labels reported `Team Damage: 143`, `Team Healing: 0`, `Total Kills: 0`, and `Top Damage: Axiom (143)`.
+- Summary labels at the time reported `Team Damage: 143`, `Team Healing: 0`, `Total Kills: 0`, and `Top Damage: Axiom (143)`.
 - The visible player scoreboard row shows Axiom with 143 damage, so the populated player-row readability gap is closed for a simple one-unit defeat.
 - The extracted label list also contained `Beegle` and `1.2k`, but that enemy row is not visible in the modal screenshot because the loss-screen scoreboard is non-expandable. That is probably intentional for modal containment, but it means the player cannot compare the enemy ledger from the defeat modal.
 - The top-right `Menu` button remains visible behind the defeat overlay. It is outside the modal frame and reads as an active control even while the loss modal should own attention.
 
 2026-06-25 player-only scoreboard fix:
-- The loss modal now titles the embedded scoreboard `Player Damage`, disables enemy rows for the modal context, and clears hidden enemy row nodes instead of merely hiding the enemy column.
+- The loss modal titles the embedded scoreboard as player-only final-battle detail, disables enemy rows for the modal context, and clears hidden enemy row nodes instead of merely hiding the enemy column.
 - `LossScreenSmoke` now uses a populated tracker with Axiom and an enemy row, then verifies Axiom is present while `Beegle` and `1.2k` are absent from all loss-screen label text.
 - `StatsPanelClickSmoke` still passes, so regular combat stats/scoreboard behavior remains intact outside the defeat modal.
 - The MCP run printed `LossScreenSmoke: OK` with `errors: []`; PNG capture was skipped because the current MCP display is dummy/headless, so this is behavioral evidence rather than fresh screenshot evidence.
+
+2026-06-25 run-total stat fix:
+- `StatsTracker` now maintains run totals for damage, healing, and kills until a new run resets the tracker totals.
+- The defeat modal summary now reports `Run Damage`, `Run Healing`, `Run Kills`, and `Top Run Damage`, while the embedded ledger is labeled `Final Battle Damage`.
+- `LossScreenSmoke` simulates an earlier Axiom damage/kills battle followed by a later final battle where the player has no damage. The smoke verifies the modal still reports `Run Damage: 143`, `Run Kills: 1`, and `Top Run Damage: Axiom (143)`.
+- `StatsPanelClickSmoke` and `ActualRunLoopSmoke` both passed after the change, so regular combat ledger behavior and the Main-flow loss/reset path still work.
 
 2026-06-25 behavioral fix:
 - `Main.refresh_system_menu_state()` now treats `LossOverlayLayer` as an authoritative modal state: the top-right system Menu button hides, disables, and cannot be opened by Escape or direct system-menu calls while defeat is active.
@@ -198,8 +205,9 @@ Generated files:
 
 Result:
 - The accepted OS-window screenshot shows the current defeat modal centered and legible with no competing top-right Menu button.
-- The modal scoreboard title is `Player Damage` and shows only the player row `Axiom` / `143`.
-- The summary confirms `loss_overlay_visible=true`, `system_menu_button_visible=false`, `system_menu_button_disabled=true`, `enemy_column_child_count=0`, and label text limited to `Defeat`, stage/high score, player summary stats, `Player Damage`, `Axiom`, and `143`.
+- The accepted screenshot predates the run-total title change: it shows the modal scoreboard title as `Player Damage` with only the player row `Axiom` / `143`.
+- The summary confirms `loss_overlay_visible=true`, `system_menu_button_visible=false`, `system_menu_button_disabled=true`, `enemy_column_child_count=0`, and label text limited to `Defeat`, stage/high score, player summary stats, the player-only damage ledger, `Axiom`, and `143`.
+- Current behavioral validation now expects the live modal to show run-total summary copy and a `Final Battle Damage` ledger; a future real-window pass can refresh this PNG.
 - `godot-ai editor_screenshot(source="game")` could not capture because `_mcp_game_helper` did not register debugger capture in this run, so the accepted PNG came from the OS-window capture helper after verifying the `Gamble Battle (DEBUG)` window.
 
 ## Current Starter Runner Recheck
@@ -672,6 +680,7 @@ Key manual evidence captured in this continuation:
    - The final defeat overlay after the retry reported Team Damage 0 and Top Damage: Axiom (0).
    - Berebell also showed a nonzero scoreboard during the run, then the Stage 2 defeat overlay reported Team Damage 0 and Top Damage: Berebell (0).
    - Better solution: clarify whether the loss screen reports the final battle only or the run total, and avoid showing zeroed stats when the run already produced visible combat stats.
+   - Current branch mitigation: `StatsTracker` now keeps run totals until a new run, `LossScreen` reports run-total summary copy, and the embedded ledger is labeled `Final Battle Damage`. `LossScreenSmoke` verifies a prior Axiom damage/kills battle remains visible after a later final-battle reset.
 
 11. Betting is present but not yet strategically interesting in the opener.
    - The bet defaults to 1 and locks during combat.

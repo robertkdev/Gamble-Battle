@@ -51,6 +51,7 @@ var _player_stats: Array = []
 var _enemy_stats: Array = []
 var _focus_maps_player: Array = []   # Array[Dictionary[target_key -> damage]]
 var _focus_maps_enemy: Array = []
+var _run_team_stats: Dictionary = {}
 
 func _ready() -> void:
 	set_process(true)
@@ -64,6 +65,7 @@ func configure(_manager: CombatManager, _sampling_hz: float = 10.0) -> void:
 	_w1_count = int(round(1.0 * sampling_hz))
 	_w3_count = int(round(3.0 * sampling_hz))
 	_wire_manager_signals()
+	reset_run_totals()
 	_reset_all()
 	set_process(true)
 
@@ -77,8 +79,15 @@ func teardown() -> void:
 	ability_system = null
 	manager = null
 	_reset_all()
+	reset_run_totals()
 	_focus_maps_player.clear()
 	_focus_maps_enemy.clear()
+
+func reset_run_totals() -> void:
+	_run_team_stats = {
+		TEAM_PLAYER: {},
+		TEAM_ENEMY: {},
+	}
 
 func _wire_manager_signals() -> void:
 	if manager == null:
@@ -271,7 +280,9 @@ func _on_hit_applied(team: String, source_index: int, target_index: int, _rolled
 		# Attribute kill to source
 		s.kills = int(s.get("kills", 0)) + 1
 		src_arr[source_index] = s
+		_add_run_metric(src_team, source_index, METRIC_KILLS, 1.0)
 	tgt_arr[target_index] = t
+	_add_run_metric(src_team, source_index, METRIC_DAMAGE, float(amt))
 	# Record in bounded buffer
 	_push_event(_hit_events, {
 		"team": String(team),
@@ -491,6 +502,7 @@ func _on_heal_applied(st: String, si: int, tt: String, ti: int, healed: int, ove
 		var ss: Dictionary = arr_src[si]
 		ss.healing_done_total = int(ss.healing_done_total) + max(0, int(healed))
 		arr_src[si] = ss
+		_add_run_metric(src_tm, si, METRIC_HEALING, float(max(0, int(healed))))
 
 func _on_shield_absorbed(tt: String, ti: int, absorbed: int) -> void:
 	var tgt_tm := (TEAM_PLAYER if String(tt) == TEAM_PLAYER else TEAM_ENEMY)
@@ -591,6 +603,38 @@ func get_team_total(team: String, metric: String, window: String = WINDOW_ALL) -
 		total += float(r.get("value", 0.0))
 	return total
 
+func has_run_values(team: String = TEAM_PLAYER) -> bool:
+	return get_run_team_total(team, METRIC_DAMAGE) > 0.0 \
+		or get_run_team_total(team, METRIC_HEALING) > 0.0 \
+		or get_run_team_total(team, METRIC_KILLS) > 0.0
+
+func get_run_rows(team: String, metric: String) -> Array:
+	var tm: String = _normalize_team(team)
+	var team_stats: Dictionary = _run_stats_for_team(tm)
+	var rows: Array = []
+	for raw_entry in team_stats.values():
+		if typeof(raw_entry) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = raw_entry
+		rows.append({
+			"team": tm,
+			"index": int(entry.get("index", -1)),
+			"unit": entry.get("unit", null),
+			"display_name": String(entry.get("display_name", "Unit")),
+			"value": float(entry.get(metric, 0.0)),
+		})
+	return rows
+
+func get_run_team_total(team: String, metric: String) -> float:
+	var total: float = 0.0
+	var rows: Array = get_run_rows(team, metric)
+	for raw_row in rows:
+		if typeof(raw_row) != TYPE_DICTIONARY:
+			continue
+		var row: Dictionary = raw_row
+		total += float(row.get("value", 0.0))
+	return total
+
 # Optional: recent event accessors
 func recent_hits(limit: int = 20) -> Array:
 	var n: int = clamp(int(limit), 0, _hit_events.size())
@@ -603,3 +647,59 @@ func recent_casts(limit: int = 20) -> Array:
 	if n <= 0:
 		return []
 	return _cast_events.slice(_cast_events.size() - n, _cast_events.size())
+
+func _add_run_metric(team: String, index: int, metric: String, amount: float) -> void:
+	var amt: float = max(0.0, float(amount))
+	if amt <= 0.0:
+		return
+	var tm: String = _normalize_team(team)
+	var key: String = _run_unit_key(tm, index)
+	var team_stats: Dictionary = _run_stats_for_team(tm)
+	var entry: Dictionary = {}
+	if team_stats.has(key) and team_stats[key] is Dictionary:
+		entry = team_stats[key]
+	else:
+		entry = {
+			"team": tm,
+			"index": int(index),
+			"unit": _unit_for_team_index(tm, index),
+			"display_name": _unit_name_for_team_index(tm, index),
+			METRIC_DAMAGE: 0.0,
+			METRIC_HEALING: 0.0,
+			METRIC_KILLS: 0.0,
+		}
+	entry["unit"] = _unit_for_team_index(tm, index)
+	entry["display_name"] = _unit_name_for_team_index(tm, index)
+	entry[metric] = float(entry.get(metric, 0.0)) + amt
+	team_stats[key] = entry
+	_run_team_stats[tm] = team_stats
+
+func _run_stats_for_team(team: String) -> Dictionary:
+	var tm: String = _normalize_team(team)
+	if not _run_team_stats.has(tm) or not (_run_team_stats[tm] is Dictionary):
+		_run_team_stats[tm] = {}
+	return _run_team_stats[tm]
+
+func _normalize_team(team: String) -> String:
+	return TEAM_PLAYER if String(team) == TEAM_PLAYER else TEAM_ENEMY
+
+func _run_unit_key(team: String, index: int) -> String:
+	var unit: Unit = _unit_for_team_index(team, index)
+	if unit != null:
+		return "%s:%d" % [String(team), int(unit.get_instance_id())]
+	return "%s:%d" % [String(team), int(index)]
+
+func _unit_name_for_team_index(team: String, index: int) -> String:
+	var unit: Unit = _unit_for_team_index(team, index)
+	if unit != null and String(unit.name).strip_edges() != "":
+		return String(unit.name).strip_edges()
+	return "Unit"
+
+func _unit_for_team_index(team: String, index: int) -> Unit:
+	if manager == null or index < 0:
+		return null
+	var tm: String = _normalize_team(team)
+	var units: Array = manager.player_team if tm == TEAM_PLAYER else manager.enemy_team
+	if index >= units.size():
+		return null
+	return units[index] as Unit

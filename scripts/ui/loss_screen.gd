@@ -91,10 +91,11 @@ func _populate() -> void:
 	# Interesting run stats (from last battle tracker)
 	var lines: Array[String] = []
 	if _tracker != null:
-		var dmg_total: float = _tracker.get_team_total("player", "damage", "ALL")
-		var heal_total: float = _tracker.get_team_total("player", "healing", "ALL")
-		var kills_total: float = _tracker.get_team_total("player", "kills", "ALL")
-		var rows: Array = _tracker.get_rows("player", "damage", "ALL")
+		var use_run_totals: bool = _tracker.has_run_values("player")
+		var dmg_total: float = _tracker.get_run_team_total("player", "damage") if use_run_totals else _tracker.get_team_total("player", "damage", "ALL")
+		var heal_total: float = _tracker.get_run_team_total("player", "healing") if use_run_totals else _tracker.get_team_total("player", "healing", "ALL")
+		var kills_total: float = _tracker.get_run_team_total("player", "kills") if use_run_totals else _tracker.get_team_total("player", "kills", "ALL")
+		var rows: Array = _tracker.get_run_rows("player", "damage") if use_run_totals else _tracker.get_rows("player", "damage", "ALL")
 		var top_name: String = ""
 		var top_val: float = -1.0
 		for raw_row in rows:
@@ -105,12 +106,15 @@ func _populate() -> void:
 			if v > top_val:
 				top_val = v
 				var u: Unit = r.get("unit") as Unit
-				top_name = (u.name if u != null else "?")
-		lines.append("Team Damage: %d" % int(dmg_total))
-		lines.append("Team Healing: %d" % int(heal_total))
-		lines.append("Total Kills: %d" % int(kills_total))
+				top_name = String(r.get("display_name", ""))
+				if top_name == "":
+					top_name = (u.name if u != null else "?")
+		var prefix: String = "Run" if use_run_totals else "Team"
+		lines.append("%s Damage: %d" % [prefix, int(dmg_total)])
+		lines.append("%s Healing: %d" % [prefix, int(heal_total)])
+		lines.append("%s Kills: %d" % [prefix, int(kills_total)])
 		if top_val >= 0.0:
-			lines.append("Top Damage: %s (%d)" % [top_name, int(top_val)])
+			lines.append("Top %s Damage: %s (%d)" % [prefix, top_name, int(top_val)])
 	if stats_label:
 		stats_label.text = "\n".join(lines)
 
@@ -121,7 +125,7 @@ func _populate() -> void:
 		if _tracker != null and sb.has_method("configure"):
 			sb.configure(_tracker)
 		if sb.has_method("set_title"):
-			sb.set_title("Player Damage")
+			sb.set_title("Final Battle Damage")
 		if sb.has_method("set_metric"):
 			sb.set_metric("damage")
 		if sb.has_method("set_window"):

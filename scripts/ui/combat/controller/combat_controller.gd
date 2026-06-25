@@ -559,6 +559,8 @@ func _init_game() -> void:
 	_clear_first_deploy_bench_highlight()
 	_first_deploy_bench_slot = -1
 	_end_combat_resolving_feedback()
+	if stats_tracker != null and stats_tracker.has_method("reset_run_totals"):
+		stats_tracker.reset_run_totals()
 	if continue_button:
 		continue_button.disabled = false
 		continue_button.visible = true
