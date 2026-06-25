@@ -86,7 +86,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 
 | Audit surface | Current strongest evidence | Status | Remaining proof needed |
 | --- | --- | --- | --- |
-| Starter-select surface | Unit Select live screenshots and `UnitSelectSmoke` cover the current 12 cost-1 starter grid. | Covered for current cost-tier branch | None unless starter roster changes again. |
+| Starter-select surface | Unit Select live screenshots and `UnitSelectSmoke` cover the current 12 cost-1 starter grid. The smoke now compares rendered starter buttons against `UnitCatalog.list_starter_ids(STARTING_LEVEL)`, asserts every rendered starter is cost 1, and fails if Hexeon appears in the level-1 picker. | Covered for current cost-tier branch | None unless starter roster changes again. |
 | Forced first fight and opening shop lockout | Live screenshots plus `ActualRunLoopSmoke` cover disabled opening shop controls and `Start Forced Fight`. `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/06_forced_first_fight_retry.png` refreshes the locked shop strip after the placeholder contrast pass. `UIThemeSmoke` now proves the locked placeholder is clickable/focusable and shows `First fight is forced. Win to open the shop.` | Covered behaviorally and visually | Preserve the explicit placeholder, tooltip, and click/keyboard feedback. |
 | All current starters through first Main-flow loop | `AllStarterMainFlowAudit` covers 12 starters: Axiom retry plus 11 first-shop buy/deploy/second-fight paths. `AxiomRetryEconomySmoke` now covers the former outlier by proving the retry shop can buy/deploy a helper and then progress through the retry fight into a full Stage 2 planning shop after the nonlethal opening loss. | Covered behaviorally | Fresh human real-window replay of every starter remains optional but not mechanically required for current blockers. |
 | Dev starter item inventory | `DevStarterInventorySmoke` proves `Items.DEV_STARTER_INVENTORY_ENABLED` defaults false, `reset_run()` keeps normal inventory and visible slots empty, and the starter inventory seeds only when that dev flag is explicitly enabled. `ActualRunLoopSmoke` also asserts new real Main-flow runs start with empty item inventory. | Covered behaviorally | Preserve the default-off dev inventory flag so normal playtests stay item-clean. |
@@ -790,10 +790,10 @@ Key manual evidence captured in this continuation:
    - The current branch adds copy suffixes for repeated display names and covers them with `ScoreboardDuplicateDisambiguationSmoke`.
    - Future polish can still choose star levels, board slots, or merged aggregate rows, but duplicate copy labels are no longer a blocker.
 
-14. Hexeon exists in data but is not starter-selectable.
-   - Live Unit Select exposes 21 starter buttons.
-   - Supporting context shows Hexeon is cost 3 and filtered out by starter/shop level odds.
-   - Better solution: decide intentionally whether Hexeon is a later-shop unit or should be eligible as a starter.
+14. Hexeon exists in data but is not starter-selectable. Closed for the current cost-tier branch.
+   - Live Unit Select now exposes the current 12 cost-1 starter buttons, not the older 21-unit starter surface.
+   - `CostBalanceSmoke` guards Hexeon as the single cost-3 capstone and verifies premium/capstone units are not starter-visible at level 1.
+   - `UnitSelectSmoke` now guards the rendered picker directly by comparing button ids against `UnitCatalog.list_starter_ids(STARTING_LEVEL)`, asserting all rendered starters are cost 1, and failing if Hexeon appears.
 
 15. Lower Unit Select scrolling could leave stale inspection context, and the initial preview could imply Axiom was already inspected. Closed in the current branch.
    - The original manual screenshot showed Teller/Totem/Veyra/Volt/Vykos visible after scrolling while the right preview still read like Cashmere was being inspected.

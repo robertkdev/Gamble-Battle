@@ -1,6 +1,8 @@
 extends Node
 
 const UNIT_SELECT_SCENE: PackedScene = preload("res://scenes/UnitSelect.tscn")
+const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
+const UnitCatalogScript := preload("res://scripts/game/shop/unit_catalog.gd")
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -35,6 +37,7 @@ func _run() -> void:
 	_expect(details_label != null and details_label.text == "Hover a unit to preview", "Unit Select should begin with neutral preview help", failures)
 	var initial_art: TextureRect = view.get_node_or_null("Center/HBox/Right/Preview/ArtWrap/Art") as TextureRect
 	_expect(initial_art != null and initial_art.texture == null, "Unit Select should begin without default preview art", failures)
+	_verify_rendered_starter_surface(view, failures)
 	var first_button: Button = view.find_child("UnitButton_*", true, false) as Button
 	_expect(first_button != null, "No generated unit buttons found", failures)
 	if first_button != null:
@@ -84,3 +87,39 @@ func _run() -> void:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _verify_rendered_starter_surface(view: UnitSelect, failures: Array[String]) -> void:
+	var catalog: UnitCatalog = UnitCatalogScript.new()
+	catalog.refresh()
+	var expected_ids: Array[String] = _sorted_string_copy(catalog.list_starter_ids(ShopConfig.STARTING_LEVEL))
+	var rendered_ids: Array[String] = _rendered_unit_button_ids(view)
+	_expect_lists_equal("rendered starter ids", expected_ids, rendered_ids, failures)
+	_expect(not rendered_ids.has("hexeon"), "Hexeon should remain hidden from the level-1 starter picker", failures)
+	for unit_id: String in rendered_ids:
+		var meta: Dictionary = catalog.get_unit_meta(unit_id)
+		var cost: int = int(meta.get("cost", 0))
+		_expect(cost == 1, "starter %s should be cost 1, got %d" % [unit_id, cost], failures)
+
+func _rendered_unit_button_ids(view: UnitSelect) -> Array[String]:
+	var ids: Array[String] = []
+	var buttons: Array[Node] = view.find_children("UnitButton_*", "Button", true, false)
+	for node: Node in buttons:
+		var button: Button = node as Button
+		if button == null or not button.has_meta("unit_id"):
+			continue
+		ids.append(String(button.get_meta("unit_id")))
+	ids.sort()
+	return ids
+
+func _sorted_string_copy(values: Array) -> Array[String]:
+	var out: Array[String] = []
+	for value: Variant in values:
+		out.append(String(value))
+	out.sort()
+	return out
+
+func _expect_lists_equal(label: String, expected: Array[String], actual: Array[String], failures: Array[String]) -> void:
+	var expected_text: String = ",".join(PackedStringArray(expected))
+	var actual_text: String = ",".join(PackedStringArray(actual))
+	if expected_text != actual_text:
+		failures.append("%s expected [%s] got [%s]" % [label, expected_text, actual_text])
