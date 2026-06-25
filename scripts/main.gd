@@ -14,6 +14,7 @@ const DEBUG_TRACE := true
 const SYSTEM_LAYER_NAME := "SystemMenuLayer"
 const LOSS_OVERLAY_LAYER_NAME := "LossOverlayLayer"
 const SYSTEM_LAYER_INDEX := 220
+const SYSTEM_MENU_BACKDROP_COLOR: Color = Color(0.015, 0.01, 0.012, 0.54)
 
 var _system_layer: CanvasLayer
 var _system_menu_button: Button
@@ -174,7 +175,7 @@ func _build_system_menu() -> void:
 
 	var backdrop: ColorRect = ColorRect.new()
 	backdrop.name = "Backdrop"
-	backdrop.color = Color(0.015, 0.01, 0.012, 0.78)
+	backdrop.color = SYSTEM_MENU_BACKDROP_COLOR
 	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
 	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_system_overlay.add_child(backdrop)

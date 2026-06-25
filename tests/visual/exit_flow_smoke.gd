@@ -3,6 +3,8 @@ extends Node
 const MainScene: PackedScene = preload("res://scenes/Main.tscn")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 const OUTPUT_DIR: String = "res://outputs/visual_iter/exit_menu_pass"
+const SYSTEM_BACKDROP_MAX_ALPHA: float = 0.62
+const SYSTEM_BACKDROP_MIN_ALPHA: float = 0.45
 
 var _main: Control
 var _failures: Array[String] = []
@@ -34,6 +36,7 @@ func _run() -> void:
 	await _settle_frames(1)
 	_expect(get_tree().paused, "opening system menu should pause the game")
 	_expect(_overlay_visible(), "system menu overlay should be visible during unit select")
+	_expect(_system_backdrop_alpha_in_range(), "system menu backdrop should keep underlying context readable")
 	_expect(_button_exists("ResumeButton"), "resume button missing")
 	_expect(_button_exists("NewRunButton"), "new run button missing")
 	_expect(_button_exists("ReturnTitleButton"), "return to title button missing")
@@ -64,6 +67,7 @@ func _run() -> void:
 	await _settle_frames(1)
 	_expect(get_tree().paused, "opening system menu in combat should pause")
 	_expect(_overlay_visible(), "system menu overlay should be visible during combat")
+	_expect(_system_backdrop_alpha_in_range(), "combat system menu backdrop should keep underlying context readable")
 	_save_capture("02_combat_system_menu.png")
 	_press_button("ReturnTitleButton")
 	await _settle_frames(3)
@@ -139,6 +143,13 @@ func _button_visible(button_name: String) -> bool:
 func _overlay_visible() -> bool:
 	var overlay: Control = _main.get_node_or_null("SystemMenuLayer/SystemMenuOverlay") as Control
 	return overlay != null and overlay.visible
+
+func _system_backdrop_alpha_in_range() -> bool:
+	var backdrop: ColorRect = _main.get_node_or_null("SystemMenuLayer/SystemMenuOverlay/Backdrop") as ColorRect
+	if backdrop == null:
+		return false
+	var alpha: float = backdrop.color.a
+	return alpha >= SYSTEM_BACKDROP_MIN_ALPHA and alpha <= SYSTEM_BACKDROP_MAX_ALPHA
 
 func _node_visible(path: String) -> bool:
 	var node: CanvasItem = _main.get_node_or_null(path) as CanvasItem
