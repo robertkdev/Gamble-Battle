@@ -666,10 +666,10 @@ Key manual evidence captured in this continuation:
    - Supporting context shows Hexeon is cost 3 and filtered out by starter/shop level odds.
    - Better solution: decide intentionally whether Hexeon is a later-shop unit or should be eligible as a starter.
 
-15. Lower Unit Select scrolling can leave stale inspection context.
-   - After scrolling to the lower starter row, the selectable buttons for Teller/Totem/Veyra/Volt/Vykos were visible, but the right-side preview still read as if Cashmere was being inspected.
-   - This is easy to miss during normal play because the selected unit portrait/button changes, but the explanatory panel can lag behind the player's actual target.
-   - Better solution: reset or refresh the inspection panel on scroll/focus change, and visually bind the preview to the currently hovered or selected starter.
+15. Lower Unit Select scrolling could leave stale inspection context. Closed in the current branch.
+   - The original manual screenshot showed Teller/Totem/Veyra/Volt/Vykos visible after scrolling while the right preview still read like Cashmere was being inspected.
+   - Current `UnitSelectSmoke` covers the intended behavior: hover preview changes to `Inspecting ...`, scrolling clears stale hover state without selecting a unit, and the preview returns to `No champion chosen`.
+   - Preserve this scroll/focus clearing behavior unless a future redesign binds the preview to an explicit selected or focused starter.
 
 16. Batch shop-buying and deployment are not reliable enough for speed play.
    - Teller's first full-shop batch buy appeared to spend little and left only Teller fighting; a slower one-by-one purchase/deploy sequence worked and reached Stage 5.
@@ -760,7 +760,7 @@ Summary from supporting data:
 9. Add a combat no-progress timeout/debug readout for battles that stay locked without damage or resolution.
 10. Add a short post-win pause or explicit "continue planning" beat; Korath advanced through a planning window while the auditor was waiting on fight resolution, which can cause missed shop decisions.
 11. Preserve the now-passing rapid rendered-card buy/deploy behavior and the audit-assisted real-window OS-coordinate burst result; broaden only if future natural full-run play exposes human-speed hit-target or feedback issues.
-12. Fix stale Unit Select preview state after scrolling or changing focus.
+12. Preserve the now-covered Unit Select scroll/focus behavior: scrolling away from a hovered starter should clear stale inspection copy instead of leaving the previous unit in the preview panel.
 13. Preserve and visually verify the current `Combat Resolving...` Start Battle transition in real-window play, and add a timeout if no combat progress occurs.
 14. Preserve Buy XP transactional feedback: if the click is unaffordable, show the reserve-floor reason; if it succeeds, keep gold/level/XP labels repainting immediately and make any reroll/shop refresh rules visible.
 15. Preserve the now-fixed defeat modal ownership: the top-right system Menu hides, disables, and cannot open while the defeat overlay is active.
