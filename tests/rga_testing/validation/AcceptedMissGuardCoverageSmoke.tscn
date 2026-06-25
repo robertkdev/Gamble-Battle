@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd" id="1"]
+
+[node name="AcceptedMissGuardCoverageSmoke" type="Node"]
+script = ExtResource("1")

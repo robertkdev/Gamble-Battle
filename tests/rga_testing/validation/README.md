@@ -186,6 +186,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/ProbeReportCompilerHardPeelApplicabilitySmoke.tscn`
   - Ensures saved accepted-miss diagnostics keep cleanse/CC-immunity hard-peel subspans only for identities that claim `support.peel_carry` or `cc_immunity`, while preserving team peel-save scenario diagnostics for soft peel identities.
 
+- Accepted-miss guard coverage smoke
+  - Scene: `tests/rga_testing/validation/AcceptedMissGuardCoverageSmoke.tscn`
+  - Reads the regenerated `outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv` and fails if the current 43 accepted-miss gap kinds are not each mapped to one or more validation scenes. Regenerate the export with `tests/rga_testing/tools/Export-AcceptedMisses.ps1` before running this smoke.
+
 - Peel team-save proxy probe
   - Scene: `tests/rga_testing/validation/PeelTeamSaveProxyProbe.tscn`
   - Proves one derived team peel-save passes the shared proxy path for `approach_peel`, `role_support_identity`, and `support.peel_carry`, and rejects a zero-save control payload.
@@ -248,6 +252,7 @@ Artifacts
   - `diagnostics.lower_level_fail_spans` lists applicable subject-side role/goal/approach span misses that were accepted by aggregate verdicts, with `lower_level_fail_span_count` for backlog triage. Non-applicable goal ramp spans and soft-peel hard-peel subspans are suppressed from saved diagnostics.
   - Role, goal, and approach verdict objects also include `span_details` and `failed_span_count` for local inspection without parsing console logs.
 - Accepted-miss export: run `tests/rga_testing/tools/Export-AcceptedMisses.ps1` from the repo root to regenerate the ignored `outputs/audit_playtest/rga_accepted_misses_2026_06_25/` CSV and JSON summary from current `user://identity_reports/*.json`. The row CSV includes `topic`, `audit_gap_kind`, and `audit_next_action` for every recognized accepted span, plus `support_peel_triage`, `support_peel_gap_kind`, and `support_peel_next_action` for the support/peel bucket. The generated `accepted_gap_kind_summary.csv` rolls those rows up by gap kind with counts, affected topics, units, labels, block types, and representative next action, and the generated README renders that rollup as a Markdown table. The JSON summary includes the same `audit_gap_kind_details` plus `primary_topic_counts`, `audit_gap_kind_counts`, `support_peel_triage_counts`, and `support_peel_gap_kind_counts`, so the backlog can be reviewed by scenario/content group and next tuning action instead of only by keyword.
+- `AcceptedMissGuardCoverageSmoke.tscn` is the executable coverage manifest for the current accepted-miss audit state. It expects the regenerated summary to contain 43 gap kinds and 80 accepted spans, and it verifies every exported gap kind maps to committed validation-scene coverage.
 
 Notes
 - Latest doc-vs-test comparison: `docs/rga/test_notes_2026-06-23.md`
