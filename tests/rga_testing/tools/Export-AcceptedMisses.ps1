@@ -86,6 +86,45 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 	}
 }
 
+function Get-SupportPeelGapKind($Label) {
+	$text = [string]$Label
+	if ($text -match 'debuff_cleanse|lockdown_cleanse|tenacity') {
+		return "counterplay_context_absent"
+	}
+	if ($text -match 'cc_sync') {
+		return "wombo_cc_sync_absent"
+	}
+	if ($text -match 'cooldown_trade_efficiency') {
+		return "cooldown_trade_quality_below_target"
+	}
+	if ($text -match 'cc_prevented') {
+		return "cc_prevention_context_absent"
+	}
+	if ($text -match 'interrupt_events') {
+		return "peel_interrupt_context_absent"
+	}
+	if ($text -match 'peel_saves') {
+		return "team_peel_save_metric_absent"
+	}
+	if ($text -match 'cc_immunity|cleanse') {
+		return "hard_peel_submode_absent"
+	}
+	return ""
+}
+
+function Get-SupportPeelNextAction($GapKind) {
+	switch ([string]$GapKind) {
+		"counterplay_context_absent" { return "Add a cleanse/high-tenacity counterplay context, or retune the debuff/lockdown tag if that counterplay should not be required." }
+		"wombo_cc_sync_absent" { return "Decide whether wombo requires direct CC-sync evidence or whether burst/AoE aggregate evidence is sufficient." }
+		"cooldown_trade_quality_below_target" { return "Tune the threat-response setup or the cooldown-trade efficiency threshold for the all-unit support scenario." }
+		"cc_prevention_context_absent" { return "Create an incoming-CC threat context that can prove subject CC prevention, or keep it as optional quality evidence." }
+		"peel_interrupt_context_absent" { return "Create an interruptible carry-threat context so peel-carry can prove direct interrupt evidence." }
+		"team_peel_save_metric_absent" { return "Create a live dive/carry-threat scenario that can trigger team peel-save attribution." }
+		"hard_peel_submode_absent" { return "Confirm whether this identity should prove hard peel through cleanse/CC immunity, then retag or add/tune direct evidence." }
+		default { return "" }
+	}
+}
+
 function Count-By($Rows, $PropertyName) {
 	$map = [ordered]@{}
 	foreach ($row in $Rows) {
@@ -148,6 +187,7 @@ foreach ($report in $reports) {
 	foreach ($span in $spans) {
 		$label = [string](Get-OptionalProperty $span "label" "")
 		$unitId = [string](Get-OptionalProperty $j "unit_id" "")
+		$gapKind = Get-SupportPeelGapKind $label
 		$rows += [pscustomobject]@{
 			unit = $unitId
 			role = [string](Get-OptionalProperty $identity "primary_role" "")
@@ -164,6 +204,8 @@ foreach ($report in $reports) {
 			subject_side = [string](Get-OptionalProperty $span "subject_side" "")
 			topic = Get-SpanTopic $label
 			support_peel_triage = Get-SupportPeelTriageGroup $unitId $label
+			support_peel_gap_kind = $gapKind
+			support_peel_next_action = Get-SupportPeelNextAction $gapKind
 		}
 	}
 	$verdicts = Get-OptionalProperty $j "verdicts" $null
@@ -191,6 +233,8 @@ $rampFailCount = @($rows | Where-Object { $_.label -match 'ramp' }).Count
 $supportPeelRows = @($rows | Where-Object { [string]$_.support_peel_triage -ne "" })
 $supportPeelTriageCounts = Count-By $supportPeelRows "support_peel_triage"
 $supportPeelTriageSummary = ($supportPeelTriageCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
+$supportPeelGapKindCounts = Count-By $supportPeelRows "support_peel_gap_kind"
+$supportPeelGapKindSummary = ($supportPeelGapKindCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
 
 if (-not (Test-Path -LiteralPath $OutputDir)) {
 	New-Item -ItemType Directory -Path $OutputDir | Out-Null
@@ -215,6 +259,7 @@ $summary = [ordered]@{
 	primary_topic_counts = Count-By $rows "topic"
 	keyword_bucket_counts = Count-KeywordBuckets $rows
 	support_peel_triage_counts = $supportPeelTriageCounts
+	support_peel_gap_kind_counts = $supportPeelGapKindCounts
 	highest_unit_fail_counts = @($rows | Group-Object unit | Sort-Object -Property @{Expression="Count"; Descending=$true}, @{Expression="Name"; Descending=$false} | ForEach-Object {
 		[ordered]@{ unit = $_.Name; count = $_.Count }
 	})
@@ -236,6 +281,7 @@ $readme = @(
 	"- Ramp spans: $rampFailCount",
 	"- Non-ramp goal-ramp spans: $nonRampGoalRampCount",
 	"- Support/peel triage: $supportPeelTriageSummary",
+	"- Support/peel gap kinds: $supportPeelGapKindSummary",
 	"",
 	"Generated files:",
 	'- `accepted_lower_level_fail_spans.csv`',
