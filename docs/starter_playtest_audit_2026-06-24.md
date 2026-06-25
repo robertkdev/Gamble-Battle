@@ -17,6 +17,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Fresh live cost-1 post-buy/deploy screenshots: `outputs/audit_playtest/live_deploy_recheck_2026_06_25/`
 - Fresh live cost-2 Buy XP/deploy attempt screenshots and notes: `outputs/audit_playtest/live_cost2_recheck_2026_06_25/`
 - Live-window fallback diagnostics: `outputs/audit_playtest/window_capture_2026_06_25/`
+- Debug audit QA exports: `user://audit_exports/audit_state_*.json`; `F8` opens the debug-only in-game Audit QA panel for state export, screenshot attempt, timer hold, restart, and speed controls.
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
 
@@ -38,6 +39,7 @@ MCP validation run on 2026-06-24:
 - `tests/rga_testing/validation/RewardsKillProbe.tscn`: `RewardsKillProbe: PASS`
 - `tests/rga_testing/validation/RewardsActionsProbe.tscn`: `[RewardsTest] PASS`
 - `tests/rga_testing/validation/CreepsProbe.tscn`: `CreepsProbe: PASS (spawned 4)`
+- `tests/visual/AuditPanelSmoke.tscn`: `AuditPanelSmoke: OK`; rerun on 2026-06-25 with `errors: []`
 - `git diff --check`: clean
 
 Confirmed current fixes/coverage:
@@ -51,13 +53,14 @@ Confirmed current fixes/coverage:
 - A targeted current Main-flow rapid-input runner now covers a same-frame burst across five rendered shop cards, five resulting bench units, five bench-to-board deploy attempts, and the next fight resolving. A follow-up audit-assisted OS-window pass now covers real mouse-coordinate burst buying across five visible shop cards in the debug window.
 - Unit stats still come from role baselines rather than playable unit resources, as verified by `UnitStatAudit`.
 - Stage progression, creep spawning, and creep reward actions now have focused pass signals.
+- A debug-only `F8` Audit QA panel now provides in-game state JSON export, screenshot capture attempt with explicit headless/dummy skip reasons, planning-timer hold, New Run restart, and 1x/4x speed controls. `AuditPanelSmoke` verifies the panel stays hidden by default, exports parseable state, reports screenshot status safely, controls speed, holds the planning timer, and returns to Unit Select through New Run.
 
 Remaining audit gaps:
 - The current validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier and stage/reward changes, but not a fresh human real-window/screenshot replay of every starter.
 - The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor and OS-window runs did. Remaining modal risk is visual polish only: the current defeat modal screenshot is refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, while the separate system menu overlay still dims the underlying game heavily. The earlier hidden enemy label and top-right Menu-behind-defeat conflicts are now covered by `LossScreenSmoke`, `ExitFlowSmoke`, and the current OS-window screenshot.
 - RoleMatrixSmoke passes all 22 units, but the fresh 2026-06-25 detail recheck found 130 accepted lower-level `FAIL` spans across all 22 current units. Role-report JSON is narrower: 21 of 22 reports still contain negative role deltas, with Cashmere clean only at the role-identity level.
-- Long manual play still has real-window fragility around session capture and mouse feel, but cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message.
-- A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive.
+- Long manual play still has real-window fragility around mouse feel, but cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message. The debug Audit QA panel reduces the repeated-eval/session-capture dependency by moving state export, timer hold, restart, and speed controls into the running game.
+- A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive. The Audit QA screenshot control now skips safely with an explicit reason under dummy/headless renderers.
 
 ## Current Audit Closure Matrix
 
@@ -76,7 +79,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` screenshot proves duplicate Berebell rows are readable but ambiguous. | Covered visually | Design decision needed: copy indicators, star/level labels, or aggregation. |
 | Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current real-window visual state. | Covered visually and behaviorally with caveats | Broader modal polish only if a future visual pass finds contrast, spacing, or system-menu dimming issues. |
 | RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; the 2026-06-25 accepted-miss parser found 130 accepted lower-level `FAIL` spans across all 22 units, plus negative role deltas in 21/22 reports. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
-| Tooling reliability | Multiple runs reproduce Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. | Open audit infrastructure blocker | Add first-class in-game QA controls for screenshot, state export, timer, restart, and speed so manual audits do not depend on fragile repeated eval calls. |
+| Tooling reliability | Multiple runs reproduced Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. `AuditPanelSmoke` now covers a debug-only in-game Audit QA panel for state export, screenshot status, timer hold, restart, and speed controls. | Mitigated for manual audits | Real non-dummy screenshot save should be rechecked in a live window; keep fallback OS screenshots for visual evidence when renderer/session capture is fragile. |
 
 ## Current RoleMatrix Accepted-Miss Recheck
 
@@ -732,7 +735,7 @@ Summary from supporting data:
 4. Make disabled opening shop controls visually non-interactive and provide direct feedback when clicked.
 5. Increase spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
 6. Register or remove missing completed item dynamic effects before trusting item strategy.
-7. Add reliable in-game audit/QA controls for manual playtests: stable screenshot, state export, restart, and speed controls that do not require fragile repeated Godot-AI eval calls.
+7. Preserve and extend the debug in-game Audit QA controls for manual playtests: state export, screenshot status, restart, timer hold, and speed controls that do not require fragile repeated Godot-AI eval calls.
 8. Add a first-purchase bench deployment tutorial or temporary planning-time extension so bought units are actually fielded in early manual runs.
 9. Add a combat no-progress timeout/debug readout for battles that stay locked without damage or resolution.
 10. Add a short post-win pause or explicit "continue planning" beat; Korath advanced through a planning window while the auditor was waiting on fight resolution, which can cause missed shop decisions.

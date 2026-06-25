@@ -7,6 +7,7 @@ extends Control
 @onready var quit_button: Button = $TitleMenu/Center/VBox/QuitButton
 
 const Debug := preload("res://scripts/util/debug.gd")
+const AuditPanelScene: GDScript = preload("res://scripts/ui/audit/audit_panel.gd")
 
 const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
@@ -21,6 +22,7 @@ var _resume_button: Button
 var _return_title_button: Button
 var _new_run_button: Button
 var _quit_game_button: Button
+var _audit_panel: CanvasLayer
 var _system_menu_open: bool = false
 
 func _ready() -> void:
@@ -95,6 +97,10 @@ func _on_unit_selected(unit_id: String) -> void:
 	GameState.set_phase(GameState.GamePhase.PREVIEW)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _is_audit_panel_event(event):
+		_toggle_audit_panel()
+		get_viewport().set_input_as_handled()
+		return
 	if not _is_system_menu_event(event):
 		return
 	if title_menu and title_menu.visible:
@@ -112,6 +118,12 @@ func refresh_system_menu_state() -> void:
 		_close_system_menu()
 		return
 	_sync_system_menu_button()
+
+func enable_audit_panel_for_test() -> CanvasLayer:
+	_ensure_audit_panel()
+	if _audit_panel != null:
+		_audit_panel.visible = true
+	return _audit_panel
 
 func request_return_to_title() -> void:
 	_close_system_menu()
@@ -362,6 +374,30 @@ func _is_system_menu_event(event: InputEvent) -> bool:
 	if key_event == null:
 		return false
 	return key_event.pressed and not key_event.echo and key_event.keycode == KEY_ESCAPE
+
+func _is_audit_panel_event(event: InputEvent) -> bool:
+	if not OS.is_debug_build():
+		return false
+	var key_event: InputEventKey = event as InputEventKey
+	if key_event == null:
+		return false
+	return key_event.pressed and not key_event.echo and key_event.keycode == KEY_F8
+
+func _toggle_audit_panel() -> void:
+	_ensure_audit_panel()
+	if _audit_panel != null:
+		_audit_panel.visible = not _audit_panel.visible
+
+func _ensure_audit_panel() -> void:
+	if not OS.is_debug_build():
+		return
+	if _audit_panel != null and is_instance_valid(_audit_panel):
+		return
+	_audit_panel = AuditPanelScene.new() as CanvasLayer
+	_audit_panel.name = "AuditPanel"
+	if _audit_panel.has_method("configure"):
+		_audit_panel.call("configure", self)
+	add_child(_audit_panel)
 
 func _reset_run_state() -> void:
 	var economy: Node = _get_autoload("Economy")
