@@ -35,6 +35,7 @@ const BATTLE_LOCKED_TEXT: String = "Combat Resolving..."
 const RESOLVING_PROGRESS_DELAY_SECONDS: float = 3.0
 const RESOLVING_STUCK_WARNING_SECONDS: int = 10
 const RESOLVING_FALLBACK_TEXT: String = "Resolving fallback..."
+const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
 
 # Parent scene (CombatView)
 var parent: Control
@@ -109,6 +110,8 @@ var _shop_grid_updated_cb: Callable = Callable()
 var _first_deploy_assist_active: bool = false
 var _first_deploy_assist_seen: bool = false
 var _first_deploy_team_size: int = 0
+var _first_deploy_bench_slot: int = -1
+var _first_deploy_highlight_tile: Control = null
 var _combat_resolving_active: bool = false
 var _combat_resolving_elapsed: float = 0.0
 var _combat_resolving_last_second: int = -1
@@ -552,6 +555,8 @@ func _init_game() -> void:
 	_first_deploy_assist_active = false
 	_first_deploy_assist_seen = false
 	_first_deploy_team_size = 0
+	_clear_first_deploy_bench_highlight()
+	_first_deploy_bench_slot = -1
 	_end_combat_resolving_feedback()
 	if continue_button:
 		continue_button.disabled = false
@@ -618,14 +623,81 @@ func _on_first_purchase_needs_deploy(unit_id: String, _bench_slot: int) -> void:
 	_first_deploy_assist_active = true
 	_first_deploy_assist_seen = true
 	_first_deploy_team_size = manager.player_team.size()
+	_first_deploy_bench_slot = int(_bench_slot)
 	var display_name: String = String(unit_id).capitalize()
-	_on_log_line("Deploy %s: drag from bench to a highlighted board cell." % display_name)
+	_on_log_line("Deploy %s: drag the glowing bench unit to a highlighted board cell." % display_name)
 	if parent != null:
 		var current_time: float = float(parent.get("planning_time_left"))
 		if current_time < FIRST_DEPLOY_TIMER_EXTENSION:
 			parent.set("planning_time_left", FIRST_DEPLOY_TIMER_EXTENSION)
 	if player_grid != null:
 		player_grid.modulate = Color(1.0, 0.82, 0.42, 1.0)
+	_apply_first_deploy_bench_highlight()
+
+func _apply_first_deploy_bench_highlight() -> void:
+	_clear_first_deploy_bench_highlight()
+	if not _first_deploy_assist_active:
+		return
+	if bench_grid == null:
+		return
+	if _first_deploy_bench_slot < 0:
+		return
+	var bench_tiles: Array[Node] = bench_grid.get_children()
+	if _first_deploy_bench_slot >= bench_tiles.size():
+		return
+	var tile: Control = bench_tiles[_first_deploy_bench_slot] as Control
+	if tile == null:
+		return
+	_first_deploy_highlight_tile = tile
+	tile.modulate = Color(1.0, 0.9, 0.55, 1.0)
+	tile.tooltip_text = FIRST_DEPLOY_BENCH_TOOLTIP
+	if tile is Button:
+		var button: Button = tile as Button
+		var style: StyleBoxFlat = _make_first_deploy_bench_style()
+		button.add_theme_stylebox_override("normal", style)
+		button.add_theme_stylebox_override("hover", style)
+		button.add_theme_stylebox_override("pressed", style)
+		button.add_theme_stylebox_override("focus", style)
+	for child: Node in tile.get_children():
+		if child is UnitView:
+			var view: UnitView = child as UnitView
+			view.modulate = Color(1.0, 0.96, 0.72, 1.0)
+			view.tooltip_text = FIRST_DEPLOY_BENCH_TOOLTIP
+
+func _clear_first_deploy_bench_highlight() -> void:
+	if _first_deploy_highlight_tile == null:
+		return
+	if is_instance_valid(_first_deploy_highlight_tile):
+		_first_deploy_highlight_tile.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		_first_deploy_highlight_tile.tooltip_text = ""
+		if _first_deploy_highlight_tile is Button:
+			var button: Button = _first_deploy_highlight_tile as Button
+			button.remove_theme_stylebox_override("normal")
+			button.remove_theme_stylebox_override("hover")
+			button.remove_theme_stylebox_override("pressed")
+			button.remove_theme_stylebox_override("focus")
+		for child: Node in _first_deploy_highlight_tile.get_children():
+			if child is UnitView:
+				var view: UnitView = child as UnitView
+				view.modulate = Color(1.0, 1.0, 1.0, 1.0)
+				view.tooltip_text = ""
+	_first_deploy_highlight_tile = null
+
+func _make_first_deploy_bench_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.20, 0.12, 0.03, 0.92)
+	style.border_color = Color(1.0, 0.76, 0.28, 1.0)
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.shadow_size = 8
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
+	return style
 
 func refresh_all_views() -> void:
 	if selection != null and selection.has_method("reset_bindings"):
@@ -725,6 +797,8 @@ func _on_continue_pressed() -> void:
 			_set_continue_to_start_text()
 			return
 		_first_deploy_assist_active = false
+		_clear_first_deploy_bench_highlight()
+		_first_deploy_bench_slot = -1
 		if player_grid != null:
 			player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		# Precompute arena positions from current planning layout so engine starts at chosen tiles
@@ -818,6 +892,8 @@ func _update_first_deploy_assist() -> void:
 	_first_deploy_assist_active = false
 	if player_grid != null:
 		player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
+	_clear_first_deploy_bench_highlight()
+	_first_deploy_bench_slot = -1
 	_on_log_line("Unit deployed. Start Battle when ready.")
 
 func _on_promotions_emitted(promotions: Array) -> void:
@@ -943,6 +1019,7 @@ func _rebuild_bench_views(allow_drag: bool) -> void:
 							var _uv: UnitView = (child as UnitView)
 							var __prov2 := func(): return _uv.unit
 							selection.attach_to_unit_view(_uv, "player", -1, __prov2)
+	_apply_first_deploy_bench_highlight()
 
 func _on_unit_dropped_any(target_grid, _tile_idx: int, uv: UnitView) -> void:
 	# Handle sell-zone drops

@@ -13,6 +13,7 @@ const LOSS_CYCLES: int = 5
 const CLICK_SETTLE_FRAMES: int = 3
 const DRAG_STEPS: int = 8
 const FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT: float = 10.0
+const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
 const USE_SYNTHETIC_INPUT: bool = false
 
 var _main: Control = null
@@ -169,10 +170,12 @@ func _play_shop_cycle(unit_id: String) -> void:
 	await _settle_frames(4)
 	_expect(Roster.compact().size() >= 1, "shop buy did not place a unit on bench")
 	_expect(_deploy_prompt_visible(), "shop buy did not show deploy guidance")
+	_expect(_first_deploy_bench_highlight_visible(), "first deploy assist did not highlight the bought bench unit")
 	_expect(_planning_time_left() >= FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT, "first deploy assist did not extend short planning timer; %s" % _deploy_assist_state())
 	var moved_to_board: bool = await _drag_first_bench_unit_to_board()
 	_expect(moved_to_board, "bought bench unit did not move to board through mouse drag")
 	await _settle_frames(4)
+	_expect(not _first_deploy_bench_highlight_visible(), "first deploy assist bench highlight did not clear after deployment")
 	await _press_continue(false, "shop cycle second fight")
 	var outcome_seen: bool = await _wait_for_preview_or_loss(35.0)
 	_expect(outcome_seen, "shop cycle second fight did not resolve")
@@ -555,6 +558,22 @@ func _deploy_prompt_visible() -> bool:
 	if root == null:
 		return false
 	return _find_label_containing_text(root, "Drag it from bench to board") != null
+
+func _first_deploy_bench_highlight_visible() -> bool:
+	var bench_grid: GridContainer = _main.find_child("BenchGrid", true, false) as GridContainer
+	if bench_grid == null:
+		return false
+	for tile_node: Node in bench_grid.get_children():
+		var tile: Control = tile_node as Control
+		if tile == null:
+			continue
+		if String(tile.tooltip_text) != FIRST_DEPLOY_BENCH_TOOLTIP:
+			continue
+		var button: Button = tile as Button
+		if button == null or not button.has_theme_stylebox_override("normal"):
+			continue
+		return _find_first_unit_view(tile) != null
+	return false
 
 func _deploy_assist_signal_connected() -> bool:
 	var controller: Variant = _combat_controller()
