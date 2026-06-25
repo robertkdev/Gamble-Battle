@@ -124,6 +124,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/ProbeReportCompilerSubjectSideSmoke.tscn`
   - Synthetic fast check that report diagnostics keep audited-side spans and exclude opponent-side aggregates such as `b_unit_pass_count` and suffix labels such as `magic_share_med_b`.
 
+- Unit identity map doc smoke
+  - Scene: `tests/rga_testing/validation/UnitIdentityMapDocSmoke.tscn`
+  - Compares `docs/unit_identity_map.md` against current playable `UnitCatalog` identity metadata so stale role/goal/approach retags do not mislead audits.
+
 Artifacts
 - Telemetry rows: `user://rga_out.jsonl` (or configured `out_path` ending with .jsonl/.ndjson; file is cleared each run)
 - Probe reports: `user://identity_reports/<unit>.json`
