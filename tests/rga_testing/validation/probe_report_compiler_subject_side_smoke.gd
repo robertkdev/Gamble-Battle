@@ -8,6 +8,7 @@ func _ready() -> void:
 func _run() -> void:
 	var ok: bool = true
 	ok = _assert_unit_attributed_side_filter() and ok
+	ok = _assert_non_attrition_brawler_direct_attrition_filter() and ok
 	ok = _assert_suffix_side_filter_fallback() and ok
 	if ok:
 		print("ProbeReportCompilerSubjectSideSmoke: PASS")
@@ -49,6 +50,39 @@ func _assert_unit_attributed_side_filter() -> bool:
 		return false
 	if int((report.get("diagnostics", {}) as Dictionary).get("lower_level_fail_span_count", -1)) != 1:
 		printerr("Smoke: expected one unit-attributed diagnostic failure, got ", report.get("diagnostics", {}))
+		return false
+	return true
+
+func _assert_non_attrition_brawler_direct_attrition_filter() -> bool:
+	var metric: Dictionary[String, Variant] = {
+		"id": "role_brawler_identity",
+		"status": "pass",
+		"message": "synthetic non-attrition brawler filter",
+		"spans": [
+			_span("unit_direct_attrition_evidence", 0.0, 1.0, false, {
+				"unit_id": "bo",
+				"subject_side": "a",
+				"subject_role": "brawler",
+				"reason": "synthetic_skirmish_direct_attrition"
+			}),
+			_span("unit_pass", 1.0, 1.0, true, {
+				"unit_id": "bo",
+				"subject_side": "a",
+				"subject_role": "brawler",
+				"reason": "synthetic_skirmish_pass"
+			}),
+			_span("a_unit_pass_count", 1.0, 1.0, true),
+			_span("b_unit_pass_count", 0.0, 1.0, false)
+		]
+	}
+	var report: Dictionary[String, Variant] = _typed_dictionary(ProbeReportCompiler.compile("bo", {}, {"metrics": [metric]}, {"run_id": "non_attrition_brawler"}))
+	var spans: Array[Dictionary] = _diagnostic_spans(report)
+	var labels: Array[String] = _labels(spans)
+	if labels.has("unit_direct_attrition_evidence"):
+		printerr("Smoke: non-attrition brawler direct-attrition diagnostic leaked into report")
+		return false
+	if int((report.get("diagnostics", {}) as Dictionary).get("lower_level_fail_span_count", -1)) != 0:
+		printerr("Smoke: expected zero non-attrition brawler diagnostics, got ", report.get("diagnostics", {}))
 		return false
 	return true
 

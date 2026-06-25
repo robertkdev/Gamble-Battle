@@ -392,7 +392,13 @@ static func _span_applicable_to_identity(span: Dictionary, assigned_identity: Di
 	var label: String = String(span.get("label", "")).strip_edges()
 	if HARD_PEEL_DIAGNOSTIC_LABELS.has(label):
 		return _identity_requires_hard_peel(assigned_identity)
+	if label == "unit_direct_attrition_evidence":
+		return _identity_requires_direct_attrition(assigned_identity)
 	return true
+
+static func _identity_requires_direct_attrition(assigned_identity: Dictionary) -> bool:
+	var goal_id: String = String(assigned_identity.get("primary_goal", "")).strip_edges().to_lower()
+	return goal_id == "brawler.attrition_dps"
 
 static func _identity_requires_hard_peel(assigned_identity: Dictionary) -> bool:
 	var goal_id: String = String(assigned_identity.get("primary_goal", "")).strip_edges().to_lower()
@@ -432,7 +438,19 @@ static func _compact_span(span: Dictionary) -> Dictionary:
 		"sustained_z",
 		"focus_survival_avg_s",
 		"time_alive_avg_s",
-		"soak_index"
+		"soak_index",
+		"direct_attrition_frontline_share",
+		"direct_attrition_effective_hps",
+		"direct_attrition_ramp_events",
+		"direct_attrition_ramp_stack_max",
+		"direct_attrition_ramp_window_s",
+		"direct_attrition_execute_events",
+		"direct_attrition_low_hp_kills",
+		"direct_attrition_aoe_dps",
+		"direct_attrition_max_targets_hit",
+		"direct_attrition_burst_peak_dps",
+		"direct_attrition_burst_peak_share",
+		"direct_attrition_burst_ok"
 	]:
 		if span.has(key2):
 			out[key2] = span.get(key2)

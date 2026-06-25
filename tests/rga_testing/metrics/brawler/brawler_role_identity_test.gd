@@ -242,6 +242,9 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 				ex["direct_attrition_low_hp_kills"] = float(direct_attrition.get("low_hp_kills", 0.0))
 				ex["direct_attrition_aoe_dps"] = float(direct_attrition.get("aoe_dps", 0.0))
 				ex["direct_attrition_max_targets_hit"] = float(direct_attrition.get("max_targets_hit", 0.0))
+				ex["direct_attrition_burst_peak_dps"] = float(direct_attrition.get("burst_peak_dps", 0.0))
+				ex["direct_attrition_burst_peak_share"] = float(direct_attrition.get("burst_peak_share", 0.0))
+				ex["direct_attrition_burst_ok"] = bool(direct_attrition.get("burst_ok", false))
 				ex["req_focus_s"] = focus_req
 				ex["req_hits_survived"] = hits_req
 				ex["req_time_alive_s"] = time_alive_req
@@ -328,7 +331,10 @@ func _bump_direct_attrition(store: Dictionary, entry: Dictionary, side: String, 
 		"low_hp_kills": 0.0,
 		"aoe_dps_total": 0.0,
 		"aoe_dps_samples": 0,
-		"max_targets_hit": 0.0
+		"max_targets_hit": 0.0,
+		"burst_peak_dps_total": 0.0,
+		"burst_peak_dps_samples": 0,
+		"burst_peak_share_max": 0.0
 	})
 	rec["samples"] = int(rec.get("samples", 0)) + 1
 	rec["sustain_total"] = float(rec.get("sustain_total", 0.0)) + float(unit_entry.get("healing", 0.0)) + float(unit_entry.get("shield", 0.0))
@@ -355,6 +361,9 @@ func _bump_direct_attrition(store: Dictionary, entry: Dictionary, side: String, 
 		rec["aoe_dps_total"] = float(rec.get("aoe_dps_total", 0.0)) + float(pattern_rec.get("aoe_dps", 0.0))
 		rec["aoe_dps_samples"] = int(rec.get("aoe_dps_samples", 0)) + 1
 		rec["max_targets_hit"] = max(float(rec.get("max_targets_hit", 0.0)), float(pattern_rec.get("max_targets_hit", 0.0)))
+		rec["burst_peak_dps_total"] = float(rec.get("burst_peak_dps_total", 0.0)) + float(pattern_rec.get("peak_1s_dps", 0.0))
+		rec["burst_peak_dps_samples"] = int(rec.get("burst_peak_dps_samples", 0)) + 1
+		rec["burst_peak_share_max"] = max(float(rec.get("burst_peak_share_max", 0.0)), float(pattern_rec.get("peak_1s_damage_share", 0.0)))
 	side_store[uid] = rec
 	store[side] = side_store
 
@@ -372,12 +381,16 @@ func _direct_attrition_eval(rec: Dictionary) -> Dictionary:
 	var aoe_samples: int = int(rec.get("aoe_dps_samples", 0))
 	var aoe_dps: float = float(rec.get("aoe_dps_total", 0.0)) / max(1.0, float(aoe_samples))
 	var max_targets_hit: float = float(rec.get("max_targets_hit", 0.0))
+	var burst_samples: int = int(rec.get("burst_peak_dps_samples", 0))
+	var burst_peak_dps: float = float(rec.get("burst_peak_dps_total", 0.0)) / max(1.0, float(burst_samples))
+	var burst_peak_share: float = float(rec.get("burst_peak_share_max", 0.0))
 	var frontline_ok: bool = frontline_samples > 0 and frontline_share >= 0.40
 	var sustain_ok: bool = effective_hps >= 2.0
 	var ramp_ok: bool = ramp_events >= 1.0 and (ramp_stack_max >= 2.0 or ramp_window_s >= 1.0)
 	var execute_ok: bool = execute_events >= 1.0 or low_hp_kills >= 1.0
 	var aoe_ok: bool = aoe_dps >= 4.0 or max_targets_hit >= 2.0
-	var pressure_ok: bool = ramp_ok or execute_ok or aoe_ok
+	var burst_ok: bool = burst_peak_dps >= 25.0 or burst_peak_share >= 0.25
+	var pressure_ok: bool = ramp_ok or execute_ok or aoe_ok or burst_ok
 	return {
 		"pass": frontline_ok and sustain_ok and pressure_ok,
 		"frontline_share": frontline_share,
@@ -389,10 +402,13 @@ func _direct_attrition_eval(rec: Dictionary) -> Dictionary:
 		"low_hp_kills": low_hp_kills,
 		"aoe_dps": aoe_dps,
 		"max_targets_hit": max_targets_hit,
+		"burst_peak_dps": burst_peak_dps,
+		"burst_peak_share": burst_peak_share,
 		"frontline_ok": frontline_ok,
 		"sustain_ok": sustain_ok,
 		"ramp_ok": ramp_ok,
 		"execute_ok": execute_ok,
 		"aoe_ok": aoe_ok,
+		"burst_ok": burst_ok,
 		"pressure_ok": pressure_ok
 	}

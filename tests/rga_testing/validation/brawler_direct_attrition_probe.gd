@@ -21,18 +21,26 @@ func _run() -> void:
 	}
 
 	var positive_result: Dictionary = _run_metric(_positive_payload(subject_id))
+	var burst_result: Dictionary = _run_metric(_burst_payload(subject_id))
 	var negative_result: Dictionary = _run_metric(_negative_payload(subject_id))
 	var positive_span: Dictionary = _find_span(positive_result, "unit_direct_attrition_evidence")
+	var burst_span: Dictionary = _find_span(burst_result, "unit_direct_attrition_evidence")
 	var negative_span: Dictionary = _find_span(negative_result, "unit_direct_attrition_evidence")
 	var positive_pass: bool = bool(positive_result.get("pass", false))
+	var burst_pass: bool = bool(burst_result.get("pass", false))
 	var negative_pass: bool = bool(negative_result.get("pass", false))
 	var direct_ok: bool = bool(positive_span.get("ok", false))
+	var burst_direct_ok: bool = bool(burst_span.get("ok", false))
 	var direct_negative_ok: bool = bool(negative_span.get("ok", false))
 	var frontline_share: float = float(positive_span.get("direct_attrition_frontline_share", 0.0))
 	var effective_hps: float = float(positive_span.get("direct_attrition_effective_hps", 0.0))
 	var aoe_dps: float = float(positive_span.get("direct_attrition_aoe_dps", 0.0))
 	var max_targets_hit: float = float(positive_span.get("direct_attrition_max_targets_hit", 0.0))
+	var burst_peak_dps: float = float(burst_span.get("direct_attrition_burst_peak_dps", 0.0))
+	var burst_peak_share: float = float(burst_span.get("direct_attrition_burst_peak_share", 0.0))
+	var burst_pressure_ok: bool = bool(burst_span.get("direct_attrition_burst_ok", false))
 	var unit_pass: bool = _has_passing_span(positive_result, "unit_pass")
+	var burst_unit_pass: bool = _has_passing_span(burst_result, "unit_pass")
 
 	print("BrawlerDirectAttritionProbe: positive_pass=", positive_pass,
 		" direct_ok=", direct_ok,
@@ -40,6 +48,11 @@ func _run() -> void:
 		" effective_hps=", effective_hps,
 		" aoe_dps=", aoe_dps,
 		" max_targets=", max_targets_hit,
+		" burst_pass=", burst_pass,
+		" burst_direct_ok=", burst_direct_ok,
+		" burst_peak_dps=", burst_peak_dps,
+		" burst_peak_share=", burst_peak_share,
+		" burst_pressure_ok=", burst_pressure_ok,
 		" negative_pass=", negative_pass,
 		" negative_direct_ok=", direct_negative_ok)
 
@@ -55,6 +68,12 @@ func _run() -> void:
 		failed = true
 	if aoe_dps < 4.0 or max_targets_hit < 2.0:
 		printerr("BrawlerDirectAttritionProbe: FAIL pressure evidence was not recorded")
+		failed = true
+	if not burst_pass or not burst_unit_pass or not burst_direct_ok:
+		printerr("BrawlerDirectAttritionProbe: FAIL burst-pressure payload did not pass direct attrition")
+		failed = true
+	if burst_peak_dps < 25.0 or not burst_pressure_ok:
+		printerr("BrawlerDirectAttritionProbe: FAIL burst pressure evidence was not recorded")
 		failed = true
 	if negative_pass or direct_negative_ok:
 		printerr("BrawlerDirectAttritionProbe: FAIL negative payload passed")
@@ -76,7 +95,15 @@ func _positive_payload(subject_id: String) -> Dictionary:
 	_add_throughput_kernel(kernels, 38.0, 10.0, 12.0, 14.0)
 	_add_focus_survival_kernel(kernels, subject_id, 9.5)
 	_add_per_unit_kpi_kernel(kernels, subject_id, 0.55)
-	_add_combat_pattern_kernel(kernels, subject_id, 6.5, 2.0)
+	_add_combat_pattern_kernel(kernels, subject_id, 6.5, 2.0, 20.0, 0.10)
+	return _base_payload(subject_id, _subject_unit(subject_id, 120.0, 120.0, 10.0, 12.0, 14.0), kernels)
+
+func _burst_payload(subject_id: String) -> Dictionary:
+	var kernels: Dictionary = {}
+	_add_throughput_kernel(kernels, 38.0, 10.0, 12.0, 14.0)
+	_add_focus_survival_kernel(kernels, subject_id, 9.5)
+	_add_per_unit_kpi_kernel(kernels, subject_id, 0.55)
+	_add_combat_pattern_kernel(kernels, subject_id, 0.0, 1.0, 80.0, 0.18)
 	return _base_payload(subject_id, _subject_unit(subject_id, 120.0, 120.0, 10.0, 12.0, 14.0), kernels)
 
 func _negative_payload(subject_id: String) -> Dictionary:
@@ -84,7 +111,7 @@ func _negative_payload(subject_id: String) -> Dictionary:
 	_add_throughput_kernel(kernels, 5.0, 25.0, 30.0, 32.0)
 	_add_focus_survival_kernel(kernels, subject_id, 9.5)
 	_add_per_unit_kpi_kernel(kernels, subject_id, 0.10)
-	_add_combat_pattern_kernel(kernels, subject_id, 0.5, 1.0)
+	_add_combat_pattern_kernel(kernels, subject_id, 0.5, 1.0, 5.0, 0.02)
 	return _base_payload(subject_id, _subject_unit(subject_id, 20.0, 120.0, 10.0, 0.0, 0.0), kernels)
 
 func _base_payload(subject_id: String, subject_unit: Dictionary, kernels: Dictionary) -> Dictionary:
@@ -182,13 +209,15 @@ func _add_per_unit_kpi_kernel(kernels: Dictionary, subject_id: String, damage_to
 		"b": {}
 	}
 
-func _add_combat_pattern_kernel(kernels: Dictionary, subject_id: String, aoe_dps: float, max_targets_hit: float) -> void:
+func _add_combat_pattern_kernel(kernels: Dictionary, subject_id: String, aoe_dps: float, max_targets_hit: float, peak_1s_dps: float, peak_1s_damage_share: float) -> void:
 	kernels["combat_patterns"] = {
 		"per_unit": {
 			"a": {
 				subject_id: {
 					"aoe_dps": aoe_dps,
-					"max_targets_hit": max_targets_hit
+					"max_targets_hit": max_targets_hit,
+					"peak_1s_dps": peak_1s_dps,
+					"peak_1s_damage_share": peak_1s_damage_share
 				}
 			},
 			"b": {}

@@ -2,7 +2,7 @@ extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
 const EXPECTED_GAP_KIND_COUNT: int = 42
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 75
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 72
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"burst_approach_peak_share_below_target": ["res://tests/rga_testing/validation/BurstWindowKernelProbe.tscn"],
