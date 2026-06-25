@@ -123,6 +123,12 @@ function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 	if ($text -match 'cc_sync') {
 		return "wombo_cc_sync_absent"
 	}
+	if ($text -match 'subject_cc_immunity_cooldown_trade_efficiency') {
+		return "cc_immunity_approach_cooldown_trade_below_target"
+	}
+	if ($text -match 'goal_peel_carry_cooldown_trade_efficiency') {
+		return "peel_carry_goal_cooldown_trade_below_target"
+	}
 	if ($text -match 'cooldown_trade_efficiency') {
 		return "cooldown_trade_quality_below_target"
 	}
@@ -161,6 +167,8 @@ function Get-SupportPeelNextAction($GapKind) {
 		"lockdown_high_tenacity_effective_drop_below_target" { return "Tune high-tenacity response composition, lockdown duration/effectiveness, or effective-drop threshold for lockdown identities." }
 		"lockdown_counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, lockdown counterplay thresholds, or lockdown tags for identities that should prove anti-CC response pressure." }
 		"wombo_cc_sync_absent" { return "Decide whether wombo requires direct CC-sync evidence or whether burst/AoE aggregate evidence is sufficient." }
+		"cc_immunity_approach_cooldown_trade_below_target" { return "Tune incoming-threat setup, CC-immunity response timing, or approach cooldown-trade threshold for Totem's CC-immunity evidence." }
+		"peel_carry_goal_cooldown_trade_below_target" { return "Tune carry-threat setup, support response timing, or goal cooldown-trade threshold for Totem's peel-carry evidence." }
 		"cooldown_trade_quality_below_target" { return "Tune the threat-response setup or the cooldown-trade efficiency threshold for the all-unit support scenario." }
 		"cc_prevention_context_absent" { return "Create an incoming-CC threat context that can prove subject CC prevention, or keep it as optional quality evidence." }
 		"peel_interrupt_context_absent" { return "Create an interruptible carry-threat context so peel-carry can prove direct interrupt evidence." }
