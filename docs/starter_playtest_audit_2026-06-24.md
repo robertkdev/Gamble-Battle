@@ -635,7 +635,10 @@ Implication:
 - Ordinary play can naturally reach a valid Buy XP moment before cost-2 shopping if the player buys/deploys a cheap helper, then risks a max-bet win.
 - The audit should stop treating natural Buy XP access as unproven. The immediate communication gap is now covered mechanically: failed 4-gold clicks keep economy/progress labels stable and explain the reserve-floor rule in visible UI text.
 
-Key manual evidence captured in this continuation:
+Current branch interpretation:
+- The evidence below preserves the original 21-unit/manual continuation record, including pre-fix shop, deploy, and combat-stall failures. Treat it as historical replay evidence and play-feel source material, not as the current branch's blocker list. Current branch status is governed by the closure matrix above plus the committed validation smokes named throughout this document.
+
+Key historical manual evidence captured in this continuation:
 - `00_title_bridge.png`: title screen captured from Godot-AI `project_run`.
 - `01_unit_select.png`: Unit Select after clicking Start through `game_manage.input_mouse`.
 - `02_nyxa_planning.png`: Nyxa selected, first planning state, forced first fight, no shop offers.
@@ -667,6 +670,8 @@ Key manual evidence captured in this continuation:
 - Recovered Vykos evidence `196_vykos_selected_window.png` through `204_vykos_final_window.png`: strong max-bet opener, failed batch-buy/deploy follow-up, and Stage 2 defeat.
 
 ## Manual Starter Coverage Summary
+
+This table records historical manual observations from the older 21-unit starter surface and pre-fix interaction state. Rows that mention battle-locks, stale preview state, batch-buy misses, unclear deployment, or long resolving states should not supersede the newer mitigations and guards: `AllStarterMainFlowAudit`, `AxiomRetryEconomySmoke`, `CombatWatchdogSmoke`, `CombatResolvingFeedbackSmoke`, `ShopPurchaseFeedbackSmoke`, `RapidShopPressureSmoke`, `DragGlobalReleaseSmoke`, `NaturalBuyXPAudit`, `BuyXPTransactionalFeedbackSmoke`, `UnitSelectSmoke`, and the cost-tier gating checks. Keep the strategic reads, but revalidate play-feel issues against the current 12-starter level-1 branch before reopening them.
 
 | Starter | Best live result | Strategic read | Primary evidence |
 |---|---|---|---|
@@ -858,6 +863,8 @@ Summary from supporting data:
 - Item spot checks improved numbers but did not flip the outnumbered fights: `doubleblade` helped Cashmere, `mind_siphon` helped Nyxa, and `blood_engine` helped Korath.
 
 ## Strategy Notes So Far
+
+These strategy notes intentionally keep the old manual unit reads, but the mechanical failure descriptions are historical unless repeated on the current branch. The current branch has mechanical coverage for the former opener gating, shop transaction, deploy assist/global release, combat watchdog, Buy XP feedback, duplicate scoreboard, and Unit Select preview issues; remaining strategy work is about early composition quality, pacing, and real-window feel.
 
 - Axiom manual result: lost the opener, reached a retry shop with 1 gold, could not convert the shop into a useful board, then lost the run. This validates that pure support is a poor starter under the current forced-solo opener.
 - Berebell manual result: won the forced opener, reached Round 2 with 3 gold, bought Vykos for brawler synergy and Brute for frontline, then still lost Round 2. The buys behaved correctly and left 1 gold, but manual placement/bench affordance was unclear before the timer expired.
