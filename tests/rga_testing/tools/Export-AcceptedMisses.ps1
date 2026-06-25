@@ -242,6 +242,11 @@ function Count-By($Rows, $PropertyName) {
 	return $map
 }
 
+function Join-UniqueValues($Rows, $PropertyName) {
+	$values = @($Rows | ForEach-Object { [string]$_.$PropertyName } | Where-Object { $_ -ne "" } | Sort-Object -Unique)
+	return $values -join ","
+}
+
 function Count-KeywordBuckets($Rows) {
 	$buckets = [ordered]@{
 		support_peel_cleanse_cc = 'peel|cleanse|cc_immunity|cc_prevented|cc_sync|debuff_cleanse|tenacity|cooldown_trade'
@@ -359,10 +364,26 @@ if (-not (Test-Path -LiteralPath $OutputDir)) {
 }
 
 $csvPath = Join-Path $OutputDir "accepted_lower_level_fail_spans.csv"
+$gapSummaryCsvPath = Join-Path $OutputDir "accepted_gap_kind_summary.csv"
 $summaryPath = Join-Path $OutputDir "rga_accepted_misses_summary.json"
 $readmePath = Join-Path $OutputDir "README.md"
 
 $rows | Sort-Object unit, block_type, block, label | Export-Csv -LiteralPath $csvPath -NoTypeInformation
+
+$gapSummaryRows = @($auditGapRows | Group-Object audit_gap_kind | Sort-Object -Property @{Expression="Count"; Descending=$true}, @{Expression="Name"; Descending=$false} | ForEach-Object {
+	$groupRows = @($_.Group)
+	$firstRow = $groupRows | Select-Object -First 1
+	[pscustomobject]@{
+		audit_gap_kind = [string]$_.Name
+		count = [int]$_.Count
+		topics = Join-UniqueValues $groupRows "topic"
+		units = Join-UniqueValues $groupRows "unit"
+		labels = Join-UniqueValues $groupRows "label"
+		block_types = Join-UniqueValues $groupRows "block_type"
+		next_action = [string]$firstRow.audit_next_action
+	}
+})
+$gapSummaryRows | Export-Csv -LiteralPath $gapSummaryCsvPath -NoTypeInformation
 
 $summary = [ordered]@{
 	generated_at = (Get-Date).ToUniversalTime().ToString("o")
@@ -377,6 +398,17 @@ $summary = [ordered]@{
 	primary_topic_counts = $primaryTopicCounts
 	keyword_bucket_counts = $keywordBucketCounts
 	audit_gap_kind_counts = $auditGapKindCounts
+	audit_gap_kind_details = @($gapSummaryRows | ForEach-Object {
+		[ordered]@{
+			audit_gap_kind = $_.audit_gap_kind
+			count = $_.count
+			topics = $_.topics
+			units = $_.units
+			labels = $_.labels
+			block_types = $_.block_types
+			next_action = $_.next_action
+		}
+	})
 	support_peel_triage_counts = $supportPeelTriageCounts
 	support_peel_gap_kind_counts = $supportPeelGapKindCounts
 	highest_unit_fail_counts = @($rows | Group-Object unit | Sort-Object -Property @{Expression="Count"; Descending=$true}, @{Expression="Name"; Descending=$false} | ForEach-Object {
@@ -406,6 +438,7 @@ $readme = @(
 	"",
 	"Generated files:",
 	'- `accepted_lower_level_fail_spans.csv`',
+	'- `accepted_gap_kind_summary.csv`',
 	'- `rga_accepted_misses_summary.json`',
 	"",
 	"Regenerate with:",

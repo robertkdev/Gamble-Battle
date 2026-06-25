@@ -198,7 +198,7 @@ Recurring accepted-miss buckets from the refreshed subject-side report evidence,
 
 General accepted-miss gap-kind triage from the current export:
 - Largest non-support gap kinds are team damage share below target (7), effective-health ratio below target (6), burst peak share below target (5), multi-target coverage below target (5), body-block evidence absent (4), direct attrition evidence below target (4), backline pressure below target (3), engage CC timing unproven (3), magic damage share below target (3), movement distance below target (3), ramp stack evidence below target (3), and redirect threat-swap/taunt absent (3).
-- `audit_gap_kind_counts` in `rga_accepted_misses_summary.json` now covers all 80 rows, while support-specific `support_peel_gap_kind_counts` remains the focused view for the support/peel bucket.
+- `accepted_gap_kind_summary.csv` now rolls up all 80 accepted spans into 26 gap kinds with affected topics, units, labels, block types, and a representative next action. The same detail rows are embedded as `audit_gap_kind_details` in `rga_accepted_misses_summary.json`, while support-specific `support_peel_gap_kind_counts` remains the focused view for the support/peel bucket.
 
 Support/peel/cleanse/CC bucket triage from the current saved report JSON:
 
