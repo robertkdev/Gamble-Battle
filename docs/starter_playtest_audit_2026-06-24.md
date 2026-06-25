@@ -180,7 +180,7 @@ Aggregate result:
 - The log-level parser found 130 lower-level `-> FAIL` spans accepted by aggregate verdicts, but that includes opponent-side aggregate/control spans that are still printed in raw metric output.
 - The saved report JSON now records the subject-side backlog directly: 85 lower-level fail spans, split as 22 role spans, 45 approach spans, and 18 goal spans. Future accepted-miss audits should prefer this JSON field over parsing console text or `godot.log`.
 - 21 of 22 current units have at least one subject-side accepted lower-level fail span in saved reports. Cashmere is clean at role identity level while still logging `goal_pick_burst_kill_count 0.00 < 1.00`.
-- `tests/rga_testing/tools/Export-AcceptedMisses.ps1` now exports the ignored audit CSV and summary from `user://identity_reports/*.json`, keeping the saved artifact aligned with the subject-side report semantics instead of stale raw console counts.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1` now exports the ignored audit CSV and summary from `user://identity_reports/*.json`, keeping the saved artifact aligned with the subject-side report semantics instead of stale raw console counts. The export also includes `support_peel_triage` groups for the largest current bucket.
 - Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
@@ -193,6 +193,8 @@ Recurring accepted-miss buckets from the refreshed subject-side report evidence:
 - Burst/execute/kill and AoE/wombo misses remain visible: 10 spans in burst/execute/kill and 7 in AoE/wombo. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
 
 Support/peel/cleanse/CC bucket triage from the current saved report JSON:
+
+The `support_peel_triage` column in `accepted_lower_level_fail_spans.csv` and `support_peel_triage_counts` in `rga_accepted_misses_summary.json` now regenerate these groups directly from current reports.
 
 | Area | Rows | Current evidence gap | Audit decision |
 | --- | ---: | --- | --- |

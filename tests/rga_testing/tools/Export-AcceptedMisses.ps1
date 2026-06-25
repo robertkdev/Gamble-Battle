@@ -67,6 +67,25 @@ function Get-SpanTopic($Label) {
 	return "other"
 }
 
+function Get-SupportPeelTriageGroup($Unit, $Label) {
+	$topic = Get-SpanTopic $Label
+	if ($topic -ne "support_peel_cleanse_cc") {
+		return ""
+	}
+	$unitId = [string]$Unit
+	switch ($unitId) {
+		"axiom" { return "axiom_hard_peel_cleanse_gap" }
+		"paisley" { return "paisley_shield_peel_direct_span_gap" }
+		"totem" { return "totem_all_unit_scenario_threshold_gap" }
+		"luna" { return "luna_wombo_cc_sync_gap" }
+		"brute" { return "debuff_lockdown_counterplay_context_gap" }
+		"grint" { return "debuff_lockdown_counterplay_context_gap" }
+		"kythera" { return "debuff_lockdown_counterplay_context_gap" }
+		"sari" { return "debuff_lockdown_counterplay_context_gap" }
+		default { return "support_peel_other" }
+	}
+}
+
 function Count-By($Rows, $PropertyName) {
 	$map = [ordered]@{}
 	foreach ($row in $Rows) {
@@ -128,8 +147,9 @@ foreach ($report in $reports) {
 	$spans = @((Get-OptionalProperty $diagnostics "lower_level_fail_spans" @()))
 	foreach ($span in $spans) {
 		$label = [string](Get-OptionalProperty $span "label" "")
+		$unitId = [string](Get-OptionalProperty $j "unit_id" "")
 		$rows += [pscustomobject]@{
-			unit = [string](Get-OptionalProperty $j "unit_id" "")
+			unit = $unitId
 			role = [string](Get-OptionalProperty $identity "primary_role" "")
 			goal = [string](Get-OptionalProperty $identity "primary_goal" "")
 			approaches = ($approaches -join ",")
@@ -143,6 +163,7 @@ foreach ($report in $reports) {
 			reason = [string](Get-OptionalProperty $span "reason" "")
 			subject_side = [string](Get-OptionalProperty $span "subject_side" "")
 			topic = Get-SpanTopic $label
+			support_peel_triage = Get-SupportPeelTriageGroup $unitId $label
 		}
 	}
 	$verdicts = Get-OptionalProperty $j "verdicts" $null
@@ -167,6 +188,9 @@ $nonRampGoalRampCount = @($rows | Where-Object {
 	$_.label -match '^goal_.*_ramp_' -and ($_.approaches -split ',') -notcontains 'ramp'
 }).Count
 $rampFailCount = @($rows | Where-Object { $_.label -match 'ramp' }).Count
+$supportPeelRows = @($rows | Where-Object { [string]$_.support_peel_triage -ne "" })
+$supportPeelTriageCounts = Count-By $supportPeelRows "support_peel_triage"
+$supportPeelTriageSummary = ($supportPeelTriageCounts.GetEnumerator() | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ', '
 
 if (-not (Test-Path -LiteralPath $OutputDir)) {
 	New-Item -ItemType Directory -Path $OutputDir | Out-Null
@@ -190,6 +214,7 @@ $summary = [ordered]@{
 	block_type_counts = Count-By $rows "block_type"
 	primary_topic_counts = Count-By $rows "topic"
 	keyword_bucket_counts = Count-KeywordBuckets $rows
+	support_peel_triage_counts = $supportPeelTriageCounts
 	highest_unit_fail_counts = @($rows | Group-Object unit | Sort-Object -Property @{Expression="Count"; Descending=$true}, @{Expression="Name"; Descending=$false} | ForEach-Object {
 		[ordered]@{ unit = $_.Name; count = $_.Count }
 	})
@@ -210,6 +235,7 @@ $readme = @(
 	"- Units with at least one span: $($unitsWithRows.Count)",
 	"- Ramp spans: $rampFailCount",
 	"- Non-ramp goal-ramp spans: $nonRampGoalRampCount",
+	"- Support/peel triage: $supportPeelTriageSummary",
 	"",
 	"Generated files:",
 	'- `accepted_lower_level_fail_spans.csv`',

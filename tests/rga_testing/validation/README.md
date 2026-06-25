@@ -137,7 +137,7 @@ Artifacts
 - Probe reports: `user://identity_reports/<unit>.json`
   - `diagnostics.lower_level_fail_spans` lists subject-side role/goal/approach span misses that were accepted by aggregate verdicts, with `lower_level_fail_span_count` for backlog triage.
   - Role, goal, and approach verdict objects also include `span_details` and `failed_span_count` for local inspection without parsing console logs.
-- Accepted-miss export: run `tests/rga_testing/tools/Export-AcceptedMisses.ps1` from the repo root to regenerate the ignored `outputs/audit_playtest/rga_accepted_misses_2026_06_25/` CSV and JSON summary from current `user://identity_reports/*.json`.
+- Accepted-miss export: run `tests/rga_testing/tools/Export-AcceptedMisses.ps1` from the repo root to regenerate the ignored `outputs/audit_playtest/rga_accepted_misses_2026_06_25/` CSV and JSON summary from current `user://identity_reports/*.json`. The CSV includes `support_peel_triage`, and the summary includes `support_peel_triage_counts`, so the largest current bucket can be reviewed by scenario/content group instead of only by keyword.
 
 Notes
 - Latest doc-vs-test comparison: `docs/rga/test_notes_2026-06-23.md`
