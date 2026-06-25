@@ -247,6 +247,10 @@ function Join-UniqueValues($Rows, $PropertyName) {
 	return $values -join ","
 }
 
+function Format-MarkdownCell($Value) {
+	return ([string]$Value).Replace("|", "\|")
+}
+
 function Count-KeywordBuckets($Rows) {
 	$buckets = [ordered]@{
 		support_peel_cleanse_cc = 'peel|cleanse|cc_immunity|cc_prevented|cc_sync|debuff_cleanse|tenacity|cooldown_trade'
@@ -420,6 +424,19 @@ $summary = [ordered]@{
 }
 $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryPath
 
+$gapSummaryMarkdown = @()
+$gapSummaryMarkdown += "| Gap kind | Rows | Topics | Units | Next action |"
+$gapSummaryMarkdown += "| --- | ---: | --- | --- | --- |"
+foreach ($gapRow in $gapSummaryRows) {
+	$gapSummaryMarkdown += ('| `{0}` | {1} | {2} | {3} | {4} |' -f
+		(Format-MarkdownCell $gapRow.audit_gap_kind),
+		[int]$gapRow.count,
+		(Format-MarkdownCell $gapRow.topics),
+		(Format-MarkdownCell $gapRow.units),
+		(Format-MarkdownCell $gapRow.next_action)
+	)
+}
+
 $readme = @(
 	"# RoleMatrix Accepted Misses - 2026-06-25",
 	"",
@@ -432,9 +449,15 @@ $readme = @(
 	"- Ramp spans: $rampFailCount",
 	"- Non-ramp goal-ramp spans: $nonRampGoalRampCount",
 	"- Primary topic counts: $primaryTopicSummary",
-	"- Audit gap kinds: $auditGapKindSummary",
+	"- Audit gap kinds: $($gapSummaryRows.Count) groups covering $($rows.Count) spans",
 	"- Support/peel triage: $supportPeelTriageSummary",
 	"- Support/peel gap kinds: $supportPeelGapKindSummary",
+	"",
+	"Gap-kind summary:",
+	""
+)
+$readme += $gapSummaryMarkdown
+$readme += @(
 	"",
 	"Generated files:",
 	'- `accepted_lower_level_fail_spans.csv`',
