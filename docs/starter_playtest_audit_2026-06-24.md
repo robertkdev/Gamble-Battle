@@ -60,7 +60,7 @@ Confirmed current fixes/coverage:
 - The actual run loop now covers repeated New Game resets, all-in loss cycles, first-board-unit drag repositioning, post-fight shop purchase, first-purchase deploy prompt, first-purchase bench-slot highlight, planning-time assist, bench-to-board drag, highlight clearing after deploy, and second-fight resolution.
 - Real-window deploy recheck exposed and fixed a drag-release edge case: after an OS mouse drag began from a bench unit, releasing outside the source `UnitView` could leave a drag ghost stuck and the bought unit on the bench. `DragAndDroppable` now listens for global mouse motion/release only while a drag is active, and the patched OS-window pass moves Cashmere from bench to board.
 - Combat no-progress and absolute timeout handling are covered by `CombatWatchdogSmoke`.
-- Lower Unit Select stale-preview behavior is covered by `UnitSelectSmoke`.
+- Lower Unit Select stale-preview behavior and neutral initial preview state are covered by `UnitSelectSmoke`.
 - The new cost tiering pass is mechanically covered: 12 cost-1 units, 9 cost-2 units, and Hexeon as the single cost-3 unit. Level 1 shops sample only cost-1 units, and higher levels sample the intended tier mix.
 - Targeted current Main-flow premium and natural-economy runners now cover the cost-2 path after leveling: Buy XP reserve-floor feedback at 4 gold, natural level 2 at Stage 1 Round 3 after a cost-1 helper and max-bet win, a level-2 cost-2 shop-card purchase, first-purchase deploy prompt, and bench-to-board drag.
 - A targeted current Main-flow rapid-input runner now covers a same-frame burst across five rendered shop cards, five resulting bench units, five bench-to-board deploy attempts, and the next fight resolving. A follow-up audit-assisted OS-window pass now covers real mouse-coordinate burst buying across five visible shop cards in the debug window.
@@ -481,7 +481,7 @@ Run result:
 
 Visual/UX read:
 - Title and selected-unit states are strong: large targets, clear title art, and an obvious enabled Start Game state after selection.
-- Initial Unit Select still has a small ambiguity: the preview says `Inspecting Axiom` before a selection is made, so inspection and selection can blur until the player notices Start Game is disabled.
+- Current Unit Select starts from neutral preview copy (`No champion chosen` / `Hover a unit to preview`) with no default unit art before hover or selection, so inspection and selection no longer blur on the first screen.
 - The forced-first-fight behavior is correct, but the bottom placeholder text is very low contrast and visually subtle. The button carries most of the meaning.
 - The first real shop is readable at 1920x1080, but the cards sit close to the bottom edge. Labels and prices are readable on this desktop capture, but the layout still feels compressed under timer pressure.
 
@@ -795,9 +795,9 @@ Key manual evidence captured in this continuation:
    - Supporting context shows Hexeon is cost 3 and filtered out by starter/shop level odds.
    - Better solution: decide intentionally whether Hexeon is a later-shop unit or should be eligible as a starter.
 
-15. Lower Unit Select scrolling could leave stale inspection context. Closed in the current branch.
+15. Lower Unit Select scrolling could leave stale inspection context, and the initial preview could imply Axiom was already inspected. Closed in the current branch.
    - The original manual screenshot showed Teller/Totem/Veyra/Volt/Vykos visible after scrolling while the right preview still read like Cashmere was being inspected.
-   - Current `UnitSelectSmoke` covers the intended behavior: hover preview changes to `Inspecting ...`, scrolling clears stale hover state without selecting a unit, and the preview returns to `No champion chosen`.
+   - Current `UnitSelectSmoke` covers the intended behavior: the screen starts with `No champion chosen` and no default art, hover preview changes to `Inspecting ...`, scrolling clears stale hover state without selecting a unit, and the preview returns to `No champion chosen`.
    - Preserve this scroll/focus clearing behavior unless a future redesign binds the preview to an explicit selected or focused starter.
 
 16. Batch shop-buying and deployment are not reliable enough for speed play.
@@ -889,7 +889,7 @@ Summary from supporting data:
 9. Preserve the combat no-progress and absolute-timeout watchdogs plus the visible resolving feedback labels; capture a natural real-window long-fight example if manual play ever sees one.
 10. Preserve the post-win planning beat: `PostCombatPlanningBeatSmoke` now proves the intermission bar appears before planning returns, then restores a full shop, enabled `Start Battle`, and at least 55 seconds of planning time so the next shop decision is not silently consumed.
 11. Preserve the now-passing rapid rendered-card buy/deploy behavior and the audit-assisted real-window OS-coordinate burst result; broaden only if future natural full-run play exposes human-speed hit-target or feedback issues.
-12. Preserve the now-covered Unit Select scroll/focus behavior: scrolling away from a hovered starter should clear stale inspection copy instead of leaving the previous unit in the preview panel.
+12. Preserve the now-covered Unit Select neutral preview and scroll/focus behavior: the screen should start with no inspected champion, and scrolling away from a hovered starter should clear stale inspection copy instead of leaving the previous unit in the preview panel.
 13. Preserve and visually verify the current `Combat Resolving...` Start Battle transition in real-window play, with elapsed resolving labels and watchdog fallback text as the no-progress recovery path.
 14. Preserve Buy XP transactional feedback: `BuyXPTransactionalFeedbackSmoke` now guards the committed presenter path. If the click is unaffordable, show the reserve-floor reason; if it succeeds, keep gold/level/XP labels repainting immediately and make any reroll/shop refresh rules visible.
 15. Preserve the now-fixed defeat modal ownership: the top-right system Menu hides, disables, and cannot open while the defeat overlay is active.

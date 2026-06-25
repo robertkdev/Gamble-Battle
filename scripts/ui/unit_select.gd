@@ -333,10 +333,8 @@ func _populate_units() -> void:
 		buttons_by_id[uid2] = btn
 		_style_unit_card(tile, btn, name_label, role_label, false)
 	_style_unit_cards()
-	if selected_id == "" and items.size() > 0:
-		var first_id: String = String(items[0].get("id", ""))
-		if first_id != "":
-			_update_preview(first_id, false)
+	if selected_id == "":
+		_clear_preview()
 
 func _unit_entry_from_resource(res: Resource) -> Dictionary:
 	var id: String = ""
