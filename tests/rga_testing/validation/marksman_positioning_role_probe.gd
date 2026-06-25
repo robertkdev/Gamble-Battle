@@ -1,0 +1,206 @@
+extends Node
+
+const MarksmanRoleTest := preload("res://tests/rga_testing/metrics/marksman/marksman_role_identity_test.gd")
+
+const SUBJECT_ID: String = "sari"
+const ALLY_ID: String = "frontline_dummy"
+const TARGET_ID: String = "target_dummy"
+
+@export var do_quit_on_finish: bool = true
+
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
+	var positive_metric: Dictionary = _run_metric_result(_make_positive_payload())
+	var negative_metric: Dictionary = _run_metric_result(_make_negative_payload())
+	var positive_pass: bool = bool(positive_metric.get("pass", false))
+	var negative_pass: bool = bool(negative_metric.get("pass", false))
+	var backline_share: float = _span_value(positive_metric, "backline_share_med_a")
+	var candidate_share: float = _span_value(positive_metric, "team_share_med_a")
+	var subject_share: float = _span_value(positive_metric, "subject_team_damage_share_med")
+	var ranged_proxy: float = _span_value(positive_metric, "subject_ranged_proxy_med")
+	var time_on_target: float = _span_value(positive_metric, "subject_time_on_target_med")
+	var sustained_span: bool = _has_passing_span(positive_metric, "subject_sustained_mult")
+	var backline_span: bool = _has_passing_span(positive_metric, "backline_share_med_a")
+	var candidate_share_span: bool = _has_passing_span(positive_metric, "team_share_med_a")
+	var subject_share_span: bool = _has_passing_span(positive_metric, "subject_team_damage_share_med")
+	var ranged_span: bool = _has_passing_span(positive_metric, "subject_ranged_proxy_med")
+	var tot_span: bool = _has_passing_span(positive_metric, "subject_time_on_target_med")
+	var candidate_id: String = _span_extra_string(positive_metric, "team_share_med_a", "candidate_id")
+
+	print("MarksmanPositioningRoleProbe: positive_pass=", positive_pass,
+		" backline_share=", backline_share,
+		" candidate_share=", candidate_share,
+		" subject_share=", subject_share,
+		" ranged_proxy=", ranged_proxy,
+		" time_on_target=", time_on_target,
+		" candidate_id=", candidate_id,
+		" negative_pass=", negative_pass)
+
+	var failed: bool = false
+	if not positive_pass:
+		printerr("MarksmanPositioningRoleProbe: FAIL role_marksman_identity did not pass on sustained backline marksman evidence")
+		failed = true
+	if backline_share < 0.70 or ranged_proxy < 0.80 or time_on_target < 0.60:
+		printerr("MarksmanPositioningRoleProbe: FAIL direct positioning/ranged evidence was below proof threshold")
+		failed = true
+	if candidate_share < 0.35 or subject_share < 0.35:
+		printerr("MarksmanPositioningRoleProbe: FAIL auxiliary damage-share diagnostics were below proof threshold")
+		failed = true
+	if candidate_id != SUBJECT_ID:
+		printerr("MarksmanPositioningRoleProbe: FAIL candidate team-share diagnostic did not select the marksman subject")
+		failed = true
+	if not sustained_span or not backline_span or not candidate_share_span or not subject_share_span or not ranged_span or not tot_span:
+		printerr("MarksmanPositioningRoleProbe: FAIL role_marksman_identity did not emit all expected passing marksman spans")
+		failed = true
+	if negative_pass:
+		printerr("MarksmanPositioningRoleProbe: FAIL weak negative marksman payload passed role_marksman_identity")
+		failed = true
+
+	if failed:
+		_quit(1)
+		return
+	print("MarksmanPositioningRoleProbe: PASS")
+	_quit(0)
+
+func _run_metric_result(payload: Dictionary) -> Dictionary:
+	var metric: Variant = MarksmanRoleTest.new()
+	return metric.call("run_metric", payload)
+
+func _make_positive_payload() -> Dictionary:
+	return _make_payload(45.0, 120.0, 300.0, 0.76, 0.86, 0.72, 4.2)
+
+func _make_negative_payload() -> Dictionary:
+	return _make_payload(12.0, 24.0, 300.0, 0.18, 0.20, 0.18, 1.4)
+
+func _make_payload(subject_rate: float, subject_damage: float, team_damage: float, backline_share: float, ranged_proxy: float, time_on_target: float, attack_distance: float) -> Dictionary:
+	var ally_damage: float = max(0.0, team_damage - subject_damage)
+	return {
+		"context": {
+			"scenario": "neutral",
+			"sims": {
+				"probe": {
+					"context": {
+						"team_a_ids": [SUBJECT_ID, ALLY_ID],
+						"team_b_ids": [TARGET_ID]
+					},
+					"units": {
+						"a": [
+							{
+								"unit_id": SUBJECT_ID,
+								"damage": subject_damage
+							},
+							{
+								"unit_id": ALLY_ID,
+								"damage": ally_damage
+							}
+						],
+						"b": [
+							{
+								"unit_id": TARGET_ID,
+								"damage": 42.0
+							}
+						]
+					},
+					"teams": {
+						"a": {
+							"damage": team_damage
+						},
+						"b": {
+							"damage": 42.0
+						}
+					},
+					"kernels": {
+						"throughput": {
+							"peers": {
+								"all": [subject_rate, 10.0, 14.0, 16.0],
+								"a": [subject_rate, 10.0],
+								"b": [14.0, 16.0]
+							},
+							"peers_by_index": {
+								"a": {
+									0: subject_rate,
+									1: 10.0
+								},
+								"b": {
+									0: 14.0,
+									1: 16.0
+								}
+							}
+						},
+						"positioning": {
+							"a": {
+								"backline_zone_share": backline_share,
+								"observed_s": 30.0
+							},
+							"b": {
+								"backline_zone_share": 0.12,
+								"observed_s": 30.0
+							}
+						},
+						"per_unit_kpis": {
+							"a": {
+								SUBJECT_ID: {
+									"attacks_over_2_tiles_pct": ranged_proxy,
+									"time_on_target_pct": time_on_target,
+									"attack_distance_median_tiles": attack_distance
+								},
+								ALLY_ID: {
+									"attacks_over_2_tiles_pct": 0.15,
+									"time_on_target_pct": 0.80,
+									"attack_distance_median_tiles": 1.2
+								}
+							},
+							"b": {
+								TARGET_ID: {
+									"attacks_over_2_tiles_pct": 0.10,
+									"time_on_target_pct": 0.70,
+									"attack_distance_median_tiles": 1.0
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"subject_unit_ids": [SUBJECT_ID]
+	}
+
+func _has_passing_span(metric_result: Dictionary, label_prefix: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and bool(span.get("ok", false)):
+			return true
+	return false
+
+func _span_value(metric_result: Dictionary, label_prefix: String) -> float:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix):
+			return float(span.get("value", 0.0))
+	return 0.0
+
+func _span_extra_string(metric_result: Dictionary, label_prefix: String, key: String) -> String:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix):
+			return String(span.get(key, ""))
+	return ""
+
+func _quit(code: int) -> void:
+	if not do_quit_on_finish:
+		return
+	get_tree().quit(code)
