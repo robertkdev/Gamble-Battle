@@ -7,7 +7,7 @@ extends AbilityImplBase
 
 const DURATION_S := 3.0
 const SP_DMG_MULT := 0.35
-const KEY_AEGIS_STACKS := "aegis_stacks"              # Legacy fallback; TODO remove after validation
+const KEY_AEGIS_STACKS := "aegis_stacks"              # Legacy fallback for old saved/test state.
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 
@@ -23,7 +23,7 @@ func _read_aegis_stacks(ctx: AbilityContext) -> int:
 func cast(ctx: AbilityContext) -> bool:
 	if ctx == null:
 		return false
-	var bs = ctx.buff_system
+	var bs: BuffSystem = ctx.buff_system
 	if bs == null:
 		ctx.log("[Siphon] BuffSystem not available; cast aborted")
 		return false
@@ -46,7 +46,7 @@ func cast(ctx: AbilityContext) -> bool:
 	var siphon_per_sec: int = min(3, 1 + int(floor(float(stacks) / 3.0)))
 
 	# Build and store meta on caster so ticks/end can reference and accumulate drained_total
-	var meta := {
+	var meta: Dictionary = {
 		"target_index": target_idx,
 		"per_sec": siphon_per_sec,
 		"drained_total": 0.0
