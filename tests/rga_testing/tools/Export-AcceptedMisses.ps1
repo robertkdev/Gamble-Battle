@@ -99,8 +99,11 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 	$text = [string]$Label
 	$blockText = [string]$Block
-	if ($text -match 'debuff_cleanse|lockdown_cleanse|tenacity') {
-		return "counterplay_response_below_target"
+	if ($text -match 'debuff_cleanse') {
+		return "debuff_counterplay_response_below_target"
+	}
+	if ($text -match 'lockdown_cleanse|tenacity') {
+		return "lockdown_counterplay_response_below_target"
 	}
 	if ($text -match 'cc_sync') {
 		return "wombo_cc_sync_absent"
@@ -135,6 +138,8 @@ function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 function Get-SupportPeelNextAction($GapKind) {
 	switch ([string]$GapKind) {
 		"counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, counterplay thresholds, or the debuff/lockdown tag if this identity should not require response-pressure proof." }
+		"debuff_counterplay_response_below_target" { return "Tune cleanse response composition, cleanse-pressure thresholds, or debuff tags for identities that should prove cleanse response pressure." }
+		"lockdown_counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, lockdown counterplay thresholds, or lockdown tags for identities that should prove anti-CC response pressure." }
 		"wombo_cc_sync_absent" { return "Decide whether wombo requires direct CC-sync evidence or whether burst/AoE aggregate evidence is sufficient." }
 		"cooldown_trade_quality_below_target" { return "Tune the threat-response setup or the cooldown-trade efficiency threshold for the all-unit support scenario." }
 		"cc_prevention_context_absent" { return "Create an incoming-CC threat context that can prove subject CC prevention, or keep it as optional quality evidence." }
