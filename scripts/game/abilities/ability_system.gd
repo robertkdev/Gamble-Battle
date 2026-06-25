@@ -8,6 +8,7 @@ const AbilityCatalog = preload("res://scripts/game/abilities/ability_catalog.gd"
 const AbilityContext = preload("res://scripts/game/abilities/ability_context.gd")
 const AbilityEffects = preload("res://scripts/game/abilities/effects.gd")
 const BuffTags = preload("res://scripts/game/abilities/buff_tags.gd")
+const TraitKeys = preload("res://scripts/game/traits/runtime/trait_keys.gd")
 
 var engine: CombatEngine
 var state: BattleState
@@ -290,7 +291,9 @@ func _handle_veyra_harden_end(team: String, index: int) -> void:
 		return
 	var stacks: int = 0
 	if buff_system != null and buff_system.has_method("get_stack"):
-		stacks = int(buff_system.get_stack(state, team, index, "aegis_stacks"))
+		stacks = int(buff_system.get_stack(state, team, index, TraitKeys.AEGIS))
+		if stacks <= 0:
+			stacks = int(buff_system.get_stack(state, team, index, "aegis_stacks"))
 	stacks = max(0, stacks)
 	if stacks <= 0:
 		engine._resolver_emit_log("Harden ended: no Aegis stacks; no max HP gained.")

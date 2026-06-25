@@ -77,6 +77,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/RampApproachProbe.tscn`
   - Proves real Sari/Veyra `ramp` approach rows can consume direct ramp-state events, max stacks, peak duration, and window duration. Also preserves aggregate-pass controls where Sari/Veyra still pass `approach_ramp` while the stack-max span is below target.
 
+- Veyra Harden canonical stack probe
+  - Scene: `tests/rga_testing/validation/VeyraHardenCanonicalStackProbe.tscn`
+  - Proves the scheduled Harden end effect consumes canonical `TraitKeys.AEGIS` stacks, not only the old `aegis_stacks` fallback, and applies the permanent max-HP stack.
+
 - Mage sustained-DPS goal positive/negative control
   - Scene: `tests/rga_testing/validation/MageSustainedDpsGoalProbe.tscn`
   - Feeds `goal_primary` a direct sustained-magic positive case with DoT, zone, and ramp evidence plus an AoE-DPS-only negative case; fails if `mage.sustained_dps` accepts AoE-only damage without a direct sustained mechanism.
