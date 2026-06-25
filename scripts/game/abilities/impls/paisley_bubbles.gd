@@ -18,8 +18,8 @@ const DMG_ARCA_PER_STACK := 8.0
 const BUBBLE_STUN_DURATION := 0.4
 
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
-const KEY_KALEIDOSCOPE := "kaleidoscope_stacks" # Legacy fallback; TODO remove after validation
-const KEY_ARCANIST := "arcanist_stacks"         # Legacy fallback; TODO remove after validation
+const KEY_KALEIDOSCOPE := "kaleidoscope_stacks" # Legacy fallback for old saved/test state.
+const KEY_ARCANIST := "arcanist_stacks"         # Legacy fallback for old saved/test state.
 
 func _level_index(u: Unit) -> int:
 	var lvl: int = (int(u.level) if u != null else 1)
