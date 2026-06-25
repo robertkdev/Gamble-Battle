@@ -562,6 +562,10 @@ static func _side_from_span_label(label: String) -> String:
 		return "a"
 	if value.begins_with("b_"):
 		return "b"
+	if value.ends_with("_a"):
+		return "a"
+	if value.ends_with("_b"):
+		return "b"
 	return ""
 
 static func _deltas_from_spans(spans: Array) -> Dictionary:

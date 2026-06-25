@@ -120,6 +120,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/ci/RoleMatrixSmoke.tscn` (attach `RoleMatrixSmoke.gd`)
   - Runs RoleMatrixProbe programmatically for 1 unit per role with minimal seeds; asserts report files exist.
 
+- Probe report compiler smoke
+  - Scene: `tests/rga_testing/validation/ProbeReportCompilerSubjectSideSmoke.tscn`
+  - Synthetic fast check that report diagnostics keep audited-side spans and exclude opponent-side aggregates such as `b_unit_pass_count` and suffix labels such as `magic_share_med_b`.
+
 Artifacts
 - Telemetry rows: `user://rga_out.jsonl` (or configured `out_path` ending with .jsonl/.ndjson; file is cleared each run)
 - Probe reports: `user://identity_reports/<unit>.json`

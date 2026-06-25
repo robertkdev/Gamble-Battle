@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/probe_report_compiler_subject_side_smoke.gd" id="1"]
+
+[node name="ProbeReportCompilerSubjectSideSmoke" type="Node"]
+script = ExtResource("1")
