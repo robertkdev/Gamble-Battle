@@ -99,6 +99,15 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 	$text = [string]$Label
 	$blockText = [string]$Block
+	if ($text -match 'debuff_cleanse_bait_rate') {
+		return "debuff_cleanse_bait_rate_below_target"
+	}
+	if ($text -match 'debuff_cleanse_pressure') {
+		return "debuff_cleanse_pressure_absent"
+	}
+	if ($text -match 'debuff_cleanse_scenario_delta') {
+		return "debuff_cleanse_scenario_delta_below_target"
+	}
 	if ($text -match 'debuff_cleanse') {
 		return "debuff_counterplay_response_below_target"
 	}
@@ -138,6 +147,9 @@ function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 function Get-SupportPeelNextAction($GapKind) {
 	switch ([string]$GapKind) {
 		"counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, counterplay thresholds, or the debuff/lockdown tag if this identity should not require response-pressure proof." }
+		"debuff_cleanse_bait_rate_below_target" { return "Tune enemy cleanse bait opportunities, bait-rate thresholds, or debuff tags for identities that should draw cleanse decisions." }
+		"debuff_cleanse_pressure_absent" { return "Tune cleanse response composition or debuff application so counterplay pressure records at least one cleanse response." }
+		"debuff_cleanse_scenario_delta_below_target" { return "Tune the neutral-vs-cleanse scenario pair, cleanse response composition, or scenario-delta threshold for debuff identities." }
 		"debuff_counterplay_response_below_target" { return "Tune cleanse response composition, cleanse-pressure thresholds, or debuff tags for identities that should prove cleanse response pressure." }
 		"lockdown_counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, lockdown counterplay thresholds, or lockdown tags for identities that should prove anti-CC response pressure." }
 		"wombo_cc_sync_absent" { return "Decide whether wombo requires direct CC-sync evidence or whether burst/AoE aggregate evidence is sufficient." }
