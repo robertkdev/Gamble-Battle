@@ -17,6 +17,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Fresh live cost-1 post-buy/deploy screenshots: `outputs/audit_playtest/live_deploy_recheck_2026_06_25/`
 - Fresh live cost-2 Buy XP/deploy attempt screenshots and notes: `outputs/audit_playtest/live_cost2_recheck_2026_06_25/`
 - Live-window fallback diagnostics: `outputs/audit_playtest/window_capture_2026_06_25/`
+- Fresh shop spacing and first-fight placeholder screenshots: `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/`
 - Debug audit QA exports: `user://audit_exports/audit_state_*.json`; `F8` opens the debug-only in-game Audit QA panel for state export, screenshot attempt, timer hold, restart, and speed controls.
 - Live Audit QA panel screenshot proof: `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`, `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`, and `user://audit_exports/audit_shot_1782371342_158480.png`
 - Duplicate scoreboard disambiguation validation: `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`
@@ -25,7 +26,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 
 ## Current Revalidation After Follow-Up Fixes
 
-Current branch snapshot: `9b3f81c` (`Document Unit Select preview coverage`), with local branch `main` 18 commits ahead of `origin/main`.
+Current branch snapshot: 2026-06-25 local audit branch after the Unit Select, deploy-assist/watchdog, and shop-spacing follow-ups; use `git log` / `git status` for the exact current commit and ahead count.
 
 MCP validation run on 2026-06-24:
 - `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`; rerun on 2026-06-25 with `errors: []`
@@ -35,6 +36,7 @@ MCP validation run on 2026-06-24:
 - `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`; rerun on 2026-06-25 with `errors: []`
 - `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`
+- `tests/visual/UIThemeSmoke.tscn`: rerun on 2026-06-25 with `errors: []`, including shop-card gutter, command-strip spacing, and first-fight placeholder prominence assertions.
 - `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`.
 - `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`; later live editor run saved `outputs/visual_iter/exit_menu_pass/01_unit_select_system_menu.png` and `outputs/visual_iter/exit_menu_pass/02_combat_system_menu.png`.
 - `tests/rga_testing/validation/StageProgressionProbe.tscn`: `StageProgressionProbe: PASS`
@@ -56,6 +58,7 @@ Confirmed current fixes/coverage:
 - Unit stats still come from role baselines rather than playable unit resources, as verified by `UnitStatAudit`.
 - Stage progression, creep spawning, and creep reward actions now have focused pass signals.
 - A debug-only `F8` Audit QA panel now provides in-game state JSON export, screenshot capture attempt with explicit headless/dummy skip reasons, planning-timer hold, New Run restart, and 1x/4x speed controls. `AuditPanelSmoke` verifies the panel stays hidden by default, exports parseable state, reports screenshot status safely, controls speed, holds the planning timer, and returns to Unit Select through New Run.
+- The bottom shop/command band now has wider card gutters and command-control separation, covered by `UIThemeSmoke` assertions. The forced first-fight shop placeholder now uses a brighter border, larger `FIRST FIGHT` label, and clearer `Win to open shop` hint; fresh OS-window captures under `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/` confirm the locked opener and first real shop still fit the 1080p debug window.
 
 Remaining audit gaps:
 - The current validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier and stage/reward changes, but not a fresh human real-window/screenshot replay of every starter.
@@ -71,12 +74,12 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Audit surface | Current strongest evidence | Status | Remaining proof needed |
 | --- | --- | --- | --- |
 | Starter-select surface | Unit Select live screenshots and `UnitSelectSmoke` cover the current 12 cost-1 starter grid. | Covered for current cost-tier branch | None unless starter roster changes again. |
-| Forced first fight and opening shop lockout | Live screenshots plus `ActualRunLoopSmoke` cover disabled opening shop controls and `Start Forced Fight`. | Covered behaviorally and visually | Polish only: improve contrast and direct click feedback. |
+| Forced first fight and opening shop lockout | Live screenshots plus `ActualRunLoopSmoke` cover disabled opening shop controls and `Start Forced Fight`. `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/06_forced_first_fight_retry.png` refreshes the locked shop strip after the placeholder contrast pass. | Covered behaviorally and visually | Polish only: add direct click feedback if players still try disabled opener controls. |
 | All current starters through first Main-flow loop | `AllStarterMainFlowAudit` covers 12 starters: Axiom retry plus 11 first-shop buy/deploy/second-fight paths. | Covered behaviorally | Fresh human real-window replay of every starter remains optional but not mechanically required for current blockers. |
 | Cost-1 post-buy bench/deploy | Live Bonko-to-Brute run confirms purchase-to-bench and OS-level bench-to-board drag. | Covered visually | Drag feel is still fragile because Godot-AI dropped during the first live drag attempt. |
 | Cost-2 premium behavior after leveling | `PremiumDeployAuditRunner` repeatedly covers reserve-floor denial, level 2, cost-2 purchase, deploy prompt, and final board. `NaturalBuyXPAudit` proves a normal Bonko + cost-1 helper line can naturally reach `Gold: 6` at Stage 1 Round 3 and level to `Lvl 2 (2/6)`. `outputs/audit_playtest/live_cost2_recheck_2026_06_25/` includes audit-assisted live-window screenshots where OS clicks level to 2, reroll into 2g offers, buy Teller, and drag Teller to board. | Covered behaviorally and audit-assisted visually | Natural real-window screenshot of the Stage 1 Round 3 Buy XP success remains optional; the mechanical progression is now proven. |
 | Buy XP live-window affordance | The first live attempt exposed stale UI after a raw `Economy.gold` write. The follow-up assist used `Economy.add_gold(...)`, visibly updated to `Gold: 5`, and a real OS Buy XP click updated to `Lvl 2 (2/6)`. `NaturalBuyXPAudit` confirms the same model path succeeds naturally at `Gold: 6`, and the 4-gold denial now shows `Need +1 gold to buy XP and keep 1 health.` | Input path covered under valid visible preconditions; natural behavior and reserve-floor denial feedback covered mechanically | Natural real-window screenshot of the Stage 1 Round 3 Buy XP success remains optional; preserve the explicit denial message in future shop UI passes. |
-| Rapid shop input | `RapidShopInputAudit` covers same-frame rendered-card burst and deployment fallback. `outputs/audit_playtest/rapid_shop_os_burst/` adds audit-assisted real-window OS-coordinate evidence: before/after screenshots, preserved card centers, click coordinates, five bench additions, five sold placeholders, and no shop errors. | Covered behaviorally and audit-assisted visually/input-wise | Natural full-run rapid human-speed buying remains optional; preserve hit clarity, purchase feedback, and deployment guidance. |
+| Rapid shop input | `RapidShopInputAudit` covers same-frame rendered-card burst and deployment fallback. `outputs/audit_playtest/rapid_shop_os_burst/` adds audit-assisted real-window OS-coordinate evidence: before/after screenshots, preserved card centers, click coordinates, five bench additions, five sold placeholders, and no shop errors. `UIThemeSmoke` now asserts wider shop-card gutters and command-strip spacing; `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/08_round2_shop_wait.png` refreshes the first real shop view. | Covered behaviorally and audit-assisted visually/input-wise | Natural full-run rapid human-speed buying remains optional; preserve hit clarity, purchase feedback, deployment guidance, and the widened bottom-band spacing. |
 | Start Battle transition | `StartBattleFeedbackAudit` covers stages 2-4 switching immediately to disabled `Combat Resolving...`; `outputs/audit_playtest/live_start_battle_transition_2026_06_25/` now provides real-window screenshots from Round 2 planning, immediate post-click resolving, mid-combat resolving, and restored planning. | Covered behaviorally and visually | Polish only: add progress/stuck-state feedback if combat remains resolving longer than expected. |
 | Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` exposed the ambiguity, and `ScoreboardDuplicateDisambiguationSmoke` now covers duplicate-copy labels in the model and rendered row scene. | Covered behaviorally | Optional real-window screenshot refresh only; preserve copy suffixes for duplicate display names. |
 | Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current real-window visual state. | Covered visually and behaviorally with caveats | Broader modal polish only if a future visual pass finds contrast, spacing, or system-menu dimming issues. |
@@ -95,6 +98,22 @@ Accepted files:
 Result:
 - The panel's non-dummy screenshot save path is verified in a live debug window.
 - The remaining infrastructure caveat is not the panel; it is the Godot-AI game helper sometimes failing to register debugger capture/eval for the running game.
+
+## Current Shop Spacing And First-Fight Placeholder Recheck
+
+Fresh evidence was generated on 2026-06-25 after the bottom-band spacing pass:
+- `tests/visual/UIThemeSmoke.tscn` printed `UIThemeSmoke: OK` with `errors: []`. The smoke now asserts shop-card horizontal gutters of at least 16 px, command-strip separation of at least 16 px, BottomStorageArea separation of at least 14 px, and a single wide forced-first-fight placeholder with a stronger border, larger `FIRST FIGHT` label, and larger `Win to open shop` hint.
+- `tests/visual/ActualRunLoopSmoke.tscn` printed `ActualRunLoopSmoke: OK` with `errors: []`, preserving starter selection, first-board drag, repeated loss/New Game resets, forced opener, first shop purchase, deploy prompt, bench-to-board movement, and second-fight resolution.
+- `outputs/audit_playtest/RapidShopInputAudit.tscn` printed `RapidShopInputAudit: OK findings=0` with `errors: []`, preserving same-frame rendered-card burst buying, sealed placeholders, deployment guidance, five bench-to-board deploys, and post-burst fight resolution.
+- Godot-AI game screenshots were still blocked by `_mcp_game_helper` registration timeout, so accepted visual proof came from the OS-window capture helper, matching the earlier live-window fallback path.
+
+Accepted live-window files:
+- `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/06_forced_first_fight_retry.png`: Bonko forced opener at 1920x1080 after the pass. The shop strip now reads as a deliberate locked state: prominent orange border, larger `FIRST FIGHT`, and readable `Win to open shop`.
+- `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/08_round2_shop_wait.png`: first real Round 2 shop after the opener. The command strip still fits above the shop, with wider shop-card gutters and clearer spacing around `Start Battle`, gold, level, and betting.
+
+Implication:
+- The older "shop/start hit targets need more breathing room" finding is no longer a pure missing-fix item. Current behavior and visual evidence support a narrower preservation note: keep the wider gutters, command spacing, and explicit forced-first-fight placeholder during future shop/UI passes.
+- The remaining manual-play risk is physical drag/click feel under pressure, not known transaction corruption or an unreadable opener placeholder.
 
 ## Current RoleMatrix Accepted-Miss Recheck
 
@@ -603,7 +622,8 @@ Key manual evidence captured in this continuation:
    - This may be a coordinate/playtest artifact, but it mirrors a real user risk: compact shop cards, the Start Battle button, and bottom controls are tightly clustered at 1080p.
    - A current live Bonko max-bet recheck also produced an unclear Buy XP interaction: clicking the inspected Buy XP button center reduced the live model gold from 4 to 3 while XP stayed at 0, level stayed at 1, and visible labels still showed the pre-click state.
    - The current rapid rendered-card runner did not reproduce a battle lock: five same-frame shop-card presses stayed in preview, produced five bench units, and resolved the next fight. That lowers transaction-risk but does not eliminate live pointer/hit-target risk.
-   - Better solution: separate combat-start from shop cards more strongly, increase vertical spacing, and add a clear confirmation/transition when combat starts.
+   - Current branch mitigation: the gothic theme now spaces shop cards with wider gutters, gives the command strip more separation, and preserves the immediate `Combat Resolving...` transition on `Start Battle`. Fresh OS-window capture `08_round2_shop_wait.png` confirms the first real shop still fits the 1080p debug window after the spacing pass.
+   - Better solution: preserve this spacing and add stronger purchase/deploy feedback only if future natural full-run play still shows pointer misses under pressure.
 
 6. Bench-to-board deployment is mechanically required and now has first-purchase assist, but manual drag clarity still needs watching.
    - Existing shop docs and `tests/visual/actual_run_loop_smoke.gd` confirm shop purchases go to `BenchGrid`; bought units must then move from bench to board before they help.
@@ -756,8 +776,8 @@ Summary from supporting data:
 1. Add a real opening decision before first combat, or explicitly frame the first fight as a short tutorial/prologue.
 2. Rebalance Chapter 1 Round 2 so a good Round 1 result plus one or two reasonable purchases can survive.
 3. Gate dev starter inventory out of normal playtests.
-4. Make disabled opening shop controls visually non-interactive and provide direct feedback when clicked.
-5. Increase spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
+4. Preserve the clearer forced-first-fight placeholder and add direct feedback if players still click disabled opener controls.
+5. Preserve the widened spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
 6. Register or remove missing completed item dynamic effects before trusting item strategy.
 7. Preserve and extend the debug in-game Audit QA controls for manual playtests: state export, screenshot status, restart, timer hold, and speed controls that do not require fragile repeated Godot-AI eval calls.
 8. Preserve first-purchase deploy assist: prompt text, highlighted board cells, and short-timer extension must stay covered so bought units are actually fielded in early manual runs.

@@ -55,18 +55,18 @@ func set_offers(offers: Array) -> void:
     var shown: int = 0
     var idx: int = 0
     for o in offers:
-        var card := _make_card(o, idx)
+        var card: Control = _make_card(o, idx)
         _grid.add_child(card)
         _cards.append(card)
         if card is ShopCard:
             var props: Dictionary = {}
             if o is ShopOffer and String(o.id) != "":
                 var off: ShopOffer = o
-                var roles := _duplicate_strings(off.roles)
-                var traits := _duplicate_strings(off.traits)
-                var approaches := _duplicate_strings(off.approaches)
-                var alt_goals := _duplicate_strings(off.alt_goals)
-                var primary_role := String(off.primary_role)
+                var roles: Array = _duplicate_strings(off.roles)
+                var traits: Array = _duplicate_strings(off.traits)
+                var approaches: Array = _duplicate_strings(off.approaches)
+                var alt_goals: Array = _duplicate_strings(off.alt_goals)
+                var primary_role: String = String(off.primary_role)
                 props = {
                     "id": String(off.id),
                     "name": String(off.name),
@@ -112,11 +112,11 @@ func _make_card(offer, index: int) -> Control:
     if ShopCardScene:
         if offer is ShopOffer and String(offer.id) == "":
             return _make_sold()
-        var card = ShopCardScene.instantiate()
+        var card: Control = ShopCardScene.instantiate() as Control
         if card and card.has_method("set_slot_index"):
             card.set_slot_index(index)
         return card
-    var placeholder := ColorRect.new()
+    var placeholder: ColorRect = ColorRect.new()
     placeholder.custom_minimum_size = Vector2(UI.TILE_SIZE * 2, UI.TILE_SIZE + 24)
     placeholder.color = Color(0.1, 0.1, 0.12, 0.4)
     return placeholder
@@ -131,33 +131,34 @@ func _make_sold() -> Control:
     return _make_placeholder(true)
 
 func _make_placeholder(sold: bool) -> Control:
+    var first_fight_placeholder: bool = _single_empty_state and not sold
     var wrap: PanelContainer = PanelContainer.new()
-    wrap.custom_minimum_size = Vector2(790.0, 138.0) if _single_empty_state and not sold else Vector2(150.0, 138.0)
+    wrap.custom_minimum_size = Vector2(790.0, 138.0) if first_fight_placeholder else Vector2(150.0, 138.0)
     wrap.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_theme_stylebox_override("panel", _make_placeholder_style(sold))
 
     var stack: VBoxContainer = VBoxContainer.new()
     stack.alignment = BoxContainer.ALIGNMENT_CENTER
-    stack.add_theme_constant_override("separation", 5)
+    stack.add_theme_constant_override("separation", 8 if first_fight_placeholder else 5)
     stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_child(stack)
 
     var icon: TextureRect = TextureRect.new()
     icon.texture = EmptySigilTexture
-    icon.custom_minimum_size = Vector2(50.0, 50.0)
+    icon.custom_minimum_size = Vector2(62.0, 62.0) if first_fight_placeholder else Vector2(50.0, 50.0)
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-    icon.modulate = Color(0.82, 0.58, 0.34, 0.30) if not sold else Color(0.82, 0.14, 0.14, 0.34)
+    icon.modulate = Color(0.95, 0.68, 0.36, 0.52) if first_fight_placeholder else (Color(0.82, 0.58, 0.34, 0.30) if not sold else Color(0.82, 0.14, 0.14, 0.34))
     icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
     stack.add_child(icon)
 
     var label: Label = Label.new()
     label.text = "SEALED" if sold else _empty_label_text
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    label.add_theme_font_size_override("font_size", 11)
-    label.add_theme_color_override("font_color", Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.74, 0.48, 0.44, 0.88))
+    label.add_theme_font_size_override("font_size", 16 if first_fight_placeholder else 11)
+    label.add_theme_color_override("font_color", Color(0.95, 0.73, 0.40, 0.98) if first_fight_placeholder else (Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.74, 0.48, 0.44, 0.88)))
     label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.80))
-    label.add_theme_constant_override("outline_size", 1)
+    label.add_theme_constant_override("outline_size", 2 if first_fight_placeholder else 1)
     label.mouse_filter = Control.MOUSE_FILTER_IGNORE
     stack.add_child(label)
 
@@ -167,32 +168,36 @@ func _make_placeholder(sold: bool) -> Control:
         hint.text = hint_text
         hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        hint.custom_minimum_size = Vector2(126.0, 0.0)
-        hint.add_theme_font_size_override("font_size", 10)
-        hint.add_theme_color_override("font_color", Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.58, 0.38, 0.36, 0.86))
+        hint.custom_minimum_size = Vector2(360.0, 0.0) if first_fight_placeholder else Vector2(126.0, 0.0)
+        hint.add_theme_font_size_override("font_size", 13 if first_fight_placeholder else 10)
+        hint.add_theme_color_override("font_color", Color(0.84, 0.76, 0.62, 0.96) if first_fight_placeholder else (Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.58, 0.38, 0.36, 0.86)))
         hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
-        hint.add_theme_constant_override("outline_size", 1)
+        hint.add_theme_constant_override("outline_size", 2 if first_fight_placeholder else 1)
         hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
         stack.add_child(hint)
     return wrap
 
 func _make_placeholder_style(sold: bool) -> StyleBoxFlat:
     var style: StyleBoxFlat = StyleBoxFlat.new()
+    var first_fight_placeholder: bool = _single_empty_state and not sold
     style.bg_color = Color(0.030, 0.026, 0.034, 0.88)
     style.border_color = Color(0.34, 0.29, 0.28, 0.86)
+    if first_fight_placeholder:
+        style.bg_color = Color(0.060, 0.041, 0.036, 0.94)
+        style.border_color = Color(0.76, 0.45, 0.20, 0.92)
     if sold:
         style.bg_color = Color(0.062, 0.026, 0.034, 0.90)
         style.border_color = Color(0.48, 0.090, 0.090, 0.86)
-    style.border_width_left = 1
-    style.border_width_top = 1
-    style.border_width_right = 1
-    style.border_width_bottom = 1
+    style.border_width_left = 2 if first_fight_placeholder else 1
+    style.border_width_top = 2 if first_fight_placeholder else 1
+    style.border_width_right = 2 if first_fight_placeholder else 1
+    style.border_width_bottom = 2 if first_fight_placeholder else 1
     style.corner_radius_top_left = 5
     style.corner_radius_top_right = 5
     style.corner_radius_bottom_right = 5
     style.corner_radius_bottom_left = 5
-    style.shadow_size = 8
-    style.shadow_color = Color(0.0, 0.0, 0.0, 0.44)
+    style.shadow_size = 12 if first_fight_placeholder else 8
+    style.shadow_color = Color(0.66, 0.24, 0.08, 0.24) if first_fight_placeholder else Color(0.0, 0.0, 0.0, 0.44)
     return style
 
 func _duplicate_strings(values) -> Array:
@@ -210,17 +215,17 @@ func _duplicate_strings(values) -> Array:
     return out
 
 func _role_text(roles: Array, primary_role: String = "") -> String:
-    var source := String(primary_role).strip_edges()
+    var source: String = String(primary_role).strip_edges()
     if source == "" and roles != null and roles.size() > 0:
         source = String(roles[0])
     source = source.strip_edges()
     if source == "":
         return ""
-    var cleaned := source.replace("_", " ").strip_edges()
+    var cleaned: String = source.replace("_", " ").strip_edges()
     if cleaned == "":
         return ""
-    var parts := cleaned.split(" ", false)
-    var pretty := PackedStringArray()
+    var parts: PackedStringArray = cleaned.split(" ", false)
+    var pretty: PackedStringArray = PackedStringArray()
     for part in parts:
         if part == "":
             continue

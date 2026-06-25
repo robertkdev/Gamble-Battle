@@ -109,9 +109,9 @@ static func _apply_named_nodes(root: Control) -> void:
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow", 20)
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn", 8)
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea", 14)
-	_add_grid_separator(root, "MarginContainer/VBoxContainer/ActionsRow", 16)
+	_add_grid_separator(root, "MarginContainer/VBoxContainer/ActionsRow", 18)
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/ActionsRow/BetRow", 10)
-	_add_grid_separator(root, "MarginContainer/VBoxContainer/BottomStorageArea", 8)
+	_add_grid_separator(root, "MarginContainer/VBoxContainer/BottomStorageArea", 14)
 	_style_shop_command_bar(root)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/StageLabel", "GothicStagePlate", _style(Color(0.030, 0.025, 0.033, 0.70), Color(0.42, 0.32, 0.24, 0.56), 1, 4), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea", "GothicBattlePlate", _style(Color(0.016, 0.013, 0.018, 0.58), Color(0.28, 0.22, 0.20, 0.62), 1, 6), -20)
@@ -229,7 +229,7 @@ static func _apply_panel_container(panel: PanelContainer) -> void:
 
 static func _apply_hbox_container(box: HBoxContainer) -> void:
 	if box.get_parent() != null and box.get_parent().name == "BottomStorageArea":
-		box.add_theme_constant_override("separation", 10)
+		box.add_theme_constant_override("separation", 16)
 		box.custom_minimum_size = Vector2(max(box.custom_minimum_size.x, 1120.0), max(box.custom_minimum_size.y, 58.0))
 
 static func _apply_vbox_container(box: VBoxContainer) -> void:
@@ -248,7 +248,7 @@ static func _apply_grid_container(grid: GridContainer) -> void:
 		grid.add_theme_constant_override("h_separation", 8)
 		grid.add_theme_constant_override("v_separation", 8)
 	elif grid.name == "ShopGrid":
-		grid.add_theme_constant_override("h_separation", 10)
+		grid.add_theme_constant_override("h_separation", 16)
 		grid.add_theme_constant_override("v_separation", 10)
 
 static func _apply_slider_node(slider: HSlider) -> void:
@@ -419,9 +419,9 @@ static func _style_shop_command_bar(root: Control) -> void:
 		if not (child is HBoxContainer):
 			continue
 		var bar: HBoxContainer = child as HBoxContainer
-		bar.custom_minimum_size = Vector2(1120.0, 58.0)
+		bar.custom_minimum_size = Vector2(1120.0, 62.0)
 		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		bar.add_theme_constant_override("separation", 10)
+		bar.add_theme_constant_override("separation", 16)
 		_ensure_backplate_on_control(bar, "GothicCommandPlate", _style(Color(0.038, 0.030, 0.038, 0.96), Color(0.50, 0.34, 0.24, 0.84), 1, 5), -5)
 		for grandchild: Node in bar.get_children():
 			if grandchild is Label:
