@@ -24,6 +24,7 @@ var _drag_mgr: DragManager = null
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	set_process_input(false)
 	if not is_connected("gui_input", Callable(self, "_on_gui_input_base")):
 		gui_input.connect(_on_gui_input_base)
 
@@ -85,6 +86,22 @@ func _on_gui_input_base(event: InputEvent) -> void:
 		if _dragging and _drag_mgr:
 			_drag_mgr.update()
 
+func _input(event: InputEvent) -> void:
+	if not _dragging:
+		return
+	if event is InputEventMouseMotion:
+		_last_mouse_pos = _event_mouse_position(event)
+		if _drag_mgr:
+			_drag_mgr.update()
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		_last_mouse_pos = _event_mouse_position(event)
+		if not event.pressed:
+			_mouse_down = false
+			_end_drag_internal()
+			var viewport: Viewport = get_viewport()
+			if viewport != null:
+				viewport.set_input_as_handled()
+
 func _event_mouse_position(event: InputEvent) -> Vector2:
 	var mouse_event: InputEventMouse = event as InputEventMouse
 	if mouse_event != null:
@@ -94,6 +111,7 @@ func _event_mouse_position(event: InputEvent) -> Vector2:
 
 func _begin_drag_internal() -> void:
 	_dragging = true
+	set_process_input(true)
 	emit_signal("began_drag")
 	# print debug removed
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -157,6 +175,7 @@ func _set_mouse_ignore_recursive(n: Node) -> void:
 
 func _end_drag_internal() -> void:
 	_dragging = false
+	set_process_input(false)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var did_drop: bool = false
 	var idx: int = -1
@@ -201,6 +220,7 @@ func _end_drag_internal() -> void:
 # Useful for external callers that dispose the control during a drop.
 func cleanup_drag_artifacts() -> void:
 	_dragging = false
+	set_process_input(false)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if _drag_mgr:
 		_drag_mgr.end()

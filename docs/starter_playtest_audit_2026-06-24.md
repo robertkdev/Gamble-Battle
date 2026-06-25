@@ -19,6 +19,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Fresh live cost-2 Buy XP/deploy attempt screenshots and notes: `outputs/audit_playtest/live_cost2_recheck_2026_06_25/`
 - Live-window fallback diagnostics: `outputs/audit_playtest/window_capture_2026_06_25/`
 - Fresh shop spacing and first-fight placeholder screenshots: `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/`
+- Current real-window deploy drag release recheck: `outputs/audit_playtest/current_deploy_drag_recheck/`
 - Current system menu lighter-backdrop screenshot and notes: `outputs/audit_playtest/current_system_menu_visual/unit_select_system_menu_lighter_backdrop.png`, `outputs/audit_playtest/current_system_menu_visual/current_system_menu_summary.json`, and `outputs/audit_playtest/current_system_menu_visual/notes.md`
 - Debug audit QA exports: `user://audit_exports/audit_state_*.json`; `F8` opens the debug-only in-game Audit QA panel for state export, screenshot attempt, timer hold, restart, and speed controls.
 - Live Audit QA panel screenshot proof: `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`, `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`, and `user://audit_exports/audit_shot_1782371342_158480.png`
@@ -38,6 +39,8 @@ MCP validation run on 2026-06-24:
 - `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`; rerun on 2026-06-25 with `errors: []`
 - `tests/visual/CombatResolvingFeedbackSmoke.tscn`: `CombatResolvingFeedbackSmoke: OK`; validates the immediate resolving label, elapsed resolving text, long-wait warning text, and watchdog fallback text.
 - `tests/visual/AxiomRetryEconomySmoke.tscn`: `AxiomRetryEconomySmoke: OK`; validates the support-starter retry economy after a forced opener defeat.
+- `tests/visual/AxiomRetryEconomySmoke.tscn`: rerun after the drag-release fix with `AxiomRetryEconomySmoke: OK` in `godot.log`, preserving retry purchase, deploy guidance, bench highlight, helper drag to board, and highlight clearing.
+- `tests/visual/DragGlobalReleaseSmoke.tscn`: `DragGlobalReleaseSmoke: OK` with `errors: []`; validates that a drag started on one control ends and emits a drop after global mouse release over a different tile.
 - `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`
 - `tests/visual/UIThemeSmoke.tscn`: rerun on 2026-06-25 with `errors: []`, including shop-card gutter, command-strip spacing, and first-fight placeholder prominence assertions.
@@ -54,6 +57,7 @@ Confirmed current fixes/coverage:
 - Normal new runs start with clean item inventory; `Items.DEV_STARTER_INVENTORY_ENABLED` is currently false and `ActualRunLoopSmoke` asserts an empty starting inventory.
 - The forced first fight now has an explicit `FIRST FIGHT` / `Win to open shop` placeholder and disabled opening shop buttons.
 - The actual run loop now covers repeated New Game resets, all-in loss cycles, first-board-unit drag repositioning, post-fight shop purchase, first-purchase deploy prompt, first-purchase bench-slot highlight, planning-time assist, bench-to-board drag, highlight clearing after deploy, and second-fight resolution.
+- Real-window deploy recheck exposed and fixed a drag-release edge case: after an OS mouse drag began from a bench unit, releasing outside the source `UnitView` could leave a drag ghost stuck and the bought unit on the bench. `DragAndDroppable` now listens for global mouse motion/release only while a drag is active, and the patched OS-window pass moves Cashmere from bench to board.
 - Combat no-progress and absolute timeout handling are covered by `CombatWatchdogSmoke`.
 - Lower Unit Select stale-preview behavior is covered by `UnitSelectSmoke`.
 - The new cost tiering pass is mechanically covered: 12 cost-1 units, 9 cost-2 units, and Hexeon as the single cost-3 unit. Level 1 shops sample only cost-1 units, and higher levels sample the intended tier mix.
@@ -72,7 +76,7 @@ Remaining audit gaps:
 - The current validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier and stage/reward changes, but not a fresh human real-window/screenshot replay of every starter.
 - The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor and OS-window runs did. Current modal blockers are covered: the defeat modal screenshot is refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, and the separate system menu overlay now has fresh OS-window visual proof with the lighter backdrop over Unit Select.
 - RoleMatrixSmoke passes all 22 units, but the fresh 2026-06-25 detail recheck found 130 accepted lower-level `FAIL` spans across all 22 current units. Role-report JSON is narrower: 21 of 22 reports still contain negative role deltas, with Cashmere clean only at the role-identity level.
-- Long manual play still has real-window fragility around mouse feel, but cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message. The debug Audit QA panel reduces the repeated-eval/session-capture dependency by moving state export, timer hold, restart, and speed controls into the running game.
+- Long manual play still has real-window fragility around timing/session capture, but first-purchase physical bench-to-board drag now has a targeted accepted OS-window pass after the global drag-release fix. Cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message. The debug Audit QA panel reduces the repeated-eval/session-capture dependency by moving state export, timer hold, restart, and speed controls into the running game.
 - A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive. The Audit QA screenshot control skips safely with an explicit reason under dummy/headless renderers, and a 2026-06-25 real debug-window run verified the non-dummy save path by producing `user://audit_exports/audit_shot_1782371342_158480.png`.
 
 ## Current Audit Closure Matrix
@@ -84,7 +88,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Starter-select surface | Unit Select live screenshots and `UnitSelectSmoke` cover the current 12 cost-1 starter grid. | Covered for current cost-tier branch | None unless starter roster changes again. |
 | Forced first fight and opening shop lockout | Live screenshots plus `ActualRunLoopSmoke` cover disabled opening shop controls and `Start Forced Fight`. `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/06_forced_first_fight_retry.png` refreshes the locked shop strip after the placeholder contrast pass. | Covered behaviorally and visually | Polish only: add direct click feedback if players still try disabled opener controls. |
 | All current starters through first Main-flow loop | `AllStarterMainFlowAudit` covers 12 starters: Axiom retry plus 11 first-shop buy/deploy/second-fight paths. `AxiomRetryEconomySmoke` now covers the former outlier by proving the retry shop can buy and deploy a helper after the nonlethal opening loss. | Covered behaviorally | Fresh human real-window replay of every starter remains optional but not mechanically required for current blockers. |
-| Cost-1 post-buy bench/deploy | Live Bonko-to-Brute run confirms purchase-to-bench and OS-level bench-to-board drag. `ActualRunLoopSmoke` now asserts the first-purchase prompt, bought bench-slot highlight, timer extension, bench-to-board drag, and highlight clearing after deploy. | Covered visually and behaviorally | Natural drag feel can still be rechecked in future manual passes, but the board-cell and bench-slot guidance is now explicit. |
+| Cost-1 post-buy bench/deploy | Live Bonko-to-Brute run confirms purchase-to-bench and OS-level bench-to-board drag. `outputs/audit_playtest/current_deploy_drag_recheck/` adds a fresh real-window pass: the pre-fix OS drag left a ghost stuck while the unit stayed on bench; after the global release fix, an OS click bought Cashmere, the prompt appeared, and an OS drag moved Cashmere from bench to board with `completion_reported=true`. `ActualRunLoopSmoke` asserts the first-purchase prompt, bought bench-slot highlight, timer extension, bench-to-board drag, and highlight clearing after deploy. | Covered visually and behaviorally | Preserve global drag-release handling, board-cell guidance, and bench-slot guidance. Future manual passes can focus on speed/pressure polish rather than known drop correctness. |
 | Cost-2 premium behavior after leveling | `PremiumDeployAuditRunner` repeatedly covers reserve-floor denial, level 2, cost-2 purchase, deploy prompt, and final board. `NaturalBuyXPAudit` proves a normal Bonko + cost-1 helper line can naturally reach `Gold: 6` at Stage 1 Round 3 and level to `Lvl 2 (2/6)`. `outputs/audit_playtest/live_cost2_recheck_2026_06_25/` includes audit-assisted live-window screenshots where OS clicks level to 2, reroll into 2g offers, buy Teller, and drag Teller to board. | Covered behaviorally and audit-assisted visually | Natural real-window screenshot of the Stage 1 Round 3 Buy XP success remains optional; the mechanical progression is now proven. |
 | Buy XP live-window affordance | The first live attempt exposed stale UI after a raw `Economy.gold` write. The follow-up assist used `Economy.add_gold(...)`, visibly updated to `Gold: 5`, and a real OS Buy XP click updated to `Lvl 2 (2/6)`. `NaturalBuyXPAudit` confirms the same model path succeeds naturally at `Gold: 6`, and the 4-gold denial now shows `Need +1 gold to buy XP and keep 1 health.` | Input path covered under valid visible preconditions; natural behavior and reserve-floor denial feedback covered mechanically | Natural real-window screenshot of the Stage 1 Round 3 Buy XP success remains optional; preserve the explicit denial message in future shop UI passes. |
 | Rapid shop input | `RapidShopInputAudit` covers same-frame rendered-card burst and deployment fallback. `outputs/audit_playtest/rapid_shop_os_burst/` adds audit-assisted real-window OS-coordinate evidence: before/after screenshots, preserved card centers, click coordinates, five bench additions, five sold placeholders, and no shop errors. `UIThemeSmoke` now asserts wider shop-card gutters and command-strip spacing; `outputs/audit_playtest/shop_spacing_recheck_2026_06_25/08_round2_shop_wait.png` refreshes the first real shop view. | Covered behaviorally and audit-assisted visually/input-wise | Natural full-run rapid human-speed buying remains optional; preserve hit clarity, purchase feedback, deployment guidance, and the widened bottom-band spacing. |
@@ -137,6 +141,30 @@ Accepted live-window files:
 Implication:
 - The older "shop/start hit targets need more breathing room" finding is no longer a pure missing-fix item. Current behavior and visual evidence support a narrower preservation note: keep the wider gutters, command spacing, and explicit forced-first-fight placeholder during future shop/UI passes.
 - The remaining manual-play risk is physical drag/click feel under pressure, not known transaction corruption or an unreadable opener placeholder.
+
+## Current Real-Window Deploy Drag Release Recheck
+
+Fresh ignored hold-scene evidence was generated on 2026-06-25 under `outputs/audit_playtest/current_deploy_drag_recheck/` using `outputs/audit_playtest/CurrentDeployDragHold.tscn` and `outputs/audit_playtest/current_deploy_drag_actions.ps1`.
+
+Diagnostic files:
+- `01_round2_shop_before_buy.png`: real debug-window shop before purchase, with Bonko on board, a populated level-1 shop, and `Start Battle`.
+- `02_after_os_shop_click.png`: OS-coordinate click bought Morrak, put it on bench, showed `Bought Morrak. Drag it from bench to board.`, and left the board as `["bonko"]`.
+- `03_after_os_bench_to_board_drag.png`: first OS drag attempt did not deploy; summary still had bench `["morrak"]`, board `["bonko"]`, and `completion_reported=false`.
+- `05_focus_reset_after_failed_drag.png`: after an explicit-move retry and focus reset, the screenshot showed the drag ghost stuck over the board while the bought unit remained on bench. This narrowed the bug to drag release/end handling rather than shop purchase or board target geometry.
+
+Fix and accepted files:
+- Root cause: `DragAndDroppable` only ended an active drag from source `gui_input`; a real OS release over a different control could miss the source release path and leave the drag ghost alive.
+- Fix: `DragAndDroppable` now enables global `_input` handling only while `_dragging`, updates the ghost on global mouse motion, and ends the drop on global left-button release before disabling that listener.
+- `06_after_patch_shop_before_buy.png`: patched run reached Stage 1 Round 2/6 with 3 gold, Bonko on board, and visible cost-1 shop offers.
+- `07_after_patch_os_shop_click.png`: OS click bought Cashmere to bench, lowered gold to 2, and showed the deploy prompt.
+- `08_after_patch_os_bench_to_board_drag.png`: OS drag moved Cashmere from bench to board; summary confirms `board_after=["bonko","cashmere"]`, `bench_after=[]`, `completion_reported=true`, no shop errors, and `Start Battle` still visible.
+
+Validation:
+- `tests/visual/DragGlobalReleaseSmoke.tscn`: `DragGlobalReleaseSmoke: OK`, `errors: []` via MCP `get_debug_output()`.
+- `tests/visual/AxiomRetryEconomySmoke.tscn`: `AxiomRetryEconomySmoke: OK` in the current `godot.log`.
+- `tests/visual/ActualRunLoopSmoke.tscn`: first post-fix attempt failed before the deploy portion with `shop cycle did not open a post-fight shop` after five loss-reset cycles, but a legacy MCP rerun immediately afterward completed with `ActualRunLoopSmoke: OK` and `errors: []`. Treat the first result as transient, not evidence against the drag-release fix.
+
+Audit implication: first-purchase bench deployment is now covered by both behavioral smoke and physical OS-window evidence. Future drag work should preserve the global-release lifecycle and focus on pressure polish, not the core drop correctness.
 
 ## Current RoleMatrix Accepted-Miss Recheck
 
@@ -672,7 +700,8 @@ Key manual evidence captured in this continuation:
    - Current live Bonko recheck repeated the problem after the cost-tier pass: buying Brute from the Round 2 level-1 shop worked, but a first drag attempt left `board_ids` as `["bonko"]` and `bench_ids` as `["brute"]` with about 8 seconds left in planning.
    - Current branch mitigation: first post-fight purchase now shows `Bought <unit>. Drag it from bench to board.`, emits the first-deploy assist path, logs `Deploy <unit>: drag the glowing bench unit to a highlighted board cell.`, highlights the player grid plus the bought bench slot/unit, and extends short planning time to 20 seconds.
    - Fresh `ActualRunLoopSmoke` proves the prompt, signal connection, timer extension, bench placement, bench highlight, bench-to-board move, highlight clearing, next fight resolution, and reset recovery with `errors: []`.
-   - Remaining UX risk: physical mouse drag/hit clarity can still feel fragile under real pressure, but the board-cell and bench-slot guidance now has direct automated coverage; future visual/manual passes can focus on natural drag feel rather than correctness.
+   - The 2026-06-25 real-window deploy release recheck exposed one remaining correctness bug: OS dragging could start a ghost but fail to drop if release happened outside the source `UnitView`. `DragAndDroppable` now handles global mouse motion/release while dragging, and the patched OS-window pass bought Cashmere, dragged it from bench to board, emptied the bench, and reported `completion_reported=true`.
+   - Remaining UX risk: physical mouse drag/hit clarity can still feel fragile under real pressure, but the board-cell guidance, bench-slot guidance, and active-drag release path now have direct behavioral and OS-window coverage; future visual/manual passes can focus on speed/pressure polish.
 
 7. Round 2 used to stall in Battle Locked with no visible progress; indefinite hangs are now guarded mechanically.
    - Bo reached Round 2 with 4 gold, showed a nonzero Round 1 scoreboard, then entered a battle-locked Round 2 state after the shop-buy attempt.
@@ -821,7 +850,7 @@ Summary from supporting data:
 5. Preserve the widened spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
 6. Register or remove missing completed item dynamic effects before trusting item strategy.
 7. Preserve and extend the debug in-game Audit QA controls for manual playtests: state export, screenshot status, restart, timer hold, and speed controls that do not require fragile repeated Godot-AI eval calls.
-8. Preserve first-purchase deploy assist: prompt text, highlighted board cells, and short-timer extension must stay covered so bought units are actually fielded in early manual runs.
+8. Preserve first-purchase deploy assist and drag release handling: prompt text, highlighted board cells, short-timer extension, and global release/drop cleanup must stay covered so bought units are actually fielded in early manual runs.
 9. Preserve the combat no-progress and absolute-timeout watchdogs plus the visible resolving feedback labels; capture a natural real-window long-fight example if manual play ever sees one.
 10. Add a short post-win pause or explicit "continue planning" beat; Korath advanced through a planning window while the auditor was waiting on fight resolution, which can cause missed shop decisions.
 11. Preserve the now-passing rapid rendered-card buy/deploy behavior and the audit-assisted real-window OS-coordinate burst result; broaden only if future natural full-run play exposes human-speed hit-target or feedback issues.
