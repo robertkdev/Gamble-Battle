@@ -17,6 +17,7 @@ const RGAOpponentSelectors := preload("res://tests/rga_testing/validation/oppone
 const ProbeReportCompiler := preload("res://tests/rga_testing/validation/probe_report_compiler.gd")
 const RolesThresholdsChecker := preload("res://tests/rga_testing/metrics/roles/thresholds_checker.gd")
 const TeamShells := preload("res://tests/rga_testing/validation/team_shells.gd")
+const COUNTERPLAY_RESPONSE_CORE: Array[String] = ["totem", "veyra"]
 const QUICK_APPROACH_METRICS := {
 	"access_backline": "approach_access_backline",
 	"amp": "approach_amp",
@@ -327,7 +328,7 @@ func _run() -> void:
 		var subject_metric_ids: Array = base_metric_ids.duplicate()
 		if quick_balance and subject_metric_ids.is_empty():
 			subject_metric_ids = _quick_metric_ids_for_subject(subj)
-		var result: Dictionary = MetricRegistry.run_all(caps_present, ctx, subject_metric_ids, [subj])
+		var result: Dictionary = _run_subject_metrics(caps_present, ctx, subject_metric_ids, [subj])
 		_print_summary("RoleMatrixProbe(%s)" % subj, result)
 		if local_dump_json:
 			var metrics: Array = result.get("metrics", [])
@@ -613,6 +614,96 @@ func _scenarios_from_intents(csv: String) -> Array:
 				out.append({"label": String(k), "map_params": {}})
 	return out
 
+func _run_subject_metrics(caps_present: PackedStringArray, ctx: Dictionary, metric_ids: Array, subject_ids: Array) -> Dictionary:
+	if metric_ids.is_empty() or not _ctx_has_counterplay_sims(ctx):
+		return MetricRegistry.run_all(caps_present, ctx, metric_ids, subject_ids)
+	var normal_metric_ids: Array = []
+	var counterplay_metric_ids: Array = []
+	for raw_metric_id in metric_ids:
+		var metric_id: String = String(raw_metric_id)
+		if _is_counterplay_metric_id(metric_id):
+			counterplay_metric_ids.append(metric_id)
+		else:
+			normal_metric_ids.append(metric_id)
+	if counterplay_metric_ids.is_empty():
+		var normal_only_ctx: Dictionary = _ctx_without_counterplay_sims(ctx)
+		return MetricRegistry.run_all(caps_present, normal_only_ctx, metric_ids, subject_ids)
+	if normal_metric_ids.is_empty():
+		return MetricRegistry.run_all(caps_present, ctx, metric_ids, subject_ids)
+	var baseline_ctx: Dictionary = _ctx_without_counterplay_sims(ctx)
+	var normal_result: Dictionary = MetricRegistry.run_all(caps_present, baseline_ctx, normal_metric_ids, subject_ids)
+	var counterplay_result: Dictionary = MetricRegistry.run_all(caps_present, ctx, counterplay_metric_ids, subject_ids)
+	return _merge_metric_results(normal_result, counterplay_result)
+
+func _is_counterplay_metric_id(metric_id: String) -> bool:
+	var normalized: String = String(metric_id).strip_edges().to_lower()
+	return normalized == "approach_debuff" or normalized == "approach_lockdown"
+
+func _ctx_has_counterplay_sims(ctx: Dictionary) -> bool:
+	var sims_dict: Dictionary = ctx.get("sims", {}) if (ctx is Dictionary) else {}
+	for sim_key in sims_dict.keys():
+		var sim_entry: Variant = sims_dict.get(sim_key)
+		if not (sim_entry is Dictionary):
+			continue
+		var sim_context: Dictionary = (sim_entry as Dictionary).get("context", {})
+		var label: String = String(sim_context.get("scenario_label", "")).strip_edges().to_lower()
+		if _is_counterplay_label(label):
+			return true
+	return false
+
+func _ctx_without_counterplay_sims(ctx: Dictionary) -> Dictionary:
+	var filtered: Dictionary = ctx.duplicate(true)
+	var sims_dict: Dictionary = ctx.get("sims", {}) if (ctx is Dictionary) else {}
+	var filtered_sims: Dictionary = {}
+	for sim_key in sims_dict.keys():
+		var sim_entry: Variant = sims_dict.get(sim_key)
+		if not (sim_entry is Dictionary):
+			continue
+		var sim_context: Dictionary = (sim_entry as Dictionary).get("context", {})
+		var label: String = String(sim_context.get("scenario_label", "")).strip_edges().to_lower()
+		if _is_counterplay_label(label):
+			continue
+		filtered_sims[sim_key] = sim_entry
+	filtered["sims"] = filtered_sims
+	filtered["scenario"] = _majority_scenario_from_sims(filtered_sims, String(ctx.get("scenario", "unknown")))
+	return filtered
+
+func _majority_scenario_from_sims(sims_dict: Dictionary, fallback: String) -> String:
+	var counts: Dictionary = {}
+	for sim_key in sims_dict.keys():
+		var sim_entry: Variant = sims_dict.get(sim_key)
+		if not (sim_entry is Dictionary):
+			continue
+		var sim_context: Dictionary = (sim_entry as Dictionary).get("context", {})
+		var label: String = String(sim_context.get("scenario_label", "")).strip_edges().to_lower()
+		if label == "":
+			continue
+		counts[label] = int(counts.get(label, 0)) + 1
+	var best_label: String = ""
+	var best_count: int = 0
+	for label_key in counts.keys():
+		var count: int = int(counts.get(label_key, 0))
+		if count > best_count:
+			best_count = count
+			best_label = String(label_key)
+	if best_label != "":
+		return best_label
+	return String(fallback)
+
+func _merge_metric_results(first: Dictionary, second: Dictionary) -> Dictionary:
+	var merged_metrics: Array = []
+	for raw_metric in first.get("metrics", []):
+		merged_metrics.append(raw_metric)
+	for raw_counter_metric in second.get("metrics", []):
+		merged_metrics.append(raw_counter_metric)
+	return {
+		"passed": bool(first.get("passed", false)) and bool(second.get("passed", false)),
+		"metrics": merged_metrics,
+		"failed_count": int(first.get("failed_count", 0)) + int(second.get("failed_count", 0)),
+		"skipped_count": int(first.get("skipped_count", 0)) + int(second.get("skipped_count", 0)),
+		"error_count": int(first.get("error_count", 0)) + int(second.get("error_count", 0))
+	}
+
 func _packs_for_subject(subject_id: String, pack_filters: PackedStringArray) -> Array[Dictionary]:
 	var ident: Dictionary = RoleCommon.get_identity(String(subject_id))
 	var primary_role: String = String(ident.get("primary_role", "")).strip_edges().to_lower()
@@ -625,6 +716,8 @@ func _packs_for_subject(subject_id: String, pack_filters: PackedStringArray) -> 
 				continue
 			if _pack_included((p as Dictionary), pack_filters):
 				out.append((p as Dictionary).duplicate(true))
+	if _filters_include_counterplay(pack_filters):
+		out.append(_counterplay_scenario_pack())
 	return out
 
 func _roles_to_eval(primary_role: String) -> PackedStringArray:
@@ -649,8 +742,29 @@ func _pack_included(pack: Dictionary, filters: PackedStringArray) -> bool:
 			return true
 	return false
 
+func _filters_include_counterplay(filters: PackedStringArray) -> bool:
+	for filter_value in filters:
+		if _is_counterplay_label(String(filter_value)):
+			return true
+	return false
+
+func _counterplay_scenario_pack() -> Dictionary:
+	return {
+		"id": "shared.counterplay_response",
+		"label": "counterplay",
+		"map_params": _counterplay_map_params()
+	}
+
 func _opponents_for_label(subject_id: String, scen_label: String, n: int) -> Array[String]:
 	var lb: String = String(scen_label).strip_edges().to_lower()
+	if _is_counterplay_label(lb):
+		var response_team: Array[String] = _counterplay_response_team(subject_id, TeamShells.neutral_filler_combo(max(0, n), [subject_id]))
+		var limited: Array[String] = []
+		for response_id in response_team:
+			if limited.size() >= max(0, n):
+				break
+			limited.append(String(response_id))
+		return limited
 	if lb == "counter" or lb == "burst" or lb == "dive":
 		return RGAOpponentSelectors.select_counters(subject_id, n)
 	if lb == "light":
@@ -726,6 +840,8 @@ func _plan_full_probe_6v6(subject_id: String, seed_list: Array[int], labels_over
 				ta = _reorder_team_for_subject_lane(ta, subject_id, lane_hint)
 				var base_seed_b: int = _seed_from_subject(subject_id, role_key, lb, sim_seed, "team_b")
 				var base_b: Array[String] = _baseline_team_one_each_role(subject_id, subject_cost, subject_level, base_seed_b)
+				if _is_counterplay_label(lb):
+					base_b = _counterplay_response_team(subject_id, base_b)
 				planned.append({
 					"team_a": ta,
 					"team_b": base_b,
@@ -785,6 +901,42 @@ func _catalog_ids_for_role(role_id: String, exclude: Dictionary, subject_cost: i
 		return exact
 	return fallback
 
+func _counterplay_response_team(subject_id: String, base_team: Array[String]) -> Array[String]:
+	var team: Array[String] = []
+	var exclude: Dictionary = {String(subject_id): true}
+	for core_unit in COUNTERPLAY_RESPONSE_CORE:
+		var core_id: String = String(core_unit)
+		if core_id == "" or exclude.has(core_id):
+			continue
+		team.append(core_id)
+		exclude[core_id] = true
+	for unit_value in base_team:
+		if team.size() >= 6:
+			break
+		var unit_id: String = String(unit_value)
+		if unit_id == "" or exclude.has(unit_id):
+			continue
+		team.append(unit_id)
+		exclude[unit_id] = true
+	if team.size() < 6:
+		var excluded_ids: Array[String] = []
+		for excluded_value in exclude.keys():
+			excluded_ids.append(String(excluded_value))
+		var filler: Array[String] = TeamShells.neutral_filler_combo(6 - team.size(), excluded_ids)
+		for fill_id in filler:
+			if team.size() >= 6:
+				break
+			var normalized_fill: String = String(fill_id)
+			if normalized_fill == "" or exclude.has(normalized_fill):
+				continue
+			team.append(normalized_fill)
+			exclude[normalized_fill] = true
+	return team
+
+func _is_counterplay_label(label: String) -> bool:
+	var normalized: String = String(label).strip_edges().to_lower()
+	return normalized == "counterplay" or normalized == "high_tenacity_cleanse" or normalized == "cleanse"
+
 func _seed_from_subject(subject_id: String, role_key: String, scenario_label: String, sim_seed: int, salt: String) -> int:
 	var seed_components: String = "%s|%s|%s|%d|%s" % [subject_id, role_key, scenario_label, sim_seed, salt]
 	return _hash_to_positive(seed_components)
@@ -823,7 +975,19 @@ func _map_params_for_label(packs: Array, label: String) -> Dictionary:
 				# Pass subject_lane as hint for formation/placement consumers
 				out["subject_lane_hint"] = String(pd.get("subject_lane", ""))
 				return out
+	if _is_counterplay_label(lb):
+		return _counterplay_map_params()
 	return {}
+
+func _counterplay_map_params() -> Dictionary:
+	return {
+		"openness": 0.65,
+		"choke_count": 0,
+		"obstacle_density": 0.2,
+		"artillery_range": 8.0,
+		"tile_size": 96.0,
+		"map_id": "counterplay_response"
+	}
 
 func _reorder_team_for_subject_lane(team: Array[String], subject_id: String, lane: String) -> Array[String]:
 	var out: Array[String] = []

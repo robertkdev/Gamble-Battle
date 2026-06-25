@@ -8,6 +8,7 @@ Run these scenes via MCP for headless validation and reports.
     - `-- unit_id=bonko` (minimal)
     - `-- unit_id=bonko scenario_packs_to_run=neutral,burst opponents_per_pack=1 max_sims=12`
     - `-- unit_id=bonko dump_json=1` (raw metric JSON)
+  - Live counterplay scenarios: quick/full RoleMatrix runs now treat `counterplay`, `cleanse`, and `high_tenacity_cleanse` labels as response-pressure scenarios. Quick probes add a synthetic `shared.counterplay_response` pack when the label is requested; full 6v6 probes force Totem and Veyra into the opposing response shell. Non-counterplay quick metrics evaluate against baseline rows only, while `approach_debuff` and `approach_lockdown` evaluate against the combined baseline-plus-counterplay rows so scenario-delta evidence does not dilute unrelated engage/goal gates.
 
 - Full Probe 6v6 (subject-as-slot substitution)
   - Scene: `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn`
@@ -83,6 +84,7 @@ Run these scenes via MCP for headless validation and reports.
 - Counterplay context triage smoke
   - Scene: `tests/rga_testing/validation/CounterplayContextTriageSmoke.tscn`
   - Synthetic accepted-miss guard for Brute, Grint, Kythera, and Sari; fails if the current debuff/lockdown counterplay spans stop passing when cleanse/high-tenacity response pressure is present.
+  - The live RoleMatrix smoke now exercises this pressure for debuff/lockdown identities. The 2026-06-25 run confirmed Grint's `counterplay` scenario passes debuff scenario-delta spans without breaking `tank.initiate_fight`; remaining live counterplay accepted misses are content/scenario tuning rows, not absent metric support.
 
 - Totem live cleanse positive control
   - Scene: `tests/rga_testing/validation/TotemCleanseLiveProbe.tscn`

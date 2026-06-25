@@ -136,6 +136,8 @@ func _labels_for_unit(ident: Dictionary) -> PackedStringArray:
 	_add_label(labels, "neutral")
 	if role_id == "support" or _has_approach(approaches, "peel") or _has_approach(approaches, "cc_immunity") or goal_id == "support.peel_carry":
 		_add_label(labels, "peel")
+	if _has_approach(approaches, "debuff") or _has_approach(approaches, "lockdown") or goal_id.find("lockdown") >= 0:
+		_add_label(labels, "counterplay")
 	if role_id == "assassin" or _has_approach(approaches, "access_backline") or goal_id == "brawler.skirmish_dive":
 		_add_label(labels, "counter")
 	if role_id == "marksman" or _has_approach(approaches, "long_range"):
@@ -203,7 +205,7 @@ func _add_label(labels: PackedStringArray, label: String) -> void:
 
 func _label_cap(labels: PackedStringArray, cap: int) -> PackedStringArray:
 	var out: PackedStringArray = PackedStringArray()
-	var preferred: Array[String] = ["neutral", "peel", "burst", "counter", "kite"]
+	var preferred: Array[String] = ["neutral", "counterplay", "peel", "burst", "counter", "kite"]
 	for label in preferred:
 		if out.size() >= cap:
 			break
