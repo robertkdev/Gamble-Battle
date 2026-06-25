@@ -111,6 +111,12 @@ function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 	if ($text -match 'debuff_cleanse') {
 		return "debuff_counterplay_response_below_target"
 	}
+	if ($text -match 'lockdown_cleanse_scenario_delta') {
+		return "lockdown_cleanse_scenario_delta_below_target"
+	}
+	if ($text -match 'lockdown_high_tenacity_effective_drop_s') {
+		return "lockdown_high_tenacity_effective_drop_below_target"
+	}
 	if ($text -match 'lockdown_cleanse|tenacity') {
 		return "lockdown_counterplay_response_below_target"
 	}
@@ -151,6 +157,8 @@ function Get-SupportPeelNextAction($GapKind) {
 		"debuff_cleanse_pressure_absent" { return "Tune cleanse response composition or debuff application so counterplay pressure records at least one cleanse response." }
 		"debuff_cleanse_scenario_delta_below_target" { return "Tune the neutral-vs-cleanse scenario pair, cleanse response composition, or scenario-delta threshold for debuff identities." }
 		"debuff_counterplay_response_below_target" { return "Tune cleanse response composition, cleanse-pressure thresholds, or debuff tags for identities that should prove cleanse response pressure." }
+		"lockdown_cleanse_scenario_delta_below_target" { return "Tune the neutral-vs-cleanse lockdown scenario pair, cleanse response composition, or scenario-delta threshold for lockdown identities." }
+		"lockdown_high_tenacity_effective_drop_below_target" { return "Tune high-tenacity response composition, lockdown duration/effectiveness, or effective-drop threshold for lockdown identities." }
 		"lockdown_counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, lockdown counterplay thresholds, or lockdown tags for identities that should prove anti-CC response pressure." }
 		"wombo_cc_sync_absent" { return "Decide whether wombo requires direct CC-sync evidence or whether burst/AoE aggregate evidence is sufficient." }
 		"cooldown_trade_quality_below_target" { return "Tune the threat-response setup or the cooldown-trade efficiency threshold for the all-unit support scenario." }
