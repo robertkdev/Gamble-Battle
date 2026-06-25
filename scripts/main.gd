@@ -99,11 +99,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if title_menu and title_menu.visible:
 		return
+	if _loss_overlay_active():
+		return
 	if _system_menu_open:
 		_close_system_menu()
 	else:
 		_open_system_menu()
 	get_viewport().set_input_as_handled()
+
+func refresh_system_menu_state() -> void:
+	if _loss_overlay_active() and _system_menu_open:
+		_close_system_menu()
+		return
+	_sync_system_menu_button()
 
 func request_return_to_title() -> void:
 	_close_system_menu()
@@ -280,6 +288,8 @@ func _make_panel_style() -> StyleBoxFlat:
 func _open_system_menu() -> void:
 	if title_menu and title_menu.visible:
 		return
+	if _loss_overlay_active():
+		return
 	if _system_overlay == null:
 		return
 	_system_menu_open = true
@@ -300,8 +310,9 @@ func _sync_system_menu_button() -> void:
 	if _system_menu_button == null:
 		return
 	var title_is_visible: bool = title_menu != null and title_menu.visible
-	_system_menu_button.visible = not title_is_visible and not _system_menu_open
-	_system_menu_button.disabled = title_is_visible
+	var loss_overlay_is_active: bool = _loss_overlay_active()
+	_system_menu_button.visible = not title_is_visible and not _system_menu_open and not loss_overlay_is_active
+	_system_menu_button.disabled = title_is_visible or loss_overlay_is_active
 	_system_menu_button.mouse_default_cursor_shape = Control.CURSOR_ARROW if _system_menu_button.disabled else Control.CURSOR_POINTING_HAND
 
 func _wire_system_button_hover(button: Button, compact: bool) -> void:
@@ -386,6 +397,14 @@ func _remove_runtime_overlays() -> void:
 	var layer: Node = root.get_node_or_null(LOSS_OVERLAY_LAYER_NAME)
 	if layer != null:
 		layer.queue_free()
+		call_deferred("refresh_system_menu_state")
+
+func _loss_overlay_active() -> bool:
+	var root: Window = get_tree().root
+	if root == null:
+		return false
+	var layer: Node = root.get_node_or_null(LOSS_OVERLAY_LAYER_NAME)
+	return layer != null and not layer.is_queued_for_deletion()
 
 func _get_autoload(autoload_name: String) -> Node:
 	var root: Window = get_tree().root

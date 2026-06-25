@@ -79,8 +79,14 @@ func _run() -> void:
 	get_tree().root.add_child(fake_loss_layer)
 	_press_title_start()
 	await _settle_frames(2)
-	_press_button("SystemMenuButton")
-	_press_button("NewRunButton")
+	_refresh_system_menu_state()
+	await _settle_frames(1)
+	_expect(not _button_visible("SystemMenuButton"), "system menu button should hide behind defeat overlay")
+	_try_open_system_menu()
+	await _settle_frames(1)
+	_expect(not get_tree().paused, "defeat overlay should prevent system menu pause")
+	_expect(not _overlay_visible(), "defeat overlay should prevent system menu overlay")
+	_request_new_run()
 	await _settle_frames(4)
 	_expect(get_tree().root.get_node_or_null("LossOverlayLayer") == null, "new run should clear defeat overlay layer")
 	_expect(_node_visible("UnitSelect"), "new run from overlay state should land on unit select")
@@ -108,6 +114,20 @@ func _press_button(button_name: String) -> void:
 		_expect(false, "%s missing" % button_name)
 		return
 	button.pressed.emit()
+
+func _try_open_system_menu() -> void:
+	if _main != null and _main.has_method("_open_system_menu"):
+		_main.call("_open_system_menu")
+
+func _refresh_system_menu_state() -> void:
+	if _main != null and _main.has_method("refresh_system_menu_state"):
+		_main.call("refresh_system_menu_state")
+
+func _request_new_run() -> void:
+	if _main != null and _main.has_method("request_new_run"):
+		_main.call("request_new_run")
+		return
+	_expect(false, "main request_new_run missing")
 
 func _button_exists(button_name: String) -> bool:
 	return _main.find_child(button_name, true, false) is Button

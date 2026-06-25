@@ -1263,6 +1263,11 @@ func _on_intermission_finished() -> void:
 					layer.layer = 100
 					tree.root.add_child(layer)
 					layer.add_child(screen)
+					var main_node: Node = tree.root.get_node_or_null("Main")
+					if main_node == null:
+						main_node = tree.root.find_child("Main", true, false)
+					if main_node != null and main_node.has_method("refresh_system_menu_state"):
+						main_node.call("refresh_system_menu_state")
 				elif parent and parent is Control:
 					(parent as Control).add_child(screen)
 				else:
