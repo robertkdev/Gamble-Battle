@@ -178,8 +178,11 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	if ($text -match 'goal_marksman_sustained_dps_team_damage_share') {
 		return "marksman_sustained_goal_damage_share_below_target"
 	}
-	if ($text -match 'subject_team_damage_share_med|team_share_med') {
-		return "marksman_role_damage_share_diagnostic_below_target"
+	if ($text -match 'subject_team_damage_share_med') {
+		return "marksman_role_subject_damage_share_diagnostic_below_target"
+	}
+	if ($text -match 'team_share_med') {
+		return "marksman_role_candidate_team_share_diagnostic_below_target"
 	}
 	if ($text -match 'team_damage_share|team_share') {
 		return "damage_share_below_target"
@@ -269,6 +272,8 @@ function Get-AuditNextAction($GapKind) {
 	switch ([string]$GapKind) {
 		"backline_pressure_below_target" { return "Tune marksman targeting/positioning scenarios or thresholds so backline pressure is directly proven when the identity claims it." }
 		"marksman_sustained_goal_damage_share_below_target" { return "Tune Sari/Teller sustained-DPS output, encounter duration, or the 0.25 goal threshold so sustained-DPS identities prove direct team damage share." }
+		"marksman_role_subject_damage_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman subject damage-share diagnostic unless role identity should require subject-owned team share; tune output/scenario only if needed." }
+		"marksman_role_candidate_team_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman candidate/team-side share diagnostic unless role identity should require team-level carry share; tune output/scenario only if needed." }
 		"marksman_role_damage_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman role diagnostic unless the role contract should require team share; tune output/scenario only if the identity should carry more team damage." }
 		"damage_share_below_target" { return "Tune damage output, encounter duration, or threshold expectations for identities that should prove team damage share." }
 		"wombo_goal_peak_share_below_target" { return "Tune Paisley's Wombo Combo burst window, target grouping, or the 0.25 goal peak-share threshold." }
