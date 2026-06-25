@@ -8,7 +8,7 @@ const LockdownApproachTest := preload("res://tests/rga_testing/metrics/approach/
 const DebuffApproachTest := preload("res://tests/rga_testing/metrics/approach/debuff_approach_test.gd")
 
 const DEBUFF_COUNTERPLAY_UNITS: Array[String] = ["grint", "kythera", "sari"]
-const LOCKDOWN_COUNTERPLAY_UNITS: Array[String] = ["brute"]
+const LOCKDOWN_COUNTERPLAY_UNITS: Array[String] = ["brute", "volt"]
 
 @export var do_quit_on_finish: bool = true
 
@@ -18,6 +18,7 @@ func _ready() -> void:
 func _run() -> void:
 	var failures: Array[String] = []
 	var checked_units: Dictionary = {}
+	var required_passing_spans: int = 0
 	for unit_id in DEBUFF_COUNTERPLAY_UNITS:
 		var subject_id: String = String(unit_id)
 		checked_units[subject_id] = true
@@ -27,6 +28,7 @@ func _run() -> void:
 			"subject_debuff_cleanse_bait_rate",
 			"subject_debuff_cleanse_scenario_delta"
 		]), failures)
+		required_passing_spans += 3
 	for unit_id in LOCKDOWN_COUNTERPLAY_UNITS:
 		var subject_id: String = String(unit_id)
 		checked_units[subject_id] = true
@@ -38,13 +40,14 @@ func _run() -> void:
 			"subject_lockdown_high_tenacity_tax_delta_s",
 			"subject_lockdown_high_tenacity_effective_drop_s"
 		]), failures)
+		required_passing_spans += 5
 
 	if not failures.is_empty():
 		for failure in failures:
 			printerr(failure)
 		_quit(1)
 		return
-	print("CounterplayContextTriageSmoke: PASS units=", checked_units.size(), " direct_spans=8 scenario_delta_spans=4")
+	print("CounterplayContextTriageSmoke: PASS units=", checked_units.size(), " required_passing_spans=", required_passing_spans)
 	_quit(0)
 
 func _run_debuff_metric(payload: Dictionary) -> Dictionary:

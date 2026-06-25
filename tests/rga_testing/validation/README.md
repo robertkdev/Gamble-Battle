@@ -83,7 +83,7 @@ Run these scenes via MCP for headless validation and reports.
 
 - Counterplay context triage smoke
   - Scene: `tests/rga_testing/validation/CounterplayContextTriageSmoke.tscn`
-  - Synthetic accepted-miss guard for Brute, Grint, Kythera, and Sari; fails if the current debuff/lockdown counterplay spans stop passing when cleanse/high-tenacity response pressure is present.
+  - Synthetic accepted-miss guard for Brute, Volt, Grint, Kythera, and Sari; fails if the current debuff/lockdown counterplay spans stop passing when cleanse/high-tenacity response pressure is present.
   - The live RoleMatrix smoke now exercises this pressure for debuff/lockdown identities. The 2026-06-25 run confirmed Grint's `counterplay` scenario passes debuff scenario-delta spans without breaking `tank.initiate_fight`; remaining live counterplay accepted misses are content/scenario tuning rows, not absent metric support.
 
 - Totem live cleanse positive control

@@ -82,6 +82,7 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 		"grint" { return "debuff_lockdown_counterplay_context_gap" }
 		"kythera" { return "debuff_lockdown_counterplay_context_gap" }
 		"sari" { return "debuff_lockdown_counterplay_context_gap" }
+		"volt" { return "debuff_lockdown_counterplay_context_gap" }
 		default { return "support_peel_other" }
 	}
 }
