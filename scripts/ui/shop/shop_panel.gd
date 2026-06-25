@@ -136,12 +136,15 @@ func _make_placeholder(sold: bool) -> Control:
     var first_fight_placeholder: bool = _single_empty_state and not sold
     var wrap: PanelContainer = PanelContainer.new()
     wrap.custom_minimum_size = Vector2(790.0, 138.0) if first_fight_placeholder else Vector2(150.0, 138.0)
-    wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder else Control.MOUSE_FILTER_IGNORE
+    wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder or sold else Control.MOUSE_FILTER_IGNORE
     if first_fight_placeholder:
         wrap.tooltip_text = "First fight is forced. Win to open the shop."
         wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
         wrap.focus_mode = Control.FOCUS_ALL
         wrap.gui_input.connect(Callable(self, "_on_first_fight_placeholder_gui_input"))
+    elif sold:
+        wrap.tooltip_text = "Purchased. Unit is on your bench."
+        wrap.mouse_default_cursor_shape = Control.CURSOR_ARROW
     wrap.add_theme_stylebox_override("panel", _make_placeholder_style(sold))
 
     var stack: VBoxContainer = VBoxContainer.new()
@@ -160,7 +163,7 @@ func _make_placeholder(sold: bool) -> Control:
     stack.add_child(icon)
 
     var label: Label = Label.new()
-    label.text = "SEALED" if sold else _empty_label_text
+    label.text = "SOLD" if sold else _empty_label_text
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     label.add_theme_font_size_override("font_size", 16 if first_fight_placeholder else 11)
     label.add_theme_color_override("font_color", Color(0.95, 0.73, 0.40, 0.98) if first_fight_placeholder else (Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.74, 0.48, 0.44, 0.88)))
@@ -169,7 +172,7 @@ func _make_placeholder(sold: bool) -> Control:
     label.mouse_filter = Control.MOUSE_FILTER_IGNORE
     stack.add_child(label)
 
-    var hint_text: String = "Purchased" if sold else _empty_hint_text
+    var hint_text: String = "On bench" if sold else _empty_hint_text
     if hint_text != "":
         var hint: Label = Label.new()
         hint.text = hint_text
