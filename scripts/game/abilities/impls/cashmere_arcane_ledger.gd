@@ -7,22 +7,12 @@ extends AbilityImplBase
 
 const BASE_BY_LEVEL := [170, 255, 380]
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
-const ARCANIST_KEY := "arcanist_stacks" # Legacy fallback; TODO: remove after validation
+const ARCANIST_KEY := "arcanist_stacks" # Legacy fallback for old saved/test state.
 const DROP_CHANCE := 0.25
 
 func _level_index(u: Unit) -> int:
 	var lvl: int = (int(u.level) if u != null else 1)
 	return clamp(lvl - 1, 0, 2)
-
-func _get_stack(bs, state: BattleState, team: String, index: int, key: String) -> int:
-	if bs == null:
-		return 0
-	# Prefer unified where possible
-	if key == ARCANIST_KEY:
-		var v: int = int(bs.get_stack(state, team, index, TraitKeys.ARCANIST))
-		if v > 0:
-			return v
-	return int(bs.get_stack(state, team, index, key))
 
 func _award_gold(n: int) -> void:
 	if n <= 0:
