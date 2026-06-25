@@ -136,7 +136,7 @@ func _refresh_now() -> void:
 	_on_locked_changed(Shop.state.locked if Shop and Shop.state else false)
 	_refresh_cards_state()
 	_refresh_progress()
-	
+
 func _on_offers_changed(offers: Array) -> void:
 	if _panel:
 		_apply_empty_state()
@@ -391,6 +391,19 @@ func _on_message_timer_timeout() -> void:
 	if _message_label != null and is_instance_valid(_message_label):
 		_message_label.visible = false
 
-func _on_shop_error(code: String, _context: Dictionary) -> void:
-	var msg := ShopErrors.message(code)
-	_show_message(msg, 2.0)
+func _on_shop_error(code: String, context: Dictionary) -> void:
+	var msg: String = _shop_error_message(code, context)
+	_show_message(msg, 2.5)
+
+func _shop_error_message(code: String, context: Dictionary) -> String:
+	var need_more: int = int(context.get("need_more", 0))
+	if code == ShopErrors.WOULD_KILL_YOU and need_more > 0:
+		var op: String = String(context.get("op", ""))
+		if op == "buy_xp":
+			return "Need +%d gold to buy XP and keep 1 health." % max(1, need_more)
+		if op == "reroll":
+			return "Need +%d gold to reroll and keep 1 health." % max(1, need_more)
+		if op == "buy_unit":
+			return "Need +%d gold to buy safely." % max(1, need_more)
+		return "Need +%d gold to keep 1 health." % max(1, need_more)
+	return ShopErrors.message(code)

@@ -52,6 +52,15 @@ func _has_autoload(autoload_name: String) -> bool:
 	var node = get_tree().root.get_node_or_null(path)
 	return node != null
 
+func _error_context(op: String, res: Dictionary, extra: Dictionary = {}) -> Dictionary:
+	var context: Dictionary = extra.duplicate(true)
+	context["op"] = op
+	if res.has("need_more"):
+		context["need_more"] = int(res.get("need_more", 0))
+	if res.has("reason"):
+		context["reason"] = String(res.get("reason", ""))
+	return context
+
 func _is_combat_phase() -> bool:
 	if _has_autoload("GameState"):
 		var gp = GameState
@@ -97,7 +106,7 @@ func reroll() -> Dictionary:
 	var gold := (Economy.gold if _has_autoload("Economy") else 0)
 	var res := _tx.reroll(state, lvl, gold)
 	if not bool(res.get("ok", false)):
-		error.emit(String(res.get("error", "UNKNOWN")), {"op": "reroll"})
+		error.emit(String(res.get("error", "UNKNOWN")), _error_context("reroll", res))
 		return res
 	var cost := int(res.get("gold_spent", 0))
 	# Spend gold or record combat spend
@@ -114,7 +123,7 @@ func buy_xp() -> Dictionary:
 	var gold := (Economy.gold if _has_autoload("Economy") else 0)
 	var res := _tx.buy_xp(_progress, gold)
 	if not bool(res.get("ok", false)):
-		error.emit(String(res.get("error", "UNKNOWN")), {"op": "buy_xp"})
+		error.emit(String(res.get("error", "UNKNOWN")), _error_context("buy_xp", res))
 		return res
 	var cost := int(res.get("gold_spent", 0))
 	if cost > 0 and _has_autoload("Economy"):
@@ -136,7 +145,7 @@ func buy_unit(slot_index: int) -> Dictionary:
 	var gold := (Economy.gold if _has_autoload("Economy") else 0)
 	var res := _tx.buy_unit(state, int(slot_index), gold, lvl)
 	if not bool(res.get("ok", false)):
-		error.emit(String(res.get("error", "UNKNOWN")), {"op": "buy_unit", "slot": int(slot_index)})
+		error.emit(String(res.get("error", "UNKNOWN")), _error_context("buy_unit", res, {"slot": int(slot_index)}))
 		return res
 	var cost := int(res.get("gold_spent", 0))
 	if cost > 0 and _has_autoload("Economy"):
@@ -158,7 +167,7 @@ func sell_unit(u: Unit) -> Dictionary:
 				Economy.adjust_combat_spent(-g)
 		Economy.add_gold(g)
 	else:
-		error.emit(String(res.get("error", "UNKNOWN")), {"op": "sell_unit"})
+		error.emit(String(res.get("error", "UNKNOWN")), _error_context("sell_unit", res))
 	return res
 
 func set_board_team_provider(cb: Callable) -> void:
