@@ -9,7 +9,7 @@ name = "Sanctum"
 type = "completed"
 icon_path = "res://assets/items/sanctum_icon.png"
 stat_mods = {"flat_mr": 70}
-effects = ["sanctum"]
+effects = []
 components = ["veil", "veil"]
 tags = PackedStringArray("tank", "support")
 

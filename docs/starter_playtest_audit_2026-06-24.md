@@ -879,7 +879,7 @@ Summary from supporting data:
 3. Gate dev starter inventory out of normal playtests.
 4. Preserve the clearer forced-first-fight placeholder and its direct click/keyboard feedback if players still try the locked opener controls.
 5. Preserve the widened spacing and hit clarity between shop cards, shop buttons, betting, and Start Battle.
-6. Register or remove missing completed item dynamic effects before trusting item strategy.
+6. Completed item dynamic effect cleanup is now guarded: unimplemented completed-item `effects` ids were removed from static-stat resources, Hemothorn's unsupported `pct_omnivamp` stat key was converted to supported `pct_lifesteal`, and `CompletedItemEffectRegistrySmoke` fails future completed items that declare unregistered runtime effects or unsupported stat keys.
 7. Preserve and extend the debug in-game Audit QA controls for manual playtests: state export, screenshot status, restart, timer hold, and speed controls that do not require fragile repeated Godot-AI eval calls.
 8. Preserve first-purchase deploy assist and drag release handling: prompt text, highlighted board cells, short-timer extension, and global release/drop cleanup must stay covered so bought units are actually fielded in early manual runs.
 9. Preserve the combat no-progress and absolute-timeout watchdogs plus the visible resolving feedback labels; capture a natural real-window long-fight example if manual play ever sees one.

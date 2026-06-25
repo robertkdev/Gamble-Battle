@@ -9,7 +9,7 @@ name = "Armageddon"
 type = "completed"
 icon_path = "res://assets/items/armageddon_icon.png"
 stat_mods = {"pct_crit_chance": 0.20, "flat_armor": 40, "pct_tenacity": 0.30}
-effects = ["armageddon"]
+effects = []
 components = ["spike", "plate"]
 tags = PackedStringArray("brawler", "tank")
 

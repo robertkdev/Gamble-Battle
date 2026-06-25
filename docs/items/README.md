@@ -70,6 +70,7 @@ Runtime Effects
 - `scripts/game/items/effects/effect_registry.gd` maps `effect_id` -> handler instance.
 - Handlers live in `scripts/game/items/effects/*.gd` and only consume signals + BuffSystem:
   - Examples: `doubleblade.gd` (stacking AD), `hyperstone.gd` (AS ramp + bleed proxy), `spellblade.gd`, `shiv.gd`, `blood_engine.gd`, `mind_siphon.gd`, `mindstone.gd`, `bandana.gd`, `turbine.gd`.
+- Completed items should only list an `effects` id when a matching handler is registered. `tests/rga_testing/validation/CompletedItemEffectRegistrySmoke.tscn` guards this and also catches unsupported completed-item `stat_mods` keys.
 - Item tag namespace lives in `scripts/game/abilities/buff_tags_items.gd` to avoid collisions with core `BuffTags`.
 
 UI Integration

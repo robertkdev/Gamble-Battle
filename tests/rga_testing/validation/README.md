@@ -37,6 +37,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/OnHitProcProbe.tscn`
   - Fixed 6v6 team with two active Vindicator units; fails if the subject records no explicit `on_hit_proc` events.
 
+- Completed item effect registry smoke
+  - Scene: `tests/rga_testing/validation/CompletedItemEffectRegistrySmoke.tscn`
+  - Loads completed item resources and fails if any declared runtime effect lacks a registered `EffectRegistry` handler, or if a completed item declares an unsupported `stat_mods` key.
+
 - Disruption telemetry positive control
   - Scene: `tests/rga_testing/validation/DisruptionKernelProbe.tscn`
   - Directly drives `DerivedStatsAggregator` and fails if post-control forced reposition, target swap, formation break, or follow-up kill attribution is missing.

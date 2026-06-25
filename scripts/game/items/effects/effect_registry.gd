@@ -41,6 +41,16 @@ func _register(effect_id: String, handler) -> void:
         return
     _handlers[String(effect_id)] = handler
 
+func has_handler(effect_id: String) -> bool:
+    return _handlers.has(String(effect_id).strip_edges())
+
+func registered_effect_ids() -> PackedStringArray:
+    var ids: PackedStringArray = PackedStringArray()
+    for effect_id: Variant in _handlers.keys():
+        ids.append(String(effect_id))
+    ids.sort()
+    return ids
+
 func dispatch(effect_id: String, unit: Unit, event: String, data: Dictionary) -> void:
     var h = _handlers.get(String(effect_id), null)
     if h == null:

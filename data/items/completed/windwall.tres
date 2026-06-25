@@ -9,7 +9,7 @@ name = "Windwall"
 type = "completed"
 icon_path = "res://assets/items/windwall_icon.png"
 stat_mods = {"flat_sp": 60.0, "flat_mr": 40}
-effects = ["windwall"]
+effects = []
 components = ["wand", "veil"]
 tags = PackedStringArray("mage", "support")
 

@@ -9,7 +9,7 @@ name = "Wardheart"
 type = "completed"
 icon_path = "res://assets/items/wardheart_icon.png"
 stat_mods = {"flat_hp": 400, "flat_mr": 40, "pct_damage_reduction": 0.10}
-effects = ["wardheart"]
+effects = []
 components = ["core", "veil"]
 tags = PackedStringArray("tank", "support")
 
