@@ -18,15 +18,16 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Fresh live cost-2 Buy XP/deploy attempt screenshots and notes: `outputs/audit_playtest/live_cost2_recheck_2026_06_25/`
 - Live-window fallback diagnostics: `outputs/audit_playtest/window_capture_2026_06_25/`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
+- Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
 
 ## Current Revalidation After Follow-Up Fixes
 
-Current branch snapshot: `fa7acd4` (`Balance unit costs and shop tiers`), with local branch `main` eight commits ahead of `origin/main`.
+Current branch snapshot: `4016944` (`Record rapid shop OS burst evidence`), with local branch `main` 13 commits ahead of `origin/main`.
 
 MCP validation run on 2026-06-24:
 - `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`
 - `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`
-- `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`
+- `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`; rerun on 2026-06-25 with `errors: []`
 - `tests/rga_testing/validation/UnitStatAudit.tscn`: `UnitStatAudit: OK`
 - `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`
 - `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
@@ -54,7 +55,7 @@ Confirmed current fixes/coverage:
 Remaining audit gaps:
 - The current validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier and stage/reward changes, but not a fresh human real-window/screenshot replay of every starter.
 - The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor and OS-window runs did. Remaining modal risk is visual polish only: the current defeat modal screenshot is refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, while the separate system menu overlay still dims the underlying game heavily. The earlier hidden enemy label and top-right Menu-behind-defeat conflicts are now covered by `LossScreenSmoke`, `ExitFlowSmoke`, and the current OS-window screenshot.
-- RoleMatrixSmoke passes all 22 units, but the fresh detail recheck found 21 of 22 current role reports still contain lower-level metric misses accepted by aggregate pass thresholds. Those should stay visible as tuning signals rather than hard blockers.
+- RoleMatrixSmoke passes all 22 units, but the fresh 2026-06-25 detail recheck found 130 accepted lower-level `FAIL` spans across all 22 current units. Role-report JSON is narrower: 21 of 22 reports still contain negative role deltas, with Cashmere clean only at the role-identity level.
 - Long manual play still has real-window fragility around session capture and mouse feel, but cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message.
 - A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive.
 
@@ -74,29 +75,31 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Start Battle transition | `StartBattleFeedbackAudit` covers stages 2-4 switching immediately to disabled `Combat Resolving...`; `outputs/audit_playtest/live_start_battle_transition_2026_06_25/` now provides real-window screenshots from Round 2 planning, immediate post-click resolving, mid-combat resolving, and restored planning. | Covered behaviorally and visually | Polish only: add progress/stuck-state feedback if combat remains resolving longer than expected. |
 | Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` screenshot proves duplicate Berebell rows are readable but ambiguous. | Covered visually | Design decision needed: copy indicators, star/level labels, or aggregation. |
 | Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current real-window visual state. | Covered visually and behaviorally with caveats | Broader modal polish only if a future visual pass finds contrast, spacing, or system-menu dimming issues. |
-| RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; fresh details show 21/22 reports still include accepted lower-level misses. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
+| RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; the 2026-06-25 accepted-miss parser found 130 accepted lower-level `FAIL` spans across all 22 units, plus negative role deltas in 21/22 reports. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
 | Tooling reliability | Multiple runs reproduce Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. | Open audit infrastructure blocker | Add first-class in-game QA controls for screenshot, state export, timer, restart, and speed so manual audits do not depend on fragile repeated eval calls. |
 
 ## Current RoleMatrix Accepted-Miss Recheck
 
-Fresh RoleMatrix evidence was regenerated on 2026-06-24 with `tests/rga_testing/ci/RoleMatrixSmoke.tscn`. The MCP debug run completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`. Current report files were written under `user://identity_reports/*.json`; one stale `faeling.json` from 2026-06-23 was ignored, leaving 22 fresh current-unit reports.
+Fresh RoleMatrix evidence was regenerated on 2026-06-25 with `tests/rga_testing/ci/RoleMatrixSmoke.tscn`. The MCP debug run completed with `RoleMatrixSmoke: PASS (22 units)` and `errors: []`. Current report files were written under `user://identity_reports/*.json`; one stale `faeling.json` from 2026-06-23 was ignored. The parser output is stored in `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`.
 
 Aggregate result:
 - Every current unit role verdict is still `PASS`, and all assigned primary goals and approaches passed in the smoke run.
-- 21 of 22 fresh role reports contain at least one failing lower-level role requirement; Cashmere is the only role report without a failing role-level reason.
-- Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Mortem, Vykos, Luna, Paisley, and Volt at 0.50; Axiom support at 0.55.
-- Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.62, marksman 0.64, and tank 0.67.
+- The log-level parser found 130 lower-level `-> FAIL` spans accepted by aggregate verdicts: 47 role spans, 45 approach spans, and 38 goal spans.
+- All 22 current units have at least one accepted lower-level fail span. Role-report JSON is narrower: 21 of 22 reports contain at least one negative role delta, and Cashmere is clean only at role identity level while still logging `goal_pick_burst_kill_count 0.00 < 1.00`.
+- Lowest role pass rates: Hexeon assassin 0.33; Berebell, Bo, Luna, Mortem, Paisley, Volt, and Vykos at 0.50; Axiom support at 0.55.
+- Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
 Recurring accepted-miss buckets from the fresh log/report evidence:
-- Support/peel: Axiom and Totem pass support, but peel saves remain 0; Axiom also has 0 cc-immunity grants and 0 cleanse applied in the approach and role spans.
-- Brawler attrition: Berebell, Mortem, and Vykos pass by survival/tolerance paths while `unit_direct_attrition_evidence` is 0; multiple attrition goals still show 0 ramp-state events, stacks, and window durations for non-ramp attrition kits.
-- Tank/frontline semantics: Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank, but several direct redirect/body-block/taunt/cleanse-pressure/tenacity subspans are 0 or below threshold, and `b_unit_pass_count` is expectedly 0 in subject-side smoke reports.
-- Mage/marksman burst and area coverage: Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite low magic share and single-target median AoE hits; Sari, Teller, and Nyxa pass marksman while backline/team-share subspans remain low.
-- Assassin coverage: Hexeon passes aggregate assassin identity, but first-backline-elimination fractions are below threshold (`a_first_frac 0.33 < 0.60`, `b_first_frac 0.00 < 0.60`) and execute/burst subspans also miss in the fresh log.
+- Support/peel/cleanse/CC is the largest bucket at 30 spans. Axiom and Totem pass support, but peel saves remain 0 in multiple spans; Axiom still has 0 cc-immunity grants and 0 cleanse applied in approach and role spans.
+- Ramp-state misses account for 23 spans. Several non-ramp attrition and marksman goals still show 0 ramp-state events, stacks, peak duration, and window duration while passing through other requirements.
+- Marksman positioning and damage-share misses account for 16 spans. Sari, Teller, and Nyxa pass marksman while backline share, team share, subject sustained z, or subject team damage share remain below threshold.
+- Subject-side control count remains a recurring 12-span artifact: many subject-side smokes pass the tested unit while `b_unit_pass_count` is 0.
+- Tank/frontline semantics still have 7 direct redirect/body-block/taunt misses plus related counterplay and cleanse-pressure misses. Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank through aggregate thresholds while direct body-block or redirect semantics are often absent.
+- Burst/execute/kill and AoE/wombo misses remain visible. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
 
 Implication:
 - The current all-unit RGA gate is green and should not block the starter/shop audit.
-- The pass is threshold/aggregate based, not proof that every role/goal/approach semantic subspan is expressed cleanly. These accepted misses should be treated as a tuning and instrumentation backlog before declaring identity semantics fully proven.
+- The pass is threshold/aggregate based, not proof that every role/goal/approach semantic subspan is expressed cleanly. Treat the accepted spans as a balance and instrumentation backlog before declaring identity semantics fully proven.
 
 ## Current Loss And Exit Modal Framebuffer Recheck
 
