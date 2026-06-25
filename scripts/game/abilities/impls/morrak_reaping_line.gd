@@ -15,8 +15,8 @@ const BASE_BY_LEVEL := [110, 165, 250]
 const BUFF_BY_LEVEL := [25, 35, 45] # Armor/MR
 
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
-const STRIKER_KEY := "striker_stacks"           # Legacy fallback; TODO remove after validation
-const EXECUTIONER_KEY := "executioner_stacks"    # Legacy fallback; TODO remove after validation
+const STRIKER_KEY := "striker_stacks"           # Legacy fallback for old saved/test state.
+const EXECUTIONER_KEY := "executioner_stacks"    # Legacy fallback for old saved/test state.
 
 func _level_index(u: Unit) -> int:
     var lvl: int = (int(u.level) if u != null else 1)
