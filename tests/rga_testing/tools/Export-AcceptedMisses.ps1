@@ -96,8 +96,9 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 	}
 }
 
-function Get-SupportPeelGapKind($Label) {
+function Get-SupportPeelGapKind($Label, $BlockType, $Block) {
 	$text = [string]$Label
+	$blockText = [string]$Block
 	if ($text -match 'debuff_cleanse|lockdown_cleanse|tenacity') {
 		return "counterplay_response_below_target"
 	}
@@ -113,8 +114,17 @@ function Get-SupportPeelGapKind($Label) {
 	if ($text -match 'interrupt_events') {
 		return "peel_interrupt_context_absent"
 	}
+	if ($text -match 'goal_peel_carry_peel_saves') {
+		return "peel_carry_goal_save_proxy_absent"
+	}
+	if ($text -match 'team_peel_saves_total' -and $blockText -eq "peel") {
+		return "peel_approach_team_save_proxy_absent"
+	}
+	if ($text -match 'peel_saves_med' -and $blockText -eq "support") {
+		return "support_role_team_peel_proxy_absent"
+	}
 	if ($text -match 'peel_saves') {
-		return "team_peel_save_metric_absent"
+		return "team_peel_save_proxy_absent"
 	}
 	if ($text -match 'cc_immunity|cleanse') {
 		return "hard_peel_submode_absent"
@@ -129,7 +139,10 @@ function Get-SupportPeelNextAction($GapKind) {
 		"cooldown_trade_quality_below_target" { return "Tune the threat-response setup or the cooldown-trade efficiency threshold for the all-unit support scenario." }
 		"cc_prevention_context_absent" { return "Create an incoming-CC threat context that can prove subject CC prevention, or keep it as optional quality evidence." }
 		"peel_interrupt_context_absent" { return "Create an interruptible carry-threat context so peel-carry can prove direct interrupt evidence." }
-		"team_peel_save_metric_absent" { return "Create a live dive/carry-threat scenario that can trigger team peel-save attribution." }
+		"peel_carry_goal_save_proxy_absent" { return "Create or tune a carry-threat scenario where peel-carry can earn direct goal-level peel-save attribution." }
+		"peel_approach_team_save_proxy_absent" { return "Create or tune a live dive/carry-threat scenario that lets the peel approach fallback record team peel saves." }
+		"support_role_team_peel_proxy_absent" { return "Treat this as a support-role proxy diagnostic unless support identity should require team peel-save attribution in addition to direct utility evidence." }
+		"team_peel_save_proxy_absent" { return "Create a live dive/carry-threat scenario that can trigger team peel-save attribution." }
 		"hard_peel_submode_absent" { return "Confirm whether this identity should prove hard peel through cleanse/CC immunity, then retag or add/tune direct evidence." }
 		default { return "" }
 	}
@@ -140,7 +153,7 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	$text = [string]$Label
 	$blockText = [string]$Block
 	if ($topicText -eq "support_peel_cleanse_cc") {
-		return Get-SupportPeelGapKind $Label
+		return Get-SupportPeelGapKind $Label $BlockType $Block
 	}
 	if ($text -match 'backline_share') {
 		return "backline_pressure_below_target"
@@ -332,7 +345,7 @@ foreach ($report in $reports) {
 		$topic = Get-SpanTopic $label
 		$blockType = [string](Get-OptionalProperty $span "block_type" "")
 		$block = [string](Get-OptionalProperty $span "block" "")
-		$supportGapKind = Get-SupportPeelGapKind $label
+		$supportGapKind = Get-SupportPeelGapKind $label $blockType $block
 		$auditGapKind = Get-AuditGapKind $topic $label $blockType $block
 		$rows += [pscustomobject]@{
 			unit = $unitId
