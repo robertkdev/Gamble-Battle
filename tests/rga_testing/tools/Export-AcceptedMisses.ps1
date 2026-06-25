@@ -172,8 +172,14 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	if ($text -match 'team_damage_share|team_share') {
 		return "damage_share_below_target"
 	}
+	if ($text -match 'goal_wombo_combo_burst_peak_1s_share') {
+		return "wombo_goal_peak_share_below_target"
+	}
+	if ($text -match 'subject_peak_1s_damage_share_med') {
+		return "burst_approach_peak_share_below_target"
+	}
 	if ($text -match 'peak_1s') {
-		return "burst_peak_share_below_target"
+		return "peak_share_below_target"
 	}
 	if ($text -match 'pick_burst_kill_count') {
 		return "pick_burst_kill_count_absent"
@@ -247,7 +253,9 @@ function Get-AuditNextAction($GapKind) {
 		"marksman_sustained_goal_damage_share_below_target" { return "Tune Sari/Teller sustained-DPS output, encounter duration, or the 0.25 goal threshold so sustained-DPS identities prove direct team damage share." }
 		"marksman_role_damage_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman role diagnostic unless the role contract should require team share; tune output/scenario only if the identity should carry more team damage." }
 		"damage_share_below_target" { return "Tune damage output, encounter duration, or threshold expectations for identities that should prove team damage share." }
-		"burst_peak_share_below_target" { return "Tune burst windows, scenario grouping, or peak-share thresholds for burst-tagged identities." }
+		"wombo_goal_peak_share_below_target" { return "Tune Paisley's Wombo Combo burst window, target grouping, or the 0.25 goal peak-share threshold." }
+		"burst_approach_peak_share_below_target" { return "Tune burst ability windows, burst-tagged unit output, scenario grouping, or approach peak-share thresholds." }
+		"peak_share_below_target" { return "Tune burst windows, scenario grouping, or peak-share thresholds for identities that should prove peak-share evidence." }
 		"pick_burst_kill_count_absent" { return "Create or tune a pick-burst scenario where the subject can secure kills, or retune pick-burst goal requirements." }
 		"execute_bonus_share_absent" { return "Create lower-health execute windows or retune execute attribution for identities that claim execute evidence." }
 		"body_block_evidence_absent" { return "Create a live frontline/body-block threat path that records body-block events and prevented damage, or retune frontline requirements." }
