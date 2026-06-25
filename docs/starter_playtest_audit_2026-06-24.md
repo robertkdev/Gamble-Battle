@@ -187,7 +187,7 @@ Aggregate result:
 - Role-family averages from the fresh reports: assassin 0.33, brawler 0.58, support 0.59, mage 0.63, marksman 0.64, and tank 0.67.
 
 Recurring accepted-miss buckets from the refreshed subject-side report evidence, using the primary topic classification in `rga_accepted_misses_summary.json`:
-- Support/peel/cleanse/CC is still the largest bucket at 20 spans in the refreshed report diagnostics. Soft-peel identities no longer persist missing hard-peel cleanse/CC-immunity subspans unless their identity claims `support.peel_carry` or `cc_immunity`; Axiom and Paisley now remain only as team peel-save scenario attribution gaps. The new live counterplay rows remove Grint from the debuff/lockdown context group, but add fresh counterplay-delta evidence rows for remaining content/scenario tuning.
+- Support/peel/cleanse/CC is still the largest bucket at 20 spans in the refreshed report diagnostics. Soft-peel identities no longer persist missing hard-peel cleanse/CC-immunity subspans unless their identity claims `support.peel_carry` or `cc_immunity`; Axiom and Paisley now remain only as team peel-save scenario attribution gaps. The new live counterplay rows remove Grint from the debuff/lockdown response group, but add fresh counterplay-delta evidence rows for remaining content/scenario tuning.
 - Marksman positioning and damage-share misses account for 10 spans. Sari, Teller, and Nyxa pass marksman while backline share, team share, subject sustained z, or subject team damage share remain below threshold.
 - Tank/frontline semantics still have 9 direct redirect/body-block/taunt/frontline/engage misses plus related counterplay and cleanse-pressure misses. Brute, Korath, Repo, Kythera, Veyra, and Grint pass tank through aggregate thresholds while direct body-block or redirect semantics are often absent.
 - Burst/execute/kill accounts for 9 primary spans and AoE/wombo targeting accounts for 5 primary spans. Cashmere and Volt pass pick-burst while kill count is 0; Luna and Paisley pass wombo/mage identity despite single-target median AoE hits or low magic share; Hexeon passes aggregate assassin identity while backline-fraction and execute/burst subspans still miss.
@@ -202,7 +202,7 @@ General accepted-miss gap-kind triage from the current export:
 
 Support/peel/cleanse/CC bucket triage from the current saved report JSON:
 
-The `support_peel_triage` column in `accepted_lower_level_fail_spans.csv` and `support_peel_triage_counts` in `rga_accepted_misses_summary.json` now regenerate these groups directly from current reports. The same export also adds `support_peel_gap_kind` and `support_peel_next_action`. Current gap-kind counts are: counterplay context absent 9, team peel-save metric absent 6, cooldown-trade quality below target 2, CC-prevention context absent 1, peel-interrupt context absent 1, and wombo CC-sync absent 1.
+The `support_peel_triage` column in `accepted_lower_level_fail_spans.csv` and `support_peel_triage_counts` in `rga_accepted_misses_summary.json` now regenerate these groups directly from current reports. The same export also adds `support_peel_gap_kind` and `support_peel_next_action`. Current gap-kind counts are: counterplay response below target 9, team peel-save metric absent 6, cooldown-trade quality below target 2, CC-prevention context absent 1, peel-interrupt context absent 1, and wombo CC-sync absent 1.
 
 | Area | Rows | Current evidence gap | Audit decision |
 | --- | ---: | --- | --- |

@@ -87,11 +87,11 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 		"paisley" { return "paisley_shield_peel_team_save_gap" }
 		"totem" { return "totem_all_unit_scenario_threshold_gap" }
 		"luna" { return "luna_wombo_cc_sync_gap" }
-		"brute" { return "debuff_lockdown_counterplay_context_gap" }
-		"grint" { return "debuff_lockdown_counterplay_context_gap" }
-		"kythera" { return "debuff_lockdown_counterplay_context_gap" }
-		"sari" { return "debuff_lockdown_counterplay_context_gap" }
-		"volt" { return "debuff_lockdown_counterplay_context_gap" }
+		"brute" { return "debuff_lockdown_counterplay_response_gap" }
+		"grint" { return "debuff_lockdown_counterplay_response_gap" }
+		"kythera" { return "debuff_lockdown_counterplay_response_gap" }
+		"sari" { return "debuff_lockdown_counterplay_response_gap" }
+		"volt" { return "debuff_lockdown_counterplay_response_gap" }
 		default { return "support_peel_other" }
 	}
 }
@@ -99,7 +99,7 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 function Get-SupportPeelGapKind($Label) {
 	$text = [string]$Label
 	if ($text -match 'debuff_cleanse|lockdown_cleanse|tenacity') {
-		return "counterplay_context_absent"
+		return "counterplay_response_below_target"
 	}
 	if ($text -match 'cc_sync') {
 		return "wombo_cc_sync_absent"
@@ -124,7 +124,7 @@ function Get-SupportPeelGapKind($Label) {
 
 function Get-SupportPeelNextAction($GapKind) {
 	switch ([string]$GapKind) {
-		"counterplay_context_absent" { return "Add a cleanse/high-tenacity counterplay context, or retune the debuff/lockdown tag if that counterplay should not be required." }
+		"counterplay_response_below_target" { return "Tune cleanse/high-tenacity response composition, counterplay thresholds, or the debuff/lockdown tag if this identity should not require response-pressure proof." }
 		"wombo_cc_sync_absent" { return "Decide whether wombo requires direct CC-sync evidence or whether burst/AoE aggregate evidence is sufficient." }
 		"cooldown_trade_quality_below_target" { return "Tune the threat-response setup or the cooldown-trade efficiency threshold for the all-unit support scenario." }
 		"cc_prevention_context_absent" { return "Create an incoming-CC threat context that can prove subject CC prevention, or keep it as optional quality evidence." }
