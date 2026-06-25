@@ -58,6 +58,13 @@ const GOAL_PROXY_METRIC_IDS := {
 	"tank.single_target_lockdown": ["approach_lockdown"]
 }
 
+const HARD_PEEL_DIAGNOSTIC_LABELS := {
+	"subject_peel_cc_immunity_grants": true,
+	"subject_peel_cleanse_applied": true,
+	"subject_support_cc_immunity": true,
+	"subject_support_cleanse_applied": true
+}
+
 # Compiles a per-unit identity probe report from a RoleMetrics context and MetricRegistry output.
 # Returns a Dictionary with shape:
 # {
@@ -354,19 +361,19 @@ static func _lower_level_fail_spans_for_identity(subject_id: String, assigned_id
 	var out: Array[Dictionary] = []
 	var role_id: String = String(assigned_identity.get("primary_role", "")).strip_edges().to_lower()
 	if role_id != "":
-		_append_failed_metric_spans(out, subject_id, metrics, "role_%s_identity" % role_id, "role", role_id)
+		_append_failed_metric_spans(out, subject_id, assigned_identity, metrics, "role_%s_identity" % role_id, "role", role_id)
 	var goal_id: String = String(assigned_identity.get("primary_goal", "")).strip_edges().to_lower()
 	if goal_id != "":
-		_append_failed_metric_spans(out, subject_id, metrics, GOAL_DIRECT_METRIC_ID, "goal", "primary")
+		_append_failed_metric_spans(out, subject_id, assigned_identity, metrics, GOAL_DIRECT_METRIC_ID, "goal", "primary")
 	var approaches: Array = assigned_identity.get("approaches", [])
 	for raw_approach in approaches:
 		var approach_id: String = String(raw_approach).strip_edges().to_lower()
 		var metric_id: String = String(APPROACH_METRIC_IDS.get(approach_id, ""))
 		if approach_id != "" and metric_id != "":
-			_append_failed_metric_spans(out, subject_id, metrics, metric_id, "approach", approach_id)
+			_append_failed_metric_spans(out, subject_id, assigned_identity, metrics, metric_id, "approach", approach_id)
 	return out
 
-static func _append_failed_metric_spans(out: Array[Dictionary], subject_id: String, metrics: Array, metric_id: String, block_type: String, block: String) -> void:
+static func _append_failed_metric_spans(out: Array[Dictionary], subject_id: String, assigned_identity: Dictionary, metrics: Array, metric_id: String, block_type: String, block: String) -> void:
 	var metric: Dictionary = _metric_by_id(metrics, metric_id)
 	if metric.is_empty():
 		return
@@ -374,10 +381,39 @@ static func _append_failed_metric_spans(out: Array[Dictionary], subject_id: Stri
 	for span in details:
 		if not _span_failed(span):
 			continue
+		if not _span_applicable_to_identity(span, assigned_identity):
+			continue
 		span["metric_id"] = String(metric_id)
 		span["block_type"] = String(block_type)
 		span["block"] = String(block)
 		out.append(span)
+
+static func _span_applicable_to_identity(span: Dictionary, assigned_identity: Dictionary) -> bool:
+	var label: String = String(span.get("label", "")).strip_edges()
+	if HARD_PEEL_DIAGNOSTIC_LABELS.has(label):
+		return _identity_requires_hard_peel(assigned_identity)
+	return true
+
+static func _identity_requires_hard_peel(assigned_identity: Dictionary) -> bool:
+	var goal_id: String = String(assigned_identity.get("primary_goal", "")).strip_edges().to_lower()
+	if goal_id == "support.peel_carry":
+		return true
+	return _identity_has_approach(assigned_identity, "cc_immunity")
+
+static func _identity_has_approach(assigned_identity: Dictionary, expected: String) -> bool:
+	var expected_id: String = String(expected).strip_edges().to_lower()
+	var raw_approaches: Variant = assigned_identity.get("approaches", [])
+	if raw_approaches is Array:
+		for raw_value: Variant in raw_approaches:
+			if String(raw_value).strip_edges().to_lower() == expected_id:
+				return true
+	elif raw_approaches is PackedStringArray:
+		for packed_value: String in raw_approaches:
+			if String(packed_value).strip_edges().to_lower() == expected_id:
+				return true
+	elif typeof(raw_approaches) == TYPE_STRING:
+		return String(raw_approaches).strip_edges().to_lower() == expected_id
+	return false
 
 static func _compact_span(span: Dictionary) -> Dictionary:
 	var out: Dictionary = {

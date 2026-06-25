@@ -74,8 +74,8 @@ function Get-SupportPeelTriageGroup($Unit, $Label) {
 	}
 	$unitId = [string]$Unit
 	switch ($unitId) {
-		"axiom" { return "axiom_hard_peel_cleanse_gap" }
-		"paisley" { return "paisley_shield_peel_direct_span_gap" }
+		"axiom" { return "axiom_soft_peel_team_save_gap" }
+		"paisley" { return "paisley_shield_peel_team_save_gap" }
 		"totem" { return "totem_all_unit_scenario_threshold_gap" }
 		"luna" { return "luna_wombo_cc_sync_gap" }
 		"brute" { return "debuff_lockdown_counterplay_context_gap" }

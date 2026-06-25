@@ -138,10 +138,14 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/GoalPrimaryRampApplicabilitySmoke.tscn`
   - Ensures goal-level ramp diagnostics are emitted for ramp-tagged identities and skipped for non-ramp identities that pass the same primary goal through other assigned evidence.
 
+- Probe report hard-peel applicability smoke
+  - Scene: `tests/rga_testing/validation/ProbeReportCompilerHardPeelApplicabilitySmoke.tscn`
+  - Ensures saved accepted-miss diagnostics keep cleanse/CC-immunity hard-peel subspans only for identities that claim `support.peel_carry` or `cc_immunity`, while preserving team peel-save scenario diagnostics for soft peel identities.
+
 Artifacts
 - Telemetry rows: `user://rga_out.jsonl` (or configured `out_path` ending with .jsonl/.ndjson; file is cleared each run)
 - Probe reports: `user://identity_reports/<unit>.json`
-  - `diagnostics.lower_level_fail_spans` lists subject-side role/goal/approach span misses that were accepted by aggregate verdicts, with `lower_level_fail_span_count` for backlog triage.
+  - `diagnostics.lower_level_fail_spans` lists applicable subject-side role/goal/approach span misses that were accepted by aggregate verdicts, with `lower_level_fail_span_count` for backlog triage. Non-applicable goal ramp spans and soft-peel hard-peel subspans are suppressed from saved diagnostics.
   - Role, goal, and approach verdict objects also include `span_details` and `failed_span_count` for local inspection without parsing console logs.
 - Accepted-miss export: run `tests/rga_testing/tools/Export-AcceptedMisses.ps1` from the repo root to regenerate the ignored `outputs/audit_playtest/rga_accepted_misses_2026_06_25/` CSV and JSON summary from current `user://identity_reports/*.json`. The CSV includes `support_peel_triage`, `support_peel_gap_kind`, and `support_peel_next_action`; the summary includes `support_peel_triage_counts` and `support_peel_gap_kind_counts`, so the largest current bucket can be reviewed by scenario/content group and next tuning action instead of only by keyword.
 
