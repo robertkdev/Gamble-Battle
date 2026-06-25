@@ -53,7 +53,7 @@ Confirmed current fixes/coverage:
 
 Remaining audit gaps:
 - The current validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier and stage/reward changes, but not a fresh human real-window/screenshot replay of every starter.
-- The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor runs did. Remaining modal risk is visual quality: older screenshots should be refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, and the system menu overlay dims the underlying game heavily. The earlier hidden enemy label and top-right Menu-behind-defeat conflicts are now behaviorally covered by `LossScreenSmoke` and `ExitFlowSmoke`.
+- The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor and OS-window runs did. Remaining modal risk is visual polish only: the current defeat modal screenshot is refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, while the separate system menu overlay still dims the underlying game heavily. The earlier hidden enemy label and top-right Menu-behind-defeat conflicts are now covered by `LossScreenSmoke`, `ExitFlowSmoke`, and the current OS-window screenshot.
 - RoleMatrixSmoke passes all 22 units, but the fresh detail recheck found 21 of 22 current role reports still contain lower-level metric misses accepted by aggregate pass thresholds. Those should stay visible as tuning signals rather than hard blockers.
 - Long manual play still has real-window fragility around session capture and mouse feel, but cost-1 post-buy bench/deploy and audit-assisted cost-2 buy/deploy now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message.
 - A follow-up `tests/visual/MainFlowVisualCapture.tscn` attempt could not produce fresh framebuffer screenshots under the MCP dummy renderer; the scene skipped all captures and emitted `texture_2d_get` null-parameter errors. Later live editor/debug-window runs did capture fresh Bonko and modal screenshots, but live capture remains session-sensitive.
@@ -73,7 +73,7 @@ This matrix reflects the current audit state after the 2026-06-25 live cost-2, B
 | Rapid shop input | `RapidShopInputAudit` covers same-frame rendered-card burst and deployment fallback. | Covered behaviorally | Real mouse-coordinate burst still not proven; lower priority than Buy XP and first-purchase deploy clarity. |
 | Start Battle transition | `StartBattleFeedbackAudit` covers stages 2-4 switching immediately to disabled `Combat Resolving...`; `outputs/audit_playtest/live_start_battle_transition_2026_06_25/` now provides real-window screenshots from Round 2 planning, immediate post-click resolving, mid-combat resolving, and restored planning. | Covered behaviorally and visually | Polish only: add progress/stuck-state feedback if combat remains resolving longer than expected. |
 | Duplicate scoreboard rows | `DuplicateScoreboardVisualAudit` screenshot proves duplicate Berebell rows are readable but ambiguous. | Covered visually | Design decision needed: copy indicators, star/level labels, or aggregation. |
-| Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` now proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. | Covered visually and behaviorally with caveats | Refresh real-window screenshots after the mechanical fixes; decide broader modal polish only if future visual pass shows issues. |
+| Loss and system modals | `LossScreenSmoke`, `ExitFlowSmoke`, and real Axiom loss capture provide current framebuffer evidence. `LossScreenSmoke` proves the defeat scoreboard is explicitly player-only (`Player Damage`) and does not keep hidden enemy row labels in the tree; `ExitFlowSmoke` proves the system Menu hides and cannot open while `LossOverlayLayer` is active. `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png` refreshes the current real-window visual state. | Covered visually and behaviorally with caveats | Broader modal polish only if a future visual pass finds contrast, spacing, or system-menu dimming issues. |
 | RGA identity reports | `RoleMatrixSmoke` passes all 22 current units; fresh details show 21/22 reports still include accepted lower-level misses. | Covered as smoke; tuning remains open | Treat accepted misses as balance/instrumentation backlog, not starter/shop-flow blocker. |
 | Tooling reliability | Multiple runs reproduce Godot-AI session drops, missing game helper registration, and dummy framebuffer capture failures. | Open audit infrastructure blocker | Add first-class in-game QA controls for screenshot, state export, timer, restart, and speed so manual audits do not depend on fragile repeated eval calls. |
 
@@ -141,6 +141,20 @@ Bonko solo Stage 2 result:
 - The same harness attempted a Bonko forced opener, then started the second fight without purchases.
 - No loss overlay appeared within the capture timeout; the summary recorded `loss_overlay_visible=false`, `reason=loss_overlay_not_seen_after_second_fight`, `stage=2`, and `gold=3`.
 - This is not enough to diagnose whether combat stalled, Bonko survived longer than the timeout, or the capture condition missed the state, but it keeps the Stage 2 no-resolution/late feedback concern alive under a current automated audit path.
+
+## Current Loss Modal Visual Recheck
+
+Fresh current-state visual evidence was generated on 2026-06-25 with the ignored hold scene `outputs/audit_playtest/CurrentLossModalVisualHold.tscn`.
+
+Generated files:
+- `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_window.png`
+- `outputs/audit_playtest/current_loss_modal_visual/current_loss_modal_summary.json`
+
+Result:
+- The accepted OS-window screenshot shows the current defeat modal centered and legible with no competing top-right Menu button.
+- The modal scoreboard title is `Player Damage` and shows only the player row `Axiom` / `143`.
+- The summary confirms `loss_overlay_visible=true`, `system_menu_button_visible=false`, `system_menu_button_disabled=true`, `enemy_column_child_count=0`, and label text limited to `Defeat`, stage/high score, player summary stats, `Player Damage`, `Axiom`, and `143`.
+- `godot-ai editor_screenshot(source="game")` could not capture because `_mcp_game_helper` did not register debugger capture in this run, so the accepted PNG came from the OS-window capture helper after verifying the `Gamble Battle (DEBUG)` window.
 
 ## Current Starter Runner Recheck
 
