@@ -5,7 +5,7 @@ const EXPECTED_GAP_KIND_COUNT: int = 12
 const EXPECTED_ACCEPTED_SPAN_COUNT: int = 13
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
-	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
+	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn", "res://tests/rga_testing/validation/BrawlerAttritionScenarioPackSmoke.tscn"],
 	"marksman_sustained_goal_damage_share_below_target": ["res://tests/rga_testing/validation/MarksmanSustainedDpsGoalProbe.tscn", "res://tests/rga_testing/validation/MarksmanSustainedScenarioPackSmoke.tscn"],
 	"pick_burst_kill_count_absent": ["res://tests/rga_testing/validation/PickBurstKillGoalProbe.tscn", "res://tests/rga_testing/validation/PickBurstScenarioLabelSmoke.tscn"],
 	"assassin_opening_presence_below_target": ["res://tests/rga_testing/validation/AssassinOpeningRoleProbe.tscn", "res://tests/rga_testing/validation/AssassinOpeningScenarioPackSmoke.tscn"],

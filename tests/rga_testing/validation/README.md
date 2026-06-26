@@ -274,6 +274,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn`
   - Proves `role_brawler_identity` can pass through direct attrition evidence when frontline damage share, sustain EHP, and pressure evidence are all present, including burst peak-DPS/share pressure, and rejects a weak negative payload.
 
+- Brawler attrition scenario-pack smoke
+  - Scene: `tests/rga_testing/validation/BrawlerAttritionScenarioPackSmoke.tscn`
+  - Fails unless Mortem-style attrition brawler identities keep `neutral`, `burst`, and `peel` contexts without requesting skirmish `counter`, and the brawler `burst`/`peel` packs resolve to front-lane `burst_lane` and `peel_context` maps.
+
 - Burst window kernel probe
   - Scene: `tests/rga_testing/validation/BurstWindowKernelProbe.tscn`
   - Proves concentrated combat-pattern hits record direct `peak_1s_damage_share`, `peak_1s_dps`, overkill, and counterplay-window telemetry for `approach_burst`, rejects diffuse damage, and keeps low peak-share rows diagnostic when peak DPS already proves the burst approach.
