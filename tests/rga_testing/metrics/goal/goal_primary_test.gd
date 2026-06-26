@@ -174,7 +174,11 @@ func _eval_frontline_disruption(summary: Dictionary, spans: Array) -> bool:
 	return _k_of_n([cc_ok, targets_ok, movement_ok], 2)
 
 func _eval_skirmish_dive(summary: Dictionary, spans: Array) -> bool:
-	var contact_ok: bool = _append_span(spans, summary, "goal_skirmish_dive_backline_contact_proxy", 1.0 - float(summary.get("damage_to_frontline_pct", 1.0)), 0.25, (1.0 - float(summary.get("damage_to_frontline_pct", 1.0))) >= 0.25)
+	var damage_contact_value: float = float(summary.get("backline_damage_share", max(0.0, 1.0 - float(summary.get("damage_to_frontline_pct", 1.0)))))
+	var direct_contact_frac: float = _backline_contact_fraction(summary)
+	var contact_value: float = max(damage_contact_value, direct_contact_frac)
+	var contact_reason: String = "direct_backline_access" if direct_contact_frac > damage_contact_value else ""
+	var contact_ok: bool = _append_span(spans, summary, "goal_skirmish_dive_backline_contact_proxy", contact_value, 0.25, contact_value >= 0.25, contact_reason)
 	var escape_ok: bool = _append_span(spans, summary, "goal_skirmish_dive_escape_survival_s", float(summary.get("time_alive_s", 0.0)), 8.0, float(summary.get("time_alive_s", 0.0)) >= 8.0)
 	var cooldown_ok: bool = false
 	if _has_direct_cooldown_pressure(summary):
@@ -406,6 +410,7 @@ func _summarize_subject(sims: Dictionary, subject_id: String) -> Dictionary:
 		_merge_zone_exposure(summary, _subject_kernel_rec(entry, side, subject_id, "zone_exposure"))
 		_merge_support(summary, entry, side, subject_id)
 		_merge_disruption(summary, entry, side, subject_id)
+		_merge_backline_access(summary, entry, side, subject_id)
 	if int(summary.get("samples", 0)) > 0:
 		var samples: float = float(summary.get("samples", 1))
 		summary["time_alive_s"] = float(summary.get("time_alive_s", 0.0)) / samples
@@ -444,6 +449,9 @@ func _merge_per_unit_kpis(summary: Dictionary, rec: Dictionary) -> void:
 	for key in ["time_on_target_pct", "attack_distance_median_tiles", "attacks_over_2_tiles_pct", "damage_to_frontline_pct", "kiting_tax"]:
 		if rec.has(key):
 			summary[key] = max(float(summary.get(key, 0.0)), float(rec.get(key, 0.0)))
+	if rec.has("damage_to_frontline_pct"):
+		var backline_damage_share: float = max(0.0, 1.0 - float(rec.get("damage_to_frontline_pct", 1.0)))
+		summary["backline_damage_share"] = max(float(summary.get("backline_damage_share", 0.0)), backline_damage_share)
 
 func _merge_buffs(summary: Dictionary, rec: Dictionary) -> void:
 	for key in ["ally_buffs_to_others", "ally_buff_magnitude_to_others", "amp_output_events", "amp_output_delta", "amp_output_pct_total", "amp_output_beneficiaries", "enemy_debuffs", "enemy_debuff_magnitude", "cc_immunity_applied", "cc_prevented", "cleanse_applied"]:
@@ -576,6 +584,24 @@ func _merge_disruption(summary: Dictionary, entry: Dictionary, side: String, sub
 	for key_int in ["forced_reposition_events", "target_swap_events", "formation_break_events", "follow_up_kills"]:
 		if rec.has(key_int):
 			summary[key_int] = int(summary.get(key_int, 0)) + int(rec.get(key_int, 0))
+
+func _merge_backline_access(summary: Dictionary, entry: Dictionary, side: String, subject_id: String) -> void:
+	var kernels: Dictionary = entry.get("kernels", {}) if (entry is Dictionary) else {}
+	var backline_access: Dictionary = kernels.get("backline_access", {}) if (kernels is Dictionary) else {}
+	if not (backline_access is Dictionary) or not bool(backline_access.get("supported", false)):
+		return
+	var side_block: Dictionary = backline_access.get(side, {}) if (backline_access is Dictionary) else {}
+	if not (side_block is Dictionary):
+		return
+	summary["backline_access_samples"] = int(summary.get("backline_access_samples", 0)) + 1
+	var entered_by_unit: Dictionary = side_block.get("entered_by_unit", {}) if (side_block is Dictionary) else {}
+	if not (entered_by_unit is Dictionary) or not entered_by_unit.has(subject_id):
+		return
+	summary["backline_access_contact_count"] = int(summary.get("backline_access_contact_count", 0)) + 1
+	var contact_s: float = float(entered_by_unit.get(subject_id, -1.0))
+	var best_contact_s: float = float(summary.get("backline_access_first_contact_s", -1.0))
+	if best_contact_s < 0.0 or (contact_s >= 0.0 and contact_s < best_contact_s):
+		summary["backline_access_first_contact_s"] = contact_s
 
 func _subject_kernel_rec(entry: Dictionary, side: String, subject_id: String, kernel_key: String) -> Dictionary:
 	var kernels: Dictionary = entry.get("kernels", {})
@@ -738,10 +764,19 @@ func _key_threat_dodge_rate(summary: Dictionary) -> float:
 		return 0.0
 	return float(summary.get("key_threats_dodged", 0)) / max(1.0, faced)
 
+func _backline_contact_fraction(summary: Dictionary) -> float:
+	var samples: int = int(summary.get("backline_access_samples", 0))
+	if samples <= 0:
+		return 0.0
+	return float(summary.get("backline_access_contact_count", 0)) / max(1.0, float(samples))
+
 func _append_span(spans: Array, summary: Dictionary, label: String, value: float, want: float, ok: Variant, reason: String = "") -> bool:
 	var extras: Dictionary = RoleCommon.subject_extras(String(summary.get("subject_side", "")), String(summary.get("unit_id", "")), reason)
 	extras["samples"] = int(summary.get("samples", 0))
 	extras["direct_goal_metric"] = true
+	for key in ["backline_damage_share", "backline_access_samples", "backline_access_contact_count", "backline_access_first_contact_s"]:
+		if summary.has(key):
+			extras[key] = summary.get(key)
 	RoleCommon.append_span(spans, label, value, want, ok, extras)
 	return ok == true
 
