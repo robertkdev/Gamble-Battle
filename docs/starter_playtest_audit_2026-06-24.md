@@ -29,24 +29,24 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 
 ## Current Revalidation After Follow-Up Fixes
 
-Current branch snapshot: 2026-06-25 local audit branch after the Unit Select, deploy-assist/watchdog, and shop-spacing follow-ups; use `git log` / `git status` for the exact current commit and ahead count.
+Current branch snapshot: refreshed on 2026-06-26 local main after the Unit Select, deploy-assist/watchdog, shop-spacing, and audit-validation follow-ups; use `git log` / `git status` for the exact current commit and ahead count.
 
-MCP validation run on 2026-06-24:
-- `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`; rerun on 2026-06-25 with `errors: []`, including first-deploy bench highlight and post-deploy highlight clearing assertions.
-- `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`
+MCP validation snapshot, originally run on 2026-06-24 and refreshed through 2026-06-26:
+- `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`; rerun on 2026-06-26 with `errors: []`, including first-deploy bench highlight, post-deploy highlight clearing assertions, repeated loss/New Game reset cycles, shop cycle, and second-fight resolution.
+- `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`; rerun on 2026-06-26 with `errors: []`.
 - `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`; rerun on 2026-06-25 with `errors: []`
 - `tests/rga_testing/validation/AcceptedMissGuardCoverageSmoke.tscn`: `AcceptedMissGuardCoverageSmoke: PASS`; rerun on 2026-06-26 after the Totem cooldown-efficiency diagnostic pass with `gap_kinds=9`, `accepted_spans=9`, `mapped_gap_kinds=9`, and `errors: []`. Later cleanup passes reduced the regenerated manifest through 8, 7, 6, and then 5 gap kinds/spans after Mortem direct-attrition EHP, Bo direct backline-access, Grint initiate-success, and Totem CC-prevention diagnostic evidence respectively.
-- `tests/rga_testing/validation/UnitStatAudit.tscn`: `UnitStatAudit: OK`
-- `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`; rerun on 2026-06-25 with `errors: []`
-- `tests/visual/CombatResolvingFeedbackSmoke.tscn`: `CombatResolvingFeedbackSmoke: OK`; validates the immediate resolving label, elapsed resolving text, long-wait warning text, and watchdog fallback text.
+- `tests/rga_testing/validation/UnitStatAudit.tscn`: `UnitStatAudit: OK`; rerun on 2026-06-26 with `errors: []`.
+- `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`; rerun on 2026-06-26 with `errors: []`.
+- `tests/visual/CombatResolvingFeedbackSmoke.tscn`: `CombatResolvingFeedbackSmoke: OK`; rerun on 2026-06-26 with `errors: []` and validates the immediate resolving label, elapsed resolving text, long-wait warning text, and watchdog fallback text.
 - `tests/visual/PostCombatPlanningBeatSmoke.tscn`: `PostCombatPlanningBeatSmoke: OK`; validates that a post-win intermission beat appears before planning returns, then restores `Start Battle`, a full shop, and at least 55 seconds of planning time.
-- `tests/visual/AxiomRetryEconomySmoke.tscn`: `AxiomRetryEconomySmoke: OK`; rerun on 2026-06-25 with `errors: []`, validating the support-starter retry economy after a forced opener defeat, helper purchase/deploy guidance, bench highlight clearing, and retry-fight progression back into a full Stage 2 planning shop.
+- `tests/visual/AxiomRetryEconomySmoke.tscn`: `AxiomRetryEconomySmoke: OK`; rerun on 2026-06-26 with `errors: []`, validating the support-starter retry economy after a forced opener defeat, helper purchase/deploy guidance, bench highlight clearing, and retry-fight progression back into a full Stage 2 planning shop.
 - `tests/visual/DragGlobalReleaseSmoke.tscn`: `DragGlobalReleaseSmoke: OK` with `errors: []`; validates that a drag started on one control ends and emits a drop after global mouse release over a different tile.
-- `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`
-- `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`
-- `tests/visual/UIThemeSmoke.tscn`: rerun on 2026-06-25 with `errors: []`, including shop-card gutter, command-strip spacing, first-fight placeholder prominence, and locked-placeholder click feedback assertions.
+- `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`; rerun on 2026-06-26 with `errors: []`.
+- `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`; rerun on 2026-06-26 with `errors: []`, including shop-card gutter, command-strip spacing, first-fight placeholder prominence, and locked-placeholder click feedback assertions.
 - `tests/visual/ShopPurchaseFeedbackSmoke.tscn`: `ShopPurchaseFeedbackSmoke: OK` with `errors: []`; validates a real `ShopPresenter` card purchase spends gold, places the unit on bench, shows deploy guidance, and renders the purchased slot as `SOLD` / `On bench` with a bench tooltip.
-- `tests/visual/RapidShopPressureSmoke.tscn`: `RapidShopPressureSmoke: OK purchases=5 deployed_board=6` with `errors: []`; validates a Bonko Main-flow opener into a same-frame burst across five rendered shop cards, five sold/on-bench placeholders, no shop errors, five bench-to-board deploys, and a resolved follow-up fight.
+- `tests/visual/BuyXPTransactionalFeedbackSmoke.tscn`: `BuyXPTransactionalFeedbackSmoke: OK`; rerun on 2026-06-26 with `errors: []`, validating reserve-floor denial feedback and immediate gold/level/XP repaint after a valid Buy XP purchase.
+- `tests/visual/RapidShopPressureSmoke.tscn`: `RapidShopPressureSmoke: OK purchases=5 deployed_board=6`; rerun on 2026-06-26 with `errors: []` and validates a Bonko Main-flow opener into a same-frame burst across five rendered shop cards, five sold/on-bench placeholders, no shop errors, five bench-to-board deploys, and a resolved follow-up fight.
 - `tests/visual/DevStarterInventorySmoke.tscn`: `DevStarterInventorySmoke: OK`; validates normal run inventory starts clean and starter item seeding only happens when `Items.DEV_STARTER_INVENTORY_ENABLED` is explicitly enabled.
 - `tests/rga_testing/validation/VeyraHardenCanonicalStackProbe.tscn`: `VeyraHardenCanonicalStackProbe: PASS`; validates that the scheduled Harden end effect consumes canonical `TraitKeys.AEGIS` stacks and applies Veyra's permanent max-HP stack without relying on legacy `aegis_stacks`.
 - `tests/rga_testing/validation/KytheraSiphonCanonicalStackProbe.tscn`: `KytheraSiphonCanonicalStackProbe: PASS`; validates that the real Siphon cast consumes canonical `TraitKeys.AEGIS` stacks, reaches 3 MR drain per tick from 6 canonical stacks, executes scheduled tick/end events, drains target MR, and applies Kythera's permanent MR stack without relying on legacy `aegis_stacks`.
@@ -55,8 +55,8 @@ MCP validation run on 2026-06-24:
 - `tests/rga_testing/validation/MorrakReapingLineCanonicalStackProbe.tscn`: `MorrakReapingLineCanonicalStackProbe: PASS`; validates that the real Reaping Line cast consumes canonical `TraitKeys.STRIKER` and `TraitKeys.EXECUTIONER` stacks for damage scaling and the low-HP execute threshold while legacy stack keys remain 0.
 - `tests/rga_testing/validation/HexeonGuillotineCanonicalStackProbe.tscn`: `HexeonGuillotineCanonicalStackProbe: PASS`; validates that the real Prismatic Guillotine cast consumes canonical `TraitKeys.KALEIDOSCOPE` stacks for damage scaling and canonical `TraitKeys.EXECUTIONER` stacks for the low-HP execute threshold while legacy stack keys remain 0.
 - `tests/rga_testing/validation/BonkoEmpowerContractProbe.tscn`: `BonkoEmpowerContractProbe: PASS`; validates that the current Bonk cast applies the empower tag with expected hit count, damage/heal/mana metadata, and direct ramp-state telemetry without retaining the old unused Striker stack helper path.
-- `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`. Rerun on 2026-06-25 with `errors: []` now also covers run-total damage/kills surviving a later final-battle stats reset.
-- `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`; later live editor run saved `outputs/visual_iter/exit_menu_pass/01_unit_select_system_menu.png` and `outputs/visual_iter/exit_menu_pass/02_combat_system_menu.png`.
+- `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`; later live editor run saved `outputs/visual_iter/loss_screen_pass/loss_overlay_modal_fixed.png`. Rerun on 2026-06-26 with `errors: []` now also covers run-total damage/kills surviving a later final-battle stats reset. The 2026-06-26 dummy/headless MCP run skipped fresh framebuffer capture, so it is behavioral evidence rather than new screenshot evidence.
+- `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`; later live editor run saved `outputs/visual_iter/exit_menu_pass/01_unit_select_system_menu.png` and `outputs/visual_iter/exit_menu_pass/02_combat_system_menu.png`. Rerun on 2026-06-26 with `errors: []`; the dummy/headless MCP run skipped fresh framebuffer captures, so it is behavioral evidence rather than new screenshot evidence.
 - `tests/rga_testing/validation/StageProgressionProbe.tscn`: `StageProgressionProbe: PASS`
 - `tests/rga_testing/validation/RewardsKillProbe.tscn`: `RewardsKillProbe: PASS`
 - `tests/rga_testing/validation/RewardsActionsProbe.tscn`: `[RewardsTest] PASS`
