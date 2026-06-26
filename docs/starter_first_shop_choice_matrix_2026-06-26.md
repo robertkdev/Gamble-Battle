@@ -46,6 +46,7 @@ Acceptance threshold:
 - Bonko is the healthiest soft-fail line in this slice. Four of five helpers advanced; only Axiom failed.
 - Cashmere has three advancing helpers. Immediate Brute/Bonko help advanced; Korath and Repo did not.
 - Repo is still the weakest first-shop family. Only Sari advanced; Axiom, Mortem, Korath, and Brute left Repo at Stage 2.
+- A later default all-starter replay after the opening-shop guard saw Repo advance with Bonko as the first clicked helper. Bonko was not part of this forced Repo matrix, so the table should be read as a tested slice, not a complete map of every viable Repo helper.
 - Axiom as first helper remains risky in this evidence: it failed for Bonko and Repo, and the broader first-shop audit also flagged pure support as poor first-body help.
 
 ## Current Starter-Aware Offer Sampling
@@ -59,11 +60,14 @@ Acceptance threshold:
 | Cashmere | Brute, Bonko | 60/60 | 0 | 1.000 |
 | Repo | Sari | 60/60 | 0 | 1.000 |
 
-Read: the first post-opener level-1 shop is now starter-aware for these soft-fail starters. It preserves normal random shop shape, but if the roll lacks a known advancing helper it replaces one slot with a helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic. Repo still has only one proven advancing helper in the matrix, but Sari is now guaranteed to appear in Repo's first post-opener shop.
+Read: the first post-opener level-1 shop is now starter-aware for these soft-fail starters. It preserves normal random shop shape, but if the roll lacks a known advancing helper it replaces one slot with a helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic. Repo still has only one proven advancing helper in this forced matrix, but Sari is now guaranteed to appear in Repo's first post-opener shop.
+
+The refreshed default `AllStarterMainFlowAudit` run after this guard advanced 9 of 11 first-shop starters beyond Stage 2, held Bo+Brute at Stage 2 with 2 gold, held Korath+Repo at Stage 2 with 1 gold, and kept Axiom as the 2-gold retry starter. This proves the availability guard improved current pacing, while also showing that the first visible/first-clicked card can still be strategically weak even when a better helper appears elsewhere in the shop.
 
 ## Tuning Direction
 
 - Preserve at least one immediate-damage or high-impact body helper in every first shop for these soft-fail starters.
+- If onboarding should protect a naive first click, the next contract is first-slot/default-card quality, not just offer availability.
 - Avoid making pure support the most attractive first buy when the board has only one combat unit.
-- Treat Repo's first-shop table as the priority tuning target if broader choice quality is needed: marksman damage worked, while support, brawler, and defensive tank options all failed in this slice. The opening-shop safeguard prevents the current one-helper Repo table from becoming a random-offer dead end.
+- Treat Repo's first-shop table as the priority tuning target if broader choice quality is needed: marksman damage worked in this forced slice, and a later default replay also advanced with Bonko, while support and defensive tank options failed. The opening-shop safeguard prevents the current one-helper Repo guard table from becoming a random-offer dead end.
 - Treat duplicate or near-duplicate first-shop roles carefully. Bo double-Cashmere and Repo multiple frontliners gave the player several choices that looked distinct enough to click but did not advance.
