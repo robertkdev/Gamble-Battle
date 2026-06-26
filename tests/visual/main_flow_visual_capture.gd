@@ -43,6 +43,9 @@ func _settle(seconds: float) -> void:
 		await get_tree().process_frame
 
 func _save(filename: String) -> void:
+	if _is_framebuffer_unavailable():
+		print("MainFlowVisualCapture: skipped %s because framebuffer capture is unavailable" % filename)
+		return
 	var texture: ViewportTexture = get_viewport().get_texture()
 	if texture == null or not texture.get_rid().is_valid():
 		print("MainFlowVisualCapture: skipped %s; viewport texture unavailable under this renderer." % filename)
@@ -57,3 +60,8 @@ func _save(filename: String) -> void:
 		push_error("MainFlowVisualCapture: failed to save %s error=%s" % [ProjectSettings.globalize_path(output_path), str(int(err))])
 		return
 	print("MainFlowVisualCapture: saved %s" % ProjectSettings.globalize_path(output_path))
+
+func _is_framebuffer_unavailable() -> bool:
+	var display_name: String = DisplayServer.get_name().to_lower()
+	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
+	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")

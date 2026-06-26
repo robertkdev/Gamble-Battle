@@ -20,11 +20,26 @@ func _run() -> void:
 	print("CombatViewThemeCapture: ready")
 
 func _save_capture() -> void:
+	if _is_framebuffer_unavailable():
+		print("CombatViewThemeCapture: skipped capture because framebuffer capture is unavailable")
+		return
 	var output_dir: String = ProjectSettings.globalize_path("res://outputs")
 	DirAccess.make_dir_recursive_absolute(output_dir)
-	var image: Image = get_viewport().get_texture().get_image()
+	var texture: ViewportTexture = get_viewport().get_texture()
+	if texture == null or not texture.get_rid().is_valid():
+		print("CombatViewThemeCapture: skipped capture; viewport texture unavailable")
+		return
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		print("CombatViewThemeCapture: skipped capture; viewport image unavailable")
+		return
 	var result: Error = image.save_png(OUTPUT_PATH)
 	if result != OK:
 		push_error("CombatViewThemeCapture: save failed %s" % str(result))
 		return
 	print("CombatViewThemeCapture: saved %s" % ProjectSettings.globalize_path(OUTPUT_PATH))
+
+func _is_framebuffer_unavailable() -> bool:
+	var display_name: String = DisplayServer.get_name().to_lower()
+	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
+	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")
