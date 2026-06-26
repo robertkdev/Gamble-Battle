@@ -80,14 +80,25 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var cleanse_pass: bool = considered > 0 and float(cleanse_pressure) >= cleanse_req
 	var bait_pass: bool = considered > 0 and cleanse_bait_rate >= bait_req
 	var pass_flag: bool = enemy_pass or magnitude_pass or cleanse_pass or bait_pass
+	var direct_debuff_pass: bool = enemy_pass or magnitude_pass
 	var reason: String = "no_samples" if considered <= 0 else ""
 	var spans: Array = []
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, reason)
 	extras["considered"] = considered
+	var cleanse_extra: Dictionary = extras.duplicate()
+	var cleanse_ok: Variant = cleanse_pass
+	if pass_flag and direct_debuff_pass and not cleanse_pass:
+		cleanse_ok = null
+		cleanse_extra["reason"] = "alternate_debuff_evidence_satisfied"
+	var bait_extra: Dictionary = extras.duplicate()
+	var bait_ok: Variant = bait_pass
+	if pass_flag and direct_debuff_pass and not bait_pass:
+		bait_ok = null
+		bait_extra["reason"] = "alternate_debuff_evidence_satisfied"
 	RoleCommon.append_span(spans, "subject_debuff_enemy_events", enemy_debuffs, enemy_req, enemy_pass, extras)
 	RoleCommon.append_span(spans, "subject_debuff_magnitude", debuff_magnitude, magnitude_req, magnitude_pass, extras)
-	RoleCommon.append_span(spans, "subject_debuff_cleanse_pressure", cleanse_pressure, cleanse_req, cleanse_pass, extras)
-	RoleCommon.append_span(spans, "subject_debuff_cleanse_bait_rate", cleanse_bait_rate, bait_req, bait_pass, extras)
+	RoleCommon.append_span(spans, "subject_debuff_cleanse_pressure", cleanse_pressure, cleanse_req, cleanse_ok, cleanse_extra)
+	RoleCommon.append_span(spans, "subject_debuff_cleanse_bait_rate", cleanse_bait_rate, bait_req, bait_ok, bait_extra)
 	var cleanse_delta: Dictionary = _scenario_delta(scenario_counterplay, "cleanse_pressure_events", PackedStringArray(["cleanse", "counter", "anti_dot", "anti-dot", "tenacity"]))
 	if not cleanse_delta.is_empty():
 		var delta_value: float = float(cleanse_delta.get("delta", 0.0))
@@ -96,7 +107,11 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 		delta_extras["reason"] = "scenario_cleanse_delta"
 		delta_extras["baseline_scenario"] = String(cleanse_delta.get("baseline", ""))
 		delta_extras["counter_scenario"] = String(cleanse_delta.get("counter", ""))
-		RoleCommon.append_span(spans, "subject_debuff_cleanse_scenario_delta", delta_value, cleanse_req, delta_pass, delta_extras)
+		var delta_ok: Variant = delta_pass
+		if pass_flag and direct_debuff_pass and not delta_pass:
+			delta_ok = null
+			delta_extras["reason"] = "alternate_debuff_evidence_satisfied"
+		RoleCommon.append_span(spans, "subject_debuff_cleanse_scenario_delta", delta_value, cleanse_req, delta_ok, delta_extras)
 		pass_flag = pass_flag or delta_pass
 	return {
 		"id": METRIC_ID,

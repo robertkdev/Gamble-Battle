@@ -90,6 +90,7 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var cleanse_pass: bool = considered > 0 and float(cleanse_pressure) >= cleanse_req
 	var tenacity_pass: bool = considered > 0 and tenacity_tax_s >= tenacity_req
 	var pass_flag: bool = seconds_pass or events_pass or cleanse_pass or tenacity_pass
+	var direct_lockdown_pass: bool = seconds_pass or events_pass
 	var reason: String = ""
 	if considered <= 0:
 		reason = "no_samples"
@@ -100,10 +101,20 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, reason)
 	extras["considered"] = considered
 	extras["kernel_missing"] = kernel_missing
+	var cleanse_extra: Dictionary = extras.duplicate()
+	var cleanse_ok: Variant = cleanse_pass
+	if pass_flag and direct_lockdown_pass and not cleanse_pass:
+		cleanse_ok = null
+		cleanse_extra["reason"] = "alternate_lockdown_evidence_satisfied"
+	var tenacity_extra: Dictionary = extras.duplicate()
+	var tenacity_ok: Variant = tenacity_pass
+	if pass_flag and direct_lockdown_pass and not tenacity_pass:
+		tenacity_ok = null
+		tenacity_extra["reason"] = "alternate_lockdown_evidence_satisfied"
 	RoleCommon.append_span(spans, "subject_lockdown_seconds_on_priority", total_seconds, seconds_req, seconds_pass, extras)
 	RoleCommon.append_span(spans, "subject_lockdown_events_on_priority", total_events, events_req, events_pass, extras)
-	RoleCommon.append_span(spans, "subject_lockdown_cleanse_pressure", cleanse_pressure, cleanse_req, cleanse_pass, extras)
-	RoleCommon.append_span(spans, "subject_lockdown_tenacity_tax_s", tenacity_tax_s, tenacity_req, tenacity_pass, extras)
+	RoleCommon.append_span(spans, "subject_lockdown_cleanse_pressure", cleanse_pressure, cleanse_req, cleanse_ok, cleanse_extra)
+	RoleCommon.append_span(spans, "subject_lockdown_tenacity_tax_s", tenacity_tax_s, tenacity_req, tenacity_ok, tenacity_extra)
 	var cleanse_delta: Dictionary = _scenario_delta(scenario_counterplay, "cleanse_pressure_events", PackedStringArray(["cleanse", "counter"]))
 	if not cleanse_delta.is_empty():
 		var cleanse_delta_value: float = float(cleanse_delta.get("delta", 0.0))
@@ -112,7 +123,11 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 		cleanse_delta_extras["reason"] = "scenario_cleanse_delta"
 		cleanse_delta_extras["baseline_scenario"] = String(cleanse_delta.get("baseline", ""))
 		cleanse_delta_extras["counter_scenario"] = String(cleanse_delta.get("counter", ""))
-		RoleCommon.append_span(spans, "subject_lockdown_cleanse_scenario_delta", cleanse_delta_value, cleanse_req, cleanse_delta_pass, cleanse_delta_extras)
+		var cleanse_delta_ok: Variant = cleanse_delta_pass
+		if pass_flag and direct_lockdown_pass and not cleanse_delta_pass:
+			cleanse_delta_ok = null
+			cleanse_delta_extras["reason"] = "alternate_lockdown_evidence_satisfied"
+		RoleCommon.append_span(spans, "subject_lockdown_cleanse_scenario_delta", cleanse_delta_value, cleanse_req, cleanse_delta_ok, cleanse_delta_extras)
 		pass_flag = pass_flag or cleanse_delta_pass
 	var tenacity_delta: Dictionary = _scenario_delta(scenario_counterplay, "tenacity_tax_s", PackedStringArray(["tenacity", "high_tenacity", "counter"]))
 	if not tenacity_delta.is_empty():
@@ -122,7 +137,11 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 		tenacity_delta_extras["reason"] = "scenario_high_tenacity_delta"
 		tenacity_delta_extras["baseline_scenario"] = String(tenacity_delta.get("baseline", ""))
 		tenacity_delta_extras["counter_scenario"] = String(tenacity_delta.get("counter", ""))
-		RoleCommon.append_span(spans, "subject_lockdown_high_tenacity_tax_delta_s", tenacity_delta_value, tenacity_req, tenacity_delta_pass, tenacity_delta_extras)
+		var tenacity_delta_ok: Variant = tenacity_delta_pass
+		if pass_flag and direct_lockdown_pass and not tenacity_delta_pass:
+			tenacity_delta_ok = null
+			tenacity_delta_extras["reason"] = "alternate_lockdown_evidence_satisfied"
+		RoleCommon.append_span(spans, "subject_lockdown_high_tenacity_tax_delta_s", tenacity_delta_value, tenacity_req, tenacity_delta_ok, tenacity_delta_extras)
 		pass_flag = pass_flag or tenacity_delta_pass
 	var effective_drop: Dictionary = _scenario_effective_drop(scenario_counterplay, PackedStringArray(["tenacity", "high_tenacity", "counter"]))
 	if not effective_drop.is_empty():
@@ -132,7 +151,11 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 		effective_drop_extras["reason"] = "scenario_high_tenacity_effective_drop"
 		effective_drop_extras["baseline_scenario"] = String(effective_drop.get("baseline", ""))
 		effective_drop_extras["counter_scenario"] = String(effective_drop.get("counter", ""))
-		RoleCommon.append_span(spans, "subject_lockdown_high_tenacity_effective_drop_s", effective_drop_value, tenacity_req, effective_drop_pass, effective_drop_extras)
+		var effective_drop_ok: Variant = effective_drop_pass
+		if pass_flag and direct_lockdown_pass and not effective_drop_pass:
+			effective_drop_ok = null
+			effective_drop_extras["reason"] = "alternate_lockdown_evidence_satisfied"
+		RoleCommon.append_span(spans, "subject_lockdown_high_tenacity_effective_drop_s", effective_drop_value, tenacity_req, effective_drop_ok, effective_drop_extras)
 
 	var messages: Array[String] = []
 	messages.append("scenario=%s" % scenario_label)

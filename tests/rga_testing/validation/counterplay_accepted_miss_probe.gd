@@ -30,7 +30,7 @@ func _run() -> void:
 		else:
 			printerr("CounterplayAcceptedMissProbe: FAIL full debuff counterplay proof for ", String(subject_id))
 			failed = true
-		if bool(low_debuff.get("pass", false)) and _has_span(low_debuff, "subject_debuff_enemy_events", true) and _has_span(low_debuff, "subject_debuff_cleanse_pressure", false) and _has_span(low_debuff, "subject_debuff_cleanse_bait_rate", false) and _has_span(low_debuff, "subject_debuff_cleanse_scenario_delta", false):
+		if bool(low_debuff.get("pass", false)) and _has_span(low_debuff, "subject_debuff_enemy_events", true) and _has_diagnostic_span(low_debuff, "subject_debuff_cleanse_pressure", "alternate_debuff_evidence_satisfied") and _has_diagnostic_span(low_debuff, "subject_debuff_cleanse_bait_rate", "alternate_debuff_evidence_satisfied") and _has_diagnostic_span(low_debuff, "subject_debuff_cleanse_scenario_delta", "alternate_debuff_evidence_satisfied"):
 			debuff_low_passes += 1
 		else:
 			printerr("CounterplayAcceptedMissProbe: FAIL low-response debuff aggregate control for ", String(subject_id))
@@ -46,7 +46,7 @@ func _run() -> void:
 		else:
 			printerr("CounterplayAcceptedMissProbe: FAIL full lockdown counterplay proof for ", String(subject_id))
 			failed = true
-		if bool(low_lockdown.get("pass", false)) and _has_span(low_lockdown, "subject_lockdown_seconds_on_priority", true) and _has_span(low_lockdown, "subject_lockdown_cleanse_scenario_delta", false) and _has_span(low_lockdown, "subject_lockdown_high_tenacity_effective_drop_s", false):
+		if bool(low_lockdown.get("pass", false)) and _has_span(low_lockdown, "subject_lockdown_seconds_on_priority", true) and _has_diagnostic_span(low_lockdown, "subject_lockdown_cleanse_scenario_delta", "alternate_lockdown_evidence_satisfied") and _has_diagnostic_span(low_lockdown, "subject_lockdown_high_tenacity_effective_drop_s", "alternate_lockdown_evidence_satisfied"):
 			lockdown_low_passes += 1
 		else:
 			printerr("CounterplayAcceptedMissProbe: FAIL low-response lockdown aggregate control for ", String(subject_id))
@@ -194,6 +194,17 @@ func _has_span(metric_result: Dictionary, expected_label: String, required_ok: b
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label == expected_label and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, expected_label: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label == expected_label and not span.has("ok") and String(span.get("reason", "")) == expected_reason:
 			return true
 	return false
 
