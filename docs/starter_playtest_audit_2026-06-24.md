@@ -290,6 +290,22 @@ Fresh MCP debug validation on 2026-06-26 rechecked the broad playable surface af
 - `tests/rga_testing/validation/CreepsProbe.tscn`: `CreepsProbe: PASS (spawned 4)`, `errors: []`.
 - `tests/visual/CombatViewThemeCapture.tscn`: rerun after the dummy-framebuffer guard printed an explicit skip and returned `errors: []`; the scene was then stopped manually because this legacy capture harness does not quit itself.
 
+## Current Front-door And Modal UI Smoke Refresh
+
+Fresh MCP debug validation on 2026-06-26 rechecked the current front-door, modal, and immediate post-opener UI contract:
+
+- `tests/visual/TitleMenuSmoke.tscn`: `TitleMenuSmoke: OK`, `errors: []`.
+- `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`, `errors: []`.
+- `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`, `errors: []`.
+- `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`, `errors: []`; screenshot capture still skipped under the MCP dummy framebuffer.
+- `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`, `errors: []`; both system-menu captures still skipped under the MCP dummy framebuffer.
+- `tests/visual/StatsPanelClickSmoke.tscn`: `StatsPanelClickSmoke: OK`, `errors: []`.
+- `tests/visual/OpeningFightVisualSmoke.tscn`: `OpeningFightVisualSmoke: OK captures=0 output=C:/Users/Flipm/Documents/gamble-battle/outputs/visual_iter/opening_fight_copy_pass`, `errors: []`; the legacy MCP run still skipped PNG capture under dummy rendering.
+- `tests/visual/BettingEconomySmoke.tscn`: `BettingEconomySmoke: OK`, `errors: []`; the pure Economy and real Main-scene post-opener betting checks still passed, with dummy-framebuffer PNG skips.
+- `tests/visual/PostCombatPlanningBeatSmoke.tscn`: `PostCombatPlanningBeatSmoke: OK`, `errors: []`; the post-win intermission and restored planning state still passed, with dummy-framebuffer PNG skips.
+
+This refresh does not replace the live OpenGL and OS-window screenshot evidence already listed above. It confirms the current tracked scenes still pass at HEAD after the accepted-miss stable export path change and keeps the dummy-framebuffer capture limitation explicit.
+
 ## Current System Menu Visual Recheck
 
 Fresh OS-window evidence was generated on 2026-06-25 with the ignored hold scene `outputs/audit_playtest/CurrentSystemMenuVisualHold.tscn`.
