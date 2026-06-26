@@ -101,12 +101,14 @@ func _run_flow() -> void:
 	_expect(_phase_name() == "PREVIEW" and not bool(Economy.combat_active), "rapid purchases moved game out of preview phase")
 	_expect(_continue_button_text() == "Start Battle", "rapid purchases should leave Start Battle available, got %s" % _continue_button_text())
 	_expect(_deploy_prompt_visible(), "rapid purchases should leave deployment guidance visible")
+	await _after_rapid_purchase_checkpoint(expected_ids)
 
 	var deployed_count: int = await _deploy_all_bench_units()
 	var board_after_count: int = _board_ids().size()
 	_expect(_bench_ids().is_empty(), "rapid deploy should clear bench, still has %s" % JSON.stringify(_bench_ids()))
 	_expect(deployed_count == expected_ids.size(), "rapid deploy moved %d units, expected %d" % [deployed_count, expected_ids.size()])
 	_expect(board_after_count >= board_before_count + expected_ids.size(), "rapid deploy board size should grow by %d, before=%d after=%d" % [expected_ids.size(), board_before_count, board_after_count])
+	await _after_rapid_deploy_checkpoint(expected_ids)
 
 	await _press_continue(false, "post-rapid-burst fight")
 	var resolved: bool = await _wait_for_preview_or_loss(_post_burst_timeout_seconds())
@@ -135,6 +137,12 @@ func _use_viewport_shop_clicks() -> bool:
 
 func _shop_click_settle_frames() -> int:
 	return 1
+
+func _after_rapid_purchase_checkpoint(_expected_ids: Array[String]) -> void:
+	await get_tree().process_frame
+
+func _after_rapid_deploy_checkpoint(_expected_ids: Array[String]) -> void:
+	await get_tree().process_frame
 
 func _purchase_cards(cards: Array[ShopCard]) -> void:
 	if _use_viewport_shop_clicks():
