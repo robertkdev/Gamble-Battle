@@ -28,6 +28,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Current natural-speed single-starter Main-flow screenshots: `outputs/audit_playtest/natural_main_flow_2026_06_26/`
 - Current item, trait, and bar UI harness: `tests/visual/BarItemsTraitsCapture.tscn`
 - Current completed-item data/effect registry guard: `tests/rga_testing/validation/CompletedItemEffectRegistrySmoke.tscn`
+- Current standalone CombatView start playtest: `tests/visual/CombatViewThemePlaytest.tscn`
 - Duplicate scoreboard disambiguation validation: `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
@@ -53,6 +54,7 @@ MCP validation snapshot, originally run on 2026-06-24 and refreshed through 2026
 - `tests/rga_testing/validation/UnitStatAudit.tscn`: `UnitStatAudit: OK`; rerun on 2026-06-26 with `errors: []`.
 - `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`; rerun on 2026-06-26 with `errors: []`.
 - `tests/visual/CombatResolvingFeedbackSmoke.tscn`: `CombatResolvingFeedbackSmoke: OK`; rerun on 2026-06-26 with `errors: []` and validates the immediate resolving label, elapsed resolving text, long-wait warning text, and watchdog fallback text.
+- `tests/visual/CombatViewThemePlaytest.tscn`: `CombatViewThemePlaytest: OK elapsed=2.00`; rerun on 2026-06-26 with `errors: []`, validating that the standalone `CombatView` scene can receive a player team, continue into combat, start the combat engine, and keep battle active after two seconds.
 - `tests/visual/PostCombatPlanningBeatSmoke.tscn`: `PostCombatPlanningBeatSmoke: OK`; validates that a post-win intermission beat appears before planning returns, then restores `Start Battle`, a full shop, and at least 55 seconds of planning time.
 - `tests/visual/AxiomRetryEconomySmoke.tscn`: `AxiomRetryEconomySmoke: OK`; rerun on 2026-06-26 with `errors: []`, validating the fallback retry economy under a test-forced hard opener, configured slot-0 retry helper, helper purchase/deploy guidance, bench highlight clearing, and retry-fight progression back into a full Stage 2 planning shop.
 - `tests/visual/DragGlobalReleaseSmoke.tscn`: `DragGlobalReleaseSmoke: OK` with `errors: []`; validates that a drag started on one control ends and emits a drop after global mouse release over a different tile.
@@ -215,6 +217,7 @@ Fresh MCP debug validation on 2026-06-26 rechecked the broad playable surface af
 - `tests/visual/StatsPanelDeepCapture.tscn`: originally exposed a stale audit assumption that combat enemy actor index 1 always exists; the harness now derives enemy actor indices from the arena bridge, verifies the current enemy actor, and logs an explicit skip when the current fight has only one enemy actor. Rerun result: `StatsPanelDeepCapture: OK`, `errors: []`; screenshots still skipped under the MCP dummy framebuffer.
 - `tests/visual/AuditPanelSmoke.tscn`: `AuditPanelSmoke: OK`, `errors: []`.
 - `tests/visual/MainFlowVisualCapture.tscn`: rerun after the dummy-framebuffer guard printed explicit framebuffer-unavailable skips for all four capture points and returned `errors: []`.
+- `tests/visual/CombatViewThemePlaytest.tscn`: `CombatViewThemePlaytest: OK elapsed=2.00`, `errors: []`.
 - `tests/visual/CombatViewThemeCapture.tscn`: rerun after the dummy-framebuffer guard printed an explicit skip and returned `errors: []`; the scene was then stopped manually because this legacy capture harness does not quit itself.
 
 ## Current System Menu Visual Recheck
