@@ -45,6 +45,18 @@ Cross-checked on 2026-06-26 against the authenticated live Google design doc. Th
 | Kythera | The design doc defines Siphon as Magic Resist drain from the target plus permanent MR gain for Kythera. The `team_fortification` goal metrics call out team eHP/s through shield/DR uptime, fortification uptime, and damage prevented over mana/time. | The failed ally-buff uptime span is expected from the current kit shape. Closing this honestly needs an ally-fortification event path, a retag/goal review, or a formal decision that self durability plus enemy debuffing is valid team fortification for Kythera. |
 | Totem | The design doc defines Cleanse as targeting the living ally who has dealt the most damage, cleansing debuffs, and damaging Totem's current target. The `peel_carry` goal metrics define peel saves as interrupts or displacements that prevent lethal damage. | The interrupt/save residuals are a real kit-vs-metric mismatch, not missing generic support proof. Close by adding cleanse-as-save instrumentation/scenario evidence, adding an actual interrupt/displacement path, or revising the goal contract for Totem. |
 
+## Current Verification Refresh
+
+Rechecked on 2026-06-26 after the live Main-flow capture checkpoint:
+
+- `RoleMatrixProbe6v6Kythera.tscn`: `PASS`, `errors=[]`; expected-span checks preserved the current contract where team EHP/s and damage-prevention pass while `goal_team_fortification_buff_uptime_targets` fails.
+- `RoleMatrixProbe6v6Totem.tscn`: `PASS`, `errors=[]`; expected-span checks preserved the current contract where ally protection events/magnitude and CC-immunity pass while goal-level peel-save and interrupt spans fail.
+- `RoleMatrixSmoke.tscn`: `PASS (22 units)`, `errors=[]`; this restored the canonical all-unit `user://identity_reports/*.json` report set used by the export.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1`: `reports=22 spans=3 ramp_spans=0 non_ramp_goal_ramp=0`.
+- `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=3 accepted_spans=3 mapped_gap_kinds=3`.
+
+The refreshed evidence keeps the residuals in the same category: current product/design debt around Kythera's fortification proof shape and Totem's direct save/interrupt proof shape, not missing generic RGA coverage.
+
 ## Guard Coverage
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
