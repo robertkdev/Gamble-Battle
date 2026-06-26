@@ -9,6 +9,7 @@ Validation:
 - `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with every guarded starter at `first_good=1.000`
 - `AllStarterMainFlowSmoke: PASS starters=12 first_shop=11 retry=1 deployed=11 second_resolved=11`
 - `AllStarterMainFlowAudit: OK starters=12`, refreshed default replay: `advanced=11`, `held=0`, `retry=1`
+- `AxiomRetryChoiceQualitySmoke: PASS trials=5 advanced=5`; `AxiomRetryEconomySmoke: OK`
 - `errors: []`
 
 Acceptance threshold:
@@ -85,6 +86,22 @@ Acceptance threshold:
 Read: the first post-opener level-1 shop is now starter-aware for seven tested first-shop-sensitive starters. It preserves normal random shop shape, but if a known advancing helper appears later in the roll it swaps that helper into slot 0; if no known helper appears, it inserts/replaces slot 0 with a configured helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic.
 
 The refreshed default `AllStarterMainFlowAudit` run after the first-slot guard advanced all 11 starters that reached first shop beyond Stage 2, kept Axiom as the expected 2-gold retry starter, and had no held Stage 2 default-click lines.
+
+## Axiom Retry Guard
+
+Axiom remains the one current level-1 starter that enters the Chapter 1 Stage 1 retry state instead of the normal post-victory first shop. The retry shop now uses the same configured-helper slot-0 guard after the opener bet has resolved to 0, while the initial forced-fight placeholder remains separate.
+
+`AxiomRetryChoiceQualitySmoke` forces the configured retry helper set through the real Main-scene buy, bench-to-board deploy, and retry fight. The current guard list is:
+
+| Starter | Slot | Helper | Helper role | Helper goal | Advanced beyond Stage 1 |
+| --- | ---: | --- | --- | --- | --- |
+| Axiom | 0 | Bonko | brawler | `brawler.attrition_dps` | yes |
+| Axiom | 1 | Grint | tank | `tank.initiate_fight` | yes |
+| Axiom | 2 | Sari | marksman | `marksman.sustained_dps` | yes |
+| Axiom | 3 | Morrak | brawler | `brawler.attrition_dps` | yes |
+| Axiom | 4 | Berebell | brawler | `brawler.attrition_dps` | yes |
+
+`AxiomRetryEconomySmoke` covers the production path: Axiom loses the forced opener, recovers to 2 gold, sees a configured helper in slot 0, buys/deploys it while preserving 1 gold, wins the retry fight, and returns to a full Stage 2 planning shop.
 
 ## Tuning Direction
 

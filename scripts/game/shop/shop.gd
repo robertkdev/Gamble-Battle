@@ -137,7 +137,15 @@ func _should_apply_opening_shop_guard() -> bool:
 		return false
 	if not _has_autoload("GameState"):
 		return false
-	return int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 2
+	if int(GameState.chapter) != 1:
+		return false
+	if int(GameState.stage_in_chapter) == 2:
+		return true
+	if int(GameState.stage_in_chapter) != 1:
+		return false
+	if not _has_autoload("Economy"):
+		return false
+	return int(Economy.current_bet) == 0
 
 func buy_xp() -> Dictionary:
 	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0

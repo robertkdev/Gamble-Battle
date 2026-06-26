@@ -54,7 +54,7 @@ Card UX Notes
 Lifecycle
 - New Run: `Shop.reset_run()` clears state; `PlayerProgress` resets to level 1, XP 0.
 - Reroll: `Shop.reroll()` spends `REROLL_COST` gold (unless a free reroll is available) and populates `SLOT_COUNT` offers.
-- Opening shop: after the first Chapter 1 Stage 1 victory, `Shop.reroll()` uses the selected starter id once. If that first post-opener level-1 shop has a configured helper later in the roll, the roller swaps it into slot 0. If it lacks a configured helper, the roller inserts or replaces slot 0 with one. Later rerolls stay generic.
+- Opening shop: after the first Chapter 1 Stage 1 victory, or after a non-broke Chapter 1 Stage 1 retry state where the bet has resolved to 0, `Shop.reroll()` uses the selected starter id once. If that first level-1 recovery shop has a configured helper later in the roll, the roller swaps it into slot 0. If it lacks a configured helper, the roller inserts or replaces slot 0 with one. Later rerolls stay generic.
 - Lock: `Shop.toggle_lock()` flips lock; reroll clears lock when `CLEAR_LOCK_ON_REROLL=true`.
 - Buy Unit: `Shop.buy_unit(slot)` spawns the unit via `UnitFactory`, places on the bench, replaces that slot with an empty placeholder, then runs `CombineService`.
 - Buy XP: `Shop.buy_xp()` spends `BUY_XP_COST` and grants `XP_PER_BUY` XP; level-ups resolve immediately.
@@ -74,7 +74,7 @@ Phase Rules
 	- `combat_spent` is the total shop spending done during the current combat (rerolls, XP, unit buys). Selling reduces it.
 	- Bet is escrowed at combat start; on win you receive `2*bet`, on loss `0`. Settlement happens before the next planning phase.
   - Failed affordability due to these rules surface as `WOULD_KILL_YOU` with a user-facing tooltip.
-- A non-broke Chapter 1 Stage 1 defeat receives enough opening retry recovery to return to 2 gold, so a support starter can buy exactly one 1-cost helper while still keeping the 1-health planning reserve.
+- A non-broke Chapter 1 Stage 1 defeat receives enough opening retry recovery to return to 2 gold, so a support starter can buy exactly one 1-cost helper while still keeping the 1-health planning reserve. Axiom's configured retry helpers are guarded by `AxiomRetryChoiceQualitySmoke` and the production retry-shop slot 0 path is covered by `AxiomRetryEconomySmoke`.
 
 Error Codes
 - `UNKNOWN`, `COMBAT_PHASE`, `INVALID_SLOT`, `NO_OFFERS`, `INSUFFICIENT_GOLD`, `BENCH_FULL`, `SHOP_LOCKED`, `INVALID_UNIT`, `NOT_FOUND`, `ACTION_FAILED`.

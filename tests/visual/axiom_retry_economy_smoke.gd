@@ -47,6 +47,7 @@ func _run() -> void:
 	_expect(int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 1, "Axiom retry should stay on Chapter 1 Stage 1")
 	_expect(int(Economy.gold) == 2, "Axiom retry should recover to exactly 2 gold, got %d" % int(Economy.gold))
 	_expect(Shop.state != null and Shop.state.offers.size() == int(SHOP_CONFIG.SLOT_COUNT), "Axiom retry shop did not have full offers")
+	_expect(_first_retry_offer_is_configured_helper(), "Axiom retry shop should start with a configured helper, got %s" % JSON.stringify(_retry_offer_summaries()))
 	_expect(_affordable_shop_card_count() >= 1, "Axiom retry shop should contain at least one affordable helper")
 	if _finish_if_failed():
 		return
@@ -109,6 +110,28 @@ func _player_team_size() -> int:
 	if manager == null:
 		return 0
 	return int(manager.player_team.size())
+
+func _first_retry_offer_is_configured_helper() -> bool:
+	if Shop == null or Shop.state == null or Shop.state.offers == null or Shop.state.offers.is_empty():
+		return false
+	var raw_helpers: Array = SHOP_CONFIG.FIRST_SHOP_HELPERS_BY_STARTER.get("axiom", []) as Array
+	var helper_ids: Array[String] = []
+	for raw_helper: Variant in raw_helpers:
+		helper_ids.append(String(raw_helper))
+	var first_offer: ShopOffer = Shop.state.offers[0] as ShopOffer
+	return first_offer != null and helper_ids.has(String(first_offer.id))
+
+func _retry_offer_summaries() -> Array[Dictionary]:
+	var output: Array[Dictionary] = []
+	if Shop == null or Shop.state == null or Shop.state.offers == null:
+		return output
+	for index: int in range(Shop.state.offers.size()):
+		var offer: ShopOffer = Shop.state.offers[index] as ShopOffer
+		if offer == null:
+			output.append({"slot": index, "id": "", "cost": 0})
+		else:
+			output.append({"slot": index, "id": String(offer.id), "cost": int(offer.cost)})
+	return output
 
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
