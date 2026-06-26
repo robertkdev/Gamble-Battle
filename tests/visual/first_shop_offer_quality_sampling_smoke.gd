@@ -1,0 +1,161 @@
+extends Node
+
+const UnitCatalogScript: Script = preload("res://scripts/game/shop/unit_catalog.gd")
+const ShopRngScript: Script = preload("res://scripts/game/shop/shop_rng.gd")
+const ShopRollerScript: Script = preload("res://scripts/game/shop/shop_roller.gd")
+const ShopConfigScript: Script = preload("res://scripts/game/shop/shop_config.gd")
+
+const SMOKE_NAME: String = "FirstShopOfferQualitySamplingSmoke"
+const SAMPLE_COUNT: int = 240
+const START_SEED: int = 260626
+const MIN_GOOD_RATES: Dictionary[String, float] = {
+	"bo": 0.45,
+	"bonko": 0.75,
+	"cashmere": 0.45,
+	"repo": 0.25,
+}
+
+var _failures: Array[String] = []
+
+func _ready() -> void:
+	call_deferred("_run")
+
+func _run() -> void:
+	var catalog: UnitCatalog = UnitCatalogScript.new()
+	catalog.refresh()
+	var rng: ShopRng = ShopRngScript.new()
+	var roller: ShopRoller = ShopRollerScript.new()
+	roller.configure(catalog, rng)
+	var stats: Dictionary[String, Variant] = _initial_stats()
+	for sample_index: int in range(SAMPLE_COUNT):
+		rng.set_seed(START_SEED + sample_index)
+		var offers: Array[ShopOffer] = roller.roll(int(ShopConfigScript.STARTING_LEVEL), int(ShopConfigScript.SLOT_COUNT))
+		_expect(offers.size() == int(ShopConfigScript.SLOT_COUNT), "sample %d should have %d offers, got %d" % [sample_index, int(ShopConfigScript.SLOT_COUNT), offers.size()])
+		_record_sample(stats, offers)
+	_assert_rates(stats)
+	_finish(stats)
+
+func _initial_stats() -> Dictionary[String, Variant]:
+	var stats: Dictionary[String, Variant] = {}
+	for starter_id: String in _starter_ids():
+		stats[starter_id] = _empty_starter_stats()
+	return stats
+
+func _empty_starter_stats() -> Dictionary[String, Variant]:
+	var starter_stats: Dictionary[String, Variant] = {}
+	var examples: Array[String] = []
+	starter_stats["good_count"] = 0
+	starter_stats["no_good_count"] = 0
+	starter_stats["axiom_count"] = 0
+	starter_stats["no_good_examples"] = examples
+	return starter_stats
+
+func _record_sample(stats: Dictionary[String, Variant], offers: Array[ShopOffer]) -> void:
+	var offer_ids: Array[String] = []
+	for offer: ShopOffer in offers:
+		if offer != null:
+			offer_ids.append(String(offer.id))
+	for starter_id: String in _starter_ids():
+		var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
+		var has_good: bool = _has_any(offer_ids, _good_helpers_for(starter_id))
+		var has_axiom: bool = offer_ids.has("axiom")
+		if has_good:
+			starter_stats["good_count"] = int(starter_stats.get("good_count", 0)) + 1
+		else:
+			starter_stats["no_good_count"] = int(starter_stats.get("no_good_count", 0)) + 1
+			var examples: Array[String] = _string_array(starter_stats.get("no_good_examples", []))
+			if examples.size() < 3:
+				examples.append(",".join(offer_ids))
+			starter_stats["no_good_examples"] = examples
+		if has_axiom:
+			starter_stats["axiom_count"] = int(starter_stats.get("axiom_count", 0)) + 1
+		stats[starter_id] = starter_stats
+
+func _assert_rates(stats: Dictionary[String, Variant]) -> void:
+	for starter_id: String in _starter_ids():
+		var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
+		var good_count: int = int(starter_stats.get("good_count", 0))
+		var rate: float = float(good_count) / float(SAMPLE_COUNT)
+		var required_rate: float = float(MIN_GOOD_RATES.get(starter_id, 0.0))
+		_expect(rate >= required_rate, "%s known-good first-shop helper rate %.3f below %.3f" % [starter_id, rate, required_rate])
+
+func _finish(stats: Dictionary[String, Variant]) -> void:
+	var exit_code: int = 0
+	if _failures.is_empty():
+		print("%s: PASS samples=%d %s" % [SMOKE_NAME, SAMPLE_COUNT, _summary_string(stats)])
+	else:
+		for failure: String in _failures:
+			push_error("%s: %s" % [SMOKE_NAME, failure])
+		exit_code = 1
+	get_tree().quit(exit_code)
+
+func _summary_string(stats: Dictionary[String, Variant]) -> String:
+	var parts: Array[String] = []
+	for starter_id: String in _sorted_keys(stats):
+		var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
+		var good_count: int = int(starter_stats.get("good_count", 0))
+		var no_good_count: int = int(starter_stats.get("no_good_count", 0))
+		var axiom_count: int = int(starter_stats.get("axiom_count", 0))
+		var rate: float = float(good_count) / float(SAMPLE_COUNT)
+		parts.append("%s_good=%d/%d(%.3f) no_good=%d axiom_seen=%d examples=[%s]" % [
+			starter_id,
+			good_count,
+			SAMPLE_COUNT,
+			rate,
+			no_good_count,
+			axiom_count,
+			";".join(_string_array(starter_stats.get("no_good_examples", []))),
+		])
+	return " ".join(parts)
+
+func _sorted_keys(stats: Dictionary[String, Variant]) -> Array[String]:
+	var keys: Array[String] = []
+	for key: String in stats.keys():
+		keys.append(key)
+	keys.sort()
+	return keys
+
+func _has_any(values: Array[String], targets: Array[String]) -> bool:
+	for target: String in targets:
+		if values.has(target):
+			return true
+	return false
+
+func _starter_ids() -> Array[String]:
+	var ids: Array[String] = ["bo", "bonko", "cashmere", "repo"]
+	return ids
+
+func _good_helpers_for(starter_id: String) -> Array[String]:
+	var helpers: Array[String] = []
+	match starter_id:
+		"bo":
+			helpers.append("berebell")
+			helpers.append("grint")
+		"bonko":
+			helpers.append("morrak")
+			helpers.append("grint")
+			helpers.append("mortem")
+			helpers.append("korath")
+		"cashmere":
+			helpers.append("brute")
+			helpers.append("bonko")
+		"repo":
+			helpers.append("sari")
+	return helpers
+
+func _string_array(values: Variant) -> Array[String]:
+	var output: Array[String] = []
+	if values is Array:
+		for value: Variant in values:
+			output.append(String(value))
+	elif values is PackedStringArray:
+		var packed_values: PackedStringArray = values as PackedStringArray
+		for value: String in packed_values:
+			output.append(value)
+	elif typeof(values) == TYPE_STRING:
+		output.append(String(values))
+	return output
+
+func _expect(condition: bool, message: String) -> void:
+	if not condition:
+		_failures.append(message)

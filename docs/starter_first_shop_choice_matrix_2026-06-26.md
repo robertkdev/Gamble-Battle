@@ -6,6 +6,7 @@ The smoke targets the four current starter lines whose default all-starter repla
 
 Validation:
 - `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=10`
+- `FirstShopOfferQualitySamplingSmoke: PASS samples=240 bo_good=145/240(0.604) bonko_good=211/240(0.879) cashmere_good=147/240(0.613) repo_good=93/240(0.388)`
 - `errors: []`
 
 Acceptance threshold:
@@ -45,6 +46,19 @@ Acceptance threshold:
 - Cashmere has three advancing helpers. Immediate Brute/Bonko help advanced; Korath and Repo did not.
 - Repo is still the weakest first-shop family. Only Sari advanced; Axiom, Mortem, Korath, and Brute left Repo at Stage 2.
 - Axiom as first helper remains risky in this evidence: it failed for Bonko and Repo, and the broader first-shop audit also flagged pure support as poor first-body help.
+
+## Current Random Offer Sampling
+
+`FirstShopOfferQualitySamplingSmoke` samples 240 deterministic level-1 shops through the real non-starter-aware `ShopRoller`, then checks whether each soft-fail starter would see at least one known advancing helper from the matrix above.
+
+| Starter | Known advancing helpers used by guard | Good shops | No-good shops | Rate |
+| --- | --- | ---: | ---: | ---: |
+| Bo | Berebell, Grint | 145/240 | 95 | 0.604 |
+| Bonko | Morrak, Grint, Mortem, Korath | 211/240 | 29 | 0.879 |
+| Cashmere | Brute, Bonko | 147/240 | 93 | 0.613 |
+| Repo | Sari | 93/240 | 147 | 0.388 |
+
+Read: the generic level-1 shop is not a hard mechanical blocker, but it gives Repo the thinnest safety net because the current matrix has only one proven advancing helper for Repo. This smoke is a probability guard, not a player-outcome guarantee; it should be updated if new helper pairings become proven-good or if the shop becomes starter-aware.
 
 ## Tuning Direction
 
