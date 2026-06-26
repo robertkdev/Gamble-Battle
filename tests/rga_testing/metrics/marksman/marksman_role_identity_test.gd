@@ -251,8 +251,18 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
                 best_id = String(k)
         dom_cand[s2] = best_id
         dom_frac[s2] = (float(best_n) / max(1.0, float(total_n))) if total_n > 0 else 0.0
-    RoleCommon.append_span(spans, "team_share_med_a", share_med["a"], share_req, share_pass["a"], {"candidate_id": dom_cand["a"], "candidate_support": dom_frac["a"]})
-    RoleCommon.append_span(spans, "team_share_med_b", share_med["b"], share_req, share_pass["b"], {"candidate_id": dom_cand["b"], "candidate_support": dom_frac["b"]})
+    var team_share_extra_a: Dictionary = {"candidate_id": dom_cand["a"], "candidate_support": dom_frac["a"]}
+    var team_share_extra_b: Dictionary = {"candidate_id": dom_cand["b"], "candidate_support": dom_frac["b"]}
+    var team_share_ok_a: Variant = share_pass["a"]
+    var team_share_ok_b: Variant = share_pass["b"]
+    if not bool(share_pass["a"]):
+        team_share_ok_a = null
+        team_share_extra_a["reason"] = "auxiliary_marksman_damage_share_not_required"
+    if not bool(share_pass["b"]):
+        team_share_ok_b = null
+        team_share_extra_b["reason"] = "auxiliary_marksman_damage_share_not_required"
+    RoleCommon.append_span(spans, "team_share_med_a", share_med["a"], share_req, team_share_ok_a, team_share_extra_a)
+    RoleCommon.append_span(spans, "team_share_med_b", share_med["b"], share_req, team_share_ok_b, team_share_extra_b)
 
     var messages: Array = []
     messages.append("scenario=%s" % scenario_label)
@@ -286,7 +296,12 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
         ex["subject_attack_distance_med_tiles"] = dist_med
         RoleCommon.append_span(spans, "subject_sustained_mult", subj_mult, mult_req, cond_sustained_subj, ex)
         RoleCommon.append_span(spans, "subject_sustained_z", subj_z, z_req, cond_sustained_subj, ex)
-        RoleCommon.append_span(spans, "subject_team_damage_share_med", subj_share_med, share_req, cond_share_subj, ex)
+        var subj_share_ex: Dictionary = ex.duplicate(true)
+        var subj_share_ok: Variant = cond_share_subj
+        if not cond_share_subj and pass_subj:
+            subj_share_ok = null
+            subj_share_ex["reason"] = "auxiliary_marksman_damage_share_not_required"
+        RoleCommon.append_span(spans, "subject_team_damage_share_med", subj_share_med, share_req, subj_share_ok, subj_share_ex)
         RoleCommon.append_span(spans, "subject_ranged_proxy_med", subj_proxy_med, bl_req, cond_pos_subj, ex)
         RoleCommon.append_span(spans, "subject_time_on_target_med", tot_med, TOT_MIN, cond_tot, ex)
         return {

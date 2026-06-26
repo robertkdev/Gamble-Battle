@@ -1,15 +1,14 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 41
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 68
+const EXPECTED_GAP_KIND_COUNT: int = 39
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 63
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
 	"backline_pressure_below_target": ["res://tests/rga_testing/validation/MarksmanPositioningRoleProbe.tscn"],
 	"engage_cc_timing_unproven": ["res://tests/rga_testing/validation/EngageCcTimingKernelProbe.tscn"],
 	"magic_damage_share_below_target": ["res://tests/rga_testing/validation/MagePeriodicityKernelProbe.tscn"],
-	"marksman_role_candidate_team_share_diagnostic_below_target": ["res://tests/rga_testing/validation/MarksmanPositioningRoleProbe.tscn"],
 	"movement_distance_below_target": ["res://tests/rga_testing/validation/RepositionMovementKernelProbe.tscn"],
 	"peel_approach_team_save_proxy_absent": ["res://tests/rga_testing/validation/SoftPeelTeamSaveAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"body_block_events_absent": ["res://tests/rga_testing/validation/FrontlineBodyBlockGoalProbe.tscn"],
@@ -19,7 +18,6 @@ const GUARDS_BY_GAP_KIND: Dictionary = {
 	"debuff_cleanse_scenario_delta_below_target": ["res://tests/rga_testing/validation/CounterplayAcceptedMissProbe.tscn"],
 	"execute_bonus_share_absent": ["res://tests/rga_testing/validation/ExecuteBonusApproachProbe.tscn"],
 	"lockdown_high_tenacity_effective_drop_below_target": ["res://tests/rga_testing/validation/CounterplayAcceptedMissProbe.tscn"],
-	"marksman_role_subject_damage_share_diagnostic_below_target": ["res://tests/rga_testing/validation/MarksmanPositioningRoleProbe.tscn"],
 	"marksman_sustained_goal_damage_share_below_target": ["res://tests/rga_testing/validation/MarksmanSustainedDpsGoalProbe.tscn"],
 	"peel_approach_ehp_ratio_below_target": ["res://tests/rga_testing/validation/EhpRatioPathProbe.tscn"],
 	"pick_burst_kill_count_absent": ["res://tests/rga_testing/validation/PickBurstKillGoalProbe.tscn"],

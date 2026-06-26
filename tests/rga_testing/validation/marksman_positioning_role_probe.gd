@@ -13,18 +13,24 @@ func _ready() -> void:
 
 func _run() -> void:
 	var positive_metric: Dictionary = _run_metric_result(_make_positive_payload())
+	var auxiliary_metric: Dictionary = _run_metric_result(_make_auxiliary_share_payload())
 	var negative_metric: Dictionary = _run_metric_result(_make_negative_payload())
 	var positive_pass: bool = bool(positive_metric.get("pass", false))
+	var auxiliary_pass: bool = bool(auxiliary_metric.get("pass", false))
 	var negative_pass: bool = bool(negative_metric.get("pass", false))
 	var backline_share: float = _span_value(positive_metric, "backline_share_med_a")
 	var candidate_share: float = _span_value(positive_metric, "team_share_med_a")
 	var subject_share: float = _span_value(positive_metric, "subject_team_damage_share_med")
+	var auxiliary_candidate_share: float = _span_value(auxiliary_metric, "team_share_med_a")
+	var auxiliary_subject_share: float = _span_value(auxiliary_metric, "subject_team_damage_share_med")
 	var ranged_proxy: float = _span_value(positive_metric, "subject_ranged_proxy_med")
 	var time_on_target: float = _span_value(positive_metric, "subject_time_on_target_med")
 	var sustained_span: bool = _has_passing_span(positive_metric, "subject_sustained_mult")
 	var backline_span: bool = _has_passing_span(positive_metric, "backline_share_med_a")
 	var candidate_share_span: bool = _has_passing_span(positive_metric, "team_share_med_a")
 	var subject_share_span: bool = _has_passing_span(positive_metric, "subject_team_damage_share_med")
+	var auxiliary_candidate_diag: bool = _has_diagnostic_span(auxiliary_metric, "team_share_med_a", "auxiliary_marksman_damage_share_not_required")
+	var auxiliary_subject_diag: bool = _has_diagnostic_span(auxiliary_metric, "subject_team_damage_share_med", "auxiliary_marksman_damage_share_not_required")
 	var ranged_span: bool = _has_passing_span(positive_metric, "subject_ranged_proxy_med")
 	var tot_span: bool = _has_passing_span(positive_metric, "subject_time_on_target_med")
 	var candidate_id: String = _span_extra_string(positive_metric, "team_share_med_a", "candidate_id")
@@ -33,6 +39,11 @@ func _run() -> void:
 		" backline_share=", backline_share,
 		" candidate_share=", candidate_share,
 		" subject_share=", subject_share,
+		" auxiliary_pass=", auxiliary_pass,
+		" auxiliary_candidate_share=", auxiliary_candidate_share,
+		" auxiliary_subject_share=", auxiliary_subject_share,
+		" auxiliary_candidate_diag=", auxiliary_candidate_diag,
+		" auxiliary_subject_diag=", auxiliary_subject_diag,
 		" ranged_proxy=", ranged_proxy,
 		" time_on_target=", time_on_target,
 		" candidate_id=", candidate_id,
@@ -54,6 +65,9 @@ func _run() -> void:
 	if not sustained_span or not backline_span or not candidate_share_span or not subject_share_span or not ranged_span or not tot_span:
 		printerr("MarksmanPositioningRoleProbe: FAIL role_marksman_identity did not emit all expected passing marksman spans")
 		failed = true
+	if not auxiliary_pass or not auxiliary_candidate_diag or not auxiliary_subject_diag:
+		printerr("MarksmanPositioningRoleProbe: FAIL low damage-share rows did not stay diagnostic when sustained positioning proved marksman")
+		failed = true
 	if negative_pass:
 		printerr("MarksmanPositioningRoleProbe: FAIL weak negative marksman payload passed role_marksman_identity")
 		failed = true
@@ -70,6 +84,9 @@ func _run_metric_result(payload: Dictionary) -> Dictionary:
 
 func _make_positive_payload() -> Dictionary:
 	return _make_payload(45.0, 120.0, 300.0, 0.76, 0.86, 0.72, 4.2)
+
+func _make_auxiliary_share_payload() -> Dictionary:
+	return _make_payload(45.0, 45.0, 300.0, 0.76, 0.86, 0.72, 4.2)
 
 func _make_negative_payload() -> Dictionary:
 	return _make_payload(12.0, 24.0, 300.0, 0.18, 0.20, 0.18, 1.4)
@@ -175,6 +192,17 @@ func _has_passing_span(metric_result: Dictionary, label_prefix: String) -> bool:
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)):
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == reason:
 			return true
 	return false
 
