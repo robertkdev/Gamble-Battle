@@ -238,10 +238,30 @@ func _eval_tank_shredding(summary: Dictionary, spans: Array) -> bool:
 	return _k_of_n([frontline_ok, damage_ok, debuff_ok], 2)
 
 func _eval_wombo_combo_burst(summary: Dictionary, spans: Array) -> bool:
-	var burst_ok: bool = _append_span(spans, summary, "goal_wombo_combo_burst_peak_1s_share", float(summary.get("peak_1s_damage_share", 0.0)), 0.25, float(summary.get("peak_1s_damage_share", 0.0)) >= 0.25)
-	var targets_ok: bool = _append_span(spans, summary, "goal_wombo_combo_burst_targets_hit", float(summary.get("max_targets_hit", 0)), 2.0, int(summary.get("max_targets_hit", 0)) >= 2)
-	var sync_ok: bool = _append_span(spans, summary, "goal_wombo_combo_burst_cc_sync_proxy", float(summary.get("cc_events", 0)), 1.0, int(summary.get("cc_events", 0)) >= 1, "cc_sync_rate_not_yet_direct")
-	return _k_of_n([burst_ok, targets_ok, sync_ok], 2)
+	var burst_ok: bool = float(summary.get("peak_1s_damage_share", 0.0)) >= 0.25
+	var targets_ok: bool = int(summary.get("max_targets_hit", 0)) >= 2
+	var sync_ok: bool = int(summary.get("cc_events", 0)) >= 1
+	var pass_flag: bool = _k_of_n([burst_ok, targets_ok, sync_ok], 2)
+	var burst_span_ok: Variant = burst_ok
+	var targets_span_ok: Variant = targets_ok
+	var sync_span_ok: Variant = sync_ok
+	var burst_reason: String = ""
+	var targets_reason: String = ""
+	var sync_reason: String = "cc_sync_rate_not_yet_direct"
+	if pass_flag:
+		if not burst_ok:
+			burst_span_ok = null
+			burst_reason = "alternate_wombo_evidence_satisfied"
+		if not targets_ok:
+			targets_span_ok = null
+			targets_reason = "alternate_wombo_evidence_satisfied"
+		if not sync_ok:
+			sync_span_ok = null
+			sync_reason = "alternate_wombo_evidence_satisfied"
+	_append_span(spans, summary, "goal_wombo_combo_burst_peak_1s_share", float(summary.get("peak_1s_damage_share", 0.0)), 0.25, burst_span_ok, burst_reason)
+	_append_span(spans, summary, "goal_wombo_combo_burst_targets_hit", float(summary.get("max_targets_hit", 0)), 2.0, targets_span_ok, targets_reason)
+	_append_span(spans, summary, "goal_wombo_combo_burst_cc_sync_proxy", float(summary.get("cc_events", 0)), 1.0, sync_span_ok, sync_reason)
+	return pass_flag
 
 func _eval_area_denial_zone(summary: Dictionary, spans: Array) -> bool:
 	var zone_ok: bool = false

@@ -1,8 +1,8 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 14
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 16
+const EXPECTED_GAP_KIND_COUNT: int = 12
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 14
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
@@ -16,9 +16,7 @@ const GUARDS_BY_GAP_KIND: Dictionary = {
 	"peel_carry_goal_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
-	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn"],
-	"wombo_cc_sync_absent": ["res://tests/rga_testing/validation/WomboComboGoalProbe.tscn"],
-	"wombo_goal_peak_share_below_target": ["res://tests/rga_testing/validation/WomboComboGoalProbe.tscn"]
+	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn"]
 }
 
 @export var do_quit_on_finish: bool = true

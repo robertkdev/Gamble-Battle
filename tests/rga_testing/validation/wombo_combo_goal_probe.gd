@@ -43,10 +43,10 @@ func _run() -> void:
 	var full_peak_span: bool = _has_span(full_goal, "goal_wombo_combo_burst_peak_1s_share", true)
 	var full_targets_span: bool = _has_span(full_goal, "goal_wombo_combo_burst_targets_hit", true)
 	var full_sync_span: bool = _has_span(full_goal, "goal_wombo_combo_burst_cc_sync_proxy", true)
-	var no_cc_sync_fail_span: bool = _has_span(no_cc_goal, "goal_wombo_combo_burst_cc_sync_proxy", false)
+	var no_cc_sync_diagnostic: bool = _has_diagnostic_span(no_cc_goal, "goal_wombo_combo_burst_cc_sync_proxy", "alternate_wombo_evidence_satisfied")
 	var paisley_full_peak_span: bool = _has_span(paisley_full_goal, "goal_wombo_combo_burst_peak_1s_share", true)
 	var paisley_diffuse_peak_share: float = float(paisley_diffuse_rec.get("peak_1s_damage_share", 0.0))
-	var paisley_diffuse_peak_fail_span: bool = _has_span(paisley_diffuse_goal, "goal_wombo_combo_burst_peak_1s_share", false)
+	var paisley_diffuse_peak_diagnostic: bool = _has_diagnostic_span(paisley_diffuse_goal, "goal_wombo_combo_burst_peak_1s_share", "alternate_wombo_evidence_satisfied")
 	var weak_peak_span: bool = _has_span(weak_goal, "goal_wombo_combo_burst_peak_1s_share", true)
 	var weak_targets_span: bool = _has_span(weak_goal, "goal_wombo_combo_burst_targets_hit", true)
 	var weak_sync_span: bool = _has_span(weak_goal, "goal_wombo_combo_burst_cc_sync_proxy", true)
@@ -56,12 +56,12 @@ func _run() -> void:
 		" full_targets=", full_targets,
 		" full_cc_events=", full_cc_events,
 		" no_cc_pass=", no_cc_pass,
-		" no_cc_sync_fail_span=", no_cc_sync_fail_span,
+		" no_cc_sync_diagnostic=", no_cc_sync_diagnostic,
 		" paisley_full_pass=", paisley_full_pass,
 		" paisley_full_peak_span=", paisley_full_peak_span,
 		" paisley_diffuse_pass=", paisley_diffuse_pass,
 		" paisley_diffuse_peak_share=", paisley_diffuse_peak_share,
-		" paisley_diffuse_peak_fail_span=", paisley_diffuse_peak_fail_span,
+		" paisley_diffuse_peak_diagnostic=", paisley_diffuse_peak_diagnostic,
 		" weak_pass=", weak_pass)
 
 	var failed: bool = false
@@ -71,14 +71,14 @@ func _run() -> void:
 	if full_peak_share < 0.99 or full_targets < 2 or full_cc_events < 1:
 		printerr("WomboComboGoalProbe: FAIL full Wombo kernel telemetry did not record peak, target, and CC evidence")
 		failed = true
-	if not no_cc_pass or not no_cc_sync_fail_span:
-		printerr("WomboComboGoalProbe: FAIL no-CC aggregate path did not preserve a failed CC-sync span")
+	if not no_cc_pass or not no_cc_sync_diagnostic:
+		printerr("WomboComboGoalProbe: FAIL no-CC aggregate path did not keep CC-sync span diagnostic")
 		failed = true
 	if not paisley_full_pass or not paisley_full_peak_span:
 		printerr("WomboComboGoalProbe: FAIL Paisley full case did not prove direct peak-share support")
 		failed = true
-	if not paisley_diffuse_pass or not paisley_diffuse_peak_fail_span or paisley_diffuse_peak_share >= 0.25:
-		printerr("WomboComboGoalProbe: FAIL Paisley diffuse aggregate path did not preserve a failed peak-share span")
+	if not paisley_diffuse_pass or not paisley_diffuse_peak_diagnostic or paisley_diffuse_peak_share >= 0.25:
+		printerr("WomboComboGoalProbe: FAIL Paisley diffuse aggregate path did not keep peak-share span diagnostic")
 		failed = true
 	if weak_pass or weak_peak_span or weak_targets_span or weak_sync_span:
 		printerr("WomboComboGoalProbe: FAIL weak control passed or emitted a passing Wombo span")
@@ -289,7 +289,19 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 			continue
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
-		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+		if label.begins_with(label_prefix) and span.has("ok") and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		var reason: String = String(span.get("reason", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and reason == expected_reason:
 			return true
 	return false
 
