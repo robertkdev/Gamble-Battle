@@ -1,8 +1,8 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 20
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 24
+const EXPECTED_GAP_KIND_COUNT: int = 17
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 21
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
@@ -19,9 +19,6 @@ const GUARDS_BY_GAP_KIND: Dictionary = {
 	"peel_carry_goal_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
-	"redirect_explicit_threat_swap_absent": ["res://tests/rga_testing/validation/KorathRedirectAcceptedMissProbe.tscn"],
-	"redirect_target_swap_absent": ["res://tests/rga_testing/validation/KorathRedirectAcceptedMissProbe.tscn"],
-	"redirect_taunt_absent": ["res://tests/rga_testing/validation/KorathRedirectAcceptedMissProbe.tscn"],
 	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn"],
 	"wombo_cc_sync_absent": ["res://tests/rga_testing/validation/WomboComboGoalProbe.tscn"],
 	"wombo_goal_peak_share_below_target": ["res://tests/rga_testing/validation/WomboComboGoalProbe.tscn"]

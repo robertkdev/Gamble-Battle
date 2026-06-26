@@ -151,6 +151,29 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var incoming_pass: bool = considered > 0 and subject_incoming >= incoming_req
 	var proxy_pass: bool = share_pass or incoming_pass
 	var pass_flag: bool = direct_pass if direct_supported else proxy_pass
+	var alternate_direct_evidence_satisfied: bool = direct_supported and direct_pass
+	var target_swap_span_ok: Variant = target_swap_pass
+	var focus_start_span_ok: Variant = focus_start_pass
+	var focus_time_span_ok: Variant = focus_time_pass
+	var taunt_span_ok: Variant = taunt_pass
+	var explicit_threat_swap_span_ok: Variant = explicit_threat_swap_pass
+	var end_risk_events_span_ok: Variant = end_risk_pass
+	var end_risk_s_span_ok: Variant = end_risk_pass
+	var submode_reason: String = "alternate_redirect_evidence_satisfied"
+	if alternate_direct_evidence_satisfied:
+		if not target_swap_pass:
+			target_swap_span_ok = null
+		if not focus_start_pass:
+			focus_start_span_ok = null
+		if not focus_time_pass:
+			focus_time_span_ok = null
+		if not taunt_pass:
+			taunt_span_ok = null
+		if not explicit_threat_swap_pass:
+			explicit_threat_swap_span_ok = null
+		if not end_risk_pass:
+			end_risk_events_span_ok = null
+			end_risk_s_span_ok = null
 	var reason: String = "direct_redirect_evidence" if direct_supported else "redirect_focus_proxy_fallback"
 	if direct_supported and not direct_pass:
 		reason = "no_direct_redirect_events"
@@ -166,16 +189,16 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	RoleCommon.append_span(spans, "subject_redirect_events", direct_events, events_req, events_pass, extras)
 	RoleCommon.append_span(spans, "subject_redirect_damage_prevented", direct_damage, redirected_req, redirected_pass, extras)
 	RoleCommon.append_span(spans, "subject_redirect_ally_damage_prevented", ally_damage_prevented, null, true, extras)
-	RoleCommon.append_span(spans, "subject_redirect_focus_start_events", focus_start_events, focus_start_req, focus_start_pass, extras)
-	RoleCommon.append_span(spans, "subject_redirect_target_swap_events", target_swap_events, target_swap_req, target_swap_pass, extras)
-	RoleCommon.append_span(spans, "subject_redirect_enemy_focus_time_s", enemy_focus_time_s, focus_time_req, focus_time_pass, extras)
-	RoleCommon.append_span(spans, "subject_redirect_taunt_events", taunt_events, taunt_req, taunt_pass, extras)
+	RoleCommon.append_span(spans, "subject_redirect_focus_start_events", focus_start_events, focus_start_req, focus_start_span_ok, _extras_for_span(extras, focus_start_span_ok, submode_reason))
+	RoleCommon.append_span(spans, "subject_redirect_target_swap_events", target_swap_events, target_swap_req, target_swap_span_ok, _extras_for_span(extras, target_swap_span_ok, submode_reason))
+	RoleCommon.append_span(spans, "subject_redirect_enemy_focus_time_s", enemy_focus_time_s, focus_time_req, focus_time_span_ok, _extras_for_span(extras, focus_time_span_ok, submode_reason))
+	RoleCommon.append_span(spans, "subject_redirect_taunt_events", taunt_events, taunt_req, taunt_span_ok, _extras_for_span(extras, taunt_span_ok, submode_reason))
 	RoleCommon.append_span(spans, "subject_redirect_taunt_duration_s", taunt_duration_s, null, true, extras)
 	RoleCommon.append_span(spans, "subject_redirect_body_block_events", body_block_events, body_block_req, body_block_pass, extras)
 	RoleCommon.append_span(spans, "subject_redirect_body_block_damage_prevented", body_block_prevented, body_block_prevented_req, body_block_pass, extras)
-	RoleCommon.append_span(spans, "subject_redirect_explicit_threat_swap_events", explicit_threat_swap_events, target_swap_req, explicit_threat_swap_pass, extras)
-	RoleCommon.append_span(spans, "subject_redirect_end_risk_events", end_risk_events, end_risk_req, end_risk_pass, extras)
-	RoleCommon.append_span(spans, "subject_redirect_end_risk_s", end_risk_s, end_risk_time_req, end_risk_pass, extras)
+	RoleCommon.append_span(spans, "subject_redirect_explicit_threat_swap_events", explicit_threat_swap_events, target_swap_req, explicit_threat_swap_span_ok, _extras_for_span(extras, explicit_threat_swap_span_ok, submode_reason))
+	RoleCommon.append_span(spans, "subject_redirect_end_risk_events", end_risk_events, end_risk_req, end_risk_events_span_ok, _extras_for_span(extras, end_risk_events_span_ok, submode_reason))
+	RoleCommon.append_span(spans, "subject_redirect_end_risk_s", end_risk_s, end_risk_time_req, end_risk_s_span_ok, _extras_for_span(extras, end_risk_s_span_ok, submode_reason))
 	RoleCommon.append_span(spans, "subject_redirect_incoming_share_proxy", incoming_share, share_req, share_pass, extras)
 	RoleCommon.append_span(spans, "subject_redirect_incoming_total_proxy", subject_incoming, incoming_req, incoming_pass, extras)
 	var mode: String = "direct" if direct_supported else "proxy_fallback"
@@ -191,6 +214,13 @@ func _redirect_supported(entry: Dictionary) -> bool:
 	var kernels: Dictionary = entry.get("kernels", {})
 	var redirect_block: Dictionary = kernels.get("redirect", {}) if (kernels is Dictionary) else {}
 	return bool(redirect_block.get("supported", false)) if (redirect_block is Dictionary) else false
+
+func _extras_for_span(base_extras: Dictionary, span_ok: Variant, diagnostic_reason: String) -> Dictionary:
+	if span_ok != null:
+		return base_extras
+	var diagnostic_extras: Dictionary = base_extras.duplicate(true)
+	diagnostic_extras["reason"] = diagnostic_reason
+	return diagnostic_extras
 
 func _subject_redirect_record(entry: Dictionary, side: String, subject_id: String) -> Dictionary:
 	var kernels: Dictionary = entry.get("kernels", {})

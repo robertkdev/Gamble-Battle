@@ -24,9 +24,9 @@ func _run() -> void:
 	var full_taunt_span: bool = _has_span(full_result, "subject_redirect_taunt_events", true)
 	var body_block_span: bool = _has_span(body_block_result, "subject_redirect_body_block_events", true)
 	var body_block_prevented_span: bool = _has_span(body_block_result, "subject_redirect_body_block_damage_prevented", true)
-	var body_block_target_swap_failed: bool = _has_span(body_block_result, "subject_redirect_target_swap_events", false)
-	var body_block_threat_swap_failed: bool = _has_span(body_block_result, "subject_redirect_explicit_threat_swap_events", false)
-	var body_block_taunt_failed: bool = _has_span(body_block_result, "subject_redirect_taunt_events", false)
+	var body_block_target_swap_diagnostic: bool = _has_diagnostic_span(body_block_result, "subject_redirect_target_swap_events", "alternate_redirect_evidence_satisfied")
+	var body_block_threat_swap_diagnostic: bool = _has_diagnostic_span(body_block_result, "subject_redirect_explicit_threat_swap_events", "alternate_redirect_evidence_satisfied")
+	var body_block_taunt_diagnostic: bool = _has_diagnostic_span(body_block_result, "subject_redirect_taunt_events", "alternate_redirect_evidence_satisfied")
 	var weak_proxy_span: bool = _has_span(weak_result, "subject_redirect_incoming_share_proxy", true)
 
 	print("KorathRedirectAcceptedMissProbe: full_pass=", full_pass,
@@ -35,9 +35,9 @@ func _run() -> void:
 		" full_target_swap_span=", full_target_swap_span,
 		" full_threat_swap_span=", full_threat_swap_span,
 		" full_taunt_span=", full_taunt_span,
-		" body_block_target_swap_failed=", body_block_target_swap_failed,
-		" body_block_threat_swap_failed=", body_block_threat_swap_failed,
-		" body_block_taunt_failed=", body_block_taunt_failed)
+		" body_block_target_swap_diagnostic=", body_block_target_swap_diagnostic,
+		" body_block_threat_swap_diagnostic=", body_block_threat_swap_diagnostic,
+		" body_block_taunt_diagnostic=", body_block_taunt_diagnostic)
 
 	var failed: bool = false
 	if not full_pass or not full_target_swap_span or not full_threat_swap_span or not full_taunt_span:
@@ -46,8 +46,8 @@ func _run() -> void:
 	if not body_block_pass or not body_block_span or not body_block_prevented_span:
 		printerr("KorathRedirectAcceptedMissProbe: FAIL body-block aggregate control did not pass")
 		failed = true
-	if not body_block_target_swap_failed or not body_block_threat_swap_failed or not body_block_taunt_failed:
-		printerr("KorathRedirectAcceptedMissProbe: FAIL body-block aggregate control did not preserve missing redirect submode spans")
+	if not body_block_target_swap_diagnostic or not body_block_threat_swap_diagnostic or not body_block_taunt_diagnostic:
+		printerr("KorathRedirectAcceptedMissProbe: FAIL body-block aggregate control did not keep missing redirect submodes diagnostic")
 		failed = true
 	if weak_pass:
 		printerr("KorathRedirectAcceptedMissProbe: FAIL direct-supported weak payload passed")
@@ -163,6 +163,18 @@ func _has_span(metric_result: Dictionary, expected_label: String, required_ok: b
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label == expected_label and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, expected_label: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		var reason: String = String(span.get("reason", ""))
+		if label == expected_label and not span.has("ok") and reason == expected_reason:
 			return true
 	return false
 
