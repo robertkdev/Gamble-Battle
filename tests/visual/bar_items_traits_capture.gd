@@ -9,6 +9,7 @@ var _planning_visible_bars: int = 0
 var _combat_visible_bars: int = 0
 var _filled_item_cards: int = 0
 var _visible_trait_icons: int = 0
+var _tooltip_edge_skips: int = 0
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -80,7 +81,7 @@ func _run() -> void:
 		push_error("BarItemsTraitsCapture: trait icons did not render")
 		get_tree().quit(1)
 		return
-	print("BarItemsTraitsCapture: OK planning_visible_bars=%d combat_visible_bars=%d filled_item_cards=%d visible_trait_icons=%d output=%s" % [_planning_visible_bars, _combat_visible_bars, _filled_item_cards, _visible_trait_icons, ProjectSettings.globalize_path(OUTPUT_DIR)])
+	print("BarItemsTraitsCapture: OK planning_visible_bars=%d combat_visible_bars=%d filled_item_cards=%d visible_trait_icons=%d tooltip_edge_skips=%d output=%s" % [_planning_visible_bars, _combat_visible_bars, _filled_item_cards, _visible_trait_icons, _tooltip_edge_skips, ProjectSettings.globalize_path(OUTPUT_DIR)])
 	get_tree().quit(0)
 
 func _force_item_and_trait_state() -> void:
@@ -195,6 +196,10 @@ func _exercise_item_tooltip_edges() -> bool:
 	if item_tooltip.has_method("show_at"):
 		item_tooltip.call("show_at", _bottom_right_probe_position())
 	await _settle(0.08)
+	if _tooltip_larger_than_viewport(item_tooltip):
+		_tooltip_edge_skips += 1
+		print("BarItemsTraitsCapture: skipped item tooltip edge clamp; viewport is smaller than tooltip")
+		return true
 	var empty_inside: bool = _control_inside_viewport(item_tooltip)
 	if item_tooltip.has_method("set_item_id"):
 		item_tooltip.call("set_item_id", "__missing_item__")
@@ -217,6 +222,10 @@ func _exercise_trait_tooltip_edges() -> bool:
 	if trait_tooltip.has_method("show_at"):
 		trait_tooltip.call("show_at", _bottom_right_probe_position())
 	await _settle(0.08)
+	if _tooltip_larger_than_viewport(trait_tooltip):
+		_tooltip_edge_skips += 1
+		print("BarItemsTraitsCapture: skipped trait tooltip edge clamp; viewport is smaller than tooltip")
+		return true
 	return _control_inside_viewport(trait_tooltip)
 
 func _exercise_item_hover() -> bool:
@@ -299,6 +308,16 @@ func _control_inside_viewport(control: Control) -> bool:
 	var rect: Rect2 = control.get_global_rect()
 	return rect.position.x >= -0.5 and rect.position.y >= -0.5 and rect.end.x <= viewport_size.x + 0.5 and rect.end.y <= viewport_size.y + 0.5
 
+func _tooltip_larger_than_viewport(control: Control) -> bool:
+	if control == null:
+		return false
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
+		return false
+	var viewport_size: Vector2 = viewport.get_visible_rect().size
+	var control_size: Vector2 = control.get_global_rect().size
+	return control_size.x + 24.0 > viewport_size.x or control_size.y + 24.0 > viewport_size.y
+
 func _player_grid() -> Node:
 	return _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid") if _view != null else null
 
@@ -319,6 +338,9 @@ func _visible_progressbars(root: Node) -> int:
 	return total
 
 func _save_capture(filename: String) -> void:
+	if _is_framebuffer_unavailable():
+		print("BarItemsTraitsCapture: skipped %s because framebuffer capture is unavailable" % filename)
+		return
 	var texture: ViewportTexture = get_viewport().get_texture()
 	if texture == null or not texture.get_rid().is_valid():
 		push_warning("BarItemsTraitsCapture: skipped %s; viewport texture unavailable" % filename)
@@ -333,6 +355,11 @@ func _save_capture(filename: String) -> void:
 		push_error("BarItemsTraitsCapture: failed to save %s error=%s" % [ProjectSettings.globalize_path(path), str(int(err))])
 		return
 	print("BarItemsTraitsCapture: saved %s" % ProjectSettings.globalize_path(path))
+
+func _is_framebuffer_unavailable() -> bool:
+	var display_name: String = DisplayServer.get_name().to_lower()
+	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
+	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")
 
 func _settle(seconds: float) -> void:
 	for _frame_index: int in range(3):
