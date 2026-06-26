@@ -8,7 +8,7 @@ Validation:
 - `FirstShopChoiceQualitySmoke: PASS starters=7 trials=35 advanced=24`
 - `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with every guarded starter at `first_good=1.000`
 - `AllStarterMainFlowSmoke: PASS starters=12 first_shop=12 retry=0 deployed=12 second_resolved=12`
-- `AllStarterMainFlowAudit: OK starters=12`, refreshed default replay: `first_shop=12`, `retry=0`, `deployed=12`, `second_resolved=12`
+- `AllStarterMainFlowAudit: OK starters=12`, clean Godot-AI live-editor replay: `first_shop=12`, `retry=0`, `deployed=12`, `second_resolved=12`, `saved_png=72`, `skipped_png=0`
 - `AxiomRetryChoiceQualitySmoke: PASS trials=5 advanced=5`; `AxiomRetryEconomySmoke: OK` with the hard opener forced inside each retry smoke
 - `errors: []`
 
@@ -85,7 +85,7 @@ Acceptance threshold:
 
 Read: the first post-opener level-1 shop is now starter-aware for seven tested first-shop-sensitive starters. It preserves normal random shop shape, but if a known advancing helper appears later in the roll it swaps that helper into slot 0; if no known helper appears, it inserts/replaces slot 0 with a configured helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic.
 
-The refreshed default `AllStarterMainFlowAudit` run after the opener tuning and first-slot guard reached first shop for all 12 current starters, deployed a helper for all 12, resolved the second fight for all 12, and had no opening retry starters.
+The refreshed default `AllStarterMainFlowAudit` run after the opener tuning and first-slot guard reached first shop for all 12 current starters, deployed a helper for all 12, resolved the second fight for all 12, and had no opening retry starters. The clean live-editor rerun saved 72/72 PNG captures under `outputs/audit_playtest/all_starter_live_capture_2026_06_26/` after stale PNGs were cleared from the folder; these are automated/accelerated captures, not a natural human-speed replay.
 
 ## Axiom Retry Guard
 
