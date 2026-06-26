@@ -152,6 +152,8 @@ func _labels_for_unit(ident: Dictionary) -> PackedStringArray:
 		_add_label(labels, "counter")
 	if role_id == "marksman" or _has_approach(approaches, "long_range"):
 		_add_label(labels, "kite")
+	if goal_id == "marksman.sustained_dps":
+		_add_label(labels, "sustained")
 	if _has_approach(approaches, "burst") or _has_approach(approaches, "execute") or goal_id in ["mage.pick_burst", "mage.wombo_combo_burst"]:
 		_add_label(labels, "burst")
 	if _has_approach(approaches, "disrupt") or _has_approach(approaches, "lockdown") or _has_approach(approaches, "aoe") or goal_id in ["brawler.frontline_disruption", "tank.single_target_lockdown", "mage.pick_burst"]:
@@ -163,8 +165,10 @@ func _labels_for_unit(ident: Dictionary) -> PackedStringArray:
 		label_cap = 4
 	elif goal_id == "tank.initiate_fight" or _has_approach(approaches, "engage"):
 		label_cap = 4
+	elif goal_id == "marksman.sustained_dps":
+		label_cap = 6 if wants_aoe_context else 4
 	if labels.size() > label_cap:
-		return _label_cap(labels, label_cap, goal_id == "mage.pick_burst")
+		return _label_cap(labels, label_cap, goal_id == "mage.pick_burst", goal_id == "marksman.sustained_dps")
 	if labels.size() > 0:
 		return labels
 	match String(role_id):
@@ -218,11 +222,13 @@ func _add_label(labels: PackedStringArray, label: String) -> void:
 			return
 	labels.append(normalized)
 
-func _label_cap(labels: PackedStringArray, cap: int, prioritize_burst: bool = false) -> PackedStringArray:
+func _label_cap(labels: PackedStringArray, cap: int, prioritize_burst: bool = false, prioritize_marksman_sustained: bool = false) -> PackedStringArray:
 	var out: PackedStringArray = PackedStringArray()
 	var preferred: Array[String] = ["neutral", "clustered", "clustered_alt", "counterplay", "engage", "fortify", "peel", "threat", "burst", "counter", "kite"]
 	if prioritize_burst:
 		preferred = ["neutral", "clustered", "clustered_alt", "counterplay", "burst", "engage", "fortify", "peel", "threat", "counter", "kite"]
+	elif prioritize_marksman_sustained:
+		preferred = ["neutral", "clustered", "clustered_alt", "counterplay", "sustained", "kite", "burst", "peel", "engage", "fortify", "threat", "counter"]
 	for label in preferred:
 		if out.size() >= cap:
 			break

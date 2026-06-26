@@ -5,7 +5,7 @@ class_name RGARoleScenarios
 # Each scenario entry:
 # {
 #   id: String,                 # stable identifier (role.slug)
-#   label: String,              # scenario label used by relaxations: neutral|burst|peel|kite|counter
+#   label: String,              # scenario label used by relaxations: neutral|burst|peel|kite|counter|sustained
 #   subject_lane: String,       # front|back (runner may use for placement hints)
 #   map_params: Dictionary,     # OpenFieldScenario map params (openness, artillery_range, etc.)
 #   intents: PackedStringArray  # coarse tactical intents (e.g., ["peel"], ["kite","poke"]) for shell/opponent selection
@@ -69,6 +69,7 @@ static func _brawler_packs() -> Array[Dictionary]:
 static func _marksman_packs() -> Array[Dictionary]:
 	return [
 		_scen("marksman.kite_poke", "kite", "back", _kite_field(), ["kite", "poke"]),
+		_scen("marksman.sustained_pressure", "sustained", "back", _marksman_sustained_pressure(), ["sustained", "focus_fire"]),
 		_scen("marksman.open_field", "neutral", "back", _open_field(0.8, 10.0), ["open_field"]),
 		_scen("marksman.backline_start", "neutral", "back", _backline_bias(), ["backline"]),
 		_scen("marksman.clustered_targets", "clustered", "back", _clustered_targets("clustered_targets_marksman"), ["aoe", "line"]),
@@ -149,6 +150,22 @@ static func _kite_field() -> Dictionary:
 		"artillery_range": 11.0,
 		"tile_size": 96.0,
 		"map_id": "kite_open"
+	}
+
+static func _marksman_sustained_pressure() -> Dictionary:
+	# Wide back-lane pressure context for sustained marksman output checks.
+	return {
+		"openness": 0.82,
+		"choke_count": 0,
+		"obstacle_density": 0.08,
+		"artillery_range": 10.5,
+		"tile_size": 96.0,
+		"half_width_tiles": 6.0,
+		"half_height_tiles": 4.0,
+		"spawn_x_tiles": 3.1,
+		"row_spacing_tiles": 0.42,
+		"depth_gap": 0.7,
+		"map_id": "marksman_sustained_pressure"
 	}
 
 static func _backline_bias() -> Dictionary:
