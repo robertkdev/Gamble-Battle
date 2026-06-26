@@ -69,6 +69,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/AssassinOpeningRoleProbe.tscn`
   - Drives `CombatEngine.position_updated` through `BacklineAccessKernel`; fails unless the real Hexeon assassin role emits passing side-level `a_first_frac` and subject-level `subject_first_backline_frac` spans for early backline access, and rejects a late/access-losing control.
 
+- Assassin opening scenario-pack smoke
+  - Scene: `tests/rga_testing/validation/AssassinOpeningScenarioPackSmoke.tscn`
+  - Fails unless Hexeon-style assassin identities keep `neutral`, `counter`, and `burst` contexts, non-assassin pick-burst identities do not request `counter`, and the assassin `counter` pack resolves to the front-lane `dive_window` map.
+
 - Ramp state telemetry positive control
   - Scene: `tests/rga_testing/validation/RampStateKernelProbe.tscn`
   - Directly drives `CombatEngine.ramp_state_changed` and fails if ramp event count, max stacks, time-to-peak, peak/window duration, direct `approach_ramp`, or direct goal-level ramp consumption is missing.
