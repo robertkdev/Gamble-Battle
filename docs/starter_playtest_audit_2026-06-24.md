@@ -35,6 +35,7 @@ Current branch snapshot: refreshed on 2026-06-26 local main after the Unit Selec
 
 MCP validation snapshot, originally run on 2026-06-24 and refreshed through 2026-06-26:
 - `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`; rerun on 2026-06-26 with `errors: []`, including first-deploy bench highlight, post-deploy highlight clearing assertions, repeated loss/New Game reset cycles, shop cycle, and second-fight resolution.
+- `tests/visual/FirstShopChoiceQualitySmoke.tscn`: `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=11`; added and run on 2026-06-26 with `errors: []`, validating that Bo, Bonko, Cashmere, and Repo each retain at least one deterministic first-shop helper path that advances beyond Stage 2 while still exposing bad pure-support or redundant-defense choices. The advanced count is run telemetry, not the acceptance threshold.
 - `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`; rerun on 2026-06-26 with `errors: []`.
 - `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`; rerun on 2026-06-26 with `errors: []`
 - `tests/rga_testing/validation/AcceptedMissGuardCoverageSmoke.tscn`: `AcceptedMissGuardCoverageSmoke: PASS`; rerun on 2026-06-26 after the focused residual guard mapping with `gap_kinds=3`, `accepted_spans=3`, `mapped_gap_kinds=3`, and `errors: []`. Earlier cleanup passes reduced the regenerated manifest through 9, 8, 7, 6, 5, and 4 gap kinds/spans after Totem cooldown-efficiency, Mortem direct-attrition EHP, Bo direct backline-access, Grint initiate-success, Totem CC-prevention, and marksman sustained-window diagnostic evidence respectively.
@@ -439,6 +440,8 @@ Implication:
 Fresh ignored-runner evidence was generated on 2026-06-26 at `outputs/audit_playtest/first_shop_choice_audit/first_shop_choice_results.json` using `outputs/audit_playtest/FirstShopChoiceAudit.tscn`. The MCP debug run completed with `FirstShopChoiceAudit: OK starters=4 trials=20` and `errors: []`.
 
 This audit targets the four soft-fail starters from the current all-starter replay. It captures each starter's first-shop offer set, then replays that offer set while buying each slot in turn.
+
+Committed regression coverage now exists in `tests/visual/FirstShopChoiceQualitySmoke.tscn`. It forces deterministic helper sets for Bo, Bonko, Cashmere, and Repo, replays each slot through the real Main-flow purchase, bench-to-board deploy, and second fight, and fails if any target starter has no helper choice that advances beyond Stage 2. The 2026-06-26 MCP debug rerun completed with `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=11` and `errors: []`; the exact advanced count is telemetry from that run, while the guard threshold is at least one advancing helper for each target starter.
 
 Result:
 - Bo advanced with Sari, Morrak, and Bo; Bo did not advance with Axiom or Repo.
