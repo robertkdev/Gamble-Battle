@@ -94,6 +94,10 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var pass_flag: bool = bonus_events_pass and bool(eval_result.get("pass", false)) and outside_threshold_ok
 	if not direct_supported:
 		pass_flag = share_pass and kills_pass and overkill_ok
+	var bonus_share_span_ok: Variant = bonus_share_pass
+	var alternate_execute_evidence_satisfied: bool = pass_flag and direct_supported and total_bonus_damage > 0.0
+	if alternate_execute_evidence_satisfied and not bonus_share_pass:
+		bonus_share_span_ok = null
 
 	var spans: Array = []
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, ("no_kills" if total_kills <= 0 else ""))
@@ -108,7 +112,7 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	extras["n"] = int(eval_result.get("n", 0))
 	extras["true_count"] = int(eval_result.get("true_count", 0))
 	RoleCommon.append_span(spans, "subject_execute_bonus_events", total_bonus_events, bonus_events_req, bonus_events_pass if direct_supported else null, extras)
-	RoleCommon.append_span(spans, "subject_execute_bonus_damage_share", bonus_share_value, bonus_share_req, bonus_share_pass if direct_supported else null, extras)
+	RoleCommon.append_span(spans, "subject_execute_bonus_damage_share", bonus_share_value, bonus_share_req, bonus_share_span_ok if direct_supported else null, _extras_for_span(extras, bonus_share_span_ok, "alternate_execute_evidence_satisfied"))
 	RoleCommon.append_span(spans, "subject_execute_bonus_damage", total_bonus_damage, null, direct_supported and total_bonus_damage > 0.0, extras)
 	RoleCommon.append_span(spans, "subject_execute_bonus_outside_threshold_events", total_outside_threshold, 0, outside_threshold_ok if direct_supported else null, extras)
 	RoleCommon.append_span(spans, "subject_low_hp_kill_share", low_hp_share, share_req, share_pass, extras)
@@ -133,6 +137,13 @@ func _subject_pattern(entry: Dictionary, subject_id: String) -> Dictionary:
 	var side_map: Dictionary = per_unit.get(side, {}) if (per_unit is Dictionary) else {}
 	var rec: Dictionary = side_map.get(subject_id, {}) if (side_map is Dictionary) else {}
 	return rec if rec is Dictionary else {}
+
+func _extras_for_span(base_extras: Dictionary, span_ok: Variant, diagnostic_reason: String) -> Dictionary:
+	if span_ok != null:
+		return base_extras
+	var diagnostic_extras: Dictionary = base_extras.duplicate(true)
+	diagnostic_extras["reason"] = diagnostic_reason
+	return diagnostic_extras
 
 func _subject_side(entry: Dictionary, subject_id: String) -> String:
 	var context: Dictionary = entry.get("context", {})

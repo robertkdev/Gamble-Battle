@@ -17,6 +17,8 @@ func _ready() -> void:
 func _run() -> void:
 	var hexeon_full_result: Dictionary = _run_case("hexeon_full", HEXEON_ID, 80, 40, 120, 20, 0.30, 0.20)
 	var morrak_full_result: Dictionary = _run_case("morrak_full", MORRAK_ID, 80, 40, 120, 20, 0.30, 0.20)
+	var hexeon_low_share_result: Dictionary = _run_case("hexeon_low_share", HEXEON_ID, 200, 10, 220, 20, 0.30, 0.09)
+	var morrak_low_share_result: Dictionary = _run_case("morrak_low_share", MORRAK_ID, 200, 10, 220, 20, 0.30, 0.09)
 	var hexeon_zero_bonus_result: Dictionary = _run_case("hexeon_zero_bonus", HEXEON_ID, 120, 0, 120, 20, 0.30, 0.20)
 	var morrak_zero_bonus_result: Dictionary = _run_case("morrak_zero_bonus", MORRAK_ID, 120, 0, 120, 20, 0.30, 0.20)
 	var weak_result: Dictionary = _run_case("weak_execute", HEXEON_ID, 120, 0, 200, 80, 0.30, 0.40)
@@ -25,12 +27,16 @@ func _run() -> void:
 	var morrak_full_rec: Dictionary = morrak_full_result.get("rec", {})
 	var hexeon_full_metric: Dictionary = hexeon_full_result.get("metric", {})
 	var morrak_full_metric: Dictionary = morrak_full_result.get("metric", {})
+	var hexeon_low_share_metric: Dictionary = hexeon_low_share_result.get("metric", {})
+	var morrak_low_share_metric: Dictionary = morrak_low_share_result.get("metric", {})
 	var hexeon_zero_metric: Dictionary = hexeon_zero_bonus_result.get("metric", {})
 	var morrak_zero_metric: Dictionary = morrak_zero_bonus_result.get("metric", {})
 	var weak_metric: Dictionary = weak_result.get("metric", {})
 
 	var hexeon_full_pass: bool = bool(hexeon_full_metric.get("pass", false))
 	var morrak_full_pass: bool = bool(morrak_full_metric.get("pass", false))
+	var hexeon_low_share_pass: bool = bool(hexeon_low_share_metric.get("pass", false))
+	var morrak_low_share_pass: bool = bool(morrak_low_share_metric.get("pass", false))
 	var hexeon_zero_pass: bool = bool(hexeon_zero_metric.get("pass", false))
 	var morrak_zero_pass: bool = bool(morrak_zero_metric.get("pass", false))
 	var weak_pass: bool = bool(weak_metric.get("pass", false))
@@ -38,6 +44,8 @@ func _run() -> void:
 	var morrak_bonus_share: float = float(morrak_full_rec.get("execute_bonus_damage_share", 0.0))
 	var hexeon_full_bonus_span: bool = _has_span(hexeon_full_metric, "subject_execute_bonus_damage_share", true)
 	var morrak_full_bonus_span: bool = _has_span(morrak_full_metric, "subject_execute_bonus_damage_share", true)
+	var hexeon_low_share_diagnostic: bool = _has_diagnostic_span(hexeon_low_share_metric, "subject_execute_bonus_damage_share", "alternate_execute_evidence_satisfied")
+	var morrak_low_share_diagnostic: bool = _has_diagnostic_span(morrak_low_share_metric, "subject_execute_bonus_damage_share", "alternate_execute_evidence_satisfied")
 	var hexeon_zero_bonus_span: bool = _has_span(hexeon_zero_metric, "subject_execute_bonus_damage_share", false)
 	var morrak_zero_bonus_span: bool = _has_span(morrak_zero_metric, "subject_execute_bonus_damage_share", false)
 	var weak_low_hp_kill_span: bool = _has_span(weak_metric, "subject_low_hp_kills", true)
@@ -46,6 +54,10 @@ func _run() -> void:
 		" hexeon_bonus_share=", hexeon_bonus_share,
 		" morrak_full_pass=", morrak_full_pass,
 		" morrak_bonus_share=", morrak_bonus_share,
+		" hexeon_low_share_pass=", hexeon_low_share_pass,
+		" hexeon_low_share_diagnostic=", hexeon_low_share_diagnostic,
+		" morrak_low_share_pass=", morrak_low_share_pass,
+		" morrak_low_share_diagnostic=", morrak_low_share_diagnostic,
 		" hexeon_zero_pass=", hexeon_zero_pass,
 		" hexeon_zero_bonus_fail_span=", hexeon_zero_bonus_span,
 		" morrak_zero_pass=", morrak_zero_pass,
@@ -61,6 +73,12 @@ func _run() -> void:
 		failed = true
 	if hexeon_bonus_share < 0.30 or morrak_bonus_share < 0.30:
 		printerr("ExecuteBonusApproachProbe: FAIL direct execute bonus share was below target")
+		failed = true
+	if not hexeon_low_share_pass or not hexeon_low_share_diagnostic:
+		printerr("ExecuteBonusApproachProbe: FAIL Hexeon low-share positive bonus path did not stay diagnostic")
+		failed = true
+	if not morrak_low_share_pass or not morrak_low_share_diagnostic:
+		printerr("ExecuteBonusApproachProbe: FAIL Morrak low-share positive bonus path did not stay diagnostic")
 		failed = true
 	if not hexeon_zero_pass or not hexeon_zero_bonus_span:
 		printerr("ExecuteBonusApproachProbe: FAIL Hexeon zero-bonus aggregate path did not preserve the failed bonus-share span")
@@ -160,6 +178,18 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		var reason: String = String(span.get("reason", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and reason == expected_reason:
 			return true
 	return false
 
