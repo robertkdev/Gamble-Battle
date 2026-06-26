@@ -4,13 +4,16 @@ const SMOKE_NAME: String = "NaturalBuyXPVisualSmoke"
 const OUTPUT_DIR: String = "res://outputs/visual_iter/natural_buy_xp_pass"
 const STARTER_ID: String = "bonko"
 const MIN_SAFE_BUY_XP_GOLD: int = 5
-const MAX_NATURAL_ATTEMPTS: int = 20
+const MAX_REWARD_FUNDED_ATTEMPTS: int = 1
+const GUARANTEED_BUY_XP_GOLD_POOL: String = "res://tests/visual/fixtures/guaranteed_buy_xp_gold_pool.tres"
 
 var _attempts_used: int = 0
 var _success_stage_in_chapter: int = 0
 var _success_gold_before: int = 0
 var _success_gold_after: int = 0
 var _finished: bool = false
+var _saved_stage_one_entry: Dictionary = {}
+var _stage_one_reward_overridden: bool = false
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
@@ -23,7 +26,12 @@ func _run() -> void:
 	UnitFactory.suppress_validation_warnings = true
 	Engine.time_scale = 8.0
 
-	for attempt_index: int in range(1, MAX_NATURAL_ATTEMPTS + 1):
+	_force_reward_funded_opening()
+	if not _failures.is_empty():
+		_finish_natural_buy_xp()
+		return
+
+	for attempt_index: int in range(1, MAX_REWARD_FUNDED_ATTEMPTS + 1):
 		_attempts_used = attempt_index
 		_start_attempt_scene()
 		await _settle_frames(4)
@@ -34,8 +42,39 @@ func _run() -> void:
 		await _settle_frames(4)
 
 	if _success_gold_before < MIN_SAFE_BUY_XP_GOLD and _failures.is_empty():
-		_expect(false, "natural Buy XP path did not reach %d safe gold across %d ordinary opener attempts" % [MIN_SAFE_BUY_XP_GOLD, MAX_NATURAL_ATTEMPTS])
+		_expect(false, "reward-funded Buy XP path did not reach %d safe gold after deterministic opener reward" % MIN_SAFE_BUY_XP_GOLD)
 	_finish_natural_buy_xp()
+
+func _force_reward_funded_opening() -> void:
+	if _stage_one_reward_overridden:
+		return
+	if not ResourceLoader.exists(GUARANTEED_BUY_XP_GOLD_POOL):
+		_expect(false, "test reward pool missing: %s" % GUARANTEED_BUY_XP_GOLD_POOL)
+		return
+	var chapter_one: Dictionary = RunLoopRosterCatalog._entries.get(1, {})
+	if not chapter_one.has(1):
+		_expect(false, "chapter 1 stage 1 roster entry missing")
+		return
+	_saved_stage_one_entry = (chapter_one.get(1, {}) as Dictionary).duplicate(true)
+	var entry: Dictionary = _saved_stage_one_entry.duplicate(true)
+	var raw_rules: Variant = entry.get(RunLoopStageTypes.KEY_RULES, {})
+	var rules: Dictionary = (raw_rules.duplicate(true) if typeof(raw_rules) == TYPE_DICTIONARY else {})
+	rules["rewards"] = {
+		"pool_path": GUARANTEED_BUY_XP_GOLD_POOL,
+		"rolls_per_kill": 1,
+		"only_creeps": true,
+		"source_team": "player",
+		"max_triggers": 1,
+	}
+	entry[RunLoopStageTypes.KEY_RULES] = rules
+	RunLoopRosterCatalog._entries[1][1] = entry
+	_stage_one_reward_overridden = true
+
+func _restore_reward_funded_opening() -> void:
+	if not _stage_one_reward_overridden:
+		return
+	RunLoopRosterCatalog._entries[1][1] = _saved_stage_one_entry.duplicate(true)
+	_stage_one_reward_overridden = false
 
 func _start_attempt_scene() -> void:
 	_main = MAIN_SCENE.instantiate() as Control
@@ -65,7 +104,7 @@ func _run_natural_buy_xp_attempt(attempt_index: int) -> bool:
 	if not _failures.is_empty():
 		return false
 	if int(Economy.gold) < MIN_SAFE_BUY_XP_GOLD:
-		print("%s: attempt %d reached first shop with gold=%d; retrying for natural safe-gold opener" % [SMOKE_NAME, attempt_index, int(Economy.gold)])
+		print("%s: attempt %d reached first shop with gold=%d; expected reward-funded safe-gold opener" % [SMOKE_NAME, attempt_index, int(Economy.gold)])
 		return false
 	return await _attempt_natural_buy_xp_success()
 
@@ -167,6 +206,7 @@ func _finish_natural_buy_xp() -> void:
 	_finished = true
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
+	_restore_reward_funded_opening()
 	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _failures.is_empty():

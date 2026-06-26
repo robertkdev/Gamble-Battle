@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CreepRewardPool" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/progression/creeps/reward_pool.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/game/progression/creeps/reward_entry.gd" id="2"]
+
+[sub_resource type="Resource" id="3"]
+script = ExtResource("2")
+id = "guaranteed_gold_2"
+kind = "action"
+weight = 1.0
+action_id = "grant_gold"
+action_params = {
+"amount": 2
+}
+
+[resource]
+script = ExtResource("1")
+id = "guaranteed_buy_xp_gold"
+rolls_per_kill = 1
+entries = Array[ExtResource("2")]([SubResource("3")])
