@@ -17,7 +17,9 @@ const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.
 
 static var _entries: Dictionary = {
 	1: {
-		1: { StageTypes.KEY_IDS: [ {"id": "beegle", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
+		1: { StageTypes.KEY_IDS: [ {"id": "beegle", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {
+			"stat_overrides": { "index": { 0: { "max_hp": 120, "attack_damage": 50.0, "attack_range": 1 } } }
+		} },
 		2: { StageTypes.KEY_IDS: [ {"id": "berebell", "level": 1}, {"id": "axiom", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		3: { StageTypes.KEY_IDS: [ "drubble", "drueling", "beegle", "faeling" ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
 		4: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "bonko", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {

@@ -5,6 +5,8 @@ const AbilityCatalog = preload("res://scripts/game/abilities/ability_catalog.gd"
 const IdentityRegistry = preload("res://scripts/game/identity/identity_registry.gd")
 const ItemCatalog = preload("res://scripts/game/items/item_catalog.gd")
 const RoleLibrary = preload("res://scripts/game/units/role_library.gd")
+const RunLoopRosterCatalog = preload("res://scripts/game/progression/roster_catalog.gd")
+const RunLoopStageTypes = preload("res://scripts/game/progression/stage_types.gd")
 const SHOP_CONFIG = preload("res://scripts/game/shop/shop_config.gd")
 const StageRuleRunner = preload("res://scripts/game/progression/stage_rule_runner.gd")
 const TraitCompiler = preload("res://scripts/game/traits/trait_compiler.gd")
@@ -22,6 +24,8 @@ var _previous_time_scale: float = 1.0
 var _previous_suppress_validation_warnings: bool = false
 var _reported_button_fallback: bool = false
 var _reported_drag_fallback: bool = false
+var _actual_saved_opening_entry: Dictionary = {}
+var _actual_opening_entry_forced: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -47,10 +51,12 @@ func _run() -> void:
 	await _settle_frames(4)
 	_expect(Items.get_inventory_snapshot().is_empty(), "new run should start with clean item inventory")
 
+	_force_actual_loss_opening()
 	for cycle_index: int in range(1, LOSS_CYCLES + 1):
 		await _play_loss_cycle("axiom", cycle_index)
 		if _finish_if_failed():
 			return
+	_restore_actual_opening_entry()
 	await _play_shop_cycle("bonko")
 	if _finish_if_failed():
 		return
@@ -66,6 +72,7 @@ func _finish_if_failed() -> bool:
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
+	_restore_actual_opening_entry()
 	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _failures.is_empty():
@@ -76,6 +83,24 @@ func _finish() -> void:
 		exit_code = 1
 	_cleanup_runtime()
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
+
+func _force_actual_loss_opening() -> void:
+	if _actual_opening_entry_forced:
+		return
+	var chapter_one: Dictionary = RunLoopRosterCatalog._entries.get(1, {})
+	_actual_saved_opening_entry = (chapter_one.get(1, {}) as Dictionary).duplicate(true)
+	RunLoopRosterCatalog._entries[1][1] = {
+		RunLoopStageTypes.KEY_IDS: [ {"id": "beegle", "level": 2} ],
+		RunLoopStageTypes.KEY_KIND: RunLoopStageTypes.KIND_CREEPS,
+		RunLoopStageTypes.KEY_RULES: {},
+	}
+	_actual_opening_entry_forced = true
+
+func _restore_actual_opening_entry() -> void:
+	if not _actual_opening_entry_forced:
+		return
+	RunLoopRosterCatalog._entries[1][1] = _actual_saved_opening_entry.duplicate(true)
+	_actual_opening_entry_forced = false
 
 func _quit_after_cleanup(exit_code: int, frames_left: int) -> void:
 	_flush_synthetic_input()

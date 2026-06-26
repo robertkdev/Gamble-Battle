@@ -1,8 +1,14 @@
 extends "res://tests/visual/actual_run_loop_smoke.gd"
 
+const RosterCatalog = preload("res://scripts/game/progression/roster_catalog.gd")
+const StageTypes = preload("res://scripts/game/progression/stage_types.gd")
+
 const SMOKE_NAME: String = "AxiomRetryEconomySmoke"
 const RETRY_TIMEOUT_SECONDS: float = 30.0
 const RETRY_FIGHT_TIMEOUT_SECONDS: float = 35.0
+
+var _saved_opening_entry: Dictionary = {}
+var _opening_entry_forced: bool = false
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
@@ -14,6 +20,7 @@ func _run() -> void:
 	_previous_suppress_validation_warnings = UnitFactory.suppress_validation_warnings
 	UnitFactory.suppress_validation_warnings = true
 	Engine.time_scale = 8.0
+	_force_axiom_retry_opening()
 	_main = MAIN_SCENE.instantiate() as Control
 	_main.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_main.offset_left = 0.0
@@ -136,6 +143,7 @@ func _retry_offer_summaries() -> Array[Dictionary]:
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
+	_restore_opening_entry()
 	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _failures.is_empty():
@@ -146,3 +154,21 @@ func _finish() -> void:
 		exit_code = 1
 	_cleanup_runtime()
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
+
+func _force_axiom_retry_opening() -> void:
+	if _opening_entry_forced:
+		return
+	var chapter_one: Dictionary = RosterCatalog._entries.get(1, {})
+	_saved_opening_entry = (chapter_one.get(1, {}) as Dictionary).duplicate(true)
+	RosterCatalog._entries[1][1] = {
+		StageTypes.KEY_IDS: [ {"id": "beegle", "level": 2} ],
+		StageTypes.KEY_KIND: StageTypes.KIND_CREEPS,
+		StageTypes.KEY_RULES: {},
+	}
+	_opening_entry_forced = true
+
+func _restore_opening_entry() -> void:
+	if not _opening_entry_forced:
+		return
+	RosterCatalog._entries[1][1] = _saved_opening_entry.duplicate(true)
+	_opening_entry_forced = false

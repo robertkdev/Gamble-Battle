@@ -146,10 +146,6 @@ func _assert_starter_main_flow(result: Dictionary) -> void:
 	_expect(bool(result.get("combat_opened", false)), "%s should open CombatView" % starter_id)
 	_expect(bool(result.get("board_repositioned", false)), "%s opener board unit should reposition by drag" % starter_id)
 	var first_result: String = String(result.get("first_fight_result", ""))
-	if starter_id == "axiom":
-		_expect(first_result == "retry", "Axiom should enter retry state, got %s" % first_result)
-		_expect(int(result.get("gold_after_first", 0)) >= 2, "Axiom retry should recover to at least 2 gold")
-		return
 	_expect(first_result == "shop", "%s should reach first shop, got %s" % [starter_id, first_result])
 	var offers_after_first: Array[Dictionary] = result.get("offers_after_first", []) as Array[Dictionary]
 	_expect(offers_after_first.size() == int(SHOP_CONFIG.SLOT_COUNT), "%s first shop should have full offers" % starter_id)
@@ -185,11 +181,10 @@ func _good_first_shop_helpers_for(starter_id: String) -> Array[String]:
 func _assert_all_starters_summary(starter_ids: Array[String]) -> void:
 	var summary: Dictionary = _all_starter_summary()
 	_expect(int(summary.get("starter_count", 0)) == starter_ids.size(), "all-starter result count mismatch")
-	_expect(int(summary.get("first_retry_count", 0)) == 1, "expected exactly one first-fight retry starter")
-	_expect(String(summary.get("retry_starter", "")) == "axiom", "Axiom should be the retry starter")
-	_expect(int(summary.get("first_shop_count", 0)) == starter_ids.size() - 1, "all non-Axiom starters should reach first shop")
-	_expect(int(summary.get("deploy_success_count", 0)) == starter_ids.size() - 1, "all first-shop starters should deploy a helper")
-	_expect(int(summary.get("second_resolved_count", 0)) == starter_ids.size() - 1, "all first-shop starters should resolve second fight")
+	_expect(int(summary.get("first_retry_count", 0)) == 0, "no current starter should enter first-fight retry")
+	_expect(int(summary.get("first_shop_count", 0)) == starter_ids.size(), "all starters should reach first shop")
+	_expect(int(summary.get("deploy_success_count", 0)) == starter_ids.size(), "all starters should deploy a helper")
+	_expect(int(summary.get("second_resolved_count", 0)) == starter_ids.size(), "all starters should resolve second fight")
 
 func _all_starter_summary() -> Dictionary:
 	var first_shop_count: int = 0

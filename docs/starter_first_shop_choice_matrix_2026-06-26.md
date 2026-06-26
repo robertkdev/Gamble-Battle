@@ -7,9 +7,9 @@ The smoke targets current starter lines where a naive first visible/first-clicke
 Validation:
 - `FirstShopChoiceQualitySmoke: PASS starters=7 trials=35 advanced=24`
 - `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with every guarded starter at `first_good=1.000`
-- `AllStarterMainFlowSmoke: PASS starters=12 first_shop=11 retry=1 deployed=11 second_resolved=11`
-- `AllStarterMainFlowAudit: OK starters=12`, refreshed default replay: `advanced=11`, `held=0`, `retry=1`
-- `AxiomRetryChoiceQualitySmoke: PASS trials=5 advanced=5`; `AxiomRetryEconomySmoke: OK`
+- `AllStarterMainFlowSmoke: PASS starters=12 first_shop=12 retry=0 deployed=12 second_resolved=12`
+- `AllStarterMainFlowAudit: OK starters=12`, refreshed default replay: `first_shop=12`, `retry=0`, `deployed=12`, `second_resolved=12`
+- `AxiomRetryChoiceQualitySmoke: PASS trials=5 advanced=5`; `AxiomRetryEconomySmoke: OK` with the hard opener forced inside each retry smoke
 - `errors: []`
 
 Acceptance threshold:
@@ -85,11 +85,11 @@ Acceptance threshold:
 
 Read: the first post-opener level-1 shop is now starter-aware for seven tested first-shop-sensitive starters. It preserves normal random shop shape, but if a known advancing helper appears later in the roll it swaps that helper into slot 0; if no known helper appears, it inserts/replaces slot 0 with a configured helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic.
 
-The refreshed default `AllStarterMainFlowAudit` run after the first-slot guard advanced all 11 starters that reached first shop beyond Stage 2, kept Axiom as the expected 2-gold retry starter, and had no held Stage 2 default-click lines.
+The refreshed default `AllStarterMainFlowAudit` run after the opener tuning and first-slot guard reached first shop for all 12 current starters, deployed a helper for all 12, resolved the second fight for all 12, and had no opening retry starters.
 
 ## Axiom Retry Guard
 
-Axiom remains the one current level-1 starter that enters the Chapter 1 Stage 1 retry state instead of the normal post-victory first shop. The retry shop now uses the same configured-helper slot-0 guard after the opener bet has resolved to 0, while the initial forced-fight placeholder remains separate.
+Axiom no longer enters the Chapter 1 Stage 1 retry state in the production default opener; all current level-1 starters now reach first shop. The retry shop still uses the same configured-helper slot-0 guard after the opener bet has resolved to 0, and the retry smokes force the old hard opener internally so this fallback path remains covered.
 
 `AxiomRetryChoiceQualitySmoke` forces the configured retry helper set through the real Main-scene buy, bench-to-board deploy, and retry fight. The current guard list is:
 
@@ -101,7 +101,7 @@ Axiom remains the one current level-1 starter that enters the Chapter 1 Stage 1 
 | Axiom | 3 | Morrak | brawler | `brawler.attrition_dps` | yes |
 | Axiom | 4 | Berebell | brawler | `brawler.attrition_dps` | yes |
 
-`AxiomRetryEconomySmoke` covers the production path: Axiom loses the forced opener, recovers to 2 gold, sees a configured helper in slot 0, buys/deploys it while preserving 1 gold, wins the retry fight, and returns to a full Stage 2 planning shop.
+`AxiomRetryEconomySmoke` covers the fallback path under a test-forced hard opener: Axiom loses the forced opener, recovers to 2 gold, sees a configured helper in slot 0, buys/deploys it while preserving 1 gold, wins the retry fight, and returns to a full Stage 2 planning shop.
 
 ## Tuning Direction
 

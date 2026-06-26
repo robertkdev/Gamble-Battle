@@ -1,11 +1,16 @@
 extends "res://tests/visual/first_shop_choice_quality_smoke.gd"
 
+const RosterCatalog = preload("res://scripts/game/progression/roster_catalog.gd")
+const StageTypes = preload("res://scripts/game/progression/stage_types.gd")
+
 const AXIOM_SMOKE_NAME: String = "AxiomRetryChoiceQualitySmoke"
 const AXIOM_ID: String = "axiom"
 const AXIOM_RETRY_TIMEOUT: float = 30.0
 const AXIOM_RETRY_FIGHT_TIMEOUT: float = 35.0
 
 var _axiom_retry_results: Array[Dictionary] = []
+var _saved_opening_entry: Dictionary = {}
+var _opening_entry_forced: bool = false
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
@@ -19,6 +24,7 @@ func _run() -> void:
 	Engine.time_scale = 8.0
 	if Shop != null and not Shop.is_connected("error", Callable(self, "_on_shop_error")):
 		Shop.error.connect(_on_shop_error)
+	_force_axiom_retry_opening()
 
 	var result: Dictionary = await _run_axiom_retry_choice_sweep()
 	_axiom_retry_results.append(result)
@@ -193,6 +199,7 @@ func _assert_all_axiom_retry_helpers_advance(result: Dictionary) -> void:
 func _finish_axiom_retry_choice() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
+	_restore_opening_entry()
 	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _technical_failures().is_empty():
@@ -208,6 +215,24 @@ func _finish_axiom_retry_choice() -> void:
 		exit_code = 1
 	_cleanup_runtime()
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
+
+func _force_axiom_retry_opening() -> void:
+	if _opening_entry_forced:
+		return
+	var chapter_one: Dictionary = RosterCatalog._entries.get(1, {})
+	_saved_opening_entry = (chapter_one.get(1, {}) as Dictionary).duplicate(true)
+	RosterCatalog._entries[1][1] = {
+		StageTypes.KEY_IDS: [ {"id": "beegle", "level": 2} ],
+		StageTypes.KEY_KIND: StageTypes.KIND_CREEPS,
+		StageTypes.KEY_RULES: {},
+	}
+	_opening_entry_forced = true
+
+func _restore_opening_entry() -> void:
+	if not _opening_entry_forced:
+		return
+	RosterCatalog._entries[1][1] = _saved_opening_entry.duplicate(true)
+	_opening_entry_forced = false
 
 func _axiom_retry_summary() -> Dictionary:
 	var trial_count: int = 0

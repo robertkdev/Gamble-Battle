@@ -14,25 +14,26 @@ static var _item_warning_logged: bool = false
 # chapter default, or spec.kind, in that priority order.
 
 static func pre_spawn(spec: Dictionary, ch: int, sic: int) -> void:
-	var p = _provider_for(spec, ch)
+	var p: Variant = _provider_for(spec, ch)
 	if p and p.has_method("on_pre_spawn"):
 		p.on_pre_spawn(spec, int(ch), int(sic))
 
 static func post_spawn(units: Array, spec: Dictionary, ch: int, sic: int) -> void:
-	var p = _provider_for(spec, ch)
+	var p: Variant = _provider_for(spec, ch)
 	if p and p.has_method("on_post_spawn"):
 		p.on_post_spawn(units, spec, int(ch), int(sic))
 	# Common rule: per-unit level overrides via spec.rules.levels
 	_apply_level_overrides(units, spec)
+	_apply_stat_overrides(units, spec)
 	_apply_item_overrides(units, spec)
 
 static func pre_engine_config(state, engine, spec: Dictionary, ch: int, sic: int) -> void:
-	var p = _provider_for(spec, ch)
+	var p: Variant = _provider_for(spec, ch)
 	if p and p.has_method("on_pre_engine_config"):
 		p.on_pre_engine_config(state, engine, spec, int(ch), int(sic))
 
 static func on_battle_start(state, engine, spec: Dictionary, ch: int, sic: int) -> void:
-	var p = _provider_for(spec, ch)
+	var p: Variant = _provider_for(spec, ch)
 	if p and p.has_method("on_battle_start"):
 		p.on_battle_start(state, engine, spec, int(ch), int(sic))
 
@@ -44,11 +45,11 @@ static func _provider_for(spec: Dictionary, ch: int):
 	RulesRegistry.ensure_builtins()
 	var rid: String = ""
 	if typeof(spec) == TYPE_DICTIONARY and spec.has(StageTypes.KEY_RULES):
-		var rules = spec[StageTypes.KEY_RULES]
+		var rules: Variant = spec[StageTypes.KEY_RULES]
 		if typeof(rules) == TYPE_DICTIONARY and rules.has("rule_id"):
 			rid = String(rules["rule_id"]).strip_edges().to_upper()
 	if rid == "":
-		var meta := ChapterCatalog.get_meta_for(int(ch))
+		var meta: Dictionary = ChapterCatalog.get_meta_for(int(ch))
 		if meta.has("default_rule_id"):
 			rid = String(meta["default_rule_id"]).strip_edges().to_upper()
 	if rid == "":
@@ -57,7 +58,7 @@ static func _provider_for(spec: Dictionary, ch: int):
 			k = String(spec[StageTypes.KEY_KIND])
 		rid = (k if k.strip_edges() != "" else StageTypes.KIND_NORMAL)
 		rid = rid.strip_edges().to_upper()
-	var provider = RulesRegistry.resolve(rid)
+	var provider: Variant = RulesRegistry.resolve(rid)
 	if provider == null:
 		provider = RuleProvider.new()
 	return provider
@@ -108,6 +109,49 @@ static func _apply_level_overrides(units: Array, spec: Dictionary) -> void:
 				UnitScaler.apply_cost_level_scaling(u, {})
 				u.hp = u.max_hp
 
+static func _apply_stat_overrides(units: Array, spec: Dictionary) -> void:
+	if typeof(spec) != TYPE_DICTIONARY or not spec.has(StageTypes.KEY_RULES):
+		return
+	var rules: Dictionary = spec[StageTypes.KEY_RULES]
+	if typeof(rules) != TYPE_DICTIONARY or not rules.has("stat_overrides"):
+		return
+	var raw_overrides: Variant = rules["stat_overrides"]
+	if typeof(raw_overrides) != TYPE_DICTIONARY:
+		return
+	var overrides: Dictionary = raw_overrides
+	var by_index: Dictionary = overrides.get("index", {}) if typeof(overrides.get("index", {})) == TYPE_DICTIONARY else {}
+	var by_id: Dictionary = overrides.get("id", {}) if typeof(overrides.get("id", {})) == TYPE_DICTIONARY else {}
+	for i in range(units.size()):
+		var unit: Unit = units[i]
+		if unit == null:
+			continue
+		var stats: Dictionary = {}
+		if by_index.has(i):
+			stats = by_index[i]
+		elif by_index.has(str(i)):
+			stats = by_index[str(i)]
+		elif by_id.has(String(unit.id).strip_edges().to_lower()):
+			stats = by_id[String(unit.id).strip_edges().to_lower()]
+		if stats.is_empty():
+			continue
+		_apply_stat_override_map(unit, stats)
+
+static func _apply_stat_override_map(unit: Unit, stats: Dictionary) -> void:
+	for key in stats.keys():
+		var raw_value: Variant = stats[key]
+		if raw_value == null:
+			continue
+		match String(key):
+			"max_hp":
+				unit.max_hp = max(1, int(round(float(raw_value))))
+				unit.hp = unit.max_hp
+			"attack_damage":
+				unit.attack_damage = max(0.0, float(raw_value))
+			"attack_range":
+				unit.attack_range = max(1, int(round(float(raw_value))))
+	if not stats.has("max_hp"):
+		unit.hp = min(unit.hp, unit.max_hp)
+
 static func _apply_item_overrides(units: Array, spec: Dictionary) -> void:
 	if typeof(spec) != TYPE_DICTIONARY or not spec.has(StageTypes.KEY_RULES):
 		return
@@ -122,7 +166,7 @@ static func _apply_item_overrides(units: Array, spec: Dictionary) -> void:
 	var ids: Array = []
 	if spec.has(StageTypes.KEY_IDS):
 		ids = spec[StageTypes.KEY_IDS]
-	var items_singleton = _resolve_items_singleton()
+	var items_singleton: Variant = _resolve_items_singleton()
 	if items_singleton == null or not items_singleton.has_method("force_set_equipped"):
 		if not _item_warning_logged:
 			push_warning("StageRuleRunner: Items singleton missing force_set_equipped; skipping item overrides.")
@@ -148,45 +192,45 @@ static func _normalize_item_rules(value) -> Dictionary:
 			if dict_value.has("index") and typeof(dict_value["index"]) == TYPE_DICTIONARY:
 				var dict_index: Dictionary = dict_value["index"]
 				for k in dict_index.keys():
-					var idx = _coerce_index_key(k)
+					var idx: Variant = _coerce_index_key(k)
 					if idx == null:
 						continue
-					var arr = _sanitize_item_list(dict_index[k])
+					var arr: Array[String] = _sanitize_item_list(dict_index[k])
 					if arr.is_empty():
 						continue
 					by_index[idx] = arr
 			if dict_value.has("id") and typeof(dict_value["id"]) == TYPE_DICTIONARY:
 				var dict_id: Dictionary = dict_value["id"]
 				for k in dict_id.keys():
-					var key = _coerce_id_key(k)
+					var key: String = _coerce_id_key(k)
 					if key == "":
 						continue
-					var arr2 = _sanitize_item_list(dict_id[k])
+					var arr2: Array[String] = _sanitize_item_list(dict_id[k])
 					if arr2.is_empty():
 						continue
 					by_id[key] = arr2
 			for k in dict_value.keys():
 				if k == "index" or k == "id":
 					continue
-				var arr3 = _sanitize_item_list(dict_value[k])
+				var arr3: Array[String] = _sanitize_item_list(dict_value[k])
 				if arr3.is_empty():
 					continue
-				var idx2 = _coerce_index_key(k)
+				var idx2: Variant = _coerce_index_key(k)
 				if idx2 != null:
 					by_index[idx2] = arr3
 				else:
-					var key2 = _coerce_id_key(k)
+					var key2: String = _coerce_id_key(k)
 					if key2 != "":
 						by_id[key2] = arr3
 		TYPE_ARRAY:
 			var arr_value: Array = value
 			for i in range(arr_value.size()):
-				var arr4 = _sanitize_item_list(arr_value[i])
+				var arr4: Array[String] = _sanitize_item_list(arr_value[i])
 				if arr4.is_empty():
 					continue
 				by_index[i] = arr4
 		TYPE_STRING:
-			var arr5 = _sanitize_item_list(value)
+			var arr5: Array[String] = _sanitize_item_list(value)
 			if not arr5.is_empty():
 				by_index[0] = arr5
 	return {"by_index": by_index, "by_id": by_id}
@@ -197,11 +241,11 @@ static func _items_for_unit(index: int, unit: Unit, spec_ids, mapping: Dictionar
 		return (by_index[index] as Array).duplicate()
 	var by_id: Dictionary = mapping.get("by_id", {})
 	if spec_ids is Array and index < spec_ids.size():
-		var sid := String(spec_ids[index]).strip_edges().to_lower()
+		var sid: String = String(spec_ids[index]).strip_edges().to_lower()
 		if sid != "" and by_id.has(sid):
 			return (by_id[sid] as Array).duplicate()
 	if unit != null:
-		var uid := String(unit.id).strip_edges().to_lower()
+		var uid: String = String(unit.id).strip_edges().to_lower()
 		if uid != "" and by_id.has(uid):
 			return (by_id[uid] as Array).duplicate()
 	return []
@@ -230,15 +274,15 @@ static func _collect_item_ids(value, output: Array[String]) -> void:
 			for v in dict_value.values():
 				_collect_item_ids(v, output)
 		return
-	var s := String(value).strip_edges()
+	var s: String = String(value).strip_edges()
 	if s != "":
 		output.append(s)
 
 static func _dedupe_item_ids(values: Array[String]) -> Array[String]:
 	var out: Array[String] = []
 	var seen: Dictionary = {}
-	for raw in values:
-		var key := String(raw).strip_edges()
+	for raw: String in values:
+		var key: String = String(raw).strip_edges()
 		if key == "" or seen.has(key):
 			continue
 		seen[key] = true
@@ -252,7 +296,7 @@ static func _coerce_index_key(value) -> Variant:
 		TYPE_INT:
 			return int(value)
 		TYPE_STRING:
-			var s := String(value).strip_edges()
+			var s: String = String(value).strip_edges()
 			if s == "":
 				return null
 			if s.is_valid_int():
@@ -260,17 +304,17 @@ static func _coerce_index_key(value) -> Variant:
 	return null
 
 static func _coerce_id_key(value) -> String:
-	var s := String(value).strip_edges()
+	var s: String = String(value).strip_edges()
 	return s.to_lower()
 
 static func _resolve_items_singleton():
 	if Engine.has_singleton("Items"):
 		return Items
-	var loop = Engine.get_main_loop()
+	var loop: MainLoop = Engine.get_main_loop()
 	if loop == null:
 		return null
 	if loop.has_method("get_root"):
-		var root = loop.get_root()
+		var root: Window = loop.get_root()
 		if root != null and root.has_node("/root/Items"):
 			return root.get_node("/root/Items")
 	return null
