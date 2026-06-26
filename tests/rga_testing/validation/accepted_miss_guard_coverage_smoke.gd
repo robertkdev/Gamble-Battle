@@ -1,7 +1,7 @@
 extends Node
 
-const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const DETAIL_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_lower_level_fail_spans.csv"
+const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_current/accepted_gap_kind_summary.csv"
+const DETAIL_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_current/accepted_lower_level_fail_spans.csv"
 const RESIDUAL_AUDIT_PATH: String = "res://docs/rga/accepted_miss_residual_audit_2026-06-26.md"
 const EXPECTED_GAP_KIND_COUNT: int = 2
 const EXPECTED_ACCEPTED_SPAN_COUNT: int = 2

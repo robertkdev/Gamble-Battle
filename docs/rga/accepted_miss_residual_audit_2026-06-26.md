@@ -1,6 +1,6 @@
 # RGA Accepted-Miss Residual Audit - 2026-06-26
 
-Source checked: current repo state plus regenerated `user://identity_reports/*.json`, `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`, and the local HEAD refresh export at `outputs/audit_playtest/rga_accepted_misses_2026_06_26_head_refresh/`.
+Source checked: current repo state plus regenerated `user://identity_reports/*.json`, the stable working export at `outputs/audit_playtest/rga_accepted_misses_current/`, and dated refresh exports under `outputs/audit_playtest/rga_accepted_misses_2026_06_26_*`.
 
 ## Current State
 
@@ -87,6 +87,8 @@ Broad audit sweep on 2026-06-26 at local HEAD `65577f5` regenerated all 22 curre
 - `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
 
 The current sweep export still contains only `peel_carry_goal_save_proxy_absent` and `peel_interrupt_context_absent` for Totem.
+
+Stable export path refresh on 2026-06-26 changed the exporter default and guard smoke to use `outputs/audit_playtest/rga_accepted_misses_current/` for the working export instead of the older dated folder. The validation sequence reran `RoleMatrixSmoke.tscn` with `PASS (22 units)` and `errors=[]`, then `tests/rga_testing/tools/Export-AcceptedMisses.ps1` wrote `reports=22 spans=2 ramp_spans=0 non_ramp_goal_ramp=0 out=outputs/audit_playtest/rga_accepted_misses_current`, and `AcceptedMissGuardCoverageSmoke.tscn` passed with `errors=[]`, `gap_kinds=2`, `accepted_spans=2`, and `mapped_gap_kinds=2`.
 
 ## Guard Coverage
 

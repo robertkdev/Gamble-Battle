@@ -1,6 +1,6 @@
 param(
 	[string]$ReportDir = "$env:APPDATA\Godot\app_userdata\Gamble Battle\identity_reports",
-	[string]$OutputDir = "outputs/audit_playtest/rga_accepted_misses_2026_06_25",
+	[string]$OutputDir = "outputs/audit_playtest/rga_accepted_misses_current",
 	[string[]]$IgnoredReportNames = @("faeling.json")
 )
 
