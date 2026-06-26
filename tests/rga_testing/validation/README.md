@@ -186,6 +186,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/SkirmishDiveBacklineGoalProbe.tscn`
   - Directly drives `CombatEngine.hit_applied` through `PerUnitKpisKernel`; fails unless the real Bo `brawler.skirmish_dive` goal emits a passing backline-contact span when most damage lands on an untagged backline target, and rejects an all-frontline control.
 
+- Skirmish-dive scenario-pack smoke
+  - Scene: `tests/rga_testing/validation/SkirmishDiveScenarioPackSmoke.tscn`
+  - Fails unless Bo-style `brawler.skirmish_dive` identities request the `counter` context, non-skirmish brawlers do not, and the brawler `counter` pack resolves to front-lane `dive_window`.
+
 - Approach semantic catalog coverage
   - Scene: `tests/rga_testing/validation/ApproachSemanticCatalogProbe.tscn`
   - Directly feeds every Google-doc approach metric synthetic positive and negative payloads; fails if any approach cannot pass on purpose-built evidence, if an empty/control payload passes, or if the expected approach span prefix is missing.
@@ -310,7 +314,7 @@ Notes
 - `KorathRedirectAcceptedMissProbe.tscn` proves Korath's `redirect` target-swap, explicit threat-swap, and taunt spans can pass from direct redirect evidence; it also preserves an aggregate-pass control where body-block evidence passes `approach_redirect` while those three missing submode spans remain diagnostic.
 - `GrintEngageSuccessGoalProbe.tscn` proves Grint's `tank.initiate_fight` engage-success span can pass from direct success-target evidence; it also preserves an aggregate-pass control where engage distance plus first-action timing keep the goal passing while `goal_initiate_fight_engage_success_targets` remains below target.
 - `TeamFortificationBuffGoalProbe.tscn` proves source-owned `buff_applied` telemetry can feed Kythera's `tank.team_fortification` ally-buff span, while an aggregate EHP/prevention pass still preserves the failed buff span when no ally buff is present; the current Kythera buff-uptime row is live fortification-context debt rather than missing metric support.
-- `SkirmishDiveBacklineGoalProbe.tscn` proves per-unit hit attribution can feed Bo's `brawler.skirmish_dive` backline-contact span through `damage_to_frontline_pct`, while an all-frontline damage control fails; the current Bo dive-contact row is live backline-access scenario debt rather than missing metric support.
+- `SkirmishDiveBacklineGoalProbe.tscn` proves per-unit hit attribution can feed Bo's `brawler.skirmish_dive` backline-contact span through `damage_to_frontline_pct`, while an all-frontline damage control fails. `SkirmishDiveScenarioPackSmoke.tscn` guards RoleMatrix scenario selection so Bo's `counter` label uses a brawler `dive_window` pack; the current all-unit smoke still preserves Bo's backline-contact accepted miss, so the row is live kit/targeting/scenario debt rather than missing metric support or missing scenario-pack support.
 - `amp` now exposes direct output-delta/events/beneficiary spans when `amp_output_applied` telemetry is present, with `AmpOutputKernelProbe.tscn` as the positive control. Latest live Axiom proves team amplification through source-attributed Pupil output lift, and latest live Totem proves the support peel-carry path through source-attributed ally shield, real debuff removal, CC-immunity, amp, and downstream output evidence; `TotemCleanseLiveProbe.tscn` guards the explicit debuffed-carry cleanse path.
 
 Legacy

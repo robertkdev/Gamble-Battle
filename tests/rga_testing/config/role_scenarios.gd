@@ -57,6 +57,7 @@ static func _tank_packs() -> Array[Dictionary]:
 static func _brawler_packs() -> Array[Dictionary]:
 	return [
 		_scen("brawler.neutral", "neutral", "front", _open_field(0.7, 7.5), ["open_field"]),
+		_scen("brawler.dive_window", "counter", "front", _dive_window(), ["dive", "backline"]),
 		_scen("brawler.burst", "burst", "front", _burst_lane(), ["burst"]),
 		_scen("brawler.peel", "peel", "front", _peel_map(), ["peel"]),
 		_scen("brawler.clustered_targets", "clustered", "front", _clustered_targets("clustered_targets_brawler"), ["aoe", "line"]),
