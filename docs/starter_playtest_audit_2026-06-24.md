@@ -25,6 +25,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Live Audit QA panel screenshot proof: `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`, `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`, and `user://audit_exports/audit_shot_1782371342_158480.png`
 - Current Godot-AI game-helper capture proof: `outputs/audit_playtest/godot_ai_capture_recheck_2026_06_26/title_game_helper_capture.png`
 - Current Godot-AI live Main-flow screenshots: `outputs/audit_playtest/live_main_flow_capture_2026_06_26/`
+- Current natural-speed single-starter Main-flow screenshots: `outputs/audit_playtest/natural_main_flow_2026_06_26/`
 - Duplicate scoreboard disambiguation validation: `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
@@ -42,6 +43,7 @@ MCP validation snapshot, originally run on 2026-06-24 and refreshed through 2026
 - `tests/visual/FirstShopOfferQualitySamplingSmoke.tscn`: `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with Bo, Bonko, Cashmere, Korath, Mortem, Repo, and Sari all at `first_good=1.000`; rerun on 2026-06-26 with `errors: []`, sampling the starter-aware opening-shop roller guard to prove each guarded starter sees a known advancing helper in slot 0.
 - `tests/visual/AllStarterMainFlowSmoke.tscn`: `AllStarterMainFlowSmoke: PASS starters=12 first_shop=12 retry=0 deployed=12 second_resolved=12`; rerun on 2026-06-26 with `errors: []`, validating every current level-1 starter through the real Main-scene forced opener, first-shop buy/deploy, and second-fight loop with no opener retry outliers.
 - `outputs/audit_playtest/AllStarterLiveCapture.tscn`: `AllStarterMainFlowAudit: OK starters=12`; clean Godot-AI live-editor rerun on 2026-06-26 with `errors: []` after the opener tuning and expanded first-slot starter-aware first-shop guard. The refreshed default replay reached first shop for all 12 starters, deployed all 12 helpers, resolved all 12 second fights, recorded no starter failures, and saved 72/72 PNG captures under `outputs/audit_playtest/all_starter_live_capture_2026_06_26/` with `display_server=Windows` and `rendering_driver=opengl3`.
+- Natural-speed Sari live Main-flow pass: saved `01_title.png` through `05_starter_deployed.png` under `outputs/audit_playtest/natural_main_flow_2026_06_26/`. The pass used runtime mouse input for title Start, Unit Select, Sari selection, Start Game, bench selection, and board placement. It confirmed the real UI path from title to unit select, enabled Start Game after Sari selection, first planning state with `Stage 1 - Round 1/6`, `Gold: 2`, and disabled Attack while benched, then Sari deployed and the opener entered `Resolving 4s...` with `Bet: 1 (locked)`. The Godot-AI session dropped during the follow-up state read, but `get_debug_output()` reported `errors: []`; treat this as natural single-starter title-to-opener evidence, not all-starter natural replay coverage.
 - `tests/visual/AxiomRetryChoiceQualitySmoke.tscn`: `AxiomRetryChoiceQualitySmoke: PASS trials=5 advanced=5`; rerun on 2026-06-26 with `errors: []`, forcing Axiom's configured retry helpers through a test-forced hard opener, real Main-scene buy/deploy/retry-fight path, and proving Bonko, Grint, Sari, Morrak, and Berebell all advance beyond Stage 1.
 - `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`; rerun on 2026-06-26 with `errors: []`.
 - `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`; rerun on 2026-06-26 with `errors: []`
@@ -101,7 +103,7 @@ Confirmed current fixes/coverage:
 - The defeat modal now separates run summary from final-battle ledger: summary lines use run totals (`Run Damage`, `Run Healing`, `Run Kills`, `Top Run Damage`), while the embedded player-only scoreboard is titled `Final Battle Damage`. `LossScreenSmoke` verifies previous-battle player damage remains visible after the current battle tracker resets.
 
 Remaining audit gaps:
-- The current committed validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier, stage/reward, and opener tuning changes, plus a fresh Godot-AI live-editor PNG set for every starter and capture milestone. This is still not a natural human-speed replay: the runner is automated/accelerated, and some later planning captures show the harness-held timer rather than normal player timing.
+- The current committed validation now includes an automated Main-flow replay for all 12 current starters after the cost-tier, stage/reward, and opener tuning changes, plus a fresh Godot-AI live-editor PNG set for every starter and capture milestone. A new natural-speed Sari pass covers title Start through Unit Select, first planning, bench-to-board deployment, and opener resolving via real runtime mouse input. This is still not a natural human-speed replay of every starter: the all-starter runner is automated/accelerated, and some later planning captures show the harness-held timer rather than normal player timing.
 - The previous dummy-renderer run could not capture loss/exit framebuffers, but later live editor and OS-window runs did. Current modal blockers are covered: the defeat modal screenshot is refreshed after the player-only loss scoreboard and Menu-behind-defeat fixes, and the separate system menu overlay now has fresh OS-window visual proof with the lighter backdrop over Unit Select.
 - RoleMatrixSmoke passes all 22 units, but the fresh detail recheck still finds accepted lower-level `FAIL` spans inside aggregate passes. After the subject-side filtering, diagnostic cleanup, scenario-pack, pick-burst, Totem cooldown-efficiency and CC-prevention, Mortem direct-attrition EHP, Bo direct backline-access, Grint initiate-success, marksman sustained-window, and Hexeon subject-level assassin access evidence passes, 2 of 22 reports still contain 3 subject-side accepted spans, with zero non-ramp identities carrying `goal_*_ramp_*` diagnostics and zero ramp-stack accepted spans. The latest export refresh reports 3 spans across 3 mapped gap kinds, and `AcceptedMissGuardCoverageSmoke` still maps every current gap kind to committed guard scenes while also locking the exact Kythera buff-uptime and Totem peel-save/interrupt detail rows.
 - Long manual play still has real-window fragility around timing/session capture, but first-purchase physical bench-to-board drag now has a targeted accepted OS-window pass after the global drag-release fix. Cost-1 post-buy bench/deploy, audit-assisted cost-2 buy/deploy, and audit-assisted rapid shop-card buying now have accepted OS-window evidence. Buy XP now has automated Main-flow proof for both the natural successful level-up and the 4-gold reserve-floor denial message. The debug Audit QA panel reduces the repeated-eval/session-capture dependency by moving state export, timer hold, restart, and speed controls into the running game.
@@ -165,6 +167,22 @@ Accepted files:
 Limits:
 - The multi-step helper eval timed out after the forced-fight wait, and a shorter follow-up save also timed out after writing `04_after_forced_fight_wait.png`; the Godot-AI session later dropped to zero registered sessions.
 - The fourth frame shows an inflated planning timer and still labels the header `Stage 1 - Round 1/6`, so treat it as live visual proof that the first shop unlocks after the forced fight, not as clean stage/round progression proof.
+
+## Current Natural-Speed Sari Main-flow Recheck
+
+Fresh single-starter evidence was saved on 2026-06-26 under `outputs/audit_playtest/natural_main_flow_2026_06_26/` from a Godot-AI run of `res://scenes/Main.tscn`, using runtime mouse input rather than a harness shortcut.
+
+Accepted files:
+- `01_title.png`: title screen before interaction.
+- `02_unit_select.png`: Unit Select after a real Start button click.
+- `03_sari_selected.png`: Sari selected through the rendered starter card, with `Start Game` enabled.
+- `04_first_planning.png`: first planning state after Start Game, showing `Stage 1 - Round 1/6`, `Gold: 2`, planning timer, and disabled Attack while Sari is still benched.
+- `05_starter_deployed.png`: Sari deployed on the board and the forced opener resolving with `Gold: 1`, `Resolving 4s...`, and `Bet: 1 (locked)`.
+
+Limits:
+- This pass covers one representative cost-1 starter at natural interaction speed; it does not replace the all-starter automated replay.
+- The Godot-AI session dropped during the post-deploy state read and later reported zero registered sessions. Legacy `get_debug_output()` returned `errors: []` and included the Sari bench-add log, so this is recorded as a bridge/session reliability limit rather than a gameplay failure.
+- Several older debug/editor processes were still present on the machine during this run. Future natural passes should begin by stopping stale debug windows or launching a clean editor session before long-form capture.
 
 ## Current Main-flow Smoke Sweep Recheck
 
