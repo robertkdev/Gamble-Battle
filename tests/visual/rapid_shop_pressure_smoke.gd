@@ -176,7 +176,7 @@ func _press_continue(expect_forced: bool, label: String) -> void:
 	if button == null:
 		_expect(false, "%s continue button missing" % label)
 		return
-	var expected: String = "Start Forced Fight" if expect_forced else "Start Battle"
+	var expected: String = "Start Opening Fight" if expect_forced else "Start Battle"
 	_expect(button.text == expected, "%s should show %s, got %s" % [label, expected, button.text])
 	_expect(not button.disabled, "%s continue button disabled" % label)
 	if not button.disabled:

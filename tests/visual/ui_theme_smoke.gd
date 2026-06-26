@@ -5,6 +5,11 @@ const SCOREBOARD_ROW_SCENE: PackedScene = preload("res://scenes/ui/stats/Scorebo
 const ShopPanelLib: Script = preload("res://scripts/ui/shop/shop_panel.gd")
 const ShopPresenterLib: Script = preload("res://scripts/ui/shop/shop_presenter.gd")
 
+const START_OPENING_FIGHT_TEXT: String = "Start Opening Fight"
+const OPENING_FIGHT_LABEL: String = "OPENING FIGHT"
+const OPENING_FIGHT_HINT: String = "Win this opener to unlock the shop"
+const OPENING_FIGHT_MESSAGE: String = "Opening fight is fixed. Win it to unlock the shop."
+
 var _first_fight_placeholder_clicks: int = 0
 
 func _ready() -> void:
@@ -78,7 +83,7 @@ func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 
 func _verify_forced_first_fight_bet_controls(view: Control, failures: Array[String]) -> void:
 	var continue_button: Button = view.find_child("ContinueButton", true, false) as Button
-	_expect(continue_button != null and String(continue_button.text) == "Start Forced Fight", "Forced opener should show Start Forced Fight", failures)
+	_expect(continue_button != null and String(continue_button.text) == START_OPENING_FIGHT_TEXT, "Forced opener should show Start Opening Fight", failures)
 	var bet_slider: HSlider = view.find_child("BetSlider", true, false) as HSlider
 	_expect(bet_slider != null, "BetSlider missing", failures)
 	if bet_slider != null:
@@ -100,7 +105,7 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 	panel.configure(grid, 5)
 	_first_fight_placeholder_clicks = 0
 	panel.first_fight_placeholder_pressed.connect(_on_first_fight_placeholder_pressed_for_test)
-	panel.set_empty_state("FIRST FIGHT", "Win to open shop", true)
+	panel.set_empty_state(OPENING_FIGHT_LABEL, OPENING_FIGHT_HINT, true)
 	panel.set_offers([])
 	await get_tree().process_frame
 	_expect(grid.columns == 1, "First fight placeholder should occupy one wide shop panel", failures)
@@ -125,13 +130,13 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 		placeholder.emit_signal("gui_input", mouse_event)
 		await get_tree().process_frame
 		_expect(_first_fight_placeholder_clicks == 1, "First fight placeholder click did not emit feedback signal", failures)
-	var label: Label = _find_label_with_text(host, "FIRST FIGHT")
-	_expect(label != null, "FIRST FIGHT label missing", failures)
+	var label: Label = _find_label_with_text(host, OPENING_FIGHT_LABEL)
+	_expect(label != null, "Opening fight label missing", failures)
 	if label != null:
-		_expect(label.get_theme_font_size("font_size") >= 16, "FIRST FIGHT label is too small", failures)
+		_expect(label.get_theme_font_size("font_size") >= 16, "Opening fight label is too small", failures)
 		var label_color: Color = label.get_theme_color("font_color")
-		_expect(label_color.r >= 0.90 and label_color.g >= 0.65, "FIRST FIGHT label is too muted", failures)
-	var hint: Label = _find_label_with_text(host, "Win to open shop")
+		_expect(label_color.r >= 0.90 and label_color.g >= 0.65, "Opening fight label is too muted", failures)
+	var hint: Label = _find_label_with_text(host, OPENING_FIGHT_HINT)
 	_expect(hint != null, "First fight hint missing", failures)
 	if hint != null:
 		_expect(hint.get_theme_font_size("font_size") >= 13, "First fight hint is too small", failures)
@@ -155,7 +160,7 @@ func _verify_forced_first_fight_presenter_feedback(failures: Array[String]) -> v
 	var presenter: ShopPresenter = ShopPresenterLib.new()
 	presenter.configure(self, grid)
 	await get_tree().process_frame
-	var label: Label = _find_label_with_text(host, "FIRST FIGHT")
+	var label: Label = _find_label_with_text(host, OPENING_FIGHT_LABEL)
 	_expect(label != null, "Presenter first fight placeholder label missing", failures)
 	if label == null:
 		presenter.teardown()
@@ -174,7 +179,7 @@ func _verify_forced_first_fight_presenter_feedback(failures: Array[String]) -> v
 	mouse_event.pressed = true
 	placeholder.emit_signal("gui_input", mouse_event)
 	await get_tree().process_frame
-	var feedback: Label = _find_label_with_text(host, "First fight is forced. Win to open the shop.")
+	var feedback: Label = _find_label_with_text(host, OPENING_FIGHT_MESSAGE)
 	_expect(feedback != null, "First fight placeholder click did not show explanatory shop feedback", failures)
 	if feedback != null:
 		_expect(feedback.visible, "First fight shop feedback should be visible after clicking placeholder", failures)

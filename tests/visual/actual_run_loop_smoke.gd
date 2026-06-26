@@ -245,7 +245,7 @@ func _press_continue(expect_forced: bool, label: String) -> void:
 		_expect(false, "%s continue button missing" % label)
 		return
 	if expect_forced:
-		_expect(button.text == "Start Forced Fight", "%s should show Start Forced Fight, got %s" % [label, button.text])
+		_expect(button.text == "Start Opening Fight", "%s should show Start Opening Fight, got %s" % [label, button.text])
 	else:
 		_expect(button.text == "Start Battle", "%s should show Start Battle, got %s" % [label, button.text])
 	_expect(not button.disabled, "%s continue button disabled" % label)
@@ -562,7 +562,7 @@ func _first_fight_placeholder_visible() -> bool:
 	if grid.get_child_count() != 1:
 		return false
 	for child: Node in grid.get_children():
-		var label: Label = _find_label_with_text(child, "FIRST FIGHT")
+		var label: Label = _find_label_with_text(child, "OPENING FIGHT")
 		if label != null:
 			return true
 	return false

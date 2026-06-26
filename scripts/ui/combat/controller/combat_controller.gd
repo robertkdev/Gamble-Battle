@@ -30,7 +30,7 @@ const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.
 const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 
 const START_BATTLE_TEXT: String = "Start Battle"
-const START_FORCED_FIGHT_TEXT: String = "Start Forced Fight"
+const START_FORCED_FIGHT_TEXT: String = "Start Opening Fight"
 const BATTLE_LOCKED_TEXT: String = "Combat Resolving..."
 const RESOLVING_PROGRESS_DELAY_SECONDS: float = 3.0
 const RESOLVING_STUCK_WARNING_SECONDS: int = 10

@@ -8,6 +8,7 @@ const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const ShopCardScene := preload("res://scenes/ui/shop/ShopCard.tscn")
 const ShopOffer := preload("res://scripts/game/shop/shop_offer.gd")
 const EmptySigilTexture: Texture2D = preload("res://assets/ui/gold icon.png")
+const OPENING_FIGHT_MESSAGE: String = "Opening fight is fixed. Win it to unlock the shop."
 
 var _grid: GridContainer = null
 var _slot_count: int = ShopConfig.SLOT_COUNT
@@ -138,7 +139,7 @@ func _make_placeholder(sold: bool) -> Control:
     wrap.custom_minimum_size = Vector2(790.0, 138.0) if first_fight_placeholder else Vector2(150.0, 138.0)
     wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder or sold else Control.MOUSE_FILTER_IGNORE
     if first_fight_placeholder:
-        wrap.tooltip_text = "First fight is forced. Win to open the shop."
+        wrap.tooltip_text = OPENING_FIGHT_MESSAGE
         wrap.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
         wrap.focus_mode = Control.FOCUS_ALL
         wrap.gui_input.connect(Callable(self, "_on_first_fight_placeholder_gui_input"))

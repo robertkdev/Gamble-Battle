@@ -7,6 +7,10 @@ const ShopButtons := preload("res://scripts/ui/shop/shop_buttons.gd")
 const ShopErrors := preload("res://scripts/game/shop/shop_errors.gd")
 const ShopAffordability := preload("res://scripts/game/shop/affordability.gd")
 
+const OPENING_FIGHT_LABEL: String = "OPENING FIGHT"
+const OPENING_FIGHT_HINT: String = "Win this opener to unlock the shop"
+const OPENING_FIGHT_MESSAGE: String = "Opening fight is fixed. Win it to unlock the shop."
+
 var _parent: Node = null
 var _grid: GridContainer = null
 var _panel: ShopPanel = null
@@ -189,7 +193,7 @@ func _refresh_cards_state() -> void:
 	if _buttons:
 		_buttons.set_enabled(not in_combat and not forced_first_fight)
 		if forced_first_fight:
-			var first_tip: String = "First fight is forced. Win to open the shop."
+			var first_tip: String = OPENING_FIGHT_MESSAGE
 			_buttons.set_reroll_tooltip(first_tip)
 			_buttons.set_lock_tooltip(first_tip)
 			_buttons.set_buy_xp_tooltip(first_tip)
@@ -274,7 +278,7 @@ func _on_card_clicked(slot_index: int) -> void:
 	if not _has_shop():
 		return
 	if _is_forced_first_fight():
-		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
 		return
 	var res: Dictionary = Shop.buy_unit(int(slot_index))
 	# Emit promotions for UI effects if present
@@ -291,7 +295,7 @@ func _on_card_clicked(slot_index: int) -> void:
 
 func _on_first_fight_placeholder_pressed() -> void:
 	if _is_forced_first_fight():
-		_show_message("First fight is forced. Win to open the shop.", 2.5)
+		_show_message(OPENING_FIGHT_MESSAGE, 2.5)
 
 func set_enabled(enabled: bool) -> void:
 	if _buttons:
@@ -301,7 +305,7 @@ func _on_reroll() -> void:
 	if not _has_shop():
 		return
 	if _is_forced_first_fight():
-		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
 		return
 	if Shop:
 		Shop.reroll()
@@ -311,7 +315,7 @@ func _on_lock() -> void:
 	if not _has_shop():
 		return
 	if _is_forced_first_fight():
-		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
 		return
 	if Shop:
 		Shop.toggle_lock()
@@ -321,7 +325,7 @@ func _on_buy_xp() -> void:
 	if not _has_shop():
 		return
 	if _is_forced_first_fight():
-		_show_message("First fight is forced. Win to open the shop.", 2.0)
+		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
 		return
 	if Shop:
 		Shop.buy_xp()
@@ -332,7 +336,7 @@ func _apply_empty_state() -> void:
 	if _panel == null:
 		return
 	if _is_forced_first_fight():
-		_panel.set_empty_state("FIRST FIGHT", "Win to open shop", true)
+		_panel.set_empty_state(OPENING_FIGHT_LABEL, OPENING_FIGHT_HINT, true)
 	else:
 		_panel.set_empty_state("LEDGER", "Reroll to reveal", false)
 
