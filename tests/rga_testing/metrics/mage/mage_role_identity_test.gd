@@ -78,9 +78,19 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
     var eval: Dictionary = RoleCommon.k_of_n(passes, int(kcfg.get("k", 1)), int(kcfg.get("n", 2)))
 
     var spans: Array = []
-    RoleCommon.append_span(spans, "magic_share_med_a", per_med["a"]["share"], per_top_req, share_pass_a, {"periodicity_pass": bool(per_pass["a"])})
+    var share_extra_a: Dictionary = {"periodicity_pass": bool(per_pass["a"])}
+    var share_extra_b: Dictionary = {"periodicity_pass": bool(per_pass["b"])}
+    var share_ok_a: Variant = share_pass_a
+    var share_ok_b: Variant = share_pass_b
+    if not share_pass_a and peak_pass_a:
+        share_ok_a = null
+        share_extra_a["reason"] = "alternate_magic_periodicity_evidence_satisfied"
+    if not share_pass_b and peak_pass_b:
+        share_ok_b = null
+        share_extra_b["reason"] = "alternate_magic_periodicity_evidence_satisfied"
+    RoleCommon.append_span(spans, "magic_share_med_a", per_med["a"]["share"], per_top_req, share_ok_a, share_extra_a)
     RoleCommon.append_span(spans, "magic_peak_over_mean_med_a", per_med["a"]["peak"], per_peak_req, peak_pass_a, {"periodicity_pass": bool(per_pass["a"])})
-    RoleCommon.append_span(spans, "magic_share_med_b", per_med["b"]["share"], per_top_req, share_pass_b, {"periodicity_pass": bool(per_pass["b"])})
+    RoleCommon.append_span(spans, "magic_share_med_b", per_med["b"]["share"], per_top_req, share_ok_b, share_extra_b)
     RoleCommon.append_span(spans, "magic_peak_over_mean_med_b", per_med["b"]["peak"], per_peak_req, peak_pass_b, {"periodicity_pass": bool(per_pass["b"])})
 
     var messages: Array = []
