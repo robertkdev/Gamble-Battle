@@ -1,6 +1,6 @@
 # RGA Accepted-Miss Residual Audit - 2026-06-26
 
-Source checked: current repo state plus regenerated `user://identity_reports/*.json` and `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`.
+Source checked: current repo state plus regenerated `user://identity_reports/*.json`, `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`, and the local HEAD refresh export at `outputs/audit_playtest/rga_accepted_misses_2026_06_26_head_refresh/`.
 
 ## Current State
 
@@ -58,6 +58,14 @@ Rechecked on 2026-06-26 after the live Main-flow capture checkpoint:
 - `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
 
 The refreshed evidence keeps the residuals in the same category: current product/design debt around Totem's direct save/interrupt proof shape, not missing generic RGA coverage.
+
+Post production-clock all-starter checkpoint refresh on 2026-06-26, using local main base commit `82ec91a`, kept the same residual shape:
+
+- `RoleMatrixSmoke.tscn`: `PASS (22 units)`, `errors=[]`.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1 -OutputDir outputs/audit_playtest/rga_accepted_misses_2026_06_26_head_refresh`: `reports=22 spans=2 ramp_spans=0 non_ramp_goal_ramp=0`.
+- `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
+
+The two exported accepted spans remain Totem `goal_peel_carry_peel_saves` and `goal_peel_carry_interrupt_events`; no new residual unit or gap kind was introduced by the production-clock Main-flow audit work.
 
 ## Guard Coverage
 
