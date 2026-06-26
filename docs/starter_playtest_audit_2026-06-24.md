@@ -434,6 +434,25 @@ Implication:
 - Axiom remains the onboarding outlier in `AllStarterMainFlowAudit` because the default-bet replay records the immediate Stage 1 retry state rather than the follow-up retry fight. The stronger tracked `AxiomRetryEconomySmoke` now proves that state can recover mechanically: retry shop, 1-cost helper buy, bench-to-board deploy, retry-fight win, and full Stage 2 planning shop.
 - This remains automated behavioral coverage. It does not close the separate live-window screenshot and human drag-feel gaps, and it keeps a current strategy/pacing backlog: Bo, Bonko, Cashmere, and Repo need better early helper quality, tuning, or clearer retry framing if returning to Stage 2 after a clean first buy is intended.
 
+## Current First-Shop Choice Sensitivity Audit
+
+Fresh ignored-runner evidence was generated on 2026-06-26 at `outputs/audit_playtest/first_shop_choice_audit/first_shop_choice_results.json` using `outputs/audit_playtest/FirstShopChoiceAudit.tscn`. The MCP debug run completed with `FirstShopChoiceAudit: OK starters=4 trials=20` and `errors: []`.
+
+This audit targets the four soft-fail starters from the current all-starter replay. It captures each starter's first-shop offer set, then replays that offer set while buying each slot in turn.
+
+Result:
+- Bo advanced with Sari, Morrak, and Bo; Bo did not advance with Axiom or Repo.
+- Bonko advanced with Bonko, Cashmere, Bo, and Bonko; Bonko did not advance with Axiom.
+- Cashmere advanced with Bonko; Cashmere did not advance with Axiom or Morrak.
+- Repo advanced with Berebell; Repo did not advance with Cashmere, Brute, or Korath.
+- Summary: `trial_count=20`, `advanced_count=10`, and every targeted starter had at least one first-shop helper choice that advanced beyond Stage 2.
+
+Implication:
+- The four soft-fail lines are not pure mechanical or unavoidable starter failures. They are first-shop choice-quality failures under a one-helper purchase policy.
+- Pure support as the first helper is especially risky in this sample: Axiom failed for Bo, Bonko, and Cashmere.
+- Low-damage defensive pairings can also fail: Repo did not advance with Brute or Korath in this sample, despite both being tanks.
+- Current audit recommendation: add first-shop guidance, recommendation, or offer tuning that nudges the first post-opener buy toward immediate damage/body impact instead of a pure support or redundant defensive body when the board can only afford one helper.
+
 ## Current Shop And Premium Runner Recheck
 
 Fresh ignored-runner evidence was generated on 2026-06-24 at `outputs/audit_playtest/current_shop_audit_results.json` using `outputs/audit_playtest/CurrentShopAuditRunner.tscn`. The MCP debug run completed with `errors: []`.
@@ -953,7 +972,8 @@ Current 2026-06-26 automated strategy refresh from `AllStarterMainFlowAudit`:
 - Clean early-advance lines: Berebell+Morrak, Brute+Grint, Grint+Bonko, Korath+Berebell, Morrak+Berebell, Mortem+Berebell, and Sari+Brute advance beyond Stage 2 in the current automated replay.
 - Soft-fail/pressure lines: Bo+Cashmere, Bonko+Axiom, Cashmere+Bo, and Repo+Korath resolve the second fight but return to Stage 2 planning with 1 gold, so their first helper line is mechanically valid but strategically weak or retry-framed.
 - Axiom remains the only current starter that does not reach the first shop in the default-bet replay; it enters the Stage 1 retry state with 2 gold and relies on the separate Axiom retry path for recovery proof.
-- Current audit interpretation: the mechanical blockers are covered; the live design backlog is starter pacing and first-shop helper quality, especially for support/utility or low-frontline early lines.
+- Current first-shop choice sensitivity audit: Bo, Bonko, Cashmere, and Repo each have at least one first-shop helper that advances beyond Stage 2, but 10 of 20 slot trials still fail to advance. Axiom as the first helper failed in every tested pairing, and Repo also failed with defensive tank helpers.
+- Current audit interpretation: the mechanical blockers are covered; the live design backlog is starter pacing and first-shop helper quality, especially steering one-helper boards toward immediate damage/body impact instead of pure support or redundant defense.
 
 - Axiom manual result: lost the opener, reached a retry shop with 1 gold, could not convert the shop into a useful board, then lost the run. This validates that pure support is a poor starter under the current forced-solo opener.
 - Berebell manual result: won the forced opener, reached Round 2 with 3 gold, bought Vykos for brawler synergy and Brute for frontline, then still lost Round 2. The buys behaved correctly and left 1 gold, but manual placement/bench affordance was unclear before the timer expired.
