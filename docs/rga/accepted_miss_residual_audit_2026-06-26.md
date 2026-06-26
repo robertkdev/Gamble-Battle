@@ -80,6 +80,14 @@ Focused goal-alignment probe on 2026-06-26 at local HEAD `73835d8` kept the resi
 - `TotemGoalAlignmentProbe.tscn`: `PASS`, `errors=[]`; reruns the real Totem 6v6 `peel` and carry-threat `threat` rows, verifies the current `support.peel_carry` contract still passes aggregate protection while `goal_peel_carry_peel_saves` and `goal_peel_carry_interrupt_events` remain failed, then evaluates the same rows under a temporary `support.team_amplification` primary-goal override.
 - The temporary alternate contract passes with `goal_team_amplification_buff_uptime_targets`, `goal_team_amplification_amp_delta_team`, and `goal_team_amplification_amp_output_delta` all satisfied, and emits no `goal_peel_carry_*` rows. This is decision evidence only; Totem's actual identity remains `support.peel_carry` until the product/design source changes.
 
+Broad audit sweep on 2026-06-26 at local HEAD `65577f5` regenerated all 22 current `user://identity_reports/*.json` reports and kept the same residual inventory:
+
+- `RoleMatrixSmoke.tscn`: `PASS (22 units)`, `errors=[]`.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1 -OutputDir outputs/audit_playtest/rga_accepted_misses_2026_06_26_current_sweep`: `reports=22 spans=2 ramp_spans=0 non_ramp_goal_ramp=0`.
+- `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
+
+The current sweep export still contains only `peel_carry_goal_save_proxy_absent` and `peel_interrupt_context_absent` for Totem.
+
 ## Guard Coverage
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
