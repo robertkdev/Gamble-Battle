@@ -78,9 +78,24 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	extras["reposition_steps"] = reposition_steps
 	extras["k_required"] = int(eval.get("k", 1))
 	extras["true_count"] = int(eval.get("true_count", 0))
-	RoleCommon.append_span(spans, "subject_max_step_tiles_med", step_value, step_req, step_pass, extras)
-	RoleCommon.append_span(spans, "subject_post_cast_displacement_tiles_med", post_cast_value, post_cast_req, post_cast_pass, extras)
-	RoleCommon.append_span(spans, "subject_total_path_tiles_med", path_value, path_req, path_pass, extras)
+	var step_extra: Dictionary = extras.duplicate()
+	var post_cast_extra: Dictionary = extras.duplicate()
+	var path_extra: Dictionary = extras.duplicate()
+	var step_ok: Variant = step_pass
+	var post_cast_ok: Variant = post_cast_pass
+	var path_ok: Variant = path_pass
+	if pass_flag and not step_pass:
+		step_ok = null
+		step_extra["reason"] = "alternate_reposition_evidence_satisfied"
+	if pass_flag and not post_cast_pass:
+		post_cast_ok = null
+		post_cast_extra["reason"] = "alternate_reposition_evidence_satisfied"
+	if pass_flag and not path_pass:
+		path_ok = null
+		path_extra["reason"] = "alternate_reposition_evidence_satisfied"
+	RoleCommon.append_span(spans, "subject_max_step_tiles_med", step_value, step_req, step_ok, step_extra)
+	RoleCommon.append_span(spans, "subject_post_cast_displacement_tiles_med", post_cast_value, post_cast_req, post_cast_ok, post_cast_extra)
+	RoleCommon.append_span(spans, "subject_total_path_tiles_med", path_value, path_req, path_ok, path_extra)
 
 	return {
 		"id": METRIC_ID,
