@@ -1,6 +1,7 @@
 extends "res://tests/visual/actual_run_loop_smoke.gd"
 
 const SMOKE_NAME: String = "BettingEconomySmoke"
+const OUTPUT_DIR: String = "res://outputs/visual_iter/betting_economy_pass"
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
@@ -49,6 +50,7 @@ func _run() -> void:
 		return
 
 	await _settle_frames(4)
+	_save_capture("01_post_shop_bet_slider_visible.png")
 	await _verify_post_shop_bet_controls()
 	if _finish_if_failed():
 		return
@@ -123,6 +125,7 @@ func _verify_post_shop_bet_controls() -> void:
 	_expect(int(Economy.current_bet) == max_bet, "max-bet slider should update Economy.current_bet")
 	_expect(int(Economy.preferred_bet) == max_bet, "max-bet slider should update Economy.preferred_bet")
 	_expect(String(value_label.text) == str(max_bet), "max-bet slider should repaint BetValue to %d, got %s" % [max_bet, String(value_label.text)])
+	_save_capture("02_post_shop_max_bet_selected.png")
 
 func _start_and_verify_locked_max_bet() -> void:
 	var slider: HSlider = _bet_slider()
@@ -135,6 +138,7 @@ func _start_and_verify_locked_max_bet() -> void:
 	_expect(selected_bet == int(slider.max_value), "selected bet should still be max before combat")
 	await _press_continue(false, "betting smoke max-bet fight")
 	await _settle_frames(4)
+	_save_capture("03_combat_bet_locked.png")
 	_expect(int(GameState.phase) == int(GameState.GamePhase.COMBAT), "max-bet Start Battle should enter combat phase")
 	_expect(bool(Economy.combat_active), "max-bet Start Battle should mark Economy combat active")
 	_expect(int(Economy.current_bet) == selected_bet, "combat should preserve selected bet")
@@ -161,6 +165,31 @@ func _bet_value_label() -> Label:
 
 func _bet_static_label() -> Label:
 	return _main.find_child("BetLabel", true, false) as Label if _main != null else null
+
+func _save_capture(filename: String) -> void:
+	if _is_framebuffer_unavailable():
+		print("%s: skipped %s because framebuffer capture is unavailable" % [SMOKE_NAME, filename])
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	var texture: ViewportTexture = get_viewport().get_texture()
+	if texture == null or not texture.get_rid().is_valid():
+		push_error("%s: skipped %s; viewport texture unavailable" % [SMOKE_NAME, filename])
+		return
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		push_error("%s: skipped %s; viewport image unavailable" % [SMOKE_NAME, filename])
+		return
+	var path: String = "%s/%s" % [OUTPUT_DIR, filename]
+	var error: Error = image.save_png(path)
+	if error != OK:
+		push_error("%s: failed to save %s error=%s" % [SMOKE_NAME, ProjectSettings.globalize_path(path), str(int(error))])
+		return
+	print("%s: saved %s" % [SMOKE_NAME, ProjectSettings.globalize_path(path)])
+
+func _is_framebuffer_unavailable() -> bool:
+	var display_name: String = DisplayServer.get_name().to_lower()
+	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
+	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")
 
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
