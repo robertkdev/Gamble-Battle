@@ -140,11 +140,22 @@ func _eval_team_fortification(summary: Dictionary, spans: Array) -> bool:
 	return _k_of_n([ehp_ok, buff_targets_ok, prevented_ok], 2)
 
 func _eval_self_initiate(summary: Dictionary, spans: Array) -> bool:
-	var distance_ok: bool = _append_span(spans, summary, "goal_initiate_fight_engage_distance", float(summary.get("early_max_displacement_tiles", 0.0)), 1.0, float(summary.get("early_max_displacement_tiles", 0.0)) >= 1.0)
+	var distance_value: float = float(summary.get("early_max_displacement_tiles", 0.0))
+	var first_action_value: float = float(summary.get("first_action_s", 99.0))
+	var distance_ok: bool = distance_value >= 1.0
 	var success_value: float = max(float(summary.get("cc_unique_targets", 0)), float(summary.get("max_targets_hit", 0)))
-	var success_ok: bool = _append_span(spans, summary, "goal_initiate_fight_engage_success_targets", success_value, 2.0, success_value >= 2.0)
-	var fail_ok: bool = _append_span(spans, summary, "goal_initiate_fight_first_action_s", float(summary.get("first_action_s", 99.0)), 5.0, _non_negative_at_most(float(summary.get("first_action_s", -1.0)), 5.0))
-	return _k_of_n([distance_ok, success_ok, fail_ok], 2)
+	var success_ok: bool = success_value >= 2.0
+	var first_action_ok: bool = _non_negative_at_most(float(summary.get("first_action_s", -1.0)), 5.0)
+	var pass_flag: bool = _k_of_n([distance_ok, success_ok, first_action_ok], 2)
+	var success_span_ok: Variant = success_ok
+	var success_reason: String = ""
+	if pass_flag and distance_ok and first_action_ok and not success_ok:
+		success_span_ok = null
+		success_reason = "alternate_initiate_evidence_satisfied"
+	_append_span(spans, summary, "goal_initiate_fight_engage_distance", distance_value, 1.0, distance_ok)
+	_append_span(spans, summary, "goal_initiate_fight_engage_success_targets", success_value, 2.0, success_span_ok, success_reason)
+	_append_span(spans, summary, "goal_initiate_fight_first_action_s", first_action_value, 5.0, first_action_ok)
+	return pass_flag
 
 func _eval_single_target_lockdown(summary: Dictionary, spans: Array) -> bool:
 	var seconds_ok: bool = _append_span(spans, summary, "goal_single_target_lockdown_seconds_on_priority", float(summary.get("lockdown_seconds_on_priority", 0.0)), 1.0, float(summary.get("lockdown_seconds_on_priority", 0.0)) >= 1.0)

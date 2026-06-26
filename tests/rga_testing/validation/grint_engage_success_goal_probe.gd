@@ -24,7 +24,7 @@ func _run() -> void:
 	var full_success_value: float = _span_value(full_result, "goal_initiate_fight_engage_success_targets")
 	var low_success_value: float = _span_value(low_success_result, "goal_initiate_fight_engage_success_targets")
 	var full_success_span: bool = _has_span(full_result, "goal_initiate_fight_engage_success_targets", true)
-	var low_success_fail_span: bool = _has_span(low_success_result, "goal_initiate_fight_engage_success_targets", false)
+	var low_success_diagnostic_span: bool = _has_diagnostic_span(low_success_result, "goal_initiate_fight_engage_success_targets", "alternate_initiate_evidence_satisfied")
 	var low_distance_span: bool = _has_span(low_success_result, "goal_initiate_fight_engage_distance", true)
 	var low_first_action_span: bool = _has_span(low_success_result, "goal_initiate_fight_first_action_s", true)
 	var weak_success_span: bool = _has_span(weak_result, "goal_initiate_fight_engage_success_targets", true)
@@ -33,7 +33,7 @@ func _run() -> void:
 		" full_success=", full_success_value,
 		" low_success_pass=", low_success_pass,
 		" low_success=", low_success_value,
-		" low_success_fail_span=", low_success_fail_span,
+		" low_success_diagnostic_span=", low_success_diagnostic_span,
 		" low_distance_span=", low_distance_span,
 		" low_first_action_span=", low_first_action_span,
 		" weak_pass=", weak_pass)
@@ -42,8 +42,8 @@ func _run() -> void:
 	if not full_pass or not full_success_span or full_success_value < 2.0:
 		printerr("GrintEngageSuccessGoalProbe: FAIL Grint full engage-success proof did not pass")
 		failed = true
-	if not low_success_pass or not low_success_fail_span:
-		printerr("GrintEngageSuccessGoalProbe: FAIL aggregate low-success control did not preserve the failed success-target span")
+	if not low_success_pass or not low_success_diagnostic_span:
+		printerr("GrintEngageSuccessGoalProbe: FAIL aggregate low-success control did not keep the success-target span diagnostic")
 		failed = true
 	if not low_distance_span or not low_first_action_span:
 		printerr("GrintEngageSuccessGoalProbe: FAIL aggregate low-success control did not pass through distance and first-action evidence")
@@ -149,6 +149,17 @@ func _span_value(metric_result: Dictionary, label_prefix: String) -> float:
 		if label.begins_with(label_prefix):
 			return float(span.get("value", 0.0))
 	return 0.0
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == expected_reason:
+			return true
+	return false
 
 func _quit(code: int) -> void:
 	if not do_quit_on_finish:
