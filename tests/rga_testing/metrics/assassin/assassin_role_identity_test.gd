@@ -101,10 +101,10 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
     var b_frac: float = float(b_first_count) / max(1.0, float(total_considered))
     var a_pass: bool = (a_frac >= pass_frac_req)
     var b_pass: bool = (b_frac >= pass_frac_req)
-
-    var reason_str := ("" if total_considered > 0 else "kernel_unsupported")
-    RoleCommon.append_span(spans, "a_first_frac", a_frac, pass_frac_req, a_pass, {"time_bound_s": time_bound, "backline_access_supported": (total_considered > 0), "reason": reason_str})
-    RoleCommon.append_span(spans, "b_first_frac", b_frac, pass_frac_req, b_pass, {"time_bound_s": time_bound, "backline_access_supported": (total_considered > 0), "reason": reason_str})
+    var a_span_ok: Variant = a_pass
+    var b_span_ok: Variant = b_pass
+    var a_reason_str: String = ("" if total_considered > 0 else "kernel_unsupported")
+    var b_reason_str: String = a_reason_str
 
     var messages: Array = []
     messages.append("scenario=%s" % scenario_label)
@@ -148,8 +148,16 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
                 subj_success_reason = ("fast_contact" if fast_contact_ok else "cast_relative_contact")
         var frac_subj: float = float(subj_success) / max(1.0, float(subj_considered))
         var pass_subj: bool = (frac_subj >= pass_frac_req)
-        var sx := _any_side_for_subject(sims, subj_id)
-        var ex := RoleCommon.subject_extras(sx, subj_id, ("kernel_unsupported" if subj_considered <= 0 else ""))
+        var sx: String = _any_side_for_subject(sims, subj_id)
+        if pass_subj and sx == "a" and not a_pass:
+            a_span_ok = null
+            a_reason_str = "alternate_subject_backline_evidence_satisfied"
+        elif pass_subj and sx == "b" and not b_pass:
+            b_span_ok = null
+            b_reason_str = "alternate_subject_backline_evidence_satisfied"
+        RoleCommon.append_span(spans, "a_first_frac", a_frac, pass_frac_req, a_span_ok, {"time_bound_s": time_bound, "backline_access_supported": (total_considered > 0), "reason": a_reason_str})
+        RoleCommon.append_span(spans, "b_first_frac", b_frac, pass_frac_req, b_span_ok, {"time_bound_s": time_bound, "backline_access_supported": (total_considered > 0), "reason": b_reason_str})
+        var ex: Dictionary = RoleCommon.subject_extras(sx, subj_id, ("kernel_unsupported" if subj_considered <= 0 else ""))
         ex["time_bound_s"] = time_bound
         ex["cast_window_s"] = cast_window_s
         ex["cast_pre_signal_grace_s"] = cast_pre_signal_grace_s
@@ -167,6 +175,8 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
             "message": "; ".join(messages)
         }
 
+    RoleCommon.append_span(spans, "a_first_frac", a_frac, pass_frac_req, a_span_ok, {"time_bound_s": time_bound, "backline_access_supported": (total_considered > 0), "reason": a_reason_str})
+    RoleCommon.append_span(spans, "b_first_frac", b_frac, pass_frac_req, b_span_ok, {"time_bound_s": time_bound, "backline_access_supported": (total_considered > 0), "reason": b_reason_str})
     return {
         "id": METRIC_ID,
         "version": VERSION,

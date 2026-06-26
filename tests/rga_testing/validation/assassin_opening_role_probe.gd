@@ -14,20 +14,27 @@ func _ready() -> void:
 
 func _run() -> void:
 	var opening_result: Dictionary = _run_case("opening_access", 1.2, 8.0, 0.8)
+	var subject_only_result: Dictionary = _run_case("subject_only_access", 1.2, 0.4, 0.8)
 	var late_result: Dictionary = _run_case("late_access", 4.5, 1.0, 0.8)
 	var opening_role: Dictionary = opening_result.get("role", {})
+	var subject_only_role: Dictionary = subject_only_result.get("role", {})
 	var late_role: Dictionary = late_result.get("role", {})
 	var opening_access: Dictionary = opening_result.get("access", {})
 	var opening_side_span: Dictionary = _find_span(opening_role, "a_first_frac")
 	var opening_subject_span: Dictionary = _find_span(opening_role, "subject_first_backline_frac")
+	var subject_only_side_span: Dictionary = _find_span(subject_only_role, "a_first_frac")
+	var subject_only_subject_span: Dictionary = _find_span(subject_only_role, "subject_first_backline_frac")
 	var late_side_span: Dictionary = _find_span(late_role, "a_first_frac")
 	var late_subject_span: Dictionary = _find_span(late_role, "subject_first_backline_frac")
 	var opening_pass: bool = bool(opening_role.get("pass", false))
+	var subject_only_pass: bool = bool(subject_only_role.get("pass", false))
 	var late_pass: bool = bool(late_role.get("pass", false))
 	var opening_contact_s: float = float(opening_access.get("first_backline_contact_s", -1.0))
 	var opening_unit_id: String = String(opening_access.get("first_backline_unit_id", ""))
 	var opening_side_ok: bool = bool(opening_side_span.get("ok", false))
 	var opening_subject_ok: bool = bool(opening_subject_span.get("ok", false))
+	var subject_only_side_diagnostic: bool = not subject_only_side_span.has("ok") and String(subject_only_side_span.get("reason", "")) == "alternate_subject_backline_evidence_satisfied"
+	var subject_only_subject_ok: bool = bool(subject_only_subject_span.get("ok", false))
 	var late_side_ok: bool = bool(late_side_span.get("ok", false))
 	var late_subject_ok: bool = bool(late_subject_span.get("ok", false))
 	var late_subject_contact_s: float = float(late_subject_span.get("subject_first_backline_contact_s", -1.0))
@@ -37,6 +44,9 @@ func _run() -> void:
 		" opening_unit_id=", opening_unit_id,
 		" opening_side_ok=", opening_side_ok,
 		" opening_subject_ok=", opening_subject_ok,
+		" subject_only_pass=", subject_only_pass,
+		" subject_only_side_diagnostic=", subject_only_side_diagnostic,
+		" subject_only_subject_ok=", subject_only_subject_ok,
 		" late_pass=", late_pass,
 		" late_subject_contact_s=", late_subject_contact_s,
 		" late_side_ok=", late_side_ok,
@@ -51,6 +61,9 @@ func _run() -> void:
 		failed = true
 	if not opening_side_ok or not opening_subject_ok:
 		printerr("AssassinOpeningRoleProbe: FAIL assassin role spans did not pass on early opening access")
+		failed = true
+	if not subject_only_pass or not subject_only_subject_ok or not subject_only_side_diagnostic:
+		printerr("AssassinOpeningRoleProbe: FAIL subject-level assassin access did not make side-level opening proxy diagnostic")
 		failed = true
 	if late_pass or late_side_ok or late_subject_ok:
 		printerr("AssassinOpeningRoleProbe: FAIL late/access-losing control passed")

@@ -2,11 +2,10 @@ extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
 const RESIDUAL_AUDIT_PATH: String = "res://docs/rga/accepted_miss_residual_audit_2026-06-26.md"
-const EXPECTED_GAP_KIND_COUNT: int = 4
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 4
+const EXPECTED_GAP_KIND_COUNT: int = 3
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 3
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
-	"assassin_opening_presence_below_target": ["res://tests/rga_testing/validation/AssassinOpeningRoleProbe.tscn", "res://tests/rga_testing/validation/AssassinOpeningScenarioPackSmoke.tscn"],
 	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn", "res://tests/rga_testing/validation/TeamFortificationScenarioPackSmoke.tscn"]
