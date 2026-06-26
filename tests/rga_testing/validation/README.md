@@ -247,7 +247,7 @@ Run these scenes via MCP for headless validation and reports.
 
 - Accepted-miss guard coverage smoke
   - Scene: `tests/rga_testing/validation/AcceptedMissGuardCoverageSmoke.tscn`
-  - Reads the regenerated `outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv` and fails if the current 3 accepted-miss gap kinds are not each mapped to one or more validation scenes, or if the accepted span count is not 3. Regenerate the export with `tests/rga_testing/tools/Export-AcceptedMisses.ps1` before running this smoke.
+  - Reads the regenerated `outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv` and fails if the current 3 accepted-miss gap kinds are not each mapped to validation scenes covering synthetic proof, scenario-pack coverage, and the focused live residual probe, or if the accepted span count is not 3. Regenerate the export with `tests/rga_testing/tools/Export-AcceptedMisses.ps1` before running this smoke.
 
 - Peel team-save proxy probe
   - Scene: `tests/rga_testing/validation/PeelTeamSaveProxyProbe.tscn`

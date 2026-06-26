@@ -49,9 +49,9 @@ Cross-checked on 2026-06-26 against the authenticated live Google design doc. Th
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
 
-- `peel_carry_goal_save_proxy_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`
-- `peel_interrupt_context_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`
-- `team_fortification_buff_uptime_absent`: `TeamFortificationBuffGoalProbe.tscn`, `TeamFortificationScenarioPackSmoke.tscn`
+- `peel_carry_goal_save_proxy_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
+- `peel_interrupt_context_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
+- `team_fortification_buff_uptime_absent`: `TeamFortificationBuffGoalProbe.tscn`, `TeamFortificationScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Kythera.tscn`
 
 The same guard smoke also verifies this document stays aligned with the regenerated export by checking each current gap kind, affected unit, and metric label.
 
