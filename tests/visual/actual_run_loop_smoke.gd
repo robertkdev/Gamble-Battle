@@ -278,6 +278,15 @@ func _set_bet_to_max() -> void:
 		return
 	slider.value = slider.max_value
 
+func _use_synthetic_input() -> bool:
+	return USE_SYNTHETIC_INPUT
+
+func _allow_button_signal_fallback() -> bool:
+	return true
+
+func _allow_drag_lifecycle_fallback() -> bool:
+	return true
+
 func _wait_for_loss_overlay(timeout_seconds: float) -> bool:
 	var deadline: int = Time.get_ticks_msec() + int(timeout_seconds * 1000.0)
 	while Time.get_ticks_msec() < deadline:
@@ -399,7 +408,7 @@ func _click_button(button: Button, label: String) -> bool:
 	if not is_instance_valid(button) or not button.is_inside_tree():
 		_expect(false, "%s is not in the tree" % label)
 		return false
-	if not button.visible:
+	if not button.is_visible_in_tree():
 		_expect(false, "%s is hidden" % label)
 		return false
 	if button.disabled:
@@ -410,15 +419,18 @@ func _click_button(button: Button, label: String) -> bool:
 		pressed_seen = true
 	button.pressed.connect(pressed_callback, CONNECT_ONE_SHOT)
 	var center: Vector2 = _visible_click_point(button)
-	if USE_SYNTHETIC_INPUT:
+	var use_synthetic: bool = _use_synthetic_input()
+	if use_synthetic:
 		await _mouse_click(center)
 		await _settle_frames(CLICK_SETTLE_FRAMES)
 		if not pressed_seen:
-			if not is_instance_valid(button) or not button.visible or button.disabled:
+			if not is_instance_valid(button) or not button.is_visible_in_tree() or button.disabled:
 				pressed_seen = true
-	if not pressed_seen and is_instance_valid(button) and not button.disabled:
+			elif button.toggle_mode and button.button_pressed:
+				pressed_seen = true
+	if not pressed_seen and is_instance_valid(button) and not button.disabled and _allow_button_signal_fallback():
 		if not _reported_button_fallback:
-			if USE_SYNTHETIC_INPUT:
+			if use_synthetic:
 				print("ActualRunLoopSmoke: MCP synthetic mouse did not trigger Button internals; using pressed signal fallback")
 			_reported_button_fallback = true
 		button.emit_signal("pressed")
@@ -427,7 +439,7 @@ func _click_button(button: Button, label: String) -> bool:
 	if is_instance_valid(button) and button.is_connected("pressed", pressed_callback):
 		button.pressed.disconnect(pressed_callback)
 	var rect: Rect2 = button.get_global_rect() if is_instance_valid(button) else Rect2()
-	_expect(pressed_seen, "%s did not receive a real mouse click; rect=%s center=%s viewport=%s visible=%s disabled=%s mouse_filter=%d" % [label, str(rect), str(center), str(_viewport_rect()), str(button.visible if is_instance_valid(button) else false), str(button.disabled if is_instance_valid(button) else true), int(button.mouse_filter if is_instance_valid(button) else -1)])
+	_expect(pressed_seen, "%s did not receive a real mouse click; rect=%s center=%s viewport=%s visible_in_tree=%s disabled=%s mouse_filter=%d" % [label, str(rect), str(center), str(_viewport_rect()), str(button.is_visible_in_tree() if is_instance_valid(button) else false), str(button.disabled if is_instance_valid(button) else true), int(button.mouse_filter if is_instance_valid(button) else -1)])
 	return pressed_seen
 
 func _visible_click_point(control: Control) -> Vector2:
@@ -465,7 +477,8 @@ func _drag_control_to(control: Control, target_pos: Vector2, label: String) -> b
 	if control.has_signal("ended_drag"):
 		control.connect("ended_drag", ended_callback, CONNECT_ONE_SHOT)
 	var start_pos: Vector2 = control.get_global_rect().get_center()
-	if USE_SYNTHETIC_INPUT:
+	var use_synthetic: bool = _use_synthetic_input()
+	if use_synthetic:
 		await _control_mouse_button(control, start_pos, true)
 		for step_index: int in range(1, DRAG_STEPS + 1):
 			var t: float = float(step_index) / float(DRAG_STEPS)
@@ -475,9 +488,9 @@ func _drag_control_to(control: Control, target_pos: Vector2, label: String) -> b
 		await _settle_frames(4)
 	if not is_instance_valid(control):
 		return true
-	if not drag_started and control.has_method("_begin_drag_internal") and control.has_method("_end_drag_internal"):
+	if not drag_started and control.has_method("_begin_drag_internal") and control.has_method("_end_drag_internal") and _allow_drag_lifecycle_fallback():
 		if not _reported_drag_fallback:
-			if USE_SYNTHETIC_INPUT:
+			if use_synthetic:
 				print("ActualRunLoopSmoke: MCP synthetic gui input did not start drag; using direct drag lifecycle fallback")
 			_reported_drag_fallback = true
 		control.call("_begin_drag_internal")

@@ -88,6 +88,9 @@ func _prepare_opener_planning(_starter_id: String) -> void:
 func _prepare_first_shop_planning(_result: Dictionary) -> void:
 	_set_planning_time_left(5.0)
 
+func _require_opener_board_reposition() -> bool:
+	return true
+
 func _run_starter_main_flow(starter_id: String, catalog: UnitCatalog) -> Dictionary:
 	var failure_start: int = _failures.size()
 	var shop_error_start: int = _shop_errors.size()
@@ -98,7 +101,9 @@ func _run_starter_main_flow(starter_id: String, catalog: UnitCatalog) -> Diction
 	await _select_starter(starter_id)
 	await _settle_frames(4)
 	var combat_opened: bool = _node_visible("CombatView")
-	var board_repositioned: bool = await _reposition_first_board_unit("starter %s board reposition" % starter_id) if combat_opened else false
+	var board_repositioned: bool = false
+	if combat_opened and _require_opener_board_reposition():
+		board_repositioned = await _reposition_first_board_unit("starter %s board reposition" % starter_id)
 	_prepare_opener_planning(starter_id)
 	await _press_continue(true, "starter %s forced first fight" % starter_id)
 	var first_result: String = await _wait_for_first_result(_first_fight_timeout_seconds())
@@ -165,7 +170,8 @@ func _assert_starter_main_flow(result: Dictionary) -> void:
 	_expect(shop_errors.is_empty(), "%s emitted shop errors: %s" % [starter_id, JSON.stringify(shop_errors)])
 	_expect(bool(result.get("unit_select_started_reset", false)), "%s should start from reset UnitSelect" % starter_id)
 	_expect(bool(result.get("combat_opened", false)), "%s should open CombatView" % starter_id)
-	_expect(bool(result.get("board_repositioned", false)), "%s opener board unit should reposition by drag" % starter_id)
+	if _require_opener_board_reposition():
+		_expect(bool(result.get("board_repositioned", false)), "%s opener board unit should reposition by drag" % starter_id)
 	var first_result: String = String(result.get("first_fight_result", ""))
 	_expect(first_result == "shop", "%s should reach first shop, got %s" % [starter_id, first_result])
 	var offers_after_first: Array[Dictionary] = result.get("offers_after_first", []) as Array[Dictionary]
