@@ -18,7 +18,6 @@ var _failures: Array[String] = []
 var _shop_errors: Array[Dictionary] = []
 var _previous_time_scale: float = 1.0
 var _previous_suppress_validation_warnings: bool = false
-var _reported_drag_fallback: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -369,14 +368,11 @@ func _drag_control_to(control: Control, target_pos: Vector2, label: String) -> b
 		control.connect("began_drag", began_callback, CONNECT_ONE_SHOT)
 	if control.has_signal("ended_drag"):
 		control.connect("ended_drag", ended_callback, CONNECT_ONE_SHOT)
-	if control.has_method("_begin_drag_internal") and control.has_method("_end_drag_internal"):
-		if not _reported_drag_fallback:
-			_reported_drag_fallback = true
+	if control.has_method("_begin_drag_internal"):
 		control.call("_begin_drag_internal")
-		control.set("_last_mouse_pos", target_pos)
-		control.call("_end_drag_internal")
-		drag_started[0] = true
-		drag_ended[0] = true
+		_send_drag_motion(target_pos)
+		await _settle_frames(2)
+		_send_drag_release(target_pos)
 		await _settle_frames(4)
 	if is_instance_valid(control):
 		if control.has_signal("began_drag") and control.is_connected("began_drag", began_callback):
@@ -386,6 +382,24 @@ func _drag_control_to(control: Control, target_pos: Vector2, label: String) -> b
 	_expect(bool(drag_started[0]), "%s did not begin drag" % label)
 	_expect(bool(drag_ended[0]), "%s did not end drag" % label)
 	return bool(drag_started[0]) and bool(drag_ended[0])
+
+func _send_drag_motion(position: Vector2) -> void:
+	Input.warp_mouse(position)
+	var event: InputEventMouseMotion = InputEventMouseMotion.new()
+	event.position = position
+	event.global_position = position
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(event)
+
+func _send_drag_release(position: Vector2) -> void:
+	Input.warp_mouse(position)
+	var event: InputEventMouseButton = InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_mask = 0
+	event.position = position
+	event.global_position = position
+	event.pressed = false
+	Input.parse_input_event(event)
 
 func _set_planning_timer_safe(seconds: float) -> void:
 	var combat: Control = _main.get_node_or_null("CombatView") as Control
