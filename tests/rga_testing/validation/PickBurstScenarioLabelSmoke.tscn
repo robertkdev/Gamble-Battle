@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/pick_burst_scenario_label_smoke.gd" id="1"]
+
+[node name="PickBurstScenarioLabelSmoke" type="Node"]
+script = ExtResource("1")

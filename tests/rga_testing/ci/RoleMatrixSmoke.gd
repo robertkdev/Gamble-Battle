@@ -154,7 +154,7 @@ func _labels_for_unit(ident: Dictionary) -> PackedStringArray:
 		_add_label(labels, "burst")
 	var label_cap: int = 5 if wants_aoe_context else 3
 	if labels.size() > label_cap:
-		return _label_cap(labels, label_cap)
+		return _label_cap(labels, label_cap, goal_id == "mage.pick_burst")
 	if labels.size() > 0:
 		return labels
 	match String(role_id):
@@ -208,9 +208,11 @@ func _add_label(labels: PackedStringArray, label: String) -> void:
 			return
 	labels.append(normalized)
 
-func _label_cap(labels: PackedStringArray, cap: int) -> PackedStringArray:
+func _label_cap(labels: PackedStringArray, cap: int, prioritize_burst: bool = false) -> PackedStringArray:
 	var out: PackedStringArray = PackedStringArray()
 	var preferred: Array[String] = ["neutral", "clustered", "clustered_alt", "counterplay", "peel", "burst", "counter", "kite"]
+	if prioritize_burst:
+		preferred = ["neutral", "clustered", "clustered_alt", "counterplay", "burst", "peel", "counter", "kite"]
 	for label in preferred:
 		if out.size() >= cap:
 			break
