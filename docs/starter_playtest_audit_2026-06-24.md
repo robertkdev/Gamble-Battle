@@ -306,6 +306,23 @@ Fresh MCP debug validation on 2026-06-26 rechecked the current front-door, modal
 
 This refresh does not replace the live OpenGL and OS-window screenshot evidence already listed above. It confirms the current tracked scenes still pass at HEAD after the accepted-miss stable export path change and keeps the dummy-framebuffer capture limitation explicit.
 
+## Current Item, Reward, And Trait-Stack Smoke Refresh
+
+Fresh MCP debug validation on 2026-06-26 rechecked the current item UI, completed-item registry, stage reward rules, creep rewards, and canonical trait-stack contracts:
+
+- `tests/visual/DevStarterInventorySmoke.tscn`: `DevStarterInventorySmoke: OK`, `errors: []`.
+- `tests/visual/BarItemsTraitsCapture.tscn`: `BarItemsTraitsCapture: OK planning_visible_bars=0 combat_visible_bars=6 filled_item_cards=8 visible_trait_icons=3 tooltip_edge_skips=2`, `errors: []`; the MCP dummy framebuffer skipped fresh PNGs, and tooltip edge clamps skipped only because the dummy viewport was smaller than the tooltip controls.
+- `tests/rga_testing/validation/CompletedItemEffectRegistrySmoke.tscn`: `CompletedItemEffectRegistrySmoke: PASS`, `errors: []`; current catalog read was 36 completed items, 9 completed items with runtime effects, 9 runtime effect ids, and 9 registered handlers (`bandana`, `blood_engine`, `doubleblade`, `hyperstone`, `mind_siphon`, `mindstone`, `shiv`, `spellblade`, `turbine`).
+- `tests/rga_testing/validation/StageProgressionProbe.tscn`: `StageProgressionProbe: PASS`, `errors: []`.
+- `tests/rga_testing/validation/RewardsKillProbe.tscn`: `RewardsKillProbe: PASS`, `errors: []`; the debug run showed a player creep kill dropping a component while non-creep and enemy-team kill cases stayed reward-free.
+- `tests/rga_testing/validation/RewardsActionsProbe.tscn`: `[RewardsTest] PASS`, `errors: []`; `drop_completed` remained disabled for creep rewards.
+- `tests/rga_testing/validation/CreepsProbe.tscn`: `CreepsProbe: PASS (spawned 4)`, `errors: []`.
+- `tests/rga_testing/validation/VeyraHardenCanonicalStackProbe.tscn`: `VeyraHardenCanonicalStackProbe: PASS`, `errors: []`; canonical Aegis stacks drove the Harden max-HP gain with legacy stacks held at 0.
+- `tests/rga_testing/validation/KytheraSiphonCanonicalStackProbe.tscn`: `KytheraSiphonCanonicalStackProbe: PASS`, `errors: []`; canonical Aegis stacks drove Siphon drain and MR gain with legacy stacks held at 0.
+- `tests/rga_testing/validation/CashmereLedgerCanonicalStackProbe.tscn`: `CashmereLedgerCanonicalStackProbe: PASS`, `errors: []`; canonical Arcanist stacks drove the Ledger damage path with legacy stacks held at 0.
+
+This refresh keeps the current item/reward surface aligned with the existing live-renderer item/trait screenshots while preserving the known MCP dummy-framebuffer limitation.
+
 ## Current System Menu Visual Recheck
 
 Fresh OS-window evidence was generated on 2026-06-25 with the ignored hold scene `outputs/audit_playtest/CurrentSystemMenuVisualHold.tscn`.
