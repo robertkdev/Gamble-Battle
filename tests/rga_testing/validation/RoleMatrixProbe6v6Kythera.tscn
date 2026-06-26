@@ -14,6 +14,7 @@ max_sims = 4
 out_root = "user://rga_probe/kythera"
 write_reports = true
 metric_ids = PackedStringArray()
+expected_span_checks = PackedStringArray("goal_primary|goal_team_fortification_buff_uptime_targets|fail", "goal_primary|goal_team_fortification_team_ehp_per_s|pass", "goal_primary|goal_team_fortification_damage_prevented_per_s|pass")
 roles_to_run = PackedStringArray()
 scenario_packs_to_run = PackedStringArray()
 profile = "full_probe_6v6"
