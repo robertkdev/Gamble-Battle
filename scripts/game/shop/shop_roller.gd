@@ -59,6 +59,7 @@ func roll_opening_for_starter(starter_id: String, level: int, count: int = ShopC
 	var helper_ids: Array[String] = _opening_helper_ids(starter_id)
 	if helper_ids.is_empty() or offers.is_empty():
 		return offers
+	_replace_blocked_opening_helpers(starter_id, offers, helper_ids)
 	var existing_index: int = _index_of_any_offer(offers, helper_ids)
 	if existing_index == 0:
 		return offers
@@ -78,6 +79,19 @@ func roll_opening_for_starter(starter_id: String, level: int, count: int = ShopC
 	else:
 		offers[0] = helper_offer
 	return offers
+
+func _replace_blocked_opening_helpers(starter_id: String, offers: Array[ShopOffer], helper_ids: Array[String]) -> void:
+	var blocked_ids: Array[String] = _opening_blocked_helper_ids(starter_id)
+	if blocked_ids.is_empty():
+		return
+	for index: int in range(offers.size()):
+		var offer: ShopOffer = offers[index]
+		if offer == null or not blocked_ids.has(String(offer.id)):
+			continue
+		var replacement_id: String = _pick_opening_helper_id(helper_ids)
+		var replacement_offer: ShopOffer = _offer_for_id(replacement_id)
+		if replacement_offer != null:
+			offers[index] = replacement_offer
 
 func _pick_id_for_cost(cost: int, allow_dupes: bool, used: Dictionary) -> String:
 	var ids: Array[String] = _catalog.get_ids_by_cost(cost)
@@ -106,6 +120,15 @@ func _opening_helper_ids(starter_id: String) -> Array[String]:
 		if _catalog.has_id(helper_id):
 			helpers.append(helper_id)
 	return helpers
+
+func _opening_blocked_helper_ids(starter_id: String) -> Array[String]:
+	var blocked_helpers: Array[String] = []
+	var raw_helpers: Array = ShopConfig.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER.get(String(starter_id), []) as Array
+	for raw_helper: Variant in raw_helpers:
+		var helper_id: String = String(raw_helper)
+		if _catalog.has_id(helper_id):
+			blocked_helpers.append(helper_id)
+	return blocked_helpers
 
 func _index_of_any_offer(offers: Array[ShopOffer], helper_ids: Array[String]) -> int:
 	for index: int in range(offers.size()):

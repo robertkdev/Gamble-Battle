@@ -12,6 +12,7 @@ Key Constants
 - `ALLOW_DUPLICATES`: PVE setting allowing duplicate offers in one shop.
 - `REPLACE_PURCHASE_WITH_EMPTY`: purchased slots remain as SOLD/EMPTY placeholders; layout stays stable.
 - `FIRST_SHOP_HELPERS_BY_STARTER`: starter-specific level-1 opening-shop safety net for starters whose first-shop matrix needs a proven advancing helper in the first visible/default-click slot.
+- `FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER`: starter-specific known-bad helper suppression for the first level-1 post-opener shop only.
 - `REROLL_COST`: gold cost per shop refresh.
 - `BUY_XP_COST` / `XP_PER_BUY`: gold cost and XP gain for XP purchases.
 - `STARTING_LEVEL`, `MIN_LEVEL`, `MAX_LEVEL`: player level band.
@@ -54,7 +55,7 @@ Card UX Notes
 Lifecycle
 - New Run: `Shop.reset_run()` clears state; `PlayerProgress` resets to level 1, XP 0.
 - Reroll: `Shop.reroll()` spends `REROLL_COST` gold (unless a free reroll is available) and populates `SLOT_COUNT` offers.
-- Opening shop: after the first Chapter 1 Stage 1 victory, or after a non-broke Chapter 1 Stage 1 retry state where the bet has resolved to 0, `Shop.reroll()` uses the selected starter id once. If that first level-1 recovery shop has a configured helper later in the roll, the roller swaps it into slot 0. If it lacks a configured helper, the roller inserts or replaces slot 0 with one. Later rerolls stay generic.
+- Opening shop: after the first Chapter 1 Stage 1 victory, or after a non-broke Chapter 1 Stage 1 retry state where the bet has resolved to 0, `Shop.reroll()` uses the selected starter id once. For configured first-shop-sensitive starters, the roller first replaces known-bad helper offers from `FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER`, then ensures slot 0 contains a configured helper from `FIRST_SHOP_HELPERS_BY_STARTER`. Later rerolls stay generic.
 - Lock: `Shop.toggle_lock()` flips lock; reroll clears lock when `CLEAR_LOCK_ON_REROLL=true`.
 - Buy Unit: `Shop.buy_unit(slot)` spawns the unit via `UnitFactory`, places on the bench, replaces that slot with an empty placeholder, then runs `CombineService`.
 - Buy XP: `Shop.buy_xp()` spends `BUY_XP_COST` and grants `XP_PER_BUY` XP; level-ups resolve immediately.

@@ -49,13 +49,16 @@ func _empty_starter_stats() -> Dictionary[String, Variant]:
 	var starter_stats: Dictionary[String, Variant] = {}
 	var examples: Array[String] = []
 	var first_examples: Array[String] = []
+	var blocked_examples: Array[String] = []
 	starter_stats["good_count"] = 0
 	starter_stats["no_good_count"] = 0
 	starter_stats["first_good_count"] = 0
 	starter_stats["first_no_good_count"] = 0
 	starter_stats["axiom_count"] = 0
+	starter_stats["blocked_count"] = 0
 	starter_stats["no_good_examples"] = examples
 	starter_stats["first_no_good_examples"] = first_examples
+	starter_stats["blocked_examples"] = blocked_examples
 	return starter_stats
 
 func _record_sample(stats: Dictionary[String, Variant], starter_id: String, offers: Array[ShopOffer]) -> void:
@@ -65,7 +68,9 @@ func _record_sample(stats: Dictionary[String, Variant], starter_id: String, offe
 			offer_ids.append(String(offer.id))
 	var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
 	var good_helpers: Array[String] = _good_helpers_for(starter_id)
+	var blocked_helpers: Array[String] = _blocked_helpers_for(starter_id)
 	var has_good: bool = _has_any(offer_ids, good_helpers)
+	var has_blocked: bool = _has_any(offer_ids, blocked_helpers)
 	var first_offer_id: String = _first_offer_id(offers)
 	var first_has_good: bool = good_helpers.has(first_offer_id)
 	var has_axiom: bool = offer_ids.has("axiom")
@@ -88,6 +93,12 @@ func _record_sample(stats: Dictionary[String, Variant], starter_id: String, offe
 		starter_stats["first_no_good_examples"] = first_examples
 	if has_axiom:
 		starter_stats["axiom_count"] = int(starter_stats.get("axiom_count", 0)) + 1
+	if has_blocked:
+		starter_stats["blocked_count"] = int(starter_stats.get("blocked_count", 0)) + 1
+		var blocked_examples: Array[String] = _string_array(starter_stats.get("blocked_examples", []))
+		if blocked_examples.size() < 3:
+			blocked_examples.append(",".join(offer_ids))
+		starter_stats["blocked_examples"] = blocked_examples
 	stats[starter_id] = starter_stats
 
 func _assert_rates(stats: Dictionary[String, Variant]) -> void:
@@ -96,11 +107,13 @@ func _assert_rates(stats: Dictionary[String, Variant]) -> void:
 		var good_count: int = int(starter_stats.get("good_count", 0))
 		var first_good_count: int = int(starter_stats.get("first_good_count", 0))
 		var sample_count: int = int(starter_stats.get("sample_count", 0))
+		var blocked_count: int = int(starter_stats.get("blocked_count", 0))
 		var rate: float = float(good_count) / float(max(1, sample_count))
 		var first_rate: float = float(first_good_count) / float(max(1, sample_count))
 		var required_rate: float = float(MIN_GOOD_RATES.get(starter_id, 0.0))
 		_expect(rate >= required_rate, "%s known-good first-shop helper rate %.3f below %.3f" % [starter_id, rate, required_rate])
 		_expect(first_rate >= required_rate, "%s first-slot known-good helper rate %.3f below %.3f" % [starter_id, first_rate, required_rate])
+		_expect(blocked_count == 0, "%s known-bad first-shop helpers appeared in %d samples" % [starter_id, blocked_count])
 
 func _finish(stats: Dictionary[String, Variant]) -> void:
 	var exit_code: int = 0
@@ -122,9 +135,10 @@ func _summary_string(stats: Dictionary[String, Variant]) -> String:
 		var no_good_count: int = int(starter_stats.get("no_good_count", 0))
 		var first_no_good_count: int = int(starter_stats.get("first_no_good_count", 0))
 		var axiom_count: int = int(starter_stats.get("axiom_count", 0))
+		var blocked_count: int = int(starter_stats.get("blocked_count", 0))
 		var rate: float = float(good_count) / float(max(1, sample_count))
 		var first_rate: float = float(first_good_count) / float(max(1, sample_count))
-		parts.append("%s_good=%d/%d(%.3f) first_good=%d/%d(%.3f) no_good=%d first_no_good=%d axiom_seen=%d examples=[%s] first_examples=[%s]" % [
+		parts.append("%s_good=%d/%d(%.3f) first_good=%d/%d(%.3f) no_good=%d first_no_good=%d blocked_seen=%d axiom_seen=%d examples=[%s] first_examples=[%s] blocked_examples=[%s]" % [
 			starter_id,
 			good_count,
 			sample_count,
@@ -134,9 +148,11 @@ func _summary_string(stats: Dictionary[String, Variant]) -> String:
 			first_rate,
 			no_good_count,
 			first_no_good_count,
+			blocked_count,
 			axiom_count,
 			";".join(_string_array(starter_stats.get("no_good_examples", []))),
 			";".join(_string_array(starter_stats.get("first_no_good_examples", []))),
+			";".join(_string_array(starter_stats.get("blocked_examples", []))),
 		])
 	return " ".join(parts)
 
@@ -194,6 +210,13 @@ func _good_helpers_for(starter_id: String) -> Array[String]:
 			helpers.append("brute")
 			helpers.append("berebell")
 			helpers.append("morrak")
+	return helpers
+
+func _blocked_helpers_for(starter_id: String) -> Array[String]:
+	var helpers: Array[String] = []
+	var raw_helpers: Array = ShopConfigScript.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER.get(starter_id, []) as Array
+	for raw_helper: Variant in raw_helpers:
+		helpers.append(String(raw_helper))
 	return helpers
 
 func _string_array(values: Variant) -> Array[String]:

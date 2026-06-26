@@ -18,6 +18,15 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "repo": ["sari"],
     "sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
+const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
+    "bo": ["cashmere", "axiom"],
+    "bonko": ["axiom"],
+    "cashmere": ["korath", "repo", "axiom"],
+    "korath": ["brute", "axiom"],
+    "mortem": ["brute", "axiom"],
+    "repo": ["axiom", "mortem", "korath", "brute"],
+    "sari": ["axiom"],
+}
 
 # Reroll and XP costs
 const REROLL_COST := 2                            # Gold per reroll
