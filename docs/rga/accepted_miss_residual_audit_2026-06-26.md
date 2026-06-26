@@ -67,15 +67,15 @@ Post production-clock all-starter checkpoint refresh on 2026-06-26, using local 
 
 The two exported accepted spans remain Totem `goal_peel_carry_peel_saves` and `goal_peel_carry_interrupt_events`; no new residual unit or gap kind was introduced by the production-clock Main-flow audit work.
 
-Focused recheck on 2026-06-26 at local HEAD `6c7b761` kept the same conclusion:
+Focused recheck on 2026-06-26 at local HEAD `73835d8` kept the same conclusion after the all-starter strict natural-input Main-flow guard landed:
 
-- `RoleMatrixProbe6v6Totem.tscn`: `PASS`, `errors=[]`; expected-span checks still keep ally-protection and CC-immunity passing while goal-level peel-save and interrupt spans fail.
+- `RoleMatrixProbe6v6Totem.tscn`: `PASS`, `errors=[]`; expected-span checks still keep direct carry protection passing while goal-level peel-save and interrupt spans fail. Current evidence includes `goal_peel_carry_damage_prevented_on_carry=1320 / 25`, `goal_peel_carry_ally_protection_events=36 / 1`, `goal_peel_carry_ally_protection_magnitude=1017 / 25`, and `goal_peel_carry_cc_immunity_applied=9 / 1`.
 - `TotemCleanseLiveProbe.tscn`: `PASS`, `errors=[]`; real Cleanse removes the carry debuff and emits cleanse/CC-immunity support telemetry, but still records `cc_events=0`, `goal_save_failed=true`, and `goal_interrupt_failed=true`.
 - `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
 
 This refresh did not change the residual category: Totem's current kit proves direct protection, while the remaining direct save/interrupt proof still requires product/scenario tuning or a goal-contract decision.
 
-Focused goal-alignment probe on 2026-06-26 kept the residual category explicit while proving a mechanically viable contract alternative:
+Focused goal-alignment probe on 2026-06-26 at local HEAD `73835d8` kept the residual category explicit while proving a mechanically viable contract alternative:
 
 - `TotemGoalAlignmentProbe.tscn`: `PASS`, `errors=[]`; reruns the real Totem 6v6 `peel` and carry-threat `threat` rows, verifies the current `support.peel_carry` contract still passes aggregate protection while `goal_peel_carry_peel_saves` and `goal_peel_carry_interrupt_events` remain failed, then evaluates the same rows under a temporary `support.team_amplification` primary-goal override.
 - The temporary alternate contract passes with `goal_team_amplification_buff_uptime_targets`, `goal_team_amplification_amp_delta_team`, and `goal_team_amplification_amp_output_delta` all satisfied, and emits no `goal_peel_carry_*` rows. This is decision evidence only; Totem's actual identity remains `support.peel_carry` until the product/design source changes.
