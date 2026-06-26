@@ -3,6 +3,7 @@ extends Node
 const CombatEngineScript := preload("res://scripts/game/combat/combat_engine.gd")
 const BattleStateScript := preload("res://scripts/game/combat/battle_state.gd")
 const KytheraSiphon := preload("res://scripts/game/abilities/impls/kythera_siphon.gd")
+const BuffPresenceKernel := preload("res://tests/rga_testing/aggregators/kernels/buff_presence_kernel.gd")
 const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 
@@ -15,6 +16,8 @@ func _run() -> void:
 	var state: BattleState = _make_state()
 	var engine: CombatEngine = CombatEngineScript.new()
 	engine.configure(state, state.player_team[0], 1, Callable())
+	var kernel: Variant = BuffPresenceKernel.new()
+	kernel.call("attach", engine, {"a": 1, "b": 1}, _context_tags(), true)
 
 	var failed: bool = false
 	if engine.buff_system == null:
@@ -58,6 +61,13 @@ func _run() -> void:
 	var after_mr: float = float(kythera.magic_resist)
 	var target_after_mr: float = float(target.magic_resist)
 	var mr_gain: int = int(round(after_mr - before_mr))
+	kernel.call("finalize", 3.1)
+	var kernel_result: Dictionary = kernel.call("result")
+	var buff_presence: Dictionary = kernel_result.get("buff_presence", {}) if (kernel_result is Dictionary) else {}
+	var per_unit: Dictionary = buff_presence.get("per_unit", {}) if (buff_presence is Dictionary) else {}
+	var side_a: Dictionary = per_unit.get("a", {}) if (per_unit is Dictionary) else {}
+	var kythera_buff_rec: Dictionary = side_a.get("kythera", {}) if (side_a is Dictionary) else {}
+	var fortification_targets: int = int(kythera_buff_rec.get("ally_buffs", 0))
 
 	print("KytheraSiphonCanonicalStackProbe: cast_ok=", cast_ok,
 		" canonical_stacks=", canonical_stacks,
@@ -65,7 +75,8 @@ func _run() -> void:
 		" per_sec=", per_sec,
 		" siphon_stack=", siphon_stack,
 		" mr_gain=", mr_gain,
-		" target_after_mr=", target_after_mr)
+		" target_after_mr=", target_after_mr,
+		" fortification_targets=", fortification_targets)
 
 	if not cast_ok:
 		printerr("KytheraSiphonCanonicalStackProbe: FAIL Siphon did not cast")
@@ -88,6 +99,9 @@ func _run() -> void:
 	if target_after_mr >= 50.0:
 		printerr("KytheraSiphonCanonicalStackProbe: FAIL Siphon ticks did not drain target MR")
 		failed = true
+	if fortification_targets < 1:
+		printerr("KytheraSiphonCanonicalStackProbe: FAIL Siphon permanent MR gain did not emit source-owned fortification buff telemetry")
+		failed = true
 
 	if failed:
 		_finish(engine, 1)
@@ -109,6 +123,24 @@ func _make_state() -> BattleState:
 	state.player_targets = [0]
 	state.enemy_targets = [0]
 	return state
+
+func _context_tags() -> Dictionary:
+	return {
+		"unit_timelines": {
+			"a": [
+				{
+					"unit_index": 0,
+					"unit_id": "kythera"
+				}
+			],
+			"b": [
+				{
+					"unit_index": 0,
+					"unit_id": "target_dummy"
+				}
+			]
+		}
+	}
 
 func _make_unit(unit_id: String, max_hp: int) -> Unit:
 	var unit: Unit = Unit.new()

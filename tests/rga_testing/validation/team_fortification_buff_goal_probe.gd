@@ -15,21 +15,28 @@ func _ready() -> void:
 
 func _run() -> void:
 	var full_result: Dictionary = _run_case("full_fortification", true, 40.0, 10.0)
+	var self_result: Dictionary = _run_case("self_fortification", true, 40.0, 10.0, 0)
 	var no_buff_result: Dictionary = _run_case("no_buff_aggregate", false, 40.0, 10.0)
 	var buff_only_result: Dictionary = _run_case("buff_only", true, 0.0, 0.0)
 	var weak_result: Dictionary = _run_case("weak_fortification", false, 0.0, 0.0)
 
 	var full_rec: Dictionary = full_result.get("rec", {})
+	var self_rec: Dictionary = self_result.get("rec", {})
 	var full_goal: Dictionary = full_result.get("goal", {})
+	var self_goal: Dictionary = self_result.get("goal", {})
 	var no_buff_goal: Dictionary = no_buff_result.get("goal", {})
 	var buff_only_goal: Dictionary = buff_only_result.get("goal", {})
 	var weak_goal: Dictionary = weak_result.get("goal", {})
 	var full_pass: bool = bool(full_goal.get("pass", false))
+	var self_pass: bool = bool(self_goal.get("pass", false))
 	var no_buff_pass: bool = bool(no_buff_goal.get("pass", false))
 	var buff_only_pass: bool = bool(buff_only_goal.get("pass", false))
 	var weak_pass: bool = bool(weak_goal.get("pass", false))
 	var ally_buffs: int = int(full_rec.get("ally_buffs_to_others", 0))
+	var self_buffs: int = int(self_rec.get("ally_buffs", 0))
+	var self_buffs_to_others: int = int(self_rec.get("ally_buffs_to_others", 0))
 	var full_buff_span: bool = _has_span(full_goal, "goal_team_fortification_buff_uptime_targets", true)
+	var self_buff_span: bool = _has_span(self_goal, "goal_team_fortification_buff_uptime_targets", true)
 	var no_buff_false_span: bool = _has_span(no_buff_goal, "goal_team_fortification_buff_uptime_targets", false)
 	var no_buff_prevention_span: bool = _has_span(no_buff_goal, "goal_team_fortification_damage_prevented_per_s", true)
 	var buff_only_buff_span: bool = _has_span(buff_only_goal, "goal_team_fortification_buff_uptime_targets", true)
@@ -38,6 +45,10 @@ func _run() -> void:
 	print("TeamFortificationBuffGoalProbe: full_pass=", full_pass,
 		" ally_buffs=", ally_buffs,
 		" full_buff_span=", full_buff_span,
+		" self_pass=", self_pass,
+		" self_buffs=", self_buffs,
+		" self_buffs_to_others=", self_buffs_to_others,
+		" self_buff_span=", self_buff_span,
 		" no_buff_pass=", no_buff_pass,
 		" no_buff_false_span=", no_buff_false_span,
 		" no_buff_prevention_span=", no_buff_prevention_span,
@@ -48,6 +59,9 @@ func _run() -> void:
 	var failed: bool = false
 	if not full_pass or ally_buffs != 1 or not full_buff_span:
 		printerr("TeamFortificationBuffGoalProbe: FAIL full fortification telemetry did not pass with a direct ally-buff span")
+		failed = true
+	if not self_pass or self_buffs != 1 or self_buffs_to_others != 0 or not self_buff_span:
+		printerr("TeamFortificationBuffGoalProbe: FAIL self fortification telemetry did not pass with a source-owned same-team buff span")
 		failed = true
 	if not no_buff_pass:
 		printerr("TeamFortificationBuffGoalProbe: FAIL no-buff aggregate fortification path should pass through EHP and prevention")
@@ -68,7 +82,7 @@ func _run() -> void:
 	print("TeamFortificationBuffGoalProbe: PASS")
 	_quit(0)
 
-func _run_case(case_id: String, emit_buff: bool, pre_mit_incoming: float, post_mit_incoming: float) -> Dictionary:
+func _run_case(case_id: String, emit_buff: bool, pre_mit_incoming: float, post_mit_incoming: float, buff_target_index: int = 1) -> Dictionary:
 	var engine: CombatEngine = CombatEngineScript.new()
 	var kernel: Variant = BuffPresenceKernel.new()
 	var team_sizes: Dictionary = {"a": 2, "b": 1}
@@ -94,7 +108,7 @@ func _run_case(case_id: String, emit_buff: bool, pre_mit_incoming: float, post_m
 	}
 	kernel.call("attach", engine, team_sizes, context_tags, true)
 	if emit_buff:
-		engine.emit_signal("buff_applied", "player", 0, "player", 1, "fortify", {"armor": 12}, 12.0, 5.0)
+		engine.emit_signal("buff_applied", "player", 0, "player", int(buff_target_index), "fortify", {"armor": 12}, 12.0, 5.0)
 	kernel.call("finalize", 2.0)
 
 	var result: Dictionary = kernel.call("result")

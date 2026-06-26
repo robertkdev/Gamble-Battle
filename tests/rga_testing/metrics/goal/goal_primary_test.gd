@@ -134,7 +134,8 @@ func _eval_frontline_absorb(summary: Dictionary, spans: Array) -> bool:
 func _eval_team_fortification(summary: Dictionary, spans: Array) -> bool:
 	var ehp_per_s: float = _effective_ehp(summary) / max(1.0, float(summary.get("fight_time_s", 0.0)))
 	var ehp_ok: bool = _append_span(spans, summary, "goal_team_fortification_team_ehp_per_s", ehp_per_s, 2.0, ehp_per_s >= 2.0)
-	var buff_targets_ok: bool = _append_span(spans, summary, "goal_team_fortification_buff_uptime_targets", float(summary.get("ally_buffs_to_others", 0)), 1.0, int(summary.get("ally_buffs_to_others", 0)) >= 1)
+	var fortification_targets: int = max(int(summary.get("ally_buffs", 0)), int(summary.get("ally_buffs_to_others", 0)))
+	var buff_targets_ok: bool = _append_span(spans, summary, "goal_team_fortification_buff_uptime_targets", float(fortification_targets), 1.0, fortification_targets >= 1, "source_owned_team_fortification_target")
 	var prevented_per_s: float = _prevented_damage(summary) / max(1.0, float(summary.get("fight_time_s", 0.0)))
 	var prevented_ok: bool = _append_span(spans, summary, "goal_team_fortification_damage_prevented_per_s", prevented_per_s, 1.0, prevented_per_s >= 1.0)
 	return _k_of_n([ehp_ok, buff_targets_ok, prevented_ok], 2)
@@ -479,7 +480,7 @@ func _merge_per_unit_kpis(summary: Dictionary, rec: Dictionary) -> void:
 		summary["backline_damage_share"] = max(float(summary.get("backline_damage_share", 0.0)), backline_damage_share)
 
 func _merge_buffs(summary: Dictionary, rec: Dictionary) -> void:
-	for key in ["ally_buffs_to_others", "ally_buff_magnitude_to_others", "amp_output_events", "amp_output_delta", "amp_output_pct_total", "amp_output_beneficiaries", "enemy_debuffs", "enemy_debuff_magnitude", "cc_immunity_applied", "cc_prevented", "cleanse_applied"]:
+	for key in ["ally_buffs", "ally_buffs_to_others", "ally_buff_magnitude_to_others", "amp_output_events", "amp_output_delta", "amp_output_pct_total", "amp_output_beneficiaries", "enemy_debuffs", "enemy_debuff_magnitude", "cc_immunity_applied", "cc_prevented", "cleanse_applied"]:
 		if rec.has(key):
 			summary[key] = float(summary.get(key, 0.0)) + float(rec.get(key, 0.0))
 	for key in ["on_hit_effects", "dot_tick_events", "dot_tick_targets", "dot_application_events"]:

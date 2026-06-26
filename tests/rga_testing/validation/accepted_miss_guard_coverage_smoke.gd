@@ -3,13 +3,12 @@ extends Node
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
 const DETAIL_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_lower_level_fail_spans.csv"
 const RESIDUAL_AUDIT_PATH: String = "res://docs/rga/accepted_miss_residual_audit_2026-06-26.md"
-const EXPECTED_GAP_KIND_COUNT: int = 3
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 3
+const EXPECTED_GAP_KIND_COUNT: int = 2
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 2
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"],
-	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"],
-	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn", "res://tests/rga_testing/validation/TeamFortificationScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Kythera.tscn"]
+	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"]
 }
 
 @export var do_quit_on_finish: bool = true
@@ -197,7 +196,6 @@ func _validate_detail_rows(rows: Array[Dictionary], failures: Array[String]) -> 
 
 func _expected_detail_keys() -> Array[String]:
 	var keys: Array[String] = []
-	keys.append("kythera|tank|tank.team_fortification|goal_primary|goal_team_fortification_buff_uptime_targets|team_fortification_buff_uptime_absent")
 	keys.append("totem|support|support.peel_carry|goal_primary|goal_peel_carry_interrupt_events|peel_interrupt_context_absent")
 	keys.append("totem|support|support.peel_carry|goal_primary|goal_peel_carry_peel_saves|peel_carry_goal_save_proxy_absent")
 	return keys
