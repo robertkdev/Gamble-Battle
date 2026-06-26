@@ -67,6 +67,14 @@ Post production-clock all-starter checkpoint refresh on 2026-06-26, using local 
 
 The two exported accepted spans remain Totem `goal_peel_carry_peel_saves` and `goal_peel_carry_interrupt_events`; no new residual unit or gap kind was introduced by the production-clock Main-flow audit work.
 
+Focused recheck on 2026-06-26 at local HEAD `6c7b761` kept the same conclusion:
+
+- `RoleMatrixProbe6v6Totem.tscn`: `PASS`, `errors=[]`; expected-span checks still keep ally-protection and CC-immunity passing while goal-level peel-save and interrupt spans fail.
+- `TotemCleanseLiveProbe.tscn`: `PASS`, `errors=[]`; real Cleanse removes the carry debuff and emits cleanse/CC-immunity support telemetry, but still records `cc_events=0`, `goal_save_failed=true`, and `goal_interrupt_failed=true`.
+- `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
+
+This refresh did not change the residual category: Totem's current kit proves direct protection, while the remaining direct save/interrupt proof still requires product/scenario tuning or a goal-contract decision.
+
 ## Guard Coverage
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
