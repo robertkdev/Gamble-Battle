@@ -1,6 +1,7 @@
 extends Node
 
 const RoleMatrixSmokeScript := preload("res://tests/rga_testing/ci/RoleMatrixSmoke.gd")
+const RoleMatrixProbeScript := preload("res://tests/rga_testing/validation/RoleMatrixProbe.gd")
 const RGARoleScenariosScript := preload("res://tests/rga_testing/config/role_scenarios.gd")
 
 @export var do_quit_on_finish: bool = true
@@ -35,10 +36,23 @@ func _run() -> void:
 	var burst_map: Dictionary = burst_pack.get("map_params", {}) if burst_pack.has("map_params") else {}
 	var map_id: String = String(burst_map.get("map_id", ""))
 	var subject_lane: String = String(burst_pack.get("subject_lane", ""))
+	var plan_probe: Node = RoleMatrixProbeScript.new()
+	var seed_list: Array[int] = [525600]
+	var plan_labels: PackedStringArray = PackedStringArray(["neutral", "counterplay", "burst"])
+	var plan_roles: PackedStringArray = PackedStringArray(["mage"])
+	var plans: Array = plan_probe.call("_plan_full_probe_6v6", "volt", seed_list, plan_labels, 1, plan_roles)
+	var burst_plan: Dictionary = _find_plan(plans, "burst")
+	var planned_map: Dictionary = burst_plan.get("map_params", {}) if burst_plan.has("map_params") else {}
+	var planned_hp_pct: float = float(planned_map.get("team_b_initial_hp_pct", 0.0))
+	var planned_mana_pct: float = float(planned_map.get("team_a_subject_initial_mana_pct", 0.0))
+	var planned_subject: String = String(planned_map.get("team_a_subject_id", ""))
+	plan_probe.free()
 
 	print("PickBurstScenarioLabelSmoke: volt_labels=", Array(volt_labels),
 		" brute_labels=", Array(brute_labels),
-		" mage_burst_map_id=", map_id)
+		" mage_burst_map_id=", map_id,
+		" pick_burst_hp_pct=", planned_hp_pct,
+		" pick_burst_mana_pct=", planned_mana_pct)
 
 	var failed: bool = false
 	if volt_labels.size() != 3 or not volt_has_burst or not volt_has_counterplay or not volt_drops_generic_peel:
@@ -50,6 +64,9 @@ func _run() -> void:
 	if burst_pack.is_empty() or map_id != "pick_burst_window" or subject_lane != "back":
 		printerr("PickBurstScenarioLabelSmoke: FAIL mage burst pack should select the back-lane pick_burst_window map")
 		failed = true
+	if burst_plan.is_empty() or planned_subject != "volt" or planned_hp_pct <= 0.0 or planned_hp_pct > 0.1 or planned_mana_pct < 1.0:
+		printerr("PickBurstScenarioLabelSmoke: FAIL pick-burst 6v6 burst plan should wound enemy targets and ready the subject cast")
+		failed = true
 	if failed:
 		_quit(1)
 		return
@@ -60,6 +77,15 @@ func _find_pack(packs: Array[Dictionary], label: String) -> Dictionary:
 	for pack in packs:
 		if String(pack.get("label", "")) == String(label):
 			return pack
+	return {}
+
+func _find_plan(plans: Array, label: String) -> Dictionary:
+	for plan_value in plans:
+		if not (plan_value is Dictionary):
+			continue
+		var plan: Dictionary = plan_value as Dictionary
+		if String(plan.get("label", "")) == String(label):
+			return plan
 	return {}
 
 func _has_label(labels: PackedStringArray, wanted: String) -> bool:

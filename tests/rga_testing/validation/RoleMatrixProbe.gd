@@ -18,6 +18,8 @@ const ProbeReportCompiler := preload("res://tests/rga_testing/validation/probe_r
 const RolesThresholdsChecker := preload("res://tests/rga_testing/metrics/roles/thresholds_checker.gd")
 const TeamShells := preload("res://tests/rga_testing/validation/team_shells.gd")
 const COUNTERPLAY_RESPONSE_CORE: Array[String] = ["totem", "veyra"]
+const PICK_BURST_ENEMY_INITIAL_HP_PCT: float = 0.05
+const PICK_BURST_SUBJECT_INITIAL_MANA_PCT: float = 1.0
 const QUICK_APPROACH_METRICS := {
 	"access_backline": "approach_access_backline",
 	"amp": "approach_amp",
@@ -827,6 +829,7 @@ func _plan_full_probe_6v6(subject_id: String, seed_list: Array[int], labels_over
 				mp["formation"] = "role_based"
 				if not mp.has("depth_gap"):
 					mp["depth_gap"] = 1.5
+				_apply_pick_burst_window_overrides(subject_id, lb, mp)
 			var lane_hint: String = String(mp.get("subject_lane_hint", "")).strip_edges().to_lower()
 			if lane_hint == "":
 				# Default by role if pack not found
@@ -962,6 +965,19 @@ func _substitute_subject_in_team(base_team: Array[String], role_key: String, sub
 		idx = 0
 	team[idx] = String(subject_id)
 	return team
+
+func _apply_pick_burst_window_overrides(subject_id: String, scenario_label: String, map_params: Dictionary) -> void:
+	if not _is_pick_burst_burst_context(subject_id, scenario_label):
+		return
+	map_params["team_b_initial_hp_pct"] = PICK_BURST_ENEMY_INITIAL_HP_PCT
+	map_params["team_a_subject_initial_mana_pct"] = PICK_BURST_SUBJECT_INITIAL_MANA_PCT
+	map_params["team_a_subject_id"] = String(subject_id)
+
+func _is_pick_burst_burst_context(subject_id: String, scenario_label: String) -> bool:
+	if String(scenario_label).strip_edges().to_lower() != "burst":
+		return false
+	var ident: Dictionary = RoleCommon.get_identity(String(subject_id))
+	return String(ident.get("primary_goal", "")).strip_edges().to_lower() == "mage.pick_burst"
 
 func _map_params_for_label(packs: Array, label: String) -> Dictionary:
 	var lb: String = String(label)

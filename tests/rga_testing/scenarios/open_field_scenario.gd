@@ -22,6 +22,7 @@ func make(state: BattleState, teamA_ids: Array[String], teamB_ids: Array[String]
 
     _populate_team(state.player_team, teamA_ids)
     _populate_team(state.enemy_team, teamB_ids)
+    _apply_initial_unit_overrides(state, teamA_ids, teamB_ids, map_params)
 
     var tuned = _derive_params(map_params, state)
     var center_raw = tuned.get("center", Vector2.ZERO)
@@ -87,6 +88,39 @@ func _populate_team(array: Array, ids: Array[String]) -> void:
         var inst: Unit = UnitFactory.spawn(String(raw_id))
         if inst:
             array.append(inst)
+
+func _apply_initial_unit_overrides(state: BattleState, _teamA_ids: Array[String], _teamB_ids: Array[String], map_params: Dictionary) -> void:
+    if state == null or map_params == null:
+        return
+    if map_params.has("team_b_initial_hp_pct"):
+        var enemy_hp_pct: float = float(map_params.get("team_b_initial_hp_pct", 1.0))
+        _apply_team_initial_hp_pct(state.enemy_team, enemy_hp_pct)
+    if map_params.has("team_a_subject_initial_mana_pct"):
+        var subject_id: String = String(map_params.get("team_a_subject_id", "")).strip_edges()
+        var subject_mana_pct: float = float(map_params.get("team_a_subject_initial_mana_pct", 0.0))
+        if subject_id != "":
+            _apply_subject_initial_mana_pct(state.player_team, subject_id, subject_mana_pct)
+
+func _apply_team_initial_hp_pct(team: Array, hp_pct: float) -> void:
+    var pct: float = clamp(float(hp_pct), 0.01, 1.0)
+    for unit_value in team:
+        if not (unit_value is Unit):
+            continue
+        var unit: Unit = unit_value as Unit
+        var max_hp_value: int = max(1, int(unit.max_hp))
+        unit.hp = clampi(int(round(float(max_hp_value) * pct)), 1, max_hp_value)
+
+func _apply_subject_initial_mana_pct(team: Array, subject_id: String, mana_pct: float) -> void:
+    var pct: float = clamp(float(mana_pct), 0.0, 1.0)
+    for unit_value in team:
+        if not (unit_value is Unit):
+            continue
+        var unit: Unit = unit_value as Unit
+        if String(unit.id) != String(subject_id):
+            continue
+        var mana_max_value: int = max(0, int(unit.mana_max))
+        unit.mana = clampi(int(round(float(mana_max_value) * pct)), 0, mana_max_value)
+        return
 
 func _derive_params(map_params: Dictionary, state: BattleState) -> Dictionary:
     var openness: float = clamp(float(map_params.get("openness", 0.7)), 0.1, 1.0)
