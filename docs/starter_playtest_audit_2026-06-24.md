@@ -28,6 +28,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Duplicate scoreboard disambiguation validation: `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
+- Current first-shop helper choice matrix: `docs/starter_first_shop_choice_matrix_2026-06-26.md`
 
 ## Current Revalidation After Follow-Up Fixes
 
@@ -35,7 +36,7 @@ Current branch snapshot: refreshed on 2026-06-26 local main after the Unit Selec
 
 MCP validation snapshot, originally run on 2026-06-24 and refreshed through 2026-06-26:
 - `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`; rerun on 2026-06-26 with `errors: []`, including first-deploy bench highlight, post-deploy highlight clearing assertions, repeated loss/New Game reset cycles, shop cycle, and second-fight resolution.
-- `tests/visual/FirstShopChoiceQualitySmoke.tscn`: `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=11`; added and run on 2026-06-26 with `errors: []`, validating that Bo, Bonko, Cashmere, and Repo each retain at least one deterministic first-shop helper path that advances beyond Stage 2 while still exposing bad pure-support or redundant-defense choices. The advanced count is run telemetry, not the acceptance threshold.
+- `tests/visual/FirstShopChoiceQualitySmoke.tscn`: `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=10`; rerun on 2026-06-26 with `errors: []`, validating that Bo, Bonko, Cashmere, and Repo each retain at least one deterministic first-shop helper path that advances beyond Stage 2 while still exposing bad pure-support or redundant-defense choices. The advanced count is run telemetry, not the acceptance threshold.
 - `tests/visual/AllStarterMainFlowSmoke.tscn`: `AllStarterMainFlowSmoke: PASS starters=12 first_shop=11 retry=1 deployed=11 second_resolved=11`; added and run on 2026-06-26 with `errors: []`, validating every current level-1 starter through the real Main-scene forced opener, first-shop buy/deploy, and second-fight loop while preserving Axiom as the one expected opener retry outlier.
 - `tests/rga_testing/ci/CostBalanceSmoke.tscn`: `CostBalanceSmoke: PASS units=22 tiers=1:12 2:9 3:1`; rerun on 2026-06-26 with `errors: []`.
 - `tests/rga_testing/ci/RoleMatrixSmoke.tscn`: `RoleMatrixSmoke: PASS (22 units)`; rerun on 2026-06-26 with `errors: []`
@@ -442,9 +443,9 @@ Fresh ignored-runner evidence was generated on 2026-06-26 at `outputs/audit_play
 
 This audit targets the four soft-fail starters from the current all-starter replay. It captures each starter's first-shop offer set, then replays that offer set while buying each slot in turn.
 
-Committed regression coverage now exists in `tests/visual/FirstShopChoiceQualitySmoke.tscn`. It forces deterministic helper sets for Bo, Bonko, Cashmere, and Repo, replays each slot through the real Main-flow purchase, bench-to-board deploy, and second fight, and fails if any target starter has no helper choice that advances beyond Stage 2. The 2026-06-26 MCP debug rerun completed with `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=11` and `errors: []`; the exact advanced count is telemetry from that run, while the guard threshold is at least one advancing helper for each target starter.
+Committed regression coverage now exists in `tests/visual/FirstShopChoiceQualitySmoke.tscn`. It forces deterministic helper sets for Bo, Bonko, Cashmere, and Repo, replays each slot through the real Main-flow purchase, bench-to-board deploy, and second fight, and fails if any target starter has no helper choice that advances beyond Stage 2. The 2026-06-26 MCP debug rerun completed with `FirstShopChoiceQualitySmoke: PASS starters=4 trials=20 advanced=10` and `errors: []`; the exact advanced count is telemetry from that run, while the guard threshold is at least one advancing helper for each target starter. The current row-level matrix is tracked in `docs/starter_first_shop_choice_matrix_2026-06-26.md`.
 
-Result:
+Ignored-runner result:
 - Bo advanced with Sari, Morrak, and Bo; Bo did not advance with Axiom or Repo.
 - Bonko advanced with Bonko, Cashmere, Bo, and Bonko; Bonko did not advance with Axiom.
 - Cashmere advanced with Bonko; Cashmere did not advance with Axiom or Morrak.
@@ -453,8 +454,8 @@ Result:
 
 Implication:
 - The four soft-fail lines are not pure mechanical or unavoidable starter failures. They are first-shop choice-quality failures under a one-helper purchase policy.
-- Pure support as the first helper is especially risky in this sample: Axiom failed for Bo, Bonko, and Cashmere.
-- Low-damage defensive pairings can also fail: Repo did not advance with Brute or Korath in this sample, despite both being tanks.
+- Pure support as the first helper is especially risky: the ignored runner failed Axiom for Bo, Bonko, and Cashmere, while the latest committed guard failed Axiom for Bonko and Repo.
+- Low-damage defensive pairings can also fail: Repo did not advance with Brute or Korath in either the ignored runner or the latest committed guard.
 - Current audit recommendation: add first-shop guidance, recommendation, or offer tuning that nudges the first post-opener buy toward immediate damage/body impact instead of a pure support or redundant defensive body when the board can only afford one helper.
 
 ## Current Shop And Premium Runner Recheck
@@ -977,6 +978,7 @@ Current 2026-06-26 automated strategy refresh from `AllStarterMainFlowAudit`:
 - Soft-fail/pressure lines: Bo+Cashmere, Bonko+Axiom, Cashmere+Bo, and Repo+Korath resolve the second fight but return to Stage 2 planning with 1 gold, so their first helper line is mechanically valid but strategically weak or retry-framed.
 - Axiom remains the only current starter that does not reach the first shop in the default-bet replay; it enters the Stage 1 retry state with 2 gold and relies on the separate Axiom retry path for recovery proof.
 - Current first-shop choice sensitivity audit: Bo, Bonko, Cashmere, and Repo each have at least one first-shop helper that advances beyond Stage 2, but 10 of 20 slot trials still fail to advance. Axiom as the first helper failed in every tested pairing, and Repo also failed with defensive tank helpers.
+- Tracked first-shop matrix detail now lives in `docs/starter_first_shop_choice_matrix_2026-06-26.md`: latest committed guard telemetry is 10 of 20 advancing helper choices, with the same durable read that Axiom first-helper choices are risky and Repo only advanced with Sari in this slice.
 - Current audit interpretation: the mechanical blockers are covered; the live design backlog is starter pacing and first-shop helper quality, especially steering one-helper boards toward immediate damage/body impact instead of pure support or redundant defense.
 
 - Axiom manual result: lost the opener, reached a retry shop with 1 gold, could not convert the shop into a useful board, then lost the run. This validates that pure support is a poor starter under the current forced-solo opener.
