@@ -140,6 +140,8 @@ func _labels_for_unit(ident: Dictionary) -> PackedStringArray:
 		_add_label(labels, "clustered_alt")
 	if role_id == "support" or _has_approach(approaches, "peel") or _has_approach(approaches, "cc_immunity") or goal_id == "support.peel_carry":
 		_add_label(labels, "peel")
+	if goal_id == "support.peel_carry":
+		_add_label(labels, "threat")
 	if _has_approach(approaches, "debuff") or _has_approach(approaches, "lockdown") or goal_id.find("lockdown") >= 0:
 		_add_label(labels, "counterplay")
 	if goal_id == "tank.team_fortification":
@@ -214,9 +216,9 @@ func _add_label(labels: PackedStringArray, label: String) -> void:
 
 func _label_cap(labels: PackedStringArray, cap: int, prioritize_burst: bool = false) -> PackedStringArray:
 	var out: PackedStringArray = PackedStringArray()
-	var preferred: Array[String] = ["neutral", "clustered", "clustered_alt", "counterplay", "fortify", "peel", "burst", "counter", "kite"]
+	var preferred: Array[String] = ["neutral", "clustered", "clustered_alt", "counterplay", "fortify", "peel", "threat", "burst", "counter", "kite"]
 	if prioritize_burst:
-		preferred = ["neutral", "clustered", "clustered_alt", "counterplay", "burst", "fortify", "peel", "counter", "kite"]
+		preferred = ["neutral", "clustered", "clustered_alt", "counterplay", "burst", "fortify", "peel", "threat", "counter", "kite"]
 	for label in preferred:
 		if out.size() >= cap:
 			break

@@ -91,6 +91,7 @@ static func _mage_packs() -> Array[Dictionary]:
 static func _support_packs() -> Array[Dictionary]:
 	return [
 		_scen("support.peel_present", "peel", "back", _peel_map(), ["peel"]),
+		_scen("support.carry_threat_window", "threat", "back", _carry_threat_window(), ["peel", "carry_threat", "interrupt"]),
 		_scen("support.buff_window", "neutral", "back", _open_field(0.7, 8.0), ["buffs"])
 	]
 
@@ -183,6 +184,22 @@ static func _fortification_window() -> Dictionary:
 		"artillery_range": 8.0,
 		"tile_size": 96.0,
 		"map_id": "fortification_window"
+	}
+
+static func _carry_threat_window() -> Dictionary:
+	# Compact carry-threat context for peel-carry interrupt and save attribution.
+	return {
+		"openness": 0.58,
+		"choke_count": 0,
+		"obstacle_density": 0.18,
+		"artillery_range": 7.0,
+		"tile_size": 96.0,
+		"half_width_tiles": 5.0,
+		"half_height_tiles": 3.5,
+		"spawn_x_tiles": 2.8,
+		"row_spacing_tiles": 0.35,
+		"depth_gap": 0.45,
+		"map_id": "carry_threat_window"
 	}
 
 static func _periodicity_friendly() -> Dictionary:
