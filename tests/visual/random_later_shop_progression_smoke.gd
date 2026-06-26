@@ -1,0 +1,229 @@
+extends "res://tests/visual/first_shop_choice_quality_smoke.gd"
+
+const RANDOM_LATER_SMOKE_NAME: String = "RandomLaterShopProgressionSmoke"
+const RANDOM_STARTER_ID: String = "bonko"
+const SAMPLE_SEEDS: Array[int] = [4101, 4102, 4103]
+const TARGET_STAGE: int = 5
+const MAX_POST_OPENER_BATTLES: int = 5
+const MAX_BUYS_PER_SHOP: int = 2
+const AUDIT_GOLD_TARGET: int = 12
+const RANDOM_FIRST_FIGHT_TIMEOUT: float = 30.0
+const RANDOM_ROUND_TIMEOUT: float = 42.0
+const MAX_RANDOM_DEPLOY_ATTEMPTS: int = 10
+
+var _sample_results: Array[Dictionary] = []
+var _random_audit_gold_added: int = 0
+
+func _run() -> void:
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	var window: Window = get_window()
+	if window != null:
+		window.size = Vector2i(1920, 1080)
+		window.content_scale_size = Vector2i(1920, 1080)
+	_previous_time_scale = Engine.time_scale
+	_previous_suppress_validation_warnings = UnitFactory.suppress_validation_warnings
+	UnitFactory.suppress_validation_warnings = true
+	Engine.time_scale = 8.0
+	if Shop != null and not Shop.is_connected("error", Callable(self, "_on_shop_error")):
+		Shop.error.connect(_on_shop_error)
+
+	for seed: int in SAMPLE_SEEDS:
+		var sample_result: Dictionary = await _run_seeded_sample(seed)
+		_sample_results.append(sample_result)
+		await _cleanup_between_starters()
+		if not bool(sample_result.get("reached_target", false)):
+			_expect(false, "seed %d did not reach Stage %d: %s" % [seed, TARGET_STAGE, JSON.stringify(sample_result)])
+			break
+		if not _technical_failures().is_empty():
+			break
+	_finish_random_later_shop_progression()
+
+func _run_seeded_sample(seed: int) -> Dictionary:
+	var failure_start: int = _failures.size()
+	var shop_error_start: int = _shop_errors.size()
+	_set_shop_seed(seed)
+	_start_main_scene()
+	await _settle_frames(4)
+	await _ensure_unit_select()
+	await _select_starter(RANDOM_STARTER_ID)
+	await _settle_frames(4)
+	var repositioned: bool = await _reposition_first_board_unit("random later seed %d opener reposition" % seed)
+	_expect(repositioned, "random later seed %d starter did not reposition" % seed)
+	if not _failures_since(failure_start).is_empty():
+		return _sample_output(seed, [], failure_start, shop_error_start)
+
+	_set_planning_timer_safe()
+	await _press_continue(true, "random later seed %d forced opener" % seed)
+	var first_result: String = await _wait_for_first_result(RANDOM_FIRST_FIGHT_TIMEOUT)
+	_expect(first_result == "shop", "random later seed %d opener should win into shop, got %s" % [seed, first_result])
+	if first_result != "shop":
+		return _sample_output(seed, [], failure_start, shop_error_start)
+
+	var battle_results: Array[Dictionary] = []
+	var post_opener_battles: int = 0
+	while int(GameState.stage_in_chapter) < TARGET_STAGE and post_opener_battles < MAX_POST_OPENER_BATTLES:
+		var battle_result: Dictionary = await _play_random_shop_round(seed, post_opener_battles + 1)
+		battle_results.append(battle_result)
+		if not bool(battle_result.get("resolved", false)):
+			break
+		if String(battle_result.get("fight_result", "")) == "loss":
+			break
+		post_opener_battles += 1
+		if not _failures_since(failure_start).is_empty():
+			break
+	return _sample_output(seed, battle_results, failure_start, shop_error_start)
+
+func _play_random_shop_round(seed: int, round_index: int) -> Dictionary:
+	var stage_before: int = int(GameState.stage_in_chapter)
+	var board_before: Array[String] = _board_ids()
+	var result: Dictionary = {
+		"round_index": round_index,
+		"stage_before": stage_before,
+		"offers_before": _offer_summaries(),
+		"board_before": board_before,
+	}
+	_random_audit_gold_added += _add_random_audit_gold_to_at_least(AUDIT_GOLD_TARGET)
+	await _settle_frames(2)
+	var bought_ids: Array[String] = []
+	for buy_index: int in range(MAX_BUYS_PER_SHOP):
+		var bought_id: String = await _buy_best_random_offer(seed, round_index, buy_index)
+		if bought_id == "":
+			break
+		bought_ids.append(bought_id)
+		await _settle_frames(3)
+	result["bought_ids"] = bought_ids
+	result["bench_after_buys"] = _bench_ids()
+	var deployed_count: int = await _deploy_all_random_bench_units()
+	result["deployed_count"] = deployed_count
+	result["bench_after_deploy"] = _bench_ids()
+	result["board_after_deploy"] = _board_ids()
+	_expect(not bought_ids.is_empty(), "random later seed %d round %d should buy at least one natural offer from %s" % [seed, round_index, JSON.stringify(result.get("offers_before", []))])
+	_expect(_board_ids().size() > board_before.size(), "random later seed %d round %d should increase board size, got %s" % [seed, round_index, JSON.stringify(_board_ids())])
+	if bought_ids.is_empty() or _board_ids().size() <= board_before.size():
+		return result
+
+	_set_planning_timer_safe()
+	await _press_continue(false, "random later seed %d round %d battle" % [seed, round_index])
+	var resolved: bool = await _wait_for_preview_or_loss(RANDOM_ROUND_TIMEOUT)
+	var fight_result: String = _second_fight_result(resolved)
+	var stage_after: int = int(GameState.stage_in_chapter)
+	result["resolved"] = resolved
+	result["fight_result"] = fight_result
+	result["stage_after"] = stage_after
+	result["advanced"] = fight_result == "shop" and stage_after > stage_before
+	result["gold_after"] = int(Economy.gold)
+	_expect(resolved, "random later seed %d round %d did not resolve" % [seed, round_index])
+	return result
+
+func _buy_best_random_offer(seed: int, round_index: int, buy_index: int) -> String:
+	var summaries: Array[Dictionary] = _offer_summaries()
+	var best_slot: int = -1
+	var best_score: int = -9999
+	var best_id: String = ""
+	for summary: Dictionary in summaries:
+		var unit_id: String = String(summary.get("id", ""))
+		var cost: int = int(summary.get("cost", 0))
+		if unit_id == "" or cost <= 0:
+			continue
+		if cost > int(Economy.gold):
+			continue
+		var score: int = _random_offer_score(summary)
+		if score > best_score:
+			best_score = score
+			best_slot = int(summary.get("slot", -1))
+			best_id = unit_id
+	if best_slot < 0:
+		return ""
+	var clicked: bool = await _click_shop_slot(best_slot)
+	_expect(clicked, "random later seed %d round %d buy %d failed on slot %d" % [seed, round_index, buy_index, best_slot])
+	return best_id if clicked else ""
+
+func _random_offer_score(summary: Dictionary) -> int:
+	var unit_id: String = String(summary.get("id", ""))
+	var primary_role: String = String(summary.get("primary_role", ""))
+	var owned_ids: Array[String] = _board_ids()
+	owned_ids.append_array(_bench_ids())
+	var duplicate_penalty: int = -30 if owned_ids.has(unit_id) else 0
+	var frontline_count: int = _frontline_count(owned_ids)
+	match primary_role:
+		"tank":
+			return (110 if frontline_count < 2 else 70) + duplicate_penalty
+		"brawler":
+			return (105 if frontline_count < 2 else 85) + duplicate_penalty
+		"marksman":
+			return 90 + duplicate_penalty
+		"mage":
+			return 88 + duplicate_penalty
+		"support":
+			return 45 + duplicate_penalty
+	return 50 + duplicate_penalty
+
+func _frontline_count(unit_ids: Array[String]) -> int:
+	var count: int = 0
+	var catalog: UnitCatalog = UnitCatalogLib.new()
+	catalog.refresh()
+	for unit_id: String in unit_ids:
+		var role: String = catalog.get_primary_role(unit_id) if catalog.has_id(unit_id) else ""
+		if role == "tank" or role == "brawler":
+			count += 1
+	return count
+
+func _deploy_all_random_bench_units() -> int:
+	var deployed_count: int = 0
+	var attempts: int = 0
+	while attempts < MAX_RANDOM_DEPLOY_ATTEMPTS and not _bench_ids().is_empty():
+		attempts += 1
+		var before_board_size: int = _board_ids().size()
+		var moved: bool = await _drag_first_bench_unit_to_board()
+		await _settle_frames(4)
+		var after_board_size: int = _board_ids().size()
+		if moved and after_board_size > before_board_size:
+			deployed_count += 1
+		else:
+			break
+	return deployed_count
+
+func _add_random_audit_gold_to_at_least(target_gold: int) -> int:
+	var before_gold: int = int(Economy.gold)
+	if before_gold >= target_gold:
+		return 0
+	var delta: int = int(target_gold) - before_gold
+	Economy.add_gold(delta)
+	return delta
+
+func _set_shop_seed(seed: int) -> void:
+	var rng: Variant = Shop.get("_rng") if Shop != null else null
+	if rng != null and rng.has_method("set_seed"):
+		rng.call("set_seed", seed)
+	else:
+		_expect(false, "Shop RNG seed control unavailable")
+
+func _sample_output(seed: int, battle_results: Array[Dictionary], failure_start: int, shop_error_start: int) -> Dictionary:
+	return {
+		"seed": seed,
+		"reached_target": int(GameState.stage_in_chapter) >= TARGET_STAGE,
+		"final_stage": int(GameState.stage_in_chapter),
+		"battle_results": battle_results,
+		"technical_failures": _failures_since(failure_start),
+		"shop_errors": _shop_errors_since(shop_error_start),
+	}
+
+func _finish_random_later_shop_progression() -> void:
+	Engine.time_scale = _previous_time_scale
+	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
+	_flush_synthetic_input()
+	var exit_code: int = 0
+	if _technical_failures().is_empty():
+		print("%s: OK samples=%d target_stage=%d audit_gold_added=%d" % [
+			RANDOM_LATER_SMOKE_NAME,
+			_sample_results.size(),
+			TARGET_STAGE,
+			_random_audit_gold_added,
+		])
+	else:
+		for failure: String in _technical_failures():
+			push_error("%s: %s" % [RANDOM_LATER_SMOKE_NAME, failure])
+		print("%s: results=%s" % [RANDOM_LATER_SMOKE_NAME, JSON.stringify(_sample_results)])
+		exit_code = 1
+	_cleanup_runtime()
+	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
