@@ -74,6 +74,7 @@ var _quick_balance_mode: bool = false
 @export var write_reports: bool = false
 @export var metric_ids: PackedStringArray = PackedStringArray([])
 @export var resume_if_exists: bool = false
+@export var expected_span_checks: PackedStringArray = PackedStringArray([])
 
 @export_group("Filters")
 @export var roles_to_run: PackedStringArray = PackedStringArray([]) # empty -> subject's primary role
@@ -338,6 +339,8 @@ func _run() -> void:
 				print(JSON.stringify(m, "  ", false))
 		else:
 			_print_metric_details(result)
+		if not _validate_expected_span_checks(subj, result):
+			overall_pass = false
 		if write_reports:
 			var report: Dictionary = ProbeReportCompiler.compile(subj, ctx, result, {"run_id": run_id, "rows_path": read_path})
 			var rp: String = ProbeReportCompiler.write(report)
@@ -1110,6 +1113,71 @@ func _print_metric_details(result: Dictionary) -> void:
 			for cl in crit:
 				print(cl)
 
+
+func _validate_expected_span_checks(subject_id: String, result: Dictionary) -> bool:
+	if expected_span_checks.size() <= 0:
+		return true
+	var all_ok: bool = true
+	for raw_check: String in expected_span_checks:
+		var check: String = String(raw_check).strip_edges()
+		if check == "":
+			continue
+		var parts: PackedStringArray = check.split("|", false)
+		if parts.size() < 3:
+			printerr("RoleMatrixProbe: invalid expected span check '", check, "'; expected metric_id|label_prefix|pass|fail|diagnostic")
+			all_ok = false
+			continue
+		var metric_id: String = String(parts[0]).strip_edges()
+		var label_prefix: String = String(parts[1]).strip_edges()
+		var expected_status: String = String(parts[2]).strip_edges().to_lower()
+		var metric: Dictionary = _metric_result_by_id(result, metric_id)
+		if metric.is_empty():
+			printerr("RoleMatrixProbe: expected span check missing metric ", metric_id, " for subject ", subject_id)
+			all_ok = false
+			continue
+		var span: Dictionary = _find_subject_span(metric, subject_id, label_prefix)
+		if span.is_empty():
+			printerr("RoleMatrixProbe: expected span check missing span ", label_prefix, " in metric ", metric_id, " for subject ", subject_id)
+			all_ok = false
+			continue
+		var actual_status: String = _span_status(span)
+		if not _span_status_matches(actual_status, expected_status):
+			printerr("RoleMatrixProbe: expected span check failed for ", metric_id, "/", String(span.get("label", label_prefix)), ": expected ", expected_status, " got ", actual_status)
+			all_ok = false
+			continue
+		print("RoleMatrixProbe: expected span check OK ", metric_id, "/", String(span.get("label", label_prefix)), " -> ", actual_status)
+	return all_ok
+
+func _metric_result_by_id(result: Dictionary, metric_id: String) -> Dictionary:
+	var metrics: Array = result.get("metrics", []) if (result is Dictionary) else []
+	for raw_metric in metrics:
+		if not (raw_metric is Dictionary):
+			continue
+		var metric: Dictionary = raw_metric as Dictionary
+		if String(metric.get("id", "")).strip_edges() == metric_id:
+			return metric
+	return {}
+
+func _find_subject_span(metric: Dictionary, subject_id: String, label_prefix: String) -> Dictionary:
+	var details: Array[Dictionary] = ProbeReportCompiler._span_details_for_metric(subject_id, metric)
+	for span: Dictionary in details:
+		var label: String = String(span.get("label", "")).strip_edges()
+		if label.begins_with(label_prefix):
+			return span
+	return {}
+
+func _span_status(span: Dictionary) -> String:
+	if not span.has("ok"):
+		return "diagnostic"
+	return "pass" if bool(span.get("ok", false)) else "fail"
+
+func _span_status_matches(actual_status: String, expected_status: String) -> bool:
+	var normalized_expected: String = String(expected_status).strip_edges().to_lower()
+	if normalized_expected == "diag":
+		normalized_expected = "diagnostic"
+	if normalized_expected == "ok":
+		normalized_expected = "pass"
+	return String(actual_status).strip_edges().to_lower() == normalized_expected
 
 func _fmt_num(v, decimals: int = 2) -> String:
 	if v == null:

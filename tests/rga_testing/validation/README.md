@@ -34,7 +34,7 @@ Run these scenes via MCP for headless validation and reports.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Kythera.tscn` - tank team_fortification/damage_reduction/debuff across counterplay, fortify, and burst contexts.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Korath.tscn` - tank damage_reduction/redirect/engage.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Teller.tscn` - marksman sustained_dps/long_range/burst/aoe across sustained, clustered, kite, and burst contexts.
-    - `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn` - support peel/amp/cc_immunity across `peel` plus carry-threat `threat` contexts.
+    - `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn` - support peel/amp/cc_immunity across `peel` plus carry-threat `threat` contexts, with explicit goal-primary span checks for the current save/interrupt residual shape.
 
 - On-hit telemetry positive control
   - Scene: `tests/rga_testing/validation/OnHitProcProbe.tscn`
@@ -155,7 +155,7 @@ Run these scenes via MCP for headless validation and reports.
 
 - Totem focused 6v6 peel/threat probe
   - Scene: `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn`
-  - Runs Totem in full 6v6 support-slot `peel` and carry-threat `threat` contexts; fails if the role, `support.peel_carry` goal, `approach_peel`, `approach_cc_immunity`, or `approach_amp` aggregate consumers stop passing while preserving live lower-level save/interrupt misses plus CC-prevention and cooldown-efficiency diagnostics for audit triage.
+  - Runs Totem in full 6v6 support-slot `peel` and carry-threat `threat` contexts; fails if the role, `support.peel_carry` goal, `approach_peel`, `approach_cc_immunity`, or `approach_amp` aggregate consumers stop passing. The scene also opts into `RoleMatrixProbe.expected_span_checks` so the current live audit contract is explicit: goal-level save and interrupt spans fail, while direct ally-protection events, magnitude, and CC-immunity application spans pass.
 
 - Redirect threat-swap telemetry positive control
   - Scene: `tests/rga_testing/validation/RedirectThreatKernelProbe.tscn`
