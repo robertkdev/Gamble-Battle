@@ -6,7 +6,7 @@ The smoke targets current starter lines where a naive first visible/first-clicke
 
 Validation:
 - `FirstShopChoiceQualitySmoke: PASS starters=7 trials=35 advanced=23`
-- `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with every guarded starter at `first_good=1.000`, `blocked_seen=0`, and `axiom_seen=0`
+- `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with every guarded starter at `first_good=1.000`, `blocked_seen=0`, and `axiom_seen=0`; rerun after the Bo/Brute block-list addition also asserts every expected matrix-proven first-shop trap is present in `ShopConfig.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER`
 - `AllStarterMainFlowSmoke: PASS starters=12 first_shop=12 retry=0 deployed=12 second_resolved=12`
 - `AllStarterMainFlowAudit: OK starters=12`, clean Godot-AI live-editor replay: `first_shop=12`, `retry=0`, `deployed=12`, `second_resolved=12`, `saved_png=72`, `skipped_png=0`
 - `AxiomRetryChoiceQualitySmoke: PASS trials=5 advanced=5`; `AxiomRetryEconomySmoke: OK` with the hard opener forced inside each retry smoke
@@ -72,7 +72,7 @@ Acceptance threshold:
 
 ## Current Starter-Aware Offer Sampling
 
-`FirstShopOfferQualitySamplingSmoke` samples 240 deterministic starter-aware opening shops through `ShopRoller.roll_opening_for_starter`, then checks whether each guarded starter sees a known advancing helper in slot 0 and whether configured known-bad helpers are absent from the whole first shop. The real `AllStarterMainFlowSmoke` also asserts that the production post-opener first shop for every guarded starter starts with a known advancing helper.
+`FirstShopOfferQualitySamplingSmoke` samples 240 deterministic starter-aware opening shops through `ShopRoller.roll_opening_for_starter`, then checks whether each guarded starter sees a known advancing helper in slot 0 and whether configured known-bad helpers are absent from the whole first shop. It now also asserts the current block-list config contains the expected matrix-proven trap helpers, including Bo/Brute. The real `AllStarterMainFlowSmoke` also asserts that the production post-opener first shop for every guarded starter starts with a known advancing helper.
 
 | Starter | Known advancing helpers used by guard | First-slot good shops | First-slot no-good shops | Blocked-helper shops | Rate |
 | --- | --- | ---: | ---: | ---: | ---: |
@@ -86,7 +86,7 @@ Acceptance threshold:
 
 Read: the first post-opener level-1 shop is now starter-aware for seven tested first-shop-sensitive starters. It preserves normal random shop shape, but first replaces configured known-bad helpers from `ShopConfig.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER`, then ensures slot 0 is a configured helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic.
 
-The current block list suppresses Axiom for all seven guarded first-shop-sensitive starters, and also suppresses the forced-matrix failures that are known to strand specific starters: Bo/Cashmere, Cashmere/Korath, Cashmere/Repo, Korath/Brute, Mortem/Brute, and Repo/Mortem/Korath/Brute.
+The current block list suppresses Axiom for all seven guarded first-shop-sensitive starters, and also suppresses the forced-matrix failures that are known to strand specific starters: Bo/Cashmere/Brute, Cashmere/Korath/Repo, Korath/Brute, Mortem/Brute, and Repo/Mortem/Korath/Brute.
 
 The refreshed default `AllStarterMainFlowAudit` run after the opener tuning and first-slot guard reached first shop for all 12 current starters, deployed a helper for all 12, resolved the second fight for all 12, and had no opening retry starters. The clean live-editor rerun saved 72/72 PNG captures under `outputs/audit_playtest/all_starter_live_capture_2026_06_26/` after stale PNGs were cleared from the folder; these are automated/accelerated captures, not a natural human-speed replay.
 

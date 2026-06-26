@@ -19,7 +19,7 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
 const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
-    "bo": ["cashmere", "axiom"],
+    "bo": ["cashmere", "brute", "axiom"],
     "bonko": ["axiom"],
     "cashmere": ["korath", "repo", "axiom"],
     "korath": ["brute", "axiom"],

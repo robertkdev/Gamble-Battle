@@ -17,6 +17,15 @@ const MIN_GOOD_RATES: Dictionary[String, float] = {
 	"repo": 1.0,
 	"sari": 1.0,
 }
+const EXPECTED_BLOCKED_HELPERS_BY_STARTER: Dictionary[String, Array] = {
+	"bo": ["axiom", "brute", "cashmere"],
+	"bonko": ["axiom"],
+	"cashmere": ["axiom", "korath", "repo"],
+	"korath": ["axiom", "brute"],
+	"mortem": ["axiom", "brute"],
+	"repo": ["axiom", "brute", "korath", "mortem"],
+	"sari": ["axiom"],
+}
 
 var _failures: Array[String] = []
 
@@ -36,6 +45,7 @@ func _run() -> void:
 		var offers: Array[ShopOffer] = roller.roll_opening_for_starter(starter_id, int(ShopConfigScript.STARTING_LEVEL), int(ShopConfigScript.SLOT_COUNT))
 		_expect(offers.size() == int(ShopConfigScript.SLOT_COUNT), "sample %d should have %d offers, got %d" % [sample_index, int(ShopConfigScript.SLOT_COUNT), offers.size()])
 		_record_sample(stats, starter_id, offers)
+	_assert_expected_blocked_config()
 	_assert_rates(stats)
 	_finish(stats)
 
@@ -114,6 +124,13 @@ func _assert_rates(stats: Dictionary[String, Variant]) -> void:
 		_expect(rate >= required_rate, "%s known-good first-shop helper rate %.3f below %.3f" % [starter_id, rate, required_rate])
 		_expect(first_rate >= required_rate, "%s first-slot known-good helper rate %.3f below %.3f" % [starter_id, first_rate, required_rate])
 		_expect(blocked_count == 0, "%s known-bad first-shop helpers appeared in %d samples" % [starter_id, blocked_count])
+
+func _assert_expected_blocked_config() -> void:
+	for starter_id: String in _starter_ids():
+		var configured_helpers: Array[String] = _blocked_helpers_for(starter_id)
+		var expected_helpers: Array[String] = _expected_blocked_helpers_for(starter_id)
+		for helper_id: String in expected_helpers:
+			_expect(configured_helpers.has(helper_id), "%s matrix-proven first-shop trap %s should be blocked" % [starter_id, helper_id])
 
 func _finish(stats: Dictionary[String, Variant]) -> void:
 	var exit_code: int = 0
@@ -215,6 +232,13 @@ func _good_helpers_for(starter_id: String) -> Array[String]:
 func _blocked_helpers_for(starter_id: String) -> Array[String]:
 	var helpers: Array[String] = []
 	var raw_helpers: Array = ShopConfigScript.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER.get(starter_id, []) as Array
+	for raw_helper: Variant in raw_helpers:
+		helpers.append(String(raw_helper))
+	return helpers
+
+func _expected_blocked_helpers_for(starter_id: String) -> Array[String]:
+	var helpers: Array[String] = []
+	var raw_helpers: Array = EXPECTED_BLOCKED_HELPERS_BY_STARTER.get(starter_id, []) as Array
 	for raw_helper: Variant in raw_helpers:
 		helpers.append(String(raw_helper))
 	return helpers
