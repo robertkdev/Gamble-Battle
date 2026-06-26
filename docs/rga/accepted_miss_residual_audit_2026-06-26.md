@@ -90,6 +90,16 @@ The current sweep export still contains only `peel_carry_goal_save_proxy_absent`
 
 Stable export path refresh on 2026-06-26 changed the exporter default and guard smoke to use `outputs/audit_playtest/rga_accepted_misses_current/` for the working export instead of the older dated folder. The validation sequence reran `RoleMatrixSmoke.tscn` with `PASS (22 units)` and `errors=[]`, then `tests/rga_testing/tools/Export-AcceptedMisses.ps1` wrote `reports=22 spans=2 ramp_spans=0 non_ramp_goal_ramp=0 out=outputs/audit_playtest/rga_accepted_misses_current`, and `AcceptedMissGuardCoverageSmoke.tscn` passed with `errors=[]`, `gap_kinds=2`, `accepted_spans=2`, and `mapped_gap_kinds=2`.
 
+Post shop/economy and all-starter Main-flow checkpoint refresh on 2026-06-26 at local HEAD `f625879` regenerated the stable working export and kept the same residual inventory:
+
+- `RoleMatrixSmoke.tscn`: `PASS (22 units)`, `errors=[]`; regenerated all 22 current `user://identity_reports/*.json` reports.
+- `tests/rga_testing/tools/Export-AcceptedMisses.ps1`: `reports=22 spans=2 ramp_spans=0 non_ramp_goal_ramp=0 out=outputs/audit_playtest/rga_accepted_misses_current`.
+- `AcceptedMissGuardCoverageSmoke.tscn`: `PASS`, `errors=[]`, `gap_kinds=2 accepted_spans=2 mapped_gap_kinds=2`.
+- `TotemPeelCarryAcceptedMissProbe.tscn`: `PASS`, `errors=[]`; preserved the intended focused shape where the fully evidenced Totem support/peel row passes, weak protection fails, team-save/EHP/CC-prevention/cooldown-efficiency fallbacks are diagnostic under alternate evidence, and the low-interrupt proof remains a failed span.
+- `TotemGoalAlignmentProbe.tscn`: `PASS`, `errors=[]`; preserved the current `support.peel_carry` aggregate pass plus goal-level save/interrupt failures, while the same live rows pass a temporary `support.team_amplification` contract through buff uptime, team amp magnitude, and amp output without emitting peel-carry rows.
+
+The current stable export detail files still contain only Totem `support.peel_carry` goal rows: `goal_peel_carry_peel_saves` under `peel_carry_goal_save_proxy_absent` and `goal_peel_carry_interrupt_events` under `peel_interrupt_context_absent`.
+
 ## Guard Coverage
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
