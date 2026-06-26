@@ -33,7 +33,7 @@ func _run() -> void:
 	var full_pass: bool = _all_metric_pass(full_result)
 	var low_pass: bool = _all_metric_pass(low_result)
 	var weak_pass: bool = _any_metric_pass(weak_result)
-	var low_team_save_failed: bool = _has_span(low_peel, "team_peel_saves_total", false) and _has_span(low_role, "peel_saves_med_a", false) and _has_span(low_goal, "goal_peel_carry_peel_saves", false)
+	var low_team_save_diagnostic: bool = _has_diagnostic_span(low_peel, "team_peel_saves_total", "alternate_peel_evidence_satisfied") and _has_diagnostic_span(low_role, "peel_saves_med_a", "alternate_support_evidence_satisfied") and _has_span(low_goal, "goal_peel_carry_peel_saves", false)
 	var low_ehp_failed: bool = _has_span(low_peel, "subject_ehp_ratio", false) and _has_span(low_role, "subject_ehp_ratio", false)
 	var low_cc_prevented_failed: bool = _has_span(low_cc, "subject_cc_prevented_as_target", false)
 	var low_cooldown_efficiency_failed: bool = _has_span(low_cc, "subject_cc_immunity_cooldown_trade_efficiency", false) and _has_span(low_goal, "goal_peel_carry_cooldown_trade_efficiency", false)
@@ -43,7 +43,7 @@ func _run() -> void:
 	print("TotemPeelCarryAcceptedMissProbe: full_pass=", full_pass,
 		" low_pass=", low_pass,
 		" weak_pass=", weak_pass,
-		" low_team_save_failed=", low_team_save_failed,
+		" low_team_save_diagnostic=", low_team_save_diagnostic,
 		" low_ehp_failed=", low_ehp_failed,
 		" low_cc_prevented_failed=", low_cc_prevented_failed,
 		" low_cooldown_efficiency_failed=", low_cooldown_efficiency_failed,
@@ -59,8 +59,8 @@ func _run() -> void:
 	if not low_pass:
 		printerr("TotemPeelCarryAcceptedMissProbe: FAIL aggregate direct-protection control did not pass all consumers")
 		failed = true
-	if not low_team_save_failed or not low_ehp_failed or not low_cc_prevented_failed or not low_cooldown_efficiency_failed or not low_interrupt_failed:
-		printerr("TotemPeelCarryAcceptedMissProbe: FAIL aggregate control did not preserve expected failed lower-level spans")
+	if not low_team_save_diagnostic or not low_ehp_failed or not low_cc_prevented_failed or not low_cooldown_efficiency_failed or not low_interrupt_failed:
+		printerr("TotemPeelCarryAcceptedMissProbe: FAIL aggregate control did not preserve expected diagnostic/failed lower-level spans")
 		failed = true
 	if not low_direct_protection_passed:
 		printerr("TotemPeelCarryAcceptedMissProbe: FAIL aggregate control did not pass through direct protection evidence")
@@ -228,6 +228,17 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == reason:
 			return true
 	return false
 

@@ -67,11 +67,11 @@ func _check_approach_full(subject_id: String, metric_result: Dictionary, failure
 
 func _check_approach_aggregate(subject_id: String, metric_result: Dictionary, failures: Array[String]) -> void:
 	var pass_flag: bool = bool(metric_result.get("pass", false))
-	var team_save_fail_span: bool = _has_span(metric_result, "team_peel_saves_total", false)
+	var team_save_diag_span: bool = _has_diagnostic_span(metric_result, "team_peel_saves_total", "alternate_peel_evidence_satisfied")
 	var ally_span: bool = _has_span(metric_result, "subject_peel_ally_protection_events", true)
 	var ally_magnitude_span: bool = _has_span(metric_result, "subject_peel_ally_protection_magnitude", true)
-	if not pass_flag or not team_save_fail_span or not ally_span or not ally_magnitude_span:
-		failures.append("SoftPeelTeamSaveAcceptedMissProbe: FAIL %s aggregate approach control pass=%s team_save_fail=%s ally_span=%s ally_magnitude_span=%s" % [subject_id, str(pass_flag), str(team_save_fail_span), str(ally_span), str(ally_magnitude_span)])
+	if not pass_flag or not team_save_diag_span or not ally_span or not ally_magnitude_span:
+		failures.append("SoftPeelTeamSaveAcceptedMissProbe: FAIL %s aggregate approach control pass=%s team_save_diag=%s ally_span=%s ally_magnitude_span=%s" % [subject_id, str(pass_flag), str(team_save_diag_span), str(ally_span), str(ally_magnitude_span)])
 
 func _check_approach_weak(subject_id: String, metric_result: Dictionary, failures: Array[String]) -> void:
 	if bool(metric_result.get("pass", false)):
@@ -85,11 +85,11 @@ func _check_support_full(metric_result: Dictionary, failures: Array[String]) -> 
 
 func _check_support_aggregate(metric_result: Dictionary, failures: Array[String]) -> void:
 	var pass_flag: bool = bool(metric_result.get("pass", false))
-	var team_save_fail_span: bool = _has_span(metric_result, "peel_saves_med_a", false)
+	var team_save_diag_span: bool = _has_diagnostic_span(metric_result, "peel_saves_med_a", "alternate_support_evidence_satisfied")
 	var subject_support_span: bool = _has_span(metric_result, "subject_support_events", true)
 	var subject_magnitude_span: bool = _has_span(metric_result, "subject_support_ally_buff_magnitude", true)
-	if not pass_flag or not team_save_fail_span or not subject_support_span or not subject_magnitude_span:
-		failures.append("SoftPeelTeamSaveAcceptedMissProbe: FAIL Axiom support-role aggregate control pass=%s team_save_fail=%s subject_support=%s subject_magnitude=%s" % [str(pass_flag), str(team_save_fail_span), str(subject_support_span), str(subject_magnitude_span)])
+	if not pass_flag or not team_save_diag_span or not subject_support_span or not subject_magnitude_span:
+		failures.append("SoftPeelTeamSaveAcceptedMissProbe: FAIL Axiom support-role aggregate control pass=%s team_save_diag=%s subject_support=%s subject_magnitude=%s" % [str(pass_flag), str(team_save_diag_span), str(subject_support_span), str(subject_magnitude_span)])
 
 func _check_support_weak(metric_result: Dictionary, failures: Array[String]) -> void:
 	if bool(metric_result.get("pass", false)):
@@ -189,6 +189,17 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == reason:
 			return true
 	return false
 

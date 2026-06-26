@@ -188,6 +188,8 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
         RoleCommon.append_span(spans, "subject_support_cc_immunity", subj_cc_immunity, 1.0, subj_cc_immunity >= 1, ex)
         RoleCommon.append_span(spans, "subject_support_cleanse_applied", subj_cleanse_applied, 1.0, subj_cleanse_applied >= 1, ex)
         var pass_subj: bool = (ok_ehp or ok_subject_support or ok_subject_magnitude or (peel_med.get(sidex, 0.0) >= peel_min))
+        if pass_subj and not bool(peel_pass.get(sidex, false)) and (ok_ehp or ok_subject_support or ok_subject_magnitude):
+            _mark_span_diagnostic(spans, "peel_saves_med_%s" % sidex, "alternate_support_evidence_satisfied")
         return {
             "id": METRIC_ID,
             "version": VERSION,
@@ -203,6 +205,16 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
         "spans": spans,
         "message": "; ".join(messages)
     }
+
+func _mark_span_diagnostic(spans: Array, label_prefix: String, reason: String) -> void:
+    for span_value in spans:
+        if not (span_value is Dictionary):
+            continue
+        var span: Dictionary = span_value as Dictionary
+        var label: String = String(span.get("label", ""))
+        if label.begins_with(label_prefix):
+            span.erase("ok")
+            span["reason"] = reason
 
 func _subject_side(entry: Dictionary, subject_id: String) -> String:
     var c: Dictionary = entry.get("context", {})
