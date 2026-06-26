@@ -1,6 +1,7 @@
 extends "res://tests/visual/actual_run_loop_smoke.gd"
 
 const SMOKE_NAME: String = "PostCombatPlanningBeatSmoke"
+const OUTPUT_DIR: String = "res://outputs/visual_iter/post_combat_planning_beat_pass"
 const MIN_RESTORED_PLANNING_SECONDS: float = 55.0
 
 func _run() -> void:
@@ -41,6 +42,7 @@ func _run() -> void:
 	_expect(intermission_seen, "post-combat intermission bar did not appear before planning returned")
 	if _finish_if_failed():
 		return
+	_save_capture("01_post_win_intermission_bar.png")
 
 	var restored: bool = await _wait_for_post_win_planning(8.0)
 	_expect(restored, "post-win planning did not restore after intermission")
@@ -53,6 +55,9 @@ func _run() -> void:
 	_expect(_continue_button_text() == "Start Battle", "post-win planning did not restore Start Battle, got %s" % _continue_button_text())
 	_expect(not _continue_button_disabled(), "post-win Start Battle button stayed disabled")
 	_expect(_planning_time_left() >= MIN_RESTORED_PLANNING_SECONDS, "post-win planning timer was not reset; got %.2f" % _planning_time_left())
+	_normalize_restored_planning_capture_timer()
+	await get_tree().process_frame
+	_save_capture("02_post_win_planning_restored.png")
 	await _settle_frames(12)
 	_expect(GameState.phase == GameState.GamePhase.PREVIEW, "post-win planning did not remain in PREVIEW for the first beat")
 	_expect(_continue_button_text() == "Start Battle", "post-win planning button changed during the first beat")
@@ -97,6 +102,41 @@ func _continue_button() -> Button:
 	if _main == null or not is_instance_valid(_main):
 		return null
 	return _main.find_child("ContinueButton", true, false) as Button
+
+func _normalize_restored_planning_capture_timer() -> void:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return
+	combat.set("planning_timer_total", 60.0)
+	combat.set("planning_time_left", 60.0)
+	var timer_label: Label = combat.get_node_or_null("MarginContainer/VBoxContainer/PlanningTimerLabel") as Label
+	if timer_label != null:
+		timer_label.text = "Planning: 1:00"
+
+func _save_capture(filename: String) -> void:
+	if _is_framebuffer_unavailable():
+		print("%s: skipped %s because framebuffer capture is unavailable" % [SMOKE_NAME, filename])
+		return
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	var texture: ViewportTexture = get_viewport().get_texture()
+	if texture == null or not texture.get_rid().is_valid():
+		push_error("%s: skipped %s; viewport texture unavailable" % [SMOKE_NAME, filename])
+		return
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		push_error("%s: skipped %s; viewport image unavailable" % [SMOKE_NAME, filename])
+		return
+	var path: String = "%s/%s" % [OUTPUT_DIR, filename]
+	var error: Error = image.save_png(path)
+	if error != OK:
+		push_error("%s: failed to save %s error=%s" % [SMOKE_NAME, ProjectSettings.globalize_path(path), str(int(error))])
+		return
+	print("%s: saved %s" % [SMOKE_NAME, ProjectSettings.globalize_path(path)])
+
+func _is_framebuffer_unavailable() -> bool:
+	var display_name: String = DisplayServer.get_name().to_lower()
+	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
+	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")
 
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
