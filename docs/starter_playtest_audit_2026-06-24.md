@@ -594,11 +594,11 @@ Fresh ignored-runner evidence was generated on 2026-06-24 at `outputs/audit_play
 
 The same runner was refreshed on 2026-06-25 through legacy MCP. It again completed with `PremiumDeployAuditRunner: OK` and `errors: []`. In the refreshed run, Bonko's opener left enough gold for natural Buy XP to succeed, so no audit gold was needed for the XP step; the runner then granted premium-shop audit gold, rerolled once, bought cost-2 `Veyra`, showed the deploy prompt, and dragged Veyra to the board for final board state `["bonko", "veyra"]`.
 
-A later 2026-06-25 rerun varied the reward/economy outcome and still passed. It completed with `PremiumDeployAuditRunner: OK` and `errors: []`; natural Buy XP at 4 gold correctly failed the reserve-floor rule with tooltip `Must keep at least 1 health (need +1)`, one audit gold grant let Buy XP advance to `Lvl 2 (2/6)`, the level-2 shop exposed cost-2 `Volt` after three rerolls, and the runner bought/deployed Volt for final board `["bonko", "volt"]`. This keeps the behavioral cost-2 path covered even though live-window screenshots remain blocked.
+A later 2026-06-25 rerun varied the reward/economy outcome and still passed. It completed with `PremiumDeployAuditRunner: OK` and `errors: []`; natural Buy XP at 4 gold correctly failed the reserve-floor rule with tooltip `Must keep at least 1 health (need +1)`, one audit gold grant let Buy XP advance to `Lvl 2 (2/6)`, the level-2 shop exposed cost-2 `Volt` after three rerolls, and the runner bought/deployed Volt for final board `["bonko", "volt"]`. This keeps the behavioral cost-2 path covered even though live-window screenshots remain blocked. A 2026-06-26 rerun of `BuyXPTransactionalFeedbackSmoke` also passed with `errors: []`, preserving the current visible denial message and successful XP repaint contract.
 
 Run result:
 - Bonko won the forced opener and reached the post-fight shop with visible `Gold: 4` and `Lvl 1 (0/2)`.
-- A natural Buy XP click at 4 gold did not change gold or level; the button tooltip reported `Must keep at least 1 health (need +1)`.
+- A natural Buy XP click at 4 gold did not change gold or level; the button tooltip reported `Must keep at least 1 health (need +1)`, and the current presenter smoke additionally guards the visible post-click message `Need +1 gold to buy XP and keep 1 health.`
 - The audit runner then granted 1 gold to test the successful path. Buy XP advanced to `Lvl 2 (2/6)` and left gold at 1.
 - The runner granted 11 audit gold for a premium-shop interaction, rerolled once, and found cost-2 `Volt` as a rendered shop card.
 - Clicking the rendered `Volt` card bought it to the bench, showed the first-purchase deploy prompt, and left the board as `["bonko"]`.
@@ -606,7 +606,7 @@ Run result:
 
 Implication:
 - The cost-2 premium buy/deploy path is behaviorally covered in the current Main flow after leveling, including rendered card click and bench-to-board drag. The accepted runner history now covers two cost-2 outcomes: `Volt` after an audit-funded XP step and `Veyra` after natural Buy XP.
-- The reserve-floor Buy XP affordance is still weak: the click is accepted by the button but produces no obvious visible error beyond tooltip state. A player at 4 gold can easily read this as a missed click.
+- The former reserve-floor affordance gap is now mechanically covered: `BuyXPTransactionalFeedbackSmoke` verifies the 4-gold click leaves gold/level/XP unchanged and shows `Need +1 gold to buy XP and keep 1 health.`, while the 6-gold click repaints `Gold: 2` and `Lvl 2 (2/6)` immediately.
 - PNG capture requests in this runner were skipped under the MCP dummy/headless framebuffer. A live-editor attempt to capture the same runner was session-sensitive and failed before the post-fight shop, so this evidence should be treated as behavioral JSON/debug-output proof, not visual-polish proof.
 
 ## Current Live Main-Flow Screenshot Recheck
@@ -932,12 +932,12 @@ This table records historical manual observations from the older 21-unit starter
 
 12. Buy XP works; preserve explicit reserve/economy feedback.
    - Korath's Stage 5 planning state had 7 gold. Buying XP changed `Lvl 1 (0/2)` to `Lvl 2 (2/6)` and left 3 gold before purchases.
-   - Subsequent low-gold buying surfaced "Purchasing this now would kill you" even after a strong run, so the reserve-floor rule still needs clearer preview and affordance.
+   - Subsequent low-gold buying originally surfaced "Purchasing this now would kill you" even after a strong run, so the reserve-floor rule needed clearer preview and affordance.
    - Mortem and Sari later exposed a related click-feedback problem: XP and late shop buys did not always visibly apply even with enough gold, and subsequent states made it hard to tell whether the click missed, the timer advanced, or the purchase was rejected.
    - The current premium deploy runner reproduced the clean boundary: at 4 gold, Buy XP does not level; after one audit gold grant, Buy XP succeeds and updates to `Lvl 2 (2/6)`.
    - The live-window signal-path recheck confirmed the same input behavior visually: once the UI showed `Gold: 5`, an OS click on Buy XP changed the visible label to `Lvl 2 (2/6)`.
    - The natural Buy XP runner confirmed a non-granted route: Bonko plus a bought/deployed cost-1 helper reached `Gold: 6` after the next max-bet win, and Buy XP then advanced naturally to `Lvl 2 (2/6)`.
-   - The refreshed natural Buy XP runner also confirms the denied 4-gold click now emits `Need +1 gold to buy XP and keep 1 health.` as visible UI feedback.
+   - The refreshed natural Buy XP runner and current `BuyXPTransactionalFeedbackSmoke` rerun also confirm the denied 4-gold click now emits `Need +1 gold to buy XP and keep 1 health.` as visible UI feedback.
 
 13. Scoreboard identity was unclear with duplicates. Closed in the current branch.
    - Morrak's Stage 5 run showed two separate `Berebell` scoreboard rows, and the duplicate visual runner confirmed they originally rendered as `Berebell 1.5k` and `Berebell 1.4k` with no visible identity disambiguator.
