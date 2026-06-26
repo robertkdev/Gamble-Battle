@@ -16,6 +16,7 @@ func _ready() -> void:
 func _run() -> void:
 	var positive_result: Dictionary = _run_case(true)
 	var alternate_result: Dictionary = _run_no_cc_case()
+	var mixed_peak_metric: Dictionary = _run_mixed_peak_case()
 	var negative_result: Dictionary = _run_case(false)
 	var positive_rec: Dictionary = positive_result.get("rec", {})
 	var positive_metric: Dictionary = positive_result.get("metric", {})
@@ -32,8 +33,12 @@ func _run() -> void:
 	var cc_events: int = int(positive_rec.get("cc_events", 0))
 	var positive_pass: bool = bool(positive_metric.get("pass", false))
 	var alternate_pass: bool = bool(alternate_metric.get("pass", false))
+	var mixed_peak_pass: bool = bool(mixed_peak_metric.get("pass", false))
 	var negative_pass: bool = bool(negative_metric.get("pass", false))
 	var displacement_span: bool = _has_passing_span(positive_metric, "subject_early_engage_displacement_tiles")
+	var peak_span: bool = _has_passing_span(mixed_peak_metric, "subject_early_engage_displacement_tiles_peak")
+	var mixed_median_diag: bool = _has_diagnostic_span(mixed_peak_metric, "subject_early_engage_displacement_tiles_med", "alternate_engage_peak_distance_satisfied")
+	var mixed_cc_diag: bool = _has_diagnostic_span(mixed_peak_metric, "subject_time_to_first_cc_s", "alternate_engage_peak_distance_satisfied")
 	var action_span: bool = _has_passing_span(positive_metric, "subject_time_to_first_action_s")
 	var cc_span: bool = _has_passing_span(positive_metric, "subject_time_to_first_cc_s")
 	var alternate_displacement_span: bool = _has_passing_span(alternate_metric, "subject_early_engage_displacement_tiles")
@@ -48,6 +53,9 @@ func _run() -> void:
 		" alternate_first_cc=", alternate_first_cc,
 		" alternate_pass=", alternate_pass,
 		" alternate_cc_diag=", alternate_cc_diag,
+		" mixed_peak_pass=", mixed_peak_pass,
+		" mixed_median_diag=", mixed_median_diag,
+		" mixed_cc_diag=", mixed_cc_diag,
 		" cc_seconds=", cc_seconds,
 		" cc_events=", cc_events,
 		" positive_pass=", positive_pass,
@@ -68,6 +76,9 @@ func _run() -> void:
 		failed = true
 	if alternate_displacement < 1.0 or alternate_first_action < 0.0 or alternate_first_action > 5.0 or alternate_first_cc >= 0.0 or not alternate_pass or not alternate_displacement_span or not alternate_action_span or not alternate_cc_diag:
 		printerr("EngageCcTimingKernelProbe: FAIL alternate fast-action engage evidence did not keep missing CC diagnostic")
+		failed = true
+	if not mixed_peak_pass or not peak_span or not mixed_median_diag or not mixed_cc_diag:
+		printerr("EngageCcTimingKernelProbe: FAIL mixed-context peak engage evidence did not keep median/CC diagnostics")
 		failed = true
 	if negative_pass:
 		printerr("EngageCcTimingKernelProbe: FAIL weak no-engage negative case passed approach_engage")
@@ -170,6 +181,42 @@ func _run_no_cc_case() -> Dictionary:
 	return {
 		"rec": rec,
 		"metric": metric_result
+	}
+
+func _run_mixed_peak_case() -> Dictionary:
+	var metric: Variant = EngageApproachTest.new()
+	var sims: Dictionary = {}
+	sims["low_a"] = _mixed_peak_entry(0.20, 1.40)
+	sims["low_b"] = _mixed_peak_entry(0.30, 1.60)
+	sims["peak"] = _mixed_peak_entry(1.40, 2.00)
+	var payload: Dictionary = {
+		"context": {
+			"scenario": "neutral",
+			"sims": sims
+		},
+		"subject_unit_ids": [SUBJECT_ID]
+	}
+	return metric.call("run_metric", payload)
+
+func _mixed_peak_entry(displacement_tiles: float, first_action_s: float) -> Dictionary:
+	var rec: Dictionary = {
+		"early_max_displacement_tiles": displacement_tiles,
+		"first_action_s": first_action_s
+	}
+	var per_unit_a: Dictionary = {}
+	per_unit_a[SUBJECT_ID] = rec
+	return {
+		"context": {
+			"team_a_ids": [SUBJECT_ID],
+			"team_b_ids": [TARGET_ID]
+		},
+		"kernels": {
+			"control_mobility": {
+				"per_unit": {
+					"a": per_unit_a
+				}
+			}
+		}
 	}
 
 func _move(engine: CombatEngine, kernel: Variant, delta_s: float, position: Vector2) -> void:

@@ -66,35 +66,51 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 			cc_samples.append(first_cc)
 
 	var distance_value: float = RoleCommon.median(distance_samples)
+	var distance_peak_value: float = _max_sample(distance_samples)
 	var action_value: float = RoleCommon.median(action_samples)
 	var cc_value: float = RoleCommon.median(cc_samples)
 	var distance_pass: bool = distance_samples.size() > 0 and distance_value >= distance_req
+	var distance_peak_pass: bool = distance_samples.size() > 0 and distance_peak_value >= distance_req
 	var action_pass: bool = action_samples.size() > 0 and action_value <= action_max
 	var cc_pass: bool = cc_samples.size() > 0 and cc_value <= cc_max
 	var eval: Dictionary = RoleCommon.k_of_n([distance_pass, action_pass, cc_pass], int(kcfg.get("k", 2)), int(kcfg.get("n", 3)))
-	var pass_flag: bool = bool(eval.get("pass", false))
+	var standard_pass: bool = bool(eval.get("pass", false))
+	var peak_initiate_pass: bool = distance_peak_pass and action_pass
+	var pass_flag: bool = standard_pass or peak_initiate_pass
 
 	var spans: Array = []
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, ("no_samples" if considered <= 0 else ""))
 	extras["considered"] = considered
 	extras["k_required"] = int(eval.get("k", 2))
-	extras["true_count"] = int(eval.get("true_count", 0))
+	extras["true_count"] = max(int(eval.get("true_count", 0)), 2) if peak_initiate_pass else int(eval.get("true_count", 0))
 	var distance_extra: Dictionary = extras.duplicate()
+	var peak_extra: Dictionary = extras.duplicate()
 	var action_extra: Dictionary = extras.duplicate()
 	var cc_extra: Dictionary = extras.duplicate()
 	var distance_ok: Variant = distance_pass
+	var peak_ok: Variant = distance_peak_pass
 	var action_ok: Variant = action_pass
 	var cc_ok: Variant = cc_pass
-	if pass_flag and not distance_pass:
+	if peak_initiate_pass and not standard_pass and not distance_pass:
+		distance_ok = null
+		distance_extra["reason"] = "alternate_engage_peak_distance_satisfied"
+	elif pass_flag and not distance_pass:
 		distance_ok = null
 		distance_extra["reason"] = "alternate_engage_evidence_satisfied"
+	if pass_flag and not distance_peak_pass:
+		peak_ok = null
+		peak_extra["reason"] = "alternate_engage_evidence_satisfied"
 	if pass_flag and not action_pass:
 		action_ok = null
 		action_extra["reason"] = "alternate_engage_evidence_satisfied"
-	if pass_flag and not cc_pass:
+	if peak_initiate_pass and not standard_pass and not cc_pass:
+		cc_ok = null
+		cc_extra["reason"] = "alternate_engage_peak_distance_satisfied"
+	elif pass_flag and not cc_pass:
 		cc_ok = null
 		cc_extra["reason"] = "alternate_engage_evidence_satisfied"
 	RoleCommon.append_span(spans, "subject_early_engage_displacement_tiles_med", distance_value, distance_req, distance_ok, distance_extra)
+	RoleCommon.append_span(spans, "subject_early_engage_displacement_tiles_peak", distance_peak_value, distance_req, peak_ok, peak_extra)
 	RoleCommon.append_span(spans, "subject_time_to_first_action_s_med", action_value, action_max, action_ok, action_extra)
 	RoleCommon.append_span(spans, "subject_time_to_first_cc_s_med", cc_value, cc_max, cc_ok, cc_extra)
 
@@ -135,3 +151,12 @@ func _any_side_for_subject(sims: Dictionary, subject_id: String) -> String:
 		if side != "":
 			return side
 	return ""
+
+func _max_sample(samples: Array[float]) -> float:
+	var result: float = 0.0
+	var has_sample: bool = false
+	for sample_value in samples:
+		if not has_sample or sample_value > result:
+			result = sample_value
+			has_sample = true
+	return result
