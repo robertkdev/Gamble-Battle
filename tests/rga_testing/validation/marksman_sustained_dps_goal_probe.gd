@@ -45,7 +45,7 @@ func _run() -> void:
 	var sari_low_damage_fail_span: bool = _has_span(sari_low_damage_goal, "goal_marksman_sustained_dps_team_damage_share", false)
 	var teller_low_damage_fail_span: bool = _has_span(teller_low_damage_goal, "goal_marksman_sustained_dps_team_damage_share", false)
 	var sari_low_ramp_stack: float = _span_value(sari_low_ramp_goal, "goal_marksman_sustained_dps_ramp_stack_max")
-	var sari_low_ramp_fail_span: bool = _has_span(sari_low_ramp_goal, "goal_marksman_sustained_dps_ramp_stack_max", false)
+	var sari_low_ramp_diagnostic: bool = _has_diagnostic_span(sari_low_ramp_goal, "goal_marksman_sustained_dps_ramp_stack_max", "alternate_ramp_state_evidence_satisfied")
 	var weak_damage_span: bool = _has_span(weak_goal, "goal_marksman_sustained_dps_team_damage_share", true)
 	var weak_range_span: bool = _has_span(weak_goal, "goal_marksman_sustained_dps_attacks_over_2_tiles", true)
 
@@ -56,7 +56,7 @@ func _run() -> void:
 		" sari_low_damage_fail_span=", sari_low_damage_fail_span,
 		" sari_low_ramp_pass=", sari_low_ramp_pass,
 		" sari_low_ramp_stack=", sari_low_ramp_stack,
-		" sari_low_ramp_fail_span=", sari_low_ramp_fail_span,
+		" sari_low_ramp_diagnostic=", sari_low_ramp_diagnostic,
 		" teller_full_pass=", teller_full_pass,
 		" teller_damage_share=", teller_damage_share,
 		" teller_low_damage_pass=", teller_low_damage_pass,
@@ -82,8 +82,8 @@ func _run() -> void:
 	if not teller_low_damage_pass or not teller_low_damage_fail_span:
 		printerr("MarksmanSustainedDpsGoalProbe: FAIL Teller low-damage aggregate path did not preserve a failed damage-share span")
 		failed = true
-	if not sari_low_ramp_pass or not sari_low_ramp_fail_span or sari_low_ramp_stack >= 2.0:
-		printerr("MarksmanSustainedDpsGoalProbe: FAIL Sari low-ramp aggregate path did not preserve a failed ramp-stack span")
+	if not sari_low_ramp_pass or not sari_low_ramp_diagnostic or sari_low_ramp_stack >= 2.0:
+		printerr("MarksmanSustainedDpsGoalProbe: FAIL Sari low-ramp aggregate path did not keep ramp-stack span diagnostic")
 		failed = true
 	if weak_pass or weak_damage_span or weak_range_span:
 		printerr("MarksmanSustainedDpsGoalProbe: FAIL weak marksman sustained-DPS control passed")
@@ -228,7 +228,19 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 			continue
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
-		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+		if label.begins_with(label_prefix) and span.has("ok") and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		var reason: String = String(span.get("reason", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and reason == expected_reason:
 			return true
 	return false
 

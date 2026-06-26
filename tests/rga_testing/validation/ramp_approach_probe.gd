@@ -37,8 +37,8 @@ func _run() -> void:
 	var veyra_full_stack_span: bool = _has_span(veyra_full_metric, "subject_ramp_stack_max", true)
 	var sari_low_stack: float = _span_value(sari_low_metric, "subject_ramp_stack_max")
 	var veyra_low_stack: float = _span_value(veyra_low_metric, "subject_ramp_stack_max")
-	var sari_low_stack_fail_span: bool = _has_span(sari_low_metric, "subject_ramp_stack_max", false)
-	var veyra_low_stack_fail_span: bool = _has_span(veyra_low_metric, "subject_ramp_stack_max", false)
+	var sari_low_stack_diagnostic: bool = _has_diagnostic_span(sari_low_metric, "subject_ramp_stack_max", "alternate_ramp_state_evidence_satisfied")
+	var veyra_low_stack_diagnostic: bool = _has_diagnostic_span(veyra_low_metric, "subject_ramp_stack_max", "alternate_ramp_state_evidence_satisfied")
 	var weak_stack_span: bool = _has_span(weak_metric, "subject_ramp_stack_max", true)
 
 	print("RampApproachProbe: sari_full_pass=", sari_full_pass,
@@ -47,10 +47,10 @@ func _run() -> void:
 		" veyra_stack=", veyra_stack,
 		" sari_low_pass=", sari_low_pass,
 		" sari_low_stack=", sari_low_stack,
-		" sari_low_stack_fail_span=", sari_low_stack_fail_span,
+		" sari_low_stack_diagnostic=", sari_low_stack_diagnostic,
 		" veyra_low_pass=", veyra_low_pass,
 		" veyra_low_stack=", veyra_low_stack,
-		" veyra_low_stack_fail_span=", veyra_low_stack_fail_span,
+		" veyra_low_stack_diagnostic=", veyra_low_stack_diagnostic,
 		" weak_pass=", weak_pass)
 
 	var failed: bool = false
@@ -63,11 +63,11 @@ func _run() -> void:
 	if sari_stack < 4.0 or veyra_stack < 4.0:
 		printerr("RampApproachProbe: FAIL direct full-stack proof was below target")
 		failed = true
-	if not sari_low_pass or not sari_low_stack_fail_span or sari_low_stack >= 2.0:
-		printerr("RampApproachProbe: FAIL Sari low-stack aggregate path did not preserve a failed stack span")
+	if not sari_low_pass or not sari_low_stack_diagnostic or sari_low_stack >= 2.0:
+		printerr("RampApproachProbe: FAIL Sari low-stack aggregate path did not keep stack span diagnostic")
 		failed = true
-	if not veyra_low_pass or not veyra_low_stack_fail_span or veyra_low_stack >= 2.0:
-		printerr("RampApproachProbe: FAIL Veyra low-stack aggregate path did not preserve a failed stack span")
+	if not veyra_low_pass or not veyra_low_stack_diagnostic or veyra_low_stack >= 2.0:
+		printerr("RampApproachProbe: FAIL Veyra low-stack aggregate path did not keep stack span diagnostic")
 		failed = true
 	if weak_pass or weak_stack_span:
 		printerr("RampApproachProbe: FAIL weak ramp control passed")
@@ -158,7 +158,19 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 			continue
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
-		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+		if label.begins_with(label_prefix) and span.has("ok") and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		var reason: String = String(span.get("reason", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and reason == expected_reason:
 			return true
 	return false
 

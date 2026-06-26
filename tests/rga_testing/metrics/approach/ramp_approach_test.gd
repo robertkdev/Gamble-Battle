@@ -145,13 +145,16 @@ func _direct_ramp_result(subject_id: String, sims: Dictionary, scenario_label: S
 	var window_duration_pass: bool = window_duration_samples.size() > 0 and window_duration_value >= window_duration_req
 	var eval: Dictionary = RoleCommon.k_of_n([state_events_pass, stack_max_pass, peak_duration_pass, window_duration_pass], k_required, n_total)
 	var pass_flag: bool = bool(eval.get("pass", false))
+	var stack_span_ok: Variant = stack_max_pass
+	if pass_flag and state_events_pass and (peak_duration_pass or window_duration_pass) and not stack_max_pass:
+		stack_span_ok = null
 
 	var spans: Array = []
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, ("no_direct_ramp_events" if state_event_samples.is_empty() else "direct_ramp_state"))
 	extras["samples"] = state_event_samples.size()
 	extras["direct_ramp_state"] = true
 	RoleCommon.append_span(spans, "subject_ramp_state_events", state_events_value, state_events_req, state_events_pass, extras)
-	RoleCommon.append_span(spans, "subject_ramp_stack_max", stack_max_value, stack_max_req, stack_max_pass, extras)
+	RoleCommon.append_span(spans, "subject_ramp_stack_max", stack_max_value, stack_max_req, stack_span_ok, _extras_for_span(extras, stack_span_ok, "alternate_ramp_state_evidence_satisfied"))
 	RoleCommon.append_span(spans, "subject_ramp_peak_duration_s", peak_duration_value, peak_duration_req, peak_duration_pass, extras)
 	RoleCommon.append_span(spans, "subject_ramp_window_duration_s", window_duration_value, window_duration_req, window_duration_pass, extras)
 	RoleCommon.append_span(spans, "subject_ramp_time_to_peak_s", time_to_peak_value, null, true, extras)
@@ -174,6 +177,13 @@ func _subject_pattern(entry: Dictionary, subject_id: String) -> Dictionary:
 	var side_map: Dictionary = per_unit.get(side, {}) if (per_unit is Dictionary) else {}
 	var rec: Dictionary = side_map.get(subject_id, {}) if (side_map is Dictionary) else {}
 	return rec if rec is Dictionary else {}
+
+func _extras_for_span(base_extras: Dictionary, span_ok: Variant, diagnostic_reason: String) -> Dictionary:
+	if span_ok != null:
+		return base_extras
+	var diagnostic_extras: Dictionary = base_extras.duplicate(true)
+	diagnostic_extras["reason"] = diagnostic_reason
+	return diagnostic_extras
 
 func _subject_side(entry: Dictionary, subject_id: String) -> String:
 	var context: Dictionary = entry.get("context", {})

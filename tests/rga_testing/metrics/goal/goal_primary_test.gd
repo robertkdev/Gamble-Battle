@@ -685,11 +685,21 @@ func _goal_ramp_ok(summary: Dictionary, spans: Array, prefix: String) -> bool:
 		var stack_max: float = float(summary.get("ramp_stack_max", 0.0))
 		var peak_duration: float = float(summary.get("ramp_peak_duration_s", 0.0))
 		var window_duration: float = float(summary.get("ramp_window_duration_s", 0.0))
-		var events_ok: bool = _append_span(spans, summary, "%s_ramp_state_events" % prefix, float(events), 1.0, events >= 1, "direct_ramp_state")
-		var stack_ok: bool = _append_span(spans, summary, "%s_ramp_stack_max" % prefix, stack_max, 2.0, stack_max >= 2.0, "direct_ramp_state")
-		var peak_ok: bool = _append_span(spans, summary, "%s_ramp_peak_duration_s" % prefix, peak_duration, 1.0, peak_duration >= 1.0, "direct_ramp_state")
-		var window_ok: bool = _append_span(spans, summary, "%s_ramp_window_duration_s" % prefix, window_duration, 1.0, window_duration >= 1.0, "direct_ramp_state")
-		return events_ok and _k_of_n([stack_ok, peak_ok, window_ok], 1)
+		var events_pass: bool = events >= 1
+		var stack_pass: bool = stack_max >= 2.0
+		var peak_pass: bool = peak_duration >= 1.0
+		var window_pass: bool = window_duration >= 1.0
+		var ramp_pass: bool = events_pass and _k_of_n([stack_pass, peak_pass, window_pass], 1)
+		var stack_span_ok: Variant = stack_pass
+		var stack_reason: String = "direct_ramp_state"
+		if ramp_pass and not stack_pass:
+			stack_span_ok = null
+			stack_reason = "alternate_ramp_state_evidence_satisfied"
+		_append_span(spans, summary, "%s_ramp_state_events" % prefix, float(events), 1.0, events_pass, "direct_ramp_state")
+		_append_span(spans, summary, "%s_ramp_stack_max" % prefix, stack_max, 2.0, stack_span_ok, stack_reason)
+		_append_span(spans, summary, "%s_ramp_peak_duration_s" % prefix, peak_duration, 1.0, peak_pass, "direct_ramp_state")
+		_append_span(spans, summary, "%s_ramp_window_duration_s" % prefix, window_duration, 1.0, window_pass, "direct_ramp_state")
+		return ramp_pass
 	return _append_span(spans, summary, "%s_late_early_ratio" % prefix, float(summary.get("late_early_dps_ratio", 0.0)), 1.0, float(summary.get("late_early_dps_ratio", 0.0)) >= 1.0, "ramp_state_missing")
 
 func _key_threat_dodge_rate(summary: Dictionary) -> float:
