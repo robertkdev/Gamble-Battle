@@ -323,6 +323,19 @@ Fresh MCP debug validation on 2026-06-26 rechecked the current item UI, complete
 
 This refresh keeps the current item/reward surface aligned with the existing live-renderer item/trait screenshots while preserving the known MCP dummy-framebuffer limitation.
 
+## Current Combat Feedback And Stats UI Smoke Refresh
+
+Fresh MCP debug validation on 2026-06-26 rechecked combat resolution feedback, watchdog fallback, standalone combat startup, duplicate scoreboard labels, and stats-panel interaction depth:
+
+- `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`, `errors: []`.
+- `tests/visual/CombatResolvingFeedbackSmoke.tscn`: `CombatResolvingFeedbackSmoke: OK`, `errors: []`.
+- `tests/visual/CombatViewThemePlaytest.tscn`: `CombatViewThemePlaytest: OK elapsed=2.00`, `errors: []`.
+- `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`: `ScoreboardDuplicateDisambiguationSmoke: OK`, `errors: []`; the MCP dummy framebuffer skipped fresh duplicate-row PNG capture.
+- `tests/visual/StatsPanelClickSmoke.tscn`: `StatsPanelClickSmoke: OK`, `errors: []`.
+- `tests/visual/StatsPanelDeepCapture.tscn`: `StatsPanelDeepCapture: OK output=C:/Users/Flipm/Documents/gamble-battle/outputs/visual_iter/stats_panel_pass`, `errors: []`; the harness skipped fresh PNGs under the MCP dummy framebuffer, skipped second combat enemy selection because only one enemy actor was available, and still verified team metrics, 3s window state, expanded scoreboard state, player/enemy unit selection, scoreboard values, and combat-state activity.
+
+This refresh keeps the current combat feedback and stats UI evidence current after the item/reward pass. It does not replace the existing live-renderer duplicate-scoreboard screenshot or older combat UI visual evidence.
+
 ## Current System Menu Visual Recheck
 
 Fresh OS-window evidence was generated on 2026-06-25 with the ignored hold scene `outputs/audit_playtest/CurrentSystemMenuVisualHold.tscn`.
