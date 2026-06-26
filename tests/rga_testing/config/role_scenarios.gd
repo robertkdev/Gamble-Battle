@@ -84,6 +84,7 @@ static func _mage_packs() -> Array[Dictionary]:
 	return [
 		_scen("mage.periodic_friendly", "neutral", "back", _periodicity_friendly(), ["periodic"]),
 		_scen("mage.mixed", "neutral", "back", _mixed_field(), ["mixed"]),
+		_scen("mage.burst_window", "burst", "back", _pick_burst_window(), ["burst", "pick"]),
 		_scen("mage.clustered_targets", "clustered", "back", _clustered_targets("clustered_targets_mage"), ["aoe", "wombo"]),
 		_scen("mage.clustered_crossfire", "clustered_alt", "back", _clustered_crossfire("clustered_crossfire_mage"), ["aoe", "wombo"])
 	]
@@ -200,6 +201,22 @@ static func _carry_threat_window() -> Dictionary:
 		"row_spacing_tiles": 0.35,
 		"depth_gap": 0.45,
 		"map_id": "carry_threat_window"
+	}
+
+static func _pick_burst_window() -> Dictionary:
+	# Compact burst context so pick-burst identities do not fall back to generic mage maps.
+	return {
+		"openness": 0.55,
+		"choke_count": 0,
+		"obstacle_density": 0.18,
+		"artillery_range": 6.0,
+		"tile_size": 96.0,
+		"half_width_tiles": 4.8,
+		"half_height_tiles": 3.2,
+		"spawn_x_tiles": 2.6,
+		"row_spacing_tiles": 0.28,
+		"depth_gap": 0.35,
+		"map_id": "pick_burst_window"
 	}
 
 static func _periodicity_friendly() -> Dictionary:

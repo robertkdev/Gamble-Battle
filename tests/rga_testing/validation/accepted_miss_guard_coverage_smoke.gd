@@ -7,7 +7,7 @@ const EXPECTED_ACCEPTED_SPAN_COUNT: int = 14
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
 	"marksman_sustained_goal_damage_share_below_target": ["res://tests/rga_testing/validation/MarksmanSustainedDpsGoalProbe.tscn"],
-	"pick_burst_kill_count_absent": ["res://tests/rga_testing/validation/PickBurstKillGoalProbe.tscn"],
+	"pick_burst_kill_count_absent": ["res://tests/rga_testing/validation/PickBurstKillGoalProbe.tscn", "res://tests/rga_testing/validation/PickBurstScenarioLabelSmoke.tscn"],
 	"assassin_opening_presence_below_target": ["res://tests/rga_testing/validation/AssassinOpeningRoleProbe.tscn"],
 	"cc_immunity_approach_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"cc_prevention_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
