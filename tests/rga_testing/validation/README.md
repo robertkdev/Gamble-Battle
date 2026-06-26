@@ -18,11 +18,12 @@ Run these scenes via MCP for headless validation and reports.
   - Produces rows in a single file: `user://rga_out.jsonl` (overwritten each run), and a report at `user://identity_reports/<unit>.json`.
   - Targeted 6v6 scenes:
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Axiom.tscn` - support peel/sustain/amp.
+    - `tests/rga_testing/validation/RoleMatrixProbe6v6Cashmere.tscn` - mage pick_burst/burst.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Hexeon.tscn` - assassin access_backline/burst/execute.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Nyxa.tscn` - marksman long_range/ramp/aoe.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Paisley.tscn` - mage wombo/aoe/peel.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Faeling.tscn` - mage area_denial_zone/aoe/zone.
-    - `tests/rga_testing/validation/RoleMatrixProbe6v6Volt.tscn` - mage pick_burst/burst/lockdown.
+    - `tests/rga_testing/validation/RoleMatrixProbe6v6Volt.tscn` - mage pick_burst/burst/lockdown across counterplay plus burst contexts.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Grint.tscn` - tank engage/disrupt/damage_reduction.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Berebell.tscn` - brawler disrupt/reposition/sustain.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Repo.tscn` - tank lockdown/damage_reduction/burst.
