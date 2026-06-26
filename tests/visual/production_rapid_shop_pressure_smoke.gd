@@ -19,3 +19,9 @@ func _first_shop_timeout_seconds() -> float:
 
 func _post_burst_timeout_seconds() -> float:
 	return 120.0
+
+func _use_viewport_shop_clicks() -> bool:
+	return true
+
+func _shop_click_settle_frames() -> int:
+	return 2

@@ -85,9 +85,7 @@ func _run_flow() -> void:
 	var bench_before_count: int = _bench_ids().size()
 	var board_before_count: int = _board_ids().size()
 	var error_start: int = _shop_errors.size()
-	for card: ShopCard in cards:
-		if is_instance_valid(card) and not card.disabled:
-			card.emit_signal("pressed")
+	await _purchase_cards(cards)
 	await _settle_frames(10)
 
 	var bench_after: Array[String] = _bench_ids()
@@ -131,6 +129,26 @@ func _first_shop_timeout_seconds() -> float:
 
 func _post_burst_timeout_seconds() -> float:
 	return 35.0
+
+func _use_viewport_shop_clicks() -> bool:
+	return false
+
+func _shop_click_settle_frames() -> int:
+	return 1
+
+func _purchase_cards(cards: Array[ShopCard]) -> void:
+	if _use_viewport_shop_clicks():
+		var click_points: Array[Vector2] = []
+		for card: ShopCard in cards:
+			if is_instance_valid(card) and not card.disabled:
+				click_points.append(_visible_click_point(card))
+		for click_point: Vector2 in click_points:
+			await _mouse_click(click_point)
+			await _settle_frames(_shop_click_settle_frames())
+		return
+	for card: ShopCard in cards:
+		if is_instance_valid(card) and not card.disabled:
+			card.emit_signal("pressed")
 
 func _grant_audit_gold() -> void:
 	var delta: int = TARGET_AUDIT_GOLD - int(Economy.gold)
@@ -419,6 +437,39 @@ func _send_drag_release(position: Vector2) -> void:
 	event.pressed = false
 	Input.parse_input_event(event)
 
+func _visible_click_point(control: Control) -> Vector2:
+	var rect: Rect2 = control.get_global_rect()
+	var viewport_rect: Rect2 = _viewport_rect()
+	var visible_rect: Rect2 = rect.intersection(viewport_rect)
+	if visible_rect.size.x > 4.0 and visible_rect.size.y > 4.0:
+		return visible_rect.get_center()
+	return rect.get_center()
+
+func _viewport_rect() -> Rect2:
+	var viewport_rect: Rect2 = get_viewport().get_visible_rect()
+	if viewport_rect.size.x > 4.0 and viewport_rect.size.y > 4.0:
+		return viewport_rect
+	var window_size: Vector2i = DisplayServer.window_get_size()
+	if window_size.x > 4 and window_size.y > 4:
+		return Rect2(Vector2.ZERO, Vector2(float(window_size.x), float(window_size.y)))
+	return Rect2(Vector2.ZERO, Vector2(640.0, 360.0))
+
+func _mouse_click(position: Vector2) -> void:
+	await _mouse_button(position, true)
+	await _mouse_button(position, false)
+
+func _mouse_button(position: Vector2, pressed: bool) -> void:
+	get_viewport().warp_mouse(position)
+	var event: InputEventMouseButton = InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	event.position = position
+	event.global_position = position
+	event.pressed = pressed
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+	await get_tree().process_frame
+
 func _set_planning_timer_safe(seconds: float) -> void:
 	var combat: Control = _main.get_node_or_null("CombatView") as Control
 	if combat == null:
@@ -492,6 +543,7 @@ func _expect(condition: bool, message: String) -> void:
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.set("suppress_validation_warnings", _previous_suppress_validation_warnings)
+	Input.flush_buffered_events()
 	if _has_autoload("Shop") and Shop.is_connected("error", Callable(self, "_on_shop_error")):
 		Shop.error.disconnect(_on_shop_error)
 	var exit_code: int = 0
