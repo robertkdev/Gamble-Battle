@@ -138,14 +138,23 @@ func _capture_combat_states() -> void:
 	await _settle(0.20)
 	_expect_unit_mode("player", 1, "combat player actor 1")
 	_save("14_combat_unit_player_1")
-	_click_actor_unit("enemy", 0)
-	await _settle(0.20)
-	_expect_unit_mode("enemy", 0, "combat enemy actor 0")
-	_save("15_combat_unit_enemy_0")
-	_click_actor_unit("enemy", 1)
-	await _settle(0.20)
-	_expect_unit_mode("enemy", 1, "combat enemy actor 1")
-	_save("16_combat_unit_enemy_1")
+	var enemy_actor_indices: Array[int] = _available_actor_indices("enemy", 6)
+	if enemy_actor_indices.is_empty():
+		_fail("No enemy combat actors available for unit selection")
+	else:
+		var first_enemy_index: int = enemy_actor_indices[0]
+		_click_actor_unit("enemy", first_enemy_index)
+		await _settle(0.20)
+		_expect_unit_mode("enemy", first_enemy_index, "combat enemy actor %d" % first_enemy_index)
+		_save("15_combat_unit_enemy_%d" % first_enemy_index)
+		if enemy_actor_indices.size() > 1:
+			var second_enemy_index: int = enemy_actor_indices[1]
+			_click_actor_unit("enemy", second_enemy_index)
+			await _settle(0.20)
+			_expect_unit_mode("enemy", second_enemy_index, "combat enemy actor %d" % second_enemy_index)
+			_save("16_combat_unit_enemy_%d" % second_enemy_index)
+		else:
+			print("StatsPanelDeepCapture: skipped second combat enemy actor selection because only one enemy actor is available")
 	_press_window("Window3s")
 	await _settle(0.16)
 	_expect_pressed("Window3s", true, "combat 3s window")
@@ -195,15 +204,7 @@ func _click_grid_unit(team: String, index: int) -> int:
 	return -999
 
 func _click_actor_unit(team: String, index: int) -> void:
-	var bridge: Variant = _controller.get("arena_bridge")
-	if bridge == null:
-		_fail("Arena bridge missing")
-		return
-	var actor: Control = null
-	if team == "player" and bridge.has_method("get_player_actor"):
-		actor = bridge.get_player_actor(index) as Control
-	elif team == "enemy" and bridge.has_method("get_enemy_actor"):
-		actor = bridge.get_enemy_actor(index) as Control
+	var actor: Control = _get_actor_unit(team, index)
 	if actor == null:
 		_fail("Actor missing for %s index %d" % [team, index])
 		return
@@ -212,6 +213,24 @@ func _click_actor_unit(team: String, index: int) -> void:
 		_emit_click(hit)
 	else:
 		_emit_click(actor)
+
+func _available_actor_indices(team: String, max_scan: int) -> Array[int]:
+	var indices: Array[int] = []
+	for index: int in range(max_scan):
+		if _get_actor_unit(team, index) != null:
+			indices.append(index)
+	return indices
+
+func _get_actor_unit(team: String, index: int) -> Control:
+	var bridge: Variant = _controller.get("arena_bridge")
+	if bridge == null:
+		return null
+	var actor: Control = null
+	if team == "player" and bridge.has_method("get_player_actor"):
+		actor = bridge.get_player_actor(index) as Control
+	elif team == "enemy" and bridge.has_method("get_enemy_actor"):
+		actor = bridge.get_enemy_actor(index) as Control
+	return actor
 
 func _click_clear_area() -> void:
 	var clear_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground") as Control

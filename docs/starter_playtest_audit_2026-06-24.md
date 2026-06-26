@@ -132,6 +132,30 @@ Result:
 - The panel's non-dummy screenshot save path is verified in a live debug window.
 - The remaining infrastructure caveat is not the panel; it is the Godot-AI game helper sometimes failing to register debugger capture/eval for the running game.
 
+## Current Main-flow Smoke Sweep Recheck
+
+Fresh MCP debug validation on 2026-06-26 rechecked the broad playable surface after the RGA residual guard pass:
+
+- `tests/visual/UnitSelectSmoke.tscn`: `UnitSelectSmoke: OK`, `errors: []`.
+- `tests/visual/ActualRunLoopSmoke.tscn`: `ActualRunLoopSmoke: OK`, `errors: []`.
+- `tests/visual/AxiomRetryEconomySmoke.tscn`: `AxiomRetryEconomySmoke: OK`, `errors: []`.
+- `tests/visual/UIThemeSmoke.tscn`: `UIThemeSmoke: OK`, `errors: []`.
+- `tests/visual/ShopPurchaseFeedbackSmoke.tscn`: `ShopPurchaseFeedbackSmoke: OK`, `errors: []`.
+- `tests/visual/BuyXPTransactionalFeedbackSmoke.tscn`: `BuyXPTransactionalFeedbackSmoke: OK`, `errors: []`.
+- `tests/visual/RapidShopPressureSmoke.tscn`: `RapidShopPressureSmoke: OK purchases=5 deployed_board=6`, `errors: []`.
+- `tests/visual/PostCombatPlanningBeatSmoke.tscn`: `PostCombatPlanningBeatSmoke: OK`, `errors: []`.
+- `tests/visual/DragGlobalReleaseSmoke.tscn`: `DragGlobalReleaseSmoke: OK`, `errors: []`.
+- `tests/visual/CombatResolvingFeedbackSmoke.tscn`: `CombatResolvingFeedbackSmoke: OK`, `errors: []`.
+- `tests/visual/CombatWatchdogSmoke.tscn`: `CombatWatchdogSmoke: OK`, `errors: []`.
+- `tests/visual/DevStarterInventorySmoke.tscn`: `DevStarterInventorySmoke: OK`, `errors: []`.
+- `tests/visual/LossScreenSmoke.tscn`: `LossScreenSmoke: OK`, `errors: []`; screenshot capture still skipped under the MCP dummy framebuffer.
+- `tests/visual/ExitFlowSmoke.tscn`: `ExitFlowSmoke: OK`, `errors: []`; screenshot capture still skipped under the MCP dummy framebuffer.
+- `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`: `ScoreboardDuplicateDisambiguationSmoke: OK`, `errors: []`.
+- `tests/visual/TitleMenuSmoke.tscn`: `TitleMenuSmoke: OK`, `errors: []`.
+- `tests/visual/StatsPanelClickSmoke.tscn`: `StatsPanelClickSmoke: OK`, `errors: []`.
+- `tests/visual/StatsPanelDeepCapture.tscn`: originally exposed a stale audit assumption that combat enemy actor index 1 always exists; the harness now derives enemy actor indices from the arena bridge, verifies the current enemy actor, and logs an explicit skip when the current fight has only one enemy actor. Rerun result: `StatsPanelDeepCapture: OK`, `errors: []`; screenshots still skipped under the MCP dummy framebuffer.
+- `tests/visual/AuditPanelSmoke.tscn`: `AuditPanelSmoke: OK`, `errors: []`.
+
 ## Current System Menu Visual Recheck
 
 Fresh OS-window evidence was generated on 2026-06-25 with the ignored hold scene `outputs/audit_playtest/CurrentSystemMenuVisualHold.tscn`.
