@@ -24,7 +24,9 @@ func _run() -> void:
 	var full_share_value: float = _span_value(full_result, "goal_frontline_absorb_damage_taken_share")
 	var low_share_value: float = _span_value(low_share_result, "goal_frontline_absorb_damage_taken_share")
 	var full_share_span: bool = _has_span(full_result, "goal_frontline_absorb_damage_taken_share", true)
-	var low_share_failed_span: bool = _has_span(low_share_result, "goal_frontline_absorb_damage_taken_share", false)
+	var low_share_diagnostic_span: bool = _has_diagnostic_span(low_share_result, "goal_frontline_absorb_damage_taken_share", "alternate_frontline_evidence_satisfied")
+	var low_body_block_event_diagnostic: bool = _has_diagnostic_span(low_share_result, "goal_frontline_absorb_body_block_events", "alternate_frontline_evidence_satisfied")
+	var low_body_block_damage_diagnostic: bool = _has_diagnostic_span(low_share_result, "goal_frontline_absorb_body_block_damage_prevented", "alternate_frontline_evidence_satisfied")
 	var low_prevented_span: bool = _has_span(low_share_result, "goal_frontline_absorb_ally_damage_prevented", true)
 	var low_frontline_span: bool = _has_span(low_share_result, "goal_frontline_absorb_frontline_zone_share", true)
 	var weak_share_span: bool = _has_span(weak_result, "goal_frontline_absorb_damage_taken_share", true)
@@ -33,7 +35,9 @@ func _run() -> void:
 		" full_share=", full_share_value,
 		" low_share_pass=", low_share_pass,
 		" low_share=", low_share_value,
-		" low_share_failed_span=", low_share_failed_span,
+		" low_share_diagnostic_span=", low_share_diagnostic_span,
+		" low_body_block_event_diagnostic=", low_body_block_event_diagnostic,
+		" low_body_block_damage_diagnostic=", low_body_block_damage_diagnostic,
 		" low_prevented_span=", low_prevented_span,
 		" low_frontline_span=", low_frontline_span,
 		" weak_pass=", weak_pass)
@@ -42,8 +46,11 @@ func _run() -> void:
 	if not full_pass or not full_share_span or full_share_value < 0.30:
 		printerr("BruteFrontlineShareGoalProbe: FAIL Brute damage-share proof did not pass the frontline absorb goal")
 		failed = true
-	if not low_share_pass or not low_share_failed_span:
-		printerr("BruteFrontlineShareGoalProbe: FAIL aggregate low-share control did not preserve the failed damage-share span")
+	if not low_share_pass or not low_share_diagnostic_span:
+		printerr("BruteFrontlineShareGoalProbe: FAIL aggregate low-share control did not preserve the diagnostic damage-share span")
+		failed = true
+	if not low_body_block_event_diagnostic or not low_body_block_damage_diagnostic:
+		printerr("BruteFrontlineShareGoalProbe: FAIL aggregate low-share control did not keep absent body-block spans diagnostic")
 		failed = true
 	if not low_prevented_span or not low_frontline_span:
 		printerr("BruteFrontlineShareGoalProbe: FAIL aggregate low-share control did not pass through prevention plus frontline presence")
@@ -128,6 +135,17 @@ func _has_span(metric_result: Dictionary, label_prefix: String, required_ok: boo
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)) == required_ok:
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, expected_reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == expected_reason:
 			return true
 	return false
 

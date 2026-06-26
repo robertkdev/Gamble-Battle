@@ -97,18 +97,39 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	}
 
 func _eval_frontline_absorb(summary: Dictionary, spans: Array) -> bool:
-	var share_ok: bool = _append_span(spans, summary, "goal_frontline_absorb_damage_taken_share", _incoming_share(summary), 0.30, _incoming_share(summary) >= 0.30)
+	var incoming_share: float = _incoming_share(summary)
+	var share_ok: bool = incoming_share >= 0.30
 	var prevented_value: float = _prevented_damage(summary) + float(summary.get("redirected_damage_prevented", 0.0))
-	var prevented_ok: bool = _append_span(spans, summary, "goal_frontline_absorb_ally_damage_prevented", prevented_value, 25.0, prevented_value >= 25.0)
+	var prevented_ok: bool = prevented_value >= 25.0
 	var body_block_damage: float = float(summary.get("body_block_damage_prevented", 0.0))
 	var body_block_events: int = int(summary.get("body_block_events", 0))
 	var body_block_direct: bool = body_block_events >= 1 and body_block_damage >= 25.0
-	_append_span(spans, summary, "goal_frontline_absorb_body_block_events", float(body_block_events), 1.0, body_block_events >= 1, "direct_redirect_semantic")
-	_append_span(spans, summary, "goal_frontline_absorb_body_block_damage_prevented", body_block_damage, 25.0, body_block_direct, "direct_redirect_semantic")
-	var frontline_ok: bool = _append_span(spans, summary, "goal_frontline_absorb_frontline_zone_share", float(summary.get("frontline_zone_share", 0.0)), 0.50, float(summary.get("frontline_zone_share", 0.0)) >= 0.50, "frontline_zone_proxy")
+	var frontline_value: float = float(summary.get("frontline_zone_share", 0.0))
+	var frontline_ok: bool = frontline_value >= 0.50
+	var pass_flag: bool = prevented_ok and body_block_direct if body_block_events > 0 else _k_of_n([share_ok, prevented_ok, frontline_ok], 2)
+	var alternate_evidence_reason: String = "alternate_frontline_evidence_satisfied"
+	var share_span_ok: Variant = share_ok
+	var body_block_events_span_ok: Variant = body_block_events >= 1
+	var body_block_damage_span_ok: Variant = body_block_direct
+	var share_reason: String = ""
+	var body_block_reason: String = "direct_redirect_semantic"
+	if pass_flag and body_block_events <= 0:
+		share_reason = alternate_evidence_reason
+		body_block_reason = alternate_evidence_reason
+		if not share_ok:
+			share_span_ok = null
+		if body_block_events < 1:
+			body_block_events_span_ok = null
+		if not body_block_direct:
+			body_block_damage_span_ok = null
+	_append_span(spans, summary, "goal_frontline_absorb_damage_taken_share", incoming_share, 0.30, share_span_ok, share_reason)
+	_append_span(spans, summary, "goal_frontline_absorb_ally_damage_prevented", prevented_value, 25.0, prevented_ok)
+	_append_span(spans, summary, "goal_frontline_absorb_body_block_events", float(body_block_events), 1.0, body_block_events_span_ok, body_block_reason)
+	_append_span(spans, summary, "goal_frontline_absorb_body_block_damage_prevented", body_block_damage, 25.0, body_block_damage_span_ok, body_block_reason)
+	_append_span(spans, summary, "goal_frontline_absorb_frontline_zone_share", frontline_value, 0.50, frontline_ok, "frontline_zone_proxy")
 	if body_block_events > 0:
 		return prevented_ok and body_block_direct
-	return _k_of_n([share_ok, prevented_ok, frontline_ok], 2)
+	return pass_flag
 
 func _eval_team_fortification(summary: Dictionary, spans: Array) -> bool:
 	var ehp_per_s: float = _effective_ehp(summary) / max(1.0, float(summary.get("fight_time_s", 0.0)))
@@ -677,12 +698,12 @@ func _key_threat_dodge_rate(summary: Dictionary) -> float:
 		return 0.0
 	return float(summary.get("key_threats_dodged", 0)) / max(1.0, faced)
 
-func _append_span(spans: Array, summary: Dictionary, label: String, value: float, want: float, ok: bool, reason: String = "") -> bool:
+func _append_span(spans: Array, summary: Dictionary, label: String, value: float, want: float, ok: Variant, reason: String = "") -> bool:
 	var extras: Dictionary = RoleCommon.subject_extras(String(summary.get("subject_side", "")), String(summary.get("unit_id", "")), reason)
 	extras["samples"] = int(summary.get("samples", 0))
 	extras["direct_goal_metric"] = true
 	RoleCommon.append_span(spans, label, value, want, ok, extras)
-	return ok
+	return ok == true
 
 func _k_of_n(values: Array[bool], k_required: int) -> bool:
 	var true_count: int = 0
