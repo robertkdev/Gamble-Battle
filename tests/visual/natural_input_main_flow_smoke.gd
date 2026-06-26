@@ -1,13 +1,12 @@
 extends "res://tests/visual/all_starter_main_flow_smoke.gd"
 
 const INPUT_SMOKE_NAME: String = "NaturalInputMainFlowSmoke"
-const INPUT_STARTER_ID: String = "sari"
 
 func _smoke_name() -> String:
 	return INPUT_SMOKE_NAME
 
-func _starter_ids_for_run(_catalog: UnitCatalog) -> Array[String]:
-	return [INPUT_STARTER_ID]
+func _starter_ids_for_run(catalog: UnitCatalog) -> Array[String]:
+	return catalog.list_starter_ids(int(SHOP_CONFIG.STARTING_LEVEL))
 
 func _flow_time_scale() -> float:
 	return 1.0
