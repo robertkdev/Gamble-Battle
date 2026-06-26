@@ -10,7 +10,7 @@ const StageRuleRunner: Script = preload("res://scripts/game/progression/stage_ru
 const TraitCompiler: Script = preload("res://scripts/game/traits/trait_compiler.gd")
 const UnitFactory: Script = preload("res://scripts/unit_factory.gd")
 
-const SMOKE_NAME: String = "RapidShopPressureSmoke"
+const DEFAULT_SMOKE_NAME: String = "RapidShopPressureSmoke"
 const TARGET_AUDIT_GOLD: int = 20
 
 var _main: Control = null
@@ -32,7 +32,7 @@ func _run() -> void:
 	_previous_time_scale = Engine.time_scale
 	_previous_suppress_validation_warnings = bool(UnitFactory.get("suppress_validation_warnings"))
 	UnitFactory.set("suppress_validation_warnings", true)
-	Engine.time_scale = 8.0
+	Engine.time_scale = _flow_time_scale()
 	if _has_autoload("Shop") and not Shop.is_connected("error", Callable(self, "_on_shop_error")):
 		Shop.error.connect(_on_shop_error)
 	await _run_flow()
@@ -54,15 +54,15 @@ func _run_flow() -> void:
 	await _ensure_unit_select()
 	await _select_starter("bonko")
 	await _settle_frames(4)
-	_set_planning_timer_safe(9999.0)
+	_prepare_opener_planning()
 	_set_bet_to_max()
 	await _press_continue(true, "Bonko forced first fight")
-	var shop_ready: bool = await _wait_for_shop_after_win(30.0)
+	var shop_ready: bool = await _wait_for_shop_after_win(_first_shop_timeout_seconds())
 	_expect(shop_ready, "post-first-fight shop did not open")
 	if not shop_ready:
 		return
 
-	_set_planning_timer_safe(9999.0)
+	_prepare_rapid_shop_planning()
 	_grant_audit_gold()
 	var rerolls_used: int = await _reroll_until_unique_cost1_shop(30)
 	_expect(rerolls_used <= 30, "could not prepare a unique cost-1 shop")
@@ -111,8 +111,26 @@ func _run_flow() -> void:
 	_expect(board_after_count >= board_before_count + expected_ids.size(), "rapid deploy board size should grow by %d, before=%d after=%d" % [expected_ids.size(), board_before_count, board_after_count])
 
 	await _press_continue(false, "post-rapid-burst fight")
-	var resolved: bool = await _wait_for_preview_or_loss(35.0)
+	var resolved: bool = await _wait_for_preview_or_loss(_post_burst_timeout_seconds())
 	_expect(resolved, "post-rapid-burst fight did not resolve")
+
+func _smoke_name() -> String:
+	return DEFAULT_SMOKE_NAME
+
+func _flow_time_scale() -> float:
+	return 8.0
+
+func _prepare_opener_planning() -> void:
+	_set_planning_timer_safe(9999.0)
+
+func _prepare_rapid_shop_planning() -> void:
+	_set_planning_timer_safe(9999.0)
+
+func _first_shop_timeout_seconds() -> float:
+	return 30.0
+
+func _post_burst_timeout_seconds() -> float:
+	return 35.0
 
 func _grant_audit_gold() -> void:
 	var delta: int = TARGET_AUDIT_GOLD - int(Economy.gold)
@@ -478,10 +496,10 @@ func _finish() -> void:
 		Shop.error.disconnect(_on_shop_error)
 	var exit_code: int = 0
 	if _failures.is_empty():
-		print("%s: OK purchases=%d deployed_board=%d" % [SMOKE_NAME, int(ShopConfig.SLOT_COUNT), _board_ids().size()])
+		print("%s: OK purchases=%d deployed_board=%d" % [_smoke_name(), int(ShopConfig.SLOT_COUNT), _board_ids().size()])
 	else:
 		for failure: String in _failures:
-			push_error("%s: %s" % [SMOKE_NAME, failure])
+			push_error("%s: %s" % [_smoke_name(), failure])
 		exit_code = 1
 	_cleanup_runtime()
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
