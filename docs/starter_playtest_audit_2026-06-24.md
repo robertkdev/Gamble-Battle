@@ -417,20 +417,22 @@ Summary:
 
 ## Current All-Starter Main-Flow Replay
 
-Fresh ignored-runner evidence was generated on 2026-06-24 at `outputs/audit_playtest/all_starter_main_flow_audit/all_starter_main_flow_results.json` using `outputs/audit_playtest/AllStarterMainFlowAudit.tscn`. The MCP debug run completed with `AllStarterMainFlowAudit: OK starters=12` and `errors: []`.
+Fresh ignored-runner evidence was regenerated on 2026-06-26 at `outputs/audit_playtest/all_starter_main_flow_audit/all_starter_main_flow_results.json` using `outputs/audit_playtest/AllStarterMainFlowAudit.tscn`. The MCP debug run completed with `AllStarterMainFlowAudit: OK starters=12` and `errors: []`.
 
 Run result:
 - The runner used the real Main scene and current starter catalog: `axiom`, `berebell`, `bo`, `bonko`, `brute`, `cashmere`, `grint`, `korath`, `morrak`, `mortem`, `repo`, and `sari`.
 - All 12 starters opened the CombatView from Unit Select, and all 12 successfully repositioned the starting board unit through the existing drag path.
-- Axiom reached a nonlethal Stage 1 retry state after the forced opener: `first_fight_result="retry"`, `stage_after_first=1`, and `gold_after_first=1`. It did not reach the first shop in this default-bet replay.
+- Axiom reached a nonlethal Stage 1 retry state after the forced opener: `first_fight_result="retry"`, `stage_after_first=1`, and `gold_after_first=2`. It did not reach the first shop in this default-bet replay.
 - The other 11 starters reached the first shop at Stage 1 Round 2 with level-1 offers only.
 - For each of those 11 starters, the runner clicked one rendered affordable shop card, saw the deploy prompt, moved the bought bench unit to the board, and resolved the next fight back to a shop/planning state.
+- Seven of the 11 first-shop starters advanced beyond Stage 2 after the bought helper: Berebell+Morrak, Brute+Grint, Grint+Bonko, Korath+Berebell, Morrak+Berebell, Mortem+Berebell, and Sari+Brute.
+- Four first-shop starters resolved the second fight but returned to Stage 2 planning with 1 gold instead of advancing: Bo+Cashmere, Bonko+Axiom, Cashmere+Bo, and Repo+Korath.
 - Summary counts: `starter_count=12`, `first_shop_count=11`, `first_retry_count=1`, `deploy_success_count=11`, `second_resolved_count=11`, `starter_failures=[]`, and no shop errors.
 
 Implication:
 - The current Main-flow presenter path is now covered across all 12 current starters for selection, initial board drag, forced opener handling, and first-shop buy/deploy where the starter reaches shop.
 - Axiom remains the onboarding outlier in `AllStarterMainFlowAudit` because the default-bet replay records the immediate Stage 1 retry state rather than the follow-up retry fight. The stronger tracked `AxiomRetryEconomySmoke` now proves that state can recover mechanically: retry shop, 1-cost helper buy, bench-to-board deploy, retry-fight win, and full Stage 2 planning shop.
-- This remains automated behavioral coverage. It does not close the separate live-window screenshot and human drag-feel gaps.
+- This remains automated behavioral coverage. It does not close the separate live-window screenshot and human drag-feel gaps, and it keeps a current strategy/pacing backlog: Bo, Bonko, Cashmere, and Repo need better early helper quality, tuning, or clearer retry framing if returning to Stage 2 after a clean first buy is intended.
 
 ## Current Shop And Premium Runner Recheck
 
@@ -945,6 +947,13 @@ Summary from supporting data:
 ## Strategy Notes So Far
 
 These strategy notes intentionally keep the old manual unit reads, but the mechanical failure descriptions are historical unless repeated on the current branch. The current branch has mechanical coverage for the former opener gating, shop transaction, deploy assist/global release, combat watchdog, Buy XP feedback, duplicate scoreboard, and Unit Select preview issues; remaining strategy work is about early composition quality, pacing, and real-window feel.
+
+Current 2026-06-26 automated strategy refresh from `AllStarterMainFlowAudit`:
+- Reliable mechanical path: 11 of 12 current starters reach the first shop, buy a rendered affordable helper, show the deploy prompt, move the helper from bench to board, and resolve the second fight without shop errors.
+- Clean early-advance lines: Berebell+Morrak, Brute+Grint, Grint+Bonko, Korath+Berebell, Morrak+Berebell, Mortem+Berebell, and Sari+Brute advance beyond Stage 2 in the current automated replay.
+- Soft-fail/pressure lines: Bo+Cashmere, Bonko+Axiom, Cashmere+Bo, and Repo+Korath resolve the second fight but return to Stage 2 planning with 1 gold, so their first helper line is mechanically valid but strategically weak or retry-framed.
+- Axiom remains the only current starter that does not reach the first shop in the default-bet replay; it enters the Stage 1 retry state with 2 gold and relies on the separate Axiom retry path for recovery proof.
+- Current audit interpretation: the mechanical blockers are covered; the live design backlog is starter pacing and first-shop helper quality, especially for support/utility or low-frontline early lines.
 
 - Axiom manual result: lost the opener, reached a retry shop with 1 gold, could not convert the shop into a useful board, then lost the run. This validates that pure support is a poor starter under the current forced-solo opener.
 - Berebell manual result: won the forced opener, reached Round 2 with 3 gold, bought Vykos for brawler synergy and Brute for frontline, then still lost Round 2. The buys behaved correctly and left 1 gold, but manual placement/bench affordance was unclear before the timer expired.
