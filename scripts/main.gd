@@ -95,6 +95,9 @@ func _on_unit_selected(unit_id: String) -> void:
 			combat_view.call("set_player_team_ids", [unit_id])
 		if combat_view.has_method("_init_game"):
 			combat_view.call("_init_game")
+	var shop: Node = _get_autoload("Shop")
+	if shop != null and shop.has_method("set_opening_starter_id"):
+		shop.call("set_opening_starter_id", unit_id)
 	GameState.set_phase(GameState.GamePhase.PREVIEW)
 
 func _unhandled_input(event: InputEvent) -> void:

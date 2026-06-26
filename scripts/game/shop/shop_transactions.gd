@@ -36,17 +36,17 @@ func combine_now() -> Array:
 	# Returns the list of promotion dicts (same shape as buy_unit result) for UI effects.
 	var promos: Array = []
 	if _combiner != null:
-		var res = _combiner.combine()
+		var res: Variant = _combiner.combine()
 		if res is Array:
 			promos = res.duplicate()
 	return promos
 
 func toggle_lock(state: ShopState) -> ShopState:
 	# Returns a new state with lock flipped. Offers and free_rerolls preserved.
-	var locked := (not bool(state.locked))
+	var locked: bool = not bool(state.locked)
 	return ShopState.new(state.offers, locked, state.free_rerolls)
 
-func reroll(state: ShopState, level: int, available_gold: int) -> Dictionary:
+func reroll(state: ShopState, level: int, available_gold: int, opening_starter_id: String = "") -> Dictionary:
 	# Fail fast; no side-effects outside the returned payload.
 	# Returns { ok: bool, error?: String, state?: ShopState, gold_spent?: int }
 	if _roller == null:
@@ -70,18 +70,22 @@ func reroll(state: ShopState, level: int, available_gold: int) -> Dictionary:
 		in_combat = (GameState.phase == GameState.GamePhase.COMBAT)
 	var bet: int = (int(Economy.current_bet) if Engine.has_singleton("Economy") else 0)
 	var spent: int = ((int(Economy.combat_spent) if Engine.has_singleton("Economy") else 0) if in_combat else 0)
-	var aff := ShopAffordability.can_afford(int(available_gold), bet, cost, in_combat, spent)
+	var aff: Dictionary = ShopAffordability.can_afford(int(available_gold), bet, cost, in_combat, spent)
 	if not bool(aff.get("ok", false)):
 		return { "ok": false, "error": ShopErrors.WOULD_KILL_YOU, "need_more": int(aff.get("need_more", 0)) }
 
 	# Generate new offers
-	var offers: Array[ShopOffer] = _roller.roll(int(level), int(ShopConfig.SLOT_COUNT))
+	var offers: Array[ShopOffer] = []
+	if String(opening_starter_id) != "" and _roller.has_method("roll_opening_for_starter"):
+		offers = _roller.roll_opening_for_starter(String(opening_starter_id), int(level), int(ShopConfig.SLOT_COUNT))
+	else:
+		offers = _roller.roll(int(level), int(ShopConfig.SLOT_COUNT))
 	if offers.is_empty():
 		return { "ok": false, "error": ShopErrors.NO_OFFERS }
 
 	# Clear lock if configured; otherwise preserve (should not reach here if locked and not clearing)
 	var next_locked: bool = false if ShopConfig.CLEAR_LOCK_ON_REROLL else bool(state.locked)
-	var new_state := ShopState.new(offers, next_locked, new_free)
+	var new_state: ShopState = ShopState.new(offers, next_locked, new_free)
 	return { "ok": true, "state": new_state, "gold_spent": cost }
 
 func buy_xp(progress: PlayerProgress, available_gold: int) -> Dictionary:
@@ -92,7 +96,7 @@ func buy_xp(progress: PlayerProgress, available_gold: int) -> Dictionary:
 		in_combat = (GameState.phase == GameState.GamePhase.COMBAT)
 	var bet: int = (int(Economy.current_bet) if Engine.has_singleton("Economy") else 0)
 	var spent: int = (int(Economy.combat_spent) if in_combat and Engine.has_singleton("Economy") else 0)
-	var aff := ShopAffordability.can_afford(int(available_gold), bet, cost, in_combat, spent)
+	var aff: Dictionary = ShopAffordability.can_afford(int(available_gold), bet, cost, in_combat, spent)
 	if not bool(aff.get("ok", false)):
 		return { "ok": false, "error": ShopErrors.WOULD_KILL_YOU, "need_more": int(aff.get("need_more", 0)) }
 	if progress == null:
@@ -112,20 +116,20 @@ func buy_unit(state: ShopState, slot_index: int, available_gold: int, _level: in
 		return { "ok": false, "error": ShopErrors.UNKNOWN }
 	if state == null or state.offers == null or state.offers.is_empty():
 		return { "ok": false, "error": ShopErrors.NO_OFFERS }
-	var idx := int(slot_index)
+	var idx: int = int(slot_index)
 	if idx < 0 or idx >= state.offers.size():
 		return { "ok": false, "error": ShopErrors.INVALID_SLOT }
 	var offer: ShopOffer = state.offers[idx]
 	if offer == null:
 		return { "ok": false, "error": ShopErrors.INVALID_SLOT }
-	var cost := int(offer.cost)
+	var cost: int = int(offer.cost)
 	# Affordability (phase-aware)
 	var in_combat: bool = false
 	if Engine.has_singleton("GameState"):
 		in_combat = (GameState.phase == GameState.GamePhase.COMBAT)
 	var bet: int = (int(Economy.current_bet) if Engine.has_singleton("Economy") else 0)
 	var spent: int = (int(Economy.combat_spent) if in_combat and Engine.has_singleton("Economy") else 0)
-	var aff := ShopAffordability.can_afford(int(available_gold), bet, cost, in_combat, spent)
+	var aff: Dictionary = ShopAffordability.can_afford(int(available_gold), bet, cost, in_combat, spent)
 	if not bool(aff.get("ok", false)):
 		return { "ok": false, "error": ShopErrors.WOULD_KILL_YOU, "need_more": int(aff.get("need_more", 0)) }
 	# Roster capacity
@@ -141,7 +145,7 @@ func buy_unit(state: ShopState, slot_index: int, available_gold: int, _level: in
 	if u == null:
 		return { "ok": false, "error": ShopErrors.UNKNOWN }
 	# Place in bench
-	var placed := false
+	var placed: bool = false
 	if _roster != null and _roster.has_method("set_slot"):
 		placed = bool(_roster.set_slot(bench_slot, u))
 	elif Engine.has_singleton("Roster"):
@@ -151,11 +155,11 @@ func buy_unit(state: ShopState, slot_index: int, available_gold: int, _level: in
 	# Leave the purchased slot as a blank placeholder to preserve layout and indicate sold/empty
 	var new_offers: Array[ShopOffer] = state.offers.duplicate()
 	new_offers[idx] = ShopOffer.new("", "", 0, "")
-	var new_state := ShopState.new(new_offers, state.locked, state.free_rerolls)
+	var new_state: ShopState = ShopState.new(new_offers, state.locked, state.free_rerolls)
 	# Attempt bench/board combines (chained) and capture results
 	var promotions: Array = []
 	if _combiner != null:
-		var comb_res = _combiner.combine()
+		var comb_res: Variant = _combiner.combine()
 		if comb_res is Array:
 			promotions = comb_res.duplicate()
 	return { "ok": true, "state": new_state, "gold_spent": cost, "bench_slot": bench_slot, "unit_id": String(offer.id), "promotions": promotions }
@@ -165,7 +169,7 @@ func sell_unit(u: Unit) -> Dictionary:
 		return { "ok": false, "error": ShopErrors.INVALID_UNIT }
 	if _is_combat_phase():
 		return { "ok": false, "error": ShopErrors.COMBAT_PHASE }
-	var roster_ref = _effective_roster()
+	var roster_ref: Variant = _effective_roster()
 	var slot: int = _bench_slot_for(roster_ref, u)
 	var removed: bool = false
 	if slot != -1:
@@ -192,9 +196,9 @@ func _bench_slot_for(roster_ref, u: Unit) -> int:
 	if roster_ref == null or u == null:
 		return -1
 	if roster_ref.has_method("slot_count") and roster_ref.has_method("get_slot"):
-		var count := int(roster_ref.slot_count())
+		var count: int = int(roster_ref.slot_count())
 		for i in range(count):
-			var cur = roster_ref.get_slot(i)
+			var cur: Unit = roster_ref.get_slot(i)
 			if cur == u:
 				return i
 	return -1
@@ -202,7 +206,7 @@ func _bench_slot_for(roster_ref, u: Unit) -> int:
 func _clear_roster_slot(roster_ref, slot: int, u: Unit) -> bool:
 	if roster_ref == null:
 		return false
-	var ok := false
+	var ok: bool = false
 	if roster_ref.has_method("set_slot"):
 		ok = bool(roster_ref.set_slot(slot, null))
 	if not ok and roster_ref.has_method("remove"):
@@ -213,11 +217,11 @@ func _remove_from_board(u: Unit) -> bool:
 	if u == null:
 		return false
 	if _remove_from_board_cb != null and _remove_from_board_cb.is_valid():
-		var res = _remove_from_board_cb.call(u)
+		var res: Variant = _remove_from_board_cb.call(u)
 		if bool(res):
 			return true
 	if _board_team_provider != null and _board_team_provider.is_valid():
-		var team = _board_team_provider.call()
+		var team: Variant = _board_team_provider.call()
 		if team is Array:
 			var arr: Array = team
 			for i in range(arr.size()):

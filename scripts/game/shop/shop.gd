@@ -23,6 +23,8 @@ var _catalog: UnitCatalog
 var _roller: ShopRoller
 var _tx: ShopTransactions
 var _progress: PlayerProgress
+var _opening_starter_id: String = ""
+var _opening_helper_shop_consumed: bool = false
 
 func _ready() -> void:
 	_rng = ShopRng.new()
@@ -39,7 +41,7 @@ func _ready() -> void:
 	_roller.configure(_catalog, _rng)
 	_tx = ShopTransactions.new()
 	# Pass Roster to transactions for bench capacity and placement
-	var roster_ref = null
+	var roster_ref: Variant = null
 	if _has_autoload("Roster"):
 		roster_ref = Roster
 	_tx.configure(_roller, roster_ref)
@@ -47,9 +49,9 @@ func _ready() -> void:
 	reset_run()
 
 func _has_autoload(autoload_name: String) -> bool:
-	var n = String(autoload_name)
-	var path = "/root/%s" % n
-	var node = get_tree().root.get_node_or_null(path)
+	var n: String = String(autoload_name)
+	var path: String = "/root/%s" % n
+	var node: Node = get_tree().root.get_node_or_null(path)
 	return node != null
 
 func _error_context(op: String, res: Dictionary, extra: Dictionary = {}) -> Dictionary:
@@ -63,16 +65,22 @@ func _error_context(op: String, res: Dictionary, extra: Dictionary = {}) -> Dict
 
 func _is_combat_phase() -> bool:
 	if _has_autoload("GameState"):
-		var gp = GameState
+		var gp: Node = GameState
 		return int(gp.phase) == int(gp.GamePhase.COMBAT)
 	return false
 
 func reset_run() -> void:
 	# Clear state for a new run.
 	state = ShopState.new([], false if ShopConfig.CLEAR_LOCK_ON_NEW_RUN else state.locked, 0)
+	_opening_starter_id = ""
+	_opening_helper_shop_consumed = false
 	if _progress:
 		_progress.reset()
 	_emit_all()
+
+func set_opening_starter_id(starter_id: String) -> void:
+	_opening_starter_id = String(starter_id)
+	_opening_helper_shop_consumed = false
 
 func get_level() -> int:
 	return int(_progress.level) if _progress else int(ShopConfig.STARTING_LEVEL)
@@ -94,21 +102,24 @@ func grant_free_rerolls(n: int) -> void:
 	add_free_rerolls(n)
 
 func toggle_lock() -> void:
-	var next := _tx.toggle_lock(state)
-	var changed := (next.locked != state.locked)
+	var next: ShopState = _tx.toggle_lock(state)
+	var changed: bool = next.locked != state.locked
 	state = next
 	if changed:
 		locked_changed.emit(state.locked)
 
 func reroll() -> Dictionary:
 	# Spends gold when successful; updates internal state and emits signals.
-	var lvl := get_level()
-	var gold := (Economy.gold if _has_autoload("Economy") else 0)
-	var res := _tx.reroll(state, lvl, gold)
+	var lvl: int = get_level()
+	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0
+	var opening_starter_id: String = _opening_starter_id if _should_apply_opening_shop_guard() else ""
+	var res: Dictionary = _tx.reroll(state, lvl, gold, opening_starter_id)
 	if not bool(res.get("ok", false)):
 		error.emit(String(res.get("error", "UNKNOWN")), _error_context("reroll", res))
 		return res
-	var cost := int(res.get("gold_spent", 0))
+	if opening_starter_id != "":
+		_opening_helper_shop_consumed = true
+	var cost: int = int(res.get("gold_spent", 0))
 	# Spend gold or record combat spend
 	if cost > 0 and _has_autoload("Economy"):
 		if _is_combat_phase() and Economy.has_method("adjust_combat_spent"):
@@ -119,13 +130,22 @@ func reroll() -> Dictionary:
 	_emit_all()
 	return res
 
+func _should_apply_opening_shop_guard() -> bool:
+	if _opening_helper_shop_consumed or _opening_starter_id == "":
+		return false
+	if get_level() != int(ShopConfig.STARTING_LEVEL):
+		return false
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 2
+
 func buy_xp() -> Dictionary:
-	var gold := (Economy.gold if _has_autoload("Economy") else 0)
-	var res := _tx.buy_xp(_progress, gold)
+	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0
+	var res: Dictionary = _tx.buy_xp(_progress, gold)
 	if not bool(res.get("ok", false)):
 		error.emit(String(res.get("error", "UNKNOWN")), _error_context("buy_xp", res))
 		return res
-	var cost := int(res.get("gold_spent", 0))
+	var cost: int = int(res.get("gold_spent", 0))
 	if cost > 0 and _has_autoload("Economy"):
 		if _is_combat_phase() and Economy.has_method("adjust_combat_spent"):
 			Economy.adjust_combat_spent(cost)
@@ -141,13 +161,13 @@ func get_xp_to_next() -> int:
 	return int(_progress.xp_to_next()) if _progress else 0
 
 func buy_unit(slot_index: int) -> Dictionary:
-	var lvl := get_level()
-	var gold := (Economy.gold if _has_autoload("Economy") else 0)
-	var res := _tx.buy_unit(state, int(slot_index), gold, lvl)
+	var lvl: int = get_level()
+	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0
+	var res: Dictionary = _tx.buy_unit(state, int(slot_index), gold, lvl)
 	if not bool(res.get("ok", false)):
 		error.emit(String(res.get("error", "UNKNOWN")), _error_context("buy_unit", res, {"slot": int(slot_index)}))
 		return res
-	var cost := int(res.get("gold_spent", 0))
+	var cost: int = int(res.get("gold_spent", 0))
 	if cost > 0 and _has_autoload("Economy"):
 		if _is_combat_phase() and Economy.has_method("adjust_combat_spent"):
 			Economy.adjust_combat_spent(cost)
@@ -158,9 +178,9 @@ func buy_unit(slot_index: int) -> Dictionary:
 	return res
 
 func sell_unit(u: Unit) -> Dictionary:
-	var res := _tx.sell_unit(u)
+	var res: Dictionary = _tx.sell_unit(u)
 	if bool(res.get("ok", false)) and _has_autoload("Economy"):
-		var g := int(res.get("gold_gained", 0))
+		var g: int = int(res.get("gold_gained", 0))
 		if g > 0:
 			# Selling during combat should free up credit as well
 			if _is_combat_phase() and Economy.has_method("adjust_combat_spent"):

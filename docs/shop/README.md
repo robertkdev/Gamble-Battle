@@ -11,6 +11,7 @@ Key Constants
 - `SLOT_COUNT`: number of offers per refresh (default 5).
 - `ALLOW_DUPLICATES`: PVE setting allowing duplicate offers in one shop.
 - `REPLACE_PURCHASE_WITH_EMPTY`: purchased slots remain as SOLD/EMPTY placeholders; layout stays stable.
+- `FIRST_SHOP_HELPERS_BY_STARTER`: starter-specific level-1 opening-shop safety net for starters whose first-shop matrix needs at least one proven advancing helper.
 - `REROLL_COST`: gold cost per shop refresh.
 - `BUY_XP_COST` / `XP_PER_BUY`: gold cost and XP gain for XP purchases.
 - `STARTING_LEVEL`, `MIN_LEVEL`, `MAX_LEVEL`: player level band.
@@ -53,6 +54,7 @@ Card UX Notes
 Lifecycle
 - New Run: `Shop.reset_run()` clears state; `PlayerProgress` resets to level 1, XP 0.
 - Reroll: `Shop.reroll()` spends `REROLL_COST` gold (unless a free reroll is available) and populates `SLOT_COUNT` offers.
+- Opening shop: after the first Chapter 1 Stage 1 victory, `Shop.reroll()` uses the selected starter id once. If that first post-opener level-1 shop lacks a helper from `FIRST_SHOP_HELPERS_BY_STARTER`, the roller replaces one rolled slot with a configured helper. Later rerolls stay generic.
 - Lock: `Shop.toggle_lock()` flips lock; reroll clears lock when `CLEAR_LOCK_ON_REROLL=true`.
 - Buy Unit: `Shop.buy_unit(slot)` spawns the unit via `UnitFactory`, places on the bench, replaces that slot with an empty placeholder, then runs `CombineService`.
 - Buy XP: `Shop.buy_xp()` spends `BUY_XP_COST` and grants `XP_PER_BUY` XP; level-ups resolve immediately.

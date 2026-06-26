@@ -8,6 +8,12 @@ class_name ShopConfig
 const SLOT_COUNT := 5                              # Number of offers shown per shop refresh
 const ALLOW_DUPLICATES := true                    # PVE: duplicates allowed in a single shop
 const REPLACE_PURCHASE_WITH_EMPTY := true         # Purchased slots become SOLD/EMPTY placeholders
+const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
+    "bo": ["berebell", "grint"],
+    "bonko": ["morrak", "grint", "mortem", "korath"],
+    "cashmere": ["brute", "bonko"],
+    "repo": ["sari"],
+}
 
 # Reroll and XP costs
 const REROLL_COST := 2                            # Gold per reroll

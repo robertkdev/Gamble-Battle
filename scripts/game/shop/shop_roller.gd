@@ -33,12 +33,12 @@ func roll(level: int, count: int = ShopConfig.SLOT_COUNT) -> Array[ShopOffer]:
 		return out
 
 	var used: Dictionary = {}
-	var allow_dupes := bool(ShopConfig.ALLOW_DUPLICATES)
+	var allow_dupes: bool = bool(ShopConfig.ALLOW_DUPLICATES)
 	var n: int = max(0, int(count))
 	for _i in range(n):
 		# Choose a cost tier per odds
-		var cost = _rng.pick_weighted(filtered)
-		var offer_id := _pick_id_for_cost(int(cost), allow_dupes, used)
+		var cost: int = int(_rng.pick_weighted(filtered))
+		var offer_id: String = _pick_id_for_cost(cost, allow_dupes, used)
 		if offer_id == "":
 			# Try other costs in order of current filtered keys
 			for kc in filtered.keys():
@@ -48,23 +48,32 @@ func roll(level: int, count: int = ShopConfig.SLOT_COUNT) -> Array[ShopOffer]:
 					break
 		if offer_id == "":
 			break
-		var name := _catalog.get_name(offer_id)
-		var sprite := _catalog.get_sprite_path(offer_id)
-		var roles := _catalog.get_roles(offer_id)
-		var traits := _catalog.get_traits(offer_id)
-		var primary_role := _catalog.get_primary_role(offer_id)
-		var primary_goal := _catalog.get_primary_goal(offer_id)
-		var approaches := _catalog.get_approaches(offer_id)
-		var alt_goals := _catalog.get_alt_goals(offer_id)
-		var identity_path := _catalog.get_identity_path(offer_id)
-		var offer: ShopOffer = ShopOffer.new(offer_id, name, int(cost), sprite, roles, traits, primary_role, primary_goal, approaches, identity_path, alt_goals)
+		var offer: ShopOffer = _offer_for_id(offer_id)
 		out.append(offer)
 		if not allow_dupes:
 			used[offer_id] = true
 	return out
 
+func roll_opening_for_starter(starter_id: String, level: int, count: int = ShopConfig.SLOT_COUNT) -> Array[ShopOffer]:
+	var offers: Array[ShopOffer] = roll(level, count)
+	var helper_ids: Array[String] = _opening_helper_ids(starter_id)
+	if helper_ids.is_empty() or offers.is_empty() or _has_any_offer(offers, helper_ids):
+		return offers
+	var helper_id: String = _pick_opening_helper_id(helper_ids)
+	if helper_id == "":
+		return offers
+	var helper_offer: ShopOffer = _offer_for_id(helper_id)
+	if helper_offer == null:
+		return offers
+	if offers.size() < int(count):
+		offers.append(helper_offer)
+	else:
+		var replace_index: int = _rng.randi_range(0, offers.size() - 1) if _rng != null else offers.size() - 1
+		offers[replace_index] = helper_offer
+	return offers
+
 func _pick_id_for_cost(cost: int, allow_dupes: bool, used: Dictionary) -> String:
-	var ids := _catalog.get_ids_by_cost(cost)
+	var ids: Array[String] = _catalog.get_ids_by_cost(cost)
 	if ids.is_empty():
 		return ""
 	if allow_dupes:
@@ -72,12 +81,51 @@ func _pick_id_for_cost(cost: int, allow_dupes: bool, used: Dictionary) -> String
 	# No duplicates: try a few random picks to avoid bias
 	var attempts: int = min(8, ids.size())
 	for _a in range(attempts):
-		var candidate := _catalog.pick_id_by_cost(cost, _rng)
+		var candidate: String = _catalog.pick_id_by_cost(cost, _rng)
 		if candidate != "" and not used.has(candidate):
 			return candidate
 	# Fallback: linear scan for first unused
-	for id in ids:
-		var sid := String(id)
+	for id: String in ids:
+		var sid: String = String(id)
 		if not used.has(sid):
 			return sid
 	return ""
+
+func _opening_helper_ids(starter_id: String) -> Array[String]:
+	var helpers: Array[String] = []
+	var raw_helpers: Array = ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER.get(String(starter_id), []) as Array
+	for raw_helper: Variant in raw_helpers:
+		var helper_id: String = String(raw_helper)
+		if _catalog.has_id(helper_id):
+			helpers.append(helper_id)
+	return helpers
+
+func _has_any_offer(offers: Array[ShopOffer], helper_ids: Array[String]) -> bool:
+	for offer: ShopOffer in offers:
+		if offer != null and helper_ids.has(String(offer.id)):
+			return true
+	return false
+
+func _pick_opening_helper_id(helper_ids: Array[String]) -> String:
+	if helper_ids.is_empty():
+		return ""
+	if _rng != null:
+		return String(_rng.pick(helper_ids))
+	return helper_ids[0]
+
+func _offer_for_id(unit_id: String) -> ShopOffer:
+	if _catalog == null or not _catalog.has_id(unit_id):
+		return null
+	return ShopOffer.new(
+		unit_id,
+		_catalog.get_name(unit_id),
+		_catalog.get_cost(unit_id),
+		_catalog.get_sprite_path(unit_id),
+		_catalog.get_roles(unit_id),
+		_catalog.get_traits(unit_id),
+		_catalog.get_primary_role(unit_id),
+		_catalog.get_primary_goal(unit_id),
+		_catalog.get_approaches(unit_id),
+		_catalog.get_identity_path(unit_id),
+		_catalog.get_alt_goals(unit_id)
+	)
