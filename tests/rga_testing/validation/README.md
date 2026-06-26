@@ -31,7 +31,7 @@ Run these scenes via MCP for headless validation and reports.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Kythera.tscn` - tank damage_reduction/debuff/sustain.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Korath.tscn` - tank damage_reduction/redirect/engage.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Teller.tscn` - marksman long_range/debuff/ramp.
-    - `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn` - support peel/amp/cc_immunity.
+    - `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn` - support peel/amp/cc_immunity across `peel` plus carry-threat `threat` contexts.
 
 - On-hit telemetry positive control
   - Scene: `tests/rga_testing/validation/OnHitProcProbe.tscn`
@@ -146,6 +146,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn`
   - Fails unless `support.peel_carry` identities keep a `threat` context alongside `peel`, non-peel-carry supports and non-support CC-immunity identities do not, and the support `threat` pack resolves to back-lane `carry_threat_window`.
 
+- Totem focused 6v6 peel/threat probe
+  - Scene: `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn`
+  - Runs Totem in full 6v6 support-slot `peel` and carry-threat `threat` contexts; fails if the role, `support.peel_carry` goal, `approach_peel`, `approach_cc_immunity`, or `approach_amp` aggregate consumers stop passing while preserving live lower-level cleanse/save/interrupt/CC-prevention/cooldown-efficiency diagnostics for audit triage.
+
 - Redirect threat-swap telemetry positive control
   - Scene: `tests/rga_testing/validation/RedirectThreatKernelProbe.tscn`
   - Directly drives `CombatEngine.target_start`, `CombatEngine.target_end`, and `CombatEngine.redirect_semantic_applied`; fails if enemy focus starts, target swaps onto the subject, focus duration, explicit taunt/body-block/end-risk evidence, or direct `approach_redirect` evaluation is missing.
@@ -236,7 +240,7 @@ Run these scenes via MCP for headless validation and reports.
 
 - Accepted-miss guard coverage smoke
   - Scene: `tests/rga_testing/validation/AcceptedMissGuardCoverageSmoke.tscn`
-  - Reads the regenerated `outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv` and fails if the current 12 accepted-miss gap kinds are not each mapped to one or more validation scenes, or if the accepted span count is not 14. Regenerate the export with `tests/rga_testing/tools/Export-AcceptedMisses.ps1` before running this smoke.
+  - Reads the regenerated `outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv` and fails if the current 12 accepted-miss gap kinds are not each mapped to one or more validation scenes, or if the accepted span count is not 13. Regenerate the export with `tests/rga_testing/tools/Export-AcceptedMisses.ps1` before running this smoke.
 
 - Peel team-save proxy probe
   - Scene: `tests/rga_testing/validation/PeelTeamSaveProxyProbe.tscn`
