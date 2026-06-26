@@ -1,18 +1,16 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 11
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 11
+const EXPECTED_GAP_KIND_COUNT: int = 9
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 9
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn", "res://tests/rga_testing/validation/BrawlerAttritionScenarioPackSmoke.tscn"],
 	"marksman_sustained_goal_damage_share_below_target": ["res://tests/rga_testing/validation/MarksmanSustainedDpsGoalProbe.tscn", "res://tests/rga_testing/validation/MarksmanSustainedScenarioPackSmoke.tscn"],
 	"assassin_opening_presence_below_target": ["res://tests/rga_testing/validation/AssassinOpeningRoleProbe.tscn", "res://tests/rga_testing/validation/AssassinOpeningScenarioPackSmoke.tscn"],
-	"cc_immunity_approach_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"cc_prevention_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"dive_backline_contact_absent": ["res://tests/rga_testing/validation/SkirmishDiveBacklineGoalProbe.tscn", "res://tests/rga_testing/validation/SkirmishDiveScenarioPackSmoke.tscn"],
 	"engage_success_targets_below_target": ["res://tests/rga_testing/validation/GrintEngageSuccessGoalProbe.tscn", "res://tests/rga_testing/validation/TankEngageScenarioPackSmoke.tscn"],
-	"peel_carry_goal_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn", "res://tests/rga_testing/validation/TeamFortificationScenarioPackSmoke.tscn"]

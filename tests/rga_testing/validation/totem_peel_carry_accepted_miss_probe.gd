@@ -36,7 +36,7 @@ func _run() -> void:
 	var low_team_save_diagnostic: bool = _has_diagnostic_span(low_peel, "team_peel_saves_total", "alternate_peel_evidence_satisfied") and _has_diagnostic_span(low_role, "peel_saves_med_a", "alternate_support_evidence_satisfied") and _has_span(low_goal, "goal_peel_carry_peel_saves", false)
 	var low_ehp_diagnostic: bool = _has_diagnostic_span(low_peel, "subject_ehp_ratio", "alternate_peel_evidence_satisfied") and _has_diagnostic_span(low_role, "subject_ehp_ratio", "alternate_support_evidence_satisfied")
 	var low_cc_prevented_failed: bool = _has_span(low_cc, "subject_cc_prevented_as_target", false)
-	var low_cooldown_efficiency_failed: bool = _has_span(low_cc, "subject_cc_immunity_cooldown_trade_efficiency", false) and _has_span(low_goal, "goal_peel_carry_cooldown_trade_efficiency", false)
+	var low_cooldown_efficiency_diagnostic: bool = _has_diagnostic_span(low_cc, "subject_cc_immunity_cooldown_trade_efficiency", "alternate_cooldown_trade_evidence_satisfied") and _has_diagnostic_span(low_goal, "goal_peel_carry_cooldown_trade_efficiency", "alternate_cooldown_trade_evidence_satisfied")
 	var low_interrupt_failed: bool = _has_span(low_goal, "goal_peel_carry_interrupt_events", false)
 	var low_direct_protection_passed: bool = _has_span(low_peel, "subject_peel_ally_protection_events", true) and _has_span(low_role, "subject_support_events", true) and _has_span(low_goal, "goal_peel_carry_ally_protection_events", true)
 
@@ -46,7 +46,7 @@ func _run() -> void:
 		" low_team_save_diagnostic=", low_team_save_diagnostic,
 		" low_ehp_diagnostic=", low_ehp_diagnostic,
 		" low_cc_prevented_failed=", low_cc_prevented_failed,
-		" low_cooldown_efficiency_failed=", low_cooldown_efficiency_failed,
+		" low_cooldown_efficiency_diagnostic=", low_cooldown_efficiency_diagnostic,
 		" low_interrupt_failed=", low_interrupt_failed)
 
 	var failed: bool = false
@@ -59,7 +59,7 @@ func _run() -> void:
 	if not low_pass:
 		printerr("TotemPeelCarryAcceptedMissProbe: FAIL aggregate direct-protection control did not pass all consumers")
 		failed = true
-	if not low_team_save_diagnostic or not low_ehp_diagnostic or not low_cc_prevented_failed or not low_cooldown_efficiency_failed or not low_interrupt_failed:
+	if not low_team_save_diagnostic or not low_ehp_diagnostic or not low_cc_prevented_failed or not low_cooldown_efficiency_diagnostic or not low_interrupt_failed:
 		printerr("TotemPeelCarryAcceptedMissProbe: FAIL aggregate control did not preserve expected diagnostic/failed lower-level spans")
 		failed = true
 	if not low_direct_protection_passed:

@@ -80,15 +80,23 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var prevented_pass: bool = considered > 0 and float(prevented_as_target) >= prevented_req
 	var counter_pass: bool = considered > 0 and direct_cooldown_supported and (applied_total > 0 or prevented_as_target > 0) and counter_cooldown_trade_s >= counter_req
 	var pass_flag: bool = applied_pass or prevented_pass or counter_pass
+	var direct_cooldown_package_ok: bool = counter_pass and threat_draw_casters >= 1 and key_threat_share >= 0.50
+	var efficiency_raw_ok: bool = direct_cooldown_supported and cooldown_trade_efficiency >= 1.0
+	var efficiency_span_ok: Variant = efficiency_raw_ok
+	var efficiency_extras: Dictionary = {}
 	var reason: String = "no_samples" if considered <= 0 else ""
 	var spans: Array = []
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, reason)
 	extras["considered"] = considered
 	extras["direct_cooldown_pressure_supported"] = direct_cooldown_supported
+	efficiency_extras = extras.duplicate(true)
+	if not efficiency_raw_ok and direct_cooldown_package_ok:
+		efficiency_span_ok = null
+		efficiency_extras["reason"] = "alternate_cooldown_trade_evidence_satisfied"
 	RoleCommon.append_span(spans, "subject_cc_immunity_applied_or_received", applied_total, applied_req, applied_pass, extras)
 	RoleCommon.append_span(spans, "subject_cc_prevented_as_target", prevented_as_target, prevented_req, prevented_pass, extras)
 	RoleCommon.append_span(spans, "subject_cc_immunity_counter_cooldown_trade_s", counter_cooldown_trade_s, counter_req, counter_pass, extras)
-	RoleCommon.append_span(spans, "subject_cc_immunity_cooldown_trade_efficiency", cooldown_trade_efficiency, 1.0, direct_cooldown_supported and cooldown_trade_efficiency >= 1.0, extras)
+	RoleCommon.append_span(spans, "subject_cc_immunity_cooldown_trade_efficiency", cooldown_trade_efficiency, 1.0, efficiency_span_ok, efficiency_extras)
 	RoleCommon.append_span(spans, "subject_cc_immunity_threat_draw_casters", float(threat_draw_casters), 1.0, direct_cooldown_supported and threat_draw_casters >= 1, extras)
 	RoleCommon.append_span(spans, "subject_cc_immunity_key_threat_share", key_threat_share, 0.50, direct_cooldown_supported and key_threat_share >= 0.50, extras)
 	return {

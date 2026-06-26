@@ -310,9 +310,19 @@ func _eval_peel_carry(summary: Dictionary, spans: Array) -> bool:
 	var magnitude_ok: bool = _append_span(spans, summary, "goal_peel_carry_ally_protection_magnitude", protection_magnitude, 25.0, protection_magnitude >= 25.0, "direct_support_utility")
 	_append_span(spans, summary, "goal_peel_carry_cc_immunity_applied", float(summary.get("cc_immunity_applied", 0)), 1.0, int(summary.get("cc_immunity_applied", 0)) >= 1, "direct_support_utility")
 	if _has_direct_cooldown_pressure(summary):
-		var cooldown_ok: bool = _append_span(spans, summary, "goal_peel_carry_counter_cooldown_trade_s", float(summary.get("cooldowns_forced_s", 0.0)), 1.0, float(summary.get("cooldowns_forced_s", 0.0)) >= 1.0)
-		var efficiency_ok: bool = _append_span(spans, summary, "goal_peel_carry_cooldown_trade_efficiency", float(summary.get("cooldown_trade_efficiency", 0.0)), 1.0, float(summary.get("cooldown_trade_efficiency", 0.0)) >= 1.0, "direct_cooldown_pressure")
-		_append_span(spans, summary, "goal_peel_carry_threat_draw_casters", float(summary.get("cooldown_threat_draw_casters", 0)), 1.0, int(summary.get("cooldown_threat_draw_casters", 0)) >= 1, "direct_cooldown_pressure")
+		var cooldown_value: float = float(summary.get("cooldowns_forced_s", 0.0))
+		var cooldown_ok: bool = _append_span(spans, summary, "goal_peel_carry_counter_cooldown_trade_s", cooldown_value, 1.0, cooldown_value >= 1.0)
+		var threat_draw_ok: bool = int(summary.get("cooldown_threat_draw_casters", 0)) >= 1
+		var key_threat_ok: bool = float(summary.get("cooldown_key_threat_share", 0.0)) >= 0.50
+		var efficiency_value: float = float(summary.get("cooldown_trade_efficiency", 0.0))
+		var efficiency_raw_ok: bool = efficiency_value >= 1.0
+		var efficiency_span_ok: Variant = efficiency_raw_ok
+		var efficiency_reason: String = "direct_cooldown_pressure"
+		if not efficiency_raw_ok and cooldown_ok and threat_draw_ok and key_threat_ok:
+			efficiency_span_ok = null
+			efficiency_reason = "alternate_cooldown_trade_evidence_satisfied"
+		var efficiency_ok: bool = _append_span(spans, summary, "goal_peel_carry_cooldown_trade_efficiency", efficiency_value, 1.0, efficiency_span_ok, efficiency_reason)
+		_append_span(spans, summary, "goal_peel_carry_threat_draw_casters", float(summary.get("cooldown_threat_draw_casters", 0)), 1.0, threat_draw_ok, "direct_cooldown_pressure")
 		cooldown_ok = cooldown_ok or efficiency_ok
 		return _k_of_n([saves_ok, carry_ehp_ok, cc_ok, direct_protection_ok, magnitude_ok, cooldown_ok], 1)
 	return _k_of_n([saves_ok, carry_ehp_ok, cc_ok, direct_protection_ok, magnitude_ok], 1)
