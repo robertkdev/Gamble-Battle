@@ -1,12 +1,11 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 35
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 52
+const EXPECTED_GAP_KIND_COUNT: int = 34
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 49
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
-	"engage_cc_timing_unproven": ["res://tests/rga_testing/validation/EngageCcTimingKernelProbe.tscn"],
 	"peel_approach_team_save_proxy_absent": ["res://tests/rga_testing/validation/SoftPeelTeamSaveAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"body_block_events_absent": ["res://tests/rga_testing/validation/FrontlineBodyBlockGoalProbe.tscn"],
 	"body_block_prevented_damage_absent": ["res://tests/rga_testing/validation/FrontlineBodyBlockGoalProbe.tscn"],

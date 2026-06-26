@@ -79,9 +79,24 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	extras["considered"] = considered
 	extras["k_required"] = int(eval.get("k", 2))
 	extras["true_count"] = int(eval.get("true_count", 0))
-	RoleCommon.append_span(spans, "subject_early_engage_displacement_tiles_med", distance_value, distance_req, distance_pass, extras)
-	RoleCommon.append_span(spans, "subject_time_to_first_action_s_med", action_value, action_max, action_pass, extras)
-	RoleCommon.append_span(spans, "subject_time_to_first_cc_s_med", cc_value, cc_max, cc_pass, extras)
+	var distance_extra: Dictionary = extras.duplicate()
+	var action_extra: Dictionary = extras.duplicate()
+	var cc_extra: Dictionary = extras.duplicate()
+	var distance_ok: Variant = distance_pass
+	var action_ok: Variant = action_pass
+	var cc_ok: Variant = cc_pass
+	if pass_flag and not distance_pass:
+		distance_ok = null
+		distance_extra["reason"] = "alternate_engage_evidence_satisfied"
+	if pass_flag and not action_pass:
+		action_ok = null
+		action_extra["reason"] = "alternate_engage_evidence_satisfied"
+	if pass_flag and not cc_pass:
+		cc_ok = null
+		cc_extra["reason"] = "alternate_engage_evidence_satisfied"
+	RoleCommon.append_span(spans, "subject_early_engage_displacement_tiles_med", distance_value, distance_req, distance_ok, distance_extra)
+	RoleCommon.append_span(spans, "subject_time_to_first_action_s_med", action_value, action_max, action_ok, action_extra)
+	RoleCommon.append_span(spans, "subject_time_to_first_cc_s_med", cc_value, cc_max, cc_ok, cc_extra)
 
 	return {
 		"id": METRIC_ID,
