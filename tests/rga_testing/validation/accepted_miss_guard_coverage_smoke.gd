@@ -1,6 +1,7 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
+const DETAIL_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_lower_level_fail_spans.csv"
 const RESIDUAL_AUDIT_PATH: String = "res://docs/rga/accepted_miss_residual_audit_2026-06-26.md"
 const EXPECTED_GAP_KIND_COUNT: int = 3
 const EXPECTED_ACCEPTED_SPAN_COUNT: int = 3
@@ -45,6 +46,7 @@ func _run() -> void:
 	if accepted_span_count != EXPECTED_ACCEPTED_SPAN_COUNT:
 		failures.append("AcceptedMissGuardCoverageSmoke: expected %d accepted spans, found %d" % [EXPECTED_ACCEPTED_SPAN_COUNT, accepted_span_count])
 	_validate_residual_audit_doc(rows, failures)
+	_validate_detail_rows(_load_detail_rows(failures), failures)
 
 	print("AcceptedMissGuardCoverageSmoke: gap_kinds=", rows.size(),
 		" accepted_spans=", accepted_span_count,
@@ -69,6 +71,32 @@ func _load_summary_rows(failures: Array[String]) -> Array[Dictionary]:
 		return rows
 	if file.eof_reached():
 		failures.append("AcceptedMissGuardCoverageSmoke: summary CSV is empty")
+		return rows
+	var headers: PackedStringArray = _parse_csv_line(file.get_line())
+	while not file.eof_reached():
+		var line: String = file.get_line()
+		if line.strip_edges() == "":
+			continue
+		var values: PackedStringArray = _parse_csv_line(line)
+		var row: Dictionary = {}
+		for index: int in range(headers.size()):
+			var key: String = String(headers[index])
+			var value: String = values[index] if index < values.size() else ""
+			row[key] = value
+		rows.append(row)
+	return rows
+
+func _load_detail_rows(failures: Array[String]) -> Array[Dictionary]:
+	var rows: Array[Dictionary] = []
+	if not FileAccess.file_exists(DETAIL_PATH):
+		failures.append("AcceptedMissGuardCoverageSmoke: missing detail CSV at %s; regenerate with tests/rga_testing/tools/Export-AcceptedMisses.ps1" % DETAIL_PATH)
+		return rows
+	var file: FileAccess = FileAccess.open(DETAIL_PATH, FileAccess.READ)
+	if file == null:
+		failures.append("AcceptedMissGuardCoverageSmoke: could not open detail CSV at %s" % DETAIL_PATH)
+		return rows
+	if file.eof_reached():
+		failures.append("AcceptedMissGuardCoverageSmoke: detail CSV is empty")
 		return rows
 	var headers: PackedStringArray = _parse_csv_line(file.get_line())
 	while not file.eof_reached():
@@ -146,6 +174,43 @@ func _validate_residual_audit_doc(rows: Array[Dictionary], failures: Array[Strin
 		for label in _split_csv_cell(String(row.get("labels", ""))):
 			if label != "" and not doc_text.contains(label):
 				failures.append("AcceptedMissGuardCoverageSmoke: residual audit doc missing label %s for %s" % [label, gap_kind])
+
+func _validate_detail_rows(rows: Array[Dictionary], failures: Array[String]) -> void:
+	var expected_keys: Array[String] = _expected_detail_keys()
+	var seen_keys: Dictionary = {}
+	if rows.size() != EXPECTED_ACCEPTED_SPAN_COUNT:
+		failures.append("AcceptedMissGuardCoverageSmoke: expected %d detail rows, found %d" % [EXPECTED_ACCEPTED_SPAN_COUNT, rows.size()])
+	for row: Dictionary in rows:
+		var detail_key: String = _detail_key(row)
+		seen_keys[detail_key] = true
+		if not expected_keys.has(detail_key):
+			failures.append("AcceptedMissGuardCoverageSmoke: unexpected detail row %s" % detail_key)
+		if String(row.get("block_type", "")) != "goal":
+			failures.append("AcceptedMissGuardCoverageSmoke: expected goal block_type for %s" % detail_key)
+		if String(row.get("block", "")) != "primary":
+			failures.append("AcceptedMissGuardCoverageSmoke: expected primary block for %s" % detail_key)
+		if String(row.get("subject_side", "")) != "a":
+			failures.append("AcceptedMissGuardCoverageSmoke: expected subject-side row for %s" % detail_key)
+	for expected_key: String in expected_keys:
+		if not seen_keys.has(expected_key):
+			failures.append("AcceptedMissGuardCoverageSmoke: missing expected detail row %s" % expected_key)
+
+func _expected_detail_keys() -> Array[String]:
+	var keys: Array[String] = []
+	keys.append("kythera|tank|tank.team_fortification|goal_primary|goal_team_fortification_buff_uptime_targets|team_fortification_buff_uptime_absent")
+	keys.append("totem|support|support.peel_carry|goal_primary|goal_peel_carry_interrupt_events|peel_interrupt_context_absent")
+	keys.append("totem|support|support.peel_carry|goal_primary|goal_peel_carry_peel_saves|peel_carry_goal_save_proxy_absent")
+	return keys
+
+func _detail_key(row: Dictionary) -> String:
+	return "%s|%s|%s|%s|%s|%s" % [
+		String(row.get("unit", "")),
+		String(row.get("role", "")),
+		String(row.get("goal", "")),
+		String(row.get("metric_id", "")),
+		String(row.get("label", "")),
+		String(row.get("audit_gap_kind", "")),
+	]
 
 func _split_csv_cell(value: String) -> Array[String]:
 	var parts: Array[String] = []
