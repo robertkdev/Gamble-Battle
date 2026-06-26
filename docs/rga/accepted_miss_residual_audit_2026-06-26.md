@@ -44,6 +44,8 @@ Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_mis
 - `peel_interrupt_context_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`
 - `team_fortification_buff_uptime_absent`: `TeamFortificationBuffGoalProbe.tscn`, `TeamFortificationScenarioPackSmoke.tscn`
 
+The same guard smoke also verifies this document stays aligned with the regenerated export by checking each current gap kind, affected unit, and metric label.
+
 ## Audit Conclusion
 
 The remaining accepted misses are not missing harness coverage. They are live content, scenario, threshold, or identity-definition debt. Do not close them by adding more generic fallback diagnostics unless the design source explicitly says the narrower span is optional for that unit or goal.

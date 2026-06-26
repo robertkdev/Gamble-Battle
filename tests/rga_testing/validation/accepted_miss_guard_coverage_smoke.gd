@@ -1,6 +1,7 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
+const RESIDUAL_AUDIT_PATH: String = "res://docs/rga/accepted_miss_residual_audit_2026-06-26.md"
 const EXPECTED_GAP_KIND_COUNT: int = 5
 const EXPECTED_ACCEPTED_SPAN_COUNT: int = 5
 
@@ -45,6 +46,7 @@ func _run() -> void:
 		failures.append("AcceptedMissGuardCoverageSmoke: expected %d gap kinds, found %d" % [EXPECTED_GAP_KIND_COUNT, rows.size()])
 	if accepted_span_count != EXPECTED_ACCEPTED_SPAN_COUNT:
 		failures.append("AcceptedMissGuardCoverageSmoke: expected %d accepted spans, found %d" % [EXPECTED_ACCEPTED_SPAN_COUNT, accepted_span_count])
+	_validate_residual_audit_doc(rows, failures)
 
 	print("AcceptedMissGuardCoverageSmoke: gap_kinds=", rows.size(),
 		" accepted_spans=", accepted_span_count,
@@ -122,6 +124,38 @@ func _validate_guard_paths(gap_kind: String, raw_guards: Variant, failures: Arra
 			continue
 		if not ResourceLoader.exists(guard_path):
 			failures.append("AcceptedMissGuardCoverageSmoke: guard scene for %s missing at %s" % [gap_kind, guard_path])
+
+func _validate_residual_audit_doc(rows: Array[Dictionary], failures: Array[String]) -> void:
+	if not FileAccess.file_exists(RESIDUAL_AUDIT_PATH):
+		failures.append("AcceptedMissGuardCoverageSmoke: missing residual audit doc at %s" % RESIDUAL_AUDIT_PATH)
+		return
+	var file: FileAccess = FileAccess.open(RESIDUAL_AUDIT_PATH, FileAccess.READ)
+	if file == null:
+		failures.append("AcceptedMissGuardCoverageSmoke: could not open residual audit doc at %s" % RESIDUAL_AUDIT_PATH)
+		return
+	var doc_text: String = file.get_as_text()
+	if doc_text.strip_edges() == "":
+		failures.append("AcceptedMissGuardCoverageSmoke: residual audit doc is empty")
+		return
+	var lower_doc_text: String = doc_text.to_lower()
+	for row in rows:
+		var gap_kind: String = String(row.get("audit_gap_kind", ""))
+		if gap_kind != "" and not doc_text.contains(gap_kind):
+			failures.append("AcceptedMissGuardCoverageSmoke: residual audit doc missing gap kind %s" % gap_kind)
+		for unit in _split_csv_cell(String(row.get("units", ""))):
+			if unit != "" and not lower_doc_text.contains(unit.to_lower()):
+				failures.append("AcceptedMissGuardCoverageSmoke: residual audit doc missing unit %s for %s" % [unit, gap_kind])
+		for label in _split_csv_cell(String(row.get("labels", ""))):
+			if label != "" and not doc_text.contains(label):
+				failures.append("AcceptedMissGuardCoverageSmoke: residual audit doc missing label %s for %s" % [label, gap_kind])
+
+func _split_csv_cell(value: String) -> Array[String]:
+	var parts: Array[String] = []
+	for raw_part: String in value.split(","):
+		var part: String = raw_part.strip_edges()
+		if part != "":
+			parts.append(part)
+	return parts
 
 func _quit(code: int) -> void:
 	if not do_quit_on_finish:
