@@ -13,21 +13,21 @@ func _run() -> void:
 	_previous_time_scale = Engine.time_scale
 	_previous_suppress_validation_warnings = UnitFactory.suppress_validation_warnings
 	UnitFactory.suppress_validation_warnings = true
-	Engine.time_scale = 8.0
+	Engine.time_scale = _flow_time_scale()
 	if Shop != null and not Shop.is_connected("error", Callable(self, "_on_shop_error")):
 		Shop.error.connect(_on_shop_error)
 
 	var catalog: UnitCatalog = UnitCatalogLib.new()
 	catalog.refresh()
-	var starter_ids: Array[String] = catalog.list_starter_ids(int(SHOP_CONFIG.STARTING_LEVEL))
-	print("%s: starters=%s" % [ALL_SMOKE_NAME, ",".join(starter_ids)])
+	var starter_ids: Array[String] = _starter_ids_for_run(catalog)
+	print("%s: starters=%s" % [_smoke_name(), ",".join(starter_ids)])
 	_expect(not starter_ids.is_empty(), "starter catalog should not be empty")
 	for starter_id: String in starter_ids:
 		var result: Dictionary = await _run_starter_main_flow(starter_id, catalog)
 		_starter_results.append(result)
 		_assert_starter_main_flow(result)
 		print("%s: result starter=%s first=%s moved=%s second=%s" % [
-			ALL_SMOKE_NAME,
+			_smoke_name(),
 			starter_id,
 			String(result.get("first_fight_result", "")),
 			str(bool(result.get("moved_to_board", false))),
@@ -53,7 +53,7 @@ func _finish_all_starters() -> void:
 	if _technical_failures().is_empty():
 		var summary: Dictionary = _all_starter_summary()
 		print("%s: PASS starters=%d first_shop=%d retry=%d deployed=%d second_resolved=%d" % [
-			ALL_SMOKE_NAME,
+			_smoke_name(),
 			int(summary.get("starter_count", 0)),
 			int(summary.get("first_shop_count", 0)),
 			int(summary.get("first_retry_count", 0)),
@@ -62,10 +62,31 @@ func _finish_all_starters() -> void:
 		])
 	else:
 		for failure: String in _technical_failures():
-			push_error("%s: %s" % [ALL_SMOKE_NAME, failure])
+			push_error("%s: %s" % [_smoke_name(), failure])
 		exit_code = 1
 	_cleanup_runtime()
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
+
+func _smoke_name() -> String:
+	return ALL_SMOKE_NAME
+
+func _flow_time_scale() -> float:
+	return 8.0
+
+func _first_fight_timeout_seconds() -> float:
+	return FIRST_FIGHT_TIMEOUT
+
+func _second_fight_timeout_seconds() -> float:
+	return SECOND_FIGHT_TIMEOUT
+
+func _starter_ids_for_run(catalog: UnitCatalog) -> Array[String]:
+	return catalog.list_starter_ids(int(SHOP_CONFIG.STARTING_LEVEL))
+
+func _prepare_opener_planning(_starter_id: String) -> void:
+	_set_planning_timer_safe()
+
+func _prepare_first_shop_planning(_result: Dictionary) -> void:
+	_set_planning_time_left(5.0)
 
 func _run_starter_main_flow(starter_id: String, catalog: UnitCatalog) -> Dictionary:
 	var failure_start: int = _failures.size()
@@ -78,9 +99,9 @@ func _run_starter_main_flow(starter_id: String, catalog: UnitCatalog) -> Diction
 	await _settle_frames(4)
 	var combat_opened: bool = _node_visible("CombatView")
 	var board_repositioned: bool = await _reposition_first_board_unit("starter %s board reposition" % starter_id) if combat_opened else false
-	_set_planning_timer_safe()
+	_prepare_opener_planning(starter_id)
 	await _press_continue(true, "starter %s forced first fight" % starter_id)
-	var first_result: String = await _wait_for_first_result(FIRST_FIGHT_TIMEOUT)
+	var first_result: String = await _wait_for_first_result(_first_fight_timeout_seconds())
 	var result: Dictionary = {
 		"id": starter_id,
 		"name": catalog.get_name(starter_id),
@@ -108,7 +129,7 @@ func _run_starter_main_flow(starter_id: String, catalog: UnitCatalog) -> Diction
 	return result
 
 func _exercise_first_shop(result: Dictionary) -> void:
-	_set_planning_time_left(5.0)
+	_prepare_first_shop_planning(result)
 	var bought: bool = await _press_affordable_shop_card()
 	await _settle_frames(4)
 	var bench_after_buy: Array[String] = _bench_ids()
@@ -125,7 +146,7 @@ func _exercise_first_shop(result: Dictionary) -> void:
 	result["board_after_deploy"] = _board_ids()
 	if moved_to_board:
 		await _press_continue(false, "starter first-shop second fight")
-		var second_resolved: bool = await _wait_for_preview_or_loss(SECOND_FIGHT_TIMEOUT)
+		var second_resolved: bool = await _wait_for_preview_or_loss(_second_fight_timeout_seconds())
 		result["second_fight_resolved"] = second_resolved
 		result["second_fight_result"] = _second_fight_result(second_resolved)
 		result["stage_after_second"] = int(GameState.stage_in_chapter)
