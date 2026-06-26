@@ -241,6 +241,7 @@ Recurring accepted-miss buckets from the refreshed subject-side report evidence,
 General accepted-miss gap-kind triage from the current export:
 - Remaining non-support or cross-role gap kinds are marksman sustained-DPS goal damage share below target (1), assassin opening presence below target (1), and team-fortification buff uptime absent (1). The old Bo dive-contact, direct-attrition, pick-burst kill-count, Grint engage-success, 6-row effective-health, 5-row frontline/body-block fallback, 3-row Korath redirect-submode, 3-row ramp-stack, 2-row execute bonus-share, and 2-row Wombo third-path groups are now diagnostic fallback coverage or closed scenario proof instead of accepted-miss debt.
 - `accepted_gap_kind_summary.csv` now rolls up all 5 accepted spans into 5 gap kinds with affected topics, units, labels, block types, and a representative next action. The same detail rows are embedded as `audit_gap_kind_details` in `rga_accepted_misses_summary.json`, while support-specific `support_peel_gap_kind_counts` remains the focused view for the support/peel bucket. `AcceptedMissGuardCoverageSmoke.tscn` now verifies the regenerated rollup still has 5 gap kinds and 5 spans, and that every gap kind maps to one or more committed validation scenes.
+- Focused residual-row triage now lives in `docs/rga/accepted_miss_residual_audit_2026-06-26.md`, with current report evidence, closure criteria, and the guard coverage mapping for each remaining accepted miss.
 
 Support/peel/cleanse/CC bucket triage from the current saved report JSON:
 
