@@ -75,12 +75,17 @@ Focused recheck on 2026-06-26 at local HEAD `6c7b761` kept the same conclusion:
 
 This refresh did not change the residual category: Totem's current kit proves direct protection, while the remaining direct save/interrupt proof still requires product/scenario tuning or a goal-contract decision.
 
+Focused goal-alignment probe on 2026-06-26 kept the residual category explicit while proving a mechanically viable contract alternative:
+
+- `TotemGoalAlignmentProbe.tscn`: `PASS`, `errors=[]`; reruns the real Totem 6v6 `peel` and carry-threat `threat` rows, verifies the current `support.peel_carry` contract still passes aggregate protection while `goal_peel_carry_peel_saves` and `goal_peel_carry_interrupt_events` remain failed, then evaluates the same rows under a temporary `support.team_amplification` primary-goal override.
+- The temporary alternate contract passes with `goal_team_amplification_buff_uptime_targets`, `goal_team_amplification_amp_delta_team`, and `goal_team_amplification_amp_output_delta` all satisfied, and emits no `goal_peel_carry_*` rows. This is decision evidence only; Totem's actual identity remains `support.peel_carry` until the product/design source changes.
+
 ## Guard Coverage
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
 
-- `peel_carry_goal_save_proxy_absent`: `TotemCleanseLiveProbe.tscn`, `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
-- `peel_interrupt_context_absent`: `TotemCleanseLiveProbe.tscn`, `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
+- `peel_carry_goal_save_proxy_absent`: `TotemCleanseLiveProbe.tscn`, `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`, `TotemGoalAlignmentProbe.tscn`
+- `peel_interrupt_context_absent`: `TotemCleanseLiveProbe.tscn`, `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`, `TotemGoalAlignmentProbe.tscn`
 
 The same guard smoke also verifies the detail CSV contains only the exact current Totem peel-save/interrupt residual rows, and checks that this document stays aligned with the regenerated export by naming each current gap kind, affected unit, and metric label.
 

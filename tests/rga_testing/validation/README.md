@@ -157,6 +157,10 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn`
   - Runs Totem in full 6v6 support-slot `peel` and carry-threat `threat` contexts; fails if the role, `support.peel_carry` goal, `approach_peel`, `approach_cc_immunity`, or `approach_amp` aggregate consumers stop passing. The scene also opts into `RoleMatrixProbe.expected_span_checks` so the current live audit contract is explicit: goal-level save and interrupt spans fail, while direct ally-protection events, magnitude, and CC-immunity application spans pass.
 
+- Totem goal-alignment probe
+  - Scene: `tests/rga_testing/validation/TotemGoalAlignmentProbe.tscn`
+  - Reruns the same real Totem 6v6 `peel` and carry-threat `threat` rows, verifies the current `support.peel_carry` aggregate pass plus save/interrupt residual shape, then evaluates those rows under a temporary `support.team_amplification` identity override. This is a design-decision guard: it proves the team-amplification contract is mechanically viable without changing Totem's actual identity resource.
+
 - Redirect threat-swap telemetry positive control
   - Scene: `tests/rga_testing/validation/RedirectThreatKernelProbe.tscn`
   - Directly drives `CombatEngine.target_start`, `CombatEngine.target_end`, and `CombatEngine.redirect_semantic_applied`; fails if enemy focus starts, target swaps onto the subject, focus duration, explicit taunt/body-block/end-risk evidence, or direct `approach_redirect` evaluation is missing.
