@@ -7,8 +7,8 @@ const EXPECTED_GAP_KIND_COUNT: int = 2
 const EXPECTED_ACCEPTED_SPAN_COUNT: int = 2
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
-	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"],
-	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"]
+	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemCleanseLiveProbe.tscn", "res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"],
+	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemCleanseLiveProbe.tscn", "res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn", "res://tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn"]
 }
 
 @export var do_quit_on_finish: bool = true

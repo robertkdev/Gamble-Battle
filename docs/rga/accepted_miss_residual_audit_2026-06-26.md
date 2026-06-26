@@ -34,7 +34,7 @@ Rechecked on 2026-06-26 against the current generated reports under `user://iden
 
 | Unit | Current report detail | Code/resource evidence | Audit implication |
 | --- | --- | --- | --- |
-| Totem | `totem.json` runs `neutral`, `peel`, and `threat`; the two failed spans are `goal_peel_carry_peel_saves=0 / 1` and `goal_peel_carry_interrupt_events=0 / 1`. The same goal passes carry damage prevention `2154 / 25`, ally protection events `283 / 1`, ally protection magnitude `7361 / 25`, CC-immunity applied `70 / 1`, cooldown trade `4.33s / 1.0`, and threat-draw casters `1 / 1`. | `data/identity/unit_identities/totem_identity.tres` still declares `support.peel_carry` with `peel`, `cc_immunity`, and `amp`; `scripts/game/abilities/impls/totem_cleanse.gd` cleanses, shields, grants CC immunity, amps an allied carry, and then damages Totem's target. It does not apply a Totem-owned interrupt/CC effect, and the report's derived team peel-save count stays at 0. | The residual is specific save/interrupt attribution debt. Totem's current kit proves protection strongly, but closing the two rows honestly requires a scenario/kit path that creates direct peel-save attribution and interrupt evidence, or a design decision that those narrower spans are not required for this support goal. |
+| Totem | `totem.json` runs `neutral`, `peel`, and `threat`; the two failed spans are `goal_peel_carry_peel_saves=0 / 1` and `goal_peel_carry_interrupt_events=0 / 1`. The same goal passes carry damage prevention `2154 / 25`, ally protection events `283 / 1`, ally protection magnitude `7361 / 25`, CC-immunity applied `70 / 1`, cooldown trade `4.33s / 1.0`, and threat-draw casters `1 / 1`. | `data/identity/unit_identities/totem_identity.tres` still declares `support.peel_carry` with `peel`, `cc_immunity`, and `amp`; `scripts/game/abilities/impls/totem_cleanse.gd` cleanses, shields, grants CC immunity, amps an allied carry, and then damages Totem's target. `TotemCleanseLiveProbe.tscn` now verifies the real cast removes a carry debuff, emits source-owned cleanse/CC-immunity telemetry, passes aggregate support/peel consumers, and still emits no direct save/interrupt evidence. | The residual is specific save/interrupt attribution debt. Totem's current kit proves protection strongly, but closing the two rows honestly requires a scenario/kit path that creates direct peel-save attribution and interrupt evidence, or a design decision that those narrower spans are not required for this support goal. |
 
 ## Live Design Source Cross-Check
 
@@ -51,6 +51,7 @@ Rechecked on 2026-06-26 after the live Main-flow capture checkpoint:
 - `TeamFortificationBuffGoalProbe.tscn`: `PASS`, `errors=[]`; same-team self/source-owned fortification telemetry now satisfies the fortification-target span while no-buff and buff-only controls keep the aggregate contract honest.
 - `KytheraSiphonCanonicalStackProbe.tscn`: `PASS`, `errors=[]`; Siphon still consumes canonical Aegis stacks, drains MR, applies permanent MR to Kythera, and now records `fortification_targets=2` for the source-owned self fortification path.
 - `RoleMatrixProbe6v6Kythera.tscn`: `PASS`, `errors=[]`; expected-span checks now require team EHP/s, damage-prevention, and `goal_team_fortification_buff_uptime_targets` to pass.
+- `TotemCleanseLiveProbe.tscn`: `PASS`, `errors=[]`; real Cleanse removes the carry debuff, records source-owned cleanse and CC-immunity, passes direct support/peel consumers, and preserves the current no-save/no-interrupt residual shape.
 - `RoleMatrixProbe6v6Totem.tscn`: `PASS`, `errors=[]`; expected-span checks preserved the current contract where ally protection events/magnitude and CC-immunity pass while goal-level peel-save and interrupt spans fail.
 - `RoleMatrixSmoke.tscn`: `PASS (22 units)`, `errors=[]`; this restored the canonical all-unit `user://identity_reports/*.json` report set used by the export.
 - `tests/rga_testing/tools/Export-AcceptedMisses.ps1`: `reports=22 spans=2 ramp_spans=0 non_ramp_goal_ramp=0`.
@@ -62,8 +63,8 @@ The refreshed evidence keeps the residuals in the same category: current product
 
 Every remaining gap kind is mapped by `tests/rga_testing/validation/accepted_miss_guard_coverage_smoke.gd` to committed validation coverage:
 
-- `peel_carry_goal_save_proxy_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
-- `peel_interrupt_context_absent`: `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
+- `peel_carry_goal_save_proxy_absent`: `TotemCleanseLiveProbe.tscn`, `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
+- `peel_interrupt_context_absent`: `TotemCleanseLiveProbe.tscn`, `TotemPeelCarryAcceptedMissProbe.tscn`, `SupportCarryThreatScenarioPackSmoke.tscn`, `RoleMatrixProbe6v6Totem.tscn`
 
 The same guard smoke also verifies the detail CSV contains only the exact current Totem peel-save/interrupt residual rows, and checks that this document stays aligned with the regenerated export by naming each current gap kind, affected unit, and metric label.
 

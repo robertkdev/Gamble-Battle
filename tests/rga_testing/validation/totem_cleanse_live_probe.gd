@@ -4,6 +4,7 @@ const CombatEngineScript := preload("res://scripts/game/combat/combat_engine.gd"
 const BattleStateScript := preload("res://scripts/game/combat/battle_state.gd")
 const TotemCleanse := preload("res://scripts/game/abilities/impls/totem_cleanse.gd")
 const BuffPresenceKernel := preload("res://tests/rga_testing/aggregators/kernels/buff_presence_kernel.gd")
+const ControlMobilityKernel := preload("res://tests/rga_testing/aggregators/kernels/control_mobility_kernel.gd")
 const CounterplayPressureKernel := preload("res://tests/rga_testing/aggregators/kernels/counterplay_pressure_kernel.gd")
 const PeelApproachTest := preload("res://tests/rga_testing/metrics/approach/peel_approach_test.gd")
 const CCImmunityApproachTest := preload("res://tests/rga_testing/metrics/approach/cc_immunity_approach_test.gd")
@@ -25,10 +26,12 @@ func _run() -> void:
 	engine.attack_resolver.emit_auto_attack_logs = false
 
 	var buff_kernel: Variant = BuffPresenceKernel.new()
+	var control_kernel: Variant = ControlMobilityKernel.new()
 	var counterplay_kernel: Variant = CounterplayPressureKernel.new()
 	var team_sizes: Dictionary = {"a": 2, "b": 1}
 	var context_tags: Dictionary = _context_tags()
 	buff_kernel.call("attach", engine, team_sizes, context_tags, true)
+	control_kernel.call("attach", engine, team_sizes, context_tags, true)
 	counterplay_kernel.call("attach", engine, team_sizes, context_tags, true)
 
 	var carry: Unit = state.player_team[1]
@@ -40,8 +43,9 @@ func _run() -> void:
 	var armor_restored: bool = is_equal_approx(float(carry.armor), base_armor)
 
 	buff_kernel.call("finalize", 0.25)
+	control_kernel.call("finalize", 0.25)
 	counterplay_kernel.call("finalize", 0.25)
-	var kernel_result: Dictionary = _merge_kernel_results(buff_kernel.call("result"), counterplay_kernel.call("result"))
+	var kernel_result: Dictionary = _merge_kernel_results([buff_kernel.call("result"), control_kernel.call("result"), counterplay_kernel.call("result")])
 	var metrics_payload: Dictionary = _metric_payload(kernel_result)
 	var peel_result: Dictionary = _run_metric(PeelApproachTest, metrics_payload)
 	var cc_immunity_result: Dictionary = _run_metric(CCImmunityApproachTest, metrics_payload)
@@ -49,16 +53,21 @@ func _run() -> void:
 	var goal_result: Dictionary = _run_metric(GoalPrimaryTest, metrics_payload)
 
 	var buff_presence: Dictionary = kernel_result.get("buff_presence", {}) if (kernel_result is Dictionary) else {}
+	var control_mobility: Dictionary = kernel_result.get("control_mobility", {}) if (kernel_result is Dictionary) else {}
 	var counterplay: Dictionary = kernel_result.get("counterplay_pressure", {}) if (kernel_result is Dictionary) else {}
 	var totem_buff_rec: Dictionary = _per_unit_rec(buff_presence, "a", "totem")
+	var totem_control_rec: Dictionary = _per_unit_rec(control_mobility, "a", "totem")
 	var carry_target_rec: Dictionary = _target_rec(buff_presence, "a", "nyxa")
 	var enemy_counter_rec: Dictionary = _per_unit_rec(counterplay, "b", "repo")
 	var cleanse_applied: int = int(totem_buff_rec.get("cleanse_applied", 0))
 	var cc_immunity_applied: int = int(totem_buff_rec.get("cc_immunity", 0))
+	var cc_events: int = int(totem_control_rec.get("cc_events", 0))
 	var carry_cleanse_received: int = int(carry_target_rec.get("cleanse_received", 0))
 	var carry_immunity_received: int = int(carry_target_rec.get("cc_immunity_received", 0))
 	var cleanse_pressure_events: int = int(enemy_counter_rec.get("cleanse_pressure_events", 0))
 	var cleanse_pressure_removed: int = int(enemy_counter_rec.get("cleanse_pressure_removed", 0))
+	var goal_save_failed: bool = _has_span(goal_result, "goal_peel_carry_peel_saves", false)
+	var goal_interrupt_failed: bool = _has_span(goal_result, "goal_peel_carry_interrupt_events", false)
 
 	print("TotemCleanseLiveProbe: debuff_processed=", bool(debuff_result.get("processed", false)),
 		" was_debuffed=", was_debuffed,
@@ -69,12 +78,15 @@ func _run() -> void:
 		" carry_cleanse_received=", carry_cleanse_received,
 		" cc_immunity_applied=", cc_immunity_applied,
 		" carry_immunity_received=", carry_immunity_received,
+		" cc_events=", cc_events,
 		" cleanse_pressure_events=", cleanse_pressure_events,
 		" cleanse_pressure_removed=", cleanse_pressure_removed,
 		" peel_pass=", bool(peel_result.get("pass", false)),
 		" cc_immunity_pass=", bool(cc_immunity_result.get("pass", false)),
 		" support_pass=", bool(support_result.get("pass", false)),
-		" goal_pass=", bool(goal_result.get("pass", false)))
+		" goal_pass=", bool(goal_result.get("pass", false)),
+		" goal_save_failed=", goal_save_failed,
+		" goal_interrupt_failed=", goal_interrupt_failed)
 
 	var failed: bool = false
 	if not bool(debuff_result.get("processed", false)) or not was_debuffed:
@@ -107,8 +119,12 @@ func _run() -> void:
 	if not bool(goal_result.get("pass", false)) or not _has_span_label(goal_result, "goal_peel_carry_ally_protection_events"):
 		printerr("TotemCleanseLiveProbe: FAIL support.peel_carry goal did not consume direct protection evidence")
 		failed = true
+	if cc_events != 0 or not goal_save_failed or not goal_interrupt_failed:
+		printerr("TotemCleanseLiveProbe: FAIL current Cleanse debt shape changed; expected no direct save/interrupt evidence from the live ability")
+		failed = true
 
 	buff_kernel.call("detach")
+	control_kernel.call("detach")
 	counterplay_kernel.call("detach")
 	engine.stop()
 	engine.teardown()
@@ -187,12 +203,11 @@ func _cast_totem_cleanse(engine: CombatEngine, state: BattleState) -> bool:
 	var ability: Variant = TotemCleanse.new()
 	return bool(ability.call("cast", ctx))
 
-func _merge_kernel_results(buff_result: Dictionary, counterplay_result: Dictionary) -> Dictionary:
+func _merge_kernel_results(kernel_results: Array[Dictionary]) -> Dictionary:
 	var merged: Dictionary = {}
-	for key_value in buff_result.keys():
-		merged[String(key_value)] = buff_result.get(key_value)
-	for key_value_counter in counterplay_result.keys():
-		merged[String(key_value_counter)] = counterplay_result.get(key_value_counter)
+	for kernel_result: Dictionary in kernel_results:
+		for key_value in kernel_result.keys():
+			merged[String(key_value)] = kernel_result.get(key_value)
 	return merged
 
 func _metric_payload(kernel_result: Dictionary) -> Dictionary:
@@ -283,6 +298,16 @@ func _has_span_label(metric_result: Dictionary, expected_label: String) -> bool:
 			continue
 		var span: Dictionary = span_value
 		if String(span.get("label", "")) == expected_label:
+			return true
+	return false
+
+func _has_span(metric_result: Dictionary, expected_label: String, expected_ok: bool) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value
+		if String(span.get("label", "")) == expected_label and bool(span.get("ok", false)) == expected_ok:
 			return true
 	return false
 
