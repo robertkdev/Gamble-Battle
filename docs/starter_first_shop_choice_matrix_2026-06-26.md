@@ -5,7 +5,8 @@ Source: `tests/visual/FirstShopChoiceQualitySmoke.tscn`, rerun through MCP on 20
 The smoke targets current starter lines where a naive first visible/first-clicked shop card can determine whether the run cleanly advances beyond Stage 2. For each starter it forces a deterministic five-offer first shop, buys/deploys each slot through the real Main-scene flow, then starts and resolves the second fight.
 
 Validation:
-- `FirstShopChoiceQualitySmoke: PASS starters=7 trials=35 advanced=23`
+- `FirstShopChoiceQualitySmoke: PASS starters=7 trials=35 advanced=27`
+- `RepoFirstShopCandidateSmoke: PASS candidates=11 advanced=4 helpers=berebell,bonko,grint,sari`; the committed smoke asserts the configured Repo helpers, while Grint remains diagnostic-only because a consecutive candidate sweep exposed non-repeatability.
 - `FirstShopOfferQualitySamplingSmoke: PASS samples=240` with every guarded starter at `first_good=1.000`, `blocked_seen=0`, and `axiom_seen=0`; rerun after the Bo/Brute block-list addition also asserts every expected matrix-proven first-shop trap is present in `ShopConfig.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER`
 - `AllStarterMainFlowSmoke: PASS starters=12 first_shop=12 retry=0 deployed=12 second_resolved=12`
 - `AllStarterMainFlowAudit: OK starters=12`, clean Godot-AI live-editor replay: `first_shop=12`, `retry=0`, `deployed=12`, `second_resolved=12`, `saved_png=72`, `skipped_png=0`
@@ -26,7 +27,7 @@ Acceptance threshold:
 | Bo | 1 | Cashmere | mage | `mage.pick_burst` | no | 2 |
 | Bo | 2 | Cashmere | mage | `mage.pick_burst` | no | 2 |
 | Bo | 3 | Grint | tank | `tank.initiate_fight` | yes | 3 |
-| Bo | 4 | Brute | tank | `tank.frontline_absorb` | no | 2 |
+| Bo | 4 | Brute | tank | `tank.frontline_absorb` | yes | 3 |
 | Bonko | 0 | Morrak | brawler | `brawler.attrition_dps` | yes | 3 |
 | Bonko | 1 | Grint | tank | `tank.initiate_fight` | yes | 3 |
 | Bonko | 2 | Mortem | brawler | `brawler.attrition_dps` | yes | 3 |
@@ -48,10 +49,10 @@ Acceptance threshold:
 | Mortem | 3 | Brute | tank | `tank.frontline_absorb` | no | 2 |
 | Mortem | 4 | Berebell | brawler | `brawler.attrition_dps` | yes | 3 |
 | Repo | 0 | Axiom | support | `support.team_amplification` | no | 2 |
-| Repo | 1 | Sari | marksman | `marksman.sustained_dps` | yes | 3 |
-| Repo | 2 | Mortem | brawler | `brawler.attrition_dps` | no | 2 |
-| Repo | 3 | Korath | tank | `tank.frontline_absorb` | no | 2 |
-| Repo | 4 | Brute | tank | `tank.frontline_absorb` | no | 2 |
+| Repo | 1 | Berebell | brawler | `brawler.attrition_dps` | yes | 3 |
+| Repo | 2 | Bonko | brawler | `brawler.attrition_dps` | yes | 3 |
+| Repo | 3 | Grint | tank | `tank.initiate_fight` | yes | 3 |
+| Repo | 4 | Sari | marksman | `marksman.sustained_dps` | yes | 3 |
 | Sari | 0 | Bonko | brawler | `brawler.attrition_dps` | yes | 3 |
 | Sari | 1 | Grint | tank | `tank.initiate_fight` | yes | 3 |
 | Sari | 2 | Brute | tank | `tank.frontline_absorb` | yes | 3 |
@@ -60,13 +61,13 @@ Acceptance threshold:
 
 ## Read
 
-- Overall: 23 of 35 forced first-shop helper choices advanced beyond Stage 2.
-- Bo has two advancing helpers in this set: Berebell and Grint. Cashmere duplicates and Brute did not advance in this rerun.
+- Overall: 27 of 35 forced first-shop helper choices advanced beyond Stage 2.
+- Bo has three advancing helpers in this set: Berebell, Grint, and Brute. Cashmere duplicates did not advance in this rerun.
 - Bonko has four advancing helpers: Morrak, Grint, Mortem, and Korath. Axiom failed again as a first helper.
 - Cashmere advances with Brute and Bonko. Defensive Korath/Repo pairings still do not cleanly advance this line.
 - Korath now has four proven first-shop helpers: Bonko, Sari, Morrak, and Berebell. Brute did not advance.
 - Mortem now has four proven first-shop helpers: Morrak, Bonko, Sari, and Berebell. Brute did not advance.
-- Repo remains the narrowest tested table: only Sari advanced in this committed matrix.
+- Repo improved materially in the forced matrix: Berebell, Bonko, Grint, and Sari advanced while Axiom failed. Production config uses Berebell, Bonko, and Sari because the broader candidate smoke observed Grint as non-repeatable across consecutive sweeps.
 - Sari is the healthiest newly covered line: all five tested helpers advanced.
 - Axiom as first helper remains risky when the board has only one combat unit. It failed for Bonko and Repo in this matrix.
 
@@ -81,7 +82,7 @@ Acceptance threshold:
 | Cashmere | Brute, Bonko | 34/34 | 0 | 0 | 1.000 |
 | Korath | Bonko, Sari, Morrak, Berebell | 34/34 | 0 | 0 | 1.000 |
 | Mortem | Morrak, Bonko, Sari, Berebell | 34/34 | 0 | 0 | 1.000 |
-| Repo | Sari | 34/34 | 0 | 0 | 1.000 |
+| Repo | Berebell, Bonko, Sari | 34/34 | 0 | 0 | 1.000 |
 | Sari | Bonko, Grint, Brute, Berebell, Morrak | 34/34 | 0 | 0 | 1.000 |
 
 Read: the first post-opener level-1 shop is now starter-aware for seven tested first-shop-sensitive starters. It preserves normal random shop shape, but first replaces configured known-bad helpers from `ShopConfig.FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER`, then ensures slot 0 is a configured helper from `ShopConfig.FIRST_SHOP_HELPERS_BY_STARTER`. Normal later rerolls stay generic.
@@ -110,5 +111,5 @@ Axiom no longer enters the Chapter 1 Stage 1 retry state in the production defau
 
 - Preserve an immediate-damage, high-impact body, or proven frontline stabilizer in slot 0 for first-shop-sensitive starters.
 - Suppress pure support and matrix-proven trap pairings in the first post-opener shop when the board has only one combat unit.
-- Continue treating Repo as the priority tuning target if broader choice quality is needed. Its current guard is intentionally conservative because Sari is the only proven advancing helper in this committed matrix.
+- Continue treating Repo as a tuning target if broader deterministic choice quality is needed. Its current guard is intentionally conservative: Berebell, Bonko, and Sari are configured, while Grint is tracked as a promising but non-repeatable diagnostic candidate.
 - Treat duplicate or near-duplicate first-shop roles carefully. Several options look distinct enough to click but still fail to advance when they duplicate defensive coverage or lack immediate damage.

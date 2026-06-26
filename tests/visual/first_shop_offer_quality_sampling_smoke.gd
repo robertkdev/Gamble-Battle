@@ -220,6 +220,8 @@ func _good_helpers_for(starter_id: String) -> Array[String]:
 			helpers.append("sari")
 			helpers.append("berebell")
 		"repo":
+			helpers.append("berebell")
+			helpers.append("bonko")
 			helpers.append("sari")
 		"sari":
 			helpers.append("bonko")

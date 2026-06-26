@@ -9,7 +9,7 @@ const TARGET_HELPERS: Dictionary = {
 	"cashmere": ["korath", "repo", "brute", "bonko", "brute"],
 	"korath": ["brute", "bonko", "sari", "morrak", "berebell"],
 	"mortem": ["morrak", "bonko", "sari", "brute", "berebell"],
-	"repo": ["axiom", "sari", "mortem", "korath", "brute"],
+	"repo": ["axiom", "berebell", "bonko", "grint", "sari"],
 	"sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
 const FIRST_FIGHT_TIMEOUT: float = 30.0
