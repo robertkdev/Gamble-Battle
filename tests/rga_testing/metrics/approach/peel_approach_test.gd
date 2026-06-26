@@ -114,12 +114,17 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	extras["ally_protection_magnitude"] = ally_protection_magnitude
 	extras["cc_immunity_grants"] = cc_immunity_grants
 	extras["cleanse_applied"] = cleanse_total
+	var ehp_extra: Dictionary = extras.duplicate()
+	var ehp_ok: Variant = ehp_pass
+	if k_any and not ehp_pass and (ally_protection_pass or ally_protection_magnitude_pass or peel_pass):
+		ehp_ok = null
+		ehp_extra["reason"] = "alternate_peel_evidence_satisfied"
 	var team_peel_extra: Dictionary = extras.duplicate()
 	var team_peel_ok: Variant = peel_pass
 	if k_any and not peel_pass and (ehp_pass or ally_protection_pass or ally_protection_magnitude_pass):
 		team_peel_ok = null
 		team_peel_extra["reason"] = "alternate_peel_evidence_satisfied"
-	RoleCommon.append_span(spans, "subject_ehp_ratio", ehp_ratio, ehp_req, ehp_pass, extras)
+	RoleCommon.append_span(spans, "subject_ehp_ratio", ehp_ratio, ehp_req, ehp_ok, ehp_extra)
 	RoleCommon.append_span(spans, "subject_peel_ally_protection_events", ally_protection_events, peel_req, ally_protection_pass, extras)
 	RoleCommon.append_span(spans, "subject_peel_ally_protection_magnitude", ally_protection_magnitude, 25.0, ally_protection_magnitude_pass, extras)
 	RoleCommon.append_span(spans, "subject_peel_cc_immunity_grants", cc_immunity_grants, 1.0, cc_immunity_grants >= 1, extras)

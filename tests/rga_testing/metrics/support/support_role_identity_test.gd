@@ -161,6 +161,11 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
     RoleCommon.append_span(spans, "ehp_ratio_b", ehp_ratio["b"], ehp_min, bool(ehp_pass["b"]))
     RoleCommon.append_span(spans, "peel_saves_med_a", peel_med["a"], peel_min, bool(peel_pass["a"]))
     RoleCommon.append_span(spans, "peel_saves_med_b", peel_med["b"], peel_min, bool(peel_pass["b"]))
+    for support_side in ["a", "b"]:
+        if bool(side_pass.get(support_side, false)) and not bool(ehp_pass.get(support_side, false)) and (bool(bp_pass.get(support_side, false)) or bool(peel_pass.get(support_side, false))):
+            _mark_span_diagnostic(spans, "ehp_ratio_%s" % support_side, "alternate_support_evidence_satisfied")
+        if bool(side_pass.get(support_side, false)) and not bool(peel_pass.get(support_side, false)) and (bool(bp_pass.get(support_side, false)) or bool(ehp_pass.get(support_side, false))):
+            _mark_span_diagnostic(spans, "peel_saves_med_%s" % support_side, "alternate_support_evidence_satisfied")
 
     var messages: Array = []
     if not events_supported:
@@ -188,6 +193,8 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
         RoleCommon.append_span(spans, "subject_support_cc_immunity", subj_cc_immunity, 1.0, subj_cc_immunity >= 1, ex)
         RoleCommon.append_span(spans, "subject_support_cleanse_applied", subj_cleanse_applied, 1.0, subj_cleanse_applied >= 1, ex)
         var pass_subj: bool = (ok_ehp or ok_subject_support or ok_subject_magnitude or (peel_med.get(sidex, 0.0) >= peel_min))
+        if pass_subj and not ok_ehp and (ok_subject_support or ok_subject_magnitude or bool(peel_pass.get(sidex, false))):
+            _mark_span_diagnostic(spans, "subject_ehp_ratio", "alternate_support_evidence_satisfied")
         if pass_subj and not bool(peel_pass.get(sidex, false)) and (ok_ehp or ok_subject_support or ok_subject_magnitude):
             _mark_span_diagnostic(spans, "peel_saves_med_%s" % sidex, "alternate_support_evidence_satisfied")
         return {

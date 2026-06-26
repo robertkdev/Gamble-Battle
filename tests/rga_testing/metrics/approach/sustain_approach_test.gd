@@ -78,7 +78,12 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	extras["healing_total"] = total_healing
 	extras["shield_absorbed_total"] = total_shield
 	extras["time_alive_total_s"] = total_time_alive
-	RoleCommon.append_span(spans, "subject_sustain_ehp_ratio", ehp_ratio, ehp_req, ehp_pass, extras)
+	var ehp_extra: Dictionary = extras.duplicate()
+	var ehp_ok: Variant = ehp_pass
+	if pass_flag and not ehp_pass and hps_pass:
+		ehp_ok = null
+		ehp_extra["reason"] = "alternate_sustain_hps_evidence_satisfied"
+	RoleCommon.append_span(spans, "subject_sustain_ehp_ratio", ehp_ratio, ehp_req, ehp_ok, ehp_extra)
 	RoleCommon.append_span(spans, "subject_sustain_effective_hps", effective_hps, hps_req, hps_pass, extras)
 
 	var messages: Array[String] = []

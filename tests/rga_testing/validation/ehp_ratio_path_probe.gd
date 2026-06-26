@@ -22,6 +22,10 @@ func _run() -> void:
 	var role_team_negative: Dictionary = _run_support_role(_make_support_payload(false, false))
 	var role_subject_positive: Dictionary = _run_support_role(_make_support_payload(true, true))
 	var role_subject_negative: Dictionary = _run_support_role(_make_support_payload(false, true))
+	var sustain_alternate: Dictionary = _run_sustain(_make_sustain_hps_payload())
+	var peel_alternate: Dictionary = _run_peel(_make_support_alternate_payload(true))
+	var role_team_alternate: Dictionary = _run_support_role(_make_support_alternate_payload(false))
+	var role_subject_alternate: Dictionary = _run_support_role(_make_support_alternate_payload(true))
 
 	var sustain_ehp: float = _span_value(sustain_positive, "subject_sustain_ehp_ratio")
 	var peel_ehp: float = _span_value(peel_positive, "subject_ehp_ratio")
@@ -39,6 +43,10 @@ func _run() -> void:
 	var peel_span: bool = _has_passing_span(peel_positive, "subject_ehp_ratio")
 	var role_team_span: bool = _has_passing_span(role_team_positive, "ehp_ratio_a")
 	var role_subject_span: bool = _has_passing_span(role_subject_positive, "subject_ehp_ratio")
+	var sustain_alternate_ok: bool = bool(sustain_alternate.get("pass", false)) and _has_diagnostic_span(sustain_alternate, "subject_sustain_ehp_ratio", "alternate_sustain_hps_evidence_satisfied") and _has_passing_span(sustain_alternate, "subject_sustain_effective_hps")
+	var peel_alternate_ok: bool = bool(peel_alternate.get("pass", false)) and _has_diagnostic_span(peel_alternate, "subject_ehp_ratio", "alternate_peel_evidence_satisfied") and _has_passing_span(peel_alternate, "subject_peel_ally_protection_events")
+	var role_team_alternate_ok: bool = bool(role_team_alternate.get("pass", false)) and _has_diagnostic_span(role_team_alternate, "ehp_ratio_a", "alternate_support_evidence_satisfied") and _has_passing_span(role_team_alternate, "events_per_ally_med_a")
+	var role_subject_alternate_ok: bool = bool(role_subject_alternate.get("pass", false)) and _has_diagnostic_span(role_subject_alternate, "subject_ehp_ratio", "alternate_support_evidence_satisfied") and _has_passing_span(role_subject_alternate, "subject_support_events")
 
 	print("EhpRatioPathProbe: sustain_pass=", sustain_pass,
 		" sustain_ehp=", sustain_ehp,
@@ -48,6 +56,7 @@ func _run() -> void:
 		" role_team_ehp=", role_team_ehp,
 		" role_subject_pass=", role_subject_pass,
 		" role_subject_ehp=", role_subject_ehp,
+		" alternates=", [sustain_alternate_ok, peel_alternate_ok, role_team_alternate_ok, role_subject_alternate_ok],
 		" negatives=", [sustain_negative_pass, peel_negative_pass, role_team_negative_pass, role_subject_negative_pass])
 
 	var failed: bool = false
@@ -62,6 +71,9 @@ func _run() -> void:
 		failed = true
 	if sustain_negative_pass or peel_negative_pass or role_team_negative_pass or role_subject_negative_pass:
 		printerr("EhpRatioPathProbe: FAIL weak negative EHP payload passed")
+		failed = true
+	if not sustain_alternate_ok or not peel_alternate_ok or not role_team_alternate_ok or not role_subject_alternate_ok:
+		printerr("EhpRatioPathProbe: FAIL alternate EHP fallback diagnostics did not pass")
 		failed = true
 
 	if failed:
@@ -109,6 +121,41 @@ func _make_sustain_payload(strong: bool) -> Dictionary:
 							{
 								"unit_id": ENEMY_ID,
 								"damage": incoming,
+								"incoming": 0.0,
+								"time_alive_s": 10.0
+							}
+						]
+					}
+				}
+			}
+		},
+		"subject_unit_ids": [SUSTAIN_SUBJECT_ID]
+	}
+
+func _make_sustain_hps_payload() -> Dictionary:
+	return {
+		"context": {
+			"scenario": "neutral",
+			"sims": {
+				"probe": {
+					"context": {
+						"team_a_ids": [SUSTAIN_SUBJECT_ID],
+						"team_b_ids": [ENEMY_ID]
+					},
+					"units": {
+						"a": [
+							{
+								"unit_id": SUSTAIN_SUBJECT_ID,
+								"incoming": 1000.0,
+								"healing": 30.0,
+								"shield": 0.0,
+								"time_alive_s": 10.0
+							}
+						],
+						"b": [
+							{
+								"unit_id": ENEMY_ID,
+								"damage": 1000.0,
 								"incoming": 0.0,
 								"time_alive_s": 10.0
 							}
@@ -194,6 +241,76 @@ func _make_support_payload(strong: bool, include_subject: bool) -> Dictionary:
 		payload["subject_unit_ids"] = [SUPPORT_SUBJECT_ID]
 	return payload
 
+func _make_support_alternate_payload(include_subject: bool) -> Dictionary:
+	var buff_source_rec: Dictionary = {
+		"ally_buffs_to_others": 1,
+		"ally_buff_magnitude_to_others": 35.0,
+		"cc_immunity": 0,
+		"cleanse_applied": 0
+	}
+	var payload: Dictionary = {
+		"context": {
+			"scenario": "neutral",
+			"sims": {
+				"probe": {
+					"context": {
+						"team_a_ids": [SUPPORT_SUBJECT_ID],
+						"team_b_ids": [ENEMY_ID]
+					},
+					"teams": {
+						"a": {
+							"damage": 10.0,
+							"healing": 2.0,
+							"shield": 0.0
+						},
+						"b": {
+							"damage": 100.0,
+							"healing": 0.0,
+							"shield": 0.0
+						}
+					},
+					"units": {
+						"a": [
+							{
+								"unit_id": SUPPORT_SUBJECT_ID,
+								"damage": 0.0,
+								"incoming": 100.0,
+								"time_alive_s": 10.0
+							}
+						],
+						"b": [
+							{
+								"unit_id": ENEMY_ID,
+								"damage": 100.0,
+								"incoming": 10.0,
+								"time_alive_s": 10.0
+							}
+						]
+					},
+					"kernels": {
+						"buff_presence": {
+							"supported": true,
+							"a": {
+								"events_per_ally": 2.0
+							},
+							"b": {
+								"events_per_ally": 0.0
+							},
+							"per_unit": {
+								"a": {
+									SUPPORT_SUBJECT_ID: buff_source_rec
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if include_subject:
+		payload["subject_unit_ids"] = [SUPPORT_SUBJECT_ID]
+	return payload
+
 func _has_passing_span(metric_result: Dictionary, label_prefix: String) -> bool:
 	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
 	for span_value in spans:
@@ -202,6 +319,17 @@ func _has_passing_span(metric_result: Dictionary, label_prefix: String) -> bool:
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)):
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == reason:
 			return true
 	return false
 

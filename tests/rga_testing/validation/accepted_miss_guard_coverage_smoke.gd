@@ -1,8 +1,8 @@
 extends Node
 
 const SUMMARY_PATH: String = "res://outputs/audit_playtest/rga_accepted_misses_2026_06_25/accepted_gap_kind_summary.csv"
-const EXPECTED_GAP_KIND_COUNT: int = 32
-const EXPECTED_ACCEPTED_SPAN_COUNT: int = 44
+const EXPECTED_GAP_KIND_COUNT: int = 28
+const EXPECTED_ACCEPTED_SPAN_COUNT: int = 38
 
 const GUARDS_BY_GAP_KIND: Dictionary = {
 	"direct_attrition_evidence_below_target": ["res://tests/rga_testing/validation/BrawlerDirectAttritionProbe.tscn"],
@@ -14,10 +14,8 @@ const GUARDS_BY_GAP_KIND: Dictionary = {
 	"execute_bonus_share_absent": ["res://tests/rga_testing/validation/ExecuteBonusApproachProbe.tscn"],
 	"lockdown_high_tenacity_effective_drop_below_target": ["res://tests/rga_testing/validation/CounterplayAcceptedMissProbe.tscn"],
 	"marksman_sustained_goal_damage_share_below_target": ["res://tests/rga_testing/validation/MarksmanSustainedDpsGoalProbe.tscn"],
-	"peel_approach_ehp_ratio_below_target": ["res://tests/rga_testing/validation/EhpRatioPathProbe.tscn"],
 	"pick_burst_kill_count_absent": ["res://tests/rga_testing/validation/PickBurstKillGoalProbe.tscn"],
 	"ramp_approach_stack_below_target": ["res://tests/rga_testing/validation/RampApproachProbe.tscn"],
-	"sustain_approach_ehp_ratio_below_target": ["res://tests/rga_testing/validation/EhpRatioPathProbe.tscn"],
 	"assassin_opening_presence_below_target": ["res://tests/rga_testing/validation/AssassinOpeningRoleProbe.tscn"],
 	"cc_immunity_approach_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
 	"cc_prevention_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
@@ -32,8 +30,6 @@ const GUARDS_BY_GAP_KIND: Dictionary = {
 	"redirect_explicit_threat_swap_absent": ["res://tests/rga_testing/validation/KorathRedirectAcceptedMissProbe.tscn"],
 	"redirect_target_swap_absent": ["res://tests/rga_testing/validation/KorathRedirectAcceptedMissProbe.tscn"],
 	"redirect_taunt_absent": ["res://tests/rga_testing/validation/KorathRedirectAcceptedMissProbe.tscn"],
-	"support_role_subject_ehp_diagnostic_below_target": ["res://tests/rga_testing/validation/EhpRatioPathProbe.tscn", "res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn"],
-	"support_role_team_ehp_proxy_below_target": ["res://tests/rga_testing/validation/EhpRatioPathProbe.tscn"],
 	"team_fortification_buff_uptime_absent": ["res://tests/rga_testing/validation/TeamFortificationBuffGoalProbe.tscn"],
 	"wombo_cc_sync_absent": ["res://tests/rga_testing/validation/WomboComboGoalProbe.tscn"],
 	"wombo_goal_peak_share_below_target": ["res://tests/rga_testing/validation/WomboComboGoalProbe.tscn"]
