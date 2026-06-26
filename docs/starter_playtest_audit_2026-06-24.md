@@ -24,6 +24,7 @@ Status: complete for the original 21-unit manual starter surface, with follow-up
 - Debug audit QA exports: `user://audit_exports/audit_state_*.json`; `F8` opens the debug-only in-game Audit QA panel for state export, screenshot attempt, timer hold, restart, and speed controls.
 - Live Audit QA panel screenshot proof: `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/01_panel_open.png`, `outputs/audit_playtest/audit_panel_live_capture_2026_06_25/02_after_screenshot_click.png`, and `user://audit_exports/audit_shot_1782371342_158480.png`
 - Current Godot-AI game-helper capture proof: `outputs/audit_playtest/godot_ai_capture_recheck_2026_06_26/title_game_helper_capture.png`
+- Current Godot-AI live Main-flow screenshots: `outputs/audit_playtest/live_main_flow_capture_2026_06_26/`
 - Duplicate scoreboard disambiguation validation: `tests/visual/ScoreboardDuplicateDisambiguationSmoke.tscn`
 - Current RoleMatrix detail data: `user://identity_reports/*.json`, `user://rga_smoke/<unit>/...`, and `C:\Users\Flipm\AppData\Roaming\Godot\app_userdata\Gamble Battle\logs\godot.log`
 - Current RoleMatrix accepted-miss artifact: `outputs/audit_playtest/rga_accepted_misses_2026_06_25/`
@@ -142,6 +143,20 @@ Result:
 - `editor_screenshot(source="game")` returned a nonblank 800x450 title-screen capture from the 1920x1080 game framebuffer.
 - A runtime `game_eval` save wrote `outputs/audit_playtest/godot_ai_capture_recheck_2026_06_26/title_game_helper_capture.png`; the saved PNG opens correctly and shows the current title screen.
 - This is a positive current helper-capture check, not proof that long manual sessions will stay connected. Keep the Audit QA panel and OS-window capture fallback for longer audits.
+
+## Current Godot-AI Live Main-flow Capture Recheck
+
+Fresh helper-backed screenshots were saved on 2026-06-26 under `outputs/audit_playtest/live_main_flow_capture_2026_06_26/` from a Godot-AI run of `res://scenes/Main.tscn`.
+
+Accepted files:
+- `01_title.png`: current title screen, confirming a nonblank live game framebuffer.
+- `02_unit_select.png`: Unit Select roster with no champion chosen and disabled `Start Game`.
+- `03_forced_first_fight.png`: Bonko forced opener with disabled shop controls, fixed `Opening bet: 1` copy, `Start Forced Fight`, and the `FIRST FIGHT` / `Win to open shop` placeholder.
+- `04_after_forced_fight_wait.png`: post-forced-fight shop unlock with normal shop cards visible and `Start Battle` restored.
+
+Limits:
+- The multi-step helper eval timed out after the forced-fight wait, and a shorter follow-up save also timed out after writing `04_after_forced_fight_wait.png`; the Godot-AI session later dropped to zero registered sessions.
+- The fourth frame shows an inflated planning timer and still labels the header `Stage 1 - Round 1/6`, so treat it as live visual proof that the first shop unlocks after the forced fight, not as clean stage/round progression proof.
 
 ## Current Main-flow Smoke Sweep Recheck
 
