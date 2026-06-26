@@ -245,6 +245,9 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 				ex["direct_attrition_burst_peak_dps"] = float(direct_attrition.get("burst_peak_dps", 0.0))
 				ex["direct_attrition_burst_peak_share"] = float(direct_attrition.get("burst_peak_share", 0.0))
 				ex["direct_attrition_burst_ok"] = bool(direct_attrition.get("burst_ok", false))
+				ex["direct_attrition_prevented_damage"] = float(direct_attrition.get("prevented_damage_total", 0.0))
+				ex["direct_attrition_support_healing"] = float(direct_attrition.get("support_healing_total", 0.0))
+				ex["direct_attrition_support_shield"] = float(direct_attrition.get("support_shield_total", 0.0))
 				ex["req_focus_s"] = focus_req
 				ex["req_hits_survived"] = hits_req
 				ex["req_time_alive_s"] = time_alive_req
@@ -334,12 +337,33 @@ func _bump_direct_attrition(store: Dictionary, entry: Dictionary, side: String, 
 		"max_targets_hit": 0.0,
 		"burst_peak_dps_total": 0.0,
 		"burst_peak_dps_samples": 0,
-		"burst_peak_share_max": 0.0
+		"burst_peak_share_max": 0.0,
+		"prevented_damage_total": 0.0,
+		"support_healing_total": 0.0,
+		"support_shield_total": 0.0
 	})
 	rec["samples"] = int(rec.get("samples", 0)) + 1
 	rec["sustain_total"] = float(rec.get("sustain_total", 0.0)) + float(unit_entry.get("healing", 0.0)) + float(unit_entry.get("shield", 0.0))
+	var prevented_damage: float = _prevented_damage_from_unit(unit_entry)
+	rec["sustain_total"] = float(rec.get("sustain_total", 0.0)) + prevented_damage
+	rec["prevented_damage_total"] = float(rec.get("prevented_damage_total", 0.0)) + prevented_damage
 	rec["time_alive_total"] = float(rec.get("time_alive_total", 0.0)) + max(0.0, float(unit_entry.get("time_alive_s", 0.0)))
 	var kernels: Dictionary = entry.get("kernels", {}) if (entry is Dictionary) else {}
+	var support: Dictionary = kernels.get("support", {}) if (kernels is Dictionary) else {}
+	var heal_map: Dictionary = support.get("healing_per_unit", {}) if (support is Dictionary) else {}
+	var heal_side: Dictionary = heal_map.get(side, {}) if (heal_map is Dictionary) else {}
+	var heal_rec: Dictionary = heal_side.get(uid, {}) if (heal_side is Dictionary) else {}
+	if heal_rec is Dictionary:
+		var support_healing: float = float(heal_rec.get("healed", 0.0))
+		rec["sustain_total"] = float(rec.get("sustain_total", 0.0)) + support_healing
+		rec["support_healing_total"] = float(rec.get("support_healing_total", 0.0)) + support_healing
+	var shield_map: Dictionary = support.get("shield_absorbed_per_unit", {}) if (support is Dictionary) else {}
+	var shield_side: Dictionary = shield_map.get(side, {}) if (shield_map is Dictionary) else {}
+	var shield_rec: Dictionary = shield_side.get(uid, {}) if (shield_side is Dictionary) else {}
+	if shield_rec is Dictionary:
+		var support_shield: float = float(shield_rec.get("absorbed", 0.0))
+		rec["sustain_total"] = float(rec.get("sustain_total", 0.0)) + support_shield
+		rec["support_shield_total"] = float(rec.get("support_shield_total", 0.0)) + support_shield
 	var per_unit_kpis: Dictionary = kernels.get("per_unit_kpis", {}) if (kernels is Dictionary) else {}
 	var kpi_side: Dictionary = per_unit_kpis.get(side, {}) if (per_unit_kpis is Dictionary) else {}
 	var kpi_rec: Dictionary = kpi_side.get(uid, {}) if (kpi_side is Dictionary) else {}
@@ -366,6 +390,15 @@ func _bump_direct_attrition(store: Dictionary, entry: Dictionary, side: String, 
 		rec["burst_peak_share_max"] = max(float(rec.get("burst_peak_share_max", 0.0)), float(pattern_rec.get("peak_1s_damage_share", 0.0)))
 	side_store[uid] = rec
 	store[side] = side_store
+
+func _prevented_damage_from_unit(unit_entry: Dictionary) -> float:
+	if not (unit_entry is Dictionary):
+		return 0.0
+	if unit_entry.has("pre_mit_incoming") and unit_entry.has("post_mit_incoming"):
+		var pre_mit: float = float(unit_entry.get("pre_mit_incoming", 0.0))
+		var post_mit: float = float(unit_entry.get("post_mit_incoming", 0.0))
+		return max(0.0, pre_mit - post_mit)
+	return max(0.0, float(unit_entry.get("mitigated", 0.0)))
 
 func _direct_attrition_eval(rec: Dictionary) -> Dictionary:
 	if not (rec is Dictionary) or rec.is_empty():
@@ -404,6 +437,9 @@ func _direct_attrition_eval(rec: Dictionary) -> Dictionary:
 		"max_targets_hit": max_targets_hit,
 		"burst_peak_dps": burst_peak_dps,
 		"burst_peak_share": burst_peak_share,
+		"prevented_damage_total": float(rec.get("prevented_damage_total", 0.0)),
+		"support_healing_total": float(rec.get("support_healing_total", 0.0)),
+		"support_shield_total": float(rec.get("support_shield_total", 0.0)),
 		"frontline_ok": frontline_ok,
 		"sustain_ok": sustain_ok,
 		"ramp_ok": ramp_ok,

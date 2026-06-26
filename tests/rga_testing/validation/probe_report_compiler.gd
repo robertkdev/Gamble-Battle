@@ -450,7 +450,10 @@ static func _compact_span(span: Dictionary) -> Dictionary:
 		"direct_attrition_max_targets_hit",
 		"direct_attrition_burst_peak_dps",
 		"direct_attrition_burst_peak_share",
-		"direct_attrition_burst_ok"
+		"direct_attrition_burst_ok",
+		"direct_attrition_prevented_damage",
+		"direct_attrition_support_healing",
+		"direct_attrition_support_shield"
 	]:
 		if span.has(key2):
 			out[key2] = span.get(key2)
