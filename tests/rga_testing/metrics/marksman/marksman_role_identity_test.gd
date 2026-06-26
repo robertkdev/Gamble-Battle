@@ -225,7 +225,25 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
         else:
             pos_pass[s] = (rp_med[s] >= bl_req) # proxy
 
-    # Required: sustained DPS leadership AND positional backline presence (team_damage_share is auxiliary)
+    var sx: String = _any_side_for_subject(sims, subj_id) if subj_id != "" else ""
+    var subj_rate_med: float = RoleCommon.median(subj_rate_samples)
+    var med_all_subj: float = med_all
+    var subj_mult: float = 0.0
+    if peers_all.size() > 0:
+        subj_mult = RoleCommon.multiplier_vs_median(subj_rate_med, med_all_subj)
+    var subj_z: float = RoleCommon.z_from_band(subj_rate_med, peers_all)
+    var subj_share_med: float = RoleCommon.median(subj_share_samples)
+    var subj_proxy_med: float = RoleCommon.median(subj_ranged_proxy)
+    var cond_sustained_subj: bool = (subj_mult >= mult_req or subj_z >= z_req)
+    var cond_share_subj: bool = (subj_share_med >= share_req)
+    var cond_pos_subj: bool = (subj_proxy_med >= bl_req)
+    var tot_med: float = RoleCommon.median(subj_tot_samples)
+    var dist_med: float = RoleCommon.median(subj_dist_samples)
+    var TOT_MIN: float = 0.25
+    var cond_tot: bool = (tot_med >= TOT_MIN)
+    var pass_subj: bool = cond_sustained_subj and cond_pos_subj and cond_tot
+
+    # Required: sustained DPS leadership AND positional backline/ranged presence (team_damage_share is auxiliary)
     var pass_a: bool = bool(sustained_pass["a"] and pos_pass["a"])
     var pass_b: bool = bool(sustained_pass["b"] and pos_pass["b"])
 
@@ -234,8 +252,18 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
     RoleCommon.append_span(spans, "sustained_leader_mult_b", leader_mult["b"], mult_req, sustained_pass["b"])
     RoleCommon.append_span(spans, "sustained_leader_z_a", leader_z["a"], z_req, sustained_pass["a"])
     RoleCommon.append_span(spans, "sustained_leader_z_b", leader_z["b"], z_req, sustained_pass["b"])
-    RoleCommon.append_span(spans, "backline_share_med_a", bl_med["a"], bl_req, pos_pass["a"])
-    RoleCommon.append_span(spans, "backline_share_med_b", bl_med["b"], bl_req, pos_pass["b"])
+    var backline_extra_a: Dictionary = {}
+    var backline_extra_b: Dictionary = {}
+    var backline_ok_a: Variant = pos_pass["a"]
+    var backline_ok_b: Variant = pos_pass["b"]
+    if sx == "a" and not bool(pos_pass["a"]) and cond_sustained_subj and cond_pos_subj and cond_tot:
+        backline_ok_a = null
+        backline_extra_a["reason"] = "alternate_marksman_ranged_evidence_satisfied"
+    if sx == "b" and not bool(pos_pass["b"]) and cond_sustained_subj and cond_pos_subj and cond_tot:
+        backline_ok_b = null
+        backline_extra_b["reason"] = "alternate_marksman_ranged_evidence_satisfied"
+    RoleCommon.append_span(spans, "backline_share_med_a", bl_med["a"], bl_req, backline_ok_a, backline_extra_a)
+    RoleCommon.append_span(spans, "backline_share_med_b", bl_med["b"], bl_req, backline_ok_b, backline_extra_b)
     var dom_cand := {"a": "", "b": ""}
     var dom_frac := {"a": 0.0, "b": 0.0}
     for s2 in ["a","b"]:
@@ -271,26 +299,6 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 
     # Subject-specific evaluation and spans
     if subj_id != "":
-        var subj_rate_med := RoleCommon.median(subj_rate_samples)
-        var med_all_subj: float = med_all
-        var subj_mult: float = 0.0
-        if peers_all.size() > 0:
-            subj_mult = RoleCommon.multiplier_vs_median(subj_rate_med, med_all_subj)
-        var subj_z := RoleCommon.z_from_band(subj_rate_med, peers_all)
-        var subj_share_med := RoleCommon.median(subj_share_samples)
-        var subj_proxy_med := RoleCommon.median(subj_ranged_proxy)
-        var cond_sustained_subj := (subj_mult >= mult_req or subj_z >= z_req)
-        var cond_share_subj := (subj_share_med >= share_req)
-        var cond_pos_subj := (subj_proxy_med >= bl_req)
-        # Candidate gating: ensure subject maintained meaningful time-on-target
-        var tot_med := RoleCommon.median(subj_tot_samples)
-        var dist_med := RoleCommon.median(subj_dist_samples)
-        var TOT_MIN: float = 0.25
-        var cond_tot := (tot_med >= TOT_MIN)
-        var pass_subj: bool = cond_sustained_subj and cond_pos_subj
-        # Apply time-on-target gating to avoid misattribution
-        pass_subj = pass_subj and cond_tot
-        var sx := _any_side_for_subject(sims, subj_id)
         var reason := "" if cond_tot else "low_time_on_target"
         var ex := RoleCommon.subject_extras(sx, subj_id, (reason if reason != "" else ("no_samples" if (subj_rate_samples.size()==0 and subj_share_samples.size()==0) else "")))
         ex["subject_attack_distance_med_tiles"] = dist_med
