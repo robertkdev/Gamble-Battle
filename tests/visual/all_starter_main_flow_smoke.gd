@@ -155,6 +155,7 @@ func _assert_starter_main_flow(result: Dictionary) -> void:
 	_expect(offers_after_first.size() == int(SHOP_CONFIG.SLOT_COUNT), "%s first shop should have full offers" % starter_id)
 	if TARGET_STARTERS.has(starter_id):
 		_expect(_offers_have_good_first_shop_helper(starter_id, offers_after_first), "%s first shop should include a known advancing helper, got %s" % [starter_id, JSON.stringify(offers_after_first)])
+		_expect(_first_offer_is_good_first_shop_helper(starter_id, offers_after_first), "%s first shop first slot should be a known advancing helper, got %s" % [starter_id, JSON.stringify(offers_after_first)])
 	_expect(bool(result.get("shop_buy_clicked", false)), "%s should buy an affordable first-shop card" % starter_id)
 	_expect(bool(result.get("deploy_prompt_visible", false)), "%s first-shop buy should show deploy prompt" % starter_id)
 	_expect(bool(result.get("moved_to_board", false)), "%s first-shop helper should move to board" % starter_id)
@@ -166,6 +167,13 @@ func _offers_have_good_first_shop_helper(starter_id: String, offers: Array[Dicti
 		if good_helpers.has(String(offer.get("id", ""))):
 			return true
 	return false
+
+func _first_offer_is_good_first_shop_helper(starter_id: String, offers: Array[Dictionary]) -> bool:
+	if offers.is_empty():
+		return false
+	var good_helpers: Array[String] = _good_first_shop_helpers_for(starter_id)
+	var first_offer: Dictionary = offers[0]
+	return good_helpers.has(String(first_offer.get("id", "")))
 
 func _good_first_shop_helpers_for(starter_id: String) -> Array[String]:
 	var helpers: Array[String] = []

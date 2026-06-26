@@ -12,7 +12,10 @@ const MIN_GOOD_RATES: Dictionary[String, float] = {
 	"bo": 1.0,
 	"bonko": 1.0,
 	"cashmere": 1.0,
+	"korath": 1.0,
+	"mortem": 1.0,
 	"repo": 1.0,
+	"sari": 1.0,
 }
 
 var _failures: Array[String] = []
@@ -45,10 +48,14 @@ func _initial_stats() -> Dictionary[String, Variant]:
 func _empty_starter_stats() -> Dictionary[String, Variant]:
 	var starter_stats: Dictionary[String, Variant] = {}
 	var examples: Array[String] = []
+	var first_examples: Array[String] = []
 	starter_stats["good_count"] = 0
 	starter_stats["no_good_count"] = 0
+	starter_stats["first_good_count"] = 0
+	starter_stats["first_no_good_count"] = 0
 	starter_stats["axiom_count"] = 0
 	starter_stats["no_good_examples"] = examples
+	starter_stats["first_no_good_examples"] = first_examples
 	return starter_stats
 
 func _record_sample(stats: Dictionary[String, Variant], starter_id: String, offers: Array[ShopOffer]) -> void:
@@ -57,7 +64,10 @@ func _record_sample(stats: Dictionary[String, Variant], starter_id: String, offe
 		if offer != null:
 			offer_ids.append(String(offer.id))
 	var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
-	var has_good: bool = _has_any(offer_ids, _good_helpers_for(starter_id))
+	var good_helpers: Array[String] = _good_helpers_for(starter_id)
+	var has_good: bool = _has_any(offer_ids, good_helpers)
+	var first_offer_id: String = _first_offer_id(offers)
+	var first_has_good: bool = good_helpers.has(first_offer_id)
 	var has_axiom: bool = offer_ids.has("axiom")
 	starter_stats["sample_count"] = int(starter_stats.get("sample_count", 0)) + 1
 	if has_good:
@@ -68,6 +78,14 @@ func _record_sample(stats: Dictionary[String, Variant], starter_id: String, offe
 		if examples.size() < 3:
 			examples.append(",".join(offer_ids))
 		starter_stats["no_good_examples"] = examples
+	if first_has_good:
+		starter_stats["first_good_count"] = int(starter_stats.get("first_good_count", 0)) + 1
+	else:
+		starter_stats["first_no_good_count"] = int(starter_stats.get("first_no_good_count", 0)) + 1
+		var first_examples: Array[String] = _string_array(starter_stats.get("first_no_good_examples", []))
+		if first_examples.size() < 3:
+			first_examples.append("%s|%s" % [first_offer_id, ",".join(offer_ids)])
+		starter_stats["first_no_good_examples"] = first_examples
 	if has_axiom:
 		starter_stats["axiom_count"] = int(starter_stats.get("axiom_count", 0)) + 1
 	stats[starter_id] = starter_stats
@@ -76,10 +94,13 @@ func _assert_rates(stats: Dictionary[String, Variant]) -> void:
 	for starter_id: String in _starter_ids():
 		var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
 		var good_count: int = int(starter_stats.get("good_count", 0))
+		var first_good_count: int = int(starter_stats.get("first_good_count", 0))
 		var sample_count: int = int(starter_stats.get("sample_count", 0))
 		var rate: float = float(good_count) / float(max(1, sample_count))
+		var first_rate: float = float(first_good_count) / float(max(1, sample_count))
 		var required_rate: float = float(MIN_GOOD_RATES.get(starter_id, 0.0))
 		_expect(rate >= required_rate, "%s known-good first-shop helper rate %.3f below %.3f" % [starter_id, rate, required_rate])
+		_expect(first_rate >= required_rate, "%s first-slot known-good helper rate %.3f below %.3f" % [starter_id, first_rate, required_rate])
 
 func _finish(stats: Dictionary[String, Variant]) -> void:
 	var exit_code: int = 0
@@ -96,18 +117,26 @@ func _summary_string(stats: Dictionary[String, Variant]) -> String:
 	for starter_id: String in _sorted_keys(stats):
 		var starter_stats: Dictionary[String, Variant] = stats[starter_id] as Dictionary[String, Variant]
 		var good_count: int = int(starter_stats.get("good_count", 0))
+		var first_good_count: int = int(starter_stats.get("first_good_count", 0))
 		var sample_count: int = int(starter_stats.get("sample_count", 0))
 		var no_good_count: int = int(starter_stats.get("no_good_count", 0))
+		var first_no_good_count: int = int(starter_stats.get("first_no_good_count", 0))
 		var axiom_count: int = int(starter_stats.get("axiom_count", 0))
 		var rate: float = float(good_count) / float(max(1, sample_count))
-		parts.append("%s_good=%d/%d(%.3f) no_good=%d axiom_seen=%d examples=[%s]" % [
+		var first_rate: float = float(first_good_count) / float(max(1, sample_count))
+		parts.append("%s_good=%d/%d(%.3f) first_good=%d/%d(%.3f) no_good=%d first_no_good=%d axiom_seen=%d examples=[%s] first_examples=[%s]" % [
 			starter_id,
 			good_count,
 			sample_count,
 			rate,
+			first_good_count,
+			sample_count,
+			first_rate,
 			no_good_count,
+			first_no_good_count,
 			axiom_count,
 			";".join(_string_array(starter_stats.get("no_good_examples", []))),
+			";".join(_string_array(starter_stats.get("first_no_good_examples", []))),
 		])
 	return " ".join(parts)
 
@@ -124,8 +153,13 @@ func _has_any(values: Array[String], targets: Array[String]) -> bool:
 			return true
 	return false
 
+func _first_offer_id(offers: Array[ShopOffer]) -> String:
+	if offers.is_empty() or offers[0] == null:
+		return ""
+	return String(offers[0].id)
+
 func _starter_ids() -> Array[String]:
-	var ids: Array[String] = ["bo", "bonko", "cashmere", "repo"]
+	var ids: Array[String] = ["bo", "bonko", "cashmere", "korath", "mortem", "repo", "sari"]
 	return ids
 
 func _good_helpers_for(starter_id: String) -> Array[String]:
@@ -142,8 +176,24 @@ func _good_helpers_for(starter_id: String) -> Array[String]:
 		"cashmere":
 			helpers.append("brute")
 			helpers.append("bonko")
+		"korath":
+			helpers.append("bonko")
+			helpers.append("sari")
+			helpers.append("morrak")
+			helpers.append("berebell")
+		"mortem":
+			helpers.append("morrak")
+			helpers.append("bonko")
+			helpers.append("sari")
+			helpers.append("berebell")
 		"repo":
 			helpers.append("sari")
+		"sari":
+			helpers.append("bonko")
+			helpers.append("grint")
+			helpers.append("brute")
+			helpers.append("berebell")
+			helpers.append("morrak")
 	return helpers
 
 func _string_array(values: Variant) -> Array[String]:

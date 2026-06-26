@@ -2,12 +2,15 @@ extends "res://tests/visual/actual_run_loop_smoke.gd"
 
 const UnitCatalogLib: Script = preload("res://scripts/game/shop/unit_catalog.gd")
 const SMOKE_NAME: String = "FirstShopChoiceQualitySmoke"
-const TARGET_STARTERS: Array[String] = ["bo", "bonko", "cashmere", "repo"]
+const TARGET_STARTERS: Array[String] = ["bo", "bonko", "cashmere", "korath", "mortem", "repo", "sari"]
 const TARGET_HELPERS: Dictionary = {
 	"bo": ["berebell", "cashmere", "cashmere", "grint", "brute"],
 	"bonko": ["morrak", "grint", "mortem", "axiom", "korath"],
 	"cashmere": ["korath", "repo", "brute", "bonko", "brute"],
+	"korath": ["brute", "bonko", "sari", "morrak", "berebell"],
+	"mortem": ["morrak", "bonko", "sari", "brute", "berebell"],
 	"repo": ["axiom", "sari", "mortem", "korath", "brute"],
+	"sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
 const FIRST_FIGHT_TIMEOUT: float = 30.0
 const SECOND_FIGHT_TIMEOUT: float = 35.0

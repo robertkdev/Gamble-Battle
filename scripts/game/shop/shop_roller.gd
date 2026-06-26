@@ -57,7 +57,15 @@ func roll(level: int, count: int = ShopConfig.SLOT_COUNT) -> Array[ShopOffer]:
 func roll_opening_for_starter(starter_id: String, level: int, count: int = ShopConfig.SLOT_COUNT) -> Array[ShopOffer]:
 	var offers: Array[ShopOffer] = roll(level, count)
 	var helper_ids: Array[String] = _opening_helper_ids(starter_id)
-	if helper_ids.is_empty() or offers.is_empty() or _has_any_offer(offers, helper_ids):
+	if helper_ids.is_empty() or offers.is_empty():
+		return offers
+	var existing_index: int = _index_of_any_offer(offers, helper_ids)
+	if existing_index == 0:
+		return offers
+	if existing_index > 0:
+		var existing_helper: ShopOffer = offers[existing_index]
+		offers[existing_index] = offers[0]
+		offers[0] = existing_helper
 		return offers
 	var helper_id: String = _pick_opening_helper_id(helper_ids)
 	if helper_id == "":
@@ -66,10 +74,9 @@ func roll_opening_for_starter(starter_id: String, level: int, count: int = ShopC
 	if helper_offer == null:
 		return offers
 	if offers.size() < int(count):
-		offers.append(helper_offer)
+		offers.insert(0, helper_offer)
 	else:
-		var replace_index: int = _rng.randi_range(0, offers.size() - 1) if _rng != null else offers.size() - 1
-		offers[replace_index] = helper_offer
+		offers[0] = helper_offer
 	return offers
 
 func _pick_id_for_cost(cost: int, allow_dupes: bool, used: Dictionary) -> String:
@@ -100,11 +107,12 @@ func _opening_helper_ids(starter_id: String) -> Array[String]:
 			helpers.append(helper_id)
 	return helpers
 
-func _has_any_offer(offers: Array[ShopOffer], helper_ids: Array[String]) -> bool:
-	for offer: ShopOffer in offers:
+func _index_of_any_offer(offers: Array[ShopOffer], helper_ids: Array[String]) -> int:
+	for index: int in range(offers.size()):
+		var offer: ShopOffer = offers[index]
 		if offer != null and helper_ids.has(String(offer.id)):
-			return true
-	return false
+			return index
+	return -1
 
 func _pick_opening_helper_id(helper_ids: Array[String]) -> String:
 	if helper_ids.is_empty():

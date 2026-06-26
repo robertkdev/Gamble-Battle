@@ -12,7 +12,10 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "bo": ["berebell", "grint"],
     "bonko": ["morrak", "grint", "mortem", "korath"],
     "cashmere": ["brute", "bonko"],
+    "korath": ["bonko", "sari", "morrak", "berebell"],
+    "mortem": ["morrak", "bonko", "sari", "berebell"],
     "repo": ["sari"],
+    "sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
 
 # Reroll and XP costs
