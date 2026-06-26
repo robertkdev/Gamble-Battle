@@ -13,24 +13,31 @@ func _ready() -> void:
 func _run() -> void:
 	var positive_result: Dictionary = _run_case(true)
 	var negative_result: Dictionary = _run_case(false)
+	var alternate_result: Dictionary = _run_alternate_dps_case()
 	var positive_rec: Dictionary = positive_result.get("rec", {})
 	var positive_metric: Dictionary = positive_result.get("metric", {})
 	var negative_metric: Dictionary = negative_result.get("metric", {})
+	var alternate_metric: Dictionary = alternate_result.get("metric", {})
 	var peak_share: float = float(positive_rec.get("peak_1s_damage_share", 0.0))
 	var peak_dps: float = float(positive_rec.get("peak_1s_dps", 0.0))
 	var counterplay_ms: float = float(positive_rec.get("counterplay_window_ms", -1.0))
 	var overkill_rate: float = float(positive_rec.get("overkill_rate", 0.0))
 	var positive_pass: bool = bool(positive_metric.get("pass", false))
 	var negative_pass: bool = bool(negative_metric.get("pass", false))
+	var alternate_pass: bool = bool(alternate_metric.get("pass", false))
 	var peak_share_span: bool = _has_passing_span(positive_metric, "subject_peak_1s_damage_share")
 	var peak_dps_span: bool = _has_passing_span(positive_metric, "subject_peak_1s_dps")
 	var overkill_span: bool = _has_passing_span(positive_metric, "subject_overkill_rate")
+	var alternate_share_diagnostic: bool = _has_diagnostic_span(alternate_metric, "subject_peak_1s_damage_share", "alternate_burst_dps_evidence_satisfied")
+	var alternate_peak_dps_span: bool = _has_passing_span(alternate_metric, "subject_peak_1s_dps")
 
 	print("BurstWindowKernelProbe: peak_share=", peak_share,
 		" peak_dps=", peak_dps,
 		" counterplay_ms=", counterplay_ms,
 		" overkill_rate=", overkill_rate,
 		" positive_pass=", positive_pass,
+		" alternate_pass=", alternate_pass,
+		" alternate_share_diagnostic=", alternate_share_diagnostic,
 		" negative_pass=", negative_pass)
 
 	var failed: bool = false
@@ -48,6 +55,9 @@ func _run() -> void:
 		failed = true
 	if not peak_share_span or not peak_dps_span or not overkill_span:
 		printerr("BurstWindowKernelProbe: FAIL approach_burst did not emit passing direct burst spans")
+		failed = true
+	if not alternate_pass or not alternate_peak_dps_span or not alternate_share_diagnostic:
+		printerr("BurstWindowKernelProbe: FAIL high-DPS burst path did not keep low peak share diagnostic")
 		failed = true
 	if negative_pass:
 		printerr("BurstWindowKernelProbe: FAIL diffuse negative case passed approach_burst")
@@ -106,6 +116,28 @@ func _run_case(concentrated: bool) -> Dictionary:
 		"metric": metric_result
 	}
 
+func _run_alternate_dps_case() -> Dictionary:
+	var rec: Dictionary = {
+		"peak_1s_damage_share": 0.18,
+		"peak_1s_dps": 90.0,
+		"overkill_rate": 0.0,
+		"counterplay_window_ms": 180.0
+	}
+	var kernel_result: Dictionary = {
+		"combat_patterns": {
+			"per_unit": {
+				"a": {
+					"hexeon": rec
+				},
+				"b": {}
+			}
+		}
+	}
+	return {
+		"rec": rec,
+		"metric": _run_metric_result(kernel_result)
+	}
+
 func _emit_hit(engine: CombatEngine, kernel: Variant, delta_s: float, damage: int) -> void:
 	kernel.call("tick", delta_s)
 	engine.emit_signal("hit_applied", "player", 0, 0, damage, damage, false, 1000, 1000 - damage, 0.0, 0.0)
@@ -153,6 +185,17 @@ func _has_passing_span(metric_result: Dictionary, label_prefix: String) -> bool:
 		var span: Dictionary = span_value as Dictionary
 		var label: String = String(span.get("label", ""))
 		if label.begins_with(label_prefix) and bool(span.get("ok", false)):
+			return true
+	return false
+
+func _has_diagnostic_span(metric_result: Dictionary, label_prefix: String, reason: String) -> bool:
+	var spans: Array = metric_result.get("spans", []) if (metric_result is Dictionary) else []
+	for span_value in spans:
+		if not (span_value is Dictionary):
+			continue
+		var span: Dictionary = span_value as Dictionary
+		var label: String = String(span.get("label", ""))
+		if label.begins_with(label_prefix) and not span.has("ok") and String(span.get("reason", "")) == reason:
 			return true
 	return false
 

@@ -75,7 +75,12 @@ func run_metric(payload: Dictionary = {}) -> Dictionary:
 	var spans: Array = []
 	var extras: Dictionary = RoleCommon.subject_extras(_any_side_for_subject(sims, subject_id), subject_id, ("no_samples" if share_samples.is_empty() else ""))
 	extras["samples"] = share_samples.size()
-	RoleCommon.append_span(spans, "subject_peak_1s_damage_share_med", share_value, share_req, share_pass, extras)
+	var share_extras: Dictionary = extras.duplicate(true)
+	var share_span_ok: Variant = share_pass
+	if not share_pass and dps_pass and overkill_ok:
+		share_span_ok = null
+		share_extras["reason"] = "alternate_burst_dps_evidence_satisfied"
+	RoleCommon.append_span(spans, "subject_peak_1s_damage_share_med", share_value, share_req, share_span_ok, share_extras)
 	RoleCommon.append_span(spans, "subject_peak_1s_dps_med", dps_value, dps_req, dps_pass, extras)
 	RoleCommon.append_span(spans, "subject_overkill_rate_med", overkill_value, overkill_max, overkill_ok, extras)
 	RoleCommon.append_span(spans, "subject_counterplay_window_ms_med", counterplay_value, null, true, extras)
