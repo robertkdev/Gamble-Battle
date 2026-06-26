@@ -12,7 +12,7 @@ const GUARDS_BY_GAP_KIND: Dictionary = {
 	"cc_immunity_approach_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"cc_prevention_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"dive_backline_contact_absent": ["res://tests/rga_testing/validation/SkirmishDiveBacklineGoalProbe.tscn"],
-	"engage_success_targets_below_target": ["res://tests/rga_testing/validation/GrintEngageSuccessGoalProbe.tscn"],
+	"engage_success_targets_below_target": ["res://tests/rga_testing/validation/GrintEngageSuccessGoalProbe.tscn", "res://tests/rga_testing/validation/TankEngageScenarioPackSmoke.tscn"],
 	"peel_carry_goal_cooldown_trade_below_target": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"peel_carry_goal_save_proxy_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],
 	"peel_interrupt_context_absent": ["res://tests/rga_testing/validation/TotemPeelCarryAcceptedMissProbe.tscn", "res://tests/rga_testing/validation/SupportCarryThreatScenarioPackSmoke.tscn"],

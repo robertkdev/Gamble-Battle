@@ -25,6 +25,7 @@ func _run() -> void:
 	var volt_has_burst: bool = _has_label(volt_labels, "burst")
 	var volt_has_counterplay: bool = _has_label(volt_labels, "counterplay")
 	var volt_drops_generic_peel: bool = not _has_label(volt_labels, "peel")
+	var brute_has_engage: bool = _has_label(brute_labels, "engage")
 	var brute_keeps_peel: bool = _has_label(brute_labels, "peel")
 	var brute_drops_burst: bool = not _has_label(brute_labels, "burst")
 	smoke.free()
@@ -43,8 +44,8 @@ func _run() -> void:
 	if volt_labels.size() != 3 or not volt_has_burst or not volt_has_counterplay or not volt_drops_generic_peel:
 		printerr("PickBurstScenarioLabelSmoke: FAIL pick-burst labels should preserve neutral/counterplay/burst under the cap")
 		failed = true
-	if brute_labels.size() != 3 or not brute_keeps_peel or not brute_drops_burst:
-		printerr("PickBurstScenarioLabelSmoke: FAIL non-pick-burst capped labels should preserve existing generic peel preference")
+	if brute_labels.size() != 4 or not brute_has_engage or not brute_keeps_peel or not brute_drops_burst:
+		printerr("PickBurstScenarioLabelSmoke: FAIL non-pick-burst capped labels should preserve engage and generic peel preference")
 		failed = true
 	if burst_pack.is_empty() or map_id != "pick_burst_window" or subject_lane != "back":
 		printerr("PickBurstScenarioLabelSmoke: FAIL mage burst pack should select the back-lane pick_burst_window map")

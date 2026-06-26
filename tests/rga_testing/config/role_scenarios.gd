@@ -50,6 +50,7 @@ static func all_packs() -> Dictionary:
 static func _tank_packs() -> Array[Dictionary]:
 	return [
 		_scen("tank.neutral", "neutral", "front", _open_field(0.7, 8.0), ["open_field"]),
+		_scen("tank.engage_window", "engage", "front", _engage_window(), ["engage", "initiate"]),
 		_scen("tank.fortification_window", "fortify", "front", _fortification_window(), ["fortify", "buffs"]),
 		_scen("tank.burst", "burst", "front", _burst_lane(), ["burst", "antiheal"]),
 		_scen("tank.peel", "peel", "front", _peel_map(), ["peel"])
@@ -163,6 +164,22 @@ static func _dive_window() -> Dictionary:
 		"artillery_range": 6.5,
 		"tile_size": 96.0,
 		"map_id": "dive_window"
+	}
+
+static func _engage_window() -> Dictionary:
+	# Compact front-lane context for multi-target initiate-fight checks.
+	return {
+		"openness": 0.58,
+		"choke_count": 0,
+		"obstacle_density": 0.18,
+		"artillery_range": 6.5,
+		"tile_size": 96.0,
+		"half_width_tiles": 5.0,
+		"half_height_tiles": 3.4,
+		"spawn_x_tiles": 2.7,
+		"row_spacing_tiles": 0.3,
+		"depth_gap": 0.35,
+		"map_id": "engage_window"
 	}
 
 static func _counter_lane() -> Dictionary:
