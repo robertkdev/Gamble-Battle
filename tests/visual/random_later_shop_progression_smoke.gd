@@ -1,8 +1,8 @@
 extends "res://tests/visual/first_shop_choice_quality_smoke.gd"
 
 const RANDOM_LATER_SMOKE_NAME: String = "RandomLaterShopProgressionSmoke"
-const RANDOM_STARTER_ID: String = "bonko"
-const SAMPLE_SEEDS: Array[int] = [4101, 4102, 4103]
+const SAMPLE_STARTERS: Array[String] = ["axiom", "bonko", "cashmere", "grint", "repo", "sari"]
+const SAMPLE_SEEDS: Array[int] = [4101, 4201, 4301, 4401, 4501, 4601]
 const TARGET_STAGE: int = 5
 const MAX_POST_OPENER_BATTLES: int = 5
 const MAX_BUYS_PER_SHOP: int = 2
@@ -27,42 +27,49 @@ func _run() -> void:
 	if Shop != null and not Shop.is_connected("error", Callable(self, "_on_shop_error")):
 		Shop.error.connect(_on_shop_error)
 
-	for seed: int in SAMPLE_SEEDS:
-		var sample_result: Dictionary = await _run_seeded_sample(seed)
+	if SAMPLE_STARTERS.size() != SAMPLE_SEEDS.size():
+		_expect(false, "random later starter/seed sample arrays must match")
+		_finish_random_later_shop_progression()
+		return
+
+	for sample_index: int in range(SAMPLE_SEEDS.size()):
+		var starter_id: String = SAMPLE_STARTERS[sample_index]
+		var seed: int = SAMPLE_SEEDS[sample_index]
+		var sample_result: Dictionary = await _run_seeded_sample(seed, starter_id)
 		_sample_results.append(sample_result)
 		await _cleanup_between_starters()
 		if not bool(sample_result.get("reached_target", false)):
-			_expect(false, "seed %d did not reach Stage %d: %s" % [seed, TARGET_STAGE, JSON.stringify(sample_result)])
+			_expect(false, "starter %s seed %d did not reach Stage %d: %s" % [starter_id, seed, TARGET_STAGE, JSON.stringify(sample_result)])
 			break
 		if not _technical_failures().is_empty():
 			break
 	_finish_random_later_shop_progression()
 
-func _run_seeded_sample(seed: int) -> Dictionary:
+func _run_seeded_sample(seed: int, starter_id: String) -> Dictionary:
 	var failure_start: int = _failures.size()
 	var shop_error_start: int = _shop_errors.size()
 	_set_shop_seed(seed)
 	_start_main_scene()
 	await _settle_frames(4)
 	await _ensure_unit_select()
-	await _select_starter(RANDOM_STARTER_ID)
+	await _select_starter(starter_id)
 	await _settle_frames(4)
-	var repositioned: bool = await _reposition_first_board_unit("random later seed %d opener reposition" % seed)
-	_expect(repositioned, "random later seed %d starter did not reposition" % seed)
+	var repositioned: bool = await _reposition_first_board_unit("random later %s seed %d opener reposition" % [starter_id, seed])
+	_expect(repositioned, "random later starter %s seed %d did not reposition" % [starter_id, seed])
 	if not _failures_since(failure_start).is_empty():
-		return _sample_output(seed, [], failure_start, shop_error_start)
+		return _sample_output(seed, starter_id, [], failure_start, shop_error_start)
 
 	_set_planning_timer_safe()
-	await _press_continue(true, "random later seed %d forced opener" % seed)
+	await _press_continue(true, "random later %s seed %d forced opener" % [starter_id, seed])
 	var first_result: String = await _wait_for_first_result(RANDOM_FIRST_FIGHT_TIMEOUT)
-	_expect(first_result == "shop", "random later seed %d opener should win into shop, got %s" % [seed, first_result])
+	_expect(first_result == "shop", "random later starter %s seed %d opener should win into shop, got %s" % [starter_id, seed, first_result])
 	if first_result != "shop":
-		return _sample_output(seed, [], failure_start, shop_error_start)
+		return _sample_output(seed, starter_id, [], failure_start, shop_error_start)
 
 	var battle_results: Array[Dictionary] = []
 	var post_opener_battles: int = 0
 	while int(GameState.stage_in_chapter) < TARGET_STAGE and post_opener_battles < MAX_POST_OPENER_BATTLES:
-		var battle_result: Dictionary = await _play_random_shop_round(seed, post_opener_battles + 1)
+		var battle_result: Dictionary = await _play_random_shop_round(starter_id, seed, post_opener_battles + 1)
 		battle_results.append(battle_result)
 		if not bool(battle_result.get("resolved", false)):
 			break
@@ -71,12 +78,13 @@ func _run_seeded_sample(seed: int) -> Dictionary:
 		post_opener_battles += 1
 		if not _failures_since(failure_start).is_empty():
 			break
-	return _sample_output(seed, battle_results, failure_start, shop_error_start)
+	return _sample_output(seed, starter_id, battle_results, failure_start, shop_error_start)
 
-func _play_random_shop_round(seed: int, round_index: int) -> Dictionary:
+func _play_random_shop_round(starter_id: String, seed: int, round_index: int) -> Dictionary:
 	var stage_before: int = int(GameState.stage_in_chapter)
 	var board_before: Array[String] = _board_ids()
 	var result: Dictionary = {
+		"starter": starter_id,
 		"round_index": round_index,
 		"stage_before": stage_before,
 		"offers_before": _offer_summaries(),
@@ -86,7 +94,7 @@ func _play_random_shop_round(seed: int, round_index: int) -> Dictionary:
 	await _settle_frames(2)
 	var bought_ids: Array[String] = []
 	for buy_index: int in range(MAX_BUYS_PER_SHOP):
-		var bought_id: String = await _buy_best_random_offer(seed, round_index, buy_index)
+		var bought_id: String = await _buy_best_random_offer(starter_id, seed, round_index, buy_index)
 		if bought_id == "":
 			break
 		bought_ids.append(bought_id)
@@ -97,13 +105,13 @@ func _play_random_shop_round(seed: int, round_index: int) -> Dictionary:
 	result["deployed_count"] = deployed_count
 	result["bench_after_deploy"] = _bench_ids()
 	result["board_after_deploy"] = _board_ids()
-	_expect(not bought_ids.is_empty(), "random later seed %d round %d should buy at least one natural offer from %s" % [seed, round_index, JSON.stringify(result.get("offers_before", []))])
-	_expect(_board_ids().size() > board_before.size(), "random later seed %d round %d should increase board size, got %s" % [seed, round_index, JSON.stringify(_board_ids())])
+	_expect(not bought_ids.is_empty(), "random later starter %s seed %d round %d should buy at least one natural offer from %s" % [starter_id, seed, round_index, JSON.stringify(result.get("offers_before", []))])
+	_expect(_board_ids().size() > board_before.size(), "random later starter %s seed %d round %d should increase board size, got %s" % [starter_id, seed, round_index, JSON.stringify(_board_ids())])
 	if bought_ids.is_empty() or _board_ids().size() <= board_before.size():
 		return result
 
 	_set_planning_timer_safe()
-	await _press_continue(false, "random later seed %d round %d battle" % [seed, round_index])
+	await _press_continue(false, "random later %s seed %d round %d battle" % [starter_id, seed, round_index])
 	var resolved: bool = await _wait_for_preview_or_loss(RANDOM_ROUND_TIMEOUT)
 	var fight_result: String = _second_fight_result(resolved)
 	var stage_after: int = int(GameState.stage_in_chapter)
@@ -112,10 +120,10 @@ func _play_random_shop_round(seed: int, round_index: int) -> Dictionary:
 	result["stage_after"] = stage_after
 	result["advanced"] = fight_result == "shop" and stage_after > stage_before
 	result["gold_after"] = int(Economy.gold)
-	_expect(resolved, "random later seed %d round %d did not resolve" % [seed, round_index])
+	_expect(resolved, "random later starter %s seed %d round %d did not resolve" % [starter_id, seed, round_index])
 	return result
 
-func _buy_best_random_offer(seed: int, round_index: int, buy_index: int) -> String:
+func _buy_best_random_offer(starter_id: String, seed: int, round_index: int, buy_index: int) -> String:
 	var summaries: Array[Dictionary] = _offer_summaries()
 	var best_slot: int = -1
 	var best_score: int = -9999
@@ -135,7 +143,7 @@ func _buy_best_random_offer(seed: int, round_index: int, buy_index: int) -> Stri
 	if best_slot < 0:
 		return ""
 	var clicked: bool = await _click_shop_slot(best_slot)
-	_expect(clicked, "random later seed %d round %d buy %d failed on slot %d" % [seed, round_index, buy_index, best_slot])
+	_expect(clicked, "random later starter %s seed %d round %d buy %d failed on slot %d" % [starter_id, seed, round_index, buy_index, best_slot])
 	return best_id if clicked else ""
 
 func _random_offer_score(summary: Dictionary) -> int:
@@ -198,8 +206,9 @@ func _set_shop_seed(seed: int) -> void:
 	else:
 		_expect(false, "Shop RNG seed control unavailable")
 
-func _sample_output(seed: int, battle_results: Array[Dictionary], failure_start: int, shop_error_start: int) -> Dictionary:
+func _sample_output(seed: int, starter_id: String, battle_results: Array[Dictionary], failure_start: int, shop_error_start: int) -> Dictionary:
 	return {
+		"starter": starter_id,
 		"seed": seed,
 		"reached_target": int(GameState.stage_in_chapter) >= TARGET_STAGE,
 		"final_stage": int(GameState.stage_in_chapter),
@@ -214,9 +223,15 @@ func _finish_random_later_shop_progression() -> void:
 	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _technical_failures().is_empty():
-		print("%s: OK samples=%d target_stage=%d audit_gold_added=%d" % [
+		var reached_count: int = 0
+		for sample_result: Dictionary in _sample_results:
+			if bool(sample_result.get("reached_target", false)):
+				reached_count += 1
+		print("%s: OK samples=%d reached=%d starters=%s target_stage=%d audit_gold_added=%d" % [
 			RANDOM_LATER_SMOKE_NAME,
 			_sample_results.size(),
+			reached_count,
+			JSON.stringify(SAMPLE_STARTERS),
 			TARGET_STAGE,
 			_random_audit_gold_added,
 		])
