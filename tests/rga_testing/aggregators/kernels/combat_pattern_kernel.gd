@@ -2,7 +2,7 @@ extends RefCounted
 
 # Combat Pattern Kernel
 # Emits per-unit combat-pattern KPIs for doc-level approaches:
-# burst, execute, aoe, and ramp.
+# burst, execute, aoe, ramp, and windowed sustained throughput.
 
 const BattleState := preload("res://scripts/game/combat/battle_state.gd")
 
@@ -11,6 +11,8 @@ const SIDE_B: String = "b"
 const TEAM_PLAYER: String = "player"
 const TEAM_ENEMY: String = "enemy"
 const BURST_WINDOW_S: float = 1.0
+const EARLY_WINDOW_END_S: float = 3.0
+const SUSTAINED_WINDOW_END_S: float = 10.0
 const TIME_BUCKETS_PER_SECOND: float = 20.0
 
 var _engine: Variant = null
@@ -253,10 +255,20 @@ func _summarize_side(side: String) -> Dictionary:
 		uids[String(execute_uid)] = true
 	for ramp_uid in (_ramp_state.get(side, {}) as Dictionary).keys():
 		uids[String(ramp_uid)] = true
+	var early_side_damage: float = 0.0
+	var sustained_side_damage: float = 0.0
 	for uid_key in uids.keys():
 		var uid: String = String(uid_key)
 		var hit_list: Array = (_hits.get(side, {}) as Dictionary).get(uid, [])
-		out[uid] = _summarize_unit(side, uid, hit_list)
+		var unit_summary: Dictionary = _summarize_unit(side, uid, hit_list)
+		early_side_damage += float(unit_summary.get("early_0_3s_damage", 0.0))
+		sustained_side_damage += float(unit_summary.get("sustained_3_10s_damage", 0.0))
+		out[uid] = unit_summary
+	for summary_uid in out.keys():
+		var summary: Dictionary = out.get(summary_uid, {})
+		summary["early_0_3s_team_share"] = float(summary.get("early_0_3s_damage", 0.0)) / max(1.0, early_side_damage)
+		summary["sustained_3_10s_team_share"] = float(summary.get("sustained_3_10s_damage", 0.0)) / max(1.0, sustained_side_damage)
+		out[summary_uid] = summary
 	return out
 
 func _summarize_unit(side: String, uid: String, hit_list: Array) -> Dictionary:
@@ -274,6 +286,7 @@ func _summarize_unit(side: String, uid: String, hit_list: Array) -> Dictionary:
 	if first_cast >= 0.0 and peak_start >= first_cast:
 		counterplay_ms = (peak_start - first_cast) * 1000.0
 	var ramp: Dictionary = _ramp_summary(hit_list, burst)
+	var sustained: Dictionary = _sustained_window_summary(hit_list, total_damage)
 	var ramp_state: Dictionary = _ramp_state_summary(side, uid)
 	var resets: Dictionary = _reset_summary(side, uid, hit_list)
 	var execute_bonus: Dictionary = _execute_bonus_summary(side, uid, total_damage)
@@ -310,6 +323,12 @@ func _summarize_unit(side: String, uid: String, hit_list: Array) -> Dictionary:
 		"falloff_after_peak": float(ramp.get("falloff_after_peak", 0.0)),
 		"early_damage": float(ramp.get("early_damage", 0.0)),
 		"late_damage": float(ramp.get("late_damage", 0.0)),
+		"early_0_3s_damage": float(sustained.get("early_0_3s_damage", 0.0)),
+		"early_0_3s_share": float(sustained.get("early_0_3s_share", 0.0)),
+		"sustained_3_10s_damage": float(sustained.get("sustained_3_10s_damage", 0.0)),
+		"sustained_3_10s_share": float(sustained.get("sustained_3_10s_share", 0.0)),
+		"sustained_3_10s_rate": float(sustained.get("sustained_3_10s_rate", 0.0)),
+		"sustained_3_10s_window_s": float(sustained.get("sustained_3_10s_window_s", 0.0)),
 		"ramp_state_supported": _ramp_state_supported,
 		"ramp_state_events": int(ramp_state.get("ramp_state_events", 0)),
 		"ramp_stack_max": int(ramp_state.get("ramp_stack_max", 0)),
@@ -391,6 +410,30 @@ func _ramp_summary(hit_list: Array, burst: Dictionary) -> Dictionary:
 		"falloff_after_peak": falloff_after_peak,
 		"early_damage": early_damage,
 		"late_damage": late_damage
+	}
+
+func _sustained_window_summary(hit_list: Array, total_damage: float) -> Dictionary:
+	var early_damage: float = 0.0
+	var sustained_damage: float = 0.0
+	var sustained_window_end: float = min(SUSTAINED_WINDOW_END_S, max(0.0, _total_time_s))
+	var sustained_window_s: float = max(0.0, sustained_window_end - EARLY_WINDOW_END_S)
+	for hit in hit_list:
+		if not (hit is Dictionary):
+			continue
+		var rec: Dictionary = hit
+		var t: float = float(rec.get("t", 0.0))
+		var damage: float = max(0.0, float(rec.get("damage", 0.0)))
+		if t < EARLY_WINDOW_END_S:
+			early_damage += damage
+		elif t <= sustained_window_end:
+			sustained_damage += damage
+	return {
+		"early_0_3s_damage": early_damage,
+		"early_0_3s_share": early_damage / max(1.0, total_damage),
+		"sustained_3_10s_damage": sustained_damage,
+		"sustained_3_10s_share": sustained_damage / max(1.0, total_damage),
+		"sustained_3_10s_rate": sustained_damage / max(0.001, sustained_window_s),
+		"sustained_3_10s_window_s": sustained_window_s
 	}
 
 func _group_summary(side: String, uid: String) -> Dictionary:

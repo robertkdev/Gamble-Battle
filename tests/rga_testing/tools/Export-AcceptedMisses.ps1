@@ -46,7 +46,7 @@ function Get-SpanTopic($Label) {
 	if ($text -match 'team_fortification_buff_uptime') {
 		return "team_fortification_buff_uptime"
 	}
-	if ($text -match 'backline_share|team_share|sustained_z|team_damage_share|long_range_damage_share|pressure_without_exposure') {
+	if ($text -match 'backline_share|team_share|sustained_z|sustained_3_10s|team_damage_share|long_range_damage_share|pressure_without_exposure') {
 		return "marksman_damage_positioning"
 	}
 	if ($text -match 'burst|execute|kill|peak_1s') {
@@ -194,6 +194,12 @@ function Get-AuditGapKind($Topic, $Label, $BlockType, $Block) {
 	if ($text -match 'goal_marksman_sustained_dps_team_damage_share') {
 		return "marksman_sustained_goal_damage_share_below_target"
 	}
+	if ($text -match 'goal_marksman_sustained_dps_sustained_3_10s_team_share') {
+		return "marksman_sustained_goal_window_share_below_target"
+	}
+	if ($text -match 'goal_marksman_sustained_dps_sustained_3_10s_rate') {
+		return "marksman_sustained_goal_window_rate_below_target"
+	}
 	if ($text -match 'subject_team_damage_share_med') {
 		return "marksman_role_subject_damage_share_diagnostic_below_target"
 	}
@@ -303,6 +309,8 @@ function Get-AuditNextAction($GapKind) {
 	switch ([string]$GapKind) {
 		"backline_pressure_below_target" { return "Tune marksman targeting/positioning scenarios or thresholds so backline pressure is directly proven when the identity claims it." }
 		"marksman_sustained_goal_damage_share_below_target" { return "Tune sustained-DPS marksman output, encounter duration, or the 0.25 goal threshold so the identity proves direct team damage share." }
+		"marksman_sustained_goal_window_share_below_target" { return "Tune sustained-DPS output or the 3-10s sustained-pressure context so the identity proves windowed sustained team share." }
+		"marksman_sustained_goal_window_rate_below_target" { return "Tune sustained-DPS output, encounter duration, or the 3-10s rate threshold so the identity proves sustained throughput after early burst." }
 		"marksman_role_subject_damage_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman subject damage-share diagnostic unless role identity should require subject-owned team share; tune output/scenario only if needed." }
 		"marksman_role_candidate_team_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman candidate/team-side share diagnostic unless role identity should require team-level carry share; tune output/scenario only if needed." }
 		"marksman_role_damage_share_diagnostic_below_target" { return "Treat this as an auxiliary marksman role diagnostic unless the role contract should require team share; tune output/scenario only if the identity should carry more team damage." }

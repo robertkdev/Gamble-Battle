@@ -232,12 +232,26 @@ func _eval_disrupt_and_escape(summary: Dictionary, spans: Array) -> bool:
 	return _k_of_n([disrupt_ok, escape_ok, damage_taken_ok], 2)
 
 func _eval_marksman_sustained_dps(summary: Dictionary, spans: Array) -> bool:
-	var damage_share_ok: bool = _append_span(spans, summary, "goal_marksman_sustained_dps_team_damage_share", _damage_share(summary), 0.25, _damage_share(summary) >= 0.25)
+	var damage_share: float = _damage_share(summary)
+	var sustained_team_share: float = float(summary.get("sustained_3_10s_team_share", 0.0))
+	var sustained_rate: float = float(summary.get("sustained_3_10s_rate", 0.0))
+	var sustained_team_share_ok: bool = _append_span(spans, summary, "goal_marksman_sustained_dps_sustained_3_10s_team_share", sustained_team_share, 0.25, sustained_team_share >= 0.25, "direct_sustained_window")
+	var sustained_rate_ok: bool = _append_span(spans, summary, "goal_marksman_sustained_dps_sustained_3_10s_rate", sustained_rate, 8.0, sustained_rate >= 8.0, "direct_sustained_window")
+	var sustained_window_ok: bool = sustained_team_share_ok and sustained_rate_ok
+	var damage_share_ok: bool = damage_share >= 0.25
+	var damage_share_span_ok: Variant = damage_share_ok
+	var damage_share_reason: String = ""
+	if not damage_share_ok and sustained_window_ok:
+		damage_share_span_ok = null
+		damage_share_reason = "alternate_sustained_window_evidence_satisfied"
+	_append_span(spans, summary, "goal_marksman_sustained_dps_team_damage_share", damage_share, 0.25, damage_share_span_ok, damage_share_reason)
+	_append_span(spans, summary, "goal_marksman_sustained_dps_early_0_3s_share", float(summary.get("early_0_3s_share", 0.0)), 0.50, null, "diagnostic_not_pass_condition")
+	_append_span(spans, summary, "goal_marksman_sustained_dps_sustained_3_10s_own_share", float(summary.get("sustained_3_10s_share", 0.0)), 0.30, null, "diagnostic_not_pass_condition")
 	var uptime_ok: bool = _append_span(spans, summary, "goal_marksman_sustained_dps_time_on_target", float(summary.get("time_on_target_pct", 0.0)), 0.40, float(summary.get("time_on_target_pct", 0.0)) >= 0.40)
 	var range_ok: bool = _append_span(spans, summary, "goal_marksman_sustained_dps_attacks_over_2_tiles", float(summary.get("attacks_over_2_tiles_pct", 0.0)), 0.50, float(summary.get("attacks_over_2_tiles_pct", 0.0)) >= 0.50)
 	var survival_ok: bool = _append_span(spans, summary, "goal_marksman_sustained_dps_survival_s", float(summary.get("time_alive_s", 0.0)), 8.0, float(summary.get("time_alive_s", 0.0)) >= 8.0)
 	var ramp_ok: bool = _goal_ramp_ok(summary, spans, "goal_marksman_sustained_dps")
-	return _k_of_n([damage_share_ok, uptime_ok, range_ok, survival_ok, ramp_ok], 2)
+	return _k_of_n([damage_share_ok or sustained_window_ok, uptime_ok, range_ok, survival_ok, ramp_ok], 2)
 
 func _eval_backline_siege(summary: Dictionary, spans: Array) -> bool:
 	var range_ok: bool = _append_span(spans, summary, "goal_backline_siege_long_range_damage_share", float(summary.get("attacks_over_2_tiles_pct", 0.0)), 0.60, float(summary.get("attacks_over_2_tiles_pct", 0.0)) >= 0.60)
@@ -437,7 +451,7 @@ func _add_unit_totals(summary: Dictionary, unit_rec: Dictionary) -> void:
 	summary["time_alive_s"] = float(summary.get("time_alive_s", 0.0)) + float(unit_rec.get("time_alive_s", 0.0))
 
 func _merge_pattern(summary: Dictionary, rec: Dictionary) -> void:
-	for key in ["total_damage", "peak_1s_damage", "peak_1s_damage_share", "peak_1s_dps", "counterplay_window_ms", "overkill_rate", "kill_count", "low_hp_kill_count", "low_hp_kill_share", "max_targets_hit", "multi_target_groups", "aoe_dps", "late_early_dps_ratio"]:
+	for key in ["total_damage", "peak_1s_damage", "peak_1s_damage_share", "peak_1s_dps", "counterplay_window_ms", "overkill_rate", "kill_count", "low_hp_kill_count", "low_hp_kill_share", "max_targets_hit", "multi_target_groups", "aoe_dps", "late_early_dps_ratio", "early_0_3s_share", "sustained_3_10s_share", "sustained_3_10s_rate", "sustained_3_10s_team_share", "sustained_3_10s_window_s"]:
 		if rec.has(key):
 			summary[key] = max(float(summary.get(key, 0.0)), float(rec.get(key, 0.0)))
 	if bool(rec.get("ramp_state_supported", false)):
@@ -785,7 +799,7 @@ func _append_span(spans: Array, summary: Dictionary, label: String, value: float
 	var extras: Dictionary = RoleCommon.subject_extras(String(summary.get("subject_side", "")), String(summary.get("unit_id", "")), reason)
 	extras["samples"] = int(summary.get("samples", 0))
 	extras["direct_goal_metric"] = true
-	for key in ["backline_damage_share", "backline_access_samples", "backline_access_contact_count", "backline_access_first_contact_s"]:
+	for key in ["backline_damage_share", "backline_access_samples", "backline_access_contact_count", "backline_access_first_contact_s", "early_0_3s_share", "sustained_3_10s_share", "sustained_3_10s_team_share", "sustained_3_10s_rate", "sustained_3_10s_window_s"]:
 		if summary.has(key):
 			extras[key] = summary.get(key)
 	RoleCommon.append_span(spans, label, value, want, ok, extras)
