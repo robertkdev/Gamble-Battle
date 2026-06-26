@@ -50,6 +50,7 @@ static func all_packs() -> Dictionary:
 static func _tank_packs() -> Array[Dictionary]:
 	return [
 		_scen("tank.neutral", "neutral", "front", _open_field(0.7, 8.0), ["open_field"]),
+		_scen("tank.fortification_window", "fortify", "front", _fortification_window(), ["fortify", "buffs"]),
 		_scen("tank.burst", "burst", "front", _burst_lane(), ["burst", "antiheal"]),
 		_scen("tank.peel", "peel", "front", _peel_map(), ["peel"])
 	]
@@ -171,6 +172,17 @@ static func _counter_lane() -> Dictionary:
 		"artillery_range": 7.5,
 		"tile_size": 96.0,
 		"map_id": "counter_lane"
+	}
+
+static func _fortification_window() -> Dictionary:
+	# Standard spacing, explicit map id for team-fortification audit rows.
+	return {
+		"openness": 0.65,
+		"choke_count": 0,
+		"obstacle_density": 0.2,
+		"artillery_range": 8.0,
+		"tile_size": 96.0,
+		"map_id": "fortification_window"
 	}
 
 static func _periodicity_friendly() -> Dictionary:
