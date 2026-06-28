@@ -39,6 +39,118 @@ Only promote a mode into a new top-level approach if at least three units need i
 - Race: Wins by ending the fight before the opponent's plan matters.
 - Tax: Does not stop the plan, but forces worse placement, target choice, or timing.
 
+## Iteration Loop
+
+This matrix is balanced toward what the finished first set should create, not what the current 22-unit roster or the first 50-unit draft already contains.
+
+| Pass | Test | Finding | Change |
+| --- | --- | --- | --- |
+| 0 - Current-plan read | Count current plus planned RGA tags. | Too much generic output/stat texture: `burst`, `damage_reduction`, `amp`, and `sustain` dominated. | Stop treating current counts as the desired endpoint. |
+| 1 - Role layer | Ask whether each role has natural prey and natural predators. | The six roles can create a Pokemon-style opening layer, but roles alone are too coarse. | Keep role spread close to even, then let goals/approaches decide exceptions. |
+| 2 - Goal layer | Require every goal to appear and avoid catch-all goals. | `support.team_amplification`, `tank.frontline_absorb`, and `brawler.attrition_dps` can become defaults. | Use every goal, with no goal above 3 copies in the target matrix. |
+| 3 - Approach layer | Require every threat to have answers and every answer to have pressure. | Board geometry and timing answers were too thin. | Raise `zone`, `redirect`, `untargetable`, `dot`, `engage`, `disrupt`, and `lockdown`. |
+| 4 - Board mockups | Build ten-unit boards and counter boards. | No single archetype should beat all others; every board needs a predator and prey. | Define eight archetypes with explicit counter boards and failure cases. |
+| 5 - Cost/trait check | Ask whether expensive units and trait verticals create intention without becoming auto-win paths. | Cost 4/5 should bend matchups, not remove counterplay. Traits should commit a board to an intent. | Cost and trait rules are included below as constraints on the matrix. |
+
+## Role Counter Layer
+
+Roles are the first rock-paper-scissors layer. They should create natural expectations, but goals and approaches are allowed to overturn those expectations when the matchup is correct.
+
+| Role | Naturally pressures | Naturally checked by | Why it is not absolute |
+| --- | --- | --- | --- |
+| Tank | Assassin burst, fragile engage, scattered damage | Tank shredding marksmen, debuff, DoT, backline bypass | A tank with `frontline_absorb` can lose to an assassin only if the assassin brings `execute`, `debuff`, or backline access that makes the tank irrelevant. |
+| Brawler | Frontlines, low-pressure boards, exposed marksmen | Zone, lockdown, burst, long range | Brawlers win uptime fights and lose when denied contact. |
+| Assassin | Marksmen, mages, support engines | Peel, redirect, zone, lockdown | Assassins are not just anti-backline; their goal decides whether they kill, disrupt, or clean up. |
+| Marksman | Tanks, brawlers, long fights | Assassin access, engage, zone, lockdown | Marksmen win with uptime. If formation or protection fails, they collapse. |
+| Mage | Clumps, brawlers, tanks, setup boards | Assassin access, long range, disruption, CC immunity | Mages need timing or space. Area denial beats dive, pick burst beats isolation, wombo beats clumps. |
+| Support | Burst, dive, control, team inefficiency | AoE, formation breaking, backline access, debuff | Support should make one plan strong while creating a visible pressure point. |
+
+## Target Role Counts
+
+For a 50-unit set, roles should be close to even while preserving assassin scarcity.
+
+| Role | Target count | Strategic job |
+| --- | ---: | --- |
+| Tank | 9 | Frontline structure, engage, fortification, lockdown. |
+| Brawler | 8 | Midline pressure, attrition, disruption, skirmish access. |
+| Assassin | 6 | Rare but decisive backline pressure, cleanup, and disruption. |
+| Marksman | 9 | Uptime damage, tank shredding, siege lines. |
+| Mage | 9 | Burst windows, zone control, magic damage over time. |
+| Support | 9 | Peel, amplification, initiation, formation control, lockdown. |
+| Total | 50 |  |
+
+## Target Goal Counts
+
+The goal budget intentionally uses every goal. No goal should exceed three units in the first complete set, because repeated goals should differ by approach, cost, trait, and target rule rather than becoming one default plan.
+
+| Primary goal | Target count | Target role pressure |
+| --- | ---: | --- |
+| `tank.frontline_absorb` | 3 | Core tanking, body-blocking, soak tests. |
+| `tank.team_fortification` | 2 | Anti-burst and wide defensive shells. |
+| `tank.initiate_fight` | 2 | Frontline engage and anti-siege starts. |
+| `tank.single_target_lockdown` | 2 | Anti-carry, anti-reset, anti-dive anchor. |
+| `brawler.attrition_dps` | 3 | Uptime melee pressure. |
+| `brawler.frontline_disruption` | 3 | Anti-frontline and anti-clump pressure. |
+| `brawler.skirmish_dive` | 2 | Repeatable soft backline threat. |
+| `assassin.backline_elimination` | 2 | True carry deletion. |
+| `assassin.cleanup_execution` | 2 | Reset and threshold punishment. |
+| `assassin.disrupt_and_escape` | 2 | Backline chaos without guaranteed kill. |
+| `marksman.sustained_dps` | 3 | Classic protected carry plan. |
+| `marksman.backline_siege` | 3 | Anti-support and anti-caster range plan. |
+| `marksman.tank_shredding` | 3 | Anti-mitigation and anti-frontline plan. |
+| `mage.wombo_combo_burst` | 3 | Engage payoff and clump punishment. |
+| `mage.area_denial_zone` | 3 | Anti-dive, anti-melee, board geometry. |
+| `mage.pick_burst` | 2 | Isolation punishment. |
+| `mage.sustained_dps` | 1 | Rare magic clock / DoT identity. |
+| `support.peel_carry` | 2 | Dive and execute answer. |
+| `support.team_amplification` | 2 | Wide/team engine, not catch-all support. |
+| `support.enemy_lockdown` | 2 | Control support and reset denial. |
+| `support.initiate_fight` | 1 | Rare support-led engage. |
+| `support.formation_breaking` | 2 | Anti-clump and anti-peel-ball tool. |
+| Total | 50 |  |
+
+## Target Approach Budget
+
+The target budget is not equal on purpose. Damage approaches can be slightly more common because every board needs a way to win, but geometry, control, and response approaches must be common enough that boards are decided by matchup choices, not only by stats.
+
+Target total: 149 approach assignments across 50 units, or almost exactly three approach tags per unit.
+
+| Approach | Target count | Strategic reason |
+| --- | ---: | --- |
+| `access_backline` | 6 | Enough to punish siege/amp engines, still rare enough to respect positioning. |
+| `amp` | 8 | Important but no longer a default support answer. |
+| `aoe` | 8 | Needed to punish clumps, peel balls, and fortification. |
+| `burst` | 9 | Common enough for race plans, lower than the first draft. |
+| `cc_immunity` | 5 | Keeps lockdown/disrupt honest without erasing control. |
+| `damage_reduction` | 8 | Defensive pillar, but not allowed to dominate. |
+| `debuff` | 8 | Main anti-stat, anti-sustain, and anti-tank tool. |
+| `disrupt` | 8 | Core plan-breaking approach. |
+| `dot` | 5 | Clock pressure against mitigation and target denial. |
+| `engage` | 7 | Needed to stop range, ramp, and greedy engines. |
+| `execute` | 6 | Threshold pressure against sustain and reset setups. |
+| `lockdown` | 6 | Single-target answer to carries, divers, and capstones. |
+| `long_range` | 8 | Keeps melee/control honest and enables siege archetypes. |
+| `on_hit_effect` | 6 | Uptime texture for marksmen and brawlers. |
+| `peel` | 8 | Main anti-dive/anti-burst answer. |
+| `ramp` | 8 | Timing pressure and experiment-like fight outcomes. |
+| `redirect` | 5 | Target-choice puzzle and pick/dive answer. |
+| `reposition` | 6 | Counterplay against zone, engage, and focus fire. |
+| `reset_mechanic` | 5 | Comeback volatility and cleanup threat. |
+| `sustain` | 8 | Attrition pillar with clear anti-heal/execute answers. |
+| `untargetable` | 5 | Timing dodge answer to burst/lockdown/execute. |
+| `zone` | 6 | Core chess-board approach; enough to matter but not clog every fight. |
+| Total | 149 |  |
+
+Category balance:
+
+| Category | Included approaches | Target total | Why this is acceptable |
+| --- | --- | ---: | --- |
+| Output and timing damage | `burst`, `aoe`, `dot`, `execute`, `reset_mechanic`, `on_hit_effect`, `ramp` | 47 | Damage remains the way fights end, but it is split across burst, clocks, uptime, threshold, and reset patterns. |
+| Stat and attrition modifiers | `amp`, `damage_reduction`, `debuff`, `sustain` | 32 | Broad stat tags matter without becoming the whole game. |
+| Board geometry and threat access | `access_backline`, `engage`, `long_range`, `redirect`, `reposition`, `zone` | 38 | Enough tools exist for tile placement and target access to decide fights. |
+| Control and control answers | `cc_immunity`, `disrupt`, `lockdown`, `peel`, `untargetable` | 32 | Control can be important without becoming oppressive because answers are budgeted beside it. |
+| Total |  | 149 |  |
+
 ## Approach Counter Matrix
 
 | Approach | Pressures | Strong answers | Soft answers | Design note |
@@ -105,50 +217,108 @@ These loops are the main chess-like relationships the roster should create.
 | Formation loop | `peel`, fortification, clumps | `aoe`, `zone`, formation breaking | Spread, `long_range`, `reposition`, source kill |
 | Timing loop | `ramp`, `reset_mechanic`, delayed casts | `burst`, `engage`, `lockdown` | `damage_reduction`, `untargetable`, `peel`, baiting |
 
-## Coverage Targets For The 50-Unit Plan
+## Cost Pressure Rules
 
-Current plus planned approach counts are skewed toward stat modifiers and output. The final roster does not need equal counts, but it should hit minimum counterplay coverage so the board has enough tactical levers.
+Cost should change reliability and complexity, not remove counterplay.
 
-| Approach | Current planned count | Target range | Planning action |
-| --- | ---: | ---: | --- |
-| `zone` | 2 | 5-6 | Add 3-4 more. This is the biggest board-game lever. |
-| `redirect` | 1 | 3-4 | Add 2-3 more. Needed to answer dive, pick, and siege. |
-| `untargetable` | 1 | 3-4 | Add 2-3 more. Needed as a true timing answer. |
-| `dot` | 1 | 3-4 | Add 2-3 more. Needed to pressure mitigation and timing dodges. |
-| `engage` | 4 | 6-7 | Add 2-3 more. Needed to stop long-range and amp engines. |
-| `disrupt` | 4 | 7-8 | Add 3-4 more. Needed to break ramp, casts, and formation plans. |
-| `lockdown` | 3 | 5-6 | Add 2-3 more. Needed to counter carries, divers, and resets. |
-| `cc_immunity` | 3 | 4-5 | Add 1-2 more. Needed so control does not become oppressive. |
-| `reset_mechanic` | 3 | 4-5 | Add 1-2 more. Needed for comeback and cleanup volatility. |
-| `on_hit_effect` | 3 | 5-6 | Add 2-3 more. Needed so marksman/brawler uptime has texture. |
-| `access_backline` | 4 | 5-6 | Add 1-2 more. Needed, but should stay special. |
-| `reposition` | 5 | 6-7 | Add 1-2 more. Needed for zone and engage counterplay. |
-| `burst` | 15 | 10-13 | Reduce or make more conditional. Too much generic burst flattens fights. |
-| `damage_reduction` | 14 | 10-12 | Reduce or tie to positioning/timing. Too much mitigation makes fights muddy. |
-| `amp` | 12 | 8-10 | Reduce generic amp. Keep only if the amplifier is targetable or positional. |
-| `sustain` | 11 | 8-10 | Reduce generic sustain. Prefer sustain with threshold, target, or anti-heal answers. |
+| Cost | Matrix job | Counterplay requirement |
+| --- | --- | --- |
+| 1 | Simple board materials: one main role, one clear approach, early trait glue. | Should teach a matchup but rarely hard-counter alone. |
+| 2 | Soft counters and connective pieces. | Should answer common openings without invalidating higher-cost plans. |
+| 3 | Archetype cores. | Should define a board's first real strategic identity. |
+| 4 | Pivot and hard-counter pieces. | Should flip specific matchups when supported, but lose if splashed without a team. |
+| 5 | Capstones that bend rules. | Should require board commitment and still have at least one hard counter plus one soft counter. |
 
-## Roster Planning Rules
+## Trait Pressure Rules
+
+Traits should add commitment and deck-building intent on top of RGA identity.
+
+- Vertical traits should make one counter relationship stronger, not make the board generically better at everything.
+- Splash traits should create pivot options, not universal best-in-slot answers.
+- Economy traits should buy access to answers, not replace needing the right answer.
+- Positioning traits should make board layout matter; if a trait does not create a placement or scouting decision, it is probably only stats.
+- Exact-count traits should increase matchup specialization and make the player choose which counter loop to commit to.
+
+## Ten-Unit Board Archetypes
+
+These boards are abstract target compositions. They are not implemented units. Each board uses ten slots and assumes a normal endgame shape: some low-cost foundations, several cost-2/3 cores, two cost-4 pivots, and zero to two cost-5 capstones.
+
+| Board | Ten-unit shape | Primary plan | Beats | Loses to | Why it needs a team |
+| --- | --- | --- | --- | --- | --- |
+| Bastion Siege | 2 tanks, 2 supports, 3 marksmen, 1 mage, 1 brawler, 1 flex capstone | Protect long-range sustained damage behind fortification and peel. | Dive without zone, low-range attrition, scattered burst. | Formation breaking, AoE/zone, hard engage that breaches the line. | Marksmen need tanks and peel; supports need a carry worth protecting. |
+| Dive Reset | 1 tank, 2 brawlers, 3 assassins, 1 support initiate, 1 mage pick, 1 marksman shred, 1 flex | Break the backline, trigger execute/reset chains, then clean up. | Siege, wide amp engines, exposed mage boards. | Redirect, zone, peel, single-target lockdown. | Assassins need engage, shred, and cleanup thresholds; raw assassins should fail into protected carries. |
+| Zone Control | 1 tank, 1 brawler, 1 assassin disruptor, 2 mages, 3 supports, 1 marksman, 1 flex capstone | Make tiles dangerous and force bad pathing. | Dive, melee ramp, clumped peel balls, support engines that need formation. | Long range, reposition, untargetable, burst source-kill. | Zones need frontline delay and control support; zone casters alone should die. |
+| Attrition Engine | 2 tanks, 3 brawlers, 1 marksman, 1 mage sustained, 2 supports, 1 flex | Survive the first wave and win through sustain/ramp/on-hit value. | Diffuse burst, low-DPS tanks, control without damage. | Execute, anti-heal debuff, tank shredding, area denial that denies uptime. | Attrition needs tanks, sustain, and damage clocks; one piece cannot do all three. |
+| Wombo Engage | 2 tanks, 2 brawlers, 3 mages, 1 support initiate, 1 assassin cleanup, 1 flex | Start a fight on favorable terms and detonate clumps. | Siege that cannot move, clumped fortification, greedy ramp. | Spread formation, CC immunity, redirect, reposition. | Engage needs setup, mages need timing, cleanup needs damaged targets. |
+| Control Prison | 2 tanks, 1 brawler, 1 assassin, 1 marksman, 2 mages, 3 supports | Lock priority targets and win while the enemy plan is delayed. | Reset, ramp, single-carry comps, fragile dive. | Cleanse/CC immunity, DoT clocks, long-range source kill, untargetable timing. | Control needs damage follow-up; lockdown without pressure should stall, not win. |
+| Wide Trait Engine | 1 tank, 1 brawler, 1 assassin, 2 marksmen, 2 mages, 3 supports | Use wide traits and amp to create many medium threats. | Single-counter boards, slow attrition, teams with only one damage type. | AoE, formation breaking, backline access to the amp source, debuff. | Wide boards need broad role coverage; trait value should not replace board logic. |
+| Anti-Meta Flex | 2 tanks, 1 brawler, 1 assassin, 2 marksmen, 1 mage, 2 supports, 1 flex capstone | Scout the lobby and field specific hard counters. | Any one-note board if the right pivot is found. | Strong committed archetypes when the flex player guesses wrong. | Flex needs economy, bench planning, and enough roles to use the counter pieces. |
+
+## Board Counter Map
+
+| Board | Primary predators | Primary prey | Close skill matchup |
+| --- | --- | --- | --- |
+| Bastion Siege | Zone Control, Wombo Engage, Formation Break Wide | Attrition Engine, weak Dive Reset, low-range boards | Control Prison if cleanse/CC immunity timing is correct. |
+| Dive Reset | Zone Control, Bastion Siege with redirect, Control Prison | Bastion Siege without peel, Wide Trait Engine, exposed mages | Wombo Engage if dive dodges the engage window. |
+| Zone Control | Siege with long range, Anti-Meta Flex with source kill, untargetable dive | Dive Reset, Wombo Engage, Attrition Engine | Wide Trait Engine if spread positioning is strong. |
+| Attrition Engine | Tank Shred Siege, Execute Dive, Zone Control | Diffuse Burst, Control Prison without damage, weak Bastion Siege | Wide Trait Engine depending on debuff access. |
+| Wombo Engage | Zone Control, Spread Siege, CC Immunity Control | Bastion Siege, Wide Trait Engine, greedy ramp | Dive Reset if assassins dodge first engage. |
+| Control Prison | Cleanse/CC Immunity boards, DoT Attrition, Long-Range Siege | Dive Reset, Reset chains, single-carry boards | Bastion Siege depending on cleanse and target priority. |
+| Wide Trait Engine | Formation Breaking, AoE Zone, Backline Pick | Anti-Meta Flex that guesses wrong, single-counter boards, slow tanks | Attrition Engine depending on anti-heal access. |
+| Anti-Meta Flex | Strong committed archetypes when misread | One-note boards when correctly scouted | Almost every matchup; it should reward scouting, not autopilot. |
+
+## Mock Situation Tests
+
+These are logic tests for the matrix. They describe the kind of outcome the RGA layer should allow before numeric tuning happens.
+
+| Test | Situation | Expected outcome | Why this is chess-like |
+| --- | --- | --- | --- |
+| Assassin kills a tank | A `tank.frontline_absorb` unit is isolated after its support is pulled away. An assassin with `cleanup_execution`, `debuff: armor shred`, and `execute` reaches it below threshold. | Assassin can kill a unit it normally should not kill. | Role expectation is overturned by goal/approach context and board state. |
+| Tank beats assassin | Same assassin dives into a tank with `single_target_lockdown` and `redirect`, while a support has `peel: cleanse/shield`. | Assassin fails to reach reset and dies. | Same role matchup flips because the defensive board has the correct answer. |
+| Zone beats engage | Wombo Engage tries to pull a backline carry through a `mage.area_denial_zone` board. | Engage path crosses zone, divers split, burst timing misses. | Tile layout changes the result before the fight starts. |
+| Long range beats zone | Bastion Siege positions outside zone source range and uses `marksman.backline_siege` to kill the zone caster. | Zone board loses its main geometry tool. | The counter is not more stats; it is reach and source priority. |
+| Control beats reset | Dive Reset relies on first kill. Control Prison locks the reset assassin before threshold damage lands. | Reset chain never starts. | Denying the first trigger is the answer, not out-damaging every assassin. |
+| Cleanse beats control | Control Prison locks the carry, but support `peel: cleanse` plus `cc_immunity` removes the window. | Carry gets enough uptime to win. | Counterplay turns one hard answer into a baited cooldown. |
+| Attrition beats burst | Burst board front-loads damage into `damage_reduction` and `sustain`, then runs out of pressure. | Attrition Engine stabilizes and wins late. | Timing matters; early advantage is not enough. |
+| Execute beats attrition | Attrition stabilizes at low health, but an execute unit is protected until thresholds appear. | Sustain board collapses once execute windows open. | The answer is threshold management, not raw DPS. |
+| Wide engine beats single answer | Anti-Meta Flex brings one anti-carry answer, but Wide Trait Engine has three medium threats and amp spread across roles. | Flex answer is insufficient. | One counter pick should not solve a diversified board. |
+| Formation breaking beats peel ball | Bastion Siege stacks around one carry. Support formation breaking displaces the peel shell and exposes the carry to AoE. | Protected carry dies despite peel tools. | The board loses because of greedy formation, not because peel is weak. |
+
+## Matrix Validation Checklist
+
+| Requirement | Pass condition | Result |
+| --- | --- | --- |
+| Roles start the rock-paper-scissors layer. | Every role has natural prey, predators, and at least one way goals/approaches can overturn the role expectation. | PASS |
+| Goals preserve intent. | All 22 goals appear in the target count table, and no goal exceeds three target units. | PASS |
+| Approaches support counterplay. | All 22 approaches appear in the target budget, total approach assignments are near three per unit, and no broad stat tag dominates. | PASS |
+| Team comps are necessary. | Each board archetype requires multiple roles and lists why one unit cannot execute the plan alone. | PASS |
+| Multiple win paths exist. | Eight archetypes have distinct prey, predators, and close matchups. | PASS |
+| Cost matters without removing counters. | Cost rules define foundations, soft counters, cores, pivots, and capstones with counterplay requirements. | PASS |
+| Traits add strategy without replacing it. | Trait rules require commitment, pivot pressure, positioning, or exact-count decisions. | PASS |
+| Situational reversals exist. | Mock tests include cases where a normally losing role wins through the correct goal/approach and board state. | PASS |
+
+## Planning Rules After Balance
 
 Use these rules when designing or retagging units:
 
 1. Every unit needs a "beats" statement and a "loses to" statement.
-2. Any cost-4 or cost-5 unit needs at least one hard counter and one soft counter in existing vocabulary.
-3. Any `burst`, `execute`, or `backline` unit needs a visible delay, target rule, threshold, or positioning tell.
-4. Any `amp`, `sustain`, or `damage_reduction` unit needs a way for the enemy to pressure the source or punish the formation.
-5. Any `zone`, `redirect`, `lockdown`, or `untargetable` unit should create an obvious before-fight placement question.
-6. If moving one unit by one tile would not plausibly change the fight, the planned kit is probably too stat-driven.
+2. Every unit should name its strongest board archetype and at least one counter-board archetype.
+3. Any cost-4 or cost-5 unit needs at least one hard counter and one soft counter in existing vocabulary.
+4. Any `burst`, `execute`, or `access_backline` unit needs a visible delay, target rule, threshold, or positioning tell.
+5. Any `amp`, `sustain`, or `damage_reduction` unit needs a way for the enemy to pressure the source or punish the formation.
+6. Any `zone`, `redirect`, `lockdown`, or `untargetable` unit should create an obvious before-fight placement question.
+7. If moving one unit by one tile would not plausibly change the fight, the planned kit is probably too stat-driven.
+8. If a trait makes every matchup generically better, narrow it until it reinforces one counter loop instead.
 
 ## Immediate Plan Corrections
 
-The next roster design pass should keep the 50-unit cost counts but retag/reconcept several planned identities:
+The next roster design pass should keep the 50-unit cost counts but retag/reconcept planned identities toward the target matrix:
 
-- Move at least one support from `support.team_amplification` to `support.enemy_lockdown`.
-- Move at least one support from `support.team_amplification` to `support.formation_breaking`.
-- Move at least one support to `support.initiate_fight`.
-- Move one mage to `mage.area_denial_zone`.
-- Move one tank to `tank.single_target_lockdown`.
-- Add at least two more `redirect` sources outside current Korath-style tank absorb.
-- Add more `dot` and `untargetable` so timing counters are not only burst and shields.
+- Target support goals at `peel_carry:2`, `team_amplification:2`, `enemy_lockdown:2`, `initiate_fight:1`, `formation_breaking:2`.
+- Target tank goals at `frontline_absorb:3`, `team_fortification:2`, `initiate_fight:2`, `single_target_lockdown:2`.
+- Target mage goals at `wombo_combo_burst:3`, `area_denial_zone:3`, `pick_burst:2`, `sustained_dps:1`.
+- Add enough `zone`, `redirect`, `untargetable`, `dot`, `engage`, `disrupt`, and `lockdown` to hit the target approach budget.
+- Reduce generic `burst`, `damage_reduction`, `amp`, and `sustain` by making their modes conditional and counterable rather than broadly reliable.
+- Give each cost-4 and cost-5 planned unit a named counter board before implementation.
 
 The goal is not perfect symmetry. The goal is a counter web where scouting produces real decisions, and each battle still feels like an experiment because timing, tile placement, thresholds, and target selection can change the result.
