@@ -1192,7 +1192,9 @@ func _on_engine_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: 
 	if stats_panel and stats_panel.has_method("_on_hit_applied"):
 		stats_panel._on_hit_applied(team, si, ti, rolled, dealt, crit, before_hp, after_hp, player_cd, enemy_cd)
 	if dealt > 0 and after_hp < before_hp:
-		var target_team := ("enemy" if team == "player" else "player")
+		var target_team: String = "enemy" if team == "player" else "player"
+		if _should_defer_hit_flash(team, si, ti):
+			return
 		if arena_bridge:
 			var actor: UnitActor = arena_bridge.get_actor(target_team, ti)
 			if actor and is_instance_valid(actor):
@@ -1203,6 +1205,13 @@ func _on_engine_hit_applied(team: String, si: int, ti: int, rolled: int, dealt: 
 			var slot: UnitSlotView = views[ti]
 			if slot and slot.view and slot.view.has_method("play_hit_flash"):
 				_queue_unit_effect(UnitEffectPlayer.EFFECT_HIT, slot.view)
+
+func _should_defer_hit_flash(source_team: String, source_index: int, target_index: int) -> bool:
+	if projectile_bridge == null:
+		return false
+	if not projectile_bridge.has_method("has_active_visual_for"):
+		return false
+	return bool(projectile_bridge.has_active_visual_for(source_team, source_index, target_index))
 
 func _on_engine_ability_cast(team: String, index: int, ability_id: String, target_team: String, target_index: int, target_point: Vector2) -> void:
 	if stats_panel and stats_panel.has_method("_on_ability_cast"):

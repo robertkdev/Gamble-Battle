@@ -6,10 +6,13 @@ class_name ProjectileManager
 
 # Extended to carry team + indices for multi-unit scenarios.
 signal projectile_hit(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
+signal projectile_visual_arrived(source_team: String, source_index: int, target_index: int, crit: bool, style: Dictionary)
 
 const DEBUG_RECENT_LIMIT: int = 12
+const IMPACT_DURATION: float = 0.46
 
 var _projectiles: Array[Dictionary] = []
+var _impacts: Array[Dictionary] = []
 var _to_remove: Array[int] = []
 var _debug_fired: Dictionary[String, int] = {"player": 0, "enemy": 0}
 var _debug_hits: Dictionary[String, int] = {"player": 0, "enemy": 0}
@@ -37,9 +40,21 @@ func configure() -> void:
 func has_active() -> bool:
 	return _projectiles.size() > 0
 
+func has_active_visual_for(source_team: String, source_index: int, target_index: int) -> bool:
+	for projectile: Dictionary in _projectiles:
+		if String(projectile.get("source_team", "")) != source_team:
+			continue
+		if int(projectile.get("source_index", -1)) != source_index:
+			continue
+		if int(projectile.get("target_index", -1)) != target_index:
+			continue
+		return true
+	return false
+
 func debug_snapshot() -> Dictionary:
 	return {
 		"active_count": _projectiles.size(),
+		"impact_count": _impacts.size(),
 		"fired": _debug_fired.duplicate(),
 		"hits": _debug_hits.duplicate(),
 		"culled": _debug_culled.duplicate(),
@@ -49,6 +64,7 @@ func debug_snapshot() -> Dictionary:
 
 func clear() -> void:
 	_projectiles.clear()
+	_impacts.clear()
 	_reset_debug_counters()
 	queue_redraw()
 
@@ -67,17 +83,31 @@ func fire_basic(
 		source_control: Control = null,
 		arc_curve: float = 0.0,
 		arc_freq: float = 6.0,
-		emit_hit_on_arrival: bool = true
+		emit_hit_on_arrival: bool = true,
+		style: Dictionary[String, Variant] = {}
 ) -> void:
 	var dir: Vector2 = (end_pos - start_pos)
 	var dist: float = max(1.0, dir.length())
 	dir /= dist
+	var visual_style: Dictionary[String, Variant] = style.duplicate(true)
+	if not visual_style.has("core_color"):
+		visual_style["core_color"] = color
+	if not visual_style.has("edge_color"):
+		visual_style["edge_color"] = color.lightened(0.25)
+	if not visual_style.has("trail_color"):
+		visual_style["trail_color"] = Color(color.r, color.g, color.b, 0.42)
+	if not visual_style.has("accent_color"):
+		visual_style["accent_color"] = Color(1.0, 1.0, 1.0, 0.92)
+	var radius_scale: float = max(0.2, float(visual_style.get("radius_scale", 1.0)))
+	var speed_scale: float = max(0.2, float(visual_style.get("speed_scale", 1.0))) * 0.72
 	var proj: Dictionary = {
 		"pos": start_pos,
-		"vel": dir * speed,
-		"speed": float(speed),
-		"radius": radius,
+		"vel": dir * speed * speed_scale,
+		"speed": float(speed) * speed_scale,
+		"radius": radius * radius_scale * 1.22,
 		"color": color,
+		"style": visual_style,
+		"history": [start_pos],
 		"source_team": source_team,
 		"source_index": int(source_index),
 		"damage": int(max(0, damage)),
@@ -108,7 +138,11 @@ func fire_basic(
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	if _projectiles.is_empty() and _impacts.is_empty():
+		return
+	_update_impacts(delta)
 	if _projectiles.is_empty():
+		queue_redraw()
 		return
 	_to_remove.clear()
 
@@ -143,11 +177,21 @@ func _process(delta: float) -> void:
 					p["vel"] = base_dir * speed
 		p["pos"] = previous_pos + (p["vel"] as Vector2) * delta
 		p["elapsed"] = float(p.get("elapsed", 0.0)) + delta
+		_append_history(p, previous_pos)
 		_projectiles[i] = p
 
 		var target_rect: Rect2 = _get_target_rect_for(p)
 		var did_hit: bool = false
 		if _swept_intersects_rect(previous_pos, p["pos"] as Vector2, float(p["radius"]), target_rect):
+			_spawn_impact(p, target_rect)
+			emit_signal(
+				"projectile_visual_arrived",
+				String(p.get("source_team", "player")),
+				int(p.get("source_index", -1)),
+				int(p.get("target_index", -1)),
+				bool(p["crit"]),
+				(p.get("style", {}) as Dictionary)
+			)
 			if bool(p.get("emit_hit_on_arrival", true)):
 				emit_signal("projectile_hit", String(p.get("source_team", "player")), int(p.get("source_index", -1)), int(p.get("target_index", -1)), int(p["damage"]), bool(p["crit"]))
 				_increment_debug_counter(_debug_hits, String(p.get("source_team", "player")))
@@ -190,12 +234,347 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	# Render all projectiles as circles (can be swapped for textured quads later)
+	for impact: Dictionary in _impacts:
+		_draw_impact(impact)
 	for i in range(_projectiles.size()):
 		var p: Dictionary = _projectiles[i]
-		var lp: Vector2 = get_global_transform().affine_inverse() * (p["pos"] as Vector2)
-		var c: Color = Color(0.2, 0.8, 1.0) if String(p.get("source_team", "player")) == "player" else Color(1.0, 0.4, 0.2)
-		draw_circle(lp, float(p["radius"]), c)
+		_draw_projectile(p)
+
+func _draw_projectile(p: Dictionary) -> void:
+	var style: Dictionary = p.get("style", {}) as Dictionary
+	var lp: Vector2 = _to_local_canvas(p["pos"] as Vector2)
+	var dir: Vector2 = _projectile_dir(p)
+	var radius: float = float(p.get("radius", 6.0))
+	var core_color: Color = _style_color(style, "core_color", Color(0.2, 0.8, 1.0, 1.0))
+	var edge_color: Color = _style_color(style, "edge_color", Color(1.0, 1.0, 1.0, 0.92))
+	var trail_color: Color = _style_color(style, "trail_color", Color(core_color.r, core_color.g, core_color.b, 0.42))
+	var accent_color: Color = _style_color(style, "accent_color", Color(1.0, 1.0, 1.0, 0.90))
+	var shape: String = String(style.get("shape", "orb"))
+	var elapsed: float = float(p.get("elapsed", 0.0))
+	var spin: float = elapsed * float(style.get("spin_rate", 8.0))
+	_draw_trail(p, trail_color, float(style.get("trail_width", 3.0)))
+	draw_circle(lp, radius * 2.65, Color(edge_color.r, edge_color.g, edge_color.b, 0.20))
+	draw_circle(lp, radius * 1.58, Color(edge_color.r, edge_color.g, edge_color.b, 0.34))
+	match shape:
+		"bolt":
+			_draw_bolt(lp, dir, radius, core_color, edge_color, accent_color)
+		"slash":
+			_draw_slash(lp, dir, radius, core_color, edge_color, accent_color)
+		"needle":
+			_draw_needle(lp, dir, radius, core_color, edge_color, accent_color)
+		"shield":
+			_draw_shield(lp, dir, radius, core_color, edge_color, accent_color)
+		"rune":
+			_draw_rune(lp, radius, spin, core_color, edge_color, accent_color)
+		"ring":
+			_draw_ring(lp, radius, spin, core_color, edge_color, accent_color)
+		"ember":
+			_draw_ember(lp, dir, radius, core_color, edge_color, accent_color)
+		"spark":
+			_draw_spark(lp, dir, radius, core_color, edge_color, accent_color)
+		"coin":
+			_draw_coin(lp, dir, radius, core_color, edge_color, accent_color)
+		"hammer":
+			_draw_hammer(lp, dir, radius, core_color, edge_color, accent_color)
+		"chain":
+			_draw_chain(lp, dir, radius, core_color, edge_color, accent_color)
+		"ribbon":
+			_draw_ribbon(lp, dir, radius, spin, core_color, edge_color, accent_color)
+		"crescent":
+			_draw_crescent(lp, dir, radius, core_color, edge_color, accent_color)
+		"scythe":
+			_draw_scythe(lp, dir, radius, core_color, edge_color, accent_color)
+		"blood":
+			_draw_blood(lp, dir, radius, core_color, edge_color, accent_color)
+		"star":
+			_draw_star(lp, radius, spin, core_color, edge_color, accent_color)
+		"bubble":
+			_draw_bubble(lp, radius, core_color, edge_color, accent_color)
+		"paper", "card":
+			_draw_card(lp, dir, radius, core_color, edge_color, accent_color)
+		"glyph":
+			_draw_glyph(lp, radius, spin, core_color, edge_color, accent_color)
+		"thorn":
+			_draw_thorn(lp, dir, radius, core_color, edge_color, accent_color)
+		"stone":
+			_draw_stone(lp, dir, radius, core_color, edge_color, accent_color)
+		_:
+			_draw_orb(lp, radius, core_color, edge_color, accent_color)
+
+func _draw_trail(p: Dictionary, color: Color, width: float) -> void:
+	var history: Array[Vector2] = _history_points(p)
+	if history.size() < 2:
+		return
+	var xf: Transform2D = get_global_transform().affine_inverse()
+	var count: int = history.size()
+	for i in range(1, count):
+		var from_pos: Vector2 = xf * history[i - 1]
+		var to_pos: Vector2 = xf * history[i]
+		var alpha: float = float(i) / float(count)
+		var alpha_curve: float = clamp(alpha * alpha * 1.65, 0.0, 1.0)
+		var glow: Color = Color(color.r, color.g, color.b, color.a * alpha_curve * 0.42)
+		var core: Color = Color(color.r, color.g, color.b, color.a * alpha_curve)
+		draw_line(from_pos, to_pos, glow, max(1.0, width * 2.55 * alpha), true)
+		draw_line(from_pos, to_pos, core, max(1.0, width * 1.22 * alpha), true)
+
+func _draw_impact(impact: Dictionary) -> void:
+	var style: Dictionary = impact.get("style", {}) as Dictionary
+	var elapsed: float = float(impact.get("elapsed", 0.0))
+	var duration: float = max(0.01, float(impact.get("duration", IMPACT_DURATION)))
+	var t: float = clamp(elapsed / duration, 0.0, 1.0)
+	var inv: float = 1.0 - t
+	var pos: Vector2 = _to_local_canvas(impact.get("pos", Vector2.ZERO) as Vector2)
+	var radius: float = float(impact.get("radius", 24.0))
+	var edge_color: Color = _style_color(style, "edge_color", Color(1.0, 1.0, 1.0, 0.9))
+	var accent_color: Color = _style_color(style, "accent_color", Color(1.0, 0.9, 0.4, 0.9))
+	var core_color: Color = _style_color(style, "core_color", Color(0.7, 0.9, 1.0, 0.9))
+	var ring_radius: float = lerp(radius * 0.25, radius, t)
+	draw_circle(pos, radius * 0.52 * inv, Color(core_color.r, core_color.g, core_color.b, 0.32 * inv))
+	draw_arc(pos, ring_radius, 0.0, TAU, 48, Color(edge_color.r, edge_color.g, edge_color.b, 0.90 * inv), max(1.0, 4.6 * inv), true)
+	draw_arc(pos, ring_radius * 0.62, 0.0, TAU, 36, Color(accent_color.r, accent_color.g, accent_color.b, 0.72 * inv), max(1.0, 2.8 * inv), true)
+	var shards: int = 6
+	for i in range(shards):
+		var angle: float = (TAU * float(i) / float(shards)) + elapsed * 3.0
+		var inner: Vector2 = pos + Vector2(cos(angle), sin(angle)) * ring_radius * 0.40
+		var outer: Vector2 = pos + Vector2(cos(angle), sin(angle)) * ring_radius * 0.92
+		draw_line(inner, outer, Color(accent_color.r, accent_color.g, accent_color.b, 0.56 * inv), max(1.0, 2.8 * inv), true)
+
+func _draw_orb(pos: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	draw_circle(pos, radius * 1.05, edge)
+	draw_circle(pos, radius * 0.66, core)
+	draw_circle(pos + Vector2(-radius * 0.26, -radius * 0.26), radius * 0.22, accent)
+
+func _draw_bolt(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 2.30,
+		pos - dir * radius * 0.35 + perp * radius * 0.72,
+		pos - dir * radius * 1.52,
+		pos - dir * radius * 0.35 - perp * radius * 0.72,
+	])
+	draw_polygon(points, PackedColorArray([edge, edge, edge, edge]))
+	draw_line(pos - dir * radius * 0.95, pos + dir * radius * 1.55, accent, max(1.0, radius * 0.25), true)
+	draw_circle(pos, radius * 0.38, core)
+
+func _draw_slash(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_line(pos - dir * radius * 1.55 - perp * radius * 0.45, pos + dir * radius * 1.55 + perp * radius * 0.45, Color(edge.r, edge.g, edge.b, 0.92), radius * 0.70, true)
+	draw_line(pos - dir * radius * 1.40 - perp * radius * 0.36, pos + dir * radius * 1.40 + perp * radius * 0.36, core, radius * 0.36, true)
+	draw_line(pos - perp * radius * 1.05, pos + perp * radius * 1.05, accent, max(1.0, radius * 0.18), true)
+
+func _draw_needle(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 2.55,
+		pos - dir * radius * 0.72 + perp * radius * 0.42,
+		pos - dir * radius * 1.35,
+		pos - dir * radius * 0.72 - perp * radius * 0.42,
+	])
+	draw_polygon(points, PackedColorArray([edge, edge, edge, edge]))
+	draw_line(pos - dir * radius * 1.0, pos + dir * radius * 1.85, core, max(1.0, radius * 0.34), true)
+	draw_circle(pos + dir * radius * 1.28, radius * 0.22, accent)
+
+func _draw_shield(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 1.45,
+		pos + perp * radius * 1.10,
+		pos - dir * radius * 0.85 + perp * radius * 0.70,
+		pos - dir * radius * 1.28,
+		pos - dir * radius * 0.85 - perp * radius * 0.70,
+		pos - perp * radius * 1.10,
+	])
+	draw_polygon(points, PackedColorArray([Color(edge.r, edge.g, edge.b, 0.92), edge, edge, edge, edge, edge]))
+	draw_arc(pos, radius * 0.86, -PI * 0.20, PI * 1.20, 28, core, max(1.0, radius * 0.30), true)
+	draw_line(pos - perp * radius * 0.62, pos + perp * radius * 0.62, accent, max(1.0, radius * 0.20), true)
+
+func _draw_rune(pos: Vector2, radius: float, spin: float, core: Color, edge: Color, accent: Color) -> void:
+	draw_arc(pos, radius * 1.10, spin, spin + PI * 1.55, 36, edge, max(1.0, radius * 0.30), true)
+	draw_arc(pos, radius * 0.62, spin + PI, spin + PI * 2.45, 28, accent, max(1.0, radius * 0.22), true)
+	draw_circle(pos, radius * 0.42, core)
+
+func _draw_ring(pos: Vector2, radius: float, spin: float, core: Color, edge: Color, accent: Color) -> void:
+	draw_arc(pos, radius * 1.05, spin, spin + TAU * 0.78, 36, edge, max(1.0, radius * 0.26), true)
+	draw_arc(pos, radius * 0.62, -spin, -spin + TAU * 0.70, 28, accent, max(1.0, radius * 0.18), true)
+	draw_circle(pos, radius * 0.30, core)
+
+func _draw_ember(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 1.70,
+		pos + perp * radius * 0.80,
+		pos - dir * radius * 1.30,
+		pos - perp * radius * 0.80,
+	])
+	draw_polygon(points, PackedColorArray([accent, edge, Color(edge.r, edge.g, edge.b, 0.72), edge]))
+	draw_circle(pos, radius * 0.62, core)
+
+func _draw_spark(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_line(pos - dir * radius * 1.55, pos + dir * radius * 1.75, edge, max(1.0, radius * 0.34), true)
+	draw_line(pos - perp * radius * 1.05, pos + perp * radius * 1.05, accent, max(1.0, radius * 0.22), true)
+	draw_line(pos - (dir + perp).normalized() * radius * 0.95, pos + (dir + perp).normalized() * radius * 0.95, core, max(1.0, radius * 0.18), true)
+
+func _draw_coin(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	draw_circle(pos, radius * 1.10, edge)
+	draw_circle(pos, radius * 0.75, core)
+	draw_line(pos - dir * radius * 0.72, pos + dir * radius * 0.72, accent, max(1.0, radius * 0.18), true)
+	draw_arc(pos, radius * 0.52, PI * 0.20, PI * 1.80, 24, Color(accent.r, accent.g, accent.b, 0.74), max(1.0, radius * 0.14), true)
+
+func _draw_hammer(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_line(pos - dir * radius * 1.35, pos + dir * radius * 0.55, edge, max(1.0, radius * 0.38), true)
+	draw_rect(Rect2(pos + dir * radius * 0.50 - perp * radius * 0.72, Vector2(radius * 0.92, radius * 1.44)), core)
+	draw_line(pos + dir * radius * 0.48 - perp * radius * 0.82, pos + dir * radius * 0.48 + perp * radius * 0.82, accent, max(1.0, radius * 0.18), true)
+
+func _draw_chain(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_arc(pos - dir * radius * 0.55, radius * 0.56, 0.0, TAU, 24, edge, max(1.0, radius * 0.20), true)
+	draw_arc(pos + dir * radius * 0.55, radius * 0.56, 0.0, TAU, 24, core, max(1.0, radius * 0.20), true)
+	draw_line(pos - perp * radius * 0.34, pos + perp * radius * 0.34, accent, max(1.0, radius * 0.18), true)
+
+func _draw_ribbon(pos: Vector2, dir: Vector2, radius: float, spin: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var wave: float = sin(spin) * radius * 0.42
+	draw_line(pos - dir * radius * 1.55 - perp * wave, pos + dir * radius * 1.55 + perp * wave, edge, max(1.0, radius * 0.34), true)
+	draw_line(pos - dir * radius * 1.20 + perp * wave, pos + dir * radius * 1.20 - perp * wave, core, max(1.0, radius * 0.22), true)
+	draw_circle(pos, radius * 0.34, accent)
+
+func _draw_crescent(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var angle: float = dir.angle() - PI * 0.55
+	draw_arc(pos, radius * 1.10, angle, angle + PI * 1.12, 30, edge, max(1.0, radius * 0.34), true)
+	draw_arc(pos + dir * radius * 0.18, radius * 0.70, angle + 0.18, angle + PI * 1.02, 24, core, max(1.0, radius * 0.20), true)
+	draw_circle(pos + dir * radius * 0.84, radius * 0.20, accent)
+
+func _draw_scythe(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_arc(pos + dir * radius * 0.25, radius * 1.18, dir.angle() - PI * 0.25, dir.angle() + PI * 0.88, 32, edge, max(1.0, radius * 0.30), true)
+	draw_line(pos - dir * radius * 1.35 - perp * radius * 0.30, pos + dir * radius * 0.95 + perp * radius * 0.22, core, max(1.0, radius * 0.20), true)
+	draw_circle(pos + dir * radius * 0.95, radius * 0.22, accent)
+
+func _draw_blood(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	_draw_ember(pos, dir, radius, core, edge, accent)
+	draw_circle(pos - dir * radius * 0.76, radius * 0.36, Color(edge.r, edge.g, edge.b, 0.72))
+
+func _draw_star(pos: Vector2, radius: float, spin: float, core: Color, edge: Color, accent: Color) -> void:
+	var points: PackedVector2Array = PackedVector2Array()
+	var colors: PackedColorArray = PackedColorArray()
+	for i in range(10):
+		var r: float = radius * (1.38 if i % 2 == 0 else 0.56)
+		var angle: float = spin + TAU * float(i) / 10.0
+		points.append(pos + Vector2(cos(angle), sin(angle)) * r)
+		colors.append(edge if i % 2 == 0 else core)
+	draw_polygon(points, colors)
+	draw_circle(pos, radius * 0.32, accent)
+
+func _draw_bubble(pos: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	draw_circle(pos, radius * 1.16, Color(edge.r, edge.g, edge.b, 0.42))
+	draw_arc(pos, radius * 1.02, PI * 0.10, PI * 1.74, 30, edge, max(1.0, radius * 0.22), true)
+	draw_circle(pos, radius * 0.42, Color(core.r, core.g, core.b, 0.62))
+	draw_circle(pos + Vector2(-radius * 0.36, -radius * 0.34), radius * 0.18, accent)
+
+func _draw_card(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 1.30 + perp * radius * 0.72,
+		pos + dir * radius * 1.05 - perp * radius * 0.72,
+		pos - dir * radius * 1.30 - perp * radius * 0.72,
+		pos - dir * radius * 1.05 + perp * radius * 0.72,
+	])
+	draw_polygon(points, PackedColorArray([edge, edge, core, core]))
+	draw_line(points[3], points[1], accent, max(1.0, radius * 0.16), true)
+
+func _draw_glyph(pos: Vector2, radius: float, spin: float, core: Color, edge: Color, accent: Color) -> void:
+	draw_arc(pos, radius * 1.05, spin, spin + TAU, 6, edge, max(1.0, radius * 0.24), true)
+	draw_arc(pos, radius * 0.56, -spin, -spin + TAU, 3, accent, max(1.0, radius * 0.20), true)
+	draw_circle(pos, radius * 0.30, core)
+
+func _draw_thorn(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 1.82,
+		pos - dir * radius * 0.92 + perp * radius * 0.58,
+		pos - dir * radius * 0.30,
+		pos - dir * radius * 0.92 - perp * radius * 0.58,
+	])
+	draw_polygon(points, PackedColorArray([accent, edge, core, edge]))
+
+func _draw_stone(pos: Vector2, dir: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	var points: PackedVector2Array = PackedVector2Array([
+		pos + dir * radius * 1.12,
+		pos + perp * radius * 1.02,
+		pos - dir * radius * 0.64 + perp * radius * 0.72,
+		pos - dir * radius * 1.18,
+		pos - perp * radius * 0.98,
+	])
+	draw_polygon(points, PackedColorArray([edge, core, core, edge, edge]))
+	draw_line(pos - perp * radius * 0.44, pos + dir * radius * 0.70, accent, max(1.0, radius * 0.16), true)
+
+func _update_impacts(delta: float) -> void:
+	if _impacts.is_empty():
+		return
+	var keep: Array[Dictionary] = []
+	for impact: Dictionary in _impacts:
+		var elapsed: float = float(impact.get("elapsed", 0.0)) + delta
+		var duration: float = max(0.01, float(impact.get("duration", IMPACT_DURATION)))
+		if elapsed < duration:
+			impact["elapsed"] = elapsed
+			keep.append(impact)
+	_impacts = keep
+
+func _append_history(p: Dictionary, previous_pos: Vector2) -> void:
+	var raw_history: Variant = p.get("history", [])
+	var history: Array[Vector2] = []
+	if raw_history is Array:
+		for raw_point: Variant in (raw_history as Array):
+			if raw_point is Vector2:
+				history.append(raw_point)
+	history.append(previous_pos)
+	history.append(p["pos"] as Vector2)
+	var style: Dictionary = p.get("style", {}) as Dictionary
+	var max_points: int = int(max(2, int(style.get("trail_length", 8))))
+	while history.size() > max_points:
+		history.remove_at(0)
+	p["history"] = history
+
+func _spawn_impact(p: Dictionary, target_rect: Rect2) -> void:
+	var style: Dictionary = p.get("style", {}) as Dictionary
+	var pos: Vector2 = p["pos"] as Vector2
+	if target_rect.size != Vector2.ZERO:
+		pos = target_rect.get_center()
+	var impact_radius: float = max(8.0, float(style.get("impact_radius", 24.0)))
+	_impacts.append({
+		"pos": pos,
+		"style": style.duplicate(true),
+		"radius": impact_radius,
+		"elapsed": 0.0,
+		"duration": IMPACT_DURATION,
+	})
+
+func _history_points(p: Dictionary) -> Array[Vector2]:
+	var raw_history: Variant = p.get("history", [])
+	var history: Array[Vector2] = []
+	if raw_history is Array:
+		for raw_point: Variant in (raw_history as Array):
+			if raw_point is Vector2:
+				history.append(raw_point)
+	return history
+
+func _to_local_canvas(global_pos: Vector2) -> Vector2:
+	return get_global_transform().affine_inverse() * global_pos
+
+func _projectile_dir(p: Dictionary) -> Vector2:
+	var velocity: Vector2 = p.get("vel", Vector2.RIGHT) as Vector2
+	if velocity.length_squared() <= 0.000001:
+		return Vector2.RIGHT
+	return velocity.normalized()
+
+func _style_color(style: Dictionary, key: String, fallback: Color) -> Color:
+	var value: Variant = style.get(key, fallback)
+	if value is Color:
+		return value
+	return fallback
 
 func _get_target_rect_for(p: Dictionary) -> Rect2:
 	var tc: Control = _control_from_ref(p.get("target_ref", null))
