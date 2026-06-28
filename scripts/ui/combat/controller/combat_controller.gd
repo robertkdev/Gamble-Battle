@@ -168,6 +168,18 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	bet_value = nodes.get("bet_value")
 	stats_panel = nodes.get("stats_panel")
 
+func _shop_singleton() -> Node:
+	if parent != null and parent.get_tree() != null:
+		var root: Node = parent.get_tree().root
+		if root != null:
+			var shop_node: Node = root.get_node_or_null("/root/Shop")
+			if shop_node != null:
+				return shop_node
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return null
+	return tree.root.get_node_or_null("/root/Shop") if tree.root != null else null
+
 func teardown() -> void:
 	if _teardown_done:
 		return
@@ -175,11 +187,12 @@ func teardown() -> void:
 	_auto_loop_running = false
 	_end_combat_resolving_feedback()
 	_disconnect_controller_signals()
-	if Engine.has_singleton("Shop"):
-		if Shop.has_method("set_board_team_provider"):
-			Shop.set_board_team_provider(Callable())
-		if Shop.has_method("set_remove_from_board"):
-			Shop.set_remove_from_board(Callable())
+	var shop_node: Node = _shop_singleton()
+	if shop_node != null:
+		if shop_node.has_method("set_board_team_provider"):
+			shop_node.call("set_board_team_provider", Callable())
+		if shop_node.has_method("set_remove_from_board"):
+			shop_node.call("set_remove_from_board", Callable())
 	if intermission != null:
 		if intermission.has_method("teardown"):
 			intermission.teardown()
@@ -461,12 +474,13 @@ func initialize() -> void:
 		if not shop_presenter.is_connected("first_purchase_needs_deploy", Callable(self, "_on_first_purchase_needs_deploy")):
 			shop_presenter.first_purchase_needs_deploy.connect(_on_first_purchase_needs_deploy)
 		# Provide board-aware combine hooks to Shop/Transactions so bench+board triples upgrade.
-		if Engine.has_singleton("Shop"):
-			if Shop.has_method("set_board_team_provider"):
-				Shop.set_board_team_provider(Callable(self, "_get_shop_board_team"))
+		var shop_node: Node = _shop_singleton()
+		if shop_node != null:
+			if shop_node.has_method("set_board_team_provider"):
+				shop_node.call("set_board_team_provider", Callable(self, "_get_shop_board_team"))
 			# Removal callback consumes a specific unit from the board when combining
-			if Shop.has_method("set_remove_from_board"):
-				Shop.set_remove_from_board(Callable(self, "_remove_shop_board_unit"))
+			if shop_node.has_method("set_remove_from_board"):
+				shop_node.call("set_remove_from_board", Callable(self, "_remove_shop_board_unit"))
 		# Use cards in the shop grid as a BoardGrid drop target for selling.
 		if shop_presenter.has_method("get_drop_grid"):
 			sell_grid_helper = shop_presenter.get_drop_grid()
@@ -833,10 +847,7 @@ func _on_continue_pressed() -> void:
 				var idx2: int = ev.tile_idx
 				var pos2: Vector2 = enemy_grid_helper.get_center(idx2) if enemy_grid_helper and idx2 >= 0 else Vector2.ZERO
 				epos.append(pos2)
-			var bounds: Rect2 = Rect2()
-			if arena_background and is_instance_valid(arena_background):
-				var r: Rect2 = arena_background.get_global_rect()
-				bounds = Rect2(r.position, r.size)
+			var bounds: Rect2 = arena_bridge.get_arena_bounds()
 			if bounds.size.y <= 1.0 or bounds.size.x <= 1.0:
 				var all_pts: Array[Vector2] = []
 				for v in ppos: if typeof(v) == TYPE_VECTOR2: all_pts.append(v)
@@ -892,8 +903,9 @@ func _on_bench_changed() -> void:
 	var in_planning: bool = true
 	if Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState")):
 		in_planning = (int(GameState.phase) != int(GameState.GamePhase.COMBAT))
-	if in_planning and Engine.has_singleton("Shop") and Shop.has_method("try_combine_now"):
-		var promos: Array = Shop.try_combine_now()
+	var shop_node: Node = _shop_singleton()
+	if in_planning and shop_node != null and shop_node.has_method("try_combine_now"):
+		var promos: Array = shop_node.call("try_combine_now")
 		if promos is Array and promos.size() > 0:
 			# Refresh both bench and player views since board units may be consumed or promoted
 			refresh_all_views()

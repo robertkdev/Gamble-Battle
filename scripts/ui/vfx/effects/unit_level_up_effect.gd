@@ -199,8 +199,8 @@ func _cleanup_spawned_nodes() -> void:
 		var node: Node = ref.get_ref() as Node
 		if node == null or node.is_queued_for_deletion():
 			continue
-		if node.is_inside_tree():
-			node.queue_free()
+		if node.is_inside_tree() or node.get_parent() != null:
+			node.call_deferred("queue_free")
 		else:
 			node.free()
 	_spawned_refs.clear()

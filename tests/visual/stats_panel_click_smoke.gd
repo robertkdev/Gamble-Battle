@@ -94,6 +94,7 @@ func _verify_unit_mode_tab_clicks(context: String) -> void:
 		_stats_panel.call("show_unit_metrics_ctx", "player", 0, unit)
 	await _settle_frames(3)
 	_expect_unit_mode("%s setup" % context)
+	_expect_unit_info_labels("%s setup" % context)
 	await _click_metric("Damage")
 	await _settle_frames(3)
 	_expect_team_mode("%s Damage click should leave unit detail" % context)
@@ -136,12 +137,34 @@ func _click_window(button_name: String) -> void:
 
 func _click_control(control: Control) -> void:
 	_last_activation_target = _node_path(control)
-	var button: Button = control as Button
-	if button == null:
-		_fail("Click target is not a button: %s" % _last_activation_target)
+	if control == null or not is_instance_valid(control):
+		_fail("Click target is invalid: %s" % _last_activation_target)
 		return
-	button.emit_signal("pressed")
+	var rect: Rect2 = control.get_global_rect()
+	var center: Vector2 = rect.get_center()
+	_send_mouse_motion(center)
 	await get_tree().process_frame
+	_send_mouse_button(center, true)
+	await get_tree().process_frame
+	_send_mouse_button(center, false)
+	await get_tree().process_frame
+
+func _send_mouse_motion(position: Vector2) -> void:
+	Input.warp_mouse(position)
+	var event: InputEventMouseMotion = InputEventMouseMotion.new()
+	event.position = position
+	event.global_position = position
+	Input.parse_input_event(event)
+
+func _send_mouse_button(position: Vector2, pressed: bool) -> void:
+	Input.warp_mouse(position)
+	var event: InputEventMouseButton = InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+	event.position = position
+	event.global_position = position
+	event.pressed = pressed
+	Input.parse_input_event(event)
 
 func _expect_team_mode(context: String) -> void:
 	if _scoreboard == null or not (_scoreboard as CanvasItem).visible:
@@ -154,6 +177,17 @@ func _expect_unit_mode(context: String) -> void:
 		_fail("%s: scoreboard is visible in unit mode" % context)
 	if _unit_panel == null or not _unit_panel.visible:
 		_fail("%s: unit panel is not visible" % context)
+
+func _expect_unit_info_labels(context: String) -> void:
+	if _unit_panel == null:
+		_fail("%s: unit panel missing for info label check" % context)
+		return
+	var attack_label: Label = _unit_panel.find_child("AttackInfo", true, false) as Label
+	if attack_label == null or not String(attack_label.text).begins_with("Attack:"):
+		_fail("%s: attack info label missing or empty" % context)
+	var ability_label: Label = _unit_panel.find_child("AbilityInfo", true, false) as Label
+	if ability_label == null or not String(ability_label.text).begins_with("Ability:"):
+		_fail("%s: ability info label missing or empty" % context)
 
 func _expect_metric(expected: String, context: String) -> void:
 	if _scoreboard == null:

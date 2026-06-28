@@ -83,7 +83,7 @@ func _clear_grid() -> void:
 		return
 	for c in grid.get_children():
 		grid.remove_child(c)
-		c.free()
+		c.queue_free()
 
 func _items_singleton():
 	if Engine.has_singleton("Items"):

@@ -36,30 +36,25 @@ func attach_card(card: Node) -> void:
 			targets.append(item_grid_helper)
 		card.set_drop_targets(targets)
 	# Connect to drop signal once
-	var sig := "dropped_on_target"
+	var sig: StringName = &"dropped_on_target"
 	# In Godot 4, connect expects a Callable; bind the card as extra arg
-	if not card.is_connected(sig, Callable(self, "_on_card_dropped")):
-		card.connect(sig, Callable(self, "_on_card_dropped").bind(card))
+	var drop_callable: Callable = Callable(self, "_on_card_dropped").bind(card)
+	if not card.is_connected(sig, drop_callable):
+		card.connect(sig, drop_callable)
 
 
-func _on_card_dropped(grid, tile_idx: int, card) -> void:
+func _on_card_dropped(grid: Variant, tile_idx: int, card: Variant) -> void:
 	if grid == null or tile_idx < 0 or card == null:
 		return
-	var iid: String = ""
-	if card.has_method("get"):
-		iid = String(card.get("item_id"))
-	if iid == "":
-		if card.has_method("get_item_id"):
-			iid = String(card.get_item_id())
+	var iid: String = _item_id_for_card(card)
 	if iid == "":
 		return
 	# Handle inventory-to-inventory combination BEFORE resolving a unit.
 	if grid == item_grid_helper:
-		var inventory_items = _items_singleton()
-		print("[ItemDrag] Items singleton node=", inventory_items)
+		var inventory_items: Node = _items_singleton()
 		if inventory_items == null:
 			return
-		var src_idx := -1
+		var src_idx: int = -1
 		if card.has_method("get_slot_index"):
 			src_idx = int(card.get_slot_index())
 		if src_idx == -1:
@@ -67,17 +62,10 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 		if src_idx == tile_idx:
 			return
 		var target_ctrl: Control = item_grid_helper.tile_at(tile_idx)
-		var target_id: String = ""
-		if target_ctrl != null:
-			if target_ctrl.has_method("get"):
-				target_id = String(target_ctrl.get("item_id"))
-			elif target_ctrl.has_method("get_item_id"):
-				target_id = String(target_ctrl.get_item_id())
-		print("[ItemDrag] inventory drop src=", iid, " tgt=", target_id, " src_idx=", src_idx, " dst=", tile_idx)
-		var did_combine := false
+		var target_id: String = _item_id_for_card(target_ctrl)
+		var did_combine: bool = false
 		if target_id != "" and inventory_items.has_method("combine_inventory_slots"):
-			var cres = inventory_items.combine_inventory_slots(src_idx, tile_idx)
-			print("[ItemDrag] combine result => ", cres)
+			var cres: Variant = inventory_items.combine_inventory_slots(src_idx, tile_idx)
 			if cres is Dictionary and bool(cres.get("ok", false)):
 				did_combine = true
 		if did_combine:
@@ -87,38 +75,36 @@ func _on_card_dropped(grid, tile_idx: int, card) -> void:
 		return
 	# Otherwise, resolve the unit at the drop location on a board grid.
 	var unit: Unit = _resolve_unit(grid, tile_idx)
-	print("[ItemDrag] Drop iid=", iid, " on tile=", tile_idx, " -> unit=", (unit.name if unit else "null"))
 	if unit == null:
 		return
 	# Route to Items service (robustly resolve the autoload/node)
-	var items_node = _items_singleton()
-	print("[ItemDrag] Items singleton node=", items_node)
+	var items_node: Node = _items_singleton()
 	if items_node == null:
 		return
 	if iid == "remover":
-		print("[ItemDrag] calling remove_all on Items node")
-		var rr = null
+		var rr: Variant = null
 		if items_node.has_method("remove_all"):
 			rr = items_node.remove_all(unit)
 		else:
 			rr = items_node.call_deferred("remove_all", unit)
-		print("[ItemDrag] remove_all => ", rr)
+		if rr is Dictionary and not bool(rr.get("ok", false)):
+			push_warning("Item remove failed: %s" % str(rr))
 	else:
-		print("[ItemDrag] calling equip on Items node with ", iid)
-		var res = null
+		var res: Variant = null
 		if items_node.has_method("equip"):
 			res = items_node.equip(unit, iid)
 		else:
 			res = items_node.call_deferred("equip", unit, iid)
-		print("[ItemDrag] equip result => ", res)
+		if res is Dictionary and not bool(res.get("ok", false)):
+			push_warning("Item equip failed: %s" % str(res))
 
-func _resolve_unit(grid, tile_idx: int) -> Unit:
+func _resolve_unit(grid: Variant, tile_idx: int) -> Unit:
 	if grid == player_grid_helper:
 		# Find unit by tile index in player views
 		if grid_placement != null and grid_placement.has_method("get_player_views"):
-			var pviews = grid_placement.get_player_views()
+			var pviews: Variant = grid_placement.get_player_views()
 			if pviews is Array:
-				for v in pviews:
+				for v: Variant in pviews:
 					if v != null and int(v.tile_idx) == int(tile_idx):
 						return v.unit
 	if grid == bench_grid_helper:
@@ -127,27 +113,36 @@ func _resolve_unit(grid, tile_idx: int) -> Unit:
 			return Roster.get_slot(int(tile_idx))
 		# Fallback: attempt to read bench array directly
 		if view and view.has_node("/root/Roster"):
-			var roster_node = view.get_node("/root/Roster")
+			var roster_node: Node = view.get_node("/root/Roster")
 			if roster_node and roster_node.has_method("get_slot"):
 				return roster_node.get_slot(int(tile_idx))
 		return null
 	return null
 
-func _items_singleton():
+func _items_singleton() -> Node:
 	if Engine.has_singleton("Items"):
 		return Items
-	var root_node = null
+	var root_node: Node = null
 	if view and view.has_method("get_tree"):
-		var tree = view.get_tree()
-		if tree and tree.has_method("get_root"):
-			root_node = tree.get_root()
+		var tree: SceneTree = view.get_tree()
+		if tree != null:
+			root_node = tree.root
 	if root_node == null:
-		var ml = Engine.get_main_loop()
-		if ml and ml.has_method("get_root"):
-			root_node = ml.get_root()
+		var ml: SceneTree = Engine.get_main_loop() as SceneTree
+		if ml != null:
+			root_node = ml.root
 	if root_node and root_node.has_node("/root/Items"):
 		return root_node.get_node("/root/Items")
 	return null
 
 func set_item_grid(helper: BoardGrid) -> void:
 	item_grid_helper = helper
+
+func _item_id_for_card(card: Variant) -> String:
+	if card == null:
+		return ""
+	if card.has_method("get_item_id"):
+		return String(card.get_item_id())
+	if card.has_method("get"):
+		return String(card.get("item_id"))
+	return ""

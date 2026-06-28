@@ -30,10 +30,56 @@ func configure(_arena_container: Control, _arena_units: Control, _planning_area:
     if arena == null:
         arena = ArenaControllerClass.new()
 
+func get_arena_bounds() -> Rect2:
+    if planning_area != null and is_instance_valid(planning_area):
+        var planning_rect: Rect2 = planning_area.get_global_rect()
+        if planning_rect.size.x > 1.0 and planning_rect.size.y > 1.0:
+            return Rect2(planning_rect.position, planning_rect.size)
+    if arena_background != null and is_instance_valid(arena_background):
+        var background_rect: Rect2 = arena_background.get_global_rect()
+        return Rect2(background_rect.position, background_rect.size)
+    return Rect2()
+
+func _sync_container_to_planning_rect() -> void:
+    if arena_container == null or not is_instance_valid(arena_container):
+        return
+    var bounds: Rect2 = get_arena_bounds()
+    if bounds.size.x <= 1.0 or bounds.size.y <= 1.0:
+        return
+    arena_container.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
+    var parent_control: Control = arena_container.get_parent() as Control
+    if parent_control != null:
+        var parent_rect: Rect2 = parent_control.get_global_rect()
+        arena_container.position = bounds.position - parent_rect.position
+    else:
+        arena_container.global_position = bounds.position
+    arena_container.size = bounds.size
+    arena_container.clip_contents = true
+    arena_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    if arena_background != null and is_instance_valid(arena_background):
+        arena_background.set_anchors_preset(Control.PRESET_FULL_RECT, false)
+        arena_background.offset_left = 0.0
+        arena_background.offset_top = 0.0
+        arena_background.offset_right = 0.0
+        arena_background.offset_bottom = 0.0
+        arena_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    if arena_units != null and is_instance_valid(arena_units):
+        arena_units.set_anchors_preset(Control.PRESET_FULL_RECT, false)
+        arena_units.offset_left = 0.0
+        arena_units.offset_top = 0.0
+        arena_units.offset_right = 0.0
+        arena_units.offset_bottom = 0.0
+        arena_units.clip_contents = true
+        arena_units.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _rect_close(a: Rect2, b: Rect2, tolerance: float) -> bool:
+    return a.position.distance_to(b.position) <= tolerance and a.size.distance_to(b.size) <= tolerance
+
 func enter_arena(player_views, enemy_views) -> void:
     if arena == null:
         return
     Trace.step("ArenaBridge.enter_arena: begin")
+    _sync_container_to_planning_rect()
     arena.configure(arena_container, arena_units, player_grid_helper, enemy_grid_helper, unit_actor_class, tile_size)
     arena.enter_arena(player_views, enemy_views)
     if arena_container:
@@ -59,6 +105,7 @@ func enter_arena(player_views, enemy_views) -> void:
 func sync(manager: CombatManager, player_views, enemy_views) -> void:
     if arena == null or arena_container == null or not arena_container.visible:
         return
+    _sync_container_to_planning_rect()
     if manager:
         var ppos: Array = manager.get_player_positions()
         var epos: Array = manager.get_enemy_positions()
@@ -120,6 +167,7 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
     if manager == null:
         return
     Trace.step("ArenaBridge.configure_engine_arena: begin")
+    _sync_container_to_planning_rect()
     var ts := float(tile_size)
     # Initial positions from current tile centers
     var ppos: Array[Vector2] = []
@@ -143,11 +191,8 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
         if j < 8:
             var ename: String = (ev.unit.name if ev and ev.unit else "?")
             e_summary.append("%d#%d:%s(%s)" % [j, idx2, str(pos2), ename])
-    # Bounds from arena background; fallback if degenerate
-    var bounds: Rect2 = Rect2()
-    if arena_background and is_instance_valid(arena_background):
-        var r: Rect2 = arena_background.get_global_rect()
-        bounds = Rect2(r.position, r.size)
+    # Bounds from the planning board, not the full battle row, so actors stay out of side UI.
+    var bounds: Rect2 = get_arena_bounds()
     if bounds.size.y <= 1.0 or bounds.size.x <= 1.0:
         var all_pts: Array[Vector2] = []
         for v in ppos:
@@ -197,7 +242,8 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
                 any_nonzero_pos = true
                 break
 
-    var engine_config_valid: bool = bounds_valid and any_nonzero_pos
+    var bounds_changed: bool = bounds_valid and not _rect_close(cur_bounds, bounds, 1.0)
+    var engine_config_valid: bool = bounds_valid and any_nonzero_pos and not bounds_changed
     if not engine_config_valid:
         manager.set_arena(ts, ppos, epos, bounds)
     Trace.step("ArenaBridge.configure_engine_arena: done")

@@ -1,0 +1,102 @@
+extends Node
+
+const SMOKE_NAME: String = "CombatArenaBoundsSmoke"
+const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
+const PLAYER_TEAM: Array[String] = ["mortem", "berebell", "bonko"]
+
+var _main: Control = null
+var _view: Control = null
+var _manager: CombatManager = null
+var _failures: Array[String] = []
+
+func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	call_deferred("_run")
+
+func _run() -> void:
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	_main = MAIN_SCENE.instantiate() as Control
+	add_child(_main)
+	await _settle_frames(8)
+	if _main.has_method("_on_start"):
+		_main.call("_on_start")
+	await _settle_frames(8)
+	if _main.has_method("_on_unit_selected"):
+		_main.call("_on_unit_selected", "mortem")
+	await _settle_frames(12)
+
+	_view = _main.get_node_or_null("CombatView") as Control
+	if _view == null:
+		_fail("CombatView missing")
+		_finish()
+		return
+	if _view.has_method("set_player_team_ids"):
+		_view.call("set_player_team_ids", PLAYER_TEAM)
+	if _view.has_method("_init_game"):
+		_view.call("_init_game")
+	await _settle_frames(18)
+	_manager = _view.get("manager") as CombatManager
+	if _manager == null:
+		_fail("manager missing")
+		_finish()
+		return
+
+	if _view.has_method("_on_continue_pressed"):
+		_view.call("_on_continue_pressed")
+	await _settle_frames(40)
+
+	var planning_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea") as Control
+	var arena_container: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer") as Control
+	var arena_units: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits") as Control
+	var stats_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea") as Control
+	if planning_area == null or arena_container == null or arena_units == null or stats_area == null:
+		_fail("arena layout refs missing")
+		_finish()
+		return
+	var planning_rect: Rect2 = planning_area.get_global_rect()
+	var arena_rect: Rect2 = arena_container.get_global_rect()
+	var stats_rect: Rect2 = stats_area.get_global_rect()
+	var engine_bounds: Rect2 = _manager.get_arena_bounds()
+	_expect(_rect_close(arena_rect, planning_rect, 3.0), "arena container should match planning board rect")
+	_expect(_rect_inside(engine_bounds, planning_rect.grow(3.0)), "engine arena bounds should stay inside planning board rect engine=%s planning=%s arena=%s" % [str(engine_bounds), str(planning_rect), str(arena_rect)])
+	_expect(not arena_rect.intersects(stats_rect), "arena container should not overlap team metrics area")
+	for child: Node in arena_units.get_children():
+		var control: Control = child as Control
+		if control == null or not control.visible:
+			continue
+		var center: Vector2 = control.get_global_rect().get_center()
+		_expect(planning_rect.grow(24.0).has_point(center), "arena actor center outside board rect: %s" % str(center))
+	_finish()
+
+func _rect_close(a: Rect2, b: Rect2, tolerance: float) -> bool:
+	return a.position.distance_to(b.position) <= tolerance and a.size.distance_to(b.size) <= tolerance
+
+func _rect_inside(inner: Rect2, outer: Rect2) -> bool:
+	return outer.has_point(inner.position) and outer.has_point(inner.end)
+
+func _expect(condition: bool, message: String) -> void:
+	if not condition:
+		_fail(message)
+
+func _fail(message: String) -> void:
+	if not _failures.has(message):
+		_failures.append(message)
+
+func _settle_frames(count: int) -> void:
+	for _index: int in range(count):
+		await get_tree().process_frame
+
+func _finish() -> void:
+	if _view != null and is_instance_valid(_view) and _view.has_method("_teardown"):
+		_view.call("_teardown")
+	if _main != null and is_instance_valid(_main):
+		remove_child(_main)
+		_main.queue_free()
+		_main = null
+	if _failures.is_empty():
+		print(SMOKE_NAME + ": OK")
+		get_tree().quit(0)
+		return
+	for failure: String in _failures:
+		push_error(SMOKE_NAME + ": " + failure)
+	get_tree().quit(1)

@@ -49,18 +49,18 @@ func attach_to_unit_view(view: Control, team: String, index: int, unit_provider:
 func attach_to_unit_actor(actor: Control, team: String, index: int, unit_provider: Callable = Callable()) -> void:
     if actor == null:
         return
-    var hit := actor.get_node_or_null("SelectHit")
+    var hit: Node = actor.get_node_or_null("SelectHit")
     if hit == null:
         hit = ColorRect.new()
         hit.name = "SelectHit"
         actor.add_child(hit)
     elif not (hit is ColorRect):
-        var replacement := ColorRect.new()
+        var replacement: ColorRect = ColorRect.new()
         replacement.name = "SelectHit"
         actor.add_child(replacement)
         hit.queue_free()
         hit = replacement
-    var hit_control := hit as Control
+    var hit_control: Control = hit as Control
     if hit_control == null:
         return
     hit_control.anchor_left = 0.0
@@ -72,10 +72,10 @@ func attach_to_unit_actor(actor: Control, team: String, index: int, unit_provide
     hit_control.offset_right = 0.0
     hit_control.offset_bottom = 0.0
     hit_control.mouse_filter = Control.MOUSE_FILTER_STOP
-    hit_control.z_index = 0
+    hit_control.z_index = 100
     if hit_control is ColorRect:
-        var rect := hit_control as ColorRect
-        rect.color = Color(1.0, 0.0, 0.0, 0.25)
+        var rect: ColorRect = hit_control as ColorRect
+        rect.color = Color(1.0, 1.0, 1.0, 0.0)
         rect.show_behind_parent = false
     var callback: Callable = Callable(self, "_on_view_gui_input").bind(String(team), int(index), unit_provider)
     _connect_gui_input(hit_control, callback)

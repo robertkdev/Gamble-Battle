@@ -3,6 +3,7 @@ class_name UnitPanel
 
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
+const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 
 const COLOR_PANEL: Color = Color(0.026, 0.022, 0.030, 0.92)
 const COLOR_PANEL_SOFT: Color = Color(0.046, 0.039, 0.048, 0.94)
@@ -31,9 +32,12 @@ var unit_ref: Unit = null
 
 var hp_bar: ProgressBar
 var mana_bar: ProgressBar
+var attack_info_label: Label = null
+var ability_info_label: Label = null
 
 func _ready() -> void:
     _ensure_bars()
+    _ensure_combat_info()
     _ensure_identity_styles()
     _apply_static_styles()
     set_process(true)
@@ -65,6 +69,7 @@ func set_unit(u: Unit) -> void:
     _refresh_header()
     _refresh_bars()
     _build_stats_grid()
+    _refresh_combat_info()
 
 func _process(_delta: float) -> void:
     _refresh_dynamic()
@@ -173,6 +178,34 @@ func _ensure_bars() -> void:
     if mana_bar == null:
         mana_bar = UIBars.make_mana_bar()
         bars_box.add_child(mana_bar)
+
+func _ensure_combat_info() -> void:
+    var root_box: VBoxContainer = $"VBox"
+    if root_box == null:
+        return
+    var insert_index: int = root_box.get_child_count()
+    if stats_grid != null:
+        insert_index = root_box.get_children().find(stats_grid) + 1
+    if attack_info_label == null or not is_instance_valid(attack_info_label):
+        attack_info_label = _make_info_label("AttackInfo")
+        root_box.add_child(attack_info_label)
+        root_box.move_child(attack_info_label, min(insert_index, root_box.get_child_count() - 1))
+    if ability_info_label == null or not is_instance_valid(ability_info_label):
+        ability_info_label = _make_info_label("AbilityInfo")
+        root_box.add_child(ability_info_label)
+        var ability_index: int = root_box.get_children().find(attack_info_label) + 1
+        root_box.move_child(ability_info_label, min(ability_index, root_box.get_child_count() - 1))
+
+func _make_info_label(label_name: String) -> Label:
+    var label: Label = Label.new()
+    label.name = label_name
+    label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    label.add_theme_font_size_override("font_size", 12)
+    label.add_theme_color_override("font_color", COLOR_TEXT)
+    label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
+    label.add_theme_constant_override("outline_size", 1)
+    return label
 
 func _ensure_identity_styles() -> void:
     if role_badge and not role_badge.has_theme_stylebox_override("normal"):
@@ -314,6 +347,47 @@ func _refresh_bars() -> void:
     hp_bar.value = clamp(unit_ref.hp, 0, unit_ref.max_hp)
     mana_bar.max_value = max(0, unit_ref.mana_max)
     mana_bar.value = clamp(unit_ref.mana, 0, unit_ref.mana_max)
+
+func _refresh_combat_info() -> void:
+    _ensure_combat_info()
+    if attack_info_label == null or ability_info_label == null:
+        return
+    if unit_ref == null:
+        attack_info_label.visible = false
+        ability_info_label.visible = false
+        return
+    attack_info_label.visible = true
+    ability_info_label.visible = true
+    var attack_period: float = 1.0 / max(0.01, float(unit_ref.attack_speed))
+    var crit_chance: int = int(round(float(unit_ref.crit_chance) * 100.0))
+    var crit_damage: String = String.num(float(unit_ref.crit_damage), 2)
+    attack_info_label.text = "Attack: basic hit deals %s physical damage every %ss at %d tiles. Crit %d%% for %sx damage." % [
+        _fmt(unit_ref.attack_damage),
+        String.num(attack_period, 2),
+        int(unit_ref.attack_range),
+        crit_chance,
+        crit_damage
+    ]
+    attack_info_label.tooltip_text = attack_info_label.text
+
+    var ability_id: String = String(unit_ref.ability_id).strip_edges()
+    if ability_id == "":
+        ability_info_label.text = "Ability: none"
+        ability_info_label.tooltip_text = ability_info_label.text
+        return
+    var ability_def: AbilityDef = AbilityCatalog.get_def(ability_id)
+    var ability_name: String = _prettify_token(ability_id)
+    var description: String = ""
+    var cost: int = int(unit_ref.mana_max)
+    if ability_def != null:
+        if String(ability_def.name).strip_edges() != "":
+            ability_name = String(ability_def.name).strip_edges()
+        description = String(ability_def.description).strip_edges()
+        if int(ability_def.base_cost) > 0:
+            cost = int(ability_def.base_cost)
+    var cost_text: String = " Cost: %d mana." % cost if cost > 0 else ""
+    ability_info_label.text = "Ability: %s.%s %s" % [ability_name, cost_text, description]
+    ability_info_label.tooltip_text = ability_info_label.text
 
 func _clear_stats_grid() -> void:
     if stats_grid == null or not is_instance_valid(stats_grid):
