@@ -2,15 +2,29 @@ extends Control
 
 const HERO_TEXTURE: Texture2D = preload("res://assets/units/mortem.png")
 const SIGIL_TEXTURE: Texture2D = preload("res://assets/ui/gold icon.png")
+const UnitCatalogScript: GDScript = preload("res://scripts/game/shop/unit_catalog.gd")
+const PrimaryRoleScript: GDScript = preload("res://scripts/game/identity/primary_role.gd")
+const GoalCatalogScript: GDScript = preload("res://scripts/game/identity/goal_catalog.gd")
+const ApproachCatalogScript: GDScript = preload("res://scripts/game/identity/approach_catalog.gd")
+const AbilityCatalogScript: GDScript = preload("res://scripts/game/abilities/ability_catalog.gd")
+
+const SECTION_HOME: String = "home"
+const SECTION_HOW_TO_PLAY: String = "how_to_play"
+const SECTION_UNITS: String = "units"
+const SECTION_RGA: String = "rga"
+const SECTION_SETTINGS: String = "settings"
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
-const COLOR_PANEL: Color = Color(0.030, 0.026, 0.034, 0.90)
+const COLOR_PANEL: Color = Color(0.030, 0.026, 0.034, 0.94)
+const COLOR_PANEL_SOFT: Color = Color(0.050, 0.040, 0.048, 0.90)
 const COLOR_PANEL_EDGE: Color = Color(0.42, 0.31, 0.24, 0.88)
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
 const COLOR_MUTED: Color = Color(0.62, 0.57, 0.50, 1.0)
 const COLOR_BLOOD: Color = Color(0.48, 0.035, 0.070, 1.0)
 const COLOR_BLOOD_HOT: Color = Color(0.78, 0.060, 0.105, 1.0)
 const COLOR_GOLD: Color = Color(0.92, 0.66, 0.32, 1.0)
+const COLOR_GREEN: Color = Color(0.42, 0.70, 0.50, 1.0)
+const COLOR_BLUE: Color = Color(0.34, 0.55, 0.72, 1.0)
 
 @onready var center_vbox: VBoxContainer = $Center/VBox
 @onready var title_label: Label = $Center/VBox/GameTitle
@@ -21,35 +35,183 @@ const COLOR_GOLD: Color = Color(0.92, 0.66, 0.32, 1.0)
 @onready var bg_rect: TextureRect = $TextureRect2
 @onready var logo: TextureRect = get_node_or_null("../TextureRect")
 
-var _did_initial_intro := false
+var _active_section: String = SECTION_HOME
+var _motion_enabled: bool = true
 var _title_panel: Panel = null
 var _shade: ColorRect = null
 var _hero: TextureRect = null
 var _sigil: TextureRect = null
 var _subtitle: Label = null
 var _rule: ColorRect = null
+var _content_panel: PanelContainer = null
+var _content_stack: VBoxContainer = null
+var _content_body: VBoxContainer = null
+var _section_title: Label = null
+var _section_hint: Label = null
+var _search_field: LineEdit = null
+var _unit_catalog: UnitCatalog = null
+var _unit_entries: Array[Dictionary] = []
+var _role_entries: Array[Dictionary] = []
+var _goal_entries: Array[Dictionary] = []
+var _approach_entries: Array[Dictionary] = []
+var _nav_buttons: Array[Button] = []
 
 func _ready() -> void:
+	_load_content_data()
 	_apply_gothic_layout()
-	# Ensure buttons scale from center when animated
-	_center_pivot(start_button)
-	_center_pivot(quit_button)
+	_build_navigation()
+	_ensure_content_panel()
+	_select_section(SECTION_HOME, false)
 	_wire_button_hover(start_button)
 	_wire_button_hover(quit_button)
-	if start_button:
+	for nav_button: Button in _nav_buttons:
+		_wire_button_hover(nav_button)
+	if start_button != null:
 		start_button.grab_focus()
-	# Prepare and run intro once when first shown
 	if visible:
 		_play_intro()
 	visibility_changed.connect(_on_visibility_changed)
-	# Start subtle looping background animation
 	_start_bg_loop()
 	_start_logo_float()
 
+func _load_content_data() -> void:
+	_unit_catalog = UnitCatalogScript.new() as UnitCatalog
+	if _unit_catalog != null:
+		_unit_catalog.ensure_ready()
+	_build_unit_entries()
+	_build_role_entries()
+	_build_goal_entries()
+	_build_approach_entries()
+
+func _build_unit_entries() -> void:
+	_unit_entries.clear()
+	if _unit_catalog == null:
+		return
+	var all_costs: Array[int] = _unit_catalog.get_all_costs()
+	for cost: int in all_costs:
+		var ids: Array[String] = _unit_catalog.get_ids_by_cost(cost)
+		for unit_id: String in ids:
+			var meta: Dictionary = _unit_catalog.get_unit_meta(unit_id)
+			var flags: Dictionary = meta.get("flags", {})
+			if bool(flags.get("hidden", false)) or bool(flags.get("enemy_only", false)):
+				continue
+			var ability_id: String = String(meta.get("ability_id", ""))
+			if ability_id == "":
+				var profile_path: String = "res://data/units/%s.tres" % unit_id
+				var profile: UnitProfile = null
+				if ResourceLoader.exists(profile_path):
+					profile = ResourceLoader.load(profile_path) as UnitProfile
+				if profile != null:
+					ability_id = String(profile.ability_id)
+			var ability: Dictionary = _ability_entry(ability_id)
+			var primary_role: String = String(meta.get("primary_role", ""))
+			var primary_goal: String = String(meta.get("primary_goal", ""))
+			var approaches: Array[String] = _array_to_strings(meta.get("approaches", []))
+			var traits: Array[String] = _array_to_strings(meta.get("traits", []))
+			var role_entry: Dictionary = _role_entry(primary_role)
+			var goal_entry: Dictionary = _goal_entry(primary_goal)
+			var approach_labels: Array[String] = []
+			var approach_blurbs: Array[String] = []
+			for approach_id: String in approaches:
+				var approach_entry: Dictionary = _approach_entry(approach_id)
+				approach_labels.append(String(approach_entry.get("name", _display_key(approach_id))))
+				var approach_description: String = String(approach_entry.get("description", ""))
+				if approach_description != "":
+					approach_blurbs.append("%s: %s" % [String(approach_entry.get("name", _display_key(approach_id))), approach_description])
+			var sprite_path: String = String(meta.get("sprite_path", ""))
+			_unit_entries.append({
+				"id": unit_id,
+				"name": String(meta.get("name", _display_key(unit_id))),
+				"cost": int(meta.get("cost", cost)),
+				"sprite_path": sprite_path,
+				"ability_id": ability_id,
+				"ability_name": String(ability.get("name", _display_key(ability_id))),
+				"ability_description": String(ability.get("description", "")),
+				"traits": traits,
+				"primary_role": primary_role,
+				"role_name": String(role_entry.get("name", _display_key(primary_role))),
+				"role_description": String(role_entry.get("description", "")),
+				"primary_goal": primary_goal,
+				"goal_name": String(goal_entry.get("name", _display_key(primary_goal))),
+				"goal_description": String(goal_entry.get("description", "")),
+				"approaches": approaches,
+				"approach_labels": approach_labels,
+				"approach_blurbs": approach_blurbs,
+				"search": _join_search([
+					unit_id,
+					String(meta.get("name", "")),
+					ability_id,
+					String(ability.get("name", "")),
+					String(ability.get("description", "")),
+					primary_role,
+					String(role_entry.get("name", "")),
+					primary_goal,
+					String(goal_entry.get("name", "")),
+					String(goal_entry.get("description", "")),
+					_join_string_array(approaches, " "),
+					_join_string_array(approach_labels, " "),
+					_join_string_array(traits, " "),
+				]),
+			})
+	_unit_entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return String(a.get("name", "")).nocasecmp_to(String(b.get("name", ""))) < 0
+	)
+
+func _build_role_entries() -> void:
+	_role_entries.clear()
+	var roles: PackedStringArray = PackedStringArray(PrimaryRoleScript.ALL)
+	for role_id: String in roles:
+		var role_profile: PrimaryRoleProfile = _load_role_profile(role_id)
+		var role_name: String = PrimaryRoleScript.display_name(role_id)
+		var role_description: String = ""
+		if role_profile != null:
+			if String(role_profile.display_name) != "":
+				role_name = String(role_profile.display_name)
+			role_description = String(role_profile.description)
+		_role_entries.append({
+			"id": role_id,
+			"name": role_name,
+			"description": role_description,
+			"search": _join_search([role_id, role_name, role_description]),
+		})
+
+func _build_goal_entries() -> void:
+	_goal_entries.clear()
+	var goal_ids: PackedStringArray = GoalCatalogScript.all_goal_ids()
+	for goal_id: String in goal_ids:
+		var goal: GoalDef = GoalCatalogScript.get_def(goal_id) as GoalDef
+		if goal == null:
+			continue
+		var allowed_roles: Array[String] = _array_to_strings(goal.allowed_roles)
+		var default_approaches: Array[String] = _array_to_strings(goal.default_approaches)
+		_goal_entries.append({
+			"id": goal_id,
+			"name": String(goal.name),
+			"description": String(goal.description),
+			"roles": allowed_roles,
+			"approaches": default_approaches,
+			"search": _join_search([goal_id, String(goal.name), String(goal.description), _join_string_array(allowed_roles, " "), _join_string_array(default_approaches, " ")]),
+		})
+
+func _build_approach_entries() -> void:
+	_approach_entries.clear()
+	var approach_ids: PackedStringArray = ApproachCatalogScript.all_ids()
+	for approach_id: String in approach_ids:
+		var approach: ApproachDef = ApproachCatalogScript.get_def(approach_id) as ApproachDef
+		if approach == null:
+			continue
+		_approach_entries.append({
+			"id": approach_id,
+			"name": String(approach.name),
+			"description": String(approach.description),
+			"category": String(approach.category),
+			"search": _join_search([approach_id, String(approach.name), String(approach.description), String(approach.category)]),
+		})
+
 func _apply_gothic_layout() -> void:
-	if background:
+	if background != null:
 		background.color = COLOR_VOID
-	if bg_rect:
+	if bg_rect != null:
 		bg_rect.modulate = Color(0.70, 0.24, 0.27, 0.82)
 		if bg_rect.material is ShaderMaterial:
 			var mat: ShaderMaterial = bg_rect.material as ShaderMaterial
@@ -61,25 +223,26 @@ func _apply_gothic_layout() -> void:
 			mat.set_shader_parameter("line_width", 0.42)
 			mat.set_shader_parameter("mix_amount", 1.48)
 			mat.set_shader_parameter("vignette_strength", 0.92)
-	if center:
-		center.anchor_left = 0.055
+	if center != null:
+		center.anchor_left = 0.045
 		center.anchor_top = 0.08
-		center.anchor_right = 0.58
+		center.anchor_right = 0.34
 		center.anchor_bottom = 0.92
 		center.offset_left = 0.0
 		center.offset_top = 0.0
 		center.offset_right = 0.0
 		center.offset_bottom = 0.0
-	if center_vbox:
-		center_vbox.custom_minimum_size = Vector2(760.0, 0.0)
-		center_vbox.add_theme_constant_override("separation", 18)
-	if title_label:
+	if center_vbox != null:
+		center_vbox.custom_minimum_size = Vector2(350.0, 0.0)
+		center_vbox.add_theme_constant_override("separation", 12)
+	if title_label != null:
 		title_label.text = "Gamble Battle"
-		title_label.add_theme_font_size_override("font_size", 90)
+		title_label.add_theme_font_size_override("font_size", 64)
 		title_label.add_theme_color_override("font_color", COLOR_TEXT)
 		title_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
 		title_label.add_theme_constant_override("outline_size", 5)
 		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_ensure_title_panel()
 	_ensure_shade()
 	_ensure_hero()
@@ -88,6 +251,37 @@ func _apply_gothic_layout() -> void:
 	_style_menu_button(start_button, true)
 	_style_menu_button(quit_button, false)
 
+func _build_navigation() -> void:
+	_nav_buttons.clear()
+	_ensure_nav_button("HomeButton", "Overview", SECTION_HOME)
+	_ensure_nav_button("HowToPlayButton", "How to Play", SECTION_HOW_TO_PLAY)
+	_ensure_nav_button("UnitsButton", "Units", SECTION_UNITS)
+	_ensure_nav_button("RGAGlossaryButton", "RGA Glossary", SECTION_RGA)
+	_ensure_nav_button("SettingsButton", "Settings", SECTION_SETTINGS)
+	if start_button != null:
+		start_button.text = "Start Run"
+	if quit_button != null:
+		quit_button.text = "Quit"
+	for nav_button: Button in _nav_buttons:
+		_style_menu_button(nav_button, false)
+
+func _ensure_nav_button(node_name: String, button_text: String, section: String) -> Button:
+	var button: Button = center_vbox.get_node_or_null(node_name) as Button
+	if button == null:
+		button = Button.new()
+		button.name = node_name
+		center_vbox.add_child(button)
+		if quit_button != null:
+			center_vbox.move_child(button, quit_button.get_index())
+	button.text = button_text
+	button.focus_mode = Control.FOCUS_ALL
+	button.set_meta("section", section)
+	if not bool(button.get_meta("nav_connected", false)):
+		button.pressed.connect(Callable(self, "_select_section").bind(section, true))
+		button.set_meta("nav_connected", true)
+	_nav_buttons.append(button)
+	return button
+
 func _ensure_title_panel() -> void:
 	_title_panel = get_node_or_null("TitlePanel") as Panel
 	if _title_panel == null:
@@ -95,19 +289,20 @@ func _ensure_title_panel() -> void:
 		_title_panel.name = "TitlePanel"
 		_title_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_title_panel)
-		move_child(_title_panel, max(0, center.get_index() if center else 0))
+		if center != null:
+			move_child(_title_panel, max(0, center.get_index()))
 	_title_panel.z_index = 2
-	_title_panel.anchor_left = 0.055
-	_title_panel.anchor_top = 0.16
-	_title_panel.anchor_right = 0.58
-	_title_panel.anchor_bottom = 0.84
+	_title_panel.anchor_left = 0.035
+	_title_panel.anchor_top = 0.12
+	_title_panel.anchor_right = 0.355
+	_title_panel.anchor_bottom = 0.88
 	_title_panel.offset_left = 0.0
 	_title_panel.offset_top = 0.0
 	_title_panel.offset_right = 0.0
 	_title_panel.offset_bottom = 0.0
-	_title_panel.add_theme_stylebox_override("panel", _make_panel_style())
-	if center:
-		center.z_index = 4
+	_title_panel.add_theme_stylebox_override("panel", _make_panel_style(COLOR_PANEL, COLOR_PANEL_EDGE, 1, 7, 22))
+	if center != null:
+		center.z_index = 5
 
 func _ensure_shade() -> void:
 	_shade = get_node_or_null("TitleVignette") as ColorRect
@@ -118,15 +313,8 @@ func _ensure_shade() -> void:
 		add_child(_shade)
 		move_child(_shade, min(_shade.get_index(), 2))
 	_shade.z_index = 1
-	_shade.anchor_left = 0.0
-	_shade.anchor_top = 0.0
-	_shade.anchor_right = 1.0
-	_shade.anchor_bottom = 1.0
-	_shade.offset_left = 0.0
-	_shade.offset_top = 0.0
-	_shade.offset_right = 0.0
-	_shade.offset_bottom = 0.0
-	_shade.color = Color(0.0, 0.0, 0.0, 0.36)
+	_shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_shade.color = Color(0.0, 0.0, 0.0, 0.42)
 
 func _ensure_hero() -> void:
 	_hero = get_node_or_null("TitleHero") as TextureRect
@@ -137,9 +325,9 @@ func _ensure_hero() -> void:
 		add_child(_hero)
 	_hero.texture = HERO_TEXTURE
 	_hero.z_index = 3
-	_hero.anchor_left = 0.55
+	_hero.anchor_left = 0.26
 	_hero.anchor_top = -0.04
-	_hero.anchor_right = 1.05
+	_hero.anchor_right = 0.72
 	_hero.anchor_bottom = 1.06
 	_hero.offset_left = 0.0
 	_hero.offset_top = 0.0
@@ -147,7 +335,7 @@ func _ensure_hero() -> void:
 	_hero.offset_bottom = 0.0
 	_hero.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_hero.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_hero.modulate = Color(0.82, 0.76, 0.72, 0.92)
+	_hero.modulate = Color(0.55, 0.45, 0.42, 0.28)
 
 func _ensure_sigil() -> void:
 	_sigil = get_node_or_null("TitleSigil") as TextureRect
@@ -158,19 +346,21 @@ func _ensure_sigil() -> void:
 		add_child(_sigil)
 	_sigil.texture = SIGIL_TEXTURE
 	_sigil.z_index = 2
-	_sigil.anchor_left = 0.02
-	_sigil.anchor_top = 0.08
-	_sigil.anchor_right = 0.28
-	_sigil.anchor_bottom = 0.52
+	_sigil.anchor_left = 0.01
+	_sigil.anchor_top = 0.05
+	_sigil.anchor_right = 0.25
+	_sigil.anchor_bottom = 0.46
 	_sigil.offset_left = 0.0
 	_sigil.offset_top = 0.0
 	_sigil.offset_right = 0.0
 	_sigil.offset_bottom = 0.0
 	_sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_sigil.modulate = Color(0.62, 0.48, 0.32, 0.26)
+	_sigil.modulate = Color(0.62, 0.48, 0.32, 0.20)
 
 func _ensure_subtitle() -> void:
+	if center_vbox == null:
+		return
 	_subtitle = center_vbox.get_node_or_null("Subtitle") as Label
 	if _subtitle == null:
 		_subtitle = Label.new()
@@ -179,7 +369,8 @@ func _ensure_subtitle() -> void:
 		center_vbox.move_child(_subtitle, min(1, center_vbox.get_child_count() - 1))
 	_subtitle.text = "Blood. Gold. Consequence."
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_subtitle.add_theme_font_size_override("font_size", 24)
+	_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_subtitle.add_theme_font_size_override("font_size", 17)
 	_subtitle.add_theme_color_override("font_color", COLOR_MUTED)
 	_subtitle.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
 	_subtitle.add_theme_constant_override("outline_size", 2)
@@ -187,17 +378,440 @@ func _ensure_subtitle() -> void:
 	if _rule == null:
 		_rule = ColorRect.new()
 		_rule.name = "TitleRule"
-		_rule.custom_minimum_size = Vector2(420.0, 2.0)
 		center_vbox.add_child(_rule)
 		center_vbox.move_child(_rule, min(2, center_vbox.get_child_count() - 1))
+	_rule.custom_minimum_size = Vector2(240.0, 2.0)
 	_rule.color = Color(0.70, 0.42, 0.22, 0.86)
+
+func _ensure_content_panel() -> void:
+	_content_panel = get_node_or_null("ContentPanel") as PanelContainer
+	if _content_panel == null:
+		_content_panel = PanelContainer.new()
+		_content_panel.name = "ContentPanel"
+		add_child(_content_panel)
+	_content_panel.z_index = 6
+	_content_panel.anchor_left = 0.38
+	_content_panel.anchor_top = 0.08
+	_content_panel.anchor_right = 0.965
+	_content_panel.anchor_bottom = 0.92
+	_content_panel.offset_left = 0.0
+	_content_panel.offset_top = 0.0
+	_content_panel.offset_right = 0.0
+	_content_panel.offset_bottom = 0.0
+	_content_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.026, 0.023, 0.030, 0.95), Color(0.50, 0.36, 0.18, 0.92), 1, 7, 18))
+
+	var margin: MarginContainer = _content_panel.get_node_or_null("Margin") as MarginContainer
+	if margin == null:
+		margin = MarginContainer.new()
+		margin.name = "Margin"
+		_content_panel.add_child(margin)
+	margin.add_theme_constant_override("margin_left", 22)
+	margin.add_theme_constant_override("margin_top", 20)
+	margin.add_theme_constant_override("margin_right", 22)
+	margin.add_theme_constant_override("margin_bottom", 20)
+
+	_content_stack = margin.get_node_or_null("Stack") as VBoxContainer
+	if _content_stack == null:
+		_content_stack = VBoxContainer.new()
+		_content_stack.name = "Stack"
+		_content_stack.add_theme_constant_override("separation", 12)
+		margin.add_child(_content_stack)
+
+	var header: VBoxContainer = _content_stack.get_node_or_null("Header") as VBoxContainer
+	if header == null:
+		header = VBoxContainer.new()
+		header.name = "Header"
+		header.add_theme_constant_override("separation", 8)
+		_content_stack.add_child(header)
+		_content_stack.move_child(header, 0)
+
+	_section_title = header.get_node_or_null("SectionTitle") as Label
+	if _section_title == null:
+		_section_title = Label.new()
+		_section_title.name = "SectionTitle"
+		header.add_child(_section_title)
+	_section_title.add_theme_font_size_override("font_size", 30)
+	_section_title.add_theme_color_override("font_color", Color(0.96, 0.84, 0.62, 1.0))
+	_section_title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
+	_section_title.add_theme_constant_override("outline_size", 2)
+
+	_section_hint = header.get_node_or_null("SectionHint") as Label
+	if _section_hint == null:
+		_section_hint = Label.new()
+		_section_hint.name = "SectionHint"
+		header.add_child(_section_hint)
+	_section_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_section_hint.add_theme_font_size_override("font_size", 14)
+	_section_hint.add_theme_color_override("font_color", COLOR_MUTED)
+
+	_search_field = header.get_node_or_null("SearchField") as LineEdit
+	if _search_field == null:
+		_search_field = LineEdit.new()
+		_search_field.name = "SearchField"
+		header.add_child(_search_field)
+	_search_field.custom_minimum_size = Vector2(0.0, 38.0)
+	_search_field.clear_button_enabled = true
+	_search_field.add_theme_font_size_override("font_size", 17)
+	_search_field.add_theme_color_override("font_color", COLOR_TEXT)
+	_search_field.add_theme_color_override("font_placeholder_color", Color(0.62, 0.57, 0.50, 0.82))
+	_search_field.add_theme_stylebox_override("normal", _make_panel_style(Color(0.015, 0.013, 0.017, 0.96), Color(0.30, 0.23, 0.18, 0.94), 1, 5, 0))
+	_search_field.add_theme_stylebox_override("focus", _make_panel_style(Color(0.030, 0.022, 0.028, 0.98), COLOR_GOLD, 1, 5, 0))
+	if not _search_field.is_connected("text_changed", Callable(self, "_on_search_changed")):
+		_search_field.text_changed.connect(_on_search_changed)
+
+	var scroll: ScrollContainer = _content_stack.get_node_or_null("ContentScroll") as ScrollContainer
+	if scroll == null:
+		scroll = ScrollContainer.new()
+		scroll.name = "ContentScroll"
+		scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		_content_stack.add_child(scroll)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	_content_body = scroll.get_node_or_null("ContentBody") as VBoxContainer
+	if _content_body == null:
+		_content_body = VBoxContainer.new()
+		_content_body.name = "ContentBody"
+		_content_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_content_body.add_theme_constant_override("separation", 10)
+		scroll.add_child(_content_body)
+
+func _select_section(section: String, clear_search: bool = true) -> void:
+	_active_section = section
+	if clear_search and _search_field != null:
+		_search_field.text = ""
+	_render_active_section()
+	_update_nav_state()
+
+func _render_active_section() -> void:
+	if _content_body == null:
+		return
+	_clear_content_body()
+	match _active_section:
+		SECTION_HOME:
+			_render_home()
+		SECTION_HOW_TO_PLAY:
+			_render_how_to_play()
+		SECTION_UNITS:
+			_render_units()
+		SECTION_RGA:
+			_render_rga()
+		SECTION_SETTINGS:
+			_render_settings()
+		_:
+			_render_home()
+
+func _render_home() -> void:
+	_set_content_header("Command Menu", "Start a run, study the roster, learn the RGA language, or tune local settings. Search here scans units, roles, goals, approaches, and tutorial entries.")
+	if _search_field != null:
+		_search_field.placeholder_text = "Search everything: Hexeon, sustain, tank, shop, PASS..."
+	if _search_query() != "":
+		_render_global_search_results()
+		return
+	_add_card("Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and betting decisions.", "run flow start starter shop bench combines items traits betting")
+	_add_card("Roster Library", "The Units submenu is generated from the live UnitProfile and identity resources, including ability text, traits, cost, role, goal, and approaches.", "units roster ability traits cost role goal approaches")
+	_add_card("RGA Language", "RGA means Role, Goal, Approach. The glossary explains how a unit is supposed to win fights and how validation labels that evidence.", "rga role goal approach pass lean fail subject scenario")
+	_add_card("Settings", "Runtime settings include master volume, fullscreen, and reduced-motion controls for this menu session.", "settings volume fullscreen reduced motion")
+
+func _render_global_search_results() -> void:
+	var count: int = 0
+	count += _render_unit_cards(true, 8)
+	count += _render_role_cards(true)
+	count += _render_goal_cards(true, 8)
+	count += _render_approach_cards(true, 8)
+	if count == 0:
+		_add_empty_state("No search results. Try a unit name, role, goal, approach, ability tag, or tutorial word.")
+
+func _render_how_to_play() -> void:
+	_set_content_header("How to Play", "A compact tutorial for the actual Main-scene loop, from starter pick to post-fight shop decisions.")
+	if _search_field != null:
+		_search_field.placeholder_text = "Search tutorial: shop, bench, combine, bet, item..."
+	_add_card("1. Pick a Starter", "Start Run opens the Unit Select screen. Pick one starter unit; that unit becomes your first board piece and anchors your opening plan.", "starter unit select start run board")
+	_add_card("2. Survive the Forced First Fight", "Chapter 1 Stage 1 begins as a forced opener. The shop is intentionally locked until you win that first fight, so focus on reading your unit and the battlefield.", "first fight forced opener chapter stage locked shop win")
+	_add_card("3. Spend Gold in the Shop", "After the opener, the shop offers five units. Buy affordable units, reroll when you need a different lane, lock when you want to preserve offers, and buy XP to raise shop odds.", "shop gold offers reroll lock xp odds buy unit")
+	_add_card("4. Use Bench and Board", "Bought units land on the bench. Drag bench units to highlighted board cells before the next fight. Three copies of the same unit and level combine into a stronger copy, up to level 3.", "bench board drag deploy combine three copies level")
+	_add_card("5. Read Items and Traits", "Items and traits are multipliers on a unit's job. Traits come from unit tags; items add scaling combat effects and should support the unit's role, goal, and approach.", "items traits tags scaling role goal approach")
+	_add_card("6. Manage Bets and Health", "Planning purchases must preserve survival. Combat spending can borrow against the current bet, but bad spending can leave the next planning phase short on health or gold.", "bet health planning combat spending gold survival")
+	_add_card("7. Learn Roles Before Optimizing", "Tank, Brawler, Assassin, Marksman, Mage, and Support describe the broad combat job. Use the Units and RGA pages to understand why two units in the same role can still play very differently.", "roles tank brawler assassin marksman mage support optimize")
+
+func _render_units() -> void:
+	_set_content_header("Units", "Searchable roster cards built from current unit, ability, and identity resources.")
+	if _search_field != null:
+		_search_field.placeholder_text = "Search units: name, role, goal, trait, ability, approach..."
+	var count: int = _render_unit_cards(false, 0)
+	if count == 0:
+		_add_empty_state("No units match the search.")
+
+func _render_rga() -> void:
+	_set_content_header("RGA Glossary", "Role, Goal, Approach terms used by both design and validation.")
+	if _search_field != null:
+		_search_field.placeholder_text = "Search RGA: PASS, subject, backline, peel, sustained..."
+	_add_card("RGA", "Role, Goal, Approach. Role is the broad job. Goal is the specific win condition. Approach is the toolkit used to achieve that goal.", "rga role goal approach toolkit win condition")
+	_add_card("Subject", "RGA tests are subject-aware: the verdict asks whether the assigned unit itself produced the evidence, not whether its whole side happened to win.", "subject unit_id side per-unit evidence")
+	_add_card("PASS / LEAN / FAIL", "PASS means the unit satisfied the configured evidence. LEAN means it showed partial or inconsistent evidence. FAIL means the tested identity was not supported by the run.", "pass lean fail verdict evidence")
+	_add_card("K-of-N", "Some checks use K-of-N logic: a unit can pass by meeting enough of several related conditions instead of hitting every single proxy.", "k-of-n conditions proxy threshold")
+	_add_card("Scenario Pack", "A scenario pack is a curated combat setup: opponent mix, starting lane, seed sweep, and intent labels chosen to stress a role or approach.", "scenario pack seed opponent intent lane")
+	_add_heading("Roles")
+	_render_role_cards(false)
+	_add_heading("Goals")
+	_render_goal_cards(false, 0)
+	_add_heading("Approaches")
+	_render_approach_cards(false, 0)
+
+func _render_settings() -> void:
+	_set_content_header("Settings", "Local runtime controls for the title menu and current game window.")
+	if _search_field != null:
+		_search_field.placeholder_text = "Search settings: volume, fullscreen, motion..."
+	var added: int = 0
+	added += _add_volume_setting()
+	added += _add_fullscreen_setting()
+	added += _add_motion_setting()
+	if added == 0:
+		_add_empty_state("No settings match the search.")
+
+func _render_unit_cards(compact: bool, limit: int) -> int:
+	var count: int = 0
+	for entry: Dictionary in _unit_entries:
+		if not _matches_query(String(entry.get("search", ""))):
+			continue
+		if limit > 0 and count >= limit:
+			continue
+		_add_unit_card(entry, compact)
+		count += 1
+	return count
+
+func _render_role_cards(compact: bool) -> int:
+	var count: int = 0
+	for entry: Dictionary in _role_entries:
+		if not _matches_query(String(entry.get("search", ""))):
+			continue
+		var body: String = String(entry.get("description", ""))
+		if body == "":
+			body = "Primary combat role used to group baseline stats and validation expectations."
+		_add_card(String(entry.get("name", "")), body, String(entry.get("search", "")), "Role: " + String(entry.get("id", "")), COLOR_GOLD, compact)
+		count += 1
+	return count
+
+func _render_goal_cards(compact: bool, limit: int) -> int:
+	var count: int = 0
+	for entry: Dictionary in _goal_entries:
+		if not _matches_query(String(entry.get("search", ""))):
+			continue
+		if limit > 0 and count >= limit:
+			continue
+		var roles: Array[String] = _array_to_strings(entry.get("roles", []))
+		var approaches: Array[String] = _array_to_strings(entry.get("approaches", []))
+		var kicker: String = "Goal: %s" % String(entry.get("id", ""))
+		if not roles.is_empty():
+			kicker += " | Roles: " + _join_display_keys(roles)
+		if not approaches.is_empty():
+			kicker += " | Default approaches: " + _join_display_keys(approaches)
+		_add_card(String(entry.get("name", "")), String(entry.get("description", "")), String(entry.get("search", "")), kicker, COLOR_GREEN, compact)
+		count += 1
+	return count
+
+func _render_approach_cards(compact: bool, limit: int) -> int:
+	var count: int = 0
+	for entry: Dictionary in _approach_entries:
+		if not _matches_query(String(entry.get("search", ""))):
+			continue
+		if limit > 0 and count >= limit:
+			continue
+		var kicker: String = "Approach: %s | %s" % [String(entry.get("id", "")), String(entry.get("category", "uncategorized"))]
+		_add_card(String(entry.get("name", "")), String(entry.get("description", "")), String(entry.get("search", "")), kicker, COLOR_BLUE, compact)
+		count += 1
+	return count
+
+func _add_unit_card(entry: Dictionary, compact: bool) -> void:
+	var card: PanelContainer = _make_card_container("UnitCard_" + String(entry.get("id", "")), COLOR_PANEL_SOFT, Color(0.35, 0.27, 0.20, 0.95), 1)
+	_content_body.add_child(card)
+	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+
+	var row: HBoxContainer = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	margin.add_child(row)
+
+	var portrait: TextureRect = TextureRect.new()
+	portrait.name = "Portrait"
+	portrait.custom_minimum_size = Vector2(76.0, 76.0)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var sprite_path: String = String(entry.get("sprite_path", ""))
+	if sprite_path != "" and ResourceLoader.exists(sprite_path):
+		portrait.texture = ResourceLoader.load(sprite_path) as Texture2D
+	row.add_child(portrait)
+
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stack.add_theme_constant_override("separation", 5)
+	row.add_child(stack)
+
+	var top_line: HBoxContainer = HBoxContainer.new()
+	top_line.add_theme_constant_override("separation", 8)
+	stack.add_child(top_line)
+	var name_label: Label = _make_label(String(entry.get("name", "")), 22 if not compact else 18, COLOR_TEXT, true)
+	name_label.name = "UnitName"
+	top_line.add_child(name_label)
+	top_line.add_child(_make_tag("Cost %d" % int(entry.get("cost", 0)), COLOR_GOLD))
+	top_line.add_child(_make_tag(String(entry.get("role_name", "")), COLOR_BLOOD_HOT))
+
+	var goal_text: String = "Goal: %s" % String(entry.get("goal_name", _display_key(String(entry.get("primary_goal", "")))))
+	stack.add_child(_make_label(goal_text, 14, Color(0.82, 0.77, 0.66, 1.0), true))
+
+	var ability_line: String = "%s: %s" % [String(entry.get("ability_name", "")), String(entry.get("ability_description", ""))]
+	stack.add_child(_make_label(ability_line, 14, COLOR_MUTED, true))
+
+	if not compact:
+		var role_description: String = String(entry.get("role_description", ""))
+		var goal_description: String = String(entry.get("goal_description", ""))
+		if role_description != "":
+			stack.add_child(_make_label("Role read: " + role_description, 13, Color(0.70, 0.66, 0.58, 1.0), true))
+		if goal_description != "":
+			stack.add_child(_make_label("Goal read: " + goal_description, 13, Color(0.70, 0.66, 0.58, 1.0), true))
+		var approach_blurbs: Array[String] = _array_to_strings(entry.get("approach_blurbs", []))
+		if not approach_blurbs.is_empty():
+			stack.add_child(_make_label("Approaches: " + _join_string_array(approach_blurbs, "  "), 13, Color(0.68, 0.72, 0.74, 1.0), true))
+	var traits: Array[String] = _array_to_strings(entry.get("traits", []))
+	if not traits.is_empty():
+		stack.add_child(_make_label("Traits: " + _join_string_array(traits, ", "), 13, Color(0.76, 0.66, 0.50, 1.0), true))
+
+	var tags_row: HBoxContainer = HBoxContainer.new()
+	tags_row.add_theme_constant_override("separation", 6)
+	stack.add_child(tags_row)
+	var approach_labels: Array[String] = _array_to_strings(entry.get("approach_labels", []))
+	for approach_label: String in approach_labels:
+		tags_row.add_child(_make_tag(approach_label, COLOR_BLUE))
+
+func _add_card(title: String, body: String, search_blob: String, kicker: String = "", accent: Color = COLOR_GOLD, compact: bool = false) -> PanelContainer:
+	if not _matches_query(search_blob + " " + title + " " + body + " " + kicker):
+		return null
+	var card: PanelContainer = _make_card_container("InfoCard", COLOR_PANEL_SOFT, Color(accent.r, accent.g, accent.b, 0.56), 1)
+	_content_body.add_child(card)
+	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 5 if compact else 7)
+	margin.add_child(stack)
+	if kicker != "":
+		stack.add_child(_make_label(kicker, 12, Color(accent.r, accent.g, accent.b, 0.92), true))
+	stack.add_child(_make_label(title, 20 if not compact else 16, COLOR_TEXT, true))
+	if body != "":
+		stack.add_child(_make_label(body, 14 if not compact else 13, COLOR_MUTED, true))
+	return card
+
+func _add_heading(text: String) -> void:
+	if _search_query() != "":
+		return
+	var label: Label = _make_label(text, 22, Color(0.94, 0.72, 0.45, 1.0), false)
+	label.custom_minimum_size = Vector2(0.0, 36.0)
+	_content_body.add_child(label)
+
+func _add_empty_state(text: String) -> void:
+	var card: PanelContainer = _make_card_container("EmptyState", COLOR_PANEL_SOFT, Color(COLOR_MUTED.r, COLOR_MUTED.g, COLOR_MUTED.b, 0.56), 1)
+	_content_body.add_child(card)
+	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 7)
+	margin.add_child(stack)
+	stack.add_child(_make_label("Nothing Found", 20, COLOR_TEXT, true))
+	stack.add_child(_make_label(text, 14, COLOR_MUTED, true))
+
+func _add_volume_setting() -> int:
+	if not _matches_query("master volume audio sound loud quiet"):
+		return 0
+	var card: PanelContainer = _make_card_container("VolumeSetting", COLOR_PANEL_SOFT, Color(0.42, 0.31, 0.24, 0.88), 1)
+	_content_body.add_child(card)
+	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 8)
+	margin.add_child(stack)
+	stack.add_child(_make_label("Master Volume", 18, COLOR_TEXT, false))
+	var slider: HSlider = HSlider.new()
+	slider.name = "MasterVolumeSlider"
+	slider.min_value = 0.0
+	slider.max_value = 100.0
+	slider.step = 1.0
+	slider.value = _current_master_volume_percent()
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.value_changed.connect(_on_master_volume_changed)
+	stack.add_child(slider)
+	stack.add_child(_make_label("Adjusts Godot's Master audio bus for this run.", 13, COLOR_MUTED, true))
+	return 1
+
+func _add_fullscreen_setting() -> int:
+	if not _matches_query("fullscreen window display screen"):
+		return 0
+	var check: CheckBox = _add_checkbox_setting("Fullscreen", "FullscreenCheck", _is_fullscreen(), "Switches between fullscreen and windowed display.", "fullscreen window display screen")
+	check.toggled.connect(_on_fullscreen_toggled)
+	return 1
+
+func _add_motion_setting() -> int:
+	if not _matches_query("reduced motion animation hover background movement"):
+		return 0
+	var check: CheckBox = _add_checkbox_setting("Reduced Motion", "ReducedMotionCheck", not _motion_enabled, "Disables new menu motion and hover scale effects.", "reduced motion animation hover background movement")
+	check.toggled.connect(_on_reduce_motion_toggled)
+	return 1
+
+func _add_checkbox_setting(title: String, node_name: String, enabled: bool, body: String, search_blob: String) -> CheckBox:
+	var card: PanelContainer = _make_card_container(node_name + "Card", COLOR_PANEL_SOFT, Color(0.42, 0.31, 0.24, 0.88), 1)
+	_content_body.add_child(card)
+	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 6)
+	margin.add_child(stack)
+	var check: CheckBox = CheckBox.new()
+	check.name = node_name
+	check.text = title
+	check.button_pressed = enabled
+	check.add_theme_font_size_override("font_size", 17)
+	check.add_theme_color_override("font_color", COLOR_TEXT)
+	stack.add_child(check)
+	stack.add_child(_make_label(body, 13, COLOR_MUTED, true))
+	check.set_meta("search", search_blob)
+	return check
+
+func _make_card_container(node_name: String, bg: Color, border: Color, border_width: int) -> PanelContainer:
+	var card: PanelContainer = PanelContainer.new()
+	card.name = node_name
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.add_theme_stylebox_override("panel", _make_panel_style(bg, border, border_width, 6, 6))
+	var margin: MarginContainer = MarginContainer.new()
+	margin.name = "Margin"
+	margin.add_theme_constant_override("margin_left", 14)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 14)
+	margin.add_theme_constant_override("margin_bottom", 12)
+	card.add_child(margin)
+	return card
+
+func _make_label(text: String, font_size: int, color: Color, wrap: bool) -> Label:
+	var label: Label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap else TextServer.AUTOWRAP_OFF
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return label
+
+func _make_tag(text: String, color: Color) -> PanelContainer:
+	var tag: PanelContainer = PanelContainer.new()
+	tag.custom_minimum_size = Vector2(0.0, 24.0)
+	tag.add_theme_stylebox_override("panel", _make_panel_style(Color(color.r * 0.22, color.g * 0.18, color.b * 0.15, 0.82), Color(color.r, color.g, color.b, 0.70), 1, 4, 0))
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 3)
+	margin.add_theme_constant_override("margin_bottom", 3)
+	tag.add_child(margin)
+	var label: Label = _make_label(text, 12, Color(0.96, 0.88, 0.72, 1.0), false)
+	margin.add_child(label)
+	return tag
 
 func _style_menu_button(button: Button, primary: bool) -> void:
 	if button == null:
 		return
-	button.custom_minimum_size = Vector2(480.0, 62.0)
+	button.custom_minimum_size = Vector2(320.0, 48.0)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.add_theme_font_size_override("font_size", 25)
+	button.add_theme_font_size_override("font_size", 20 if primary else 17)
 	button.add_theme_color_override("font_color", COLOR_TEXT)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.72, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.76, 0.55, 1.0))
@@ -210,19 +824,29 @@ func _style_menu_button(button: Button, primary: bool) -> void:
 	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2))
 	button.add_theme_stylebox_override("focus", _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2))
 
-func _make_panel_style() -> StyleBoxFlat:
+func _update_nav_state() -> void:
+	for nav_button: Button in _nav_buttons:
+		var section: String = String(nav_button.get_meta("section", ""))
+		var is_active: bool = section == _active_section
+		nav_button.add_theme_color_override("font_color", Color(1.0, 0.86, 0.58, 1.0) if is_active else COLOR_TEXT)
+		if is_active:
+			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.12, 0.055, 0.060, 0.98), COLOR_GOLD, 1))
+		else:
+			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.055, 0.047, 0.058, 0.96), Color(0.33, 0.28, 0.28, 0.96), 1))
+
+func _make_panel_style(bg_color: Color, border_color: Color, border_width: int, radius: int, shadow_size: int) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = COLOR_PANEL
-	style.border_color = COLOR_PANEL_EDGE
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
-	style.shadow_size = 22
+	style.bg_color = bg_color
+	style.border_color = border_color
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_right = radius
+	style.corner_radius_bottom_left = radius
+	style.shadow_size = shadow_size
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
 	return style
 
@@ -238,132 +862,337 @@ func _make_button_style(bg_color: Color, border_color: Color, border_width: int)
 	style.corner_radius_top_right = 5
 	style.corner_radius_bottom_right = 5
 	style.corner_radius_bottom_left = 5
-	style.content_margin_left = 24
-	style.content_margin_right = 24
-	style.content_margin_top = 10
-	style.content_margin_bottom = 10
+	style.content_margin_left = 18
+	style.content_margin_right = 18
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
 	style.shadow_size = 8
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
 	return style
 
+func _set_content_header(title: String, hint: String) -> void:
+	if _section_title != null:
+		_section_title.text = title
+	if _section_hint != null:
+		_section_hint.text = hint
+
+func _clear_content_body() -> void:
+	for child: Node in _content_body.get_children():
+		child.queue_free()
+
+func _on_search_changed(_text: String) -> void:
+	_render_active_section()
+
+func _on_master_volume_changed(value: float) -> void:
+	var bus_index: int = AudioServer.get_bus_index("Master")
+	if bus_index < 0:
+		bus_index = 0
+	var linear: float = max(0.001, float(value) / 100.0)
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(linear))
+
+func _on_fullscreen_toggled(enabled: bool) -> void:
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if enabled else DisplayServer.WINDOW_MODE_WINDOWED)
+
+func _on_reduce_motion_toggled(enabled: bool) -> void:
+	_motion_enabled = not enabled
+
+func _current_master_volume_percent() -> float:
+	var bus_index: int = AudioServer.get_bus_index("Master")
+	if bus_index < 0:
+		bus_index = 0
+	var db: float = AudioServer.get_bus_volume_db(bus_index)
+	return clamp(db_to_linear(db) * 100.0, 0.0, 100.0)
+
+func _is_fullscreen() -> bool:
+	var mode: int = DisplayServer.window_get_mode()
+	return mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+
+func _search_query() -> String:
+	if _search_field == null:
+		return ""
+	return String(_search_field.text).strip_edges().to_lower()
+
+func _matches_query(search_blob: String) -> bool:
+	var query: String = _search_query()
+	if query == "":
+		return true
+	var haystack: String = String(search_blob).to_lower()
+	var terms: PackedStringArray = query.split(" ", false)
+	for term: String in terms:
+		if term == "":
+			continue
+		if not haystack.contains(term):
+			return false
+	return true
+
+func _ability_entry(ability_id: String) -> Dictionary:
+	if ability_id == "":
+		return {}
+	var ability: AbilityDef = AbilityCatalogScript.get_def(ability_id) as AbilityDef
+	if ability == null:
+		return {
+			"id": ability_id,
+			"name": _display_key(ability_id),
+			"description": "",
+		}
+	return {
+		"id": ability_id,
+		"name": String(ability.name),
+		"description": String(ability.description),
+		"tags": _array_to_strings(ability.tags),
+	}
+
+func _role_entry(role_id: String) -> Dictionary:
+	for entry: Dictionary in _role_entries:
+		if String(entry.get("id", "")) == role_id:
+			return entry
+	var role_profile: PrimaryRoleProfile = _load_role_profile(role_id)
+	if role_profile != null:
+		return {
+			"id": role_id,
+			"name": String(role_profile.display_name),
+			"description": String(role_profile.description),
+		}
+	if role_id != "":
+		return {
+			"id": role_id,
+			"name": PrimaryRoleScript.display_name(role_id),
+			"description": "",
+		}
+	return {}
+
+func _goal_entry(goal_id: String) -> Dictionary:
+	if goal_id == "":
+		return {}
+	var goal: GoalDef = GoalCatalogScript.get_def(goal_id) as GoalDef
+	if goal == null:
+		return {
+			"id": goal_id,
+			"name": _display_key(goal_id),
+			"description": "",
+		}
+	return {
+		"id": goal_id,
+		"name": String(goal.name),
+		"description": String(goal.description),
+	}
+
+func _approach_entry(approach_id: String) -> Dictionary:
+	if approach_id == "":
+		return {}
+	var approach: ApproachDef = ApproachCatalogScript.get_def(approach_id) as ApproachDef
+	if approach == null:
+		return {
+			"id": approach_id,
+			"name": _display_key(approach_id),
+			"description": "",
+			"category": "",
+		}
+	return {
+		"id": approach_id,
+		"name": String(approach.name),
+		"description": String(approach.description),
+		"category": String(approach.category),
+	}
+
+func _load_role_profile(role_id: String) -> PrimaryRoleProfile:
+	if role_id == "":
+		return null
+	var path: String = PrimaryRoleScript.default_profile_path(role_id)
+	if path == "" or not ResourceLoader.exists(path):
+		return null
+	return ResourceLoader.load(path) as PrimaryRoleProfile
+
+func _array_to_strings(value: Variant) -> Array[String]:
+	var out: Array[String] = []
+	if value == null:
+		return out
+	if value is Array:
+		for item: Variant in value:
+			out.append(String(item))
+	elif value is PackedStringArray:
+		for item: String in value:
+			out.append(String(item))
+	elif typeof(value) == TYPE_STRING:
+		out.append(String(value))
+	return out
+
+func _join_string_array(values: Array[String], delimiter: String) -> String:
+	var packed: PackedStringArray = PackedStringArray()
+	for value: String in values:
+		if value.strip_edges() != "":
+			packed.append(value)
+	return delimiter.join(packed)
+
+func _join_display_keys(values: Array[String]) -> String:
+	var display_values: Array[String] = []
+	for value: String in values:
+		display_values.append(_display_key(value))
+	return _join_string_array(display_values, ", ")
+
+func _join_search(values: Array) -> String:
+	var parts: PackedStringArray = PackedStringArray()
+	for value: Variant in values:
+		var text: String = String(value).strip_edges()
+		if text != "":
+			parts.append(text)
+	return " ".join(parts)
+
+func _display_key(value: String) -> String:
+	var text: String = String(value).replace(".", " ").replace("_", " ").replace("-", " ").strip_edges()
+	if text == "":
+		return ""
+	var words: PackedStringArray = text.split(" ", false)
+	var out: PackedStringArray = PackedStringArray()
+	for word: String in words:
+		if word.length() == 0:
+			continue
+		out.append(word.substr(0, 1).to_upper() + word.substr(1).to_lower())
+	return " ".join(out)
+
 func _on_visibility_changed() -> void:
 	if visible:
 		_apply_gothic_layout()
+		_build_navigation()
+		_ensure_content_panel()
+		_render_active_section()
 		_play_intro()
 
 func _play_intro() -> void:
-	# Reset initial state
-	title_label.modulate.a = 0.0
-	if _subtitle:
-		_subtitle.modulate.a = 0.0
-	if _rule:
-		_rule.modulate.a = 0.0
-	if _title_panel:
-		_title_panel.modulate.a = 0.0
-	if _hero:
-		_hero.modulate.a = 0.0
-	if _sigil:
-		_sigil.modulate.a = 0.0
-	start_button.modulate.a = 0.0
-	quit_button.modulate.a = 0.0
-	if logo:
-		logo.modulate.a = 0.0
-	title_label.scale = Vector2(0.92, 0.92)
-	start_button.scale = Vector2(0.98, 0.98)
-	quit_button.scale = Vector2(0.98, 0.98)
-
-	var t := create_tween()
-	t.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	# Make intro animation much faster
-	if _title_panel:
-		t.tween_property(_title_panel, "modulate:a", 1.0, 0.12)
-	if _hero:
-		t.parallel().tween_property(_hero, "modulate:a", 0.92, 0.18)
-	if _sigil:
-		t.parallel().tween_property(_sigil, "modulate:a", 0.26, 0.18)
-	t.tween_property(title_label, "modulate:a", 1.0, 0.16)
-	t.parallel().tween_property(title_label, "scale", Vector2.ONE, 0.18)
-	if _subtitle:
-		t.parallel().tween_property(_subtitle, "modulate:a", 1.0, 0.18)
-	if _rule:
-		t.parallel().tween_property(_rule, "modulate:a", 1.0, 0.18)
-	if logo:
-		t.parallel().tween_property(logo, "modulate:a", 1.0, 0.16)
-	# Button staggers
-	t.tween_interval(0.02)
-	t.tween_property(start_button, "modulate:a", 1.0, 0.12)
-	t.parallel().tween_property(start_button, "scale", Vector2.ONE, 0.12)
-	t.tween_interval(0.02)
-	t.tween_property(quit_button, "modulate:a", 1.0, 0.12)
-	t.parallel().tween_property(quit_button, "scale", Vector2.ONE, 0.12)
-	_did_initial_intro = true
-
-func _wire_button_hover(btn: Button) -> void:
-	if not btn:
+	if not _motion_enabled:
+		_set_intro_alpha(1.0)
 		return
-	# Hover
-	if not btn.is_connected("mouse_entered", Callable(self, "_on_btn_enter").bind(btn)):
-		btn.mouse_entered.connect(Callable(self, "_on_btn_enter").bind(btn))
-	if not btn.is_connected("mouse_exited", Callable(self, "_on_btn_exit").bind(btn)):
-		btn.mouse_exited.connect(Callable(self, "_on_btn_exit").bind(btn))
-	# Keyboard/Controller focus
-	if not btn.is_connected("focus_entered", Callable(self, "_on_btn_enter").bind(btn)):
-		btn.focus_entered.connect(Callable(self, "_on_btn_enter").bind(btn))
-	if not btn.is_connected("focus_exited", Callable(self, "_on_btn_exit").bind(btn)):
-		btn.focus_exited.connect(Callable(self, "_on_btn_exit").bind(btn))
+	_set_intro_alpha(0.0)
+	if title_label != null:
+		title_label.scale = Vector2(0.94, 0.94)
+	if start_button != null:
+		start_button.scale = Vector2(0.98, 0.98)
+	if quit_button != null:
+		quit_button.scale = Vector2(0.98, 0.98)
 
-func _on_btn_enter(btn: Button) -> void:
-	_tween_button_scale(btn, Vector2(1.035, 1.035), 0.11)
+	var tween: Tween = create_tween()
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	if _title_panel != null:
+		tween.tween_property(_title_panel, "modulate:a", 1.0, 0.12)
+	if _content_panel != null:
+		tween.parallel().tween_property(_content_panel, "modulate:a", 1.0, 0.14)
+	if _hero != null:
+		tween.parallel().tween_property(_hero, "modulate:a", 0.28, 0.18)
+	if _sigil != null:
+		tween.parallel().tween_property(_sigil, "modulate:a", 0.20, 0.18)
+	if title_label != null:
+		tween.tween_property(title_label, "modulate:a", 1.0, 0.16)
+		tween.parallel().tween_property(title_label, "scale", Vector2.ONE, 0.18)
+	if _subtitle != null:
+		tween.parallel().tween_property(_subtitle, "modulate:a", 1.0, 0.18)
+	if _rule != null:
+		tween.parallel().tween_property(_rule, "modulate:a", 1.0, 0.18)
+	if logo != null:
+		tween.parallel().tween_property(logo, "modulate:a", 1.0, 0.16)
+	tween.tween_interval(0.02)
+	_fade_button(tween, start_button)
+	for nav_button: Button in _nav_buttons:
+		_fade_button(tween, nav_button)
+	_fade_button(tween, quit_button)
 
-func _on_btn_exit(btn: Button) -> void:
-	_tween_button_scale(btn, Vector2.ONE, 0.11)
+func _set_intro_alpha(alpha: float) -> void:
+	if title_label != null:
+		title_label.modulate.a = alpha
+	if _subtitle != null:
+		_subtitle.modulate.a = alpha
+	if _rule != null:
+		_rule.modulate.a = alpha
+	if _title_panel != null:
+		_title_panel.modulate.a = alpha
+	if _content_panel != null:
+		_content_panel.modulate.a = alpha
+	if _hero != null:
+		_hero.modulate.a = min(alpha, 0.28)
+	if _sigil != null:
+		_sigil.modulate.a = min(alpha, 0.20)
+	if start_button != null:
+		start_button.modulate.a = alpha
+	if quit_button != null:
+		quit_button.modulate.a = alpha
+	for nav_button: Button in _nav_buttons:
+		nav_button.modulate.a = alpha
+	if logo != null:
+		logo.modulate.a = alpha
 
-func _tween_button_scale(btn: Button, target_scale: Vector2, duration: float) -> void:
-	if btn == null:
+func _fade_button(tween: Tween, button: Button) -> void:
+	if tween == null or button == null:
 		return
-	var existing: Tween = btn.get_meta("hover_tween") as Tween if btn.has_meta("hover_tween") else null
+	tween.tween_property(button, "modulate:a", 1.0, 0.08)
+	tween.parallel().tween_property(button, "scale", Vector2.ONE, 0.08)
+
+func _wire_button_hover(button: Button) -> void:
+	if button == null:
+		return
+	_center_pivot(button)
+	if not button.is_connected("mouse_entered", Callable(self, "_on_btn_enter").bind(button)):
+		button.mouse_entered.connect(Callable(self, "_on_btn_enter").bind(button))
+	if not button.is_connected("mouse_exited", Callable(self, "_on_btn_exit").bind(button)):
+		button.mouse_exited.connect(Callable(self, "_on_btn_exit").bind(button))
+	if not button.is_connected("focus_entered", Callable(self, "_on_btn_enter").bind(button)):
+		button.focus_entered.connect(Callable(self, "_on_btn_enter").bind(button))
+	if not button.is_connected("focus_exited", Callable(self, "_on_btn_exit").bind(button)):
+		button.focus_exited.connect(Callable(self, "_on_btn_exit").bind(button))
+
+func _on_btn_enter(button: Button) -> void:
+	if not _motion_enabled:
+		return
+	_tween_button_scale(button, Vector2(1.028, 1.028), 0.11)
+
+func _on_btn_exit(button: Button) -> void:
+	if not _motion_enabled:
+		return
+	_tween_button_scale(button, Vector2.ONE, 0.11)
+
+func _tween_button_scale(button: Button, target_scale: Vector2, duration: float) -> void:
+	if button == null:
+		return
+	var existing: Tween = button.get_meta("hover_tween") as Tween if button.has_meta("hover_tween") else null
 	if existing != null and is_instance_valid(existing):
 		existing.kill()
 	var tween: Tween = create_tween()
 	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(btn, "scale", target_scale, duration)
-	btn.set_meta("hover_tween", tween)
+	tween.tween_property(button, "scale", target_scale, duration)
+	button.set_meta("hover_tween", tween)
 
 func _center_pivot(ctrl: Control) -> void:
-	if not ctrl:
+	if ctrl == null:
 		return
-	# Set pivot to center so scale animates evenly
 	ctrl.pivot_offset = ctrl.size * 0.5
-	# Keep pivot centered when layout/size changes
-	var cb := Callable(self, "_on_ctrl_resized").bind(ctrl)
-	if not ctrl.is_connected("resized", cb):
-		ctrl.resized.connect(cb)
+	var callback: Callable = Callable(self, "_on_ctrl_resized").bind(ctrl)
+	if not ctrl.is_connected("resized", callback):
+		ctrl.resized.connect(callback)
 
 func _on_ctrl_resized(ctrl: Control) -> void:
-	if ctrl:
+	if ctrl != null:
 		ctrl.pivot_offset = ctrl.size * 0.5
 
 func _start_bg_loop() -> void:
+	if not _motion_enabled:
+		return
 	var mat: ShaderMaterial = null
-	if bg_rect and bg_rect.material is ShaderMaterial:
-		mat = bg_rect.material
-	if mat:
-		# Animate a couple shader params subtly in a ping-pong loop
-		var t := create_tween()
-		t.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		t.tween_property(mat, "shader_parameter/warp_strength", 3.2, 6.0)
-		t.parallel().tween_property(mat, "shader_parameter/mix_amount", 1.7, 6.0)
-		t.parallel().tween_property(mat, "shader_parameter/field_speed", 0.95, 6.0)
-		t.tween_property(mat, "shader_parameter/warp_strength", 2.8, 6.0)
-		t.parallel().tween_property(mat, "shader_parameter/mix_amount", 1.4, 6.0)
-		t.parallel().tween_property(mat, "shader_parameter/field_speed", 1.05, 6.0)
-		t.finished.connect(_start_bg_loop)
+	if bg_rect != null and bg_rect.material is ShaderMaterial:
+		mat = bg_rect.material as ShaderMaterial
+	if mat != null:
+		var tween: Tween = create_tween()
+		tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(mat, "shader_parameter/warp_strength", 3.2, 6.0)
+		tween.parallel().tween_property(mat, "shader_parameter/mix_amount", 1.7, 6.0)
+		tween.parallel().tween_property(mat, "shader_parameter/field_speed", 0.95, 6.0)
+		tween.tween_property(mat, "shader_parameter/warp_strength", 2.8, 6.0)
+		tween.parallel().tween_property(mat, "shader_parameter/mix_amount", 1.4, 6.0)
+		tween.parallel().tween_property(mat, "shader_parameter/field_speed", 1.05, 6.0)
+		tween.finished.connect(_start_bg_loop)
 
 func _start_logo_float() -> void:
-	if not logo:
+	if not _motion_enabled or logo == null:
 		return
-	var t := create_tween()
-	t.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	t.tween_property(logo, "scale", Vector2(1.02, 1.02), 2.0)
-	t.tween_property(logo, "scale", Vector2.ONE, 2.0)
-	t.finished.connect(_start_logo_float)
+	var tween: Tween = create_tween()
+	tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_property(logo, "scale", Vector2(1.02, 1.02), 2.0)
+	tween.tween_property(logo, "scale", Vector2.ONE, 2.0)
+	tween.finished.connect(_start_logo_float)
