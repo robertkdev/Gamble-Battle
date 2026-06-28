@@ -20,10 +20,19 @@ func _ready() -> void:
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	var window: Window = get_window()
+	if window != null:
+		window.size = Vector2i(1920, 1080)
+		window.content_scale_size = Vector2i(1920, 1080)
 	_previous_suppress_validation_warnings = UNIT_FACTORY.suppress_validation_warnings
 	UNIT_FACTORY.suppress_validation_warnings = true
 
 	_main = MAIN_SCENE.instantiate() as Control
+	_main.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_main.offset_left = 0.0
+	_main.offset_top = 0.0
+	_main.offset_right = 0.0
+	_main.offset_bottom = 0.0
 	add_child(_main)
 	await _settle_frames(8)
 	if _main.has_method("_on_start"):
@@ -150,14 +159,15 @@ func _click_control(control: Control) -> void:
 	await get_tree().process_frame
 
 func _send_mouse_motion(position: Vector2) -> void:
-	Input.warp_mouse(position)
+	get_viewport().warp_mouse(position)
 	var event: InputEventMouseMotion = InputEventMouseMotion.new()
 	event.position = position
 	event.global_position = position
 	Input.parse_input_event(event)
+	Input.flush_buffered_events()
 
 func _send_mouse_button(position: Vector2, pressed: bool) -> void:
-	Input.warp_mouse(position)
+	get_viewport().warp_mouse(position)
 	var event: InputEventMouseButton = InputEventMouseButton.new()
 	event.button_index = MOUSE_BUTTON_LEFT
 	event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
@@ -165,6 +175,7 @@ func _send_mouse_button(position: Vector2, pressed: bool) -> void:
 	event.global_position = position
 	event.pressed = pressed
 	Input.parse_input_event(event)
+	Input.flush_buffered_events()
 
 func _expect_team_mode(context: String) -> void:
 	if _scoreboard == null or not (_scoreboard as CanvasItem).visible:

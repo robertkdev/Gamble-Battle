@@ -53,7 +53,7 @@ func _run() -> void:
 	_expect(not get_tree().paused, "new run should unpause the game")
 	_expect(_node_visible("UnitSelect"), "new run should land on unit select")
 	_expect(int(GameState.stage) == 1, "new run should reset stage to 1")
-	_expect(int(Economy.gold) == 2, "new run should reset gold to starting value")
+	_expect(int(Economy.gold) == int(Economy.STARTING_GOLD), "new run should reset gold to starting value")
 	_expect(_unit_select_reset(), "new run should clear unit select choice")
 
 	if _main.has_method("_on_unit_selected"):
