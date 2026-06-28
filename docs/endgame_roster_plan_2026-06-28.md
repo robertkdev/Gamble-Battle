@@ -136,6 +136,8 @@ Counterplay reference: `docs/rga_counter_matrix_2026-06-28.md` defines the plann
 
 ## Planned Additions
 
+These concepts are creative raw material for the first complete set. The target RGA matrix below is more authoritative than the original ability blurbs when there is tension between them. In a later implementation pass, tune the ability details to satisfy the target goal, approaches, board role, and counterplay row before creating or changing resources.
+
 ### Cost 1 Additions: 2 Units
 
 | Name | Role | Traits | Look | Ability | Why it exists |
@@ -189,40 +191,144 @@ Counterplay reference: `docs/rga_counter_matrix_2026-06-28.md` defines the plann
 | Quillith | Support | Scholar, Overload, Mentor | Ancient exam proctor with a floating book, quill wings, and mana chains around the wrists. | Final Exam: chooses the highest-damage ally as the Pupil. When the Pupil casts, Quillith grants mana to nearby allies; every third Pupil cast causes a free reduced-power recast. | Capstone mana engine that makes caster boards feel intentionally built. |
 | Nullora | Assassin | Executioner, Exile, Harmony | Silent final-word executioner, all white mask and black script, with one oversized crescent blade. | Last Word: appears beside the enemy carry after a delay. If no allied trait has more than three units, the strike gains execute range and Nullora vanishes after the hit. | Capstone for wide/exact-count boards and the premium assassin identity. |
 
-## Planned RGA Assignments
+## Target Matrix Alignment
 
-These are intended identities, not implemented verdicts. A later content pass should create the corresponding `UnitIdentity` resources and then prove each kit with the Role Matrix / RGA validation scenes. The `Proof intent` column states what the future ability implementation must visibly and mechanically produce for the assigned goal and approaches.
+The target matrix in `docs/rga_counter_matrix_2026-06-28.md` is the design authority for this roster. It supersedes the earlier 28-unit-only RGA draft because the game is moving toward a chess-like counter web where the full 50-unit set is balanced together.
 
-| Unit | Cost | Primary role | Primary goal | Approaches | Proof intent |
-| --- | ---: | --- | --- | --- | --- |
-| Knoll | 1 | support | `support.team_amplification` | `amp`, `debuff` | Marked enemies should produce source-attributed team output lift or enemy vulnerability, plus a clear economy reward after combat. |
-| Pilfer | 1 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `disrupt`, `reposition` | Dash should contact backline or far targets, steal/remove a useful buff, then return or move away instead of staying as a brawler. |
-| Miri | 2 | support | `support.team_amplification` | `amp`, `peel`, `sustain` | Student link should grant mana/output, shield the student or self, and create source-attributed ally protection. |
-| Cinder | 2 | mage | `mage.pick_burst` | `burst`, `aoe` | Delayed bombs should create a clear cast-to-peak damage window, with merged casts hitting multiple enemies when positioned well. |
-| Rooket | 2 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `damage_reduction` | Braced shot should fire from range, apply a slow or resistance shred, and prove the self-root defensive tradeoff with mitigation evidence. |
-| Velour | 2 | support | `support.peel_carry` | `peel`, `sustain`, `amp` | Silk Knot should share healing/shields between threatened allies and produce ally-protection spans, not just self-survival. |
-| Caldera | 3 | tank | `tank.frontline_absorb` | `damage_reduction`, `sustain`, `aoe` | Absorb window should prevent or store incoming damage, heal/survive through pressure, then convert pressure into area retaliation. |
-| Ivara | 3 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `burst` | Open Bid should prioritize high-HP/frontline targets, apply a bid-mark or shred, and show meaningful burst conversion on marked targets. |
-| Noxley | 3 | mage | `mage.sustained_dps` | `dot`, `sustain`, `ramp` | Red Static should create repeated magic output over time, health-risk sustain, and stronger later casts or chain growth. |
-| Quorra | 3 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `debuff`, `damage_reduction` | Timeplate Lunge should reach a backline target, tax its attack speed, and give Quorra temporary defensive evidence during escape. |
-| Juno Vale | 3 | support | `support.team_amplification` | `amp`, `peel`, `zone` | Constellation links should generate ally mana/output and make a visible positioning zone or constellation area that rewards linked placement. |
-| Kett | 3 | brawler | `brawler.attrition_dps` | `on_hit_effect`, `ramp`, `sustain` | Repeated punches should produce on-hit or stack evidence, improve over an extended fight, and keep Kett alive through pressure. |
-| Egress | 3 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `reposition` | Low-health kills should trigger execute evidence, a reset/chain opportunity, and an immediate movement reset to the edge. |
-| Marble | 3 | marksman | `marksman.sustained_dps` | `long_range`, `peel`, `debuff` | Sanctuary Bolt should keep ranged uptime while providing source-attributed ally shielding and enemy slow/debuff events. |
-| Prisma | 3 | mage | `mage.wombo_combo_burst` | `burst`, `aoe`, `amp` | Color Theory should produce a team-enabled AoE burst window and scale with wide-trait team context rather than solo damage only. |
-| Sable | 3 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `on_hit_effect` | Footnote Piercer should repeatedly shred defenses from range, with basic or shot-based proc evidence attached to Sable. |
-| Ravel | 4 | support | `support.team_amplification` | `amp`, `peel`, `damage_reduction` | Puppet links should transfer offensive stats, reduce linked ally damage taken, and produce direct ally-output or protection deltas. |
-| Draxelle | 4 | brawler | `brawler.frontline_disruption` | `engage`, `disrupt`, `ramp` | Hook should start fights or pull priority targets, break formation, and gain measurable combat power after casts/takedowns. |
-| Orielle | 4 | mage | `mage.wombo_combo_burst` | `burst`, `aoe`, `ramp` | Stored ally mana should build toward a large synchronized detonation with multi-target damage and clear late-window payoff. |
-| Bastionne | 4 | tank | `tank.team_fortification` | `amp`, `damage_reduction`, `cc_immunity` | Gate wall should fortify nearby allies, prevent or reduce CC, and produce team defensive buff evidence. |
-| Vesper | 4 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `lockdown` | Delayed mark should either stun a surviving target or convert a low-health target into an execute/reset chain. |
-| Gable | 4 | marksman | `marksman.sustained_dps` | `long_range`, `on_hit_effect`, `ramp` | Rotating market shots should maintain range, create shot-specific procs, and become stronger with higher-cost board context. |
-| Saffron | 4 | support | `support.peel_carry` | `peel`, `sustain`, `amp` | Poultice should stabilize the carry with heal/shield evidence, convert overheal to team protection, and optionally amplify item users. |
-| Omenry | 4 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `burst` | Condemning Shot should hit from range, shred defenses, and punish isolated or exposed frontliners with burst damage. |
-| Meridian | 5 | mage | `mage.wombo_combo_burst` | `aoe`, `burst`, `amp` | Treaty links should convert wide-board trait diversity into a large multi-target burst and measurable ally/team amplification. |
-| Malachor | 5 | tank | `tank.frontline_absorb` | `damage_reduction`, `sustain`, `zone` | Debt of Flesh should soak focused damage, heal through it, and leave a battlefield shockwave/zone that controls space. |
-| Quillith | 5 | support | `support.team_amplification` | `amp`, `peel`, `reset_mechanic` | Final Exam should amplify a carry, feed team mana, and create source-attributed recast/reset evidence tied to the Pupil. |
-| Nullora | 5 | assassin | `assassin.backline_elimination` | `access_backline`, `burst`, `execute`, `untargetable` | Last Word should reach the enemy carry, deliver a short burst/execute window, and briefly vanish to avoid immediate retaliation. |
+This section is still planning-only. It does not say the live unit resources already have these identities. Current units marked below as `Current` keep their existing files until a later implementation pass explicitly retags or reworks them.
+
+Target rules:
+
+- The first complete set remains 50 playable units.
+- Role counts target 9 tanks, 8 brawlers, 6 assassins, 9 marksmen, 9 mages, and 9 supports.
+- All 22 primary goals are used. No goal appears more than three times.
+- All 22 approaches are used. The target roster carries 149 total approach assignments, almost exactly three per unit.
+- Every unit row must say what it beats, what beats it, and what future RGA proof must show.
+
+## Target Matrix RGA Assignments
+
+| Unit | Status | Cost | Role | Primary goal | Approaches | Approach mode / specificity | Board archetype | Counter-board | Beats | Loses to | Proof intent |
+| --- | --- | ---: | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Brute | Current | 1 | tank | `tank.frontline_absorb` | `engage`, `damage_reduction`, `lockdown` | Slam starts contact, then buys a short mitigation and stun window. | Bastion Siege | Tank Shred Siege | fragile divers and early burst | shred, debuff, long range | Prove first-contact tanking, reduced incoming damage, and a source-attributed lockdown event. |
+| Korath | Current | 1 | tank | `tank.frontline_absorb` | `damage_reduction`, `redirect`, `sustain` | Absorb turns focus fire into self-recovery and target baiting. | Bastion Siege | Formation Breaker | pick burst and single-target dive | AoE, anti-heal, zone | Prove redirected or wasted focus, survival through pressure, and healing tied to the absorb window. |
+| Repo | Current | 1 | tank | `tank.frontline_absorb` | `damage_reduction`, `redirect`, `cc_immunity` | Writ acts as a low-cost bodyguard that can eat one bad control window. | Control Prison | Wide AoE | assassins and pick burst | AoE spread damage and tank shred | Prove the chosen target is protected, control is resisted briefly, and Repo remains a real frontline. |
+| Kythera | Current | 2 | tank | `tank.team_fortification` | `damage_reduction`, `debuff`, `amp` | Siphon weakens the enemy while fortifying nearby allies. | Wide Trait Engine | Formation Breaker | burst openers and stat races | AoE, debuff cleanse, zone | Prove allied defensive uplift, enemy weakening, and team output or survival improvement. |
+| Veyra | Current | 2 | tank | `tank.team_fortification` | `damage_reduction`, `cc_immunity`, `ramp` | Harden makes the team harder to break if the fight lasts. | Attrition Engine | Execute Dive | control openers and medium damage | execute, DoT, anti-mitigation | Prove team mitigation grows over time and that a control window is resisted, not permanently ignored. |
+| Grint | Current | 1 | tank | `tank.initiate_fight` | `engage`, `disrupt`, `debuff` | Body Check opens a lane, knocks timing off, and marks a target. | Wombo Engage | Zone Control | siege lines and greedy ramp | zone, redirect, peel | Prove Grint changes first contact, interrupts an enemy plan, and creates a vulnerable target. |
+| Caldera | Planned | 3 | tank | `tank.initiate_fight` | `engage`, `zone`, `aoe` | Molten Core is an engage that leaves a danger field instead of only soaking. | Wombo Engage | Long-Range Siege | clumps and melee boards | range, reposition, source kill | Prove a committed entry, a persistent area threat, and multi-target punishment. |
+| Bastionne | Planned | 4 | tank | `tank.single_target_lockdown` | `lockdown`, `redirect`, `cc_immunity` | Gate wall traps one threat and spoils the first counter-control attempt. | Control Prison | Cleanse Siege | divers, reset carries, solo capstones | cleanse, long range, AoE | Prove the locked unit loses agency, incoming focus is redirected, and CC immunity is brief and readable. |
+| Malachor | Planned | 5 | tank | `tank.single_target_lockdown` | `lockdown`, `sustain`, `dot` | Debt of Flesh pins a priority enemy while a health-clock runs. | Attrition Engine | Tank Shred Siege | brawlers and assassins that cannot disengage | shred, execute, range | Prove the target is held, Malachor survives through damage, and the DoT creates clock pressure. |
+| Berebell | Current | 1 | brawler | `brawler.attrition_dps` | `sustain`, `reposition`, `burst` | Unstable trades health, moves to keep contact, then spikes. | Attrition Engine | Control Prison | low-pressure frontlines | lockdown, execute, zone | Prove extended melee uptime, a visible movement adjustment, and a burst moment that has risk. |
+| Bonko | Current | 1 | brawler | `brawler.attrition_dps` | `sustain`, `ramp`, `on_hit_effect` | Bonk is the simple uptime brawler whose hits matter more over time. | Attrition Engine | Burst Engage | tanks without shred | burst, lockdown, anti-sustain | Prove repeated-hit value, fight-long scaling, and survival only while Bonko keeps uptime. |
+| Vykos | Current | 2 | brawler | `brawler.attrition_dps` | `damage_reduction`, `reposition` | Blood Feast should win by staying alive and shifting contact, not by stacking every attrition tag. | Attrition Engine | Long-Range Siege | weak melee boards and scattered damage | range, debuff, execute | Prove mitigation plus movement creates uptime without needing extra sustain or ramp tags. |
+| Bo | Current | 1 | brawler | `brawler.skirmish_dive` | `disrupt`, `reposition`, `access_backline` | Writ turns Bo into repeatable soft access rather than a pure frontliner. | Dive Reset | Peel Carry | exposed casters and economy supports | peel, lockdown, zone | Prove backline contact, disruption, and a path out or retarget that keeps Bo from being a one-way assassin. |
+| Mortem | Current | 1 | brawler | `brawler.skirmish_dive` | `access_backline`, `reposition`, `burst` | Target retag: Blood Feast becomes a skirmish dive spike instead of another attrition default. | Dive Reset | Zone Control | fragile backlines without peel | zone, redirect, lockdown | Prove Mortem reaches a soft backline target, bursts during a window, and must reposition to survive. |
+| Morrak | Current | 1 | brawler | `brawler.frontline_disruption` | `disrupt`, `aoe`, `execute` | Target retag: Reaping Line breaks a front instead of only trading. | Wombo Engage | CC Immunity Frontline | low-health clumps and tanks | immunity, range, burst | Prove a formation break, multi-target effect, and threshold punishment after disruption. |
+| Kett | Planned | 3 | brawler | `brawler.frontline_disruption` | `on_hit_effect`, `ramp`, `debuff` | Union Breaker stacks pressure while punching down a protected front. | Attrition Engine | Burst Engage | tanks and slow sustain | burst, lockdown, zone | Prove repeated-hit debuffs, scaling value, and the need for uptime. |
+| Draxelle | Planned | 4 | brawler | `brawler.frontline_disruption` | `engage`, `disrupt`, `ramp` | Colossus Hook starts the brawl, drags formation, then scales if ignored. | Wombo Engage | Zone Control | siege lines and clumps | zone, peel, long range | Prove hook displacement, disrupted enemy shape, and late-fight scaling after casts or takedowns. |
+| Hexeon | Current | 3 | assassin | `assassin.backline_elimination` | `access_backline`, `burst`, `execute` | Prismatic Guillotine is the clean carry-delete check. | Dive Reset | Peel Carry | exposed marksmen and mages | peel, redirect, untargetable | Prove backline target access, a short lethal damage window, and execute logic near threshold. |
+| Nullora | Planned | 5 | assassin | `assassin.backline_elimination` | `access_backline`, `execute`, `untargetable` | Last Word is delayed capstone access with a dodge window after commitment. | Anti-Meta Flex | Control Prison | greedy wide boards and exposed carries | zone, redirect, peel | Prove delayed arrival, execution on the intended carry, and untargetability that ends after the strike. |
+| Egress | Planned | 3 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `untargetable` | Exit Wound needs the first kill, then vanishes and repeats. | Dive Reset | Sustain Peel | wounded teams | deny-first-kill, lockdown, redirect | Prove no reset without a kill, execute evidence on low-health targets, and temporary target drop. |
+| Vesper | Planned | 4 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `untargetable` | Late Fee is a delayed cleanup threat with baitable timing. | Dive Reset | Control Prison | teams that fail health thresholds | sustain, peel, lockdown | Prove the delay is readable, the cleanup triggers only at threshold, and the reset can be denied. |
+| Pilfer | Planned | 1 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `untargetable`, `reposition` | Pocket Swap is early chaos: enter, steal or tax, vanish, then land elsewhere. | Anti-Meta Flex | Zone Control | backline engines and item tempo | zone, lockdown, long range | Prove disruption without guaranteed kill, brief target drop, and a real escape movement. |
+| Quorra | Planned | 3 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `dot`, `untargetable` | Timeplate Lunge applies a clock to a backline unit, then avoids the first retaliation. | Anti-Meta Flex | Sustain Peel | slow casters and support engines | cleanse, sustain, zone | Prove backline application, ticking pressure after contact, and timed untargetability. |
+| Sari | Current | 1 | marksman | `marksman.sustained_dps` | `long_range`, `on_hit_effect`, `ramp` | Strike becomes the baseline protected carry pattern once Sari receives traits. | Bastion Siege | Dive Reset | tanks and low-pressure frontlines | access, engage, lockdown | Prove range uptime, repeated-hit value, and scaling with uninterrupted attacks. |
+| Teller | Current | 2 | marksman | `marksman.sustained_dps` | `long_range`, `aoe`, `burst` | Margin Call converts range into timed splash payout. | Bastion Siege | Dive Reset | clumped fronts and exposed backlines | assassins, engage, zone | Prove ranged uptime, multi-target payoff, and a burst window that can be disrupted. |
+| Gable | Planned | 4 | marksman | `marksman.sustained_dps` | `long_range`, `on_hit_effect`, `ramp` | Market Corner rewards protected high-cost board context. | Bastion Siege | Dive Reset | front-to-back attrition | backline access, lockdown, burst | Prove rotating shot effects, range uptime, and scaling tied to board investment. |
+| Nyxa | Current | 2 | marksman | `marksman.backline_siege` | `long_range`, `zone`, `burst` | Chaos Volley threatens the enemy line and controls a lane. | Long-Range Siege | Engage Dive | slow casters and support engines | engage, access, redirect | Prove shots matter from range, a lane or zone is created, and burst is tied to the volley window. |
+| Marble | Planned | 3 | marksman | `marksman.backline_siege` | `long_range`, `peel`, `debuff` | Sanctuary Bolt is a defensive siege line with ally shielding and target tax. | Long-Range Siege | Formation Breaker | dive attempts and slow tanks | AoE, zone, access | Prove range uptime, allied peel from the bolt path, and an enemy slow or shred. |
+| Omenry | Planned | 4 | marksman | `marksman.backline_siege` | `long_range`, `on_hit_effect`, `reposition` | Condemning Shot punishes isolated targets, then shifts the firing line. | Long-Range Siege | Dive Reset | exposed carries and isolated frontliners | hard engage, lockdown, zone | Prove isolation targeting, shot-based effect, and visible repositioning after pressure. |
+| Rooket | Planned | 2 | marksman | `marksman.tank_shredding` | `damage_reduction`, `debuff`, `cc_immunity` | Brace Shot is the anti-frontline marksman who survives while rooted. | Tank Shred Siege | Pick Burst | tanks and CC openers | backline access, long-range counter-siege | Prove defensive brace, a shred or slow debuff, and short immunity that does not cover all weaknesses. |
+| Ivara | Planned | 3 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `engage` | Open Bid starts the focus plan on the highest-HP enemy from range. | Tank Shred Siege | Dive Reset | tanks and high-health anchors | assassins, redirect, burst | Prove high-HP targeting, shred or bid mark, and fight-start focus steering. |
+| Sable | Planned | 3 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `on_hit_effect` | Footnote Piercer is repeatable ranged shred. | Tank Shred Siege | Dive Reset | mitigation and sustain frontlines | access, lockdown, zone | Prove repeated shred from range and shot-based source attribution. |
+| Luna | Current | 2 | mage | `mage.wombo_combo_burst` | `aoe`, `burst`, `reset_mechanic` | Moon Beam turns clumps into a cast-timing test. | Wombo Engage | Spread Formation | clumped teams | spread, disrupt, immunity | Prove multi-target burst, cast timing dependency, and reset or repeat payoff only after a condition. |
+| Paisley | Current | 2 | mage | `mage.wombo_combo_burst` | `aoe`, `peel`, `amp` | Bubbles sets up ally damage while protecting the setup. | Wombo Engage | Long-Range Siege | melee clumps and dive | range, disrupt, spread | Prove AoE setup, ally protection, and team amplification rather than solo damage only. |
+| Meridian | Planned | 5 | mage | `mage.wombo_combo_burst` | `aoe`, `burst`, `amp` | Full Spectrum Treaty is the wide-board capstone burst. | Wide Trait Engine | Formation Breaker | clumps and stat races | formation break, disrupt, source kill | Prove wide-trait scaling, multi-target burst, and visible team amplification. |
+| Cinder | Planned | 2 | mage | `mage.area_denial_zone` | `zone`, `aoe`, `dot` | Fuse Spark creates a delayed burn area. | Zone Control | Long-Range Siege | melee dive and clumps | range, reposition, source kill | Prove the zone changes pathing, hits multiple units, and keeps clock pressure after application. |
+| Prisma | Planned | 3 | mage | `mage.area_denial_zone` | `zone`, `amp`, `aoe` | Color Theory makes a wide-team zone that also boosts the plan. | Wide Trait Engine | Dive Reset | clumped and trait-greedy boards | backline access, disrupt, spread | Prove the zone scales with team context and gives measurable allied value. |
+| Orielle | Planned | 4 | mage | `mage.area_denial_zone` | `zone`, `disrupt`, `ramp` | Spell Debt grows a denial field as allies spend mana. | Zone Control | Burst Engage | slow setup and clumped casters | burst source kill, immunity, range | Prove stored mana becomes a larger zone, disrupts timing, and can be raced before it peaks. |
+| Cashmere | Current | 1 | mage | `mage.pick_burst` | `burst`, `execute`, `reset_mechanic` | Arcane Ledger punishes a selected debt target. | Anti-Meta Flex | Peel Carry | isolated low-health targets | redirect, peel, immunity | Prove a pick target, burst into threshold, and a reward or repeat only when the pick succeeds. |
+| Volt | Current | 2 | mage | `mage.pick_burst` | `burst`, `lockdown`, `dot` | Arc Lock traps one target long enough for a delayed kill clock. | Control Prison | CC Immunity Frontline | isolated carries and divers | immunity, cleanse, range | Prove a single target is held, burst lands in-window, and post-lock pressure continues briefly. |
+| Noxley | Planned | 3 | mage | `mage.sustained_dps` | `dot`, `sustain`, `ramp` | Red Static spends health to make repeated magic casts matter. | Attrition Engine | Pick Burst | mitigation frontlines and low-pressure boards | burst, lockdown, anti-sustain | Prove repeated magic damage, self-risk sustain, and growing pressure over time. |
+| Axiom | Current | 1 | support | `support.team_amplification` | `amp`, `peel`, `sustain` | Mentor's Reserve is the baseline support engine. | Wide Trait Engine | Backline Access | fragile carry comps | access, disrupt, AoE | Prove a supported ally gets stronger or safer, and Axiom is a visible pressure point. |
+| Quillith | Planned | 5 | support | `support.team_amplification` | `amp`, `reset_mechanic`, `peel` | Final Exam turns one carry into a mana/recast engine that can still be interrupted. | Wide Trait Engine | Control Prison | caster boards and protected carries | lockdown, disrupt, source kill | Prove carry amplification, recast or reset evidence, and ally protection without removing counterplay. |
+| Totem | Current | 2 | support | `support.peel_carry` | `peel`, `cc_immunity`, `amp` | Cleanse is the direct answer to lockdown and dive windows. | Peel Carry | Formation Breaker | assassins, control, execute | AoE, zone, formation break | Prove cleanse or immunity timing, carry protection, and secondary allied value. |
+| Saffron | Planned | 4 | support | `support.peel_carry` | `peel`, `sustain`, `damage_reduction` | Golden Poultice stabilizes one threatened ally, inviting anti-heal and AoE answers. | Peel Carry | Formation Breaker | burst and dive | debuff, AoE, execute | Prove source-attributed healing, shielding or mitigation, and carry survival through a threat window. |
+| Knoll | Planned | 1 | support | `support.enemy_lockdown` | `lockdown`, `debuff`, `disrupt` | Receipt Mark is cheap control that creates a priority target. | Control Prison | Wide AoE | single carries and reroll threats | cleanse, immunity, long range | Prove the mark weakens or interrupts one enemy and that killing the source or cleansing matters. |
+| Velour | Planned | 2 | support | `support.enemy_lockdown` | `lockdown`, `peel`, `sustain` | Silk Knot can pin a threat while stabilizing linked allies. | Control Prison | Formation Breaker | dive and cleanup assassins | AoE, anti-heal, immunity | Prove enemy lockdown plus ally protection in the same combat without becoming blanket control. |
+| Miri | Planned | 2 | support | `support.initiate_fight` | `engage`, `amp`, `peel` | Lesson Plan picks a student and sends the board into a protected opener. | Wombo Engage | Zone Control | slow setup and siege | zone, redirect, lockdown | Prove a visible engage recipient, buffed ally output, and protection during the entry. |
+| Juno Vale | Planned | 3 | support | `support.formation_breaking` | `zone`, `disrupt`, `redirect` | Constellation Math makes placement lines matter and can pull focus off a carry. | Zone Control | Spread Siege | peel balls and clumps | long range, reposition, immunity | Prove a formation-affecting area, disrupted target plan, and altered target choice. |
+| Ravel | Planned | 4 | support | `support.formation_breaking` | `disrupt`, `redirect`, `engage` | Puppet Strings changes who moves, who is exposed, and where focus lands. | Anti-Meta Flex | CC Immunity Spread | clumped supports and static lines | immunity, spread, burst source kill | Prove enemy formation is altered, targeting is redirected, and the engage line has a readable counter. |
+
+## Target Matrix Count Check
+
+Role counts:
+
+| Role | Target count |
+| --- | ---: |
+| Tank | 9 |
+| Brawler | 8 |
+| Assassin | 6 |
+| Marksman | 9 |
+| Mage | 9 |
+| Support | 9 |
+| Total | 50 |
+
+Goal counts:
+
+| Primary goal | Target count |
+| --- | ---: |
+| `tank.frontline_absorb` | 3 |
+| `tank.team_fortification` | 2 |
+| `tank.initiate_fight` | 2 |
+| `tank.single_target_lockdown` | 2 |
+| `brawler.attrition_dps` | 3 |
+| `brawler.skirmish_dive` | 2 |
+| `brawler.frontline_disruption` | 3 |
+| `assassin.backline_elimination` | 2 |
+| `assassin.cleanup_execution` | 2 |
+| `assassin.disrupt_and_escape` | 2 |
+| `marksman.sustained_dps` | 3 |
+| `marksman.backline_siege` | 3 |
+| `marksman.tank_shredding` | 3 |
+| `mage.wombo_combo_burst` | 3 |
+| `mage.area_denial_zone` | 3 |
+| `mage.pick_burst` | 2 |
+| `mage.sustained_dps` | 1 |
+| `support.team_amplification` | 2 |
+| `support.peel_carry` | 2 |
+| `support.enemy_lockdown` | 2 |
+| `support.initiate_fight` | 1 |
+| `support.formation_breaking` | 2 |
+| Total | 50 |
+
+Approach counts:
+
+| Approach | Target count |
+| --- | ---: |
+| `access_backline` | 6 |
+| `amp` | 8 |
+| `aoe` | 8 |
+| `burst` | 9 |
+| `cc_immunity` | 5 |
+| `damage_reduction` | 8 |
+| `debuff` | 8 |
+| `disrupt` | 8 |
+| `dot` | 5 |
+| `engage` | 7 |
+| `execute` | 6 |
+| `lockdown` | 6 |
+| `long_range` | 8 |
+| `on_hit_effect` | 6 |
+| `peel` | 8 |
+| `ramp` | 8 |
+| `redirect` | 5 |
+| `reposition` | 6 |
+| `reset_mechanic` | 5 |
+| `sustain` | 8 |
+| `untargetable` | 5 |
+| `zone` | 6 |
+| Total | 149 |
 
 ## Resulting Roster Shape
 
@@ -261,9 +367,10 @@ Resulting trait coverage priorities:
 
 ## Implementation Notes For A Later Pass
 
+- Treat the target matrix rows above as the unit-identity backlog. The older concept blurbs give visual and fantasy direction, but the matrix owns role, goal, approach, board role, counter-board, and proof intent.
 - Do not add these directly as `.tres` files without first deciding whether cost 4/5 should be exposed by `ShopConfig.VALID_COSTS`, `MAX_LEVEL`, and `ODDS_BY_LEVEL`.
 - Sari is currently traitless. That should be resolved separately before or during the next content pass.
-- Cost 4/5 units need role-goal-approach identities and RGA expectations before they should enter the playable pool.
+- Cost 4/5 units need role-goal-approach identities and counter-board expectations before they should enter the playable pool.
 - Catalyst and Trader already have resource definitions and effect handlers, but their play feel should be tested as soon as the first units are implemented.
 - New units should be implemented in small batches by cost band, with `CostBalanceSmoke`, `UnitStatAudit`, `RoleMatrixProbe`, and a Main-scene shop/playability smoke after each batch.
 - For each implemented unit, run an RGA pass that proves the assigned primary role, primary goal, and every listed approach. Catalog support alone is not enough; live kit telemetry must match the planned identity.
