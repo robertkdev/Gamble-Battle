@@ -19,6 +19,19 @@ The RGA system should make combat feel like a readable experiment:
 - Every strong plan needs at least one visible answer, and every answer needs something that pressures it.
 - The best counters should usually change timing, target access, or board geometry, not only increase or reduce stats.
 
+## Specificity Rule
+
+Keep the top-level RGA layer broad, then make each unit specific.
+
+- Role should stay broad: Tank, Mage, Support, and the other primary roles.
+- Goal should be moderately specific: peel carry, area denial, tank shredding, formation breaking.
+- Approach should stay readable: `burst`, `zone`, `debuff`, `sustain`, `redirect`.
+- Unit kit should be precise: target rule, timing window, counter, and proof hook.
+
+Write specificity as `approach + mode` before adding new approach IDs. Examples: `debuff: anti-heal`, `peel: cleanse`, `zone: delayed trap`, `disrupt: mana tax`, or `burst: delayed isolated target`.
+
+Only promote a mode into a new top-level approach if at least three units need it and it creates a meaningfully different counter relationship.
+
 ## Counter Strength Legend
 
 - Hard: Usually flips the matchup if the counter is present and positioned/timed correctly.

@@ -36,6 +36,20 @@ This module introduces three core concepts for unit design:
 5. Keep unit profiles thin: once an identity resource is attached, avoid duplicating role/goal/approach strings inline.
 6. When adjusting unit metadata, run the `tests/lint/UnitStatLint.tscn` headless scene to confirm no banned combat stat keys slipped back into `data/units/`. For non-playables under `data/other_units/`, apply the same rule; these are not scanned by the shop.
 
+## Specificity Policy
+
+Keep the top-level RGA vocabulary broad and readable. Roles, goals, and approaches should be labels the player can learn quickly; the unit kit should carry the specific mode, target rule, timing window, counter, and proof hook.
+
+Use `approach + mode` when a broad approach needs precision during planning:
+
+- `debuff: anti-heal`
+- `peel: cleanse`
+- `zone: delayed trap`
+- `disrupt: mana tax`
+- `burst: delayed isolated target`
+
+Promote a mode into a new top-level approach only when at least three units need it and it creates a meaningfully different counter relationship. Until then, keep it as unit-level kit language and RGA proof intent rather than expanding the catalog.
+
 ## Current Goal Catalog
 
 - `tank.frontline_absorb` — Soak as much damage as possible to protect the team. Default approaches: damage_reduction, sustain, redirect.
