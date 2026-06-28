@@ -35,11 +35,10 @@ func _run() -> void:
 	_validate_state_json(state_path)
 
 	var screenshot_status: Dictionary = panel.call("capture_screenshot_for_test")
-	if bool(screenshot_status.get("ok", false)):
-		var screenshot_path: String = str(screenshot_status.get("path", ""))
-		_expect(screenshot_path != "" and FileAccess.file_exists(screenshot_path), "screenshot reported ok but file was missing")
-	else:
-		_expect(str(screenshot_status.get("reason", "")) != "", "screenshot skip should explain why")
+	_expect(bool(screenshot_status.get("ok", false)), "screenshot capture should save viewport or software fallback")
+	var screenshot_path: String = str(screenshot_status.get("path", ""))
+	_expect(screenshot_path != "" and FileAccess.file_exists(screenshot_path), "screenshot reported ok but file was missing")
+	_expect(str(screenshot_status.get("kind", "")) != "", "screenshot status should include capture kind")
 
 	panel.call("set_speed_for_test", 4.0)
 	_expect(abs(Engine.time_scale - 4.0) < 0.001, "audit panel speed control did not set 4x")

@@ -1,5 +1,6 @@
 extends Node
 
+const VisionSnapshot := preload("res://scripts/util/vision_snapshot.gd")
 const UNIT_SELECT_SCENE: PackedScene = preload("res://scenes/UnitSelect.tscn")
 const SMOKE_NAME: String = "UnitSelectPreviewVisualSmoke"
 const OUTPUT_DIR: String = "res://outputs/visual_iter/unit_select_preview_pass"
@@ -115,7 +116,7 @@ func _settle_frames(count: int) -> void:
 
 func _save_capture(filename: String) -> void:
 	if _is_framebuffer_unavailable():
-		print("%s: skipped %s because framebuffer capture is unavailable" % [SMOKE_NAME, filename])
+		_save_vision_capture(filename)
 		return
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	var texture: ViewportTexture = get_viewport().get_texture()
@@ -133,6 +134,15 @@ func _save_capture(filename: String) -> void:
 		return
 	_saved_captures += 1
 	print("%s: saved %s" % [SMOKE_NAME, ProjectSettings.globalize_path(path)])
+
+func _save_vision_capture(filename: String) -> void:
+	var root_node: Node = _view if _view != null else self
+	var result: Dictionary[String, Variant] = VisionSnapshot.capture(root_node, filename.get_basename(), OUTPUT_DIR)
+	if not bool(result.get("ok", false)):
+		push_error("%s: vision fallback failed for %s reason=%s" % [SMOKE_NAME, filename, str(result.get("reason", ""))])
+		return
+	_saved_captures += 1
+	print("%s: saved %s via %s" % [SMOKE_NAME, ProjectSettings.globalize_path(str(result.get("path", ""))), str(result.get("kind", ""))])
 
 func _is_framebuffer_unavailable() -> bool:
 	var display_name: String = DisplayServer.get_name().to_lower()

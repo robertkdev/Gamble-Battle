@@ -1,6 +1,7 @@
 extends CanvasLayer
 class_name AuditPanel
 
+const VisionSnapshot := preload("res://scripts/util/vision_snapshot.gd")
 const OUTPUT_DIR: String = "user://audit_exports"
 const HELD_TIMER_SECONDS: float = 9999.0
 
@@ -224,34 +225,45 @@ func _capture_screenshot() -> Dictionary:
 	DirAccess.make_dir_recursive_absolute(OUTPUT_DIR)
 	var result: Dictionary = {"ok": false, "path": "", "reason": ""}
 	if _is_framebuffer_unavailable():
-		result["reason"] = "framebuffer_unavailable_" + DisplayServer.get_name().to_lower()
+		result = _capture_vision_fallback("framebuffer_unavailable_" + DisplayServer.get_name().to_lower())
 		_last_screenshot_status = result
 		return result
 	var viewport: Viewport = get_viewport()
 	if viewport == null:
-		result["reason"] = "viewport_missing"
+		result = _capture_vision_fallback("viewport_missing")
 		_last_screenshot_status = result
 		return result
 	var texture: ViewportTexture = viewport.get_texture()
 	if texture == null or not texture.get_rid().is_valid():
-		result["reason"] = "viewport_texture_unavailable"
+		result = _capture_vision_fallback("viewport_texture_unavailable")
 		_last_screenshot_status = result
 		return result
 	var image: Image = texture.get_image()
 	if image == null or image.is_empty():
-		result["reason"] = "viewport_image_unavailable"
+		result = _capture_vision_fallback("viewport_image_unavailable")
 		_last_screenshot_status = result
 		return result
 	var path: String = "%s/audit_shot_%s.png" % [OUTPUT_DIR, _timestamp()]
 	var error: Error = image.save_png(path)
 	if error != OK:
-		result["reason"] = "save_error_%d" % int(error)
+		result = _capture_vision_fallback("save_error_%d" % int(error))
 		_last_screenshot_status = result
 		return result
 	result["ok"] = true
+	result["kind"] = "viewport"
 	result["path"] = path
 	_last_screenshot_path = path
 	_last_screenshot_status = result
+	return result
+
+func _capture_vision_fallback(reason: String) -> Dictionary:
+	var root_node: Node = main_ref if main_ref != null else self
+	var result: Dictionary = VisionSnapshot.capture(root_node, "audit_panel_" + _phase_name(_phase_value()), OUTPUT_DIR)
+	result["fallback_reason"] = reason
+	if bool(result.get("ok", false)):
+		_last_screenshot_path = str(result.get("path", ""))
+	else:
+		result["reason"] = reason
 	return result
 
 func _collect_state(include_paths: bool) -> Dictionary:
