@@ -132,6 +132,8 @@ Each new unit below is designed around one gap:
 - Create a unit with a specific gameplay contribution, not just a different damage number.
 - Stay compatible with the current Role/Goal/Approach vocabulary.
 
+Counterplay reference: `docs/rga_counter_matrix_2026-06-28.md` defines the planned counter web for goals and approaches. Future unit additions should use that matrix to state what each unit beats, what beats it, and what board/timing decision makes the matchup readable.
+
 ## Planned Additions
 
 ### Cost 1 Additions: 2 Units
