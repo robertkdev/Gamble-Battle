@@ -11,6 +11,7 @@ Status: planning only. No unit resources, trait resources, shop odds, abilities,
 - Current shop cost surface: `scripts/game/shop/shop_config.gd`
 - Current identity summary: `docs/unit_identity_map.md`
 - Current role baseline cost surface: `docs/role_baselines_costs.md`
+- Current RGA docs: `docs/identity_schema.md`, `docs/rga/roles.md`, `docs/rga/role_goal_approach_coverage_2026-06-23.md`, `tests/rga_testing/README.md`
 - Private Google design doc, read through the signed-in browser session
 
 ## Current Roster Snapshot
@@ -186,6 +187,41 @@ Each new unit below is designed around one gap:
 | Quillith | Support | Scholar, Overload, Mentor | Ancient exam proctor with a floating book, quill wings, and mana chains around the wrists. | Final Exam: chooses the highest-damage ally as the Pupil. When the Pupil casts, Quillith grants mana to nearby allies; every third Pupil cast causes a free reduced-power recast. | Capstone mana engine that makes caster boards feel intentionally built. |
 | Nullora | Assassin | Executioner, Exile, Harmony | Silent final-word executioner, all white mask and black script, with one oversized crescent blade. | Last Word: appears beside the enemy carry after a delay. If no allied trait has more than three units, the strike gains execute range and Nullora vanishes after the hit. | Capstone for wide/exact-count boards and the premium assassin identity. |
 
+## Planned RGA Assignments
+
+These are intended identities, not implemented verdicts. A later content pass should create the corresponding `UnitIdentity` resources and then prove each kit with the Role Matrix / RGA validation scenes. The `Proof intent` column states what the future ability implementation must visibly and mechanically produce for the assigned goal and approaches.
+
+| Unit | Cost | Primary role | Primary goal | Approaches | Proof intent |
+| --- | ---: | --- | --- | --- | --- |
+| Knoll | 1 | support | `support.team_amplification` | `amp`, `debuff` | Marked enemies should produce source-attributed team output lift or enemy vulnerability, plus a clear economy reward after combat. |
+| Pilfer | 1 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `disrupt`, `reposition` | Dash should contact backline or far targets, steal/remove a useful buff, then return or move away instead of staying as a brawler. |
+| Miri | 2 | support | `support.team_amplification` | `amp`, `peel`, `sustain` | Student link should grant mana/output, shield the student or self, and create source-attributed ally protection. |
+| Cinder | 2 | mage | `mage.pick_burst` | `burst`, `aoe` | Delayed bombs should create a clear cast-to-peak damage window, with merged casts hitting multiple enemies when positioned well. |
+| Rooket | 2 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `damage_reduction` | Braced shot should fire from range, apply a slow or resistance shred, and prove the self-root defensive tradeoff with mitigation evidence. |
+| Velour | 2 | support | `support.peel_carry` | `peel`, `sustain`, `amp` | Silk Knot should share healing/shields between threatened allies and produce ally-protection spans, not just self-survival. |
+| Caldera | 3 | tank | `tank.frontline_absorb` | `damage_reduction`, `sustain`, `aoe` | Absorb window should prevent or store incoming damage, heal/survive through pressure, then convert pressure into area retaliation. |
+| Ivara | 3 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `burst` | Open Bid should prioritize high-HP/frontline targets, apply a bid-mark or shred, and show meaningful burst conversion on marked targets. |
+| Noxley | 3 | mage | `mage.sustained_dps` | `dot`, `sustain`, `ramp` | Red Static should create repeated magic output over time, health-risk sustain, and stronger later casts or chain growth. |
+| Quorra | 3 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `debuff`, `damage_reduction` | Timeplate Lunge should reach a backline target, tax its attack speed, and give Quorra temporary defensive evidence during escape. |
+| Juno Vale | 3 | support | `support.team_amplification` | `amp`, `peel`, `zone` | Constellation links should generate ally mana/output and make a visible positioning zone or constellation area that rewards linked placement. |
+| Kett | 3 | brawler | `brawler.attrition_dps` | `on_hit_effect`, `ramp`, `sustain` | Repeated punches should produce on-hit or stack evidence, improve over an extended fight, and keep Kett alive through pressure. |
+| Egress | 3 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `reposition` | Low-health kills should trigger execute evidence, a reset/chain opportunity, and an immediate movement reset to the edge. |
+| Marble | 3 | marksman | `marksman.sustained_dps` | `long_range`, `peel`, `debuff` | Sanctuary Bolt should keep ranged uptime while providing source-attributed ally shielding and enemy slow/debuff events. |
+| Prisma | 3 | mage | `mage.wombo_combo_burst` | `burst`, `aoe`, `amp` | Color Theory should produce a team-enabled AoE burst window and scale with wide-trait team context rather than solo damage only. |
+| Sable | 3 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `on_hit_effect` | Footnote Piercer should repeatedly shred defenses from range, with basic or shot-based proc evidence attached to Sable. |
+| Ravel | 4 | support | `support.team_amplification` | `amp`, `peel`, `damage_reduction` | Puppet links should transfer offensive stats, reduce linked ally damage taken, and produce direct ally-output or protection deltas. |
+| Draxelle | 4 | brawler | `brawler.frontline_disruption` | `engage`, `disrupt`, `ramp` | Hook should start fights or pull priority targets, break formation, and gain measurable combat power after casts/takedowns. |
+| Orielle | 4 | mage | `mage.wombo_combo_burst` | `burst`, `aoe`, `ramp` | Stored ally mana should build toward a large synchronized detonation with multi-target damage and clear late-window payoff. |
+| Bastionne | 4 | tank | `tank.team_fortification` | `amp`, `damage_reduction`, `cc_immunity` | Gate wall should fortify nearby allies, prevent or reduce CC, and produce team defensive buff evidence. |
+| Vesper | 4 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `lockdown` | Delayed mark should either stun a surviving target or convert a low-health target into an execute/reset chain. |
+| Gable | 4 | marksman | `marksman.sustained_dps` | `long_range`, `on_hit_effect`, `ramp` | Rotating market shots should maintain range, create shot-specific procs, and become stronger with higher-cost board context. |
+| Saffron | 4 | support | `support.peel_carry` | `peel`, `sustain`, `amp` | Poultice should stabilize the carry with heal/shield evidence, convert overheal to team protection, and optionally amplify item users. |
+| Omenry | 4 | marksman | `marksman.tank_shredding` | `long_range`, `debuff`, `burst` | Condemning Shot should hit from range, shred defenses, and punish isolated or exposed frontliners with burst damage. |
+| Meridian | 5 | mage | `mage.wombo_combo_burst` | `aoe`, `burst`, `amp` | Treaty links should convert wide-board trait diversity into a large multi-target burst and measurable ally/team amplification. |
+| Malachor | 5 | tank | `tank.frontline_absorb` | `damage_reduction`, `sustain`, `zone` | Debt of Flesh should soak focused damage, heal through it, and leave a battlefield shockwave/zone that controls space. |
+| Quillith | 5 | support | `support.team_amplification` | `amp`, `peel`, `reset_mechanic` | Final Exam should amplify a carry, feed team mana, and create source-attributed recast/reset evidence tied to the Pupil. |
+| Nullora | 5 | assassin | `assassin.backline_elimination` | `access_backline`, `burst`, `execute`, `untargetable` | Last Word should reach the enemy carry, deliver a short burst/execute window, and briefly vanish to avoid immediate retaliation. |
+
 ## Resulting Roster Shape
 
 After these additions:
@@ -228,3 +264,4 @@ Resulting trait coverage priorities:
 - Cost 4/5 units need role-goal-approach identities and RGA expectations before they should enter the playable pool.
 - Catalyst and Trader already have resource definitions and effect handlers, but their play feel should be tested as soon as the first units are implemented.
 - New units should be implemented in small batches by cost band, with `CostBalanceSmoke`, `UnitStatAudit`, `RoleMatrixProbe`, and a Main-scene shop/playability smoke after each batch.
+- For each implemented unit, run an RGA pass that proves the assigned primary role, primary goal, and every listed approach. Catalog support alone is not enough; live kit telemetry must match the planned identity.
