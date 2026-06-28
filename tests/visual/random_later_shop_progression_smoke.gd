@@ -7,6 +7,7 @@ const TARGET_STAGE: int = 5
 const MAX_POST_OPENER_BATTLES: int = 5
 const MAX_BUYS_PER_SHOP: int = 2
 const AUDIT_GOLD_TARGET: int = 12
+const RANDOM_SAFE_BUY_XP_GOLD: int = 6
 const RANDOM_FIRST_FIGHT_TIMEOUT: float = 30.0
 const RANDOM_ROUND_TIMEOUT: float = 42.0
 const MAX_RANDOM_DEPLOY_ATTEMPTS: int = 10
@@ -27,19 +28,21 @@ func _run() -> void:
 	if Shop != null and not Shop.is_connected("error", Callable(self, "_on_shop_error")):
 		Shop.error.connect(_on_shop_error)
 
-	if SAMPLE_STARTERS.size() != SAMPLE_SEEDS.size():
+	var sample_starters: Array[String] = _random_sample_starters()
+	var sample_seeds: Array[int] = _random_sample_seeds()
+	if sample_starters.size() != sample_seeds.size():
 		_expect(false, "random later starter/seed sample arrays must match")
 		_finish_random_later_shop_progression()
 		return
 
-	for sample_index: int in range(SAMPLE_SEEDS.size()):
-		var starter_id: String = SAMPLE_STARTERS[sample_index]
-		var seed: int = SAMPLE_SEEDS[sample_index]
+	for sample_index: int in range(sample_seeds.size()):
+		var starter_id: String = sample_starters[sample_index]
+		var seed: int = sample_seeds[sample_index]
 		var sample_result: Dictionary = await _run_seeded_sample(seed, starter_id)
 		_sample_results.append(sample_result)
 		await _cleanup_between_starters()
 		if not bool(sample_result.get("reached_target", false)):
-			_expect(false, "starter %s seed %d did not reach Stage %d: %s" % [starter_id, seed, TARGET_STAGE, JSON.stringify(sample_result)])
+			_expect(false, "starter %s seed %d did not reach Stage %d: %s" % [starter_id, seed, _random_target_stage(), JSON.stringify(sample_result)])
 			break
 		if not _technical_failures().is_empty():
 			break
@@ -68,7 +71,7 @@ func _run_seeded_sample(seed: int, starter_id: String) -> Dictionary:
 
 	var battle_results: Array[Dictionary] = []
 	var post_opener_battles: int = 0
-	while int(GameState.stage_in_chapter) < TARGET_STAGE and post_opener_battles < MAX_POST_OPENER_BATTLES:
+	while int(GameState.stage_in_chapter) < _random_target_stage() and post_opener_battles < _random_max_post_opener_battles():
 		var battle_result: Dictionary = await _play_random_shop_round(starter_id, seed, post_opener_battles + 1)
 		battle_results.append(battle_result)
 		if not bool(battle_result.get("resolved", false)):
@@ -90,10 +93,10 @@ func _play_random_shop_round(starter_id: String, seed: int, round_index: int) ->
 		"offers_before": _offer_summaries(),
 		"board_before": board_before,
 	}
-	_random_audit_gold_added += _add_random_audit_gold_to_at_least(AUDIT_GOLD_TARGET)
+	_random_audit_gold_added += _add_random_audit_gold_to_at_least(_random_audit_gold_target())
 	await _settle_frames(2)
 	var bought_ids: Array[String] = []
-	for buy_index: int in range(MAX_BUYS_PER_SHOP):
+	for buy_index: int in range(_random_max_buys_per_shop()):
 		var bought_id: String = await _buy_best_random_offer(starter_id, seed, round_index, buy_index)
 		if bought_id == "":
 			break
@@ -102,16 +105,30 @@ func _play_random_shop_round(starter_id: String, seed: int, round_index: int) ->
 	result["bought_ids"] = bought_ids
 	result["bench_after_buys"] = _bench_ids()
 	var deployed_count: int = await _deploy_all_random_bench_units()
+	var buy_xp_count: int = await _buy_random_xp_if_bench_blocked(starter_id, seed, round_index)
+	if buy_xp_count > 0:
+		result["buy_xp_count"] = buy_xp_count
+		deployed_count += await _deploy_all_random_bench_units()
 	result["deployed_count"] = deployed_count
 	result["bench_after_deploy"] = _bench_ids()
 	result["board_after_deploy"] = _board_ids()
+	result["cap_after_deploy"] = _roster_max_team_size()
 	_expect(not bought_ids.is_empty(), "random later starter %s seed %d round %d should buy at least one natural offer from %s" % [starter_id, seed, round_index, JSON.stringify(result.get("offers_before", []))])
-	_expect(_board_ids().size() > board_before.size(), "random later starter %s seed %d round %d should increase board size, got %s" % [starter_id, seed, round_index, JSON.stringify(_board_ids())])
-	if bought_ids.is_empty() or _board_ids().size() <= board_before.size():
+	_expect(not _board_ids().is_empty(), "random later starter %s seed %d round %d should have a board before combat" % [starter_id, seed, round_index])
+	if bought_ids.is_empty() or _board_ids().is_empty():
 		return result
 
 	_set_planning_timer_safe()
 	await _press_continue(false, "random later %s seed %d round %d battle" % [starter_id, seed, round_index])
+	var combat_seen: bool = await _wait_for_combat_active(3.0)
+	_expect(combat_seen, "random later starter %s seed %d round %d did not enter combat after Start Battle" % [starter_id, seed, round_index])
+	if not combat_seen:
+		result["resolved"] = false
+		result["fight_result"] = "start_not_entered"
+		result["stage_after"] = int(GameState.stage_in_chapter)
+		result["advanced"] = false
+		result["gold_after"] = int(Economy.gold)
+		return result
 	var resolved: bool = await _wait_for_preview_or_loss(RANDOM_ROUND_TIMEOUT)
 	var fight_result: String = _second_fight_result(resolved)
 	var stage_after: int = int(GameState.stage_in_chapter)
@@ -179,7 +196,7 @@ func _frontline_count(unit_ids: Array[String]) -> int:
 func _deploy_all_random_bench_units() -> int:
 	var deployed_count: int = 0
 	var attempts: int = 0
-	while attempts < MAX_RANDOM_DEPLOY_ATTEMPTS and not _bench_ids().is_empty():
+	while attempts < _random_max_deploy_attempts() and not _bench_ids().is_empty():
 		attempts += 1
 		var before_board_size: int = _board_ids().size()
 		var moved: bool = await _drag_first_bench_unit_to_board()
@@ -190,6 +207,49 @@ func _deploy_all_random_bench_units() -> int:
 		else:
 			break
 	return deployed_count
+
+func _buy_random_xp_if_bench_blocked(starter_id: String, seed: int, round_index: int) -> int:
+	var purchases: int = 0
+	while not _bench_ids().is_empty() and _board_is_at_cap() and int(Economy.gold) >= _random_safe_buy_xp_gold():
+		var button: Button = _button_with_text("Buy XP")
+		_expect(button != null, "random later starter %s seed %d round %d Buy XP button missing" % [starter_id, seed, round_index])
+		if button == null:
+			return purchases
+		_expect(not button.disabled, "random later starter %s seed %d round %d Buy XP disabled with gold=%d cap=%d board=%s bench=%s" % [starter_id, seed, round_index, int(Economy.gold), _roster_max_team_size(), JSON.stringify(_board_ids()), JSON.stringify(_bench_ids())])
+		if button.disabled:
+			return purchases
+		var before_gold: int = int(Economy.gold)
+		var before_level: int = int(Shop.get_level())
+		var clicked: bool = await _click_button(button, "random later %s seed %d round %d Buy XP" % [starter_id, seed, round_index])
+		await _settle_frames(4)
+		_expect(clicked, "random later starter %s seed %d round %d Buy XP click did not fire" % [starter_id, seed, round_index])
+		if not clicked:
+			return purchases
+		purchases += 1
+		_expect(int(Economy.gold) == before_gold - int(SHOP_CONFIG.BUY_XP_COST), "random later starter %s seed %d round %d Buy XP should spend %d gold" % [starter_id, seed, round_index, int(SHOP_CONFIG.BUY_XP_COST)])
+		_expect(int(Shop.get_level()) >= before_level, "random later starter %s seed %d round %d Buy XP should not lower level" % [starter_id, seed, round_index])
+	return purchases
+
+func _board_is_at_cap() -> bool:
+	var cap: int = _roster_max_team_size()
+	if cap < 0:
+		return false
+	return _board_ids().size() >= cap
+
+func _roster_max_team_size() -> int:
+	if Roster == null:
+		return -1
+	return int(Roster.get("max_team_size"))
+
+func _button_with_text(text: String) -> Button:
+	if _main == null:
+		return null
+	var buttons: Array[Node] = _main.find_children("*", "Button", true, false)
+	for node: Node in buttons:
+		var button: Button = node as Button
+		if button != null and String(button.text) == text:
+			return button
+	return null
 
 func _add_random_audit_gold_to_at_least(target_gold: int) -> int:
 	var before_gold: int = int(Economy.gold)
@@ -210,7 +270,7 @@ func _sample_output(seed: int, starter_id: String, battle_results: Array[Diction
 	return {
 		"starter": starter_id,
 		"seed": seed,
-		"reached_target": int(GameState.stage_in_chapter) >= TARGET_STAGE,
+		"reached_target": int(GameState.stage_in_chapter) >= _random_target_stage(),
 		"final_stage": int(GameState.stage_in_chapter),
 		"battle_results": battle_results,
 		"technical_failures": _failures_since(failure_start),
@@ -231,8 +291,8 @@ func _finish_random_later_shop_progression() -> void:
 			RANDOM_LATER_SMOKE_NAME,
 			_sample_results.size(),
 			reached_count,
-			JSON.stringify(SAMPLE_STARTERS),
-			TARGET_STAGE,
+			JSON.stringify(_random_sample_starters()),
+			_random_target_stage(),
 			_random_audit_gold_added,
 		])
 	else:
@@ -242,3 +302,27 @@ func _finish_random_later_shop_progression() -> void:
 		exit_code = 1
 	_cleanup_runtime()
 	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
+
+func _random_sample_starters() -> Array[String]:
+	return SAMPLE_STARTERS.duplicate()
+
+func _random_sample_seeds() -> Array[int]:
+	return SAMPLE_SEEDS.duplicate()
+
+func _random_target_stage() -> int:
+	return TARGET_STAGE
+
+func _random_max_post_opener_battles() -> int:
+	return MAX_POST_OPENER_BATTLES
+
+func _random_max_buys_per_shop() -> int:
+	return MAX_BUYS_PER_SHOP
+
+func _random_audit_gold_target() -> int:
+	return AUDIT_GOLD_TARGET
+
+func _random_safe_buy_xp_gold() -> int:
+	return RANDOM_SAFE_BUY_XP_GOLD
+
+func _random_max_deploy_attempts() -> int:
+	return MAX_RANDOM_DEPLOY_ATTEMPTS

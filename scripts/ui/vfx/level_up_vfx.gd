@@ -29,7 +29,12 @@ func _ready() -> void:
 	_t = 0.0
 	_tween = create_tween()
 	_tween.tween_property(self, "progress", 1.0, max(0.05, duration)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	_tween.finished.connect(func(): queue_free())
+	var self_ref: WeakRef = weakref(self)
+	_tween.finished.connect(func():
+		var vfx: LevelUpVfx = self_ref.get_ref() as LevelUpVfx
+		if vfx != null:
+			vfx.queue_free()
+	)
 
 func set_progress(v: float) -> void:
 	_t = clamp(float(v), 0.0, 1.0)

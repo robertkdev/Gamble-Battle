@@ -148,6 +148,7 @@ func teardown() -> void:
 	_pending_movement_debug_frames = 0
 
 func clear_active_battle_runtime() -> void:
+	StageRuleRunner.clear_runtime()
 	if _trait_runtime != null:
 		_trait_runtime.unwire_signals()
 		_trait_runtime = null

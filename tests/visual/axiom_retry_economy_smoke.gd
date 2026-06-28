@@ -52,7 +52,7 @@ func _run() -> void:
 
 	_expect(get_tree().root.get_node_or_null("LossOverlayLayer") == null, "nonlethal Axiom retry should not show loss overlay")
 	_expect(int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 1, "Axiom retry should stay on Chapter 1 Stage 1")
-	_expect(int(Economy.gold) == 2, "Axiom retry should recover to exactly 2 gold, got %d" % int(Economy.gold))
+	_expect(int(Economy.gold) == 3, "Axiom retry should recover to exactly 3 gold, got %d" % int(Economy.gold))
 	_expect(Shop.state != null and Shop.state.offers.size() == int(SHOP_CONFIG.SLOT_COUNT), "Axiom retry shop did not have full offers")
 	_expect(_first_retry_offer_is_configured_helper(), "Axiom retry shop should start with a configured helper, got %s" % JSON.stringify(_retry_offer_summaries()))
 	_expect(_affordable_shop_card_count() >= 1, "Axiom retry shop should contain at least one affordable helper")
@@ -62,7 +62,7 @@ func _run() -> void:
 	var bought: bool = await _press_affordable_shop_card()
 	_expect(bought, "Axiom retry could not buy an affordable helper")
 	await _settle_frames(4)
-	_expect(int(Economy.gold) == 1, "Axiom retry purchase should preserve 1 health, got %d gold" % int(Economy.gold))
+	_expect(int(Economy.gold) == 2, "Axiom retry purchase should preserve 2 health, got %d gold" % int(Economy.gold))
 	_expect(Roster.compact().size() >= 1, "Axiom retry purchase did not place a unit on bench")
 	_expect(_deploy_prompt_visible(), "Axiom retry purchase did not show deploy guidance")
 	_expect(_first_deploy_bench_highlight_visible(), "Axiom retry helper did not get first-deploy bench highlight")

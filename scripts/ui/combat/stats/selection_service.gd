@@ -42,7 +42,7 @@ func get_selected_index() -> int:
 func attach_to_unit_view(view: Control, team: String, index: int, unit_provider: Callable = Callable()) -> void:
     if view == null:
         return
-    var callback: Callable = Callable(self, "_on_view_gui_input").bind(view, String(team), int(index), unit_provider)
+    var callback: Callable = Callable(self, "_on_view_gui_input").bind(String(team), int(index), unit_provider)
     _connect_gui_input(view, callback)
 
 # Attach selection to a UnitActor (arena). Adds a lightweight hitbox overlay so clicks don't interfere with actors.
@@ -77,7 +77,7 @@ func attach_to_unit_actor(actor: Control, team: String, index: int, unit_provide
         var rect := hit_control as ColorRect
         rect.color = Color(1.0, 0.0, 0.0, 0.25)
         rect.show_behind_parent = false
-    var callback: Callable = Callable(self, "_on_view_gui_input").bind(actor, String(team), int(index), unit_provider)
+    var callback: Callable = Callable(self, "_on_view_gui_input").bind(String(team), int(index), unit_provider)
     _connect_gui_input(hit_control, callback)
 
 # Clicking on this control clears the selection.
@@ -94,22 +94,24 @@ func _connect_gui_input(control: Control, callback: Callable) -> void:
         return
     control.gui_input.connect(callback)
     _input_connections.append({
-        "control": control,
+        "control_ref": weakref(control),
         "callback": callback
     })
 
 func _disconnect_input_connections() -> void:
     for record: Dictionary in _input_connections:
-        var raw_control = record.get("control", null)
-        if raw_control == null or not is_instance_valid(raw_control):
+        var control_ref: WeakRef = record.get("control_ref", null) as WeakRef
+        if control_ref == null:
             continue
-        var control: Control = raw_control as Control
+        var control: Control = control_ref.get_ref() as Control
+        if control == null:
+            continue
         var callback: Callable = record.get("callback", Callable())
-        if control != null and is_instance_valid(control) and callback.is_valid() and control.is_connected("gui_input", callback):
+        if callback.is_valid() and control.is_connected("gui_input", callback):
             control.gui_input.disconnect(callback)
     _input_connections.clear()
 
-func _on_view_gui_input(event: InputEvent, _src: Control, team: String, index: int, unit_provider: Callable) -> void:
+func _on_view_gui_input(event: InputEvent, team: String, index: int, unit_provider: Callable) -> void:
     if not (event is InputEventMouseButton):
         return
     var mb := event as InputEventMouseButton

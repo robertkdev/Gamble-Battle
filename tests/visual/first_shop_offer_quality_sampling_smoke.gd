@@ -9,19 +9,23 @@ const SMOKE_NAME: String = "FirstShopOfferQualitySamplingSmoke"
 const SAMPLE_COUNT: int = 240
 const START_SEED: int = 260626
 const MIN_GOOD_RATES: Dictionary[String, float] = {
+	"axiom": 1.0,
 	"bo": 1.0,
 	"bonko": 1.0,
 	"cashmere": 1.0,
 	"korath": 1.0,
+	"morrak": 1.0,
 	"mortem": 1.0,
 	"repo": 1.0,
 	"sari": 1.0,
 }
 const EXPECTED_BLOCKED_HELPERS_BY_STARTER: Dictionary[String, Array] = {
+	"axiom": ["axiom", "berebell", "bo", "bonko", "brute", "cashmere", "grint", "korath", "morrak", "mortem", "repo"],
 	"bo": ["axiom", "brute", "cashmere"],
 	"bonko": ["axiom"],
 	"cashmere": ["axiom", "korath", "repo"],
 	"korath": ["axiom", "brute"],
+	"morrak": ["brute", "grint", "korath", "repo"],
 	"mortem": ["axiom", "brute"],
 	"repo": ["axiom", "brute", "korath", "mortem"],
 	"sari": ["axiom"],
@@ -192,12 +196,14 @@ func _first_offer_id(offers: Array[ShopOffer]) -> String:
 	return String(offers[0].id)
 
 func _starter_ids() -> Array[String]:
-	var ids: Array[String] = ["bo", "bonko", "cashmere", "korath", "mortem", "repo", "sari"]
+	var ids: Array[String] = ["axiom", "bo", "bonko", "cashmere", "korath", "morrak", "mortem", "repo", "sari"]
 	return ids
 
 func _good_helpers_for(starter_id: String) -> Array[String]:
 	var helpers: Array[String] = []
 	match starter_id:
+		"axiom":
+			helpers.append("sari")
 		"bo":
 			helpers.append("berebell")
 			helpers.append("grint")
@@ -214,6 +220,10 @@ func _good_helpers_for(starter_id: String) -> Array[String]:
 			helpers.append("sari")
 			helpers.append("morrak")
 			helpers.append("berebell")
+		"morrak":
+			helpers.append("berebell")
+			helpers.append("sari")
+			helpers.append("bonko")
 		"mortem":
 			helpers.append("morrak")
 			helpers.append("bonko")

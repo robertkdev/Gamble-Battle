@@ -11,7 +11,7 @@ var sprite: Control
 var default_ring_parent: Control
 var default_flash_parent: Control
 
-var _active_effects: Dictionary = {}
+var _active_effects: Dictionary[String, WeakRef] = {}
 
 func _exit_tree() -> void:
 	dispose()
@@ -24,8 +24,8 @@ func configure(_host: Control, _sprite: Control = null) -> void:
 
 func dispose() -> void:
 	for effect_id in _active_effects.keys():
-		var node: Node = _active_effects.get(effect_id, null) as Node
-		if node != null and is_instance_valid(node):
+		var node: Node = _effect_from_ref(_active_effects.get(effect_id, null))
+		if node != null:
 			if node.is_inside_tree():
 				node.queue_free()
 			else:
@@ -61,13 +61,16 @@ func play(effect_id: String, params: Dictionary = {}) -> void:
 
 	_replace_active(effect_id)
 	add_child(effect)
-	_active_effects[effect_id] = effect
+	var effect_ref: WeakRef = weakref(effect)
+	_active_effects[effect_id] = effect_ref
 	if effect.has_signal("finished"):
 		effect.finished.connect(func():
-			if _active_effects.get(effect_id) == effect:
+			var current: Node = _effect_from_ref(_active_effects.get(effect_id, null))
+			var finished_effect: Node = _effect_from_ref(effect_ref)
+			if current == finished_effect:
 				_active_effects.erase(effect_id)
-			if is_instance_valid(effect) and effect.is_inside_tree():
-				effect.queue_free()
+			if finished_effect != null and finished_effect.is_inside_tree():
+				finished_effect.queue_free()
 		)
 	if effect.has_method("configure"):
 		effect.configure(payload)
@@ -75,16 +78,22 @@ func play(effect_id: String, params: Dictionary = {}) -> void:
 		effect.play()
 
 func cancel(effect_id: String) -> void:
-	var node: Node = _active_effects.get(effect_id, null)
-	if node and is_instance_valid(node):
+	var node: Node = _effect_from_ref(_active_effects.get(effect_id, null))
+	if node != null:
 		node.queue_free()
 	_active_effects.erase(effect_id)
 
 func _replace_active(effect_id: String) -> void:
-	var node: Node = _active_effects.get(effect_id, null)
-	if node and is_instance_valid(node):
+	var node: Node = _effect_from_ref(_active_effects.get(effect_id, null))
+	if node != null:
 		node.queue_free()
 	_active_effects.erase(effect_id)
+
+func _effect_from_ref(ref_value: Variant) -> Node:
+	var ref: WeakRef = ref_value as WeakRef
+	if ref == null:
+		return null
+	return ref.get_ref() as Node
 
 func _instantiate_effect(effect_id: String) -> Node:
 	match effect_id:

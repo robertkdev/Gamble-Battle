@@ -30,7 +30,7 @@ func process(events: Array[AttackEvent]) -> Dictionary:
 	return {"shots": shot_count}
 
 func _process_single(event: AttackEvent) -> int:
-	if state == null or event == null:
+	if state == null or event == null or not state.battle_active:
 		return 0
 	var team: String = event.team
 	var shooter_index: int = event.shooter_index

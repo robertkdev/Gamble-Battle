@@ -34,7 +34,8 @@ func pick_base_target(state: BattleState, team: String, shooter_index: int, defa
     var alive: Array[int] = _alive_indices(state, team)
     if alive.is_empty():
         return default_idx
-    return (rng.randi_range(0, alive.size() - 1) if rng != null else alive[0])
+    var pick_index: int = rng.randi_range(0, alive.size() - 1) if rng != null else 0
+    return int(alive[pick_index])
 
 func extra_targets(state: BattleState, team: String, shooter_index: int) -> Array[int]:
     var out: Array[int] = []
@@ -52,4 +53,3 @@ func extra_targets(state: BattleState, team: String, shooter_index: int) -> Arra
         var pick_idx: int = (rng.randi_range(0, alive.size() - 1) if rng != null else 0)
         out.append(alive[pick_idx])
     return out
-

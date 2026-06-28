@@ -15,8 +15,11 @@ const LOSS_CYCLES: int = 5
 const CLICK_SETTLE_FRAMES: int = 3
 const DRAG_STEPS: int = 8
 const FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT: float = 10.0
+const POST_COMBAT_TIMER_MIN_TIME_LEFT: float = 30.0
 const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
 const USE_SYNTHETIC_INPUT: bool = false
+const CLEANUP_DRAIN_FRAMES: int = 75
+const DUMP_ORPHAN_NODES: bool = false
 
 var _main: Control = null
 var _failures: Array[String] = []
@@ -50,6 +53,7 @@ func _run() -> void:
 	get_tree().root.add_child(_main)
 	await _settle_frames(4)
 	_expect(Items.get_inventory_snapshot().is_empty(), "new run should start with clean item inventory")
+	_assert_stage_one_runway()
 
 	_force_actual_loss_opening()
 	for cycle_index: int in range(1, LOSS_CYCLES + 1):
@@ -82,7 +86,7 @@ func _finish() -> void:
 			push_error("ActualRunLoopSmoke: " + failure)
 		exit_code = 1
 	_cleanup_runtime()
-	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, 10), CONNECT_ONE_SHOT)
+	get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, CLEANUP_DRAIN_FRAMES), CONNECT_ONE_SHOT)
 
 func _force_actual_loss_opening() -> void:
 	if _actual_opening_entry_forced:
@@ -102,12 +106,46 @@ func _restore_actual_opening_entry() -> void:
 	RunLoopRosterCatalog._entries[1][1] = _actual_saved_opening_entry.duplicate(true)
 	_actual_opening_entry_forced = false
 
+func _assert_stage_one_runway() -> void:
+	var elite_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 4)
+	var elite_rules: Dictionary = elite_spec.get(RunLoopStageTypes.KEY_RULES, {})
+	_expect(String(elite_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_ELITE, "chapter 1 round 4 should remain an elite runway check")
+	_expect(not elite_rules.has("items"), "chapter 1 round 4 should not carry items before the first boss")
+	var pressure_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 5)
+	_expect(_max_authored_level(pressure_spec) <= 1, "chapter 1 round 5 should stay level 1 so natural first-stage teams can stabilize")
+	var boss_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 6)
+	_expect(String(boss_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_BOSS, "chapter 1 round 6 should remain the boss")
+	_expect(_max_authored_level(boss_spec) <= 2, "chapter 1 first boss should not exceed level 2 during the runway")
+
+func _max_authored_level(spec: Dictionary) -> int:
+	var max_level: int = 1
+	var ids_value: Variant = spec.get(RunLoopStageTypes.KEY_IDS, [])
+	var rules_value: Variant = spec.get(RunLoopStageTypes.KEY_RULES, {})
+	var levels: Dictionary = {}
+	if rules_value is Dictionary:
+		levels = (rules_value as Dictionary).get("levels", {})
+	if not (ids_value is Array):
+		return max_level
+	var index: int = 0
+	for id_value: Variant in ids_value:
+		var unit_id: String = String(id_value)
+		if levels.has(index):
+			max_level = max(max_level, int(levels[index]))
+		if levels.has(unit_id):
+			max_level = max(max_level, int(levels[unit_id]))
+		index += 1
+	return max_level
+
 func _quit_after_cleanup(exit_code: int, frames_left: int) -> void:
 	_flush_synthetic_input()
 	if frames_left > 0:
 		get_tree().process_frame.connect(_quit_after_cleanup.bind(exit_code, frames_left - 1), CONNECT_ONE_SHOT)
 		return
-	get_tree().quit(exit_code)
+	if DUMP_ORPHAN_NODES:
+		print("ActualRunLoopSmoke: orphan dump begin")
+		Node.print_orphan_nodes()
+		print("ActualRunLoopSmoke: orphan dump end")
+	get_tree().call_deferred("quit", exit_code)
 
 func _cleanup_runtime() -> void:
 	var combat_view: Node = _main.get_node_or_null("CombatView") if _main != null and is_instance_valid(_main) else null
@@ -197,11 +235,18 @@ func _play_shop_cycle(unit_id: String) -> void:
 	_expect(_deploy_prompt_visible(), "shop buy did not show deploy guidance")
 	_expect(_first_deploy_bench_highlight_visible(), "first deploy assist did not highlight the bought bench unit")
 	_expect(_planning_time_left() >= FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT, "first deploy assist did not extend short planning timer; %s" % _deploy_assist_state())
+	_set_planning_time_left(0.05)
+	await _settle_frames(12)
+	_expect(GameState.phase == GameState.GamePhase.PREVIEW, "first deploy assist should hold planning before deployment; %s" % _deploy_assist_state())
+	_expect(_planning_time_left() > 0.0, "first deploy assist should keep timer above auto-start while bench unit is waiting; %s" % _deploy_assist_state())
 	var moved_to_board: bool = await _drag_first_bench_unit_to_board()
 	_expect(moved_to_board, "bought bench unit did not move to board through mouse drag")
 	await _settle_frames(4)
+	_expect(_planning_time_left() >= FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT, "first deploy should restore planning time after deployment; %s" % _deploy_assist_state())
 	_expect(not _first_deploy_bench_highlight_visible(), "first deploy assist bench highlight did not clear after deployment")
 	await _press_continue(false, "shop cycle second fight")
+	var combat_shop_click_ignored: bool = await _assert_combat_shop_click_ignored()
+	_expect(combat_shop_click_ignored, "combat shop click was not ignored without charging or mutating offers")
 	var outcome_seen: bool = await _wait_for_preview_or_loss(35.0)
 	_expect(outcome_seen, "shop cycle second fight did not resolve")
 	if get_tree().root.get_node_or_null("LossOverlayLayer") != null:
@@ -209,6 +254,8 @@ func _play_shop_cycle(unit_id: String) -> void:
 		await _settle_frames(8)
 		_expect(_node_visible("UnitSelect"), "shop cycle post-loss New Game did not return to unit select")
 		_expect(_unit_select_reset(), "shop cycle post-loss New Game did not clear unit select")
+	elif GameState.phase == GameState.GamePhase.PREVIEW:
+		_expect(_planning_time_left() >= POST_COMBAT_TIMER_MIN_TIME_LEFT, "post-combat planning timer did not reset after fight resolution")
 
 func _ensure_unit_select() -> void:
 	if _node_visible("TitleMenu"):
@@ -316,6 +363,14 @@ func _wait_for_preview_or_loss(timeout_seconds: float) -> bool:
 			return true
 	return false
 
+func _wait_for_combat_active(timeout_seconds: float) -> bool:
+	var deadline: int = Time.get_ticks_msec() + int(timeout_seconds * 1000.0)
+	while Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+		if GameState.phase == GameState.GamePhase.COMBAT or Economy.combat_active:
+			return true
+	return false
+
 func _press_loss_new_game() -> void:
 	var button: Button = get_tree().root.find_child("NewGameButton", true, false) as Button
 	if button == null:
@@ -334,6 +389,60 @@ func _press_affordable_shop_card() -> bool:
 			continue
 		return await _click_button(card, "affordable shop card")
 	return false
+
+func _assert_combat_shop_click_ignored() -> bool:
+	var combat_seen: bool = await _wait_for_combat_active(3.0)
+	_expect(combat_seen, "combat shop lock regression did not enter combat")
+	if not combat_seen:
+		return false
+	await _settle_frames(4)
+	var card: ShopCard = _first_non_empty_shop_card()
+	_expect(card != null, "combat shop lock regression could not find a shop card")
+	if card == null:
+		return false
+	var gold_before: int = int(Economy.gold)
+	var combat_spent_before: int = int(Economy.combat_spent)
+	var bench_before: int = Roster.compact().size()
+	var offers_before: Array[String] = _shop_offer_ids()
+	var disabled_before: bool = bool(card.disabled)
+	card.emit_signal("clicked", int(card.slot_index))
+	await _settle_frames(4)
+	var offers_after: Array[String] = _shop_offer_ids()
+	var locked_without_mutation: bool = disabled_before
+	locked_without_mutation = locked_without_mutation and int(Economy.gold) == gold_before
+	locked_without_mutation = locked_without_mutation and int(Economy.combat_spent) == combat_spent_before
+	locked_without_mutation = locked_without_mutation and Roster.compact().size() == bench_before
+	locked_without_mutation = locked_without_mutation and _string_arrays_equal(offers_before, offers_after)
+	return locked_without_mutation
+
+func _first_non_empty_shop_card() -> ShopCard:
+	var grid: GridContainer = _main.find_child("ShopGrid", true, false) as GridContainer
+	if grid == null:
+		return null
+	for child: Node in grid.get_children():
+		var card: ShopCard = child as ShopCard
+		if card != null and String(card.offer_id).strip_edges() != "":
+			return card
+	return null
+
+func _shop_offer_ids() -> Array[String]:
+	var ids: Array[String] = []
+	if Shop.state == null or Shop.state.offers == null:
+		return ids
+	for offer_value: Variant in Shop.state.offers:
+		var offer_id: String = ""
+		if offer_value != null:
+			offer_id = String(offer_value.id)
+		ids.append(offer_id)
+	return ids
+
+func _string_arrays_equal(left: Array[String], right: Array[String]) -> bool:
+	if left.size() != right.size():
+		return false
+	for index: int in range(left.size()):
+		if left[index] != right[index]:
+			return false
+	return true
 
 func _reposition_first_board_unit(label: String) -> bool:
 	var combat: Control = _main.get_node_or_null("CombatView") as Control

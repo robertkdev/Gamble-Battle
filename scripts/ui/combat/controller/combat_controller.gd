@@ -36,7 +36,23 @@ const RESOLVING_PROGRESS_DELAY_SECONDS: float = 3.0
 const RESOLVING_STUCK_WARNING_SECONDS: int = 10
 const RESOLVING_FALLBACK_TEXT: String = "Resolving fallback..."
 const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
-const OPENING_RETRY_MIN_GOLD: int = 2
+const OPENING_RETRY_MIN_GOLD: int = 3
+const FIRST_ELITE_PREP_CHAPTER: int = 1
+const FIRST_ELITE_PREP_ROUND: int = 4
+const FIRST_ELITE_PREP_MIN_GOLD: int = 6
+const CHAPTER_TWO_STABILITY_CHAPTER: int = 2
+const CHAPTER_TWO_STABILITY_FIRST_ROUND: int = 2
+const CHAPTER_TWO_STABILITY_LAST_ROUND: int = 5
+const CHAPTER_TWO_STABILITY_MIN_GOLD: int = 4
+const CHAPTER_THREE_STABILITY_CHAPTER: int = 3
+const CHAPTER_THREE_STABILITY_FIRST_ROUND: int = 2
+const CHAPTER_THREE_STABILITY_LAST_ROUND: int = 5
+const CHAPTER_THREE_STABILITY_MIN_GOLD: int = 4
+const BOSS_PREP_MIN_CHAPTER: int = 3
+const BOSS_PREP_ROUND: int = 6
+const BOSS_PREP_MIN_GOLD: int = 4
+const EARLY_RETRY_RECOVERY_MAX_CHAPTER: int = 2
+const EARLY_RETRY_RECOVERY_MIN_GOLD: int = 4
 
 # Parent scene (CombatView)
 var parent: Control
@@ -118,7 +134,7 @@ var _combat_resolving_elapsed: float = 0.0
 var _combat_resolving_last_second: int = -1
 var _combat_resolving_watchdog_seen: bool = false
 
-const FIRST_DEPLOY_TIMER_EXTENSION: float = 20.0
+const FIRST_DEPLOY_TIMER_EXTENSION: float = 60.0
 
 func _attach_clear_to_grid_tiles(grid: GridContainer) -> void:
 	if selection == null or grid == null:
@@ -806,7 +822,7 @@ func _on_continue_pressed() -> void:
 			player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		# Precompute arena positions from current planning layout so engine starts at chosen tiles
 		if grid_placement and arena_bridge and manager:
-			var ts := float(UI.TILE_SIZE)
+			var ts: float = float(UI.TILE_SIZE)
 			var ppos: Array[Vector2] = []
 			var epos: Array[Vector2] = []
 			for pv in player_views:
@@ -836,8 +852,8 @@ func _on_continue_pressed() -> void:
 						min_y = min(min_y, p.y)
 						max_y = max(max_y, p.y)
 					var margin: float = ts
-					var pos_b := Vector2(min_x - margin, min_y - margin)
-					var size_b := Vector2(max(1.0, (max_x - min_x) + margin * 2.0), max(1.0, (max_y - min_y) + margin * 2.0))
+					var pos_b: Vector2 = Vector2(min_x - margin, min_y - margin)
+					var size_b: Vector2 = Vector2(max(1.0, (max_x - min_x) + margin * 2.0), max(1.0, (max_y - min_y) + margin * 2.0))
 					bounds = Rect2(pos_b, size_b)
 			# When bounds are valid, keep as-is
 			if manager.has_method("cache_arena_config"):
@@ -874,7 +890,7 @@ func _on_bench_changed() -> void:
 	# Auto-try combines when bench changes during planning. This makes triples consistent
 	# whether they are formed by buying or by moving units between bench/board.
 	var in_planning: bool = true
-	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+	if Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState")):
 		in_planning = (int(GameState.phase) != int(GameState.GamePhase.COMBAT))
 	if in_planning and Engine.has_singleton("Shop") and Shop.has_method("try_combine_now"):
 		var promos: Array = Shop.try_combine_now()
@@ -897,7 +913,28 @@ func _update_first_deploy_assist() -> void:
 		player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
 	_clear_first_deploy_bench_highlight()
 	_first_deploy_bench_slot = -1
+	if parent != null:
+		var current_time: float = float(parent.get("planning_time_left"))
+		if current_time < FIRST_DEPLOY_TIMER_EXTENSION:
+			parent.set("planning_time_left", FIRST_DEPLOY_TIMER_EXTENSION)
 	_on_log_line("Unit deployed. Start Battle when ready.")
+
+func should_hold_auto_start_for_first_deploy() -> bool:
+	if not _first_deploy_assist_active:
+		return false
+	if manager == null:
+		return false
+	if _first_deploy_bench_slot < 0:
+		return false
+	if manager.player_team.size() > _first_deploy_team_size:
+		return false
+	if Engine.has_singleton("Roster"):
+		var bench_slots: Array = Roster.bench_slots
+		if _first_deploy_bench_slot >= bench_slots.size():
+			return false
+		if bench_slots[_first_deploy_bench_slot] == null:
+			return false
+	return true
 
 func _on_promotions_emitted(promotions: Array) -> void:
 	if promotions == null or promotions.size() == 0:
@@ -1207,7 +1244,7 @@ func _update_stage_label() -> void:
 	var ch: int = 1
 	var sic: int = 1
 	var total: int = 0
-	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+	if Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState")):
 		var gs = GameState if Engine.has_singleton("GameState") else parent.get_node("/root/GameState")
 		if gs:
 			ch = int(gs.chapter)
@@ -1324,7 +1361,12 @@ func _on_intermission_finished() -> void:
 			if _post_combat_outcome != "":
 				var win: bool = (_post_combat_outcome == "victory")
 				Economy.resolve(win)
+				_apply_first_elite_prep_gold_floor(win)
+				_apply_chapter_two_stability_gold_floor(win)
+				_apply_chapter_three_stability_gold_floor(win)
+				_apply_boss_prep_gold_floor(win)
 				_apply_opening_retry_recovery(win)
+				_apply_early_run_retry_recovery(win)
 			if economy_ui:
 				economy_ui.refresh()
 				economy_ui.set_bet_editable(true)
@@ -1340,6 +1382,8 @@ func _on_intermission_finished() -> void:
 	# Return to planning phase after post-combat housekeeping
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.PREVIEW)
+	if parent and parent.has_method("reset_planning_timer"):
+		parent.call("reset_planning_timer")
 	if _post_combat_outcome == "defeat" and (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")) and Economy.is_broke():
 		# Show loss screen instead of flipping the continue button to Restart
 		var loss_scene: PackedScene = load("res://scenes/ui/LossScreen.tscn") as PackedScene
@@ -1387,6 +1431,76 @@ func _on_intermission_finished() -> void:
 	_pending_continue = false
 	_post_combat_outcome = ""
 
+func _apply_first_elite_prep_gold_floor(win: bool) -> void:
+	if not win:
+		return
+	if not (Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy"))):
+		return
+	if not (Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))):
+		return
+	if int(GameState.chapter) != FIRST_ELITE_PREP_CHAPTER:
+		return
+	if int(GameState.stage_in_chapter) != FIRST_ELITE_PREP_ROUND:
+		return
+	var missing_gold: int = max(0, FIRST_ELITE_PREP_MIN_GOLD - int(Economy.gold))
+	if missing_gold <= 0:
+		return
+	Economy.add_gold(missing_gold)
+	_on_log_line("First elite prep stipend: +%d gold." % missing_gold)
+
+func _apply_chapter_two_stability_gold_floor(win: bool) -> void:
+	if not win:
+		return
+	if not (Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy"))):
+		return
+	if not (Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))):
+		return
+	if int(GameState.chapter) != CHAPTER_TWO_STABILITY_CHAPTER:
+		return
+	var round: int = int(GameState.stage_in_chapter)
+	if round < CHAPTER_TWO_STABILITY_FIRST_ROUND or round > CHAPTER_TWO_STABILITY_LAST_ROUND:
+		return
+	var missing_gold: int = max(0, CHAPTER_TWO_STABILITY_MIN_GOLD - int(Economy.gold))
+	if missing_gold <= 0:
+		return
+	Economy.add_gold(missing_gold)
+	_on_log_line("Chapter 2 stability stipend: +%d gold." % missing_gold)
+
+func _apply_chapter_three_stability_gold_floor(win: bool) -> void:
+	if not win:
+		return
+	if not (Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy"))):
+		return
+	if not (Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))):
+		return
+	if int(GameState.chapter) != CHAPTER_THREE_STABILITY_CHAPTER:
+		return
+	var round: int = int(GameState.stage_in_chapter)
+	if round < CHAPTER_THREE_STABILITY_FIRST_ROUND or round > CHAPTER_THREE_STABILITY_LAST_ROUND:
+		return
+	var missing_gold: int = max(0, CHAPTER_THREE_STABILITY_MIN_GOLD - int(Economy.gold))
+	if missing_gold <= 0:
+		return
+	Economy.add_gold(missing_gold)
+	_on_log_line("Chapter 3 stability stipend: +%d gold." % missing_gold)
+
+func _apply_boss_prep_gold_floor(win: bool) -> void:
+	if not win:
+		return
+	if not (Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy"))):
+		return
+	if not (Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))):
+		return
+	if int(GameState.chapter) < BOSS_PREP_MIN_CHAPTER:
+		return
+	if int(GameState.stage_in_chapter) != BOSS_PREP_ROUND:
+		return
+	var missing_gold: int = max(0, BOSS_PREP_MIN_GOLD - int(Economy.gold))
+	if missing_gold <= 0:
+		return
+	Economy.add_gold(missing_gold)
+	_on_log_line("Boss prep stipend: +%d gold." % missing_gold)
+
 func _apply_opening_retry_recovery(win: bool) -> void:
 	if win:
 		return
@@ -1398,11 +1512,33 @@ func _apply_opening_retry_recovery(win: bool) -> void:
 		return
 	if int(GameState.chapter) != 1 or int(GameState.stage_in_chapter) != 1:
 		return
+	if Engine.has_singleton("Shop") or (parent != null and parent.has_node("/root/Shop")):
+		if Shop.has_method("mark_opening_retry_shop"):
+			Shop.call("mark_opening_retry_shop")
 	var missing_gold: int = max(0, OPENING_RETRY_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
 	_on_log_line("Opening retry recovery: +%d gold." % missing_gold)
+
+func _apply_early_run_retry_recovery(win: bool) -> void:
+	if win:
+		return
+	if not (Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))):
+		return
+	if not (Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy"))):
+		return
+	if Economy.is_broke():
+		return
+	if int(GameState.chapter) > EARLY_RETRY_RECOVERY_MAX_CHAPTER:
+		return
+	if int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 1:
+		return
+	var missing_gold: int = max(0, EARLY_RETRY_RECOVERY_MIN_GOLD - int(Economy.gold))
+	if missing_gold <= 0:
+		return
+	Economy.add_gold(missing_gold)
+	_on_log_line("Early retry recovery: +%d gold." % missing_gold)
 
 func _start_auto_loop() -> void:
 	if not auto_combat:

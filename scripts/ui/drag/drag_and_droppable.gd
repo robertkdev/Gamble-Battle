@@ -42,10 +42,20 @@ func enable_drag(grid: BoardGrid) -> void:
 func set_drop_targets(grids: Array) -> void:
 	# Preferred multi-target API (KISS): store ordered list; first has precedence
 	_grids.clear()
-	for g in grids:
-		if g != null:
-			_grids.append(g)
-	_grid = (_grids[0] if _grids.size() > 0 else null)
+	for raw_grid: Variant in grids:
+		var grid: BoardGrid = raw_grid as BoardGrid
+		if grid != null:
+			_grids.append(grid)
+	_grid = null
+	_orig_tile_idx = -1
+	for grid: BoardGrid in _grids:
+		var origin_index: int = grid.index_of(self)
+		if origin_index != -1:
+			_grid = grid
+			_orig_tile_idx = origin_index
+			break
+	if _grid == null and _grids.size() > 0:
+		_grid = _grids[0]
 
 func can_drag_now() -> bool:
 	# Prefer global GameState if available for phase checks

@@ -12,6 +12,7 @@ var fade_duration: float = 0.22
 var hold_duration: float = 0.06
 
 var _overlay: TextureRect = null
+var _overlay_ref: WeakRef = null
 var _completed: bool = false
 
 func configure(payload: Dictionary) -> void:
@@ -33,7 +34,7 @@ func configure(payload: Dictionary) -> void:
 		hold_duration = max(0.0, float(maybe_hold))
 
 func play() -> void:
-	if host == null or sprite == null or not is_instance_valid(host) or not is_instance_valid(sprite):
+	if host == null or sprite == null:
 
 		_emit_finished()
 		return
@@ -42,7 +43,8 @@ func play() -> void:
 		_emit_finished()
 		return
 	_spawn_overlay()
-	if _overlay == null or not is_instance_valid(_overlay):
+	var overlay: TextureRect = _current_overlay()
+	if overlay == null:
 
 		_emit_finished()
 		return
@@ -50,9 +52,9 @@ func play() -> void:
 	mat.shader = FLASH_SHADER
 	mat.set_shader_parameter("flash_color", flash_color)
 	mat.set_shader_parameter("amount", 1.0)
-	_overlay.material = mat
+	overlay.material = mat
 	# One-time debug: report overlay rect to help diagnose visibility
-	var _r := _overlay.get_global_rect()
+	var _r := overlay.get_global_rect()
 
 	# Animate amount -> 0 using a setter to guarantee uniform updates
 	var tween_host: Node = self
@@ -63,8 +65,12 @@ func play() -> void:
 	if hold_duration > 0.0:
 		t.tween_interval(hold_duration)
 	# Drive via method to avoid any property-path quirks
+	var overlay_ref: WeakRef = _overlay_ref
 	t.tween_method(func(v):
-		if is_instance_valid(_overlay) and _overlay.material == mat:
+		var current_overlay: TextureRect = null
+		if overlay_ref != null:
+			current_overlay = overlay_ref.get_ref() as TextureRect
+		if current_overlay != null and current_overlay.material == mat:
 			mat.set_shader_parameter("amount", float(v))
 	, 1.0, 0.0, fade_duration)
 	t.finished.connect(_emit_finished)
@@ -82,6 +88,7 @@ func _spawn_overlay() -> void:
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_overlay.z_index = max(sprite.z_index, 0) + 1
 	parent.add_child(_overlay)
+	_overlay_ref = weakref(_overlay)
 	# Align overlay to host rect
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.offset_left = 0
@@ -93,12 +100,23 @@ func _emit_finished() -> void:
 	if _completed:
 		return
 	_completed = true
-	if _overlay and is_instance_valid(_overlay):
-		_overlay.queue_free()
+	var overlay: TextureRect = _current_overlay()
+	if overlay != null:
+		overlay.queue_free()
+	_overlay = null
+	_overlay_ref = null
 	emit_signal("finished")
 
 func _notification(what: int) -> void:
 	if (what == NOTIFICATION_PREDELETE or what == NOTIFICATION_EXIT_TREE) and not _completed:
-		if _overlay and is_instance_valid(_overlay):
-			_overlay.queue_free()
+		var overlay: TextureRect = _current_overlay()
+		if overlay != null:
+			overlay.queue_free()
+		_overlay = null
+		_overlay_ref = null
 		_completed = true
+
+func _current_overlay() -> TextureRect:
+	if _overlay_ref == null:
+		return null
+	return _overlay_ref.get_ref() as TextureRect

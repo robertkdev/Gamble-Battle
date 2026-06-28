@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/visual/natural_single_campaign_main_flow_smoke.gd" id="1"]
+
+[node name="NaturalAxiomAltSeedCampaignMainFlowSmoke" type="Node"]
+script = ExtResource("1")
+campaign_smoke_name = "NaturalAxiomAltSeedCampaignMainFlowSmoke"
+campaign_starter_id = "axiom"
+campaign_shop_seed = 6101
+campaign_round_timeout = 120.0
+campaign_verbose_round_logs = false

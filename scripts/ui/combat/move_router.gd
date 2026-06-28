@@ -12,6 +12,7 @@ var grid_placement
 var bench_placement
 
 var refresh_cb: Callable = Callable()
+var last_route_status: Dictionary = {}
 
 func configure(_manager, _roster, _board_grid, _bench_grid, _grid_placement, _bench_placement) -> void:
 	manager = _manager
@@ -24,6 +25,12 @@ func configure(_manager, _roster, _board_grid, _bench_grid, _grid_placement, _be
 func set_refresh_callback(cb: Callable) -> void:
 	refresh_cb = cb
 
+func route_bench_to_board(uv: UnitView, tile_idx: int) -> bool:
+	return _bench_to_board(uv, tile_idx)
+
+func route_board_to_bench(uv: UnitView, tile_idx: int) -> bool:
+	return _board_to_bench(uv, tile_idx)
+
 func teardown() -> void:
 	manager = null
 	roster = null
@@ -32,6 +39,13 @@ func teardown() -> void:
 	grid_placement = null
 	bench_placement = null
 	refresh_cb = Callable()
+	last_route_status.clear()
+
+func _set_route_status(ok: bool, code: String, details: Dictionary = {}) -> bool:
+	last_route_status = details.duplicate(true)
+	last_route_status["ok"] = ok
+	last_route_status["code"] = code
+	return ok
 
 func connect_unit_view(uv: UnitView) -> void:
 	if uv and not uv.is_connected("dropped_on_target", Callable(self, "_on_unit_dropped")):
@@ -66,20 +80,20 @@ func _on_unit_dropped(target_grid, tile_idx: int, uv: UnitView) -> void:
 	# Unknown route: snap back via helper
 	_snap_back(uv)
 
-func _bench_to_board(uv: UnitView, tile_idx: int) -> void:
+func _bench_to_board(uv: UnitView, tile_idx: int) -> bool:
 	if manager == null or board_grid == null or bench_grid == null or grid_placement == null or bench_placement == null:
-		return
+		return _set_route_status(false, "missing_refs")
 	if board_grid.is_occupied(tile_idx):
 		if Debug.enabled:
 			print("[MoveRouter] Bench→Board failed: tile occupied", tile_idx)
 		_snap_back(uv)
-		return
+		return _set_route_status(false, "board_tile_occupied", {"tile": tile_idx})
 
 	# Explicitly type and cast the unit
 	var u: Unit = (uv.unit as Unit)
 	if u == null:
 		_snap_back(uv)
-		return
+		return _set_route_status(false, "missing_unit")
 	if uv.has_method("set_bench_mode"):
 		uv.set_bench_mode(false)
 
@@ -89,7 +103,7 @@ func _bench_to_board(uv: UnitView, tile_idx: int) -> void:
 		if Debug.enabled:
 			print("[MoveRouter] Bench→Board failed: max team size reached", cap)
 		_snap_back(uv)
-		return
+		return _set_route_status(false, "team_cap_reached", {"cap": cap, "team_size": manager.player_team.size()})
 
 	# Remove from bench
 	if roster and roster.has_method("remove"):
@@ -121,15 +135,16 @@ func _bench_to_board(uv: UnitView, tile_idx: int) -> void:
 			uv.cleanup_drag_artifacts()
 		if uv.is_inside_tree():
 			uv.queue_free()
+	return _set_route_status(true, "bench_to_board", {"tile": tile_idx, "team_size": manager.player_team.size()})
 
-func _board_to_bench(uv: UnitView, tile_idx: int) -> void:
+func _board_to_bench(uv: UnitView, tile_idx: int) -> bool:
 	if manager == null or board_grid == null or bench_grid == null or grid_placement == null or bench_placement == null or roster == null:
-		return
+		return _set_route_status(false, "missing_refs")
 
 	var u: Unit = (uv.unit as Unit)
 	if u == null:
 		_snap_back(uv)
-		return
+		return _set_route_status(false, "missing_unit")
 	if uv.has_method("set_bench_mode"):
 		uv.set_bench_mode(true)
 
@@ -142,17 +157,17 @@ func _board_to_bench(uv: UnitView, tile_idx: int) -> void:
 		if Debug.enabled:
 			print("[MoveRouter] Board→Bench failed: bench full or no valid slot")
 		_snap_back(uv)
-		return
+		return _set_route_status(false, "bench_full", {"tile": tile_idx})
 
 	# Remove from board team by identity
-	var rem_idx := -1
+	var rem_idx: int = -1
 	for i in range(manager.player_team.size()):
 		if manager.player_team[i] == u:
 			rem_idx = i
 			break
 	if rem_idx == -1:
 		_snap_back(uv)
-		return
+		return _set_route_status(false, "unit_not_on_board", {"tile": tile_idx, "bench_slot": slot})
 
 	manager.player_team.remove_at(rem_idx)
 	roster.set_slot(slot, u)
@@ -170,6 +185,7 @@ func _board_to_bench(uv: UnitView, tile_idx: int) -> void:
 			uv.cleanup_drag_artifacts()
 		if uv.is_inside_tree():
 			uv.queue_free()
+	return _set_route_status(true, "board_to_bench", {"tile": tile_idx, "bench_slot": slot, "team_size": manager.player_team.size()})
 
 func _bench_to_bench(uv: UnitView, tile_idx: int) -> void:
 	if bench_grid == null or roster == null:

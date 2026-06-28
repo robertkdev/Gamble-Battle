@@ -9,22 +9,25 @@ const SLOT_COUNT := 5                              # Number of offers shown per 
 const ALLOW_DUPLICATES := true                    # PVE: duplicates allowed in a single shop
 const REPLACE_PURCHASE_WITH_EMPTY := true         # Purchased slots become SOLD/EMPTY placeholders
 const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
-    "axiom": ["bonko", "grint", "sari", "morrak", "berebell"],
+    "axiom": ["sari"],
     "bo": ["berebell", "grint"],
     "bonko": ["morrak", "grint", "mortem", "korath"],
     "cashmere": ["brute", "bonko"],
     "korath": ["bonko", "sari", "morrak", "berebell"],
+    "morrak": ["berebell", "sari", "bonko"],
     "mortem": ["morrak", "bonko", "sari", "berebell"],
     "repo": ["berebell", "bonko", "sari"],
     "sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
 const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
+    "axiom": ["axiom", "repo", "grint", "korath", "brute", "bo", "bonko", "morrak", "berebell", "mortem", "cashmere"],
     "bo": ["cashmere", "brute", "axiom"],
     "bonko": ["axiom"],
     "cashmere": ["korath", "repo", "axiom"],
     "korath": ["brute", "axiom"],
+    "morrak": ["repo", "brute", "korath", "grint"],
     "mortem": ["brute", "axiom"],
-    "repo": ["axiom", "mortem", "korath", "brute"],
+    "repo": ["axiom", "mortem", "korath", "brute", "cashmere", "grint", "repo"],
     "sari": ["axiom"],
 }
 
@@ -32,11 +35,26 @@ const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
 const REROLL_COST := 2                            # Gold per reroll
 const BUY_XP_COST := 4                            # Gold per XP purchase
 const XP_PER_BUY := 4                             # XP granted per purchase
+const OPENING_HELPER_GUARDED_SHOPS := 2           # Starter support should get viable helpers through the first follow-up shop
 
 # Player level band
 const STARTING_LEVEL := 1
 const MIN_LEVEL := 1
 const MAX_LEVEL := 6                              # Minimal range for initial content
+const POST_OPENING_MIN_TEAM_SIZE := 2             # First shop should support buying and deploying a helper
+const POST_OPENING_TEAM_SIZE_BONUS := 1           # Level 2 should unlock a third board slot after the opener
+const EARLY_RUN_CAP_FLOOR_STAGE := 3              # By the second shop, bought bench units should be deployable
+const EARLY_RUN_CAP_FLOOR_TEAM_SIZE := 3
+const EARLY_LEVEL_TWO_CAP_FLOOR_STAGE := 3        # By the second shop, Buy XP should create a real board-slot payoff
+const EARLY_LEVEL_TWO_CAP_FLOOR_TEAM_SIZE := 4
+const CHAPTER_TWO_CAP_FLOOR_STAGE := 8            # Chapter 2 round 2 should let roster depth break retry loops
+const CHAPTER_TWO_CAP_FLOOR_TEAM_SIZE := 6
+const CHAPTER_THREE_CAP_FLOOR_STAGE := 14         # Chapter 3 should let accumulated bench depth matter before normal fights
+const CHAPTER_THREE_CAP_FLOOR_TEAM_SIZE := 7
+const CHAPTER_FOUR_CAP_FLOOR_STAGE := 20          # Late chapters should not strand a full bench at the same board cap
+const CHAPTER_FOUR_CAP_FLOOR_TEAM_SIZE := 8
+const CHAPTER_FIVE_CAP_FLOOR_STAGE := 26
+const CHAPTER_FIVE_CAP_FLOOR_TEAM_SIZE := 9
 
 # XP required to go from (level-1) -> level. Keys are target level.
 # Example: reaching level 3 requires XP_TO_REACH_LEVEL[3] total XP from level 2.

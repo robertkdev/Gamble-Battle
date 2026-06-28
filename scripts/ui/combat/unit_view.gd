@@ -27,6 +27,8 @@ func _ready() -> void:
 	# Drag phases left default (allowed) to avoid compile-time deps
 
 func _exit_tree() -> void:
+	if not is_queued_for_deletion():
+		return
 	if _effect_player != null and is_instance_valid(_effect_player) and _effect_player.has_method("dispose"):
 		_effect_player.dispose()
 	_effect_player = null

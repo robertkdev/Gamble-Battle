@@ -20,6 +20,7 @@ Godot/app_userdata/
 
 # Generated outputs and transient temp files
 /outputs/
+/artifacts/
 *.tmp
 
 # OS junk

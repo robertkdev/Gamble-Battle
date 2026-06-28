@@ -16,8 +16,7 @@ var enemy_grid_helper: BoardGrid
 var unit_actor_class
 var tile_size: int = 72
 
-var _hidden_nodes: Array = []
-var _prev_mouse_filters: Dictionary = {}
+var _hidden_nodes: Array[Dictionary] = []
 
 func configure(_arena_container: Control, _arena_units: Control, _planning_area: Control, _arena_background: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class, _tile_size: int) -> void:
     arena_container = _arena_container
@@ -42,14 +41,15 @@ func enter_arena(player_views, enemy_views) -> void:
     # Fade planning board areas (TopArea/BottomArea) but keep bench/shop visible and interactive
     if planning_area:
         _hidden_nodes.clear()
-        _prev_mouse_filters.clear()
         var names := ["TopArea", "BottomArea"]
         for nm in names:
             var n = planning_area.get_node_or_null(nm)
             if n != null and n is Control:
                 var c: Control = n
-                _hidden_nodes.append(c)
-                _prev_mouse_filters[c] = c.mouse_filter
+                _hidden_nodes.append({
+                    "node_ref": weakref(c),
+                    "mouse_filter": int(c.mouse_filter)
+                })
                 c.mouse_filter = Control.MOUSE_FILTER_IGNORE
                 var m = c.modulate
                 m.a = 0.0
@@ -74,16 +74,18 @@ func exit_arena() -> void:
         arena_container.visible = false
     # Restore faded nodes
     if not _hidden_nodes.is_empty():
-        for n in _hidden_nodes:
-            if n and is_instance_valid(n):
-                var c: Control = n
-                var m = c.modulate
-                m.a = 1.0
-                c.modulate = m
-                if _prev_mouse_filters.has(c):
-                    c.mouse_filter = int(_prev_mouse_filters[c]) as Control.MouseFilter
+        for record: Dictionary in _hidden_nodes:
+            var node_ref: WeakRef = record.get("node_ref", null) as WeakRef
+            if node_ref == null:
+                continue
+            var c: Control = node_ref.get_ref() as Control
+            if c == null:
+                continue
+            var m = c.modulate
+            m.a = 1.0
+            c.modulate = m
+            c.mouse_filter = int(record.get("mouse_filter", Control.MOUSE_FILTER_PASS)) as Control.MouseFilter
         _hidden_nodes.clear()
-        _prev_mouse_filters.clear()
 
 func teardown() -> void:
     exit_arena()
@@ -98,7 +100,6 @@ func teardown() -> void:
     enemy_grid_helper = null
     unit_actor_class = null
     _hidden_nodes.clear()
-    _prev_mouse_filters.clear()
 
 func get_player_actor(index: int) -> UnitActor:
     if arena:

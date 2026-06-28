@@ -176,6 +176,13 @@ func _on_economy_changed(_v := 0) -> void:
 func _on_phase_changed(_prev: int, _next: int) -> void:
 	_refresh_now()
 
+func _is_shop_locked_by_combat() -> bool:
+	if _has_game_state() and int(GameState.phase) == int(GameState.GamePhase.COMBAT):
+		return true
+	if _has_economy():
+		return bool(Economy.combat_active)
+	return false
+
 func _refresh_cards_state() -> void:
 	if _panel == null:
 		return
@@ -186,9 +193,7 @@ func _refresh_cards_state() -> void:
 	var roster: Node = _roster_node()
 	if roster != null and roster.has_method("first_empty_slot"):
 		bench_full = (int(roster.call("first_empty_slot")) == -1)
-	var in_combat: bool = false
-	if _has_game_state():
-		in_combat = (GameState.phase == GameState.GamePhase.COMBAT)
+	var in_combat: bool = _is_shop_locked_by_combat()
 	var forced_first_fight: bool = _is_forced_first_fight()
 	if _buttons:
 		_buttons.set_enabled(not in_combat and not forced_first_fight)
@@ -225,7 +230,7 @@ func _refresh_cards_state() -> void:
 				var msg := "Not enough gold"
 				var reason := String(aff.get("reason", ""))
 				if reason == ShopAffordability.REASON_RESERVE_FLOOR:
-					msg = "Must keep at least 1 health (need +%d)" % max(1, need)
+					msg = "Must keep at least 2 health (need +%d)" % max(1, need)
 				elif reason == ShopAffordability.REASON_CREDIT_LIMIT:
 					msg = "Exceeds combat credit (need +%d)" % max(1, need)
 				sc.tooltip_text = msg
@@ -253,7 +258,7 @@ func _refresh_cards_state() -> void:
 			var need_r: int = int(aff_r.get("need_more", 0))
 			var reason_r := String(aff_r.get("reason", ""))
 			if reason_r == ShopAffordability.REASON_RESERVE_FLOOR:
-				msg_r = "Must keep at least 1 health (need +%d)" % max(1, need_r)
+				msg_r = "Must keep at least 2 health (need +%d)" % max(1, need_r)
 			elif reason_r == ShopAffordability.REASON_CREDIT_LIMIT:
 				msg_r = "Exceeds combat credit (need +%d)" % max(1, need_r)
 			else:
@@ -267,7 +272,7 @@ func _refresh_cards_state() -> void:
 			var need_x: int = int(aff_x.get("need_more", 0))
 			var reason_x := String(aff_x.get("reason", ""))
 			if reason_x == ShopAffordability.REASON_RESERVE_FLOOR:
-				msg_x = "Must keep at least 1 health (need +%d)" % max(1, need_x)
+				msg_x = "Must keep at least 2 health (need +%d)" % max(1, need_x)
 			elif reason_x == ShopAffordability.REASON_CREDIT_LIMIT:
 				msg_x = "Exceeds combat credit (need +%d)" % max(1, need_x)
 			else:
@@ -279,6 +284,10 @@ func _on_card_clicked(slot_index: int) -> void:
 		return
 	if _is_forced_first_fight():
 		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
+		return
+	if _is_shop_locked_by_combat():
+		_show_message("Shop locked during battle", 2.0)
+		_refresh_cards_state()
 		return
 	var res: Dictionary = Shop.buy_unit(int(slot_index))
 	# Emit promotions for UI effects if present
@@ -307,6 +316,10 @@ func _on_reroll() -> void:
 	if _is_forced_first_fight():
 		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
 		return
+	if _is_shop_locked_by_combat():
+		_show_message("Shop locked during battle", 2.0)
+		_refresh_cards_state()
+		return
 	if Shop:
 		Shop.reroll()
 	_refresh_progress()
@@ -317,6 +330,10 @@ func _on_lock() -> void:
 	if _is_forced_first_fight():
 		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
 		return
+	if _is_shop_locked_by_combat():
+		_show_message("Shop locked during battle", 2.0)
+		_refresh_cards_state()
+		return
 	if Shop:
 		Shop.toggle_lock()
 	_refresh_progress()
@@ -326,6 +343,10 @@ func _on_buy_xp() -> void:
 		return
 	if _is_forced_first_fight():
 		_show_message(OPENING_FIGHT_MESSAGE, 2.0)
+		return
+	if _is_shop_locked_by_combat():
+		_show_message("Shop locked during battle", 2.0)
+		_refresh_cards_state()
 		return
 	if Shop:
 		Shop.buy_xp()
@@ -409,10 +430,10 @@ func _shop_error_message(code: String, context: Dictionary) -> String:
 	if code == ShopErrors.WOULD_KILL_YOU and need_more > 0:
 		var op: String = String(context.get("op", ""))
 		if op == "buy_xp":
-			return "Need +%d gold to buy XP and keep 1 health." % max(1, need_more)
+			return "Need +%d gold to buy XP and keep 2 health." % max(1, need_more)
 		if op == "reroll":
-			return "Need +%d gold to reroll and keep 1 health." % max(1, need_more)
+			return "Need +%d gold to reroll and keep 2 health." % max(1, need_more)
 		if op == "buy_unit":
 			return "Need +%d gold to buy safely." % max(1, need_more)
-		return "Need +%d gold to keep 1 health." % max(1, need_more)
+		return "Need +%d gold to keep 2 health." % max(1, need_more)
 	return ShopErrors.message(code)

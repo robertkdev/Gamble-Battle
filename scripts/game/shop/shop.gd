@@ -24,7 +24,8 @@ var _roller: ShopRoller
 var _tx: ShopTransactions
 var _progress: PlayerProgress
 var _opening_starter_id: String = ""
-var _opening_helper_shop_consumed: bool = false
+var _opening_helper_shops_consumed: int = 0
+var _opening_retry_team_bonus_active: bool = false
 
 func _ready() -> void:
 	_rng = ShopRng.new()
@@ -46,6 +47,8 @@ func _ready() -> void:
 		roster_ref = Roster
 	_tx.configure(_roller, roster_ref)
 	_progress = PlayerProgress.new()
+	if _has_autoload("GameState") and not GameState.is_connected("stage_changed", Callable(self, "_on_stage_changed")):
+		GameState.stage_changed.connect(_on_stage_changed)
 	reset_run()
 
 func _has_autoload(autoload_name: String) -> bool:
@@ -66,21 +69,31 @@ func _error_context(op: String, res: Dictionary, extra: Dictionary = {}) -> Dict
 func _is_combat_phase() -> bool:
 	if _has_autoload("GameState"):
 		var gp: Node = GameState
-		return int(gp.phase) == int(gp.GamePhase.COMBAT)
+		if int(gp.phase) == int(gp.GamePhase.COMBAT):
+			return true
+	if _has_autoload("Economy"):
+		return bool(Economy.combat_active)
 	return false
+
+func _combat_phase_error(op: String, extra: Dictionary = {}) -> Dictionary:
+	var res: Dictionary = { "ok": false, "error": ShopErrors.COMBAT_PHASE }
+	error.emit(ShopErrors.COMBAT_PHASE, _error_context(op, res, extra))
+	return res
 
 func reset_run() -> void:
 	# Clear state for a new run.
 	state = ShopState.new([], false if ShopConfig.CLEAR_LOCK_ON_NEW_RUN else state.locked, 0)
 	_opening_starter_id = ""
-	_opening_helper_shop_consumed = false
+	_opening_helper_shops_consumed = 0
+	_opening_retry_team_bonus_active = false
 	if _progress:
 		_progress.reset()
+	_sync_roster_max_team_size()
 	_emit_all()
 
 func set_opening_starter_id(starter_id: String) -> void:
 	_opening_starter_id = String(starter_id)
-	_opening_helper_shop_consumed = false
+	_opening_helper_shops_consumed = 0
 
 func get_level() -> int:
 	return int(_progress.level) if _progress else int(ShopConfig.STARTING_LEVEL)
@@ -88,6 +101,7 @@ func get_level() -> int:
 func set_level(lv: int) -> void:
 	if _progress:
 		_progress.set_level(int(lv))
+		_sync_roster_max_team_size()
 		# No signal bridging here; UI can subscribe to PlayerProgress later if needed
 
 func add_free_rerolls(n: int) -> void:
@@ -97,11 +111,18 @@ func add_free_rerolls(n: int) -> void:
 	state = ShopState.new(state.offers, state.locked, state.free_rerolls + add)
 	free_rerolls_changed.emit(state.free_rerolls)
 
+func mark_opening_retry_shop() -> void:
+	_opening_retry_team_bonus_active = true
+	_sync_roster_max_team_size()
+
 func grant_free_rerolls(n: int) -> void:
 	# Alias for external callers (e.g., Trader trait)
 	add_free_rerolls(n)
 
 func toggle_lock() -> void:
+	if _is_combat_phase():
+		_combat_phase_error("toggle_lock")
+		return
 	var next: ShopState = _tx.toggle_lock(state)
 	var changed: bool = next.locked != state.locked
 	state = next
@@ -110,6 +131,8 @@ func toggle_lock() -> void:
 
 func reroll() -> Dictionary:
 	# Spends gold when successful; updates internal state and emits signals.
+	if _is_combat_phase():
+		return _combat_phase_error("reroll")
 	var lvl: int = get_level()
 	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0
 	var opening_starter_id: String = _opening_starter_id if _should_apply_opening_shop_guard() else ""
@@ -118,7 +141,7 @@ func reroll() -> Dictionary:
 		error.emit(String(res.get("error", "UNKNOWN")), _error_context("reroll", res))
 		return res
 	if opening_starter_id != "":
-		_opening_helper_shop_consumed = true
+		_opening_helper_shops_consumed += 1
 	var cost: int = int(res.get("gold_spent", 0))
 	# Spend gold or record combat spend
 	if cost > 0 and _has_autoload("Economy"):
@@ -131,7 +154,9 @@ func reroll() -> Dictionary:
 	return res
 
 func _should_apply_opening_shop_guard() -> bool:
-	if _opening_helper_shop_consumed or _opening_starter_id == "":
+	if _opening_starter_id == "":
+		return false
+	if _opening_helper_shops_consumed >= int(ShopConfig.OPENING_HELPER_GUARDED_SHOPS):
 		return false
 	if get_level() != int(ShopConfig.STARTING_LEVEL):
 		return false
@@ -139,7 +164,7 @@ func _should_apply_opening_shop_guard() -> bool:
 		return false
 	if int(GameState.chapter) != 1:
 		return false
-	if int(GameState.stage_in_chapter) == 2:
+	if int(GameState.stage_in_chapter) >= 2 and int(GameState.stage_in_chapter) <= 3:
 		return true
 	if int(GameState.stage_in_chapter) != 1:
 		return false
@@ -148,6 +173,8 @@ func _should_apply_opening_shop_guard() -> bool:
 	return int(Economy.current_bet) == 0
 
 func buy_xp() -> Dictionary:
+	if _is_combat_phase():
+		return _combat_phase_error("buy_xp")
 	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0
 	var res: Dictionary = _tx.buy_xp(_progress, gold)
 	if not bool(res.get("ok", false)):
@@ -159,8 +186,85 @@ func buy_xp() -> Dictionary:
 			Economy.adjust_combat_spent(cost)
 		else:
 			Economy.add_gold(-cost)
+	_sync_roster_max_team_size()
 	# Offers unchanged; emit reroll/free_rerolls unchanged; but UI may want progress snapshot via getters
 	return res
+
+func _sync_roster_max_team_size() -> void:
+	if not _has_autoload("Roster"):
+		return
+	var target_size: int = get_level()
+	if _is_past_opening_fight():
+		target_size += int(ShopConfig.POST_OPENING_TEAM_SIZE_BONUS)
+		target_size = max(target_size, int(ShopConfig.POST_OPENING_MIN_TEAM_SIZE))
+	elif _is_opening_retry_team_bonus_active():
+		target_size = max(target_size, int(ShopConfig.POST_OPENING_MIN_TEAM_SIZE))
+	if _is_past_early_run_cap_floor_stage():
+		target_size = max(target_size, int(ShopConfig.EARLY_RUN_CAP_FLOOR_TEAM_SIZE))
+	if _is_past_early_level_two_cap_floor_stage():
+		target_size = max(target_size, int(ShopConfig.EARLY_LEVEL_TWO_CAP_FLOOR_TEAM_SIZE))
+	if _is_past_chapter_two_cap_floor_stage():
+		target_size = max(target_size, int(ShopConfig.CHAPTER_TWO_CAP_FLOOR_TEAM_SIZE))
+	if _is_past_chapter_three_cap_floor_stage():
+		target_size = max(target_size, int(ShopConfig.CHAPTER_THREE_CAP_FLOOR_TEAM_SIZE))
+	if _is_past_chapter_four_cap_floor_stage():
+		target_size = max(target_size, int(ShopConfig.CHAPTER_FOUR_CAP_FLOOR_TEAM_SIZE))
+	if _is_past_chapter_five_cap_floor_stage():
+		target_size = max(target_size, int(ShopConfig.CHAPTER_FIVE_CAP_FLOOR_TEAM_SIZE))
+	if Roster.has_method("set_max_team_size"):
+		Roster.set_max_team_size(target_size)
+	else:
+		Roster.max_team_size = target_size
+
+func _is_past_opening_fight() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.chapter) > 1 or int(GameState.stage_in_chapter) >= 2
+
+func _is_opening_retry_team_bonus_active() -> bool:
+	if not _opening_retry_team_bonus_active:
+		return false
+	if not _has_autoload("GameState"):
+		return false
+	if int(GameState.chapter) == 1 and int(GameState.stage_in_chapter) == 1:
+		return true
+	_opening_retry_team_bonus_active = false
+	return false
+
+func _is_past_early_run_cap_floor_stage() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.stage) >= int(ShopConfig.EARLY_RUN_CAP_FLOOR_STAGE)
+
+func _is_past_early_level_two_cap_floor_stage() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	if get_level() < 2:
+		return false
+	return int(GameState.stage) >= int(ShopConfig.EARLY_LEVEL_TWO_CAP_FLOOR_STAGE)
+
+func _is_past_chapter_two_cap_floor_stage() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.stage) >= int(ShopConfig.CHAPTER_TWO_CAP_FLOOR_STAGE)
+
+func _is_past_chapter_three_cap_floor_stage() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.stage) >= int(ShopConfig.CHAPTER_THREE_CAP_FLOOR_STAGE)
+
+func _is_past_chapter_four_cap_floor_stage() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.stage) >= int(ShopConfig.CHAPTER_FOUR_CAP_FLOOR_STAGE)
+
+func _is_past_chapter_five_cap_floor_stage() -> bool:
+	if not _has_autoload("GameState"):
+		return false
+	return int(GameState.stage) >= int(ShopConfig.CHAPTER_FIVE_CAP_FLOOR_STAGE)
+
+func _on_stage_changed(_prev: int, _next: int) -> void:
+	_sync_roster_max_team_size()
 
 func get_xp() -> int:
 	return int(_progress.xp) if _progress else 0
@@ -169,6 +273,8 @@ func get_xp_to_next() -> int:
 	return int(_progress.xp_to_next()) if _progress else 0
 
 func buy_unit(slot_index: int) -> Dictionary:
+	if _is_combat_phase():
+		return _combat_phase_error("buy_unit", {"slot": int(slot_index)})
 	var lvl: int = get_level()
 	var gold: int = int(Economy.gold) if _has_autoload("Economy") else 0
 	var res: Dictionary = _tx.buy_unit(state, int(slot_index), gold, lvl)

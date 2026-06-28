@@ -213,16 +213,20 @@ func _on_phase_changed(_prev: int, next: int) -> void:
 		return
 	var is_preview: bool = (int(next) == int(gp.GamePhase.PREVIEW))
 	if is_preview:
-		planning_time_left = float(planning_timer_total)
-		_planning_warn_played = false
-		_planning_autostart_done = false
-		if planning_timer_label:
-			planning_timer_label.visible = true
-			planning_timer_label.text = _format_time(planning_time_left)
+		reset_planning_timer()
 	else:
 		if planning_timer_label:
 			planning_timer_label.visible = false
 	_apply_visual_theme_deferred()
+
+func reset_planning_timer(seconds: float = -1.0) -> void:
+	var duration: float = float(planning_timer_total) if seconds < 0.0 else seconds
+	planning_time_left = max(0.0, duration)
+	_planning_warn_played = false
+	_planning_autostart_done = false
+	if planning_timer_label:
+		planning_timer_label.visible = true
+		planning_timer_label.text = _format_time(planning_time_left)
 
 
 func _update_planning_timer(delta: float) -> void:
@@ -236,6 +240,11 @@ func _update_planning_timer(delta: float) -> void:
 	var prev_time: float = planning_time_left
 	planning_time_left = max(0.0, float(planning_time_left) - float(delta))
 	planning_timer_label.text = _format_time(planning_time_left)
+	if planning_time_left <= 0.0 and controller and controller.has_method("should_hold_auto_start_for_first_deploy"):
+		if bool(controller.should_hold_auto_start_for_first_deploy()):
+			planning_time_left = 1.0
+			planning_timer_label.text = _format_time(planning_time_left)
+			return
 	# Warning sound at T-11s
 	if not _planning_warn_played and planning_time_left <= float(planning_warn_at):
 		var s: Variant = _get_sound()

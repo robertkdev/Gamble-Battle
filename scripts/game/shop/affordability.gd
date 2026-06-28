@@ -5,15 +5,16 @@ class_name ShopAffordability
 # Returns a dictionary { ok: bool, reason: String, need_more: int }
 
 const REASON_OK := "OK"
-const REASON_RESERVE_FLOOR := "RESERVE_FLOOR"   # Out of combat: must keep >= 1 health
+const REASON_RESERVE_FLOOR := "RESERVE_FLOOR"   # Out of combat: must keep the planning reserve
 const REASON_CREDIT_LIMIT := "CREDIT_LIMIT"     # In combat: would exceed combat credit and kill you even on win
 const REASON_INSUFFICIENT := "INSUFFICIENT_GOLD"
+const PLANNING_RESERVE_FLOOR := 2
 
 static func can_afford(gold: int, bet: int, cost: int, in_combat: bool, spent_so_far: int = 0) -> Dictionary:
 	var c: int = max(0, int(cost))
 	if c <= 0:
 		return { "ok": true, "reason": REASON_OK, "need_more": 0 }
-	var g := int(gold)
+	var g: int = int(gold)
 	var b: int = max(0, int(bet))
 	var spent: int = max(0, int(spent_so_far))
 
@@ -25,8 +26,8 @@ static func can_afford(gold: int, bet: int, cost: int, in_combat: bool, spent_so
 			return { "ok": true, "reason": REASON_OK, "need_more": 0 }
 		return { "ok": false, "reason": REASON_CREDIT_LIMIT, "need_more": max(0, c - available) }
 	else:
-		# Planning: must keep at least 1 health after any purchase
-		var available2: int = g - 1
+		# Planning: preserve enough health to survive one ordinary 1-bet loss.
+		var available2: int = g - PLANNING_RESERVE_FLOOR
 		if c <= available2:
 			return { "ok": true, "reason": REASON_OK, "need_more": 0 }
 		# Distinguish between simple lack of gold vs reserve floor breach (for clearer tooltips).

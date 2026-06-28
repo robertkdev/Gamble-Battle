@@ -1,6 +1,7 @@
 extends Node
 
 const BenchConstants := preload("res://scripts/constants/bench_constants.gd")
+const STARTING_TEAM_SIZE: int = 1
 
 signal bench_changed()
 signal max_team_size_changed(old_value: int, new_value: int)
@@ -8,8 +9,8 @@ signal max_team_size_changed(old_value: int, new_value: int)
 # Bench slots store owned-but-benched units. Fixed capacity per BenchConstants.
 var bench_slots: Array[Unit] = []
 
-# Unlimited by default (-1). When >= 0, represents a hard cap for on-board units.
-var max_team_size: int = -1
+# When >= 0, represents a hard cap for on-board units.
+var max_team_size: int = STARTING_TEAM_SIZE
 
 func _ready() -> void:
 	_ensure_capacity()
@@ -70,10 +71,19 @@ func reset(clear_max_team: bool = true) -> void:
 		bench_slots[i] = null
 	if clear_max_team:
 		var prev: int = max_team_size
-		max_team_size = -1
+		max_team_size = STARTING_TEAM_SIZE
 		if prev != max_team_size:
 			max_team_size_changed.emit(prev, max_team_size)
 	bench_changed.emit()
+
+func set_max_team_size(value: int) -> int:
+	var target: int = max(0, int(value))
+	if target == max_team_size:
+		return max_team_size
+	var old: int = max_team_size
+	max_team_size = target
+	max_team_size_changed.emit(old, max_team_size)
+	return max_team_size
 
 # Returns a union of current on-board team and bench (no duplicates, preserve order: team first).
 func owned_units(current_team: Array = []) -> Array[Unit]:

@@ -3,7 +3,9 @@ extends Node
 signal gold_changed(gold: int)
 signal bet_changed(bet: int)
 
-var gold: int = 2
+const STARTING_GOLD: int = 3
+
+var gold: int = STARTING_GOLD
 var current_bet: int = 1
 var preferred_bet: int = 1   # Remember last chosen bet outside combat
 
@@ -15,12 +17,12 @@ var last_gold_start: int = 0      # Gold at the moment combat started (before es
 var last_bet_start: int = 0       # Bet amount at the moment combat started
 
 func _ready() -> void:
-	gold = 2
+	gold = STARTING_GOLD
 	current_bet = 1
 	preferred_bet = current_bet
 
 func reset_run() -> void:
-	gold = 2
+	gold = STARTING_GOLD
 	current_bet = min(1, gold)
 	preferred_bet = current_bet
 	combat_active = false

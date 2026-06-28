@@ -21,40 +21,34 @@ static var _entries: Dictionary = {
 			"stat_overrides": { "index": { 0: { "max_hp": 120, "attack_damage": 50.0, "attack_range": 1 } } }
 		} },
 		2: { StageTypes.KEY_IDS: [ {"id": "berebell", "level": 1}, {"id": "axiom", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ "drubble", "drueling", "beegle", "faeling" ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "bonko", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["plate"], 1: ["hammer"] } }
-		} },
-		5: { StageTypes.KEY_IDS: [ {"id": "veyra", "level": 2}, {"id": "luna", "level": 1}, {"id": "teller", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {} },
+		3: { StageTypes.KEY_IDS: [ "drubble", "drueling", "beegle" ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
+		4: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "bonko", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {} },
+		5: { StageTypes.KEY_IDS: [ {"id": "luna", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {} },
 	},
 	2: {
 		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 1}, {"id": "beegle", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "grint", "level": 2}, {"id": "nyxa", "level": 1}, {"id": "totem", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
+		2: { StageTypes.KEY_IDS: [ {"id": "grint", "level": 1}, {"id": "nyxa", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 1}, {"id": "beegle", "level": 1}, {"id": "faeling", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
 		4: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 2}, {"id": "cashmere", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
 			"items": { "index": { 0: ["plate"], 1: ["wand"] } }
 		} },
-		5: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 2}, {"id": "sari", "level": 2}, {"id": "paisley", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		5: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "sari", "level": 1}, {"id": "paisley", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		6: { StageTypes.KEY_IDS: [ {"id": "korath", "level": 4} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {
 			"items": [ ["guard"] ]
 		} },
 	},
 	3: {
 		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "vykos", "level": 2}, {"id": "volt", "level": 2}, {"id": "repo", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		2: { StageTypes.KEY_IDS: [ {"id": "vykos", "level": 1}, {"id": "volt", "level": 1}, {"id": "repo", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 3}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "mortem", "level": 2}, {"id": "berebell", "level": 2}, {"id": "veyra", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["spike"], 1: ["hammer"], 2: ["plate"] } }
-		} },
-		5: { StageTypes.KEY_IDS: [ {"id": "teller", "level": 3}, {"id": "axiom", "level": 2}, {"id": "luna", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "hexeon", "level": 3}, {"id": "totem", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["spellblade"], 1: ["veil"] } }
-		} },
+		4: { StageTypes.KEY_IDS: [ {"id": "mortem", "level": 1}, {"id": "berebell", "level": 1}, {"id": "veyra", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {} },
+		5: { StageTypes.KEY_IDS: [ {"id": "teller", "level": 1}, {"id": "axiom", "level": 1}, {"id": "luna", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		6: { StageTypes.KEY_IDS: [ {"id": "hexeon", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {} },
 	},
 	4: {
 		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 3}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 3}, {"id": "cashmere", "level": 3}, {"id": "nyxa", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		2: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 2}, {"id": "cashmere", "level": 2}, {"id": "nyxa", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 3}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
 		4: { StageTypes.KEY_IDS: [ {"id": "kythera", "level": 3}, {"id": "paisley", "level": 3}, {"id": "sari", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
 			"items": { "index": { 0: ["wardheart"], 1: ["codex"], 2: ["shiv"] } }
@@ -66,10 +60,10 @@ static var _entries: Dictionary = {
 	},
 	5: {
 		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 4}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "veyra", "level": 4}, {"id": "vykos", "level": 3}, {"id": "teller", "level": 3}, {"id": "axiom", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
+		2: { StageTypes.KEY_IDS: [ {"id": "veyra", "level": 1}, {"id": "vykos", "level": 1}, {"id": "teller", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 4}, {"id": "drueling", "level": 4}, {"id": "beegle", "level": 4}, {"id": "faeling", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "hexeon", "level": 4}, {"id": "nyxa", "level": 4}, {"id": "totem", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["lifetaker"], 1: ["arc_dice"], 2: ["serenity"] } }
+		4: { StageTypes.KEY_IDS: [ {"id": "hexeon", "level": 1}, {"id": "totem", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
+			"stat_overrides": { "id": { "hexeon": { "max_hp": 1000 }, "totem": { "max_hp": 300 } } }
 		} },
 		5: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 4}, {"id": "cashmere", "level": 4}, {"id": "mortem", "level": 4}, {"id": "luna", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
 		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 5}, {"id": "korath", "level": 4}, {"id": "paisley", "level": 4} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {

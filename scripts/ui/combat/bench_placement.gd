@@ -3,6 +3,7 @@ class_name BenchPlacement
 
 const UI := preload("res://scripts/constants/ui_constants.gd")
 const UnitViewClass := preload("res://scripts/ui/combat/unit_view.gd")
+const DEBUG_BENCH_PLACEMENT_LOGS: bool = false
 
 var bench_grid: GridContainer
 var tile_size: int = UI.TILE_SIZE
@@ -103,7 +104,8 @@ func rebuild_bench_views(units: Array, allow_drag: bool) -> void:
         bench_grid_helper.attach(uv, i)
         # Debug: play level-up animation whenever a unit is newly added to this bench slot
         if animate_indices.has(i):
-            print("[BenchPlacement] Added to bench slot=", i, " unit=", (u.name if u else "?"), " level=", int(u.level))
+            if DEBUG_BENCH_PLACEMENT_LOGS:
+                print("[BenchPlacement] Added to bench slot=", i, " unit=", (u.name if u else "?"), " level=", int(u.level))
             # Fire in-UnitView animation (may be cleared by immediate rebuilds)
             if uv.has_method("play_level_up"):
                 var effect_opts: Dictionary = make_level_up_effect_opts(i, int(u.level))

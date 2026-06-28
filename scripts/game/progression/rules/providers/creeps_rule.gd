@@ -7,6 +7,7 @@ const CreepRewardsRuntime := preload("res://scripts/game/progression/creeps/cree
 
 var _runtime: CreepRewardsRuntime = null
 const LOG_PREFIX := "[Rewards] "
+const DEBUG_REWARD_LOGS: bool = false
 
 func on_pre_spawn(spec: Dictionary, _ch: int, _sic: int) -> void:
 	# Ensure rules dictionary exists; no mutation otherwise
@@ -34,18 +35,18 @@ func on_battle_start(state, engine, spec: Dictionary, _ch: int = 0, _sic: int = 
 	var pool_path: String = String(cfg.get("pool_path", "res://data/creeps/reward_pools/default.tres"))
 	var pool: CreepRewardPool = null
 	if ResourceLoader.exists(pool_path):
-		var res = load(pool_path)
+		var res: Resource = load(pool_path)
 		if res is CreepRewardPool:
 			pool = res
 	if pool == null:
 		# No configured pool found: attempt to load default; if missing, skip wiring
-		var def := "res://data/creeps/reward_pools/default.tres"
+		var def: String = "res://data/creeps/reward_pools/default.tres"
 		if ResourceLoader.exists(def):
-			var res2 = load(def)
+			var res2: Resource = load(def)
 			if res2 is CreepRewardPool:
 				pool = res2
 	if pool == null:
-		print(LOG_PREFIX, "provider: no reward pool found; skipping")
+		_debug_log("provider: no reward pool found; skipping")
 		return
 
 	# Teardown prior runtime if present (provider is singleton across battles)
@@ -57,12 +58,17 @@ func on_battle_start(state, engine, spec: Dictionary, _ch: int = 0, _sic: int = 
 		"only_creeps": bool(cfg.get("only_creeps", true)),
 		"source_team": String(cfg.get("source_team", "player")),
 		"max_triggers": int(cfg.get("max_triggers", -1)),
+		"debug_logs": DEBUG_REWARD_LOGS,
 	}
 	_runtime.configure(engine, pool, options)
 	_runtime.wire()
-	print(LOG_PREFIX, "provider active: pool=", (pool.id if pool != null else "<null>"), " options=", options)
+	_debug_log("provider active: pool=%s options=%s" % [(pool.id if pool != null else "<null>"), JSON.stringify(options)])
 
 func teardown() -> void:
 	if _runtime != null:
 		_runtime.dispose()
 		_runtime = null
+
+func _debug_log(message: String) -> void:
+	if DEBUG_REWARD_LOGS:
+		print(LOG_PREFIX + message)
