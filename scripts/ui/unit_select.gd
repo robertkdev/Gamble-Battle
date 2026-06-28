@@ -5,6 +5,8 @@ signal unit_selected(unit_id: String)
 
 const UnitCatalog := preload("res://scripts/game/shop/unit_catalog.gd")
 const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
+const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
+const UnitFactory := preload("res://scripts/unit_factory.gd")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
 const COLOR_PANEL: Color = Color(0.034, 0.029, 0.039, 0.94)
@@ -36,6 +38,7 @@ var identity_approach_tags: FlowContainer = null
 var items: Array[Dictionary] = []
 var items_by_id: Dictionary[String, Dictionary] = {}
 var buttons_by_id: Dictionary[String, Button] = {}
+var _preview_units_by_id: Dictionary[String, Unit] = {}
 var selected_id: String = ""
 var button_group: ButtonGroup = ButtonGroup.new()
 var _hovered_id: String = ""
@@ -180,17 +183,17 @@ func _apply_gothic_layout() -> void:
 	if identity_goal_label:
 		identity_goal_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if details_label:
-		details_label.add_theme_font_size_override("font_size", 18)
+		details_label.add_theme_font_size_override("font_size", 16)
 		details_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if help_label:
 		help_label.add_theme_font_size_override("font_size", 16)
 		help_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if preview_art:
-		preview_art.custom_minimum_size = Vector2(410.0, 410.0)
+		preview_art.custom_minimum_size = Vector2(360.0, 360.0)
 		preview_art.modulate = Color(0.92, 0.88, 0.82, 1.0)
 	var art_wrap: Control = right_column.get_node_or_null("Preview/ArtWrap") as Control
 	if art_wrap:
-		art_wrap.custom_minimum_size = Vector2(460.0, 430.0)
+		art_wrap.custom_minimum_size = Vector2(430.0, 360.0)
 		_preview_art_plate = _ensure_float_plate(art_wrap, "GothicArtPlate", _make_panel_style(Color(0.014, 0.012, 0.018, 0.86), Color(0.32, 0.24, 0.23, 0.84), 1, 6), -1, 8.0)
 	call_deferred("_position_gothic_plates")
 	_style_start_button()
@@ -215,6 +218,8 @@ func _ensure_identity_panel(preview: VBoxContainer) -> void:
 		identity_role_label.add_theme_stylebox_override("normal", _make_badge_style())
 		identity_role_label.modulate = Color(1, 1, 1, 0.95)
 		identity_panel.add_child(identity_role_label)
+	identity_role_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	identity_role_label.custom_minimum_size = Vector2(132.0, 0.0)
 	identity_goal_label = identity_panel.get_node_or_null("GoalLabel") as Label
 	if identity_goal_label == null:
 		identity_goal_label = Label.new()
@@ -271,6 +276,7 @@ func _populate_units() -> void:
 	items.clear()
 	items_by_id.clear()
 	buttons_by_id.clear()
+	_preview_units_by_id.clear()
 	for child in grid.get_children():
 		child.queue_free()
 	# Use catalog to obtain starter-eligible units at starting level
@@ -412,24 +418,83 @@ func _update_preview(id: String, is_selected: bool = false) -> void:
 		return
 	var display_name: String = String(it.get("name", ""))
 	selected_label.text = ("%s" if is_selected else "Inspecting %s") % [display_name]
-	var role_text := _format_role(String(it.get("primary_role", "")))
-	var goal_text := _format_goal(String(it.get("primary_goal", "")))
-	var approach_arr := _duplicate_strings(it.get("approaches", PackedStringArray()))
+	var role_text: String = _format_role(String(it.get("primary_role", "")))
+	var goal_text: String = _format_goal(String(it.get("primary_goal", "")))
+	var approach_arr: Array = _duplicate_strings(it.get("approaches", PackedStringArray()))
 	_set_identity_summary(role_text, goal_text, approach_arr)
 	var sp: String = String(it.get("sprite_path", ""))
 	if preview_art:
 		preview_art.texture = load(sp) if sp != "" else null
 	if details_label:
-		var alt_goals: String = _format_list(_duplicate_strings(it.get("alt_goals", PackedStringArray())), 3)
-		var trait_text: String = _format_list(_duplicate_strings(it.get("traits", PackedStringArray())), 5)
-		var lines: Array[String] = []
-		if alt_goals != "":
-			lines.append("Alt Goals: %s" % alt_goals)
-		if trait_text != "":
-			lines.append("Traits: %s" % trait_text)
-		if lines.is_empty():
-			lines.append("Identity summary above")
+		var lines: Array[String] = _build_detail_lines(id, it)
 		details_label.text = "\n".join(lines)
+
+func _build_detail_lines(id: String, it: Dictionary) -> Array[String]:
+	var lines: Array[String] = []
+	var traits: Array = _duplicate_strings(it.get("traits", PackedStringArray()))
+	var trait_text: String = _format_list(traits, 5)
+	if trait_text == "":
+		trait_text = _format_list(_duplicate_strings(it.get("approaches", PackedStringArray())), 5)
+	if trait_text != "":
+		lines.append("Traits: %s" % trait_text)
+	var alt_goals: String = _format_list(_duplicate_strings(it.get("alt_goals", PackedStringArray())), 3)
+	if alt_goals != "":
+		lines.append("Alt Goals: %s" % alt_goals)
+	var preview_unit: Unit = _preview_unit(id)
+	var attack_text: String = _format_attack_info(preview_unit)
+	if attack_text != "":
+		lines.append(attack_text)
+	var ability_text: String = _format_ability_info(preview_unit)
+	if ability_text != "":
+		lines.append(ability_text)
+	if lines.is_empty():
+		lines.append("No preview details available.")
+	return lines
+
+func _preview_unit(id: String) -> Unit:
+	var clean_id: String = String(id).strip_edges()
+	if clean_id == "":
+		return null
+	if _preview_units_by_id.has(clean_id):
+		return _preview_units_by_id[clean_id]
+	var unit: Unit = UnitFactory.spawn(clean_id)
+	if unit != null:
+		_preview_units_by_id[clean_id] = unit
+	return unit
+
+func _format_attack_info(unit: Unit) -> String:
+	if unit == null:
+		return ""
+	var attack_speed: float = max(0.01, float(unit.attack_speed))
+	var attack_period: float = 1.0 / attack_speed
+	var parts: PackedStringArray = PackedStringArray()
+	parts.append("%d damage" % int(round(unit.attack_damage)))
+	parts.append("every %.1fs" % attack_period)
+	parts.append("range %d" % int(unit.attack_range))
+	var crit_chance: int = int(round(float(unit.crit_chance) * 100.0))
+	if crit_chance > 0:
+		parts.append("%d%% crit for %d%%" % [crit_chance, int(round(float(unit.crit_damage) * 100.0))])
+	return "Attack: %s" % " | ".join(parts)
+
+func _format_ability_info(unit: Unit) -> String:
+	if unit == null:
+		return ""
+	var ability_id: String = String(unit.ability_id).strip_edges()
+	if ability_id == "":
+		return ""
+	var ability_def: AbilityDef = AbilityCatalog.get_def(ability_id)
+	if ability_def == null:
+		return "Ability: %s" % _format_token(ability_id)
+	var ability_name: String = String(ability_def.name).strip_edges()
+	if ability_name == "":
+		ability_name = _format_token(ability_id)
+	var prefix: String = "Ability: %s" % ability_name
+	if int(ability_def.base_cost) > 0:
+		prefix += " (%d mana)" % int(ability_def.base_cost)
+	var description: String = String(ability_def.description).strip_edges()
+	if description != "":
+		return "%s - %s" % [prefix, description]
+	return prefix
 
 func _on_unit_unhovered() -> void:
 	if _hovered_id != "":

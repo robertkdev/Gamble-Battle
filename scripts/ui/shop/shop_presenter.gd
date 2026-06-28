@@ -233,7 +233,10 @@ func _refresh_cards_state() -> void:
 					msg = "Must keep at least 2 health (need +%d)" % max(1, need)
 				elif reason == ShopAffordability.REASON_CREDIT_LIMIT:
 					msg = "Exceeds combat credit (need +%d)" % max(1, need)
-				sc.tooltip_text = msg
+				if sc.has_method("set_status_tip"):
+					sc.call("set_status_tip", msg)
+				else:
+					sc.tooltip_text = msg
 			if in_combat:
 				sc.set_shop_disabled("Shop locked during battle")
 			elif bench_full:

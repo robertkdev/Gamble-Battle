@@ -3,6 +3,8 @@ class_name ShopCard
 
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const TraitIconScene := preload("res://scenes/ui/traits/TraitIcon.tscn")
+const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
+const UnitFactory := preload("res://scripts/unit_factory.gd")
 
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
 const COLOR_MUTED: Color = Color(0.66, 0.60, 0.52, 1.0)
@@ -10,6 +12,9 @@ const COLOR_GOLD: Color = Color(0.92, 0.66, 0.32, 1.0)
 const COLOR_BLOOD: Color = Color(0.52, 0.040, 0.072, 1.0)
 const COLOR_PANEL: Color = Color(0.045, 0.037, 0.047, 0.97)
 const COLOR_IRON: Color = Color(0.40, 0.34, 0.32, 0.94)
+const TOOLTIP_WIDTH: float = 330.0
+const TOOLTIP_CURSOR_OFFSET: Vector2 = Vector2(18.0, -14.0)
+const TOOLTIP_EDGE_PADDING: float = 12.0
 
 @onready var _icon: TextureRect = $Icon
 @onready var _name_label: Label = $Name
@@ -25,6 +30,12 @@ var offer_id: String = ""
 var _disabled_reason: String = ""
 var slot_index: int = -1
 var _hover_tween: Tween = null
+var _hovered: bool = false
+var _tooltip: PanelContainer = null
+var _tooltip_title: String = ""
+var _tooltip_subtitle: String = ""
+var _tooltip_lines: Array[String] = []
+var _status_tip: String = ""
 
 func _resolve_child(paths: Array) -> Node:
 	for p in paths:
@@ -37,6 +48,7 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	toggle_mode = false
 	clip_text = false
+	tooltip_text = ""
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_apply_static_style()
@@ -80,6 +92,7 @@ func set_data(props: Dictionary) -> void:
 	_update_identity_panel(display_role, display_goal, approaches)
 	_set_traits(traits)
 	_apply_static_style()
+	_apply_hover_motion(_hovered)
 
 	var tooltip_lines: Array[String] = []
 	if display_role != "":
@@ -102,6 +115,12 @@ func set_data(props: Dictionary) -> void:
 		tooltip_text = identity_tip
 	else:
 		tooltip_text = title
+	_tooltip_title = title
+	_tooltip_subtitle = "%dg" % price_i
+	_tooltip_lines = _build_tooltip_lines(display_role, display_goal, approaches, alt_goals, traits)
+	tooltip_text = ""
+	if _hovered:
+		_show_tooltip()
 
 func _update_identity_panel(display_role: String, display_goal: String, approaches: Array) -> void:
 	var has_identity := false
@@ -122,27 +141,30 @@ func _update_identity_panel(display_role: String, display_goal: String, approach
 		_identity_panel.visible = has_identity
 
 func set_affordable(affordable: bool) -> void:
-	var ok := bool(affordable)
-	var shop_reason := String(get_meta("shop_disabled_reason", ""))
+	var ok: bool = bool(affordable)
+	var shop_reason: String = String(get_meta("shop_disabled_reason", ""))
 	if shop_reason != "":
 		disabled = true
 	else:
 		disabled = not ok
-	var base_tip := String(get_meta("identity_tooltip", ""))
-	if base_tip == "":
-		base_tip = tooltip_text
 	if _price_label:
 		_price_label.modulate = Color(1, 1, 0.8, 0.95) if ok else Color(1, 0.5, 0.5, 0.85)
-	tooltip_text = base_tip if ok else "Not enough gold"
+	set_status_tip("" if ok else "Not enough gold")
 	_refresh_cursor()
 
 func set_shop_disabled(reason) -> void:
 	_disabled_reason = String(reason)
 	set_meta("shop_disabled_reason", _disabled_reason)
 	disabled = true
-	tooltip_text = _disabled_reason
+	set_status_tip(_disabled_reason)
 	modulate = Color(1, 1, 1, 0.6)
 	_refresh_cursor()
+
+func set_status_tip(text: String) -> void:
+	_status_tip = String(text).strip_edges()
+	tooltip_text = ""
+	if _hovered:
+		_show_tooltip()
 
 func set_slot_index(i: int) -> void:
 	slot_index = int(i)
@@ -191,6 +213,65 @@ func _set_approach_tags(approaches: Array) -> void:
 		if shown >= 4:
 			break
 	_approach_tags.visible = shown > 0
+
+func _build_tooltip_lines(display_role: String, display_goal: String, approaches: Array, alt_goals: Array, traits: Array) -> Array[String]:
+	var lines: Array[String] = []
+	var trait_text: String = _format_list(traits, 4)
+	if trait_text != "":
+		lines.append("Traits: %s" % trait_text)
+	if display_role != "":
+		lines.append("Role: %s" % display_role)
+	if display_goal != "":
+		lines.append("Goal: %s" % display_goal)
+	var approach_text: String = _format_list(approaches, 4)
+	if approach_text != "":
+		lines.append("Approaches: %s" % approach_text)
+	var alt_text: String = _format_list(alt_goals, 3)
+	if alt_text != "":
+		lines.append("Alt Goals: %s" % alt_text)
+	var preview_unit: Unit = UnitFactory.spawn(offer_id) if offer_id.strip_edges() != "" else null
+	var attack_text: String = _format_attack_info(preview_unit)
+	if attack_text != "":
+		lines.append(attack_text)
+	var ability_text: String = _format_ability_info(preview_unit)
+	if ability_text != "":
+		lines.append(ability_text)
+	return lines
+
+func _format_attack_info(unit: Unit) -> String:
+	if unit == null:
+		return ""
+	var attack_speed: float = max(0.01, float(unit.attack_speed))
+	var attack_period: float = 1.0 / attack_speed
+	var parts: PackedStringArray = PackedStringArray()
+	parts.append("%d damage" % int(round(unit.attack_damage)))
+	parts.append("every %.1fs" % attack_period)
+	parts.append("range %d" % int(unit.attack_range))
+	var crit_chance: int = int(round(float(unit.crit_chance) * 100.0))
+	if crit_chance > 0:
+		parts.append("%d%% crit for %d%%" % [crit_chance, int(round(float(unit.crit_damage) * 100.0))])
+	return "Attack: %s" % " | ".join(parts)
+
+func _format_ability_info(unit: Unit) -> String:
+	if unit == null:
+		return ""
+	var ability_id: String = String(unit.ability_id).strip_edges()
+	if ability_id == "":
+		return ""
+	var ability_def: AbilityDef = AbilityCatalog.get_def(ability_id)
+	if ability_def == null:
+		return "Ability: %s" % _prettify_token(ability_id)
+	var ability_name: String = String(ability_def.name).strip_edges()
+	if ability_name == "":
+		ability_name = _prettify_token(ability_id)
+	var prefix: String = "Ability: %s" % ability_name
+	if int(ability_def.base_cost) > 0:
+		prefix += " (%d mana)" % int(ability_def.base_cost)
+	var description: String = String(ability_def.description).strip_edges()
+	if description != "":
+		return "%s - %s" % [prefix, description]
+	return prefix
+
 func _make_tag_style() -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.046, 0.043, 0.050, 0.96)
@@ -211,6 +292,7 @@ func _make_tag_style() -> StyleBoxFlat:
 
 func _apply_static_style() -> void:
 	pivot_offset = size * 0.5
+	tooltip_text = ""
 	custom_minimum_size = Vector2(150.0, 138.0)
 	add_theme_stylebox_override("normal", _make_card_style(false, false))
 	add_theme_stylebox_override("hover", _make_card_style(false, true))
@@ -294,6 +376,8 @@ func _wire_hover() -> void:
 		mouse_entered.connect(_on_hover_entered)
 	if not is_connected("mouse_exited", Callable(self, "_on_hover_exited")):
 		mouse_exited.connect(_on_hover_exited)
+	if not is_connected("gui_input", Callable(self, "_on_hover_gui_input")):
+		gui_input.connect(_on_hover_gui_input)
 	if not is_connected("resized", Callable(self, "_sync_pivot")):
 		resized.connect(_sync_pivot)
 	_sync_pivot()
@@ -302,27 +386,155 @@ func _sync_pivot() -> void:
 	pivot_offset = size * 0.5
 
 func _on_hover_entered() -> void:
+	_hovered = true
 	_apply_hover_motion(true)
+	_show_tooltip()
 
 func _on_hover_exited() -> void:
+	_hovered = false
 	_apply_hover_motion(false)
+	_clear_tooltip()
+
+func _on_hover_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and _tooltip != null and is_instance_valid(_tooltip):
+		var viewport: Viewport = get_viewport()
+		if viewport != null:
+			_move_tooltip(viewport.get_mouse_position())
 
 func _apply_hover_motion(active: bool) -> void:
 	if _hover_tween != null and is_instance_valid(_hover_tween):
 		_hover_tween.kill()
-	var target_scale: Vector2 = Vector2.ONE
-	if active and not disabled:
-		target_scale = Vector2(1.035, 1.035)
-		z_index = 70
+	_hover_tween = null
+	scale = Vector2.ONE
+	var highlight: bool = active and not disabled
+	z_index = 20 if highlight else 0
+	add_theme_stylebox_override("normal", _make_card_style(false, highlight))
+	add_theme_stylebox_override("hover", _make_card_style(false, highlight))
+	add_theme_stylebox_override("focus", _make_card_style(false, highlight))
+	if highlight:
 		if _icon != null:
 			_icon.modulate = Color(1.0, 0.93, 0.78, 1.0)
 	else:
-		z_index = 0
 		if _icon != null:
 			_icon.modulate = Color(0.96, 0.91, 0.84, 1.0)
-	_hover_tween = create_tween()
-	_hover_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_hover_tween.tween_property(self, "scale", target_scale, 0.10)
+
+func _show_tooltip() -> void:
+	_clear_tooltip()
+	if not is_inside_tree():
+		return
+	var lines: Array[String] = _current_tooltip_lines()
+	if _tooltip_title.strip_edges() == "" and lines.is_empty():
+		return
+	var tree: SceneTree = get_tree()
+	if tree == null or tree.root == null:
+		return
+	var tooltip: PanelContainer = PanelContainer.new()
+	tooltip.name = "ShopCardTooltip"
+	tooltip.top_level = true
+	tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tooltip.z_index = 950
+	tooltip.custom_minimum_size.x = TOOLTIP_WIDTH
+	tooltip.add_theme_stylebox_override("panel", _make_tooltip_style())
+	var box: VBoxContainer = VBoxContainer.new()
+	box.name = "Rows"
+	box.add_theme_constant_override("separation", 5)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tooltip.add_child(box)
+	if _tooltip_title.strip_edges() != "":
+		_add_tooltip_label(box, _tooltip_title, 18, COLOR_GOLD)
+	if _tooltip_subtitle.strip_edges() != "":
+		_add_tooltip_label(box, _tooltip_subtitle, 12, COLOR_MUTED)
+	for line: String in lines:
+		var color: Color = Color(0.92, 0.76, 0.58, 1.0) if line == _status_tip and _status_tip != "" else COLOR_TEXT
+		_add_tooltip_label(box, line, 13, color)
+	tree.root.add_child(tooltip)
+	_tooltip = tooltip
+	_sync_tooltip_size()
+	var viewport: Viewport = get_viewport()
+	if viewport != null:
+		_move_tooltip(viewport.get_mouse_position())
+
+func _current_tooltip_lines() -> Array[String]:
+	var lines: Array[String] = []
+	if _status_tip != "":
+		lines.append(_status_tip)
+	for line: String in _tooltip_lines:
+		if line.strip_edges() != "":
+			lines.append(line)
+	return lines
+
+func _add_tooltip_label(parent: VBoxContainer, text: String, font_size: int, color: Color) -> void:
+	var label: Label = Label.new()
+	label.text = String(text)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size.x = TOOLTIP_WIDTH - 24.0
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.75))
+	label.add_theme_constant_override("outline_size", 1)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(label)
+
+func _move_tooltip(viewport_pos: Vector2) -> void:
+	if _tooltip == null or not is_instance_valid(_tooltip):
+		return
+	_sync_tooltip_size()
+	_tooltip.global_position = _clamped_tooltip_position(viewport_pos + TOOLTIP_CURSOR_OFFSET)
+
+func _sync_tooltip_size() -> void:
+	if _tooltip == null or not is_instance_valid(_tooltip):
+		return
+	_tooltip.size.x = TOOLTIP_WIDTH
+	_tooltip.size.y = max(84.0, _tooltip.get_combined_minimum_size().y)
+
+func _clamped_tooltip_position(raw_position: Vector2) -> Vector2:
+	if _tooltip == null or not is_instance_valid(_tooltip):
+		return raw_position
+	var viewport: Viewport = get_viewport()
+	if viewport == null:
+		return raw_position
+	var viewport_size: Vector2 = viewport.get_visible_rect().size
+	var next_position: Vector2 = raw_position
+	if next_position.x + _tooltip.size.x + TOOLTIP_EDGE_PADDING > viewport_size.x:
+		next_position.x = raw_position.x - _tooltip.size.x - TOOLTIP_CURSOR_OFFSET.x * 1.5
+	if next_position.y + _tooltip.size.y + TOOLTIP_EDGE_PADDING > viewport_size.y:
+		next_position.y = viewport_size.y - _tooltip.size.y - TOOLTIP_EDGE_PADDING
+	if next_position.x < TOOLTIP_EDGE_PADDING:
+		next_position.x = TOOLTIP_EDGE_PADDING
+	if next_position.y < TOOLTIP_EDGE_PADDING:
+		next_position.y = TOOLTIP_EDGE_PADDING
+	return next_position
+
+func _make_tooltip_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.024, 0.020, 0.028, 0.985)
+	style.border_color = Color(0.72, 0.46, 0.22, 0.95)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 10
+	style.content_margin_bottom = 10
+	style.shadow_size = 14
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
+	return style
+
+func _clear_tooltip() -> void:
+	if _tooltip != null and is_instance_valid(_tooltip):
+		_tooltip.queue_free()
+	_tooltip = null
+
+func _exit_tree() -> void:
+	if _hover_tween != null and is_instance_valid(_hover_tween):
+		_hover_tween.kill()
+	_hover_tween = null
+	_clear_tooltip()
 
 func _refresh_cursor() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_ARROW if disabled else Control.CURSOR_POINTING_HAND

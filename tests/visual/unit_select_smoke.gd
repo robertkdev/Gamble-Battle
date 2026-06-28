@@ -38,6 +38,22 @@ func _run() -> void:
 	var initial_art: TextureRect = view.get_node_or_null("Center/HBox/Right/Preview/ArtWrap/Art") as TextureRect
 	_expect(initial_art != null and initial_art.texture == null, "Unit Select should begin without default preview art", failures)
 	_verify_rendered_starter_surface(view, failures)
+	var sari_button: Button = _button_for_unit(view, "sari")
+	_expect(sari_button != null, "Sari starter button missing", failures)
+	if sari_button != null:
+		sari_button.emit_signal("mouse_entered")
+		await get_tree().process_frame
+		await get_tree().process_frame
+		var role_badge: Label = view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/RoleBadge") as Label
+		_expect(role_badge != null and role_badge.visible, "Sari preview role badge missing", failures)
+		if role_badge != null:
+			_expect(role_badge.size.x <= 220.0, "Sari role badge should not stretch across the preview panel", failures)
+		_expect(details_label != null and String(details_label.text).find("Identity summary above") < 0, "Sari preview should not show identity placeholder copy", failures)
+		_expect(details_label != null and String(details_label.text).find("Traits:") >= 0, "Sari preview should show readable traits/identity tags", failures)
+		_expect(details_label != null and String(details_label.text).find("Attack:") >= 0, "Starter preview should show attack details", failures)
+		_expect(details_label != null and String(details_label.text).find("Ability:") >= 0, "Starter preview should show ability details", failures)
+		sari_button.emit_signal("mouse_exited")
+		await get_tree().process_frame
 	var first_button: Button = view.find_child("UnitButton_*", true, false) as Button
 	_expect(first_button != null, "No generated unit buttons found", failures)
 	if first_button != null:
@@ -110,6 +126,14 @@ func _rendered_unit_button_ids(view: UnitSelect) -> Array[String]:
 		ids.append(String(button.get_meta("unit_id")))
 	ids.sort()
 	return ids
+
+func _button_for_unit(view: UnitSelect, unit_id: String) -> Button:
+	var buttons: Array[Node] = view.find_children("UnitButton_*", "Button", true, false)
+	for node: Node in buttons:
+		var button: Button = node as Button
+		if button != null and button.has_meta("unit_id") and String(button.get_meta("unit_id")) == unit_id:
+			return button
+	return null
 
 func _sorted_string_copy(values: Array) -> Array[String]:
 	var out: Array[String] = []
