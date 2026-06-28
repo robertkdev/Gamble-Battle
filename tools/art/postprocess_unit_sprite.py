@@ -55,6 +55,109 @@ def transparent_from_green_screen(source: Image.Image) -> Image.Image:
 	return rgba
 
 
+def is_green_spill(pixel: tuple[int, int, int, int]) -> bool:
+	r, g, b, a = pixel
+	if a <= 0:
+		return False
+	if g < 56:
+		return False
+	if a < 128 and g >= max(r, b) + 6:
+		return True
+	return g >= int(r * 1.08) and g >= int(b * 1.05) and (g - max(r, b)) >= 14
+
+
+def neutralize_green_spill(pixel: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+	r, g, b, a = pixel
+	if a < 96:
+		return (0, 0, 0, 0)
+	if g > max(r, b) + 8:
+		g = max(r, b)
+	return (r, g, b, a)
+
+
+def decontaminate_green_spill(sprite: Image.Image) -> Image.Image:
+	rgba = sprite.convert("RGBA")
+	width, height = rgba.size
+	pixels = rgba.load()
+	known = bytearray(width * height)
+	unknown = bytearray(width * height)
+	queue: deque[tuple[int, int]] = deque()
+
+	for y in range(height):
+		for x in range(width):
+			index = y * width + x
+			r, g, b, a = pixels[x, y]
+			if a <= 0:
+				pixels[x, y] = (0, 0, 0, 0)
+				continue
+			if is_green_spill((r, g, b, a)):
+				unknown[index] = 1
+			else:
+				known[index] = 1
+
+	for y in range(height):
+		for x in range(width):
+			index = y * width + x
+			if not unknown[index]:
+				continue
+			for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+				if nx < 0 or ny < 0 or nx >= width or ny >= height:
+					continue
+				if known[ny * width + nx]:
+					queue.append((x, y))
+					break
+
+	while queue:
+		x, y = queue.popleft()
+		index = y * width + x
+		if not unknown[index]:
+			continue
+
+		colors: list[tuple[int, int, int]] = []
+		for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+			if nx < 0 or ny < 0 or nx >= width or ny >= height:
+				continue
+			if known[ny * width + nx]:
+				nr, ng, nb, na = pixels[nx, ny]
+				if na > 8:
+					colors.append((nr, ng, nb))
+
+		if not colors:
+			continue
+
+		r, g, b, a = pixels[x, y]
+		count = len(colors)
+		pixels[x, y] = (
+			sum(color[0] for color in colors) // count,
+			sum(color[1] for color in colors) // count,
+			sum(color[2] for color in colors) // count,
+			a,
+		)
+		pixels[x, y] = neutralize_green_spill(pixels[x, y])
+		unknown[index] = 0
+		known[index] = 1
+
+		for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+			if nx < 0 or ny < 0 or nx >= width or ny >= height:
+				continue
+			if unknown[ny * width + nx]:
+				queue.append((nx, ny))
+
+	for y in range(height):
+		for x in range(width):
+			index = y * width + x
+			if not unknown[index]:
+				continue
+			pixels[x, y] = neutralize_green_spill(pixels[x, y])
+
+	for y in range(height):
+		for x in range(width):
+			if is_green_spill(pixels[x, y]):
+				pixels[x, y] = neutralize_green_spill(pixels[x, y])
+
+	return rgba
+
+
 def center_on_canvas(sprite: Image.Image, canvas_size: int, padding: int) -> Image.Image:
 	alpha = sprite.getchannel("A")
 	bbox = alpha.getbbox()
@@ -211,9 +314,11 @@ def main() -> None:
 	cutout = transparent_from_green_screen(source)
 	cutout = remove_small_alpha_islands(cutout, args.min_alpha_island_area)
 	cutout = keep_near_solid_alpha(cutout, args.solid_alpha_threshold, args.solid_keep_radius)
+	cutout = decontaminate_green_spill(cutout)
 	sprite = center_on_canvas(cutout, args.canvas_size, args.padding)
 	sprite = remove_small_alpha_islands(sprite, args.min_alpha_island_area)
 	sprite = keep_near_solid_alpha(sprite, args.solid_alpha_threshold, args.solid_keep_radius)
+	sprite = decontaminate_green_spill(sprite)
 	args.output.parent.mkdir(parents=True, exist_ok=True)
 	sprite.save(args.output)
 	if args.preview:
