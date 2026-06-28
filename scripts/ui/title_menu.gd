@@ -17,6 +17,7 @@ const SECTION_SETTINGS: String = "settings"
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
 const COLOR_PANEL: Color = Color(0.030, 0.026, 0.034, 0.94)
 const COLOR_PANEL_SOFT: Color = Color(0.050, 0.040, 0.048, 0.90)
+const COLOR_PANEL_RICH: Color = Color(0.070, 0.038, 0.044, 0.92)
 const COLOR_PANEL_EDGE: Color = Color(0.42, 0.31, 0.24, 0.88)
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
 const COLOR_MUTED: Color = Color(0.62, 0.57, 0.50, 1.0)
@@ -234,7 +235,7 @@ func _apply_gothic_layout() -> void:
 		center.offset_bottom = 0.0
 	if center_vbox != null:
 		center_vbox.custom_minimum_size = Vector2(350.0, 0.0)
-		center_vbox.add_theme_constant_override("separation", 12)
+		center_vbox.add_theme_constant_override("separation", 13)
 	if title_label != null:
 		title_label.text = "Gamble Battle"
 		title_label.add_theme_font_size_override("font_size", 64)
@@ -293,14 +294,14 @@ func _ensure_title_panel() -> void:
 			move_child(_title_panel, max(0, center.get_index()))
 	_title_panel.z_index = 2
 	_title_panel.anchor_left = 0.035
-	_title_panel.anchor_top = 0.12
-	_title_panel.anchor_right = 0.355
-	_title_panel.anchor_bottom = 0.88
+	_title_panel.anchor_top = 0.115
+	_title_panel.anchor_right = 0.36
+	_title_panel.anchor_bottom = 0.895
 	_title_panel.offset_left = 0.0
 	_title_panel.offset_top = 0.0
 	_title_panel.offset_right = 0.0
 	_title_panel.offset_bottom = 0.0
-	_title_panel.add_theme_stylebox_override("panel", _make_panel_style(COLOR_PANEL, COLOR_PANEL_EDGE, 1, 7, 22))
+	_title_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.023, 0.020, 0.028, 0.91), Color(0.55, 0.39, 0.22, 0.90), 1, 7, 28))
 	if center != null:
 		center.z_index = 5
 
@@ -314,7 +315,7 @@ func _ensure_shade() -> void:
 		move_child(_shade, min(_shade.get_index(), 2))
 	_shade.z_index = 1
 	_shade.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_shade.color = Color(0.0, 0.0, 0.0, 0.42)
+	_shade.color = Color(0.0, 0.0, 0.0, 0.34)
 
 func _ensure_hero() -> void:
 	_hero = get_node_or_null("TitleHero") as TextureRect
@@ -325,17 +326,17 @@ func _ensure_hero() -> void:
 		add_child(_hero)
 	_hero.texture = HERO_TEXTURE
 	_hero.z_index = 3
-	_hero.anchor_left = 0.26
-	_hero.anchor_top = -0.04
-	_hero.anchor_right = 0.72
-	_hero.anchor_bottom = 1.06
+	_hero.anchor_left = 0.235
+	_hero.anchor_top = -0.055
+	_hero.anchor_right = 0.745
+	_hero.anchor_bottom = 1.08
 	_hero.offset_left = 0.0
 	_hero.offset_top = 0.0
 	_hero.offset_right = 0.0
 	_hero.offset_bottom = 0.0
 	_hero.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_hero.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_hero.modulate = Color(0.55, 0.45, 0.42, 0.28)
+	_hero.modulate = Color(0.72, 0.60, 0.54, 0.38)
 
 func _ensure_sigil() -> void:
 	_sigil = get_node_or_null("TitleSigil") as TextureRect
@@ -346,17 +347,17 @@ func _ensure_sigil() -> void:
 		add_child(_sigil)
 	_sigil.texture = SIGIL_TEXTURE
 	_sigil.z_index = 2
-	_sigil.anchor_left = 0.01
-	_sigil.anchor_top = 0.05
-	_sigil.anchor_right = 0.25
-	_sigil.anchor_bottom = 0.46
+	_sigil.anchor_left = 0.00
+	_sigil.anchor_top = 0.035
+	_sigil.anchor_right = 0.285
+	_sigil.anchor_bottom = 0.49
 	_sigil.offset_left = 0.0
 	_sigil.offset_top = 0.0
 	_sigil.offset_right = 0.0
 	_sigil.offset_bottom = 0.0
 	_sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_sigil.modulate = Color(0.62, 0.48, 0.32, 0.20)
+	_sigil.modulate = Color(0.74, 0.54, 0.34, 0.28)
 
 func _ensure_subtitle() -> void:
 	if center_vbox == null:
@@ -391,14 +392,14 @@ func _ensure_content_panel() -> void:
 		add_child(_content_panel)
 	_content_panel.z_index = 6
 	_content_panel.anchor_left = 0.38
-	_content_panel.anchor_top = 0.08
+	_content_panel.anchor_top = 0.075
 	_content_panel.anchor_right = 0.965
 	_content_panel.anchor_bottom = 0.92
 	_content_panel.offset_left = 0.0
 	_content_panel.offset_top = 0.0
 	_content_panel.offset_right = 0.0
 	_content_panel.offset_bottom = 0.0
-	_content_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.026, 0.023, 0.030, 0.95), Color(0.50, 0.36, 0.18, 0.92), 1, 7, 18))
+	_content_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.022, 0.019, 0.025, 0.96), Color(0.55, 0.39, 0.18, 0.94), 1, 7, 22))
 
 	var margin: MarginContainer = _content_panel.get_node_or_null("Margin") as MarginContainer
 	if margin == null:
@@ -414,16 +415,16 @@ func _ensure_content_panel() -> void:
 	if _content_stack == null:
 		_content_stack = VBoxContainer.new()
 		_content_stack.name = "Stack"
-		_content_stack.add_theme_constant_override("separation", 12)
 		margin.add_child(_content_stack)
+	_content_stack.add_theme_constant_override("separation", 14)
 
 	var header: VBoxContainer = _content_stack.get_node_or_null("Header") as VBoxContainer
 	if header == null:
 		header = VBoxContainer.new()
 		header.name = "Header"
-		header.add_theme_constant_override("separation", 8)
 		_content_stack.add_child(header)
 		_content_stack.move_child(header, 0)
+	header.add_theme_constant_override("separation", 8)
 
 	_section_title = header.get_node_or_null("SectionTitle") as Label
 	if _section_title == null:
@@ -449,7 +450,7 @@ func _ensure_content_panel() -> void:
 		_search_field = LineEdit.new()
 		_search_field.name = "SearchField"
 		header.add_child(_search_field)
-	_search_field.custom_minimum_size = Vector2(0.0, 38.0)
+	_search_field.custom_minimum_size = Vector2(0.0, 40.0)
 	_search_field.clear_button_enabled = true
 	_search_field.add_theme_font_size_override("font_size", 17)
 	_search_field.add_theme_color_override("font_color", COLOR_TEXT)
@@ -473,8 +474,8 @@ func _ensure_content_panel() -> void:
 		_content_body = VBoxContainer.new()
 		_content_body.name = "ContentBody"
 		_content_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_content_body.add_theme_constant_override("separation", 10)
 		scroll.add_child(_content_body)
+	_content_body.add_theme_constant_override("separation", 12)
 
 func _select_section(section: String, clear_search: bool = true) -> void:
 	_active_section = section
@@ -504,14 +505,55 @@ func _render_active_section() -> void:
 func _render_home() -> void:
 	_set_content_header("Command Menu", "Start a run, study the roster, learn the RGA language, or tune local settings. Search here scans units, roles, goals, approaches, and tutorial entries.")
 	if _search_field != null:
-		_search_field.placeholder_text = "Search everything: Hexeon, sustain, tank, shop, PASS..."
+		_search_field.placeholder_text = "Search units, roles, goals, shop, PASS..."
 	if _search_query() != "":
 		_render_global_search_results()
 		return
-	_add_card("Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and betting decisions.", "run flow start starter shop bench combines items traits betting")
-	_add_card("Roster Library", "The Units submenu is generated from the live UnitProfile and identity resources, including ability text, traits, cost, role, goal, and approaches.", "units roster ability traits cost role goal approaches")
-	_add_card("RGA Language", "RGA means Role, Goal, Approach. The glossary explains how a unit is supposed to win fights and how validation labels that evidence.", "rga role goal approach pass lean fail subject scenario")
-	_add_card("Settings", "Runtime settings include master volume, fullscreen, and reduced-motion controls for this menu session.", "settings volume fullscreen reduced motion")
+	_add_home_loop_band()
+	_add_home_route_grid()
+
+func _add_home_loop_band() -> void:
+	var card: PanelContainer = _make_card_container("OpeningLoop", Color(0.045, 0.026, 0.030, 0.94), Color(COLOR_GOLD.r, COLOR_GOLD.g, COLOR_GOLD.b, 0.66), 1)
+	_content_body.add_child(card)
+	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 10)
+	margin.add_child(stack)
+	stack.add_child(_make_label("Opening Loop", 18, COLOR_TEXT, true))
+	var row: HBoxContainer = HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 12)
+	stack.add_child(row)
+	_add_loop_step(row, "1", "Pick", "Choose a starter")
+	_add_loop_step(row, "2", "Fight", "Read the opener")
+	_add_loop_step(row, "3", "Shop", "Build the board")
+
+func _add_loop_step(parent: HBoxContainer, number: String, title: String, body: String) -> void:
+	var step: HBoxContainer = HBoxContainer.new()
+	step.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	step.add_theme_constant_override("separation", 9)
+	parent.add_child(step)
+	var badge: PanelContainer = _make_badge(number, COLOR_GOLD)
+	step.add_child(badge)
+	var copy: VBoxContainer = VBoxContainer.new()
+	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	copy.add_theme_constant_override("separation", 2)
+	step.add_child(copy)
+	copy.add_child(_make_label(title, 15, Color(0.98, 0.86, 0.64, 1.0), false))
+	copy.add_child(_make_label(body, 12, COLOR_MUTED, true))
+
+func _add_home_route_grid() -> void:
+	var grid: GridContainer = GridContainer.new()
+	grid.name = "HomeRouteGrid"
+	grid.columns = 1 if get_viewport_rect().size.x < 1300.0 else 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
+	_content_body.add_child(grid)
+	_add_card_to_parent(grid, "Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and betting decisions.", "Start Here", "run flow start starter shop bench combines items traits betting", COLOR_GOLD, false, "HomeRunFlow")
+	_add_card_to_parent(grid, "Roster Library", "Live unit cards include ability text, traits, cost, role, goal, and approaches, so roster study stays tied to current resources.", "Units", "units roster ability traits cost role goal approaches", COLOR_BLOOD_HOT, false, "HomeRoster")
+	_add_card_to_parent(grid, "RGA Language", "Role, Goal, Approach terms explain how a unit is supposed to win fights and how validation labels that evidence.", "Glossary", "rga role goal approach pass lean fail subject scenario", COLOR_BLUE, false, "HomeRGA")
+	_add_card_to_parent(grid, "Settings", "Runtime controls for master volume, fullscreen, and reduced-motion behavior in the current menu session.", "Local", "settings volume fullscreen reduced motion", COLOR_GREEN, false, "HomeSettings")
 
 func _render_global_search_results() -> void:
 	var count: int = 0
@@ -685,12 +727,28 @@ func _add_unit_card(entry: Dictionary, compact: bool) -> void:
 func _add_card(title: String, body: String, search_blob: String, kicker: String = "", accent: Color = COLOR_GOLD, compact: bool = false) -> PanelContainer:
 	if not _matches_query(search_blob + " " + title + " " + body + " " + kicker):
 		return null
-	var card: PanelContainer = _make_card_container("InfoCard", COLOR_PANEL_SOFT, Color(accent.r, accent.g, accent.b, 0.56), 1)
-	_content_body.add_child(card)
+	return _add_card_to_parent(_content_body, title, body, kicker, search_blob, accent, compact, "InfoCard")
+
+func _add_card_to_parent(parent: Control, title: String, body: String, kicker: String, search_blob: String, accent: Color, compact: bool, node_name: String) -> PanelContainer:
+	if not _matches_query(search_blob + " " + title + " " + body + " " + kicker):
+		return null
+	var card: PanelContainer = _make_card_container(node_name, COLOR_PANEL_RICH if not compact else COLOR_PANEL_SOFT, Color(accent.r, accent.g, accent.b, 0.62), 1)
+	card.custom_minimum_size = Vector2(0.0, 118.0 if parent is GridContainer else 0.0)
+	parent.add_child(card)
 	var margin: MarginContainer = card.get_node("Margin") as MarginContainer
+	var row: HBoxContainer = HBoxContainer.new()
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 12)
+	margin.add_child(row)
+	var accent_bar: ColorRect = ColorRect.new()
+	accent_bar.color = Color(accent.r, accent.g, accent.b, 0.86)
+	accent_bar.custom_minimum_size = Vector2(3.0, 0.0)
+	accent_bar.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	row.add_child(accent_bar)
 	var stack: VBoxContainer = VBoxContainer.new()
+	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stack.add_theme_constant_override("separation", 5 if compact else 7)
-	margin.add_child(stack)
+	row.add_child(stack)
 	if kicker != "":
 		stack.add_child(_make_label(kicker, 12, Color(accent.r, accent.g, accent.b, 0.92), true))
 	stack.add_child(_make_label(title, 20 if not compact else 16, COLOR_TEXT, true))
@@ -806,6 +864,22 @@ func _make_tag(text: String, color: Color) -> PanelContainer:
 	margin.add_child(label)
 	return tag
 
+func _make_badge(text: String, color: Color) -> PanelContainer:
+	var badge: PanelContainer = PanelContainer.new()
+	badge.custom_minimum_size = Vector2(34.0, 34.0)
+	badge.add_theme_stylebox_override("panel", _make_panel_style(Color(color.r * 0.20, color.g * 0.16, color.b * 0.12, 0.92), Color(color.r, color.g, color.b, 0.82), 1, 17, 0))
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 8)
+	margin.add_theme_constant_override("margin_right", 8)
+	margin.add_theme_constant_override("margin_top", 5)
+	margin.add_theme_constant_override("margin_bottom", 5)
+	badge.add_child(margin)
+	var label: Label = _make_label(text, 14, Color(1.0, 0.90, 0.68, 1.0), false)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	margin.add_child(label)
+	return badge
+
 func _style_menu_button(button: Button, primary: bool) -> void:
 	if button == null:
 		return
@@ -816,10 +890,10 @@ func _style_menu_button(button: Button, primary: bool) -> void:
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.72, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.76, 0.55, 1.0))
 	if primary:
-		button.add_theme_stylebox_override("normal", _make_button_style(COLOR_BLOOD, Color(0.92, 0.48, 0.30, 0.92), 2))
-		button.add_theme_stylebox_override("hover", _make_button_style(COLOR_BLOOD_HOT, Color(1.0, 0.80, 0.43, 1.0), 2))
+		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.34, 0.045, 0.062, 0.98), Color(0.96, 0.56, 0.30, 0.96), 2))
+		button.add_theme_stylebox_override("hover", _make_button_style(Color(0.55, 0.055, 0.080, 1.0), Color(1.0, 0.82, 0.45, 1.0), 2))
 	else:
-		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.055, 0.047, 0.058, 0.96), Color(0.33, 0.28, 0.28, 0.96), 1))
+		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1))
 		button.add_theme_stylebox_override("hover", _make_button_style(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0), 1))
 	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2))
 	button.add_theme_stylebox_override("focus", _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2))
@@ -830,9 +904,9 @@ func _update_nav_state() -> void:
 		var is_active: bool = section == _active_section
 		nav_button.add_theme_color_override("font_color", Color(1.0, 0.86, 0.58, 1.0) if is_active else COLOR_TEXT)
 		if is_active:
-			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.12, 0.055, 0.060, 0.98), COLOR_GOLD, 1))
+			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.15, 0.060, 0.062, 0.98), COLOR_GOLD, 1))
 		else:
-			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.055, 0.047, 0.058, 0.96), Color(0.33, 0.28, 0.28, 0.96), 1))
+			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1))
 
 func _make_panel_style(bg_color: Color, border_color: Color, border_width: int, radius: int, shadow_size: int) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
