@@ -1,0 +1,634 @@
+{
+  "version": 1,
+  "usage": "Machine-readable proof ledger for the Gamble Battle matte gothic unit-art workflow. Use this before generation to see which archetypes are proven, which examples were rejected, and which coverage gaps still need a deliberate stress test. Do not treat a proof here as permission to replace live assets; live swaps still require explicit user approval.",
+  "style_contract": {
+    "target": "western dark gothic board-game unit art, about 10 percent grounded realism, high-detail matte gothic illustration, Vellum/Paisley anchor-level detail richness, powder-matte dry material language, layered fabric/parchment/dry edge wear, hand-painted surface breakup, low-specular ambient light, broad heavy shadow, readable at 96 px",
+    "reference_hierarchy": [
+      "Vellum is the primary and ultimate character style anchor.",
+      "Paisley is the secondary contrast anchor for brighter or stranger units that still need the same dry gothic richness.",
+      "The Vellum contract token is a small-asset material/detail reference, not the main character palette anchor.",
+      "Later accepted/current proofs are narrow coverage examples, not equal global style anchors unless the user explicitly promotes them."
+    ],
+    "hard_reject_if": [
+      "sweaty, oily, wet, glossy, plastic, latex, lacquered, or polished-leather skin/clothing",
+      "clean fantasy, mobile-game, gacha, cartoon, comic-book, toy-like, or heroic splash-art rendering",
+      "low-detail smooth creature model, over-smoothed simplified matte shapes, or palette-only match that lacks Vellum/Paisley dry detail richness",
+      "polished bevels, chrome, bright specular highlights, shiny plate, or cinematic bloom",
+      "textured/smoky/scenic background instead of flat safety-orange #f84401"
+    ],
+    "cutout_default": "BiRefNet with --foreground-ml --despill-orange and board preview on checker, black, and white",
+    "reference_policy": {
+      "primary_anchor": {
+        "id": "vellum_raw_anchor",
+        "label": "Vellum raw",
+        "path": "outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+        "rule": "Ultimate character style reference for mood, material language, detail richness, and side-by-side comparison order. Do not demote or average it with later proofs unless the user explicitly replaces it."
+      },
+      "secondary_anchor_proof_ids": [
+        "paisley_goth_bubble_refit"
+      ],
+      "small_asset_reference_proof_ids": [
+        "ability_token_contract_mark"
+      ],
+      "promotion_rule": "Later accepted/current proofs are narrow coverage examples only. They do not become global style anchors just because they passed; user must explicitly promote a proof before it can change the anchor hierarchy.",
+      "candidate_rule": "Current candidates can demonstrate process progress, but they are review-only and never anchor references until approved."
+    }
+  },
+  "proofs": [
+    {
+      "id": "kythera_mummy_goth_refit",
+      "subject_type": "unit",
+      "subject_id": "kythera",
+      "display_name": "Kythera",
+      "status": "accepted",
+      "coverage_group": [
+        "small_narrow",
+        "detached_effects"
+      ],
+      "proof_goal": "Existing narrow mummy/ribbon unit stays readable and matte after gothic refit.",
+      "source_image": "assets/units/kythera.png",
+      "output_dir": "outputs/art_pipeline/style_validation/kythera_mummy_goth_refit_2026_06_29",
+      "raw": "outputs/art_pipeline/style_validation/kythera_mummy_goth_refit_2026_06_29/kythera_mummy_goth_refit_raw.png",
+      "cutout": "outputs/art_pipeline/style_validation/kythera_mummy_goth_refit_2026_06_29/kythera_mummy_goth_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/kythera_mummy_goth_refit_2026_06_29/kythera_mummy_goth_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/kythera_mummy_goth_refit_2026_06_29/kythera_mummy_goth_refit_board_preview.png",
+      "style_gate": "Pass: dry mummy cloth/parchment read, non-glossy, narrow silhouette survives 96 px.",
+      "cutout_gate": "Pass: refined BiRefNet cutout preserved ribbons/body without major orange fringe.",
+      "telegram_message": null,
+      "decision_notes": "Accepted as small/narrow plus detached-ribbon proof. Not a live asset replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "paisley_goth_bubble_refit",
+      "subject_type": "unit",
+      "subject_id": "paisley",
+      "display_name": "Paisley",
+      "status": "accepted",
+      "coverage_group": [
+        "humanoid_mage",
+        "detached_effects"
+      ],
+      "proof_goal": "Bright contrast unit can keep the goth direction and detached bubble identity without cartoon gloss.",
+      "source_image": "assets/units/paisley.png",
+      "output_dir": "outputs/art_pipeline/style_validation/paisley_goth_bubble_refit_2026_06_29",
+      "raw": "outputs/art_pipeline/style_validation/paisley_goth_bubble_refit_2026_06_29/paisley_goth_bubble_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/paisley_goth_bubble_refit_2026_06_29/paisley_goth_bubble_refit_cutout_selected_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/paisley_goth_bubble_refit_2026_06_29/paisley_goth_bubble_refit_review_selected_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/paisley_goth_bubble_refit_2026_06_29/paisley_goth_bubble_refit_board_preview_selected.png",
+      "style_gate": "Pass: brighter contrast remains aged, dry, and gothic rather than shiny/cartoon.",
+      "cutout_gate": "Pass: selected BiRefNet cutout was preferred after detached-bubble review.",
+      "telegram_message": "90",
+      "decision_notes": "Accepted as contrast-side and detached-effects proof. Not a live asset replacement.",
+      "reference_role": "secondary_contrast_anchor"
+    },
+    {
+      "id": "ability_token_contract_mark",
+      "subject_type": "asset",
+      "subject_id": "ability_token_contract_mark",
+      "display_name": "Vellum contract-mark ability token",
+      "status": "accepted",
+      "coverage_group": [],
+      "asset_coverage": [
+        "non_character_token",
+        "small_icon"
+      ],
+      "proof_goal": "Non-character gameplay token keeps matte wax/parchment/ink language without readable glyphs.",
+      "source_image": null,
+      "output_dir": "outputs/art_pipeline/style_validation/ability_token_contract_mark_2026_06_29",
+      "raw": "outputs/art_pipeline/style_validation/ability_token_contract_mark_2026_06_29/ability_token_contract_mark_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/ability_token_contract_mark_2026_06_29/ability_token_contract_mark_cutout_selected_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/ability_token_contract_mark_2026_06_29/ability_token_contract_mark_review_selected_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/ability_token_contract_mark_2026_06_29/ability_token_contract_mark_board_preview_selected.png",
+      "style_gate": "Pass: matte wax/parchment/ink token read at small scale with no shiny jewel treatment.",
+      "cutout_gate": "Pass: selected BiRefNet cutout held the token cleanly.",
+      "telegram_message": "91",
+      "decision_notes": "Accepted as non-character asset proof.",
+      "reference_role": "small_asset_material_reference"
+    },
+    {
+      "id": "creep_unit_refit_rejected",
+      "subject_type": "unit",
+      "subject_id": "creep",
+      "display_name": "Creep",
+      "status": "rejected",
+      "coverage_group": [
+        "other_unit",
+        "goth_horror_anchor",
+        "monster_assassin",
+        "detached_effects"
+      ],
+      "proof_goal": "Planned horror assassin unit refit, first attempt.",
+      "source_image": "assets/units/creep.png",
+      "output_dir": "outputs/art_pipeline/style_validation/creep_unit_refit_2026_06_29",
+      "raw": "outputs/art_pipeline/style_validation/creep_unit_refit_2026_06_29/creep_unit_refit_raw.png",
+      "cutout": "outputs/art_pipeline/style_validation/creep_unit_refit_2026_06_29/creep_unit_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/creep_unit_refit_2026_06_29/creep_unit_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/creep_unit_refit_2026_06_29/creep_unit_refit_board_preview.png",
+      "style_gate": "Fail: identity became ripped-apart corpse/dead-flesh horror and still did not match Paisley/Vellum matte gothic finish.",
+      "cutout_gate": "Pass: tendrils survived the refined BiRefNet cutout, but the raw was rejected.",
+      "telegram_message": "93",
+      "failure_reason": "Lost original smooth oval alien face and smooth gray-blue alien skin; leaned into exposed anatomy, corpse texture, and wet/dead-flesh horror.",
+      "decision_notes": "Kept as negative example. It hardened the Creep smooth-alien lock and anti-corpse prompt guard.",
+      "reference_role": "negative_example"
+    },
+    {
+      "id": "creep_smooth_alien_refit",
+      "subject_type": "unit",
+      "subject_id": "creep",
+      "display_name": "Creep",
+      "status": "rejected",
+      "coverage_group": [
+        "other_unit",
+        "goth_horror_anchor",
+        "monster_assassin",
+        "detached_effects"
+      ],
+      "proof_goal": "Restore original smooth alien face/skin while pushing Creep into the same matte gothic family as Vellum and Paisley.",
+      "source_image": "assets/units/creep.png",
+      "output_dir": "outputs/art_pipeline/style_validation/creep_smooth_alien_refit_2026_06_29",
+      "raw": "outputs/art_pipeline/style_validation/creep_smooth_alien_refit_2026_06_29/creep_smooth_alien_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/creep_smooth_alien_refit_2026_06_29/creep_smooth_alien_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/creep_smooth_alien_refit_2026_06_29/creep_smooth_alien_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/creep_smooth_alien_refit_2026_06_29/creep_smooth_alien_refit_board_preview.png",
+      "style_gate": "Fail: smooth alien identity improved, but the material finish still read too shiny/creature-concept compared with Vellum and Paisley.",
+      "cutout_gate": "Pass: refined BiRefNet cutout preserved black tendril/blade silhouette and board-scale ring.",
+      "telegram_message": "95",
+      "failure_reason": "Solved more of the original smooth alien face/skin problem than the first rejected proof, but still carried slick head/body highlights and did not lock into the hard matte gothic finish.",
+      "decision_notes": "Kept as a superseded negative example. It proves that Creep identity restoration alone is not enough without the hard matte material gate.",
+      "reference_role": "negative_example"
+    },
+    {
+      "id": "creep_hard_matte_smooth_alien_refit",
+      "subject_type": "unit",
+      "subject_id": "creep",
+      "display_name": "Creep",
+      "status": "rejected",
+      "coverage_group": [
+        "other_unit",
+        "goth_horror_anchor",
+        "monster_assassin",
+        "detached_effects"
+      ],
+      "proof_goal": "Restore original smooth alien face/skin and force Creep into the same hard matte gothic finish as Vellum and Paisley.",
+      "source_image": "assets/units/creep.png",
+      "output_dir": "outputs/art_pipeline/style_validation/creep_hard_matte_smooth_alien_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/creep_hard_matte_smooth_alien_refit_2026_06_30/creep_hard_matte_smooth_alien_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/creep_hard_matte_smooth_alien_refit_2026_06_30/creep_hard_matte_smooth_alien_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/creep_hard_matte_smooth_alien_refit_2026_06_30/creep_hard_matte_smooth_alien_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/creep_hard_matte_smooth_alien_refit_2026_06_30/creep_hard_matte_smooth_alien_refit_board_preview.png",
+      "style_gate": "Fail after human review: preserves more of the smooth alien face/skin but still reads too shiny/creature-concept beside Vellum and Paisley.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserved the tendril ring without visible orange fringe in the review and board preview.",
+      "telegram_message": "102",
+      "failure_reason": "The body/head and serrated tendrils still carried slick creature-concept highlights and anatomical surface modeling; identity restoration was not enough to meet the matte gothic non-shiny gate.",
+      "decision_notes": "Kept as a superseded negative example. It proves Creep needs smooth alien skin plus flat powder-matte material and dull ink tendrils, not just a less wet creature render.",
+      "reference_role": "negative_example"
+    },
+    {
+      "id": "creep_smooth_alien_matte_match_refit",
+      "subject_type": "unit",
+      "subject_id": "creep",
+      "display_name": "Creep",
+      "status": "rejected",
+      "coverage_group": [
+        "other_unit",
+        "goth_horror_anchor",
+        "monster_assassin",
+        "detached_effects"
+      ],
+      "proof_goal": "Restore Creep's original smooth alien skin/face while matching Paisley and Vellum's matte gothic non-shiny finish more strictly.",
+      "source_image": "assets/units/creep.png",
+      "output_dir": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_board_preview.png",
+      "style_gate": "Fail after style-drift audit: restores smooth alien face/skin and reduces sweaty corpse shine, but overcorrects into an under-detailed smooth creature that lacks Vellum/Paisley-level dry gothic illustration richness.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the smooth head/body read, hands/feet, dull tendril ring, and 96 px board-scale silhouette on checker, black, and white.",
+      "telegram_message": "117",
+      "failure_reason": "Clean/readable but too simplified: the smooth body lost the layered dry texture, tactile surface breakup, small gothic accents, and hand-painted material richness that make Vellum and Paisley work. Detail score was also visibly and metrically far below the reference pair.",
+      "decision_notes": "Kept as a negative example for the new audit rule: de-shining must preserve high-detail dry rendering, not smooth the unit into a low-detail creature model. Do not replace assets/units/creep.png.",
+      "reference_role": "negative_example"
+    },
+    {
+      "id": "creep_vellum_primary_detail_refit",
+      "subject_type": "unit",
+      "subject_id": "creep",
+      "display_name": "Creep",
+      "status": "current_candidate",
+      "coverage_group": [
+        "other_unit",
+        "goth_horror_anchor",
+        "monster_assassin",
+        "detached_effects"
+      ],
+      "proof_goal": "Retest Creep after the Vellum-primary audit by preserving smooth alien identity while restoring Vellum-level dry gothic detail richness.",
+      "source_image": "assets/units/creep.png",
+      "output_dir": "outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png",
+      "style_gate": "Current candidate after Vellum-primary side-by-side correction: smooth oval alien face and gray-blue skin remain, while dry occult markings, subtle chalk/mottled surface breakup, cord/ribbon/talisman scraps, and dull ink-black serrated tendrils restore more anchor-level detail richness without returning to wet corpse anatomy. Vellum-first audit shows edge/detail proxy 32.65, back in the Vellum/Paisley range rather than the failed smooth Creep's 14.49.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout completed, board preview reads on checker/black/white, and Vellum-first audit sheet keeps Creep readable at board scale without making the raw under-detailed.",
+      "style_audit": "outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png",
+      "telegram_message": "118",
+      "telegram_board_message": "119",
+      "decision_notes": "Current Creep candidate and first real test of the tightened Vellum-primary process. It is not a live replacement and must not touch assets/units/creep.png without explicit approval.",
+      "reference_role": "review_candidate_not_anchor"
+    },
+    {
+      "id": "grint_tank_weapon_refit_rejected",
+      "subject_type": "unit",
+      "subject_id": "grint",
+      "display_name": "Grint",
+      "status": "rejected",
+      "coverage_group": [
+        "large_tank",
+        "weapon_heavy"
+      ],
+      "proof_goal": "Tank/weapon-heavy identity proof, first attempt.",
+      "source_image": "assets/units/grint.png",
+      "output_dir": "outputs/art_pipeline/style_validation/grint_tank_weapon_refit_2026_06_29",
+      "raw": "outputs/art_pipeline/style_validation/grint_tank_weapon_refit_2026_06_29/grint_tank_weapon_refit_raw.png",
+      "cutout": "outputs/art_pipeline/style_validation/grint_tank_weapon_refit_2026_06_29/grint_tank_weapon_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/grint_tank_weapon_refit_2026_06_29/grint_tank_weapon_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/grint_tank_weapon_refit_2026_06_29/grint_tank_weapon_refit_board_preview.png",
+      "style_gate": "Fail: clean fantasy/cartoon metal drift; too heroic and too shiny for the matte gothic target.",
+      "cutout_gate": "Pass: shield, hammer, and chain survived, but the raw style was rejected.",
+      "telegram_message": "94",
+      "failure_reason": "Preserved identity but lost matte goth non-shiny material language; armor read as clean fantasy/cartoon and too polished.",
+      "decision_notes": "Kept as negative example. It created the hard matte gothic gate.",
+      "reference_role": "negative_example"
+    },
+    {
+      "id": "grint_hard_matte_refit",
+      "subject_type": "unit",
+      "subject_id": "grint",
+      "display_name": "Grint",
+      "status": "accepted",
+      "coverage_group": [
+        "large_tank",
+        "weapon_heavy"
+      ],
+      "proof_goal": "Correct tank/weapon-heavy proof after hard matte gate was added.",
+      "source_image": "assets/units/grint.png",
+      "output_dir": "outputs/art_pipeline/style_validation/grint_hard_matte_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/grint_hard_matte_refit_2026_06_30/grint_hard_matte_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/grint_hard_matte_refit_2026_06_30/grint_hard_matte_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/grint_hard_matte_refit_2026_06_30/grint_hard_matte_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/grint_hard_matte_refit_2026_06_30/grint_hard_matte_refit_board_preview.png",
+      "style_gate": "Pass: grimier, darker, soot-stained, low-sheen tank with shield and hammer intact.",
+      "cutout_gate": "Pass: checker/black/white review held the shield, hammer, and board-scale read.",
+      "telegram_message": "96",
+      "decision_notes": "Accepted as tank/weapon-heavy workflow proof. Not a live asset replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "korath_haloed_tank_refit",
+      "subject_type": "unit",
+      "subject_id": "korath",
+      "display_name": "Korath",
+      "status": "current_candidate",
+      "coverage_group": [
+        "large_tank"
+      ],
+      "proof_goal": "Stress-test whether the hard matte gate can survive a bright blessed haloed titan without reverting to shiny paladin/chrome.",
+      "source_image": "assets/units/korath (1).png",
+      "output_dir": "outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_board_preview.png",
+      "style_gate": "Candidate pass: broad blessed titan identity, halo, crystals, chalky ivory stone, and tarnished gold survive with much less shine than the source.",
+      "cutout_gate": "Pass: refined BiRefNet cutout holds halo, shoulders, crystal spikes, hands, feet, and board-scale silhouette on checker/black/white review.",
+      "telegram_message": "97",
+      "decision_notes": "Current Korath candidate. It is useful as a haloed/divine tank stress proof, but the raw orange field is still a generated background rather than a mathematically flat key, so keep using BiRefNet and do not replace the live asset without human approval.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "luna_bright_caster_refit",
+      "subject_type": "unit",
+      "subject_id": "luna",
+      "display_name": "Luna",
+      "status": "current_candidate",
+      "coverage_group": [
+        "humanoid_mage",
+        "detached_effects"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can preserve a bright support/caster identity without drifting into glossy anime, cheerful rave, or mobile-game magical-girl art.",
+      "source_image": "assets/units/luna.png",
+      "output_dir": "outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_board_preview.png",
+      "style_gate": "First-try candidate pass: adult moon-staff caster identity, turquoise hair, muted stained-glass dress panels, and dry low-sheen gothic material language survive without anime/magical-girl gloss.",
+      "cutout_gate": "Pass: refined BiRefNet cutout preserves the crescent staff head, staff shaft, hair, extended hand, boots, and dress mass on checker/black/white review.",
+      "telegram_message": "98",
+      "decision_notes": "Current Luna candidate and first-try bright support/caster proof. It is not a live replacement. The raw orange field is generated rather than mathematically flat, so keep using BiRefNet and board-preview review.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "morrak_polearm_executioner_refit",
+      "subject_type": "unit",
+      "subject_id": "morrak",
+      "display_name": "Morrak",
+      "status": "current_candidate",
+      "coverage_group": [
+        "monster_assassin",
+        "weapon_heavy"
+      ],
+      "proof_goal": "Stress-test whether the hard matte gate can preserve a long diagonal polearm/scythe, cape, chains, and huge curved blade without cropping, tangling, or false mounted/horse drift.",
+      "source_image": "assets/units/morrak.png",
+      "output_dir": "outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_board_preview.png",
+      "style_gate": "Candidate pass after one de-gloss iteration: standing red-black executioner identity, horned helmet, tattered cape, chains, full polearm, and huge blade survive with drier soot-black armor than attempt 1.",
+      "cutout_gate": "Pass: refined BiRefNet cutout preserves the long polearm, large curved blade, helmet, cape, chains, feet, and 96 px board-scale read on checker/black/white review.",
+      "telegram_message": "99",
+      "decision_notes": "Current Morrak candidate. Attempt 1 solved the full-polearm composition but still had too much polished black armor; the selected attempt tightened dry soot-black material. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "teller_contract_mogul_refit",
+      "subject_type": "unit",
+      "subject_id": "teller",
+      "display_name": "Teller",
+      "status": "current_candidate",
+      "coverage_group": [
+        "humanoid_mage",
+        "weapon_heavy",
+        "small_narrow"
+      ],
+      "proof_goal": "Stress-test whether the hard matte gate can preserve a thin contract/mogul silhouette, pale half-mask, small hand weapon, and grouped gold contract magic without glossy formalwear or board-scale collapse.",
+      "source_image": "assets/units/teller.png",
+      "output_dir": "outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_board_preview.png",
+      "style_gate": "Current candidate pass: thin Exile/Mogul identity, pale cracked half-mask, long matte coat, red lining, quill/ammo details, small hand weapon, and one grouped parchment-gold contract magic shape survive without glossy tuxedo drift.",
+      "cutout_gate": "Pass: refined BiRefNet cutout preserves the half-mask, coat tails, boots, small weapon, quills, and grouped magic shape; the board preview remains readable at 96 px on checker/black/white.",
+      "telegram_message": "100",
+      "decision_notes": "Current Teller candidate. The raw still has some realistic dark-cloth highlights, but it avoids shiny tuxedo/leather and keeps the small formal silhouette readable. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "bo_large_brute_refit",
+      "subject_type": "unit",
+      "subject_id": "bo",
+      "display_name": "Bo",
+      "status": "current_candidate",
+      "coverage_group": [
+        "large_tank",
+        "monster_assassin",
+        "weapon_heavy",
+        "goth_horror_anchor"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can hold on a massive red-black demon brute without wet monster skin, shiny lava cracks, comedy brute drift, or unreadable bulk.",
+      "source_image": "assets/units/bo.png",
+      "output_dir": "outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_board_preview.png",
+      "style_gate": "First-try current candidate: Bo keeps the huge horned executioner brute identity, tusked maw, red-black crack motif, bone spikes, clawed hands, and chained mace-head while reading as dry charcoal stone-hide and matte demon plates instead of wet skin or shiny lava.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the horns, broad torso, legs, clawed hand, chain, mace-head, and 96 px board read on checker/black/white.",
+      "telegram_message": "103",
+      "decision_notes": "Current Bo candidate and first-try proof for the large red-black demon brute risk. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "axiom_compact_scholar_refit",
+      "subject_type": "unit",
+      "subject_id": "axiom",
+      "display_name": "Axiom",
+      "status": "current_candidate",
+      "coverage_group": [
+        "humanoid_mage",
+        "small_narrow"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can preserve a compact occult scholar/mentor silhouette without glossy feathers, cute owl drift, generic wizard drift, or board-scale collapse.",
+      "source_image": "assets/units/axiom.png",
+      "output_dir": "outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_board_preview.png",
+      "style_gate": "First-try current candidate: Axiom keeps the severe owl face, cyan eyes, dark feather cloak mass, blue circular chest focus, talisman tags, clawed hands, taloned feet, and compact mentor silhouette without cute owl, generic wizard, or glossy-feather drift.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the feather cloak, owl head, robe, talismans, claws, taloned feet, and 96 px board read on checker/black/white.",
+      "telegram_message": "104",
+      "decision_notes": "Current Axiom candidate and first-try proof for the compact occult scholar/collector risk. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "volt_attached_energy_refit",
+      "subject_type": "unit",
+      "subject_id": "volt",
+      "display_name": "Volt",
+      "status": "current_candidate",
+      "coverage_group": [
+        "humanoid_mage",
+        "detached_effects"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can preserve attached lightning/energy effects without neon superhero drift, detached particle-confetti, or cutout loss.",
+      "source_image": "assets/units/volt.png",
+      "output_dir": "outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_board_preview.png",
+      "style_gate": "First-try current candidate: Volt keeps the pale blue hair, crown-like spikes, cyan eyes, square chest orb, waist orb, dark blue robed stance, wraps, rope belt, and grouped hand lightning without neon superhero, robot, or particle-confetti drift.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the hand lightning, hair, crown spikes, chest/waist orbs, robe, wraps, and 96 px board read on checker/black/white.",
+      "telegram_message": "105",
+      "decision_notes": "Current Volt candidate and first-try proof for attached hand-lightning energy. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "vykos_pale_sanguine_refit",
+      "subject_type": "unit",
+      "subject_id": "vykos",
+      "display_name": "Vykos",
+      "status": "current_candidate",
+      "coverage_group": [
+        "large_tank",
+        "monster_assassin",
+        "weapon_heavy",
+        "goth_horror_anchor"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can preserve pale/sanguine brute flesh without wet gore, shiny anatomy, corpse-horror, or clean ogre drift.",
+      "source_image": "assets/units/vykos.png",
+      "output_dir": "outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_board_preview.png",
+      "style_gate": "First-try current candidate: Vykos keeps the skull-maw face, red eyes, red crack marks, pale heavy torso, oversized clawed arms, bone spikes, dark loincloth, squat stance, and huge curved blade while reading as dry chalky bone/limestone flesh instead of wet gore or shiny anatomy.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the broad body, skull head, clawed arms, bone spikes, loincloth, huge curved blade, and 96 px board read on checker/black/white.",
+      "telegram_message": "106",
+      "decision_notes": "Current Vykos candidate and first-try proof for pale/sanguine flesh brute risk. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "brute_guardian_bulk_refit",
+      "subject_type": "unit",
+      "subject_id": "brute",
+      "display_name": "Brute",
+      "status": "current_candidate",
+      "coverage_group": [
+        "large_tank",
+        "guardian_bulk",
+        "stone_bone_construct"
+      ],
+      "proof_goal": "Stress-test whether the hard matte gate can preserve a huge stone-and-bone guardian tank without chrome armor, glossy wet rock, generic golem drift, or unreadable over-bulk.",
+      "source_image": "assets/units/brute.png",
+      "output_dir": "outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_cutout_birefnet_foregroundml_despill_orangeclean.png",
+      "review": "outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_review_birefnet_foregroundml_despill_orangeclean.png",
+      "board_preview": "outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_board_preview.png",
+      "style_gate": "Current candidate after one rejected background pass: Brute keeps the skull face, small green eyes, rib armor, massive shoulder blocks, spiked cracked stone plates, slab fists, black tattered cloth, and tiny green fissures while reading as chalky dry stone, dusty bone, and dull oxidized iron instead of glossy wet rock, chrome armor, or a generic golem.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout was orange-cleaned by 84 saturated safety-orange pixels, preserving the skull, rib armor, shoulder spikes, slab fists, tattered cloth, feet, and 96 px board read on checker/black/white.",
+      "telegram_message": "107",
+      "decision_notes": "Current Brute candidate and proof for stone/bone guardian bulk. First raw pass was rejected because the orange background was too gradient; selected pass still required a tiny orange-clean step. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "bonko_wiry_raider_refit",
+      "subject_type": "unit",
+      "subject_id": "bonko",
+      "display_name": "Bonko",
+      "status": "current_candidate",
+      "coverage_group": [
+        "monster_assassin",
+        "weapon_heavy",
+        "small_narrow"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can preserve a small wiry raider with an oversized raised weapon without cute goblin, comedy mascot, sports-bat, polished cannon, or unreadable tiny-weapon drift.",
+      "source_image": "assets/units/bonko.png",
+      "output_dir": "outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_board_preview.png",
+      "style_gate": "First-try current candidate: Bonko keeps the ivory grinning mask, pale eyes, wiry crouched body, long sinewy arms, spiked shoulder pad, ragged wraps, bare feet, and huge banded wooden bat/cannon-club held overhead while reading as dry scarred skin, dusty bone mask, splintered raw wood, dull iron bands, and frayed cloth instead of cute goblin, comedy mascot, sports bat, glossy plastic mask, or polished cannon.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the full raised weapon, mask, spiked shoulder pad, long limbs, ragged cloth, bare feet, and 96 px board read on checker/black/white.",
+      "telegram_message": "108",
+      "decision_notes": "Current Bonko candidate and first-try proof for small scavenger/imp weapon scale. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "hexeon_time_blade_refit",
+      "subject_type": "unit",
+      "subject_id": "hexeon",
+      "display_name": "Hexeon",
+      "status": "current_candidate",
+      "coverage_group": [
+        "monster_assassin",
+        "detached_effects"
+      ],
+      "proof_goal": "Stress-test whether the hard matte gate can preserve a prismatic time/blade executioner assassin without glossy black latex, glass armor, neon particle confetti, busy prism shards, or unreadable magical noise.",
+      "source_image": "assets/units/hexeon.png",
+      "output_dir": "outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_board_preview.png",
+      "style_gate": "Current candidate after one rejected glossy pass: Hexeon keeps the eye-covered crystal mask, small floating eye facets, spiked shoulders/back, clawed hands, thin predatory legs, wide assassin stance, and attached prismatic blade shards while reading as dry charcoal mineral, black chalk, matte gouache, dull smoky pigment, and chipped prismatic edges instead of glossy black latex, glass armor, neon confetti, or busy prism noise.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the head eyes, floating eye facets, shoulder/back spikes, claws, attached hand shards, thin legs, and 96 px board read on checker/black/white.",
+      "telegram_message": "109",
+      "decision_notes": "Current Hexeon candidate and proof for time/blade energy effects. First raw pass was rejected because the black body still read too glossy/latex-like. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "totem_dry_wood_guardian_refit",
+      "subject_type": "unit",
+      "subject_id": "totem",
+      "display_name": "Totem",
+      "status": "current_candidate",
+      "coverage_group": [
+        "large_tank",
+        "humanoid_mage",
+        "guardian_bulk",
+        "stone_bone_construct"
+      ],
+      "proof_goal": "First-try stress-test whether the hard matte gate can preserve a dry carved wood support idol without glossy varnished wood, toy totem, generic druid, green foliage blob, chrome armor, or unreadable bark fringe.",
+      "source_image": "assets/units/totem.png",
+      "output_dir": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_board_preview.png",
+      "style_gate": "First-try current candidate: Totem keeps the crown-like bark mask, cyan glowing eyes, stern carved face, layered bark armor plates, cyan spiral chest runes, turquoise markings, feather/leaf shoulder fringe, clawed wooden hands and feet, and upright protective idol silhouette while reading as dry carved bark, raw splintered wood, dusty dark grain, chalky turquoise pigment, and matte gouache instead of glossy varnished wood, toy totem, generic druid, or foliage blob.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the full crown mask, cyan eyes/runes, shoulder fringe, clawed hands/feet, lower bark tassels, and 96 px board read on checker/black/white.",
+      "telegram_message": "110",
+      "decision_notes": "Current Totem candidate and first-try proof for dry wood/nature guardian material. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    },
+    {
+      "id": "sari_spectral_tendril_refit",
+      "subject_type": "unit",
+      "subject_id": "sari",
+      "display_name": "Sari",
+      "status": "current_candidate",
+      "coverage_group": [
+        "monster_assassin",
+        "small_narrow",
+        "detached_effects"
+      ],
+      "proof_goal": "Stress-test whether the hard matte gate can preserve a grayscale spectral armored marksman with grouped tendril hair and ghost arms without smoke-only, cute ghost, werewolf, shiny armor, hair-spaghetti, or unreadable tendril-cloud drift.",
+      "source_image": "assets/units/sari (3).png",
+      "output_dir": "outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30",
+      "raw": "outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_raw_selected.png",
+      "cutout": "outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_cutout_birefnet_foregroundml_despill.png",
+      "review": "outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_review_birefnet_foregroundml_despill.png",
+      "board_preview": "outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_board_preview.png",
+      "style_gate": "Current candidate after one rejected shiny/spaghetti pass: Sari keeps the grayscale spectral palette, green eyes, dark face mask/visor, soot-dull armor plates, leather straps, crouched leaping marksman silhouette, clawed hands, green rune marks, grouped wind-swept tendril hair, and ghostly extra arms/tendrils while avoiding cute ghost, smoke-only, werewolf, glossy latex, and unreadable tendril-cloud drift.",
+      "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the green eye read, armored crouch, clawed hands, grouped hair/tendrils, trailing ghost arms, legs, and 96 px board read on checker/black/white.",
+      "telegram_message": "112",
+      "decision_notes": "Current Sari candidate and proof for monochrome spectral tendril units. First raw pass was rejected because the armor read too polished/shiny and hair was close to spaghetti noise. Not a live replacement.",
+      "reference_role": "narrow_proof_only"
+    }
+  ],
+  "coverage_gaps": [
+    {
+      "id": "anchor_detail_style_drift",
+      "example_units": [
+        "creep",
+        "grint",
+        "later current candidates"
+      ],
+      "risk": "later unit proofs can match the darker palette and cutout workflow while losing the high-detail dry gothic illustration quality of Vellum and Paisley"
+    },
+    {
+      "id": "equipment_and_item_icon_assets",
+      "example_units": [
+        "completed items",
+        "item components",
+        "trait emblems"
+      ],
+      "risk": "small non-unit assets are only proven by one contract-mark token so far; metal, glass, cloth, and icon silhouettes may still drift glossy or unreadable"
+    },
+    {
+      "id": "white_silver_aegis_guardian",
+      "example_units": [
+        "veyra"
+      ],
+      "risk": "narrow white-silver aegis guardians with gems or crystalline armor can drift into chrome robots, angels, anime mechs, glossy latex bodies, or unreadable pale silhouettes instead of dull pearl/bone matte guardians"
+    },
+    {
+      "id": "full_roster_batch_consistency",
+      "example_units": [
+        "remaining unproved live roster units",
+        "future units"
+      ],
+      "risk": "individual proof wins do not yet prove that every remaining live sprite or future unit can be recreated first-try from the matrix without manual prompt surgery"
+    }
+  ],
+  "next_recommended_stress_test": {
+    "unit_id": "creep",
+    "reason": "Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests."
+  }
+}

@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "usage": "For every current roster unit, combine the locked global contract from docs/art/unit_art_prompt_cases.json with this unit-specific identity lock. Keep source_image, visual_identity, preserve, and avoid_drift intact unless a human art-direction decision changes the character. The other_units section covers art-bearing UnitProfile resources outside data/units, including planned units that are not currently shop-eligible.",
+  "style_reference": "outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+  "coverage_groups": {
+    "humanoid_mage": "Tall or readable humanoid caster silhouettes with robe, cloak, suit, or magic prop identity.",
+    "monster_assassin": "Lean beast, demon, or hunter silhouettes where anatomy and weapon/claws define identity.",
+    "large_tank": "Broad or heavy silhouettes where mass, armor, and stance define board readability.",
+    "guardian_bulk": "Large guardian or construct silhouettes where dry material blocks, shoulder mass, and board-scale stance must stay readable.",
+    "stone_bone_construct": "Stone, bone, wood, or construct bodies where matte mineral/organic material must avoid chrome, wet rock, glossy wood, or generic golem drift.",
+    "small_narrow": "Narrow or smaller silhouettes at risk of shrinking in 96 px tiles.",
+    "detached_effects": "Characters whose identity depends on bubbles, orbitals, tendrils, ribbons, or magic pieces that may be dropped by segmentation.",
+    "weapon_heavy": "Characters whose board identity depends on a large weapon, shield, polearm, hammer, cannon, or other held prop surviving generation and cutout.",
+    "other_unit": "Art-bearing UnitProfile resources outside the playable shop roster, including hidden/enemy-only implementations and planned units under data/other_units/other.",
+    "goth_horror_anchor": "Creepy humanoid, demon, cursed, or body-horror silhouettes that define the game's darker gothic side."
+  },
+  "units": [
+    {
+      "id": "axiom",
+      "display_name": "Axiom",
+      "traits": ["Scholar", "Mentor"],
+      "source_image": "assets/units/axiom.png",
+      "coverage_group": ["humanoid_mage", "small_narrow"],
+      "visual_identity": "hooded owl-scholar mentor with severe owl face, cyan glowing eyes, dark blue robe, heavy black feather cloak, blue circular chest focus, hanging talisman tags, clawed hands, taloned feet, compact contained wise silhouette",
+      "preserve": ["severe owl face", "cyan glowing eyes", "dark feather cloak mass", "blue circular chest focus", "hanging talisman tags", "clawed hands", "taloned feet", "compact robed silhouette", "owl/mentor read"],
+      "avoid_drift": ["generic wizard", "bright angel", "mechanical bird", "cute owl mascot", "glossy feathers", "shiny satin robe", "neon sci-fi hologram", "polished metal talismans", "oversized wings", "plain dark blob at 96 px"],
+      "prompt_addendum": "Preserve Axiom as a severe owl-scholar Mentor with an owl face, cyan eyes, heavy matte black feather cloak, dark blue scholar robe, blue circular occult chest focus, hanging talisman tags, clawed hands, taloned feet, and compact wise stance. Keep feathers dry, layered, dusty, and matte; keep the cyan focus as subdued occult glass/chalk glow, not neon sci-fi. Avoid cute owl mascot, generic wizard, glossy feathers, shiny satin robe, bright angel wings, and plain unreadable dark blob drift."
+    },
+    {
+      "id": "berebell",
+      "display_name": "Berebell",
+      "traits": ["Sanguine", "Striker"],
+      "source_image": "assets/units/berebell.png",
+      "coverage_group": ["monster_assassin", "small_narrow"],
+      "visual_identity": "lean gray sanguine striker creature, skull-like head, tentacle hair, clawed arms, blade-like red-black forearms",
+      "preserve": ["low predatory stance", "skull face", "tentacle hair", "red claw/blade arms"],
+      "avoid_drift": ["cute imp", "robot", "armored knight", "generic vampire"],
+      "prompt_addendum": "Preserve Berebell as a lean sanguine striker with skull-like face, tentacle hair, and red-black claw blade arms; keep the body sinewy, dry, and predatory."
+    },
+    {
+      "id": "bo",
+      "display_name": "Bo",
+      "traits": ["Fortified", "Executioner"],
+      "source_image": "assets/units/bo.png",
+      "coverage_group": ["large_tank", "monster_assassin", "weapon_heavy", "goth_horror_anchor"],
+      "visual_identity": "massive horned red-black executioner brute with huge torso, tusked maw face, red crack lines, bone spikes, clawed hands, chained spiked mace-head, demonic stone-hide plates",
+      "preserve": ["horned head", "wide hulking torso", "red-black executioner palette", "tusked maw face", "bone spikes", "clawed hands", "chained spiked mace-head", "dry red crack-line motif"],
+      "avoid_drift": ["skinny demon", "clean knight", "robot", "comedy ogre", "wet monster skin", "shiny lava cracks", "glossy demon armor", "chrome spikes", "slimy gore brute", "bodybuilder superhero", "unreadable bulky detail"],
+      "prompt_addendum": "Preserve Bo as a hulking Fortified/Executioner demon brute with horns, a huge upper body, tusked maw face, bone spikes, clawed hands, red-black executioner palette, dry red crack lines, and a chained spiked mace-head. Make the body read as dry charcoal stone-hide and matte demon plates with soot, chipped paint, dusty bone, and dull ember-red cracks; no wet skin, no shiny lava, no glossy armor, no comedy brute, and no busy gore detail."
+    },
+    {
+      "id": "bonko",
+      "display_name": "Bonko",
+      "traits": ["Cartel", "Chronomancer"],
+      "source_image": "assets/units/bonko.png",
+      "coverage_group": ["monster_assassin", "weapon_heavy", "small_narrow"],
+      "visual_identity": "wiry masked cartel raider/brawler with long sinewy limbs, ivory grinning mask face, glowing pale eyes, spiked dark shoulder pads, ragged wraps and torn cloth, bare feet, and an oversized banded wooden bat/cannon-club held overhead",
+      "preserve": ["oversized banded wooden bat/cannon-club held overhead", "ivory grinning mask face", "glowing pale eyes", "long sinewy arms", "wide crouched raider stance", "spiked dark shoulder pads", "ragged wraps and torn cloth", "bare feet", "small aggressive silhouette"],
+      "avoid_drift": ["cute goblin", "comedy mascot", "modern soldier", "clean baseball mascot", "baseball bat sports read", "oversized comedy hammer", "toy club", "polished metal cannon", "glossy plastic mask", "smooth superhero anatomy", "unreadable tiny weapon"],
+      "prompt_addendum": "Preserve Bonko as a wiry Cartel/Chronomancer brawler-raider: ivory grinning mask, pale glowing eyes, long sinewy arms, spiked dark shoulder pads, ragged wraps, torn brown cloth, bare feet, and a huge banded wooden bat/cannon-club raised overhead. Keep the weapon as the dominant silhouette but gritty and board-readable, not a comedy hammer or sports bat. Hard matte material lock: dry scarred skin, dusty bone mask, splintered raw wood, dull iron bands, frayed cloth wraps, soot and dry brush only; no glossy plastic mask, no polished metal cannon, no wet skin, no cute goblin, no mascot proportions."
+    },
+    {
+      "id": "brute",
+      "display_name": "Brute",
+      "traits": ["Titan", "Fortified"],
+      "source_image": "assets/units/brute.png",
+      "coverage_group": ["large_tank", "guardian_bulk", "stone_bone_construct"],
+      "visual_identity": "massive skull-faced titan tank, cracked charcoal stone plates, dry bone rib armor, spiked shoulders, huge slab fists, black tattered waist cloth, tiny green fissure glow, dust at feet",
+      "preserve": ["wide hunched tank silhouette", "skull face with small green eyes", "rib-cage chest armor", "huge forearms and slab fists", "cracked stone shoulder plates and spikes", "tattered black waist cloth", "tiny green fissure accents"],
+      "avoid_drift": ["slim knight", "polished chrome robot", "glossy wet rock", "lava monster", "smooth sci-fi mech", "cute rock creature", "generic golem without skull and ribs", "unreadable over-bulk"],
+      "prompt_addendum": "Preserve Brute as a massive skull-faced titan-fortified tank: broad hunched stone-and-bone bulk, rib armor, huge slab fists, cracked shoulder plates, black tattered waist cloth, tiny green fissures, and dust at the feet. Hard matte material lock: chalky charcoal stone, dry bone, dull oxidized iron only; no polished metal, no glossy wet rock, no chrome highlights, no oily shine."
+    },
+    {
+      "id": "cashmere",
+      "display_name": "Cashmere",
+      "traits": ["Arcanist", "Mogul"],
+      "source_image": "assets/units/cashmere.png",
+      "coverage_group": ["humanoid_mage", "small_narrow"],
+      "visual_identity": "pale bald suited mogul/arcanist, long black coat, formal occult businessman silhouette",
+      "preserve": ["pale bald head", "black suit and long coat", "upright mogul posture", "occult businessman read"],
+      "avoid_drift": ["generic vampire", "superhero", "anime butler", "shiny tuxedo"],
+      "prompt_addendum": "Preserve Cashmere as a pale occult mogul in a matte black suit and long coat, formal and severe, with dry cloth rather than glossy tuxedo shine."
+    },
+    {
+      "id": "grint",
+      "display_name": "Grint",
+      "traits": ["Cartel", "Harmony"],
+      "source_image": "assets/units/grint.png",
+      "coverage_group": ["large_tank", "weapon_heavy"],
+      "visual_identity": "stocky grimy armored enforcer with round helmet, chained hammer block, battered shield sign, cartel gatekeeper stance, dull dirty metal and cloth rather than clean heroic plate",
+      "preserve": ["round helmet", "hammer", "shield/sign slab", "stocky squat tank shape"],
+      "avoid_drift": ["clean paladin", "sci-fi riot police", "cute dwarf", "neon armor", "cartoon tank", "clean fantasy knight", "polished plate armor"],
+      "prompt_addendum": "Preserve Grint as a squat cartel harmony enforcer with round helmet, heavy chained hammer block, and battered shield-sign slab; make the armor grimy, chipped, low-sheen, soot-stained, and matte, with no clean fantasy shine or cartoon exaggeration."
+    },
+    {
+      "id": "hexeon",
+      "display_name": "Hexeon",
+      "traits": ["Kaleidoscope", "Executioner"],
+      "source_image": "assets/units/hexeon.png",
+      "coverage_group": ["monster_assassin", "detached_effects"],
+      "visual_identity": "angular black prismatic executioner assassin with an eye-covered crystal mask, floating small eye facets above the head, spiked shoulders/back, clawed hands, thin predatory legs, and sparse attached prismatic blade shards at the hands",
+      "preserve": ["angular black prismatic body", "eye-covered crystal mask", "small floating eye facets above head", "spiked shoulders and back", "clawed hands", "thin predatory legs", "sparse attached prismatic blade shards at hands", "wide assassin stance"],
+      "avoid_drift": ["robot ninja", "clean superhero", "rainbow crystal mascot", "heavy tank", "neon rave glow", "detached particle confetti", "busy prism shards", "glossy glass armor", "polished black latex body", "sci-fi hologram assassin", "generic caster without claws", "unreadable magic noise"],
+      "prompt_addendum": "Preserve Hexeon as an angular black Kaleidoscope/Executioner assassin: eye-covered crystal mask, tiny floating eye facets above the head, spiked shoulders/back, clawed hands, thin predatory legs, and sparse attached prismatic blade shards at the hands. Hard matte material lock: black ink-stained mineral skin, dry obsidian gouache, dull smoky violet/teal pigment, chalky eye-facet markings, and small prismatic edge chips only; no glossy glass armor, no polished black latex body, no neon rave glow, no detached particle confetti, no busy prism storm, and no generic caster drift."
+    },
+    {
+      "id": "korath",
+      "display_name": "Korath",
+      "traits": ["Titan", "Blessed"],
+      "source_image": "assets/units/korath (1).png",
+      "coverage_group": ["large_tank"],
+      "visual_identity": "gold-white blessed titan, haloed heavy armor, broad divine golem body, glowing sacred chest accents",
+      "preserve": ["halo", "gold-white titan armor", "broad standing tank silhouette", "sacred chest/shoulder glow"],
+      "avoid_drift": ["angel with wings", "polished chrome robot", "thin knight", "anime paladin"],
+      "prompt_addendum": "Preserve Korath as a broad blessed titan in tarnished ivory-gold armor with a halo and sacred chest accents; keep the metal dull and aged, not polished."
+    },
+    {
+      "id": "kythera",
+      "display_name": "Kythera",
+      "traits": ["Aegis", "Vindicator"],
+      "source_image": "assets/units/kythera.png",
+      "coverage_group": ["small_narrow", "detached_effects"],
+      "visual_identity": "tall narrow mummy-ribbon occult vindicator, mask head, tear cords, chest spell disc, clawed hands, blue glyph orbitals",
+      "preserve": ["mummy wrap body", "mask head", "chest spell disc", "clawed hands", "blue glyph accents"],
+      "avoid_drift": ["metal skeleton", "skull robot", "heavy plate knight", "generic witch"],
+      "prompt_addendum": "Preserve Kythera as a narrow mummy-ribbon Aegis Vindicator with mask-like head, tear cords, chest spell disc, claws, and blue glyph accents."
+    },
+    {
+      "id": "luna",
+      "display_name": "Luna",
+      "traits": ["Liaison", "Kaleidoscope"],
+      "source_image": "assets/units/luna.png",
+      "coverage_group": ["humanoid_mage", "detached_effects"],
+      "visual_identity": "bright moon staff caster, turquoise hair, flowing colorful dress, crescent/moon staff",
+      "preserve": ["moon staff", "turquoise hair", "flowing dress", "kaleidoscope color accents"],
+      "avoid_drift": ["cute anime magical girl", "neon rave outfit", "generic priestess", "overly bright palette", "shiny satin", "glossy salon hair", "sparkly glitter fabric", "glassy moon staff"],
+      "prompt_addendum": "Preserve Luna as an adult moon-staff liaison caster with turquoise hair, a clear crescent/moon staff, and a flowing dress silhouette, but translate the bright palette into muted stained-glass gothic fabric, aged velvet, dull metal, chalky moonstone, dust, ink, and matte gouache. Keep the hair as dry turquoise pigment rather than glossy salon shine, and keep the staff head readable without neon glow."
+    },
+    {
+      "id": "morrak",
+      "display_name": "Morrak",
+      "traits": ["Striker", "Executioner"],
+      "source_image": "assets/units/morrak.png",
+      "coverage_group": ["monster_assassin", "weapon_heavy"],
+      "visual_identity": "dark red-black armored executioner/striker with horned helmet, tattered black cape, chains, long diagonal polearm/scythe, and huge smoky curved blade sweep from the source art",
+      "preserve": ["long diagonal polearm/scythe", "red-black executioner armor", "horned helmet", "tattered black cape", "chain accents", "huge smoky curved blade sweep", "low aggressive forward stance"],
+      "avoid_drift": ["clean cavalry knight", "robot horse", "bright fantasy rider", "cropped polearm", "mounted horse body", "thin generic reaper", "polished black armor", "wet smoke"],
+      "prompt_addendum": "Preserve Morrak as a standing dark red-black executioner striker with horned helmet, tattered cape, chains, and a long diagonal polearm/scythe ending in a huge smoky curved blade. Keep the full polearm, low aggressive stance, and sweeping blade readable at board scale; do not turn him into a mounted rider or horse unit."
+    },
+    {
+      "id": "mortem",
+      "display_name": "Mortem",
+      "traits": ["Sanguine", "Vindicator"],
+      "source_image": "assets/units/mortem.png",
+      "coverage_group": ["monster_assassin", "weapon_heavy"],
+      "visual_identity": "red-black sanguine vindicator demon with spear/lance blade, lean stance, blood-dark body",
+      "preserve": ["spear/lance blade", "red-black sinewy body", "lean demon stance", "sanguine aggression"],
+      "avoid_drift": ["generic knight", "clean vampire lord", "wet gore", "robot"],
+      "prompt_addendum": "Preserve Mortem as a lean sanguine Vindicator with red-black body, dry blood-dark spear blade, and predatory stance; avoid wet gore shine."
+    },
+    {
+      "id": "nyxa",
+      "display_name": "Nyxa",
+      "traits": ["Sanguine", "Chronomancer"],
+      "source_image": "assets/units/nyxa.png",
+      "coverage_group": ["monster_assassin", "detached_effects"],
+      "visual_identity": "small dark chronomancer beast crouch, white mane/hair, black tendril/time streaks, clawed movement silhouette",
+      "preserve": ["crouched beast body", "white mane", "black time/tendril streaks", "claws"],
+      "avoid_drift": ["werewolf", "cute animal", "human mage", "busy smoke cloud"],
+      "prompt_addendum": "Preserve Nyxa as a small crouched sanguine chronomancer beast with white mane, black time-tendril streaks, and sharp claws; keep tendrils attached or grouped."
+    },
+    {
+      "id": "paisley",
+      "display_name": "Paisley",
+      "traits": ["Arcanist", "Kaleidoscope", "Blessed"],
+      "source_image": "assets/units/paisley.png",
+      "coverage_group": ["humanoid_mage", "detached_effects"],
+      "visual_identity": "bubble caster with raised hands, pink/teal hair, flared mushroom pants, kaleidoscope bubble magic",
+      "preserve": ["raised hands", "pink/teal hair", "flared mushroom pants", "bubble motif"],
+      "avoid_drift": ["teen pop idol", "anime gacha", "detached satellite bubbles", "soap-bubble glare"],
+      "prompt_addendum": "Preserve Paisley as an adult gothic bubble caster with raised hands and flared mushroom pants; use exactly two large smoky ink-orb bubbles touching or overlapping the palms."
+    },
+    {
+      "id": "repo",
+      "display_name": "Repo",
+      "traits": ["Vindicator", "Executioner"],
+      "source_image": "assets/units/repo.png",
+      "coverage_group": ["humanoid_mage", "small_narrow"],
+      "visual_identity": "dark horned collector/executioner, cloak, dangling contract/chain shapes, narrow predatory silhouette",
+      "preserve": ["horned head", "dark cloak", "collector/executioner read", "narrow stance"],
+      "avoid_drift": ["generic demon lord", "robot", "bulky tank", "bright mage"],
+      "prompt_addendum": "Preserve Repo as a horned Vindicator Executioner collector in a ragged matte cloak with a narrow predatory silhouette and contract/chain accents."
+    },
+    {
+      "id": "sari",
+      "display_name": "Sari",
+      "traits": [],
+      "source_image": "assets/units/sari (3).png",
+      "coverage_group": ["monster_assassin", "small_narrow", "detached_effects"],
+      "visual_identity": "grayscale spectral armored marksman with wind-swept black tendril hair, green glowing eyes, dark face mask/visor, matte black armor plates, leather straps, crouched leaping stance, clawed hands, green rune marks, and grouped ghostly extra arms/tendrils trailing behind",
+      "preserve": ["grayscale spectral palette", "wind-swept black tendril hair mass", "green glowing eyes", "dark face mask/visor", "matte black armor plates", "leather chest straps", "crouched leaping marksman silhouette", "clawed hands", "green rune marks", "grouped ghostly extra arms/tendrils trailing behind"],
+      "avoid_drift": ["colorful fairy", "human warrior", "busy smoke only", "cute ghost", "werewolf", "anime ninja", "shiny black armor", "glossy latex bodysuit", "generic armored knight", "loose confetti wisps", "hair spaghetti noise", "lost face/eye read", "unreadable tendril cloud"],
+      "prompt_addendum": "Preserve Sari as a traitless live-data marksman with a grayscale spectral armored body, wind-swept black tendril hair, green eyes, dark face mask, matte black armor plates, leather straps, clawed hands, green rune marks, crouched leaping stance, and grouped ghostly extra arms/tendrils trailing behind. Hard matte material lock: dry charcoal cloth/armor, soot, dusty metal, dull leather, chalky gray spectral flesh, matte green rune pigment, and dry brush only; no shiny black armor, no glossy latex body, no cute ghost, no werewolf, no smoke-only silhouette, no loose confetti wisps, and no unreadable tendril cloud."
+    },
+    {
+      "id": "teller",
+      "display_name": "Teller",
+      "traits": ["Exile", "Mogul"],
+      "source_image": "assets/units/teller.png",
+      "coverage_group": ["humanoid_mage", "weapon_heavy", "small_narrow"],
+      "visual_identity": "thin gothic exile mogul in a long black formal coat with red inner lining, pale cracked half-mask/face, chest harness and quill/ammo details, small pistol-or-wand weapon, and restrained gold contract/coin magic swirl",
+      "preserve": ["long matte coat", "pale cracked half-mask/face", "thin upright silhouette", "chest harness and quill/ammo details", "small handheld pistol-or-wand weapon", "single grouped gold contract/coin magic shape"],
+      "avoid_drift": ["modern hitman", "superhero", "shiny leather coat", "generic vampire", "glossy tuxedo", "polished dress shoes", "tiny coin confetti", "readable money symbols", "oversized gun"],
+      "prompt_addendum": "Preserve Teller as a thin gothic Exile/Mogul in a matte long black coat with red inner lining, pale cracked half-mask/face, chest harness, quill/ammo details, and a small pistol-or-wand silhouette. Keep contract/coin magic as one restrained grouped gold-parchment shape attached to the hand, not tiny coin confetti, readable symbols, or glossy formalwear."
+    },
+    {
+      "id": "totem",
+      "display_name": "Totem",
+      "traits": ["Bulwark", "Exile"],
+      "source_image": "assets/units/totem.png",
+      "coverage_group": ["large_tank", "humanoid_mage", "guardian_bulk", "stone_bone_construct"],
+      "visual_identity": "tall carved wooden Bulwark/Exile support idol, crown-like bark mask with cyan glowing eyes, stern carved face, layered bark armor plates, cyan spiral chest runes, turquoise body markings, feather/leaf shoulder fringe, clawed wooden hands and feet, upright protective guardian stance",
+      "preserve": ["crown-like bark mask", "cyan glowing eyes", "stern carved wooden face", "layered bark armor plates", "cyan spiral chest runes", "turquoise body markings", "feather/leaf shoulder fringe", "clawed wooden hands and feet", "upright protective idol silhouette"],
+      "avoid_drift": ["tree mascot", "toy totem", "polished carved wood", "glossy varnished wood", "generic druid", "overgrown foliage blob", "green leafy treant", "chrome armor", "bright cartoon tribal mask", "cute wooden puppet", "human knight in wood armor", "unreadable bark fringe"],
+      "prompt_addendum": "Preserve Totem as a tall protective Bulwark/Exile support idol: crown-like bark mask, cyan glowing eyes, stern carved face, layered bark armor plates, cyan spiral chest runes, turquoise markings, feather/leaf shoulder fringe, clawed wooden hands/feet, and upright guardian stance. Hard matte material lock: dry carved bark, raw splintered wood, dusty dark grain, soot, chalky turquoise pigment, dull bone/wood edges, and matte gouache only; no glossy varnished wood, no polished carved prop, no toy totem, no generic druid, no green foliage blob, no chrome armor."
+    },
+    {
+      "id": "veyra",
+      "display_name": "Veyra",
+      "traits": ["Aegis", "Bulwark"],
+      "source_image": "assets/units/veyra.png",
+      "coverage_group": ["small_narrow", "large_tank"],
+      "visual_identity": "white-silver aegis bulwark humanoid, crystalline armor, purple chest gem, narrow upright guardian",
+      "preserve": ["white-silver guardian body", "purple chest gem", "upright narrow silhouette", "aegis armor read"],
+      "avoid_drift": ["chrome robot", "angel", "anime mech", "glossy latex bodysuit"],
+      "prompt_addendum": "Preserve Veyra as a white-silver Aegis Bulwark guardian with a purple chest gem and narrow upright silhouette; make armor dull pearl and bone, not chrome."
+    },
+    {
+      "id": "volt",
+      "display_name": "Volt",
+      "traits": ["Scholar", "Overload"],
+      "source_image": "assets/units/volt.png",
+      "coverage_group": ["humanoid_mage", "detached_effects"],
+      "visual_identity": "blue electric scholar overload caster with pale blue wind-swept hair, crown-like head spikes, cyan eyes, large square chest orb, smaller waist orb, robed blue lower body, wrapped wrists and ankles, rope belt, and lightning arcs attached to both hands",
+      "preserve": ["pale blue wind-swept hair", "crown-like head spikes", "cyan eyes", "large square blue chest orb", "smaller waist orb", "electric hand arcs", "scholar caster stance", "robed lower body", "wrapped wrists and ankles", "rope belt"],
+      "avoid_drift": ["neon superhero", "robot", "storm god with huge background", "too many lightning particles", "detached particle confetti", "glossy lightning", "neon rave glow", "sci-fi power armor", "floating energy clutter", "background storm cloud", "unreadable blue blob"],
+      "prompt_addendum": "Preserve Volt as a Scholar/Overload caster with pale blue hair, crown-like spikes, cyan eyes, a large square blue chest orb, smaller waist orb, robed pants, wrapped wrists/ankles, rope belt, and lightning arcs attached to both hands. Group lightning into a few attached readable dry-brush cyan shapes that physically connect to the hands and chest orb; make the energy look like matte gouache/chalk on dark paper, not neon glow, glossy plasma, detached particle confetti, or a background storm."
+    },
+    {
+      "id": "vykos",
+      "display_name": "Vykos",
+      "traits": ["Sanguine", "Fortified"],
+      "source_image": "assets/units/vykos.png",
+      "coverage_group": ["large_tank", "monster_assassin", "weapon_heavy", "goth_horror_anchor"],
+      "visual_identity": "hunched pale sanguine fortified brawler brute with skull-maw face, red glowing eyes, red vein/crack marks, heavy torso, oversized clawed arms, bone shoulder spikes, dark ragged loincloth, squat monstrous stance, and huge curved black blade/arm-weapon",
+      "preserve": ["hunched heavy torso", "skull-maw face", "red glowing eyes", "red vein/crack marks", "oversized clawed arms", "pale sinewy brute mass", "bone shoulder spikes", "dark ragged loincloth", "huge curved black blade/arm-weapon", "squat monstrous stance"],
+      "avoid_drift": ["cute troll", "clean ogre", "wet gore monster", "robot", "shiny anatomy", "slick corpse flesh", "flayed muscle study", "bloody horror splash", "clean bodybuilder", "glossy pale skin", "zombie rot", "unreadable sinew detail"],
+      "prompt_addendum": "Preserve Vykos as a Sanguine/Fortified brawler brute with skull-maw face, red glowing eyes, red vein/crack marks, huge pale torso, oversized clawed arms, bone shoulder spikes, dark ragged loincloth, squat stance, and a huge curved black blade/arm-weapon. Make the pale flesh read as dry chalky bone/limestone skin with broad matte shadow blocks and dry red vein marks; no wet gore, no shiny anatomy, no slick corpse flesh, no flayed muscle, no clean ogre, and no busy sinew detail."
+    }
+  ],
+  "other_units": [
+    {
+      "id": "creep",
+      "display_name": "Creep",
+      "traits": ["Exile", "Executioner"],
+      "design_doc_role": "Assassin",
+      "design_doc_ability": "Evesdropping / Eavesdropping: dashes to the lowest-health enemy, spins in rapid physical ticks while unstoppable and damage-reduced, then Exile can extend the spin and chain to the next lowest-health enemy on takedown.",
+      "resource_path": "data/other_units/other/creep.tres",
+      "source_image": "assets/units/creep.png",
+      "coverage_group": ["other_unit", "goth_horror_anchor", "monster_assassin", "detached_effects"],
+      "visual_identity": "planned Assassin unit and goth-horror anchor: smooth gray-blue alien humanoid face and uninterrupted powder-dry skin with subtle dry surface breakup, crouched thin body, many long dull black tendril/blade appendages, predatory spinning-dash silhouette, Vellum/Paisley-level matte gothic finish with high-detail hand-painted dry richness",
+      "preserve": ["smooth oval alien face", "smooth gray-blue alien skin", "smooth uninterrupted gray-blue alien skin", "subtle chalk pores and dry mottled skin variation", "thin occult scarring or charcoal markings", "black hollow eye sockets", "crouched thin creep body", "long dull black tendril/blade appendages", "monochrome horror read", "assassin spin/dash menace", "dry chalky limestone/clay surface", "flat powdery skin with no hot highlights", "dull ink-black tendrils", "Vellum/Paisley-level dry detail richness"],
+      "avoid_drift": ["generic wave creep", "cute octopus", "ordinary human demon", "busy smoke only", "ripped-apart corpse", "exposed muscle", "flayed skin", "skeletal skull face", "wet gore", "sweaty skin", "shiny alien head", "oily monster body", "glossy creature concept", "slick black tendrils", "wet serrated blades", "ribbed corpse torso", "anatomy-model surface striations", "cartoon monster"],
+      "prompt_addendum": "Treat Creep as a real planned unit from the Google design doc, even though the current repo resource is hidden/enemy-only: an Exile/Executioner Assassin, smooth alien-faced tendril horror, low-health dash hunter, and spinning rapid-strike menace. Restore the original smooth alien face and uninterrupted gray-blue skin first, then push the finish to the same matte gothic standard and detail richness as Vellum and Paisley. Use powder-matte limestone/clay skin with subtle chalk pores, dry mottled gray-blue variation, fine scratches, dust, worn edges, thin occult scarring or charcoal markings, soft diffuse real-life studio lighting, and dull ink/charcoal black blade tendrils with dry serrated edge texture. Make it roughly 10% more realistic in anatomy and lighting than the cartoon passes, but keep the detail as grouped hand-painted dry material richness rather than chaotic noise. No wet shine, no sweaty highlights, no corpse anatomy, no ribbed striations, no exposed muscle, no glossy creature-concept rendering, no slick black tendrils, and no low-detail smooth creature model."
+    }
+  ]
+}
