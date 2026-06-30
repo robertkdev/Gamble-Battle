@@ -19,9 +19,10 @@ Read these in order:
 
 1. `docs/art/unit_art_style_workflow.md`
 2. `docs/art/unit_art_workflow_completion_audit_2026-06-30.md`
-3. `docs/art/unit_art_proof_matrix.json`
-4. `docs/art/unit_art_roster_prompt_matrix.json`
-5. `docs/art/unit_art_style_drift_audit_2026-06-30.md`
+3. `docs/art/unit_art_review_queue_2026-06-30.md`
+4. `docs/art/unit_art_proof_matrix.json`
+5. `docs/art/unit_art_roster_prompt_matrix.json`
+6. `docs/art/unit_art_style_drift_audit_2026-06-30.md`
 
 The completion audit is the current truth for remaining blockers. At the latest audit, 23 roster entries were checked: 3 accepted unit proofs, 14 current-candidate unit proofs needing human approval, and 6 roster entries with no visual proof (`berebell`, `cashmere`, `mortem`, `nyxa`, `repo`, `veyra`).
 
@@ -55,6 +56,8 @@ The next decision is human review of:
 - Vellum-first audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png`
 
 The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement.
+
+Use `docs/art/unit_art_review_queue_2026-06-30.md` as the current human-review script. It lists the next gate first, then the candidate backlog, and provides approval/rejection criteria.
 
 ## Standard Validation Command
 

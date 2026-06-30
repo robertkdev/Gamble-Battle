@@ -16,6 +16,7 @@ DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflo
 ART_TOOLS = [
     ROOT / "tools" / "art" / "build_unit_art_board_preview.py",
     ROOT / "tools" / "art" / "build_unit_art_prompt_packet.py",
+    ROOT / "tools" / "art" / "build_unit_art_review_queue.py",
     ROOT / "tools" / "art" / "build_unit_roster_contact_sheet.py",
     ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py",
     ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py",
@@ -155,6 +156,25 @@ def assert_completion_audit(audit_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_review_queue(queue_path: Path, report: list[str]) -> None:
+    text = queue_path.read_text(encoding="utf-8")
+    required = [
+        "Next Gate",
+        "Creep (`creep`)",
+        "creep_vellum_primary_detail_refit",
+        "Do not continue to Veyra or broader roster generation",
+        "Approval Checklist",
+        "Rejection Checklist",
+    ]
+    missing = [snippet for snippet in required if snippet not in text]
+    if missing:
+        raise RuntimeError(f"{rel(queue_path)} missing review queue snippets: {missing}")
+    report.append("## Review Queue")
+    report.append("")
+    report.append(f"- PASS `{rel(queue_path)}` names Creep as the next gate and includes approval/rejection criteria.")
+    report.append("")
+
+
 def write_report(output_dir: Path, report: list[str]) -> Path:
     path = output_dir / "workflow_validation_report.md"
     path.write_text("\n".join(report).rstrip() + "\n", encoding="utf-8")
@@ -173,6 +193,7 @@ def main() -> int:
     all_audit_dir = output_dir / "style_drift_audit_all_current"
     proof_audit_dir = output_dir / f"style_drift_audit_{args.audit_proof_id}"
     completion_audit_dir = output_dir / "workflow_completion_audit"
+    review_queue_dir = output_dir / "review_queue"
     report: list[str] = [
         "# Unit Art Workflow Validation Report",
         "",
@@ -196,6 +217,19 @@ def main() -> int:
             report,
         )
         assert_completion_audit(completion_audit_dir / "unit_art_workflow_completion_audit.md", report)
+        run_step(
+            "Review Queue",
+            [
+                sys.executable,
+                "tools/art/build_unit_art_review_queue.py",
+                "--output-dir",
+                rel(review_queue_dir),
+                "--docs-output",
+                "docs/art/unit_art_review_queue_2026-06-30.md",
+            ],
+            report,
+        )
+        assert_review_queue(review_queue_dir / "unit_art_review_queue.md", report)
         run_step("Workflow Document Validator", [sys.executable, "tools/art/validate_unit_art_workflow_doc.py"], report)
         run_step(
             "Full Roster Prompt Packet Build",
@@ -240,7 +274,7 @@ def main() -> int:
         report.append("")
         report.append("## Result")
         report.append("")
-        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, completion audit, and art-tool syntax are coherent.")
+        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, completion audit, review queue, and art-tool syntax are coherent.")
         report_path = write_report(output_dir, report)
         print(f"PASS: wrote {rel(report_path)}")
         return 0

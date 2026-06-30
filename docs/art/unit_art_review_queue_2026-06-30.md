@@ -1,0 +1,180 @@
+# Unit Art Review Queue
+
+- Generated: 2026-06-30
+- Current candidates needing review: 14
+- Next gate unit: `creep`
+- Next gate reason: Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests.
+
+## Review Rules
+
+- Review Vellum side by side first. Paisley and token remain secondary/narrow references.
+- Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.
+- Rejection needs a concrete reason that can become a future negative prompt or failure gate.
+- Do not replace live `assets/units/*.png` files from this queue without explicit user approval.
+- Do not continue to Veyra or broader roster generation until the next gate is resolved.
+
+## Next Gate
+
+### Creep (`creep`)
+
+- Priority: `next_gate`
+- Proof id: `creep_vellum_primary_detail_refit`
+- Reference role: `review_candidate_not_anchor`
+- Coverage: `other_unit, goth_horror_anchor, monster_assassin, detached_effects`
+- Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
+- Style audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+## Candidate Backlog
+
+### Axiom (`axiom`)
+
+- Priority: `candidate_backlog`
+- Proof id: `axiom_compact_scholar_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `humanoid_mage, small_narrow`
+- Raw: `outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Bo (`bo`)
+
+- Priority: `candidate_backlog`
+- Proof id: `bo_large_brute_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `large_tank, monster_assassin, weapon_heavy, goth_horror_anchor`
+- Raw: `outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Bonko (`bonko`)
+
+- Priority: `candidate_backlog`
+- Proof id: `bonko_wiry_raider_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `monster_assassin, weapon_heavy, small_narrow`
+- Raw: `outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Brute (`brute`)
+
+- Priority: `candidate_backlog`
+- Proof id: `brute_guardian_bulk_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `large_tank, guardian_bulk, stone_bone_construct`
+- Raw: `outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Hexeon (`hexeon`)
+
+- Priority: `candidate_backlog`
+- Proof id: `hexeon_time_blade_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `monster_assassin, detached_effects`
+- Raw: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Korath (`korath`)
+
+- Priority: `candidate_backlog`
+- Proof id: `korath_haloed_tank_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `large_tank`
+- Raw: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Luna (`luna`)
+
+- Priority: `candidate_backlog`
+- Proof id: `luna_bright_caster_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `humanoid_mage, detached_effects`
+- Raw: `outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Morrak (`morrak`)
+
+- Priority: `candidate_backlog`
+- Proof id: `morrak_polearm_executioner_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `monster_assassin, weapon_heavy`
+- Raw: `outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Sari (`sari`)
+
+- Priority: `candidate_backlog`
+- Proof id: `sari_spectral_tendril_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `monster_assassin, small_narrow, detached_effects`
+- Raw: `outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Teller (`teller`)
+
+- Priority: `candidate_backlog`
+- Proof id: `teller_contract_mogul_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `humanoid_mage, weapon_heavy, small_narrow`
+- Raw: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Totem (`totem`)
+
+- Priority: `candidate_backlog`
+- Proof id: `totem_dry_wood_guardian_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `large_tank, humanoid_mage, guardian_bulk, stone_bone_construct`
+- Raw: `outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Volt (`volt`)
+
+- Priority: `candidate_backlog`
+- Proof id: `volt_attached_energy_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `humanoid_mage, detached_effects`
+- Raw: `outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+### Vykos (`vykos`)
+
+- Priority: `candidate_backlog`
+- Proof id: `vykos_pale_sanguine_refit`
+- Reference role: `narrow_proof_only`
+- Coverage: `large_tank, monster_assassin, weapon_heavy, goth_horror_anchor`
+- Raw: `outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_raw_selected.png`
+- Board preview: `outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_board_preview.png`
+- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+
+## Approval Checklist
+
+- The raw reads as high-detail dry gothic illustration beside Vellum, not just as a dark palette match.
+- Skin/materials are matte, dry, absorptive, dusty, or cloth/parchment/bone/dull-metal-like, not sweaty, wet, glossy, plastic, latex, or polished.
+- Unit identity remains recognizable from the source sprite.
+- Board preview keeps head, torso, hands, weapon/prop, and main effect readable at 96 px.
+- Cutout/review sheet has no unacceptable orange fringe or missing identity-critical detached effects.
+- The proof ledger `reference_role` remains correct after the decision.
+
+## Rejection Checklist
+
+When rejecting, record which concrete failure happened:
+
+- too glossy or sweaty
+- too cartoon/comic/toy-like
+- too low-detail or smooth after de-shining
+- wrong identity or silhouette
+- wrong detail type: wet anatomy, shiny armor, generic fantasy sculpting, or noisy chaos
+- bad orange background or alpha/cutout failure
+- poor 96 px board read

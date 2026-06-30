@@ -14,10 +14,12 @@ ROSTER_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_roster_prompt_matrix.json
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py"
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
+REVIEW_QUEUE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_queue.py"
 COMPLETION_AUDIT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py"
 WORKFLOW_RUNNER_PATH = ROOT / "tools" / "art" / "run_unit_art_workflow_validation.py"
 STYLE_DRIFT_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_style_drift_audit_2026-06-30.md"
 COMPLETION_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_workflow_completion_audit_2026-06-30.md"
+REVIEW_QUEUE_PATH = ROOT / "docs" / "art" / "unit_art_review_queue_2026-06-30.md"
 FUTURE_AGENT_HANDOFF_PATH = ROOT / "docs" / "art" / "unit_art_future_agent_handoff.md"
 
 REQUIRED_DOC_SNIPPETS = [
@@ -35,6 +37,7 @@ REQUIRED_DOC_SNIPPETS = [
     "unit_art_roster_prompt_matrix.json",
     "build_unit_roster_prompt_packet.py",
     "build_unit_style_drift_audit.py",
+    "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "run_unit_art_workflow_validation.py",
     "End-to-End Validation",
@@ -71,6 +74,20 @@ REQUIRED_COMPLETION_AUDIT_SNIPPETS = [
     "coverage gaps remain",
     "next recommended stress test remains `creep`",
     "Creep Vellum-primary detail candidate",
+]
+
+REQUIRED_REVIEW_QUEUE_SNIPPETS = [
+    "Unit Art Review Queue",
+    "Current candidates needing review",
+    "Next gate unit: `creep`",
+    "Creep (`creep`)",
+    "creep_vellum_primary_detail_refit",
+    "approve as accepted proof, reject with a concrete reason, or request a revision",
+    "Do not continue to Veyra or broader roster generation",
+    "Approval Checklist",
+    "Rejection Checklist",
+    "too glossy or sweaty",
+    "too low-detail or smooth after de-shining",
 ]
 
 REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
@@ -119,6 +136,7 @@ REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS = [
 
 REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "validate_unit_art_workflow_doc.py",
+    "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
     "build_unit_style_drift_audit.py",
@@ -128,8 +146,20 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "All Current Style Drift Audit",
     "Focused Proof Style Drift Audit",
     "Workflow Completion Audit",
+    "Review Queue",
     "Godot Validation",
     "PASS: art workflow docs",
+]
+
+REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
+    "current_candidate",
+    "next_gate",
+    "review_candidate_not_anchor",
+    "approve as accepted proof",
+    "reject with a concrete reason",
+    "Do not continue to Veyra or broader roster generation",
+    "Approval Checklist",
+    "Rejection Checklist",
 ]
 
 REQUIRED_COMPLETION_BUILDER_SNIPPETS = [
@@ -410,6 +440,8 @@ def main() -> int:
         fail(f"Missing roster prompt packet builder: {ROSTER_PACKET_BUILDER_PATH}", failures)
     if not STYLE_DRIFT_BUILDER_PATH.exists():
         fail(f"Missing style drift audit builder: {STYLE_DRIFT_BUILDER_PATH}", failures)
+    if not REVIEW_QUEUE_BUILDER_PATH.exists():
+        fail(f"Missing review queue builder: {REVIEW_QUEUE_BUILDER_PATH}", failures)
     if not COMPLETION_AUDIT_BUILDER_PATH.exists():
         fail(f"Missing completion audit builder: {COMPLETION_AUDIT_BUILDER_PATH}", failures)
     if not WORKFLOW_RUNNER_PATH.exists():
@@ -418,6 +450,8 @@ def main() -> int:
         fail(f"Missing style drift audit: {STYLE_DRIFT_AUDIT_PATH}", failures)
     if not COMPLETION_AUDIT_PATH.exists():
         fail(f"Missing completion audit: {COMPLETION_AUDIT_PATH}", failures)
+    if not REVIEW_QUEUE_PATH.exists():
+        fail(f"Missing review queue: {REVIEW_QUEUE_PATH}", failures)
     if not FUTURE_AGENT_HANDOFF_PATH.exists():
         fail(f"Missing future agent handoff: {FUTURE_AGENT_HANDOFF_PATH}", failures)
     if failures:
@@ -449,6 +483,12 @@ def main() -> int:
         if snippet.lower() not in completion_audit_lower:
             fail(f"completion audit missing required snippet: {snippet}", failures)
 
+    review_queue = REVIEW_QUEUE_PATH.read_text(encoding="utf-8")
+    review_queue_lower = review_queue.lower()
+    for snippet in REQUIRED_REVIEW_QUEUE_SNIPPETS:
+        if snippet.lower() not in review_queue_lower:
+            fail(f"review queue missing required snippet: {snippet}", failures)
+
     future_agent_handoff = FUTURE_AGENT_HANDOFF_PATH.read_text(encoding="utf-8")
     future_agent_handoff_lower = future_agent_handoff.lower()
     for snippet in REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS:
@@ -466,6 +506,12 @@ def main() -> int:
     for snippet in REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS:
         if snippet.lower() not in style_drift_builder_lower:
             fail(f"style drift audit builder missing required snippet: {snippet}", failures)
+
+    review_queue_builder = REVIEW_QUEUE_BUILDER_PATH.read_text(encoding="utf-8")
+    review_queue_builder_lower = review_queue_builder.lower()
+    for snippet in REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS:
+        if snippet.lower() not in review_queue_builder_lower:
+            fail(f"review queue builder missing required snippet: {snippet}", failures)
 
     completion_builder = COMPLETION_AUDIT_BUILDER_PATH.read_text(encoding="utf-8")
     completion_builder_lower = completion_builder.lower()
