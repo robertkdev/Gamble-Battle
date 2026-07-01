@@ -208,6 +208,7 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     required = [
         "Vellum is the ultimate character reference",
         "Passing-pool rule",
+        "Visual review sheet",
         "Highest Risk Rows",
         "high_risk_re_review_before_acceptance",
         "Start visual review from the Vellum pairwise sheet",
@@ -215,9 +216,13 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     missing = [snippet for snippet in required if snippet not in text]
     if missing:
         raise RuntimeError(f"{rel(triage_path)} missing candidate triage snippets: {missing}")
+    review_sheet = triage_path.with_name("candidate_style_triage_review_sheet.png")
+    if not review_sheet.exists():
+        raise RuntimeError(f"{rel(triage_path.parent)} missing candidate style triage review sheet")
     report.append("## Candidate Style Triage")
     report.append("")
     report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks against Vellum/Paisley metrics.")
+    report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")
     report.append("")
 
 

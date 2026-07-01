@@ -1,7 +1,8 @@
 # Unit Art Candidate Style Triage
 
 - Generated: 2026-07-01
-- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_candidate_triage/style_drift_audit_all_current/foreground_detail_metrics.csv`
+- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_triage_visual_sheet/style_drift_audit_all_current/foreground_detail_metrics.csv`
+- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_triage_visual_sheet/candidate_style_triage/candidate_style_triage_review_sheet.png`
 - Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.
 - Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.
 
@@ -48,6 +49,7 @@ High-risk here means the candidate is materially below Paisley or Vellum on edge
 ## Use
 
 - Start visual review from the Vellum pairwise sheet, not this table.
+- Use the visual review sheet as a shortcut for the rows most likely to drift away from Vellum.
 - If a row is high-risk, compare it beside Vellum before accepting or using it as prompt context.
 - If a high-risk row is already accepted, keep it narrow and do not let it influence the global target without explicit user review.
 - If a row is a current candidate, leave it out of live assets until the user approves it.

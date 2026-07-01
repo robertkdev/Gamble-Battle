@@ -7,6 +7,8 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
+from PIL import Image, ImageDraw, ImageFont
+
 
 ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
@@ -37,6 +39,28 @@ def metric(row: dict[str, str], field: str) -> float:
     return float(row[field])
 
 
+def require_path(path_text: str) -> Path:
+    path = ROOT / path_text
+    if not path.exists():
+        raise FileNotFoundError(path_text)
+    return path
+
+
+def load_font(size: int) -> ImageFont.ImageFont:
+    try:
+        return ImageFont.truetype("arial.ttf", size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def fit_image(path_text: str, size: tuple[int, int], background: tuple[int, int, int]) -> Image.Image:
+    image = Image.open(require_path(path_text)).convert("RGBA")
+    image.thumbnail(size, Image.Resampling.LANCZOS)
+    canvas = Image.new("RGBA", size, background + (255,))
+    canvas.alpha_composite(image, ((size[0] - image.width) // 2, (size[1] - image.height) // 2))
+    return canvas.convert("RGB")
+
+
 def proof_lookup(proof_data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     for proof in proof_data.get("proofs", []):
@@ -59,6 +83,11 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
         kind = row["kind"]
         role = row["role"]
         proof = by_kind.get(kind, {})
+        raw_path = str(proof.get("raw", ""))
+        board_preview = str(proof.get("board_preview", ""))
+        if role == "primary_anchor":
+            primary_anchor = proof_data.get("style_contract", {}).get("reference_policy", {}).get("primary_anchor", {})
+            raw_path = str(primary_anchor.get("path", ""))
         status = str(proof.get("status", "reference" if row["label"].startswith("REF ") else "unknown"))
         edge_delta_vellum = metric(row, "edge_mean") - vellum_edge
         edge_delta_paisley = metric(row, "edge_mean") - paisley_edge
@@ -108,6 +137,8 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 "contrast_delta_paisley": f"{contrast_delta_paisley:.2f}",
                 "flags": ", ".join(flags) if flags else "none",
                 "review_stance": stance,
+                "raw": raw_path,
+                "board_preview": board_preview,
             }
         )
     return rows
@@ -121,7 +152,93 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
         writer.writerows(rows)
 
 
-def write_markdown(path: Path, rows: list[dict[str, str]], metrics_path: Path, report_date: str) -> None:
+def visual_review_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [
+        row
+        for row in rows
+        if row["review_stance"] in {
+            "high_risk_re_review_before_acceptance",
+            "needs_vellum_pairwise_visual_review",
+            "next_gate_human_review_required",
+        }
+    ]
+
+
+def wrap_text(text: str, width: int) -> list[str]:
+    words = text.split()
+    lines: list[str] = []
+    current = ""
+    for word in words:
+        candidate = f"{current} {word}".strip()
+        if len(candidate) <= width:
+            current = candidate
+        else:
+            if current:
+                lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines
+
+
+def write_visual_review_sheet(path: Path, rows: list[dict[str, str]]) -> None:
+    vellum = next(row for row in rows if row["reference_role"] == "primary_anchor")
+    review_rows = visual_review_rows(rows)
+    font = load_font(16)
+    small = load_font(13)
+    header = load_font(22)
+    row_h = 280
+    header_h = 96
+    vellum_w = 230
+    raw_w = 230
+    board_w = 360
+    text_w = 470
+    width = vellum_w + raw_w + board_w + text_w + 60
+    height = header_h + max(1, len(review_rows)) * row_h
+    sheet = Image.new("RGB", (width, height), (18, 18, 20))
+    draw = ImageDraw.Draw(sheet)
+    draw.text((14, 12), "Candidate Drift Review: Vellum First", font=header, fill=(255, 222, 120))
+    draw.text(
+        (14, 44),
+        "Metrics flag risk only. Vellum visual review decides; candidates do not become style anchors.",
+        font=small,
+        fill=(230, 205, 135),
+    )
+    if not review_rows:
+        draw.text((14, header_h), "No visual-review rows flagged.", font=font, fill=(220, 220, 225))
+        sheet.save(path)
+        return
+    vellum_tile = fit_image(vellum["raw"], (210, 210), (248, 68, 1))
+    for index, row in enumerate(review_rows):
+        y = header_h + index * row_h
+        raw_tile = fit_image(row["raw"], (210, 210), (248, 68, 1))
+        sheet.paste(vellum_tile, (14, y + 8))
+        sheet.paste(raw_tile, (vellum_w + 24, y + 8))
+        if row["board_preview"]:
+            board_tile = fit_image(row["board_preview"], (board_w - 20, 210), (26, 26, 29))
+            sheet.paste(board_tile, (vellum_w + raw_w + 34, y + 8))
+        text_x = vellum_w + raw_w + board_w + 44
+        color = (255, 170, 130) if row["review_stance"] == "high_risk_re_review_before_acceptance" else (210, 220, 255)
+        draw.text((14, y + 224), "REF Vellum raw", font=small, fill=(255, 222, 120))
+        draw.text((vellum_w + 24, y + 224), row["label"], font=small, fill=color)
+        draw.text((text_x, y + 8), row["label"], font=font, fill=color)
+        draw.text((text_x, y + 34), row["review_stance"], font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 58), f"Role: {row['reference_role']}  Status: {row['status']}", font=small, fill=(180, 180, 185))
+        draw.text((text_x, y + 82), f"Edge vs Vellum: {row['edge_delta_vellum']}  Contrast vs Vellum: {row['contrast_delta_vellum']}", font=small, fill=(180, 180, 185))
+        wrapped = wrap_text(f"Flags: {row['flags']}", 62)
+        for line_index, line in enumerate(wrapped[:5]):
+            draw.text((text_x, y + 112 + line_index * 20), line, font=small, fill=(205, 205, 210))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(path)
+
+
+def write_markdown(
+    path: Path,
+    rows: list[dict[str, str]],
+    metrics_path: Path,
+    report_date: str,
+    review_sheet_path: Path,
+) -> None:
     non_reference = [row for row in rows if not row["label"].startswith("REF ")]
     high_risk = [row for row in non_reference if row["review_stance"] == "high_risk_re_review_before_acceptance"]
     review_gate = [row for row in non_reference if row["reference_role"] == "review_candidate_not_anchor"]
@@ -130,6 +247,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]], metrics_path: Path, r
         "",
         f"- Generated: {report_date}",
         f"- Metrics source: `{rel(metrics_path)}`",
+        f"- Visual review sheet: `{rel(review_sheet_path)}`",
         "- Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.",
         "- Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.",
         "",
@@ -169,6 +287,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]], metrics_path: Path, r
         "## Use",
         "",
         "- Start visual review from the Vellum pairwise sheet, not this table.",
+        "- Use the visual review sheet as a shortcut for the rows most likely to drift away from Vellum.",
         "- If a row is high-risk, compare it beside Vellum before accepting or using it as prompt context.",
         "- If a high-risk row is already accepted, keep it narrow and do not let it influence the global target without explicit user review.",
         "- If a row is a current candidate, leave it out of live assets until the user approves it.",
@@ -193,14 +312,17 @@ def main() -> int:
     rows = build_rows(load_metrics(metrics_path), proof_data)
     csv_path = output_dir / "unit_art_candidate_style_triage.csv"
     md_path = output_dir / "unit_art_candidate_style_triage.md"
+    review_sheet_path = output_dir / "candidate_style_triage_review_sheet.png"
     write_csv(csv_path, rows)
-    write_markdown(md_path, rows, metrics_path, args.report_date)
+    write_visual_review_sheet(review_sheet_path, rows)
+    write_markdown(md_path, rows, metrics_path, args.report_date, review_sheet_path)
     if args.docs_output:
         docs_path = args.docs_output if args.docs_output.is_absolute() else ROOT / args.docs_output
-        write_markdown(docs_path, rows, metrics_path, args.report_date)
+        write_markdown(docs_path, rows, metrics_path, args.report_date, review_sheet_path)
         print(rel(docs_path))
     print(rel(md_path))
     print(rel(csv_path))
+    print(rel(review_sheet_path))
     return 0
 
 

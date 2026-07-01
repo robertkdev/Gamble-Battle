@@ -89,9 +89,11 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "Unit Art Candidate Style Triage",
     "Vellum is the ultimate character reference",
     "Passing-pool rule",
+    "Visual review sheet",
     "Highest Risk Rows",
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
+    "candidate_style_triage_review_sheet.png",
 ]
 
 REQUIRED_REVIEW_QUEUE_SNIPPETS = [
@@ -202,6 +204,8 @@ REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
     "edge_detail_far_below_paisley",
+    "candidate_style_triage_review_sheet.png",
+    "write_visual_review_sheet",
 ]
 
 REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
