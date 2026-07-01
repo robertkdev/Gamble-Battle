@@ -29,6 +29,7 @@ STYLE_DRIFT_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_style_drift_audit_202
 COMPLETION_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_workflow_completion_audit_2026-06-30.md"
 REVIEW_QUEUE_PATH = ROOT / "docs" / "art" / "unit_art_review_queue_2026-06-30.md"
 FUTURE_AGENT_HANDOFF_PATH = ROOT / "docs" / "art" / "unit_art_future_agent_handoff.md"
+CREEP_REVISION_PROMPT_PACKET_PATH = ROOT / "docs" / "art" / "creep_revision_prompt_packet_2026_07_01" / "creep.md"
 
 REQUIRED_DOC_SNIPPETS = [
     "Current Best Anchor",
@@ -131,6 +132,8 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Board-scale decision sheet",
     "Creep is the next revision gate",
     "Active revision request",
+    "Revision prompt packet",
+    "creep_revision_prompt_packet_2026_07_01/creep.md",
     "Latest scorecard",
     "Approve only if",
     "Vellum-First Scoring Contract",
@@ -169,6 +172,8 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "Scorecard template",
     "creep_review_decision_packet_2026-07-01_scorecard_template.json",
     "Active revision request",
+    "Revision prompt packet",
+    "creep_revision_prompt_packet_2026_07_01/creep.md",
     "revise before approval",
 ]
 
@@ -197,9 +202,32 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "do not compare cutout cleanliness to Vellum",
     "creep_review_decision_packet_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01_scorecard_template.json",
+    "creep_revision_prompt_packet_2026_07_01/creep.md",
     "--scorecard-json",
     "RoleMatrixProbe.tscn",
     "Completion Standard",
+    "segmented armor tendrils",
+    "mechanical black tube tendrils",
+]
+
+REQUIRED_CREEP_REVISION_PROMPT_PACKET_SNIPPETS = [
+    "Unit Roster Prompt Packet - Creep",
+    "Revision lock",
+    "original source sprite",
+    "Creep Vellum-primary candidate only as a negative comparison",
+    "smooth oval face",
+    "uninterrupted gray-blue skin",
+    "unsegmented tendril/blade ring",
+    "surface weathering rather than armor clutter",
+    "surface weathering, not armor clutter",
+    "segmented mechanical tube tendrils",
+    "segmented armor tendrils",
+    "mechanical black tube tendrils",
+    "talisman clutter as fake detail",
+    "Paisley only as secondary contrast context",
+    "low-detail smooth creature model",
+    "--edge-orange-clean",
+    "Vellum-level dry detail richness",
 ]
 
 REQUIRED_PACKET_BUILDER_SNIPPETS = [
@@ -262,6 +290,8 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Workflow Completion Audit",
     "Review Queue",
     "Review Decision Packet",
+    "Creep Revision Prompt Packet",
+    "assert_creep_revision_prompt_packet",
     "Review Decision Helper Dry Run",
     "Review Decision Helper Accept Scorecard Dry Run",
     "Review Decision Helper Missing Scorecard Guard",
@@ -327,9 +357,12 @@ REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS = [
 
 REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Review Decision Packet",
+    "CREEP_REVISION_PROMPT_PACKET",
     "Creep is the next human-review gate",
     "Creep is the next revision gate",
     "Active revision request",
+    "Revision prompt packet",
+    "revision_prompt_packet",
     "Latest scorecard",
     "format_latest_scorecard",
     "Prior Creep Lessons",
@@ -350,9 +383,12 @@ REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
 
 REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "current_candidate",
+    "CREEP_REVISION_PROMPT_PACKET",
     "next_gate",
     "review_candidate_not_anchor",
     "Active revision request",
+    "Revision prompt packet",
+    "revision_prompt_packet",
     "revise before approval",
     "approve as accepted proof",
     "Rejection needs a concrete reason",
@@ -690,6 +726,8 @@ def main() -> int:
         fail(f"Missing review queue: {REVIEW_QUEUE_PATH}", failures)
     if not FUTURE_AGENT_HANDOFF_PATH.exists():
         fail(f"Missing future agent handoff: {FUTURE_AGENT_HANDOFF_PATH}", failures)
+    if not CREEP_REVISION_PROMPT_PACKET_PATH.exists():
+        fail(f"Missing Creep revision prompt packet: {CREEP_REVISION_PROMPT_PACKET_PATH}", failures)
     if failures:
         for item in failures:
             print(f"FAIL: {item}")
@@ -748,6 +786,12 @@ def main() -> int:
     for snippet in REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS:
         if snippet.lower() not in future_agent_handoff_lower:
             fail(f"future agent handoff missing required snippet: {snippet}", failures)
+
+    creep_revision_prompt_packet = CREEP_REVISION_PROMPT_PACKET_PATH.read_text(encoding="utf-8")
+    creep_revision_prompt_packet_lower = creep_revision_prompt_packet.lower()
+    for snippet in REQUIRED_CREEP_REVISION_PROMPT_PACKET_SNIPPETS:
+        if snippet.lower() not in creep_revision_prompt_packet_lower:
+            fail(f"Creep revision prompt packet missing required snippet: {snippet}", failures)
 
     packet_builder = ROSTER_PACKET_BUILDER_PATH.read_text(encoding="utf-8")
     packet_builder_lower = packet_builder.lower()
@@ -969,6 +1013,11 @@ def main() -> int:
                 "glossy creature concept",
                 "flat powdery skin",
                 "dull ink-black tendrils",
+                "unsegmented tendril",
+                "segmented armor tendrils",
+                "mechanical black tube tendrils",
+                "talisman clutter as fake detail",
+                "surface weathering, not armor clutter",
                 "dry chalky",
             ):
                 if phrase not in creep_text:

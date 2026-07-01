@@ -10,8 +10,8 @@ Use this when a new Codex agent has no conversation history and needs to continu
 - The Vellum contract token is the small-asset material reference.
 - Later passing/current proofs are narrow coverage examples only. Do not average them into the target style.
 - Every serious candidate must also get a Vellum-first pairwise audit sheet and a reference-ladder sheet with Vellum, Paisley, token, and the candidate in the same row; pooled passing images are not enough.
-- The current Creep pass is a review candidate only: `creep_vellum_primary_detail_refit_2026_06_30`.
-- Do not generate Veyra or broader roster batches until the user approves or rejects the Creep review candidate.
+- The current Creep pass is a revision candidate only: `creep_vellum_primary_detail_refit_2026_06_30`.
+- Do not generate Veyra or broader roster batches until a new Creep revision resolves the active smooth-alien / Vellum-level matte-detail request.
 - Do not replace any live `assets/units/*.png` file without explicit user approval.
 
 ## First Files To Read
@@ -28,6 +28,7 @@ Read these in order:
 8. `docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md`
 9. `docs/art/creep_review_decision_packet_2026-07-01.md`
 10. `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
+11. `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md`
 
 The completion audit is the current truth for remaining blockers. At the latest audit, 23 roster entries were checked: 3 accepted unit proofs, 14 current-candidate unit proofs needing human approval, and 6 roster entries with no visual proof (`berebell`, `cashmere`, `mortem`, `nyxa`, `repo`, `veyra`).
 
@@ -58,7 +59,9 @@ Do not promote a proof into a broader style anchor unless the user explicitly sa
 
 ## Current Next Gate
 
-The next decision is human review of:
+The next gate is a Creep revision, not Veyra or broad roster generation. Use `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md` as the current generation packet.
+
+The previous candidate evidence is:
 
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
@@ -71,8 +74,9 @@ The next decision is human review of:
 - Cutout orange-fringe review sheet: `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png`
 - Creep decision packet: `docs/art/creep_review_decision_packet_2026-07-01.md`
 - Scorecard worksheet: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
+- Creep revision generation packet: `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md`
 
-The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement.
+The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement. Its current failure is specific: it needs the original smooth alien head/body and uninterrupted gray-blue skin restored harder while keeping Vellum-level matte dry richness. The next prompt must not use segmented armor tendrils, mechanical black tube tendrils, talisman clutter, or shiny blade highlights as a substitute for surface detail.
 
 Use `docs/art/unit_art_review_queue_2026-06-30.md` as the current human-review script. It lists the next gate first, then the candidate backlog, and provides approval/rejection criteria. Use the decision scorecard in `docs/art/creep_review_decision_packet_2026-07-01.md` and fill `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json` before applying any approve/revise/reject command.
 

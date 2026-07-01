@@ -47,6 +47,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Reference ladder audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/reference_ladder_raw_comparison.png`
 - Scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 - Active revision request: User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target.
+- Revision prompt packet: `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md`
 - Decision needed: revise before approval.
 
 ## Candidate Backlog

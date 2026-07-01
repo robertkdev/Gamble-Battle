@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflow_validation_{date.today().strftime('%Y_%m_%d')}"
+CREEP_REVISION_PROMPT_PACKET = ROOT / "docs" / "art" / "creep_revision_prompt_packet_2026_07_01" / "creep.md"
 
 ART_TOOLS = [
     ROOT / "tools" / "art" / "apply_unit_art_review_decision.py",
@@ -378,6 +379,31 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_creep_revision_prompt_packet(report: list[str]) -> None:
+    if not CREEP_REVISION_PROMPT_PACKET.exists():
+        raise RuntimeError(f"missing Creep revision prompt packet: {rel(CREEP_REVISION_PROMPT_PACKET)}")
+    text = CREEP_REVISION_PROMPT_PACKET.read_text(encoding="utf-8")
+    required = [
+        "Revision lock",
+        "original source sprite",
+        "Creep Vellum-primary candidate only as a negative comparison",
+        "unsegmented tendril/blade ring",
+        "surface weathering, not armor clutter",
+        "segmented mechanical tube tendrils",
+        "mechanical black tube tendrils",
+        "talisman clutter as fake detail",
+        "Paisley only as secondary contrast context",
+        "--edge-orange-clean",
+    ]
+    missing = [snippet for snippet in required if snippet not in text]
+    if missing:
+        raise RuntimeError(f"{rel(CREEP_REVISION_PROMPT_PACKET)} missing Creep revision snippets: {missing}")
+    report.append("## Creep Revision Prompt Packet")
+    report.append("")
+    report.append(f"- PASS `{rel(CREEP_REVISION_PROMPT_PACKET)}` locks original smooth-alien identity, Vellum-level dry detail, and the current negative drift bans.")
+    report.append("")
+
+
 def write_report(output_dir: Path, report: list[str]) -> Path:
     path = output_dir / "workflow_validation_report.md"
     path.write_text("\n".join(report).rstrip() + "\n", encoding="utf-8")
@@ -453,6 +479,7 @@ def main() -> int:
             report,
         )
         assert_review_packet(review_packet_dir / f"{args.audit_proof_id}_review_decision_packet.md", report)
+        assert_creep_revision_prompt_packet(report)
         all_pass_scorecard_path = output_dir / f"{args.audit_proof_id}_all_pass_scorecard.json"
         write_all_pass_scorecard(all_pass_scorecard_path, args.audit_proof_id)
         run_step(

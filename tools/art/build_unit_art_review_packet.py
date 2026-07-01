@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"review_packet_{date.today().strftime('%Y_%m_%d')}"
 VELLUM_BOARD_REFERENCE = "outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_cleanliness_comparison.png"
+CREEP_REVISION_PROMPT_PACKET = "docs/art/creep_revision_prompt_packet_2026_07_01/creep.md"
 SCORECARD_TEMPLATE_GATES = {
     "vellum_veto": "Candidate survives the first side-by-side comparison against Vellum on dry material, detail richness, grounded realism, silhouette mood, and board-scale readability.",
     "creep_identity": "Candidate still reads as the planned smooth alien/demon assassin, not a corpse, flayed anatomy monster, generic creature, or unreadable tendril knot.",
@@ -310,6 +311,7 @@ def write_markdown(
     reference_ladder_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "reference_ladder_raw_comparison.png")
     scorecard_template_rel = rel(scorecard_template_path)
     revision_request = str(proof.get("revision_request", "")).strip()
+    revision_prompt_packet = CREEP_REVISION_PROMPT_PACKET if proof.get("subject_id") == "creep" and revision_request else ""
     latest_scorecard = format_latest_scorecard(proof)
     lines: list[str] = [
         f"# {proof.get('display_name', proof.get('subject_id'))} Review Decision Packet",
@@ -328,6 +330,8 @@ def write_markdown(
     ]
     if revision_request:
         lines.append(f"- Active revision request: {revision_request}")
+    if revision_prompt_packet:
+        lines.append(f"- Revision prompt packet: `{revision_prompt_packet}`")
     if latest_scorecard:
         lines.append(f"- Latest scorecard: `{latest_scorecard}`")
     lines.extend([
@@ -340,6 +344,8 @@ def write_markdown(
             "Creep is the next revision gate. Do not generate Veyra or broader roster batches until a new Creep pass resolves the active revision request.",
             "",
             f"Active revision request: {revision_request}",
+            "",
+            f"Use `{revision_prompt_packet}` for the next Creep generation pass.",
             "",
             "Do not approve the previous candidate as-is. Use it as a comparison target for what to improve: smoother alien identity, drier Vellum-level material, and more convincing matte gothic detail without becoming low-detail or corpse-like.",
         ])

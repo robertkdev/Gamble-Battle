@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 ROSTER_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_roster_prompt_matrix.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"review_queue_{date.today().strftime('%Y_%m_%d')}"
+CREEP_REVISION_PROMPT_PACKET = "docs/art/creep_revision_prompt_packet_2026_07_01/creep.md"
 
 
 def rel(path_text: str | Path) -> str:
@@ -91,6 +92,7 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             "reference_ladder_audit": reference_ladder_audit,
             "scorecard_template": str(proof.get("scorecard_template", "")),
             "revision_request": str(proof.get("revision_request", "")),
+            "revision_prompt_packet": CREEP_REVISION_PROMPT_PACKET if subject_id == "creep" and proof.get("revision_request") else "",
             "decision_needed": "revise before approval" if proof.get("revision_request") else "approve as accepted proof, reject with reason, or request revision",
         })
     return rows
@@ -125,6 +127,8 @@ def candidate_section(row: dict[str, str]) -> list[str]:
         lines.append(f"- Scorecard template: `{row['scorecard_template']}`")
     if row["revision_request"]:
         lines.append(f"- Active revision request: {row['revision_request']}")
+    if row["revision_prompt_packet"]:
+        lines.append(f"- Revision prompt packet: `{row['revision_prompt_packet']}`")
     lines.extend([
         f"- Decision needed: {row['decision_needed']}.",
         "",
