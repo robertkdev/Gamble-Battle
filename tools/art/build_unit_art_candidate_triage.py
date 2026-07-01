@@ -147,12 +147,25 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 stance = "next_gate_human_review_required"
             else:
                 stance = "metrics_do_not_replace_visual_review"
+        if role == "primary_anchor":
+            prompt_context_status = "primary_anchor"
+        elif role in {"secondary_contrast_anchor", "small_asset_material_reference"}:
+            prompt_context_status = "reference_context_only"
+        elif negative_control:
+            prompt_context_status = "blocked_style_negative_control"
+        elif status == "current_candidate":
+            prompt_context_status = "blocked_current_candidate"
+        elif stance in {"high_risk_re_review_before_acceptance", "needs_vellum_pairwise_visual_review", "next_gate_human_review_required"}:
+            prompt_context_status = "blocked_until_vellum_pairwise_review"
+        else:
+            prompt_context_status = "narrow_context_only_not_anchor"
         rows.append(
             {
                 "label": row["label"],
                 "proof_id": kind,
                 "status": status,
                 "reference_role": role,
+                "prompt_context_status": prompt_context_status,
                 "edge_mean": row["edge_mean"],
                 "edge_delta_vellum": f"{edge_delta_vellum:.2f}",
                 "edge_delta_paisley": f"{edge_delta_paisley:.2f}",
@@ -203,6 +216,14 @@ def visual_review_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
             "needs_vellum_pairwise_visual_review",
             "next_gate_human_review_required",
         }
+    ]
+
+
+def prompt_context_quarantine_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [
+        row
+        for row in rows
+        if row["prompt_context_status"].startswith("blocked_")
     ]
 
 
@@ -286,6 +307,7 @@ def write_markdown(
     expected_controls = [row for row in non_reference if row["expected_negative_control"] == "yes"]
     high_risk = [row for row in non_reference if row["review_stance"] == "high_risk_re_review_before_acceptance"]
     review_gate = [row for row in non_reference if row["reference_role"] == "review_candidate_not_anchor"]
+    quarantined = prompt_context_quarantine_rows(rows)
     lines: list[str] = [
         "# Unit Art Candidate Style Triage",
         "",
@@ -302,12 +324,15 @@ def write_markdown(
         f"- Required style negative controls: {len(expected_controls)}",
         f"- High-risk re-review rows: {len(high_risk)}",
         f"- Review-gate rows: {len(review_gate)}",
+        f"- Prompt-context quarantined rows: {len(quarantined)}",
         "",
         "Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.",
         "",
         "Required style negative controls are expected to fail every run. Totem is the current required negative control; if it stops failing, the style audit is broken or the ledger has changed without a new human promotion decision.",
         "",
         "High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.",
+        "",
+        "Prompt-context quarantine is the machine-readable guardrail for the user's warning about the passing pool getting muddy. Quarantined rows must not be used as prompt/style context until they pass a fresh Vellum-first visual review or receive an explicit user promotion/reclassification.",
         "",
         "## Required Style Negative Controls",
         "",
@@ -347,15 +372,28 @@ def write_markdown(
         lines.append("- None by the current proxy thresholds.")
     lines.extend([
         "",
+        "## Prompt-Context Quarantine",
+        "",
+    ])
+    if quarantined:
+        for row in quarantined:
+            lines.append(
+                f"- `{row['label']}` / `{row['proof_id']}`: `{row['prompt_context_status']}`; "
+                f"stance `{row['review_stance']}`; {row['flags']}."
+            )
+    else:
+        lines.append("- None.")
+    lines.extend([
+        "",
         "## Full Triage Table",
         "",
-        "| Label | Proof | Status | Role | Edge vs Vellum | Contrast vs Vellum | Flags | Stance |",
-        "| --- | --- | --- | --- | ---: | ---: | --- | --- |",
+        "| Label | Proof | Status | Role | Prompt context | Edge vs Vellum | Contrast vs Vellum | Flags | Stance |",
+        "| --- | --- | --- | --- | --- | ---: | ---: | --- | --- |",
     ])
     for row in rows:
         lines.append(
             f"| {row['label']} | `{row['proof_id']}` | `{row['status']}` | `{row['reference_role']}` | "
-            f"{row['edge_delta_vellum']} | {row['contrast_delta_vellum']} | {row['flags']} | {row['review_stance']} |"
+            f"`{row['prompt_context_status']}` | {row['edge_delta_vellum']} | {row['contrast_delta_vellum']} | {row['flags']} | {row['review_stance']} |"
         )
     lines.extend([
         "",
@@ -363,8 +401,8 @@ def write_markdown(
         "",
         "- Start visual review from the Vellum pairwise sheet, not this table.",
         "- Use the visual review sheet as a shortcut for the rows most likely to drift away from Vellum.",
-        "- If a row is high-risk, compare it beside Vellum before accepting or using it as prompt context.",
-        "- If a high-risk row is already accepted, keep it narrow and do not let it influence the global target without explicit user review.",
+        "- If a row is high-risk or prompt-context quarantined, compare it beside Vellum before accepting or using it as prompt context.",
+        "- If a high-risk row is already accepted, keep it quarantined from prompt influence and do not let it influence the global target without explicit user review.",
         "- If a row is a current candidate, leave it out of live assets until the user approves it.",
         "",
     ])

@@ -71,6 +71,8 @@ REQUIRED_DOC_SNIPPETS = [
     "Vellum is the primary/ultimate style anchor",
     "do not average all passing images together",
     "Every future candidate must be checked side by side against Vellum first",
+    "prompt_context_status",
+    "blocked_*",
     "Vellum-first side-by-side comparison",
     "reference-ladder sheet",
     "--scorecard-json",
@@ -78,6 +80,7 @@ REQUIRED_DOC_SNIPPETS = [
     "they cannot rescue a candidate that is weaker than Vellum",
     "--edge-orange-clean",
     "orange-fringe audit",
+    "Cutout cleanliness is not judged against Vellum",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -116,6 +119,10 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "Totem",
     "style_audit_failed_negative_control",
     "Highest Risk Rows",
+    "Prompt-Context Quarantine",
+    "Prompt-context quarantine is the machine-readable guardrail",
+    "blocked_until_vellum_pairwise_review",
+    "Grint",
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
     "candidate_style_triage_review_sheet.png",
@@ -190,6 +197,8 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "The larger art-workflow goal is active, not complete",
     "Vellum is the only primary/ultimate character style anchor",
     "Every serious candidate must also get a Vellum-first pairwise audit sheet",
+    "prompt_context_status",
+    "Grint is accepted as narrow proof history but currently blocked from prompt influence",
     "reference-ladder sheet",
     "Do not generate Veyra or broader roster batches",
     "Do not replace any live `assets/units/*.png` file",
@@ -259,6 +268,7 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "Current candidates are review-only",
     "Side-by-side rule",
     "Passing-pool rule",
+    "Prompt-context rule",
     "orange-fringe audit",
 ]
 
@@ -317,6 +327,9 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "write_all_pass_scorecard",
     "--scorecard-json",
     "Candidate Style Triage",
+    "prompt_context_status",
+    "accepted risky proofs are not prompt-context quarantined",
+    "Grint is not quarantined from prompt context",
     "Cutout Orange-Fringe Audit",
     "Synthetic Cutout Orange-Fringe Negative Control",
     "synthetic orange-fringe negative control",
@@ -354,6 +367,10 @@ REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
     "required_style_negative_control",
     "human_style_fail_negative_control",
     "style_audit_failed_negative_control",
+    "prompt_context_status",
+    "prompt_context_quarantine_rows",
+    "blocked_until_vellum_pairwise_review",
+    "Prompt-Context Quarantine",
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
     "edge_detail_far_below_paisley",
@@ -474,6 +491,7 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "side_by_side_rule",
     "veto_rule",
     "passing_pool_rule",
+    "prompt_context_rule",
 ]
 
 REQUIRED_TEST_LOG_SNIPPETS = [

@@ -57,6 +57,7 @@ def render_reference_policy(proof_matrix: dict[str, Any]) -> str:
         f"- Side-by-side rule: {policy.get('side_by_side_rule', 'Every serious candidate must be reviewed beside Vellum first.')}",
         f"- Vellum veto rule: {policy.get('veto_rule', 'Vellum can veto candidates on the core style target; later proofs stay narrow.')}",
         f"- Passing-pool rule: {policy.get('passing_pool_rule', 'Do not average passing images into a new target.')}",
+        f"- Prompt-context rule: {policy.get('prompt_context_rule', 'Rows blocked by candidate style triage must not be used as prompt or style context until Vellum-first review clears them.')}",
     ])
 
 

@@ -10,6 +10,7 @@ Use this when a new Codex agent has no conversation history and needs to continu
 - The Vellum contract token is the small-asset material reference.
 - Later passing/current proofs are narrow coverage examples only. Do not average them into the target style.
 - Every serious candidate must also get a Vellum-first pairwise audit sheet and a reference-ladder sheet with Vellum, Paisley, token, and the candidate in the same row; pooled passing images are not enough.
+- Candidate triage has a `prompt_context_status` column. Rows marked `blocked_*` are quarantined from prompt/style context until fresh Vellum-first review clears them or the user explicitly promotes/reclassifies them. Grint is accepted as narrow proof history but currently blocked from prompt influence until Vellum pairwise review clears the concern.
 - The current Creep pass is a revision candidate only: `creep_builtin_revision_candidate_v5_2026_07_01`.
 - Do not generate Veyra or broader roster batches until a new Creep revision resolves the active smooth-alien / Vellum-level matte-detail request.
 - Do not replace any live `assets/units/*.png` file without explicit user approval.

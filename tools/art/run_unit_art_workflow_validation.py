@@ -342,6 +342,8 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         "Human Negative-Control Failures",
         "style_audit_failed_negative_control",
         "Highest Risk Rows",
+        "Prompt-Context Quarantine",
+        "blocked_until_vellum_pairwise_review",
         "high_risk_re_review_before_acceptance",
         "Start visual review from the Vellum pairwise sheet",
     ]
@@ -362,9 +364,26 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         raise RuntimeError("Totem negative control is not marked expected_negative_control=yes")
     if totem_rows[0].get("review_stance") != "style_audit_failed_negative_control":
         raise RuntimeError("Totem negative control did not fail candidate style triage")
+    grint_rows = [row for row in rows if row.get("proof_id") == "grint_hard_matte_refit"]
+    if not grint_rows:
+        raise RuntimeError("candidate style triage missing Grint row")
+    if grint_rows[0].get("prompt_context_status") != "blocked_until_vellum_pairwise_review":
+        raise RuntimeError("Grint is not quarantined from prompt context despite Vellum-pairwise warning")
+    unsafe_accepted = [
+        row
+        for row in rows
+        if row.get("status") == "accepted"
+        and row.get("reference_role") == "narrow_proof_only"
+        and row.get("review_stance") in {"high_risk_re_review_before_acceptance", "needs_vellum_pairwise_visual_review"}
+        and not str(row.get("prompt_context_status", "")).startswith("blocked_")
+    ]
+    if unsafe_accepted:
+        ids = ", ".join(row.get("proof_id", "<unknown>") for row in unsafe_accepted)
+        raise RuntimeError(f"accepted risky proofs are not prompt-context quarantined: {ids}")
     report.append("## Candidate Style Triage")
     report.append("")
     report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks and fails the Totem negative control.")
+    report.append("- PASS Grint and any accepted risky narrow proofs are quarantined from prompt context until Vellum-first review clears them.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")
     report.append("")
 

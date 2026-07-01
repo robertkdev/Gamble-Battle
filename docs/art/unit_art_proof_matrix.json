@@ -34,7 +34,8 @@
       "candidate_rule": "Current candidates can demonstrate process progress, but they are review-only and never anchor references until approved.",
       "side_by_side_rule": "Every serious candidate must be reviewed in a Vellum-first side-by-side comparison before acceptance. Paisley, token, and later accepted proofs can add secondary context, but Vellum remains the first visual question.",
       "veto_rule": "Vellum can veto any candidate on dry material finish, detail richness, grounded realism, silhouette mood, and board-scale readability. Later proofs can answer only narrow risk questions and cannot rescue a candidate that is weaker than Vellum.",
-      "passing_pool_rule": "Do not average the passing pool into the target style. New accepted proofs stay narrow by reference_role unless the user explicitly promotes one into the global anchor hierarchy."
+      "passing_pool_rule": "Do not average the passing pool into the target style. New accepted proofs stay narrow by reference_role unless the user explicitly promotes one into the global anchor hierarchy.",
+      "prompt_context_rule": "Rows marked with a blocked_* prompt_context_status in candidate style triage must not be used as prompt or style context until they pass fresh Vellum-first visual review or receive explicit user promotion/reclassification."
     }
   },
   "proofs": [
