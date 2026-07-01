@@ -376,6 +376,10 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Synthetic Cutout Orange-Fringe Negative Control",
     "synthetic orange-fringe negative control",
     "edge cleaner removes synthetic safety-orange edge contamination",
+    "edge-cleaner pixel delta is limited to safety-orange alpha-edge targets",
+    "edge_clean_delta_stats",
+    "changed_outside_target_pixels",
+    "remaining_edge_orange_pixels",
     "intentional interior orange material",
     "assert_alpha_unchanged",
     "count_safety_orange_pixels_in_box",
@@ -463,9 +467,13 @@ REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS = [
 
 REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS = [
     "clean_edge_orange",
+    "edge_clean_delta_stats",
     "safety_orange_residue",
     "alpha_edge_band",
     "cleaned_edge_orange_pixels",
+    "changed_outside_target_pixels",
+    "changed_outside_edge_pixels",
+    "remaining_edge_orange_pixels",
     "Unit cutout edge-orange post-clean review",
 ]
 
@@ -490,6 +498,7 @@ REQUIRED_QUICK_AUDIT_GATE_SNIPPETS = [
     "synthetic contaminated cutout audit manifest",
     "synthetic cleaned cutout audit manifest",
     "synthetic edge-clean review sheets exist and are nonblank",
+    "edge cleaner pixel delta is limited to safety-orange alpha-edge targets",
     "flagged=1",
     "flagged=0",
     "intentional interior orange material",

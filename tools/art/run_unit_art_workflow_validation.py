@@ -11,6 +11,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from clean_unit_cutout_orange_edge import edge_clean_delta_stats
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflow_validation_{date.today().strftime('%Y_%m_%d')}"
@@ -735,6 +737,19 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         raise RuntimeError("synthetic edge cleaner reported a non-integer cleaned pixel count") from exc
     if cleaned_pixels <= 0:
         raise RuntimeError("synthetic edge cleaner did not remove any safety-orange edge pixels")
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4)
+    if delta_stats["target_edge_orange_pixels"] != cleaned_pixels:
+        raise RuntimeError("edge cleaner reported pixel count does not match target edge-orange pixels")
+    if delta_stats["changed_rgb_pixels"] <= 0:
+        raise RuntimeError("edge cleaner did not change any RGB pixels")
+    if delta_stats["changed_alpha_pixels"] != 0:
+        raise RuntimeError("edge cleaner changed alpha pixels")
+    if delta_stats["changed_outside_target_pixels"] != 0:
+        raise RuntimeError("edge cleaner changed pixels outside safety-orange edge target")
+    if delta_stats["changed_outside_edge_pixels"] != 0:
+        raise RuntimeError("edge cleaner changed pixels outside the alpha edge band")
+    if delta_stats["remaining_edge_orange_pixels"] != 0:
+        raise RuntimeError("edge cleaner left synthetic safety-orange residue in the alpha edge band")
     interior_orange_after = count_safety_orange_pixels_in_box(cleaned_path, interior_box)
     if interior_orange_after != interior_orange_before:
         raise RuntimeError("edge-orange cleaner changed intentional interior orange material")
@@ -790,6 +805,11 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     )
     report.append("- PASS edge cleaner removes synthetic safety-orange edge contamination while preserving alpha and intentional interior orange material.")
     report.append(
+        "- PASS edge-cleaner pixel delta is limited to safety-orange alpha-edge targets "
+        f"(changed={delta_stats['changed_rgb_pixels']}, outside_target={delta_stats['changed_outside_target_pixels']}, "
+        f"outside_edge={delta_stats['changed_outside_edge_pixels']}, alpha_changes={delta_stats['changed_alpha_pixels']})."
+    )
+    report.append(
         "- PASS synthetic cutout review sheets are nonblank: "
         f"before `{before_review_size[0]}x{before_review_size[1]}`, "
         f"cleaner `{cleaner_review_size[0]}x{cleaner_review_size[1]}`, "
@@ -827,6 +847,7 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
         "soft-alpha safety-orange halo control fails",
         "cutout self-test matrix review sheet exists and is nonblank",
         "synthetic edge-clean regression removed",
+        "edge cleaner pixel delta is limited to safety-orange alpha-edge targets",
         "synthetic contaminated cutout audit manifest proves reference-free cutout-only input contract",
         "synthetic cleaned cutout audit manifest proves reference-free cutout-only input contract",
         "synthetic edge-clean review sheets exist and are nonblank",

@@ -32,6 +32,28 @@ def clean_edge_orange(image: Image.Image, edge_radius: int) -> tuple[Image.Image
     return Image.fromarray(cleaned, "RGBA"), int(np.count_nonzero(target))
 
 
+def edge_clean_delta_stats(before: Image.Image, after: Image.Image, edge_radius: int) -> dict[str, int]:
+    before_rgba = np.asarray(before.convert("RGBA"))
+    after_rgba = np.asarray(after.convert("RGBA"))
+    if before_rgba.shape != after_rgba.shape:
+        raise ValueError("before/after images have different shapes")
+    alpha = before_rgba[:, :, 3]
+    edge = alpha_edge_band(alpha, edge_radius)
+    target = safety_orange_residue(before_rgba[:, :, :3]) & edge & (alpha > 0)
+    after_orange = safety_orange_residue(after_rgba[:, :, :3]) & edge & (alpha > 0)
+    changed_rgb = np.any(before_rgba[:, :, :3] != after_rgba[:, :, :3], axis=2)
+    changed_alpha = before_rgba[:, :, 3] != after_rgba[:, :, 3]
+    return {
+        "target_edge_orange_pixels": int(np.count_nonzero(target)),
+        "changed_rgb_pixels": int(np.count_nonzero(changed_rgb)),
+        "changed_alpha_pixels": int(np.count_nonzero(changed_alpha)),
+        "changed_outside_target_pixels": int(np.count_nonzero(changed_rgb & ~target)),
+        "changed_outside_edge_pixels": int(np.count_nonzero(changed_rgb & ~edge)),
+        "remaining_edge_orange_pixels": int(np.count_nonzero(after_orange)),
+        "removed_edge_orange_pixels": int(np.count_nonzero(target & ~after_orange)),
+    }
+
+
 def preview(cutout: Image.Image, background: Image.Image, size: tuple[int, int]) -> Image.Image:
     image = cutout.copy()
     image.thumbnail(size, Image.Resampling.LANCZOS)

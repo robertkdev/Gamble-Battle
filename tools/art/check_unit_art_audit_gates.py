@@ -11,6 +11,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
+from clean_unit_cutout_orange_edge import edge_clean_delta_stats
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"quick_art_audit_gates_{date.today().strftime('%Y_%m_%d')}"
@@ -408,6 +410,19 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     cleaned_pixels = int(clean_result.stdout.split("cleaned_edge_orange_pixels=", 1)[1].splitlines()[0].strip())
     if cleaned_pixels <= 0:
         raise RuntimeError("edge cleaner did not remove any synthetic safety-orange edge pixels")
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4)
+    if delta_stats["target_edge_orange_pixels"] != cleaned_pixels:
+        raise RuntimeError("edge cleaner reported pixel count does not match target edge-orange pixels")
+    if delta_stats["changed_rgb_pixels"] <= 0:
+        raise RuntimeError("edge cleaner did not change any RGB pixels")
+    if delta_stats["changed_alpha_pixels"] != 0:
+        raise RuntimeError("edge cleaner changed alpha pixels")
+    if delta_stats["changed_outside_target_pixels"] != 0:
+        raise RuntimeError("edge cleaner changed pixels outside safety-orange edge target")
+    if delta_stats["changed_outside_edge_pixels"] != 0:
+        raise RuntimeError("edge cleaner changed pixels outside the alpha edge band")
+    if delta_stats["remaining_edge_orange_pixels"] != 0:
+        raise RuntimeError("edge cleaner left synthetic safety-orange residue in the alpha edge band")
     interior_orange_after = count_safety_orange_pixels_in_box(cleaned_path, interior_box)
     if interior_orange_after != interior_orange_before:
         raise RuntimeError("edge cleaner changed intentional interior orange material")
@@ -445,6 +460,11 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     )
     report.append(
         f"- PASS synthetic edge-clean regression removed `{cleaned_pixels}` edge-orange pixels while preserving alpha and interior orange material."
+    )
+    report.append(
+        "- PASS edge cleaner pixel delta is limited to safety-orange alpha-edge targets: "
+        f"changed `{delta_stats['changed_rgb_pixels']}`, outside target `{delta_stats['changed_outside_target_pixels']}`, "
+        f"outside edge `{delta_stats['changed_outside_edge_pixels']}`, alpha changes `{delta_stats['changed_alpha_pixels']}`."
     )
     report.append(
         "- PASS synthetic edge-clean review sheets exist and are nonblank: "
