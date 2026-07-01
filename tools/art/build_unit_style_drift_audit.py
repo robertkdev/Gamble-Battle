@@ -61,10 +61,12 @@ def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def require_path(path_text: str) -> Path:
-    path = ROOT / path_text
+def require_path(path_text: str | Path) -> Path:
+    path = Path(path_text)
+    if not path.is_absolute():
+        path = ROOT / path
     if not path.exists():
-        raise FileNotFoundError(path_text)
+        raise FileNotFoundError(str(path_text))
     return path
 
 
@@ -113,6 +115,30 @@ def collect_entries(proof_data: dict[str, Any], proof_ids: set[str], include_rej
             }
         )
     return entries
+
+
+def candidate_entry(args: argparse.Namespace) -> dict[str, str] | None:
+    candidate_paths = [args.candidate_raw, args.candidate_cutout, args.candidate_board]
+    if not any(candidate_paths):
+        return None
+    if not args.candidate_raw or not args.candidate_cutout:
+        raise ValueError("--candidate-raw and --candidate-cutout are both required for pre-ledger candidate audits")
+    label = args.candidate_label or "Pre-ledger candidate"
+    candidate_id = args.candidate_id or "pre_ledger_candidate"
+    role = args.candidate_role or "review_candidate_not_anchor"
+    entry = {
+        "label": label,
+        "kind": candidate_id,
+        "role": role,
+        "raw": str(args.candidate_raw),
+        "cutout": str(args.candidate_cutout),
+        "board": str(args.candidate_board or ""),
+    }
+    for field in ("raw", "cutout"):
+        require_path(entry[field])
+    if entry["board"]:
+        require_path(entry["board"])
+    return entry
 
 
 def write_raw_sheet(entries: list[dict[str, str]], output_path: Path) -> None:
@@ -346,6 +372,12 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--proof-id", action="append", default=[], help="Specific proof id to compare against anchors.")
     parser.add_argument("--include-rejected", action="store_true", help="Include rejected proof entries when no proof id is specified.")
+    parser.add_argument("--candidate-id", help="Pre-ledger candidate id for temporary Vellum-first audit output.")
+    parser.add_argument("--candidate-label", help="Pre-ledger candidate label for temporary Vellum-first audit output.")
+    parser.add_argument("--candidate-role", default="review_candidate_not_anchor", help="Reference role label for a pre-ledger candidate.")
+    parser.add_argument("--candidate-raw", type=Path, help="Raw image path for a pre-ledger candidate.")
+    parser.add_argument("--candidate-cutout", type=Path, help="Transparent cutout path for a pre-ledger candidate.")
+    parser.add_argument("--candidate-board", type=Path, help="Board preview path for a pre-ledger candidate.")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
 
@@ -353,6 +385,9 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     proof_data = load_json(PROOF_MATRIX_PATH)
     entries = collect_entries(proof_data, set(args.proof_id), args.include_rejected)
+    temporary_candidate = candidate_entry(args)
+    if temporary_candidate:
+        entries.append(temporary_candidate)
     write_raw_sheet(entries, output_dir / "raw_anchor_vs_later_contact_sheet.png")
     write_vellum_pairwise_sheet(entries, output_dir / "vellum_first_pairwise_raw_comparison.png")
     write_reference_ladder_sheet(entries, output_dir / "reference_ladder_raw_comparison.png")

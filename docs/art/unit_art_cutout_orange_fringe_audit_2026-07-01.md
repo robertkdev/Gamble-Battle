@@ -1,8 +1,8 @@
 # Unit Art Cutout Orange-Fringe Audit
 
 - Date: 2026-07-01
-- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_creep_revision_prompt_lock/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
-- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_creep_revision_prompt_lock/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
+- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_preledger_candidate_audit/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
+- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_preledger_candidate_audit/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
 - Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.
 - Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.
 

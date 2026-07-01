@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflow_validation_{date.today().strftime('%Y_%m_%d')}"
 CREEP_REVISION_PROMPT_PACKET = ROOT / "docs" / "art" / "creep_revision_prompt_packet_2026_07_01" / "creep.md"
+PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 
 ART_TOOLS = [
     ROOT / "tools" / "art" / "apply_unit_art_review_decision.py",
@@ -68,6 +69,14 @@ def run_step(name: str, command: list[str], report: list[str]) -> None:
     report.append("")
     if result.returncode != 0:
         raise RuntimeError(f"{name} failed with exit code {result.returncode}")
+
+
+def find_proof(proof_id: str) -> dict[str, str]:
+    data = json.loads(PROOF_MATRIX_PATH.read_text(encoding="utf-8"))
+    for proof in data.get("proofs", []):
+        if isinstance(proof, dict) and proof.get("id") == proof_id:
+            return {str(key): str(value) for key, value in proof.items()}
+    raise RuntimeError(f"unknown proof id: {proof_id}")
 
 
 def assert_accept_requires_scorecard(proof_id: str, report: list[str]) -> None:
@@ -421,6 +430,7 @@ def main() -> int:
     packet_dir = output_dir / "roster_prompt_packets_all"
     all_audit_dir = output_dir / "style_drift_audit_all_current"
     proof_audit_dir = output_dir / f"style_drift_audit_{args.audit_proof_id}"
+    preledger_audit_dir = output_dir / "style_drift_audit_preledger_candidate_mode"
     completion_audit_dir = output_dir / "workflow_completion_audit"
     review_queue_dir = output_dir / "review_queue"
     review_packet_dir = output_dir / "review_packet"
@@ -588,6 +598,31 @@ def main() -> int:
         )
         assert_audit_roles(proof_audit_dir / "foreground_detail_metrics.csv", report)
         assert_audit_outputs(proof_audit_dir, report)
+        audit_proof = find_proof(args.audit_proof_id)
+        run_step(
+            "Pre-Ledger Candidate Style Audit Dry Run",
+            [
+                sys.executable,
+                "tools/art/build_unit_style_drift_audit.py",
+                "--candidate-id",
+                "validation_preledger_candidate",
+                "--candidate-label",
+                "Validation Pre-Ledger Candidate",
+                "--candidate-role",
+                "review_candidate_not_anchor",
+                "--candidate-raw",
+                audit_proof["raw"],
+                "--candidate-cutout",
+                audit_proof["cutout"],
+                "--candidate-board",
+                audit_proof["board_preview"],
+                "--output-dir",
+                rel(preledger_audit_dir),
+            ],
+            report,
+        )
+        assert_audit_roles(preledger_audit_dir / "foreground_detail_metrics.csv", report)
+        assert_audit_outputs(preledger_audit_dir, report)
         compile_art_tools(report)
         report.append("## Godot Validation")
         report.append("")
