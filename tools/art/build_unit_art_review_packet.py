@@ -206,6 +206,9 @@ def write_markdown(
     visual_path: Path,
     report_date: str,
 ) -> None:
+    style_audit = str(proof.get("style_audit", ""))
+    pairwise_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "vellum_first_pairwise_raw_comparison.png")
+    reference_ladder_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "reference_ladder_raw_comparison.png")
     lines: list[str] = [
         f"# {proof.get('display_name', proof.get('subject_id'))} Review Decision Packet",
         "",
@@ -216,7 +219,8 @@ def write_markdown(
         f"- Visual decision sheet: `{rel(visual_path)}`",
         f"- Raw: `{proof.get('raw')}`",
         f"- Board preview: `{proof.get('board_preview')}`",
-        f"- Vellum pairwise audit: `{str(proof.get('style_audit', '')).replace('raw_anchor_vs_later_contact_sheet.png', 'vellum_first_pairwise_raw_comparison.png')}`",
+        f"- Vellum pairwise audit: `{pairwise_audit}`",
+        f"- Reference ladder audit: `{reference_ladder_audit}`",
         "",
         "## Decision",
         "",

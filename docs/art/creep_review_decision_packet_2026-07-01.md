@@ -4,10 +4,11 @@
 - Proof id: `creep_vellum_primary_detail_refit`
 - Status: `current_candidate`
 - Reference role: `review_candidate_not_anchor`
-- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_reference_ladder/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
+- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_review_ladder_links/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
 - Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
+- Reference ladder audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/reference_ladder_raw_comparison.png`
 
 ## Decision
 

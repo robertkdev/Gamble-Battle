@@ -73,8 +73,10 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             priority = "candidate_backlog"
         style_audit = str(proof.get("style_audit", ""))
         pairwise_audit = ""
+        reference_ladder_audit = ""
         if style_audit:
             pairwise_audit = str(Path(style_audit).with_name("vellum_first_pairwise_raw_comparison.png")).replace("\\", "/")
+            reference_ladder_audit = str(Path(style_audit).with_name("reference_ladder_raw_comparison.png")).replace("\\", "/")
         rows.append({
             "priority": priority,
             "subject_id": subject_id,
@@ -86,6 +88,7 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             "board_preview": str(proof.get("board_preview", "")),
             "style_audit": style_audit,
             "pairwise_audit": pairwise_audit,
+            "reference_ladder_audit": reference_ladder_audit,
             "decision_needed": "approve as accepted proof, reject with reason, or request revision",
         })
     return rows
@@ -114,6 +117,8 @@ def candidate_section(row: dict[str, str]) -> list[str]:
         lines.append(f"- Style audit: `{row['style_audit']}`")
     if row["pairwise_audit"]:
         lines.append(f"- Vellum pairwise audit: `{row['pairwise_audit']}`")
+    if row["reference_ladder_audit"]:
+        lines.append(f"- Reference ladder audit: `{row['reference_ladder_audit']}`")
     lines.extend([
         "- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.",
         "",
@@ -138,7 +143,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]], proof_data: dict[str,
         "",
         "## Review Rules",
         "",
-        "- Review Vellum side by side first at raw scale and board scale. Paisley and token remain secondary/narrow references.",
+        "- Review Vellum side by side first at raw scale and board scale. Use the reference-ladder sheet to see Vellum, Paisley, token, and candidate in one row; Paisley and token remain secondary/narrow references.",
         "- Do not let the growing passing pool muddy the target. Passing means narrow evidence, not a new average style.",
         "- Use candidate style triage as a warning layer only. It can flag likely drift, but final decisions still require visual Vellum-first review.",
         "- Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.",

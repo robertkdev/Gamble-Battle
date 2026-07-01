@@ -111,6 +111,7 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Vellum-First Scoring Contract",
     "Human Reply Contract",
     "weaker than Vellum",
+    "Reference ladder audit",
     "request_revision",
     "Prior Creep Lessons",
 ]
@@ -129,6 +130,7 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "too low-detail or smooth after de-shining",
     "Do not let the growing passing pool muddy the target",
     "Vellum pairwise audit",
+    "Reference ladder audit",
     "creep_review_decision_packet_2026-07-01.md",
     "apply_unit_art_review_decision.py",
     "--decision request_revision",
@@ -246,6 +248,7 @@ REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Vellum-First Scoring Contract",
     "Human Reply Contract",
     "later passing proofs cannot average away the target",
+    "Reference ladder audit",
     "write_visual_packet",
     "Visual decision sheet",
 ]
@@ -265,6 +268,7 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "Rejection Checklist",
     "Do not let the growing passing pool muddy the target",
     "Vellum pairwise audit",
+    "Reference ladder audit",
     "creep_review_decision_packet_2026-07-01.md",
 ]
 
