@@ -280,6 +280,9 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "Unit Proof Context",
     "proof_prompt_context_status",
     "Do not use as prompt/style context",
+    "Same-unit identity/process history only",
+    "Identity/process-history raw, not a style reference",
+    "small_asset_context_only_not_character_palette",
     "orange-fringe audit",
 ]
 
@@ -319,6 +322,8 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Workflow Document Validator",
     "Full Roster Prompt Packet Build",
     "Grint prompt packet carries its prompt-context quarantine",
+    "Accepted same-unit proof raws are labeled identity/process history",
+    "Paisley remains secondary reference context",
     "All Current Style Drift Audit",
     "Focused Proof Style Drift Audit",
     "Pre-Ledger Candidate Style Audit Dry Run",

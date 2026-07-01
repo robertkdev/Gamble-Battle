@@ -81,6 +81,10 @@ def proof_prompt_context_status(proof: dict[str, Any]) -> str:
         return explicit
     status = str(proof.get("status", ""))
     role = str(proof.get("reference_role", ""))
+    if role == "secondary_contrast_anchor":
+        return "reference_context_only"
+    if role == "small_asset_material_reference":
+        return "small_asset_context_only_not_character_palette"
     if bool(proof.get("style_negative_control", False)):
         return "blocked_style_negative_control"
     if status == "rejected" or role == "negative_example":
@@ -98,9 +102,11 @@ def prompt_context_action(status: str) -> str:
     if status == "negative_example_only":
         return "Use only as a negative lesson; do not imitate as style."
     if status == "narrow_context_only_not_anchor":
-        return "May answer narrow identity/material risk only; do not use as a global style anchor."
+        return "Same-unit identity/process history only; do not feed as a style reference, imitate render style, or use as a global style anchor."
     if status == "reference_context_only":
         return "Reference context only; Vellum remains primary."
+    if status == "small_asset_context_only_not_character_palette":
+        return "Small-asset material context only; do not use as character palette or unit style reference."
     return "Needs explicit review before use."
 
 
@@ -127,7 +133,7 @@ def render_unit_proof_context(entry: dict[str, Any], proof_matrix: dict[str, Any
             lines.append(f"  - Note: {note}")
         raw = str(proof.get("raw", "")).strip()
         if raw and not status.startswith("blocked_") and status != "negative_example_only":
-            lines.append(f"  - Narrow proof raw: `{raw}`")
+            lines.append(f"  - Identity/process-history raw, not a style reference: `{raw}`")
     return "\n".join(lines)
 
 

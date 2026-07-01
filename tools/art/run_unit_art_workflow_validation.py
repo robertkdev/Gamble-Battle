@@ -230,10 +230,33 @@ def assert_packet_reference_hierarchy(packet_dir: Path, report: list[str]) -> No
     missing_grint = [snippet for snippet in grint_required if snippet not in grint_text]
     if missing_grint:
         raise RuntimeError(f"{rel(grint_packet)} missing Grint quarantine snippets: {missing_grint}")
+    kythera_packet = packet_dir / "kythera.md"
+    if not kythera_packet.exists():
+        raise RuntimeError(f"expected Kythera prompt packet: {rel(kythera_packet)}")
+    kythera_text = kythera_packet.read_text(encoding="utf-8")
+    kythera_required = [
+        "kythera_mummy_goth_refit",
+        "narrow_context_only_not_anchor",
+        "Same-unit identity/process history only; do not feed as a style reference",
+        "Identity/process-history raw, not a style reference",
+    ]
+    missing_kythera = [snippet for snippet in kythera_required if snippet not in kythera_text]
+    if missing_kythera:
+        raise RuntimeError(f"{rel(kythera_packet)} missing accepted-proof identity-history fence snippets: {missing_kythera}")
+    if "Narrow proof raw" in kythera_text:
+        raise RuntimeError(f"{rel(kythera_packet)} still labels accepted proof raw as a narrow proof reference")
+    paisley_packet = packet_dir / "paisley.md"
+    if not paisley_packet.exists():
+        raise RuntimeError(f"expected Paisley prompt packet: {rel(paisley_packet)}")
+    paisley_text = paisley_packet.read_text(encoding="utf-8")
+    if "prompt context `reference_context_only`" not in paisley_text:
+        raise RuntimeError("Paisley secondary anchor is not rendered as reference_context_only in its packet")
     report.append("## Packet Reference Hierarchy")
     report.append("")
     report.append(f"- PASS `{rel(packet_dir)}` contains {len(unit_packets)} unit packets with Vellum-first reference hierarchy sections.")
     report.append("- PASS Grint prompt packet carries its prompt-context quarantine instead of treating the accepted proof as reusable style context.")
+    report.append("- PASS Accepted same-unit proof raws are labeled identity/process history, not style references.")
+    report.append("- PASS Paisley remains secondary reference context in its own packet, with Vellum still primary.")
     report.append("")
 
 
