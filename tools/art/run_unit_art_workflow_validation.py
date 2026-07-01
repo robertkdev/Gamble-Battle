@@ -233,6 +233,7 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     required = [
         "Review Decision Packet",
         "Visual decision sheet",
+        "Board-scale decision sheet",
         "Creep is the next human-review gate",
         "Approve only if",
         "request_revision",
@@ -244,10 +245,14 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     visual_sheet = packet_path.with_name(packet_path.stem.replace("_packet", "_sheet") + ".png")
     if not visual_sheet.exists():
         raise RuntimeError(f"{rel(packet_path.parent)} missing review decision visual sheet")
+    board_sheet = packet_path.with_name(packet_path.stem.replace("_review_decision_packet", "_board_scale_decision_sheet") + ".png")
+    if not board_sheet.exists():
+        raise RuntimeError(f"{rel(packet_path.parent)} missing board-scale decision sheet")
     report.append("## Review Decision Packet")
     report.append("")
     report.append(f"- PASS `{rel(packet_path)}` packages the current gate for human review.")
     report.append(f"- PASS `{rel(visual_sheet)}` exists for Creep visual review.")
+    report.append(f"- PASS `{rel(board_sheet)}` exists for board-scale review.")
     report.append("")
 
 

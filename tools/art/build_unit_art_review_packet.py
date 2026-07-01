@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"review_packet_{date.today().strftime('%Y_%m_%d')}"
+VELLUM_BOARD_REFERENCE = "outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_cleanliness_comparison.png"
 
 
 def rel(path_text: str | Path) -> str:
@@ -94,10 +95,11 @@ def draw_tile(
     xy: tuple[int, int],
     size: tuple[int, int],
     label_color: tuple[int, int, int],
+    background: tuple[int, int, int] = (248, 68, 1),
 ) -> None:
     font = load_font(18)
     small = load_font(13)
-    tile = fit_image(image_path, size, (248, 68, 1))
+    tile = fit_image(image_path, size, background)
     sheet.paste(tile, xy)
     draw.text((xy[0], xy[1] + size[1] + 8), label[:32], font=font, fill=label_color)
     if sublabel:
@@ -199,11 +201,70 @@ def write_visual_packet(
     sheet.save(output_path)
 
 
+def write_board_decision_sheet(
+    output_path: Path,
+    proof_data: dict[str, Any],
+    proof: dict[str, Any],
+) -> None:
+    paisley = find_proof(proof_data, "paisley_goth_bubble_refit")
+    width = 1600
+    height = 980
+    sheet = Image.new("RGB", (width, height), (18, 18, 20))
+    draw = ImageDraw.Draw(sheet)
+    title = load_font(28)
+    font = load_font(18)
+    small = load_font(14)
+    draw.text((18, 18), f"{proof.get('display_name', proof.get('subject_id'))} Board-Scale Decision Sheet", font=title, fill=(255, 222, 120))
+    draw.text((18, 56), "Board read is part of the Vellum veto. Small-scale readability cannot rescue shiny or low-detail material.", font=small, fill=(230, 205, 135))
+
+    tiles = [
+        (VELLUM_BOARD_REFERENCE, "REF Vellum", "board/cutout reference", (255, 222, 120)),
+        (str(paisley.get("board_preview", "")), "REF Paisley", "secondary board context", (230, 205, 135)),
+        (str(proof.get("review", "")), "Creep Cutout Review", "checker/black/white", (210, 220, 255)),
+        (str(proof.get("board_preview", "")), "Creep Board Preview", "96 px readability", (255, 170, 130)),
+    ]
+    tile_size = (360, 280)
+    for index, item in enumerate(tiles):
+        x = 18 + index * 390
+        draw_tile(sheet, draw, item[0], item[1], item[2], (x, 110), tile_size, item[3], (26, 26, 29))
+
+    y = 470
+    draw.text((18, y), "Board-Scale Questions", font=title, fill=(255, 222, 120))
+    questions = [
+        "At 96 px, can you still read Creep's smooth oval head, torso, hands/feet, and blade-tendril ring?",
+        "Does Creep keep enough Vellum-level dry surface breakup at small scale, or does de-shining make him too smooth/plain?",
+        "Does the board preview avoid glossy creature skin, wet tendrils, shiny black blades, and plastic highlights?",
+        "Does the silhouette feel like the planned creepy humanoid/demon assassin, not a generic corpse or unreadable tendril knot?",
+        "Does the cutout avoid visible orange fringe or missing identity-critical tendrils on checker, black, and white?",
+    ]
+    text_y = y + 46
+    for question in questions:
+        for line in wrap_text(f"- {question}", 126):
+            draw.text((18, text_y), line, font=font, fill=(220, 220, 225))
+            text_y += 26
+        text_y += 5
+
+    draw.text((18, text_y + 24), "Decision rule", font=title, fill=(255, 222, 120))
+    rule_lines = [
+        "Approve only if both raw-scale Vellum comparison and board-scale read pass.",
+        "If the board preview reads but the raw still looks shiny, low-detail, cartoony, or weaker than Vellum, request revision.",
+        "If the raw passes but the board preview loses the head/body/tendrils, request revision before any live asset swap.",
+    ]
+    text_y += 72
+    for line in rule_lines:
+        draw.text((18, text_y), f"- {line}", font=font, fill=(220, 220, 225))
+        text_y += 28
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(output_path)
+
+
 def write_markdown(
     path: Path,
     proof: dict[str, Any],
     related: list[dict[str, Any]],
     visual_path: Path,
+    board_decision_path: Path,
     report_date: str,
 ) -> None:
     style_audit = str(proof.get("style_audit", ""))
@@ -217,6 +278,7 @@ def write_markdown(
         f"- Status: `{proof.get('status')}`",
         f"- Reference role: `{proof.get('reference_role')}`",
         f"- Visual decision sheet: `{rel(visual_path)}`",
+        f"- Board-scale decision sheet: `{rel(board_decision_path)}`",
         f"- Raw: `{proof.get('raw')}`",
         f"- Board preview: `{proof.get('board_preview')}`",
         f"- Vellum pairwise audit: `{pairwise_audit}`",
@@ -276,15 +338,18 @@ def main() -> int:
     output_dir = args.output_dir if args.output_dir.is_absolute() else ROOT / args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     visual_path = output_dir / f"{args.proof_id}_review_decision_sheet.png"
+    board_decision_path = output_dir / f"{args.proof_id}_board_scale_decision_sheet.png"
     md_path = output_dir / f"{args.proof_id}_review_decision_packet.md"
     write_visual_packet(visual_path, proof_data, proof, related)
-    write_markdown(md_path, proof, related, visual_path, args.report_date)
+    write_board_decision_sheet(board_decision_path, proof_data, proof)
+    write_markdown(md_path, proof, related, visual_path, board_decision_path, args.report_date)
     if args.docs_output:
         docs_path = args.docs_output if args.docs_output.is_absolute() else ROOT / args.docs_output
-        write_markdown(docs_path, proof, related, visual_path, args.report_date)
+        write_markdown(docs_path, proof, related, visual_path, board_decision_path, args.report_date)
         print(rel(docs_path))
     print(rel(md_path))
     print(rel(visual_path))
+    print(rel(board_decision_path))
     return 0
 
 

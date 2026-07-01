@@ -61,6 +61,7 @@ The next decision is human review of:
 - Vellum-first audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png`
 - Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
 - Reference ladder audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/reference_ladder_raw_comparison.png`
+- Board-scale decision sheet: `outputs/art_pipeline/style_validation/creep_review_packet_2026_07_01/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
 - Candidate style triage: `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
 - Creep decision packet: `docs/art/creep_review_decision_packet_2026-07-01.md`
 
