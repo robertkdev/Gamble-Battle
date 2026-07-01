@@ -84,6 +84,8 @@ REQUIRED_DOC_SNIPPETS = [
     "if one exists and is not blocked by `prompt_context_status`",
     "hot-highlight/luma proxies",
     "possible sheen, pale-material glare, or board-scale hot spots",
+    "synthetic edge-clean regression",
+    "intentional interior orange material",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -362,6 +364,10 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Cutout Orange-Fringe Audit",
     "Synthetic Cutout Orange-Fringe Negative Control",
     "synthetic orange-fringe negative control",
+    "edge cleaner removes synthetic safety-orange edge contamination",
+    "intentional interior orange material",
+    "assert_alpha_unchanged",
+    "count_safety_orange_pixels_in_box",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
     "reference_ladder_raw_comparison.png",

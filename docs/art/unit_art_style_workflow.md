@@ -236,6 +236,7 @@ python tools\art\clean_unit_cutout_orange_edge.py --input <cutout.png> --output 
 
 - Use this when the full BiRefNet cutout is already good but the audit catches a small safety-orange edge residue problem.
 - After post-cleaning, rebuild the board preview and rerun the orange-fringe audit before changing the proof ledger path.
+- The standard validation runner includes a synthetic edge-clean regression: a reference-free contaminated cutout must fail the orange-fringe audit first, then pass after `clean_unit_cutout_orange_edge.py` while preserving alpha and intentional interior orange material.
 
 ## File Conventions
 

@@ -533,15 +533,53 @@ def write_synthetic_orange_fringe_cutout(path: Path) -> None:
     image = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     draw.ellipse((34, 18, 94, 112), fill=(70, 80, 92, 255))
+    draw.ellipse((56, 56, 72, 72), fill=(248, 68, 1, 255))
     draw.ellipse((34, 18, 94, 112), outline=(248, 68, 1, 255), width=6)
     image.save(path)
+
+
+def is_safety_orange_pixel(red: int, green: int, blue: int) -> bool:
+    orange_like = (
+        red > 175
+        and green > 35
+        and green < 170
+        and blue < 115
+        and (red - green) > 42
+        and (green - blue) > 10
+    )
+    saturated = ((red - blue) / max(float(red), 1.0)) > 0.35
+    return orange_like and saturated
+
+
+def count_safety_orange_pixels_in_box(path: Path, box: tuple[int, int, int, int]) -> int:
+    image = Image.open(path).convert("RGBA")
+    count = 0
+    left, top, right, bottom = box
+    for red, green, blue, alpha in image.crop((left, top, right, bottom)).getdata():
+        if alpha > 8 and is_safety_orange_pixel(red, green, blue):
+            count += 1
+    return count
+
+
+def assert_alpha_unchanged(before_path: Path, after_path: Path) -> None:
+    before_alpha = list(Image.open(before_path).convert("RGBA").getchannel("A").getdata())
+    after_alpha = list(Image.open(after_path).convert("RGBA").getchannel("A").getdata())
+    if before_alpha != after_alpha:
+        raise RuntimeError("edge-orange cleaner changed synthetic cutout alpha")
 
 
 def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]) -> None:
     control_dir = output_dir / "synthetic_cutout_orange_fringe_negative_control"
     cutout_path = control_dir / "synthetic_orange_fringe_cutout.png"
     audit_dir = control_dir / "audit"
+    cleaned_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean.png"
+    cleaner_review_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_review.png"
+    cleaned_audit_dir = control_dir / "audit_after_edgeclean"
     write_synthetic_orange_fringe_cutout(cutout_path)
+    interior_box = (52, 52, 76, 76)
+    interior_orange_before = count_safety_orange_pixels_in_box(cutout_path, interior_box)
+    if interior_orange_before < 120:
+        raise RuntimeError("synthetic cutout interior orange preservation marker was not created")
     command = [
         sys.executable,
         "tools/art/audit_unit_cutout_orange_fringe.py",
@@ -582,6 +620,88 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     if "flagged=1" not in result.stdout:
         raise RuntimeError("synthetic orange-fringe negative control failed without expected flagged=1 output")
     report.append("- PASS standalone cutout audit fails a synthetic safety-orange edge-contamination sample without loading any reference images.")
+    clean_command = [
+        sys.executable,
+        "tools/art/clean_unit_cutout_orange_edge.py",
+        "--input",
+        rel(cutout_path),
+        "--output",
+        rel(cleaned_path),
+        "--review-output",
+        rel(cleaner_review_path),
+    ]
+    report.append("")
+    report.append("```powershell")
+    report.append(" ".join(clean_command))
+    report.append("```")
+    clean_result = subprocess.run(
+        clean_command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if clean_result.stdout.strip():
+        report.append("")
+        report.append("```text")
+        report.append(clean_result.stdout.strip())
+        report.append("```")
+    report.append("")
+    if clean_result.returncode != 0:
+        raise RuntimeError("synthetic orange-fringe edge cleaner failed")
+    if "cleaned_edge_orange_pixels=" not in clean_result.stdout:
+        raise RuntimeError("synthetic edge cleaner did not report cleaned_edge_orange_pixels")
+    cleaned_pixels_text = clean_result.stdout.split("cleaned_edge_orange_pixels=", 1)[1].splitlines()[0].strip()
+    try:
+        cleaned_pixels = int(cleaned_pixels_text)
+    except ValueError as exc:
+        raise RuntimeError("synthetic edge cleaner reported a non-integer cleaned pixel count") from exc
+    if cleaned_pixels <= 0:
+        raise RuntimeError("synthetic edge cleaner did not remove any safety-orange edge pixels")
+    interior_orange_after = count_safety_orange_pixels_in_box(cleaned_path, interior_box)
+    if interior_orange_after != interior_orange_before:
+        raise RuntimeError("edge-orange cleaner changed intentional interior orange material")
+    assert_alpha_unchanged(cutout_path, cleaned_path)
+    cleaned_audit_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cleaned_path),
+        "--cutout-id",
+        "synthetic_orange_fringe_cleaned_control",
+        "--cutout-label",
+        "Synthetic orange-fringe cleaned control",
+        "--output-dir",
+        rel(cleaned_audit_dir),
+        "--report-date",
+        "2026-07-01",
+        "--fail-on-any-fail",
+    ]
+    report.append("")
+    report.append("```powershell")
+    report.append(" ".join(cleaned_audit_command))
+    report.append("```")
+    cleaned_audit_result = subprocess.run(
+        cleaned_audit_command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if cleaned_audit_result.stdout.strip():
+        report.append("")
+        report.append("```text")
+        report.append(cleaned_audit_result.stdout.strip())
+        report.append("```")
+    report.append("")
+    if cleaned_audit_result.returncode != 0:
+        raise RuntimeError("synthetic cleaned cutout still failed orange-fringe audit")
+    if "flagged=0" not in cleaned_audit_result.stdout:
+        raise RuntimeError("synthetic cleaned cutout did not report flagged=0")
+    report.append("- PASS edge cleaner removes synthetic safety-orange edge contamination while preserving alpha and intentional interior orange material.")
     report.append("")
 
 
