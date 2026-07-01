@@ -11,7 +11,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats
+from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats, stats_output_path
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -403,7 +403,7 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     cutout_path = control_dir / "synthetic_orange_fringe_cutout.png"
     cleaned_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean.png"
     cleaner_review_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_review.png"
-    cleaner_stats_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_stats.json"
+    cleaner_stats_path = stats_output_path(cleaned_path)
     audit_dir = control_dir / "audit_before"
     cleaned_audit_dir = control_dir / "audit_after"
     write_synthetic_cutout(cutout_path)
@@ -451,8 +451,6 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         rel(cleaned_path),
         "--review-output",
         rel(cleaner_review_path),
-        "--stats-output",
-        rel(cleaner_stats_path),
     ]
     clean_result = run_command(clean_command, report, expect_success=True)
     if "cleaned_edge_orange_pixels=" not in clean_result.stdout:
@@ -521,6 +519,7 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         "- PASS edge cleaner stats JSON records the cutout-only/no-reference contract and matches stdout plus pixel delta: "
         f"`{rel(cleaner_stats_path)}`."
     )
+    report.append("- PASS edge cleaner default stats-output path is exercised by the quick gate.")
     report.append(
         "- PASS synthetic edge-clean review sheets exist and are nonblank: "
         f"before `{before_review_width}x{before_review_height}`, "

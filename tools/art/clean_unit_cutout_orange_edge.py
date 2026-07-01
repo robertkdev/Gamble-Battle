@@ -97,7 +97,9 @@ def assert_edge_clean_delta_contract(
 
 
 def stats_output_path(output_path: Path) -> Path:
-    return output_path.with_name(f"{output_path.stem}_edgeclean_stats.json")
+    stem = output_path.stem
+    stats_stem = stem if stem.endswith("_edgeclean") else f"{stem}_edgeclean"
+    return output_path.with_name(f"{stats_stem}_stats.json")
 
 
 def edge_clean_stats_payload(

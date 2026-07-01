@@ -11,7 +11,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats
+from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats, stats_output_path
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -691,7 +691,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     audit_dir = control_dir / "audit"
     cleaned_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean.png"
     cleaner_review_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_review.png"
-    cleaner_stats_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_stats.json"
+    cleaner_stats_path = stats_output_path(cleaned_path)
     cleaned_audit_dir = control_dir / "audit_after_edgeclean"
     write_synthetic_orange_fringe_cutout(cutout_path)
     interior_box = (52, 52, 76, 76)
@@ -758,8 +758,6 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         rel(cleaned_path),
         "--review-output",
         rel(cleaner_review_path),
-        "--stats-output",
-        rel(cleaner_stats_path),
     ]
     report.append("")
     report.append("```powershell")
@@ -864,6 +862,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         "- PASS edge-cleaner stats JSON records the cutout-only/no-reference contract and matches stdout plus pixel delta: "
         f"`{rel(cleaner_stats_path)}`."
     )
+    report.append("- PASS edge-cleaner default stats-output path is exercised by the full workflow runner.")
     report.append(
         "- PASS synthetic cutout review sheets are nonblank: "
         f"before `{before_review_size[0]}x{before_review_size[1]}`, "

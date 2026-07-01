@@ -244,9 +244,9 @@ python tools\art\clean_unit_cutout_orange_edge.py --input <cutout.png> --output 
 ```
 
 - Use this when the full BiRefNet cutout is already good but the audit catches a small safety-orange edge residue problem.
-- The cleaner command prints and writes a JSON stats artifact for its own delta contract: target edge-orange pixels, changed RGB pixels, changed alpha pixels, changed pixels outside the target, changed pixels outside the alpha edge band, remaining edge-orange pixels, and removed edge-orange pixels. Treat any nonzero alpha/outside-target/outside-edge/remaining-edge-orange count as a failed clean.
+- The cleaner command prints and writes a JSON stats artifact by default for its own delta contract: target edge-orange pixels, changed RGB pixels, changed alpha pixels, changed pixels outside the target, changed pixels outside the alpha edge band, remaining edge-orange pixels, and removed edge-orange pixels. Treat any nonzero alpha/outside-target/outside-edge/remaining-edge-orange count as a failed clean.
 - After post-cleaning, rebuild the board preview and rerun the orange-fringe audit before changing the proof ledger path.
-- The standard validation runner includes a synthetic edge-clean regression: a reference-free contaminated cutout must fail the orange-fringe audit first, then pass after `clean_unit_cutout_orange_edge.py` while preserving alpha and intentional interior orange material. The regression also requires the cleaner's self-reported stdout and JSON stats to match the actual before/after pixels, and fails if the cleaner changes anything outside safety-orange alpha-edge target pixels, changes alpha, touches non-edge pixels, or leaves edge-orange residue behind.
+- The standard validation runner includes a synthetic edge-clean regression: a reference-free contaminated cutout must fail the orange-fringe audit first, then pass after `clean_unit_cutout_orange_edge.py` while preserving alpha and intentional interior orange material. The regression also requires the cleaner's default JSON stats path, self-reported stdout, and actual before/after pixels to agree, and fails if the cleaner changes anything outside safety-orange alpha-edge target pixels, changes alpha, touches non-edge pixels, or leaves edge-orange residue behind.
 
 ## File Conventions
 
