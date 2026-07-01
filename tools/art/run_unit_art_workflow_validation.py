@@ -52,6 +52,12 @@ CLEANER_DELTA_STAT_KEYS = [
     "remaining_edge_orange_pixels",
     "removed_edge_orange_pixels",
 ]
+CUTOUT_AUDIT_THRESHOLDS = {
+    "edge_radius": 4,
+    "max_edge_orange_pixels": 50,
+    "max_soft_orange_pixels": 20,
+    "max_edge_orange_ratio": 0.0006,
+}
 
 
 def rel(path: Path) -> str:
@@ -519,6 +525,16 @@ def assert_reference_free_cutout_manifest(
         raise RuntimeError(f"{label} source_kinds expected {sorted(expected_source_kinds)}, got {sorted(source_kinds)}")
     if expected_row_count is not None and int(manifest.get("row_count", -1)) != expected_row_count:
         raise RuntimeError(f"{label} row_count expected {expected_row_count}, got {manifest.get('row_count')}")
+    thresholds = manifest.get("thresholds")
+    if not isinstance(thresholds, dict):
+        raise RuntimeError(f"{label} missing thresholds")
+    for key, expected in CUTOUT_AUDIT_THRESHOLDS.items():
+        actual = thresholds.get(key)
+        if isinstance(expected, float):
+            if abs(float(actual) - expected) > 0.0000001:
+                raise RuntimeError(f"{label} threshold {key} expected {expected}, got {actual}")
+        elif int(actual) != expected:
+            raise RuntimeError(f"{label} threshold {key} expected {expected}, got {actual}")
     return manifest
 
 
@@ -938,6 +954,9 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
         "intentional interior orange material control passes",
         "safety-orange edge contamination control fails",
         "soft-alpha safety-orange halo control fails",
+        "edge-orange 51-pixel threshold control fails exactly one pixel over the limit",
+        "edge-orange ratio threshold control fails even below the pixel-count limit",
+        "soft-alpha 21-pixel threshold control fails exactly one pixel over the limit",
         "cutout self-test matrix review sheet exists and is nonblank",
         "synthetic edge-clean regression removed",
         "edge cleaner pixel delta is limited to safety-orange alpha-edge targets",

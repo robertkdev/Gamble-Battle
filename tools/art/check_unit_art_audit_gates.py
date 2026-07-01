@@ -40,6 +40,12 @@ CLEANER_DELTA_STAT_KEYS = [
     "remaining_edge_orange_pixels",
     "removed_edge_orange_pixels",
 ]
+CUTOUT_AUDIT_THRESHOLDS = {
+    "edge_radius": 4,
+    "max_edge_orange_pixels": 50,
+    "max_soft_orange_pixels": 20,
+    "max_edge_orange_ratio": 0.0006,
+}
 
 
 def rel(path_text: str | Path) -> str:
@@ -286,6 +292,16 @@ def assert_reference_free_manifest(
         raise RuntimeError(f"{label} source_kinds expected {sorted(expected_source_kinds)}, got {sorted(source_kinds)}")
     if expected_row_count is not None and int(manifest.get("row_count", -1)) != expected_row_count:
         raise RuntimeError(f"{label} row_count expected {expected_row_count}, got {manifest.get('row_count')}")
+    thresholds = manifest.get("thresholds")
+    if not isinstance(thresholds, dict):
+        raise RuntimeError(f"{label} missing thresholds")
+    for key, expected in CUTOUT_AUDIT_THRESHOLDS.items():
+        actual = thresholds.get(key)
+        if isinstance(expected, float):
+            if abs(float(actual) - expected) > 0.0000001:
+                raise RuntimeError(f"{label} threshold {key} expected {expected}, got {actual}")
+        elif int(actual) != expected:
+            raise RuntimeError(f"{label} threshold {key} expected {expected}, got {actual}")
     report.append(f"- PASS {label} proves reference-free cutout-only input contract: `{rel(manifest_path)}`.")
 
 
@@ -306,8 +322,24 @@ def write_cutout_self_test_images(control_dir: Path) -> dict[str, Path]:
         "interior_orange_material_control": control_dir / "interior_orange_material_control.png",
         "edge_orange_contamination_control": control_dir / "edge_orange_contamination_control.png",
         "soft_alpha_orange_halo_control": control_dir / "soft_alpha_orange_halo_control.png",
+        "edge_orange_51_pixel_threshold_control": control_dir / "edge_orange_51_pixel_threshold_control.png",
+        "edge_orange_ratio_threshold_control": control_dir / "edge_orange_ratio_threshold_control.png",
+        "soft_alpha_21_pixel_threshold_control": control_dir / "soft_alpha_21_pixel_threshold_control.png",
     }
     for key, path in paths.items():
+        if key == "edge_orange_51_pixel_threshold_control":
+            image = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+            pixels = image.load()
+            orange_written = 0
+            for y in range(8, 504, 2):
+                for x in range(8, 504, 2):
+                    color = (70, 80, 92, 255)
+                    if orange_written < 51:
+                        color = (248, 68, 1, 255)
+                        orange_written += 1
+                    pixels[x, y] = color
+            image.save(path)
+            continue
         image = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
         draw = ImageDraw.Draw(image)
         draw.ellipse((34, 18, 94, 112), fill=(70, 80, 92, 255))
@@ -317,6 +349,15 @@ def write_cutout_self_test_images(control_dir: Path) -> dict[str, Path]:
             draw.ellipse((34, 18, 94, 112), outline=(248, 68, 1, 255), width=6)
         elif key == "soft_alpha_orange_halo_control":
             draw.ellipse((30, 14, 98, 116), outline=(248, 68, 1, 128), width=8)
+        elif key == "edge_orange_ratio_threshold_control":
+            pixels = image.load()
+            pixels[61, 18] = (248, 68, 1, 255)
+            pixels[62, 18] = (248, 68, 1, 255)
+        elif key == "soft_alpha_21_pixel_threshold_control":
+            pixels = image.load()
+            for index in range(21):
+                x = 54 + index
+                pixels[x, 64] = (248, 68, 1, 128)
         image.save(path)
     return paths
 
@@ -395,7 +436,7 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
         report,
         expected_proof_matrix_loaded=False,
         expected_source_kinds={"standalone_cutout"},
-        expected_row_count=4,
+        expected_row_count=7,
     )
     review_sheet = audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png"
     review_width, review_height = assert_nonblank_image(review_sheet, "cutout self-test matrix review sheet")
@@ -406,6 +447,9 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
         "interior_orange_material_control": "pass",
         "edge_orange_contamination_control": "fail",
         "soft_alpha_orange_halo_control": "fail",
+        "edge_orange_51_pixel_threshold_control": "fail",
+        "edge_orange_ratio_threshold_control": "fail",
+        "soft_alpha_21_pixel_threshold_control": "fail",
     }
     for control_id, status in expected_status.items():
         row = by_id.get(control_id)
@@ -424,10 +468,28 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
     soft_issue = by_id["soft_alpha_orange_halo_control"].get("issue", "")
     if "soft_alpha_background_orange_contamination" not in soft_issue:
         raise RuntimeError("soft-alpha orange halo control did not fail for soft-alpha contamination")
+    edge_threshold = by_id["edge_orange_51_pixel_threshold_control"]
+    if int(edge_threshold.get("edge_orange_pixels", "0")) != 51:
+        raise RuntimeError("edge-orange 51-pixel threshold control did not create exactly 51 edge-orange pixels")
+    if "edge_background_orange_contamination" not in edge_threshold.get("issue", ""):
+        raise RuntimeError("edge-orange 51-pixel threshold control did not fail the pixel threshold")
+    ratio_threshold = by_id["edge_orange_ratio_threshold_control"]
+    if int(ratio_threshold.get("edge_orange_pixels", "0")) > CUTOUT_AUDIT_THRESHOLDS["max_edge_orange_pixels"]:
+        raise RuntimeError("edge-orange ratio threshold control also exceeded the pixel threshold")
+    if "edge_background_orange_ratio_contamination" not in ratio_threshold.get("issue", ""):
+        raise RuntimeError("edge-orange ratio threshold control did not fail the ratio threshold")
+    soft_threshold = by_id["soft_alpha_21_pixel_threshold_control"]
+    if int(soft_threshold.get("soft_orange_pixels", "0")) != 21:
+        raise RuntimeError("soft-alpha 21-pixel threshold control did not create exactly 21 soft-orange pixels")
+    if "soft_alpha_background_orange_contamination" not in soft_threshold.get("issue", ""):
+        raise RuntimeError("soft-alpha 21-pixel threshold control did not fail the soft-alpha threshold")
     report.append("- PASS clean transparent cutout control passes.")
     report.append("- PASS intentional interior orange material control passes while recording orange pixels.")
     report.append("- PASS safety-orange edge contamination control fails.")
     report.append("- PASS soft-alpha safety-orange halo control fails.")
+    report.append("- PASS edge-orange 51-pixel threshold control fails exactly one pixel over the limit.")
+    report.append("- PASS edge-orange ratio threshold control fails even below the pixel-count limit.")
+    report.append("- PASS soft-alpha 21-pixel threshold control fails exactly one pixel over the limit.")
     report.append(f"- PASS cutout self-test matrix review sheet exists and is nonblank: `{review_width}x{review_height}`.")
     report.append("")
 
