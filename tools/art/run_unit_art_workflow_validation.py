@@ -740,6 +740,11 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
     text = quick_report.read_text(encoding="utf-8")
     required = [
         "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
+        "Objective Cutout Self-Test Matrix",
+        "clean transparent cutout control passes",
+        "intentional interior orange material control passes",
+        "safety-orange edge contamination control fails",
+        "soft-alpha safety-orange halo control fails",
         "synthetic edge-clean regression removed",
         "Metrics Reference Hierarchy Gate",
         "Tampered Metrics Negative-Control Gate",
@@ -757,7 +762,7 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
     missing = [snippet for snippet in required if snippet not in text]
     if missing:
         raise RuntimeError(f"{rel(quick_report)} missing quick audit snippets: {missing}")
-    report.append(f"- PASS `{rel(quick_report)}` verifies fast cutout, edge-clean, Totem, token, and hot-highlight gates.")
+    report.append(f"- PASS `{rel(quick_report)}` verifies fast cutout, false-positive, edge-clean, Totem, token, and hot-highlight gates.")
     report.append("")
 
 

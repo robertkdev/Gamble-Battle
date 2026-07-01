@@ -174,6 +174,28 @@ def write_synthetic_cutout(path: Path) -> None:
     image.save(path)
 
 
+def write_cutout_self_test_images(control_dir: Path) -> dict[str, Path]:
+    control_dir.mkdir(parents=True, exist_ok=True)
+    paths = {
+        "clean_cutout_control": control_dir / "clean_cutout_control.png",
+        "interior_orange_material_control": control_dir / "interior_orange_material_control.png",
+        "edge_orange_contamination_control": control_dir / "edge_orange_contamination_control.png",
+        "soft_alpha_orange_halo_control": control_dir / "soft_alpha_orange_halo_control.png",
+    }
+    for key, path in paths.items():
+        image = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        draw.ellipse((34, 18, 94, 112), fill=(70, 80, 92, 255))
+        if key == "interior_orange_material_control":
+            draw.ellipse((54, 54, 74, 74), fill=(248, 68, 1, 255))
+        elif key == "edge_orange_contamination_control":
+            draw.ellipse((34, 18, 94, 112), outline=(248, 68, 1, 255), width=6)
+        elif key == "soft_alpha_orange_halo_control":
+            draw.ellipse((30, 14, 98, 116), outline=(248, 68, 1, 128), width=8)
+        image.save(path)
+    return paths
+
+
 def assert_cutout_gate(output_dir: Path, report: list[str]) -> None:
     report.append("## Current Cutout Orange-Fringe Gate")
     report.append("")
@@ -204,6 +226,63 @@ def assert_cutout_gate(output_dir: Path, report: list[str]) -> None:
     ]
     report.append(f"- PASS non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination.")
     report.append(f"- Rejected negative-example cutouts still flagged: `{len(rejected_failures)}`.")
+    report.append("")
+
+
+def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
+    report.append("## Objective Cutout Self-Test Matrix")
+    report.append("")
+    control_dir = output_dir / "cutout_self_test_matrix"
+    image_paths = write_cutout_self_test_images(control_dir)
+    audit_dir = control_dir / "audit"
+    command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--output-dir",
+        rel(audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+    ]
+    for control_id, path in image_paths.items():
+        command.extend([
+            "--cutout",
+            rel(path),
+            "--cutout-id",
+            control_id,
+            "--cutout-label",
+            control_id.replace("_", " "),
+        ])
+    run_command(command, report, expect_success=True)
+    rows = read_csv(audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    by_id = {row.get("id", ""): row for row in rows}
+    expected_status = {
+        "clean_cutout_control": "pass",
+        "interior_orange_material_control": "pass",
+        "edge_orange_contamination_control": "fail",
+        "soft_alpha_orange_halo_control": "fail",
+    }
+    for control_id, status in expected_status.items():
+        row = by_id.get(control_id)
+        if row is None:
+            raise RuntimeError(f"cutout self-test row missing: {control_id}")
+        if row.get("quality_status") != status:
+            raise RuntimeError(f"cutout self-test {control_id} expected {status}, got {row.get('quality_status')}")
+    interior = by_id["interior_orange_material_control"]
+    if int(interior.get("orange_pixels", "0")) <= 0:
+        raise RuntimeError("interior-orange material control did not contain measurable orange pixels")
+    if int(interior.get("edge_orange_pixels", "0")) != 0 or int(interior.get("soft_orange_pixels", "0")) != 0:
+        raise RuntimeError("interior-orange material control was treated as edge/soft-alpha contamination")
+    edge_issue = by_id["edge_orange_contamination_control"].get("issue", "")
+    if "edge_background_orange" not in edge_issue:
+        raise RuntimeError("edge-orange contamination control did not fail for edge contamination")
+    soft_issue = by_id["soft_alpha_orange_halo_control"].get("issue", "")
+    if "soft_alpha_background_orange_contamination" not in soft_issue:
+        raise RuntimeError("soft-alpha orange halo control did not fail for soft-alpha contamination")
+    report.append("- PASS clean transparent cutout control passes.")
+    report.append("- PASS intentional interior orange material control passes while recording orange pixels.")
+    report.append("- PASS safety-orange edge contamination control fails.")
+    report.append("- PASS soft-alpha safety-orange halo control fails.")
     report.append("")
 
 
@@ -535,6 +614,7 @@ def main() -> int:
         "",
     ]
     assert_cutout_gate(output_dir, report)
+    assert_cutout_self_test_matrix(output_dir, report)
     assert_synthetic_edge_clean(output_dir, report)
     if not args.skip_style:
         metrics_csv = args.metrics_csv if args.metrics_csv is not None else find_latest_metrics_csv()
