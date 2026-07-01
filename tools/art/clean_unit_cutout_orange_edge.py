@@ -36,11 +36,17 @@ def load_font(size: int) -> ImageFont.ImageFont:
         return ImageFont.load_default()
 
 
+def cleanup_target_mask(rgba: np.ndarray, edge_radius: int) -> np.ndarray:
+    alpha = rgba[:, :, 3]
+    edge = alpha_edge_band(alpha, edge_radius)
+    soft_alpha = (alpha > 8) & (alpha < 245)
+    return safety_orange_residue(rgba[:, :, :3]) & ((edge & (alpha > 0)) | soft_alpha)
+
+
 def clean_edge_orange(image: Image.Image, edge_radius: int) -> tuple[Image.Image, int]:
     rgba = np.asarray(image.convert("RGBA"))
     alpha = rgba[:, :, 3]
-    edge = alpha_edge_band(alpha, edge_radius)
-    target = safety_orange_residue(rgba[:, :, :3]) & edge & (alpha > 0)
+    target = cleanup_target_mask(rgba, edge_radius)
 
     rgb = rgba[:, :, :3].copy().astype(np.float32)
     gray = rgb[:, :, 0] * 0.22 + rgb[:, :, 1] * 0.46 + rgb[:, :, 2] * 0.32
@@ -59,18 +65,30 @@ def edge_clean_delta_stats(before: Image.Image, after: Image.Image, edge_radius:
         raise ValueError("before/after images have different shapes")
     alpha = before_rgba[:, :, 3]
     edge = alpha_edge_band(alpha, edge_radius)
-    target = safety_orange_residue(before_rgba[:, :, :3]) & edge & (alpha > 0)
-    after_orange = safety_orange_residue(after_rgba[:, :, :3]) & edge & (alpha > 0)
+    soft_alpha = (alpha > 8) & (alpha < 245)
+    target_edge = safety_orange_residue(before_rgba[:, :, :3]) & edge & (alpha > 0)
+    target_soft = safety_orange_residue(before_rgba[:, :, :3]) & soft_alpha
+    target = target_edge | target_soft
+    after_orange = safety_orange_residue(after_rgba[:, :, :3]) & (alpha > 8)
+    after_edge_orange = after_orange & edge
+    after_soft_orange = after_orange & soft_alpha
     changed_rgb = np.any(before_rgba[:, :, :3] != after_rgba[:, :, :3], axis=2)
     changed_alpha = before_rgba[:, :, 3] != after_rgba[:, :, 3]
+    opaque_interior = (alpha >= 245) & ~edge
     return {
-        "target_edge_orange_pixels": int(np.count_nonzero(target)),
+        "target_edge_orange_pixels": int(np.count_nonzero(target_edge)),
+        "target_soft_orange_pixels": int(np.count_nonzero(target_soft)),
+        "target_cleanup_pixels": int(np.count_nonzero(target)),
         "changed_rgb_pixels": int(np.count_nonzero(changed_rgb)),
         "changed_alpha_pixels": int(np.count_nonzero(changed_alpha)),
         "changed_outside_target_pixels": int(np.count_nonzero(changed_rgb & ~target)),
         "changed_outside_edge_pixels": int(np.count_nonzero(changed_rgb & ~edge)),
-        "remaining_edge_orange_pixels": int(np.count_nonzero(after_orange)),
-        "removed_edge_orange_pixels": int(np.count_nonzero(target & ~after_orange)),
+        "changed_opaque_interior_pixels": int(np.count_nonzero(changed_rgb & opaque_interior)),
+        "remaining_edge_orange_pixels": int(np.count_nonzero(after_edge_orange)),
+        "remaining_soft_orange_pixels": int(np.count_nonzero(after_soft_orange)),
+        "removed_edge_orange_pixels": int(np.count_nonzero(target_edge & ~after_edge_orange)),
+        "removed_soft_orange_pixels": int(np.count_nonzero(target_soft & ~after_soft_orange)),
+        "removed_cleanup_pixels": int(np.count_nonzero(target & ~after_orange)),
     }
 
 
@@ -80,18 +98,20 @@ def edge_clean_delta_contract_errors(
     require_changed: bool = False,
 ) -> list[str]:
     errors: list[str] = []
-    if delta_stats["target_edge_orange_pixels"] != cleaned_pixels:
-        errors.append("reported pixel count does not match target edge-orange pixels")
+    if delta_stats["target_cleanup_pixels"] != cleaned_pixels:
+        errors.append("reported pixel count does not match target cleanup pixels")
     if require_changed and delta_stats["changed_rgb_pixels"] <= 0:
         errors.append("no RGB pixels changed")
     if delta_stats["changed_alpha_pixels"] != 0:
         errors.append("alpha pixels changed")
     if delta_stats["changed_outside_target_pixels"] != 0:
-        errors.append("pixels outside safety-orange edge target changed")
-    if delta_stats["changed_outside_edge_pixels"] != 0:
-        errors.append("pixels outside alpha edge band changed")
+        errors.append("pixels outside safety-orange edge/soft-alpha target changed")
+    if delta_stats["changed_opaque_interior_pixels"] != 0:
+        errors.append("opaque interior pixels changed")
     if delta_stats["remaining_edge_orange_pixels"] != 0:
         errors.append("safety-orange residue remains in alpha edge band")
+    if delta_stats["remaining_soft_orange_pixels"] != 0:
+        errors.append("safety-orange residue remains in soft-alpha matte")
     return errors
 
 
@@ -123,7 +143,7 @@ def edge_clean_stats_payload(
     return {
         "tool": "clean_unit_cutout_orange_edge.py",
         "audit_input_contract": "cutout_rgba_pixels_only",
-        "edge_clean_contract": "safety_orange_alpha_edge_pixels_only",
+        "edge_clean_contract": "safety_orange_alpha_edge_or_soft_pixels_only",
         "contract_status": "pass",
         "reference_images_loaded": False,
         "raw_images_loaded": False,
@@ -138,6 +158,7 @@ def edge_clean_stats_payload(
         "output_sha256": file_sha256(output_path),
         "review_output_sha256": file_sha256(review_output_path),
         "edge_radius": edge_radius,
+        "cleaned_safety_orange_pixels": cleaned_pixels,
         "cleaned_edge_orange_pixels": cleaned_pixels,
         "delta_stats": delta_stats,
     }
@@ -159,10 +180,8 @@ def preview(cutout: Image.Image, background: Image.Image, size: tuple[int, int])
 def overlay_removed(before: Image.Image, after: Image.Image, edge_radius: int, size: tuple[int, int]) -> Image.Image:
     before_rgba = np.asarray(before.convert("RGBA"))
     after_rgba = np.asarray(after.convert("RGBA"))
-    alpha = before_rgba[:, :, 3]
-    edge = alpha_edge_band(alpha, edge_radius)
-    before_orange = safety_orange_residue(before_rgba[:, :, :3]) & edge & (alpha > 0)
-    after_orange = safety_orange_residue(after_rgba[:, :, :3]) & edge & (alpha > 0)
+    before_orange = cleanup_target_mask(before_rgba, edge_radius)
+    after_orange = cleanup_target_mask(after_rgba, edge_radius)
     removed = before_orange & ~after_orange
 
     overlay = before_rgba.copy()
@@ -195,15 +214,15 @@ def write_review_sheet(path: Path, before: Image.Image, after: Image.Image, clea
     check = checker(size)
     tiles = [
         label_tile(preview(before, check, size), "before checker"),
-        label_tile(preview(after, check, size), "after checker", f"cleaned edge px: {cleaned_pixels}"),
+        label_tile(preview(after, check, size), "after checker", f"cleaned safety px: {cleaned_pixels}"),
         label_tile(preview(after, black, size), "after black"),
         label_tile(preview(after, white, size), "after white"),
-        label_tile(overlay_removed(before, after, edge_radius, size), "red = cleaned edge residue"),
+        label_tile(overlay_removed(before, after, edge_radius, size), "red = cleaned safety-orange"),
     ]
     title_h = 42
     sheet = Image.new("RGB", (size[0] * len(tiles), size[1] + 54 + title_h), (18, 18, 20))
     draw = ImageDraw.Draw(sheet)
-    draw.text((12, 12), "Unit cutout edge-orange post-clean review", font=load_font(16), fill=(255, 222, 120))
+    draw.text((12, 12), "Unit cutout safety-orange post-clean review", font=load_font(16), fill=(255, 222, 120))
     x = 0
     for tile in tiles:
         sheet.paste(tile, (x, title_h))
@@ -242,15 +261,22 @@ def main() -> int:
         ),
     )
 
+    print(f"cleaned_safety_orange_pixels={cleaned_pixels}")
     print(f"cleaned_edge_orange_pixels={cleaned_pixels}")
     for key in [
         "target_edge_orange_pixels",
+        "target_soft_orange_pixels",
+        "target_cleanup_pixels",
         "changed_rgb_pixels",
         "changed_alpha_pixels",
         "changed_outside_target_pixels",
         "changed_outside_edge_pixels",
+        "changed_opaque_interior_pixels",
         "remaining_edge_orange_pixels",
+        "remaining_soft_orange_pixels",
         "removed_edge_orange_pixels",
+        "removed_soft_orange_pixels",
+        "removed_cleanup_pixels",
     ]:
         print(f"{key}={delta_stats[key]}")
     print(f"stats_output={stats_path}")

@@ -446,9 +446,19 @@ def main() -> int:
     parser.add_argument("--max-edge-orange-pixels", type=int, default=50)
     parser.add_argument("--max-soft-orange-pixels", type=int, default=20)
     parser.add_argument("--max-edge-orange-ratio", type=float, default=0.0006)
+    parser.add_argument(
+        "--strict-zero",
+        action="store_true",
+        help="Perfect-exit mode: fail on any measured safety-orange edge or soft-alpha residue.",
+    )
     parser.add_argument("--fail-on-accepted-fail", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--fail-on-any-fail", action="store_true")
     args = parser.parse_args()
+
+    if args.strict_zero:
+        args.max_edge_orange_pixels = 0
+        args.max_soft_orange_pixels = 0
+        args.max_edge_orange_ratio = 0.0
 
     if args.include_proof_matrix and not args.proof_matrix.is_absolute():
         args.proof_matrix = ROOT / args.proof_matrix

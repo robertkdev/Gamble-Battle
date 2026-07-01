@@ -152,7 +152,8 @@ def despill_orange_rgb(rgb: np.ndarray, source: Image.Image, mask: Image.Image) 
 def clean_edge_orange_rgb(rgb: np.ndarray, mask: Image.Image, radius: int) -> tuple[np.ndarray, int]:
     alpha = np.asarray(mask).astype(np.uint8)
     edge_band = alpha_edge_band(mask, radius)
-    target = safety_orange_residue(rgb) & edge_band & (alpha > 0)
+    soft_alpha = (alpha > 8) & (alpha < 245)
+    target = safety_orange_residue(rgb) & ((edge_band & (alpha > 0)) | soft_alpha)
 
     out = rgb.copy().astype(np.float32)
     gray = out[:, :, 0] * 0.22 + out[:, :, 1] * 0.46 + out[:, :, 2] * 0.32
@@ -262,9 +263,9 @@ def main() -> None:
     rgb = estimate_foreground_rgb(raw, mask) if args.foreground_ml else np.asarray(raw.convert("RGB")).astype(np.uint8)
     if args.despill_orange:
         rgb = despill_orange_rgb(rgb, raw, mask)
-    edge_orange_cleaned = 0
+    safety_orange_cleaned = 0
     if args.edge_orange_clean:
-        rgb, edge_orange_cleaned = clean_edge_orange_rgb(rgb, mask, args.edge_clean_radius)
+        rgb, safety_orange_cleaned = clean_edge_orange_rgb(rgb, mask, args.edge_clean_radius)
 
     cutout = Image.fromarray(rgb, "RGB").convert("RGBA")
     cutout.putalpha(mask)
@@ -278,7 +279,8 @@ def main() -> None:
     print(f"device={device}")
     print(f"model={args.model}")
     if args.edge_orange_clean:
-        print(f"edge_orange_cleaned={edge_orange_cleaned}")
+        print(f"safety_orange_cleaned={safety_orange_cleaned}")
+        print(f"edge_orange_cleaned={safety_orange_cleaned}")
     print(args.output)
     print(args.mask_output)
     print(args.review_output)

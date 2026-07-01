@@ -33,12 +33,18 @@ STYLE_AUDIT_SHEETS = [
 ]
 CLEANER_DELTA_STAT_KEYS = [
     "target_edge_orange_pixels",
+    "target_soft_orange_pixels",
+    "target_cleanup_pixels",
     "changed_rgb_pixels",
     "changed_alpha_pixels",
     "changed_outside_target_pixels",
     "changed_outside_edge_pixels",
+    "changed_opaque_interior_pixels",
     "remaining_edge_orange_pixels",
+    "remaining_soft_orange_pixels",
     "removed_edge_orange_pixels",
+    "removed_soft_orange_pixels",
+    "removed_cleanup_pixels",
 ]
 CUTOUT_AUDIT_THRESHOLDS = {
     "edge_radius": 4,
@@ -111,8 +117,8 @@ def assert_cleaner_stats_json(
     payload = read_json(path)
     if payload.get("audit_input_contract") != "cutout_rgba_pixels_only":
         raise RuntimeError("edge cleaner stats JSON does not declare cutout_rgba_pixels_only")
-    if payload.get("edge_clean_contract") != "safety_orange_alpha_edge_pixels_only":
-        raise RuntimeError("edge cleaner stats JSON does not declare safety_orange_alpha_edge_pixels_only")
+    if payload.get("edge_clean_contract") != "safety_orange_alpha_edge_or_soft_pixels_only":
+        raise RuntimeError("edge cleaner stats JSON does not declare safety_orange_alpha_edge_or_soft_pixels_only")
     if payload.get("contract_status") != "pass":
         raise RuntimeError("edge cleaner stats JSON does not record contract_status=pass")
     for key in (
@@ -123,6 +129,8 @@ def assert_cleaner_stats_json(
     ):
         if payload.get(key) is not False:
             raise RuntimeError(f"edge cleaner stats JSON must set {key}=false")
+    if int(payload.get("cleaned_safety_orange_pixels", -1)) != cleaned_pixels:
+        raise RuntimeError("edge cleaner stats JSON cleaned safety-orange pixel count does not match stdout")
     if int(payload.get("cleaned_edge_orange_pixels", -1)) != cleaned_pixels:
         raise RuntimeError("edge cleaner stats JSON cleaned pixel count does not match stdout")
     expected_paths = {
@@ -551,13 +559,15 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         rel(cleaner_review_path),
     ]
     clean_result = run_command(clean_command, report, expect_success=True)
+    if "cleaned_safety_orange_pixels=" not in clean_result.stdout:
+        raise RuntimeError("edge cleaner did not report cleaned_safety_orange_pixels")
     if "cleaned_edge_orange_pixels=" not in clean_result.stdout:
-        raise RuntimeError("edge cleaner did not report cleaned_edge_orange_pixels")
+        raise RuntimeError("edge cleaner did not report legacy cleaned_edge_orange_pixels")
     cleaner_review_width, cleaner_review_height = assert_nonblank_image(
         cleaner_review_path,
         "synthetic edge-cleaner review sheet",
     )
-    cleaned_pixels = int(clean_result.stdout.split("cleaned_edge_orange_pixels=", 1)[1].splitlines()[0].strip())
+    cleaned_pixels = int(clean_result.stdout.split("cleaned_safety_orange_pixels=", 1)[1].splitlines()[0].strip())
     if cleaned_pixels <= 0:
         raise RuntimeError("edge cleaner did not remove any synthetic safety-orange edge pixels")
     delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4)
@@ -614,12 +624,13 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         "synthetic cleaned cutout audit review sheet",
     )
     report.append(
-        f"- PASS synthetic edge-clean regression removed `{cleaned_pixels}` edge-orange pixels while preserving alpha and interior orange material."
+        f"- PASS synthetic edge-clean regression removed `{cleaned_pixels}` edge/soft-alpha orange pixels while preserving alpha and interior orange material."
     )
     report.append(
-        "- PASS edge cleaner pixel delta is limited to safety-orange alpha-edge targets: "
+        "- PASS edge cleaner pixel delta is limited to safety-orange alpha-edge/soft-alpha targets: "
         f"changed `{delta_stats['changed_rgb_pixels']}`, outside target `{delta_stats['changed_outside_target_pixels']}`, "
-        f"outside edge `{delta_stats['changed_outside_edge_pixels']}`, alpha changes `{delta_stats['changed_alpha_pixels']}`."
+        f"opaque interior `{delta_stats['changed_opaque_interior_pixels']}`, alpha changes `{delta_stats['changed_alpha_pixels']}`, "
+        f"remaining edge `{delta_stats['remaining_edge_orange_pixels']}`, remaining soft `{delta_stats['remaining_soft_orange_pixels']}`."
     )
     report.append(
         "- PASS edge cleaner stats JSON records the cutout-only/no-reference contract and matches stdout plus pixel delta: "

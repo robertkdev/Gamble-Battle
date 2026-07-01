@@ -44,7 +44,7 @@ The completion audit is the current truth for remaining blockers. At the latest 
 - Matte does not mean low-detail. De-shining must preserve tactile dry detail, layered costume/material storytelling, scratches, dust, worn edges, and hand-painted surface breakup.
 - Reject sweaty skin, wet shine, glossy leather, latex, plastic, polished metal, chrome, clean fantasy render, cartoon/comic style, toy proportions, anime/gacha, and cinematic rim-light polish.
 - Use flat solid safety-orange `#f84401` for cutout-bound raw generations.
-- Use the refined BiRefNet command with `--foreground-ml --despill-orange --edge-orange-clean`, then run the orange-fringe audit. Protected ledger cutouts must pass the objective safety-orange background-contamination gate; do not compare cutout cleanliness to Vellum, Paisley, the token, or any other reference image. The audit has a reference-free standalone cutout audit mode for arbitrary transparent PNGs, and the workflow runner includes a synthetic orange-fringe negative control that must fail.
+- Use the refined BiRefNet command with `--foreground-ml --despill-orange --edge-orange-clean`, then run the orange-fringe audit. For perfect-exit cleanup, rerun the audit with `--strict-zero` and require zero measured safety-orange edge and soft-alpha residue. Protected ledger cutouts must pass the objective safety-orange background-contamination gate; do not compare cutout cleanliness to Vellum, Paisley, the token, or any other reference image. The audit has a reference-free standalone cutout audit mode for arbitrary transparent PNGs, and the workflow runner includes a synthetic orange-fringe negative control that must fail.
 - If an existing transparent cutout only fails on small edge residue, use `tools/art/clean_unit_cutout_orange_edge.py`, rebuild its board preview, and rerun the audit before updating the proof ledger.
 - Keep the board-scale read at 96 px: head, torso, hands, weapon/prop, and main magic shape must survive.
 - Totem is the required style negative control. If Totem stops failing candidate style triage, the style audit is broken or someone changed the ledger without a new human promotion decision.
@@ -121,7 +121,7 @@ Require `errors=[]` before handoff.
 5. Reject glossy or textured-background raws before cutout.
 6. Run the refined BiRefNet foreground-ML/despill/edge-orange-clean cutout command from the packet.
 7. Run `tools/art/audit_unit_cutout_orange_fringe.py` and inspect the review sheet if any current candidate is flagged.
-8. If the alpha is otherwise good, run `tools/art/clean_unit_cutout_orange_edge.py`, rebuild the board preview, and rerun the audit.
+8. If the alpha is otherwise good, run `tools/art/clean_unit_cutout_orange_edge.py`, rebuild the board preview, and rerun the audit with `--strict-zero`.
 9. Build or inspect the board preview.
 10. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
 11. Rebuild `tools/art/build_unit_art_candidate_triage.py` after all-current audits if the candidate pool changed.

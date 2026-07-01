@@ -96,7 +96,8 @@ C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_uni
 ## Edge-clean audit - 2026-07-01
 
 - The perfected cutout process is now BiRefNet alpha + foreground ML + focused orange despill + final `--edge-orange-clean`, followed by `tools/art/audit_unit_cutout_orange_fringe.py`.
-- The edge clean is deliberately narrow: it targets safety-orange-like residue only in the alpha edge band after the matte and foreground RGB are already established. It should not be used as a broad chroma key or silhouette rescue.
+- The final clean is deliberately narrow: it targets safety-orange-like residue only in the alpha edge band or soft-alpha matte after the matte and foreground RGB are already established. It should not be used as a broad chroma key, alpha eroder, or silhouette rescue.
+- Perfect-exit cleanup is strict-zero: rerun `tools/art/audit_unit_cutout_orange_fringe.py --strict-zero` after cleaning and require `edge_orange_pixels == 0` and `soft_orange_pixels == 0`. The cleaner stats JSON must prove alpha was unchanged, no pixels outside the safety-orange target changed, opaque interior pixels were untouched, and no edge/soft-alpha orange residue remains.
 - The fast audit output is `docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md` plus `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png`.
 - Current baseline result after post-clean: Vellum, Paisley, token, accepted technical references, and the edge-cleaned Teller/Korath/Hexeon current-candidate cutouts pass. The only remaining flagged row is the rejected older Creep proof, which stays useful as a negative example.
 
