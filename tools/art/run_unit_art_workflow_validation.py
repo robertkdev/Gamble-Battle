@@ -29,6 +29,7 @@ ART_TOOLS = [
     ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py",
     ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py",
     ROOT / "tools" / "art" / "build_unit_style_drift_audit.py",
+    ROOT / "tools" / "art" / "check_unit_art_audit_gates.py",
     ROOT / "tools" / "art" / "combine_unit_alpha_masks.py",
     ROOT / "tools" / "art" / "clean_unit_cutout_orange_edge.py",
     ROOT / "tools" / "art" / "run_unit_art_workflow_validation.py",
@@ -705,6 +706,36 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     report.append("")
 
 
+def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[str]) -> None:
+    quick_dir = output_dir / "quick_unit_art_audit_gates"
+    command = [
+        sys.executable,
+        "tools/art/check_unit_art_audit_gates.py",
+        "--output-dir",
+        rel(quick_dir),
+        "--metrics-csv",
+        rel(metrics_csv),
+    ]
+    report.append("## Quick Unit Art Audit Gates")
+    report.append("")
+    run_step("Quick Unit Art Audit Gates", command, report)
+    quick_report = quick_dir / "quick_unit_art_audit_gates.md"
+    if not quick_report.exists():
+        raise RuntimeError(f"quick audit gate report missing: {rel(quick_report)}")
+    text = quick_report.read_text(encoding="utf-8")
+    required = [
+        "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
+        "synthetic edge-clean regression removed",
+        "Totem fails style triage while still proving proxy metrics can lie",
+        "hot-highlight matte-review rows present",
+    ]
+    missing = [snippet for snippet in required if snippet not in text]
+    if missing:
+        raise RuntimeError(f"{rel(quick_report)} missing quick audit snippets: {missing}")
+    report.append(f"- PASS `{rel(quick_report)}` verifies fast cutout, edge-clean, Totem, token, and hot-highlight gates.")
+    report.append("")
+
+
 def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     text = packet_path.read_text(encoding="utf-8")
     required = [
@@ -941,6 +972,7 @@ def main() -> int:
         )
         assert_cutout_orange_fringe_audit(cutout_fringe_audit_dir / "unit_art_cutout_orange_fringe_audit.md", report)
         assert_synthetic_cutout_negative_control(output_dir, report)
+        assert_quick_audit_gates(all_audit_dir / "foreground_detail_metrics.csv", output_dir, report)
         run_step(
             "Focused Proof Style Drift Audit",
             [

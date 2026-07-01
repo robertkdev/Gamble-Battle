@@ -19,6 +19,7 @@ ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
 CANDIDATE_TRIAGE_PATH = ROOT / "docs" / "art" / "unit_art_candidate_style_triage_2026-07-01.md"
 CANDIDATE_TRIAGE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py"
+QUICK_AUDIT_GATE_PATH = ROOT / "tools" / "art" / "check_unit_art_audit_gates.py"
 CUTOUT_FRINGE_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_cutout_orange_fringe_audit_2026-07-01.md"
 REVIEW_PACKET_PATH = ROOT / "docs" / "art" / "creep_review_decision_packet_2026-07-01.md"
 REVIEW_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_packet.py"
@@ -48,6 +49,7 @@ REQUIRED_DOC_SNIPPETS = [
     "apply_unit_art_review_decision.py",
     "build_unit_style_drift_audit.py",
     "build_unit_art_candidate_triage.py",
+    "check_unit_art_audit_gates.py",
     "build_unit_art_review_packet.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
@@ -86,6 +88,8 @@ REQUIRED_DOC_SNIPPETS = [
     "possible sheen, pale-material glare, or board-scale hot spots",
     "synthetic edge-clean regression",
     "intentional interior orange material",
+    "Fast brutal gate",
+    "non-rejected cutout contamination fails",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -323,6 +327,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "apply_unit_art_review_decision.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_candidate_triage.py",
+    "check_unit_art_audit_gates.py",
     "audit_unit_cutout_orange_fringe.py",
     "clean_unit_cutout_orange_edge.py",
     "build_unit_art_review_packet.py",
@@ -368,6 +373,9 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "intentional interior orange material",
     "assert_alpha_unchanged",
     "count_safety_orange_pixels_in_box",
+    "Quick Unit Art Audit Gates",
+    "check_unit_art_audit_gates.py",
+    "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
     "reference_ladder_raw_comparison.png",
@@ -441,6 +449,19 @@ REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS = [
     "alpha_edge_band",
     "cleaned_edge_orange_pixels",
     "Unit cutout edge-orange post-clean review",
+]
+
+REQUIRED_QUICK_AUDIT_GATE_SNIPPETS = [
+    "Quick Unit Art Audit Gates",
+    "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
+    "Synthetic Edge-Clean Regression",
+    "flagged=1",
+    "flagged=0",
+    "intentional interior orange material",
+    "Totem fails style triage while still proving proxy metrics can lie",
+    "Token remains small-asset-only context",
+    "hot-highlight matte-review rows present",
+    "find_latest_metrics_csv",
 ]
 
 REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
@@ -803,6 +824,8 @@ def main() -> int:
         fail(f"Missing style drift audit builder: {STYLE_DRIFT_BUILDER_PATH}", failures)
     if not CANDIDATE_TRIAGE_BUILDER_PATH.exists():
         fail(f"Missing candidate triage builder: {CANDIDATE_TRIAGE_BUILDER_PATH}", failures)
+    if not QUICK_AUDIT_GATE_PATH.exists():
+        fail(f"Missing quick audit gate: {QUICK_AUDIT_GATE_PATH}", failures)
     if not REVIEW_PACKET_BUILDER_PATH.exists():
         fail(f"Missing review packet builder: {REVIEW_PACKET_BUILDER_PATH}", failures)
     if not REVIEW_QUEUE_BUILDER_PATH.exists():
@@ -915,6 +938,12 @@ def main() -> int:
     for snippet in REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS:
         if snippet.lower() not in candidate_triage_builder_lower:
             fail(f"candidate triage builder missing required snippet: {snippet}", failures)
+
+    quick_audit_gate = QUICK_AUDIT_GATE_PATH.read_text(encoding="utf-8")
+    quick_audit_gate_lower = quick_audit_gate.lower()
+    for snippet in REQUIRED_QUICK_AUDIT_GATE_SNIPPETS:
+        if snippet.lower() not in quick_audit_gate_lower:
+            fail(f"quick audit gate missing required snippet: {snippet}", failures)
 
     cutout_fringe_audit_builder = CUTOUT_FRINGE_AUDIT_BUILDER_PATH.read_text(encoding="utf-8")
     cutout_fringe_audit_builder_lower = cutout_fringe_audit_builder.lower()
