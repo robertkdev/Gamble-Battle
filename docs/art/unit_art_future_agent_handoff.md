@@ -33,6 +33,7 @@ The completion audit is the current truth for remaining blockers. At the latest 
 
 - Compare every serious candidate side by side against Vellum first.
 - Do not let the growing passing pool muddy the target; Vellum remains the ultimate reference even when more narrow proofs are accepted.
+- Vellum can veto any candidate on dry material finish, detail richness, grounded realism, silhouette mood, and board-scale readability. Later proofs can answer only narrow risk questions and cannot rescue a candidate that is weaker than Vellum.
 - Matte does not mean low-detail. De-shining must preserve tactile dry detail, layered costume/material storytelling, scratches, dust, worn edges, and hand-painted surface breakup.
 - Reject sweaty skin, wet shine, glossy leather, latex, plastic, polished metal, chrome, clean fantasy render, cartoon/comic style, toy proportions, anime/gacha, and cinematic rim-light polish.
 - Use flat solid safety-orange `#f84401` for cutout-bound raw generations.

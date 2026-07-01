@@ -33,6 +33,7 @@
       "promotion_rule": "Later accepted/current proofs are narrow coverage examples only. They do not become global style anchors just because they passed; user must explicitly promote a proof before it can change the anchor hierarchy.",
       "candidate_rule": "Current candidates can demonstrate process progress, but they are review-only and never anchor references until approved.",
       "side_by_side_rule": "Every serious candidate must be reviewed in a Vellum-first side-by-side comparison before acceptance. Paisley, token, and later accepted proofs can add secondary context, but Vellum remains the first visual question.",
+      "veto_rule": "Vellum can veto any candidate on dry material finish, detail richness, grounded realism, silhouette mood, and board-scale readability. Later proofs can answer only narrow risk questions and cannot rescue a candidate that is weaker than Vellum.",
       "passing_pool_rule": "Do not average the passing pool into the target style. New accepted proofs stay narrow by reference_role unless the user explicitly promotes one into the global anchor hierarchy."
     }
   },

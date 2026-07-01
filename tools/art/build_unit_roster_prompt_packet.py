@@ -55,6 +55,7 @@ def render_reference_policy(proof_matrix: dict[str, Any]) -> str:
         f"- Promotion rule: {policy.get('promotion_rule', 'Later proofs remain narrow unless the user explicitly promotes them.')}",
         f"- Candidate rule: {policy.get('candidate_rule', 'Current candidates are review-only and never anchor references until approved.')}",
         f"- Side-by-side rule: {policy.get('side_by_side_rule', 'Every serious candidate must be reviewed beside Vellum first.')}",
+        f"- Vellum veto rule: {policy.get('veto_rule', 'Vellum can veto candidates on the core style target; later proofs stay narrow.')}",
         f"- Passing-pool rule: {policy.get('passing_pool_rule', 'Do not average passing images into a new target.')}",
     ])
 

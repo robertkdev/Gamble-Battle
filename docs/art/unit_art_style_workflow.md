@@ -26,6 +26,8 @@ As the proof pool grows, do not average all passing images together. That muddie
 
 The required comparison artifact is the Vellum-first side-by-side comparison: Vellum raw anchor beside the candidate at the same size before any broader pool scan. A candidate can pass a narrow silhouette/material test without becoming part of the main style target.
 
+Review priority is strict: Vellum can veto any candidate on dry material finish, detail richness, grounded realism, silhouette mood, and board-scale readability. Paisley, the token, and later accepted proofs can add secondary context, but they cannot rescue a candidate that is weaker than Vellum on the core target. If a candidate matches newer passing examples but loses Vellum's dry detail richness, request revision or reject it.
+
 ## Locked Art Target
 
 Use this style target for every character unless the user explicitly changes direction:
@@ -185,7 +187,7 @@ The runner does not launch Godot because this repo requires Godot execution thro
 2. Reject the raw image immediately if the skin or outfit reads sweaty, wet, glossy, shiny, plastic, latex, or polished.
 3. Reject the raw image if the background is textured, smoky, scenic, shadowed, or not flat safety-orange.
 4. Make a contact sheet at full size and board scale. Check 1024 px, 256 px, and 96 px readability.
-5. Run or update the style-drift audit contact sheet when a candidate is meant to become a new proof. Compare it directly against Vellum first in the Vellum-first pairwise sheet, then Paisley and any narrowly relevant proof examples, for high-detail dry gothic richness, not just non-shiny palette match.
+5. Run or update the style-drift audit contact sheet when a candidate is meant to become a new proof. Compare it directly against Vellum first in the Vellum-first pairwise sheet, then Paisley and any narrowly relevant proof examples, for high-detail dry gothic richness, not just non-shiny palette match. Later passing proofs are allowed to answer only narrow questions such as silhouette, prop risk, material edge case, or cutout behavior; they do not overrule Vellum.
 6. Rebuild candidate style triage after the all-current audit. If a candidate is flagged as high-risk, do not use it as prompt context until it survives human Vellum-first review.
 7. Only after the raw image passes style review, run background removal.
 8. Review the cutout on checker, black, white, and in a board-scale preview.

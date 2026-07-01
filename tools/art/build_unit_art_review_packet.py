@@ -124,6 +124,7 @@ def write_visual_packet(
     small = load_font(14)
     draw.text((18, 18), f"{proof.get('display_name', proof.get('subject_id'))} Review Decision Packet", font=title, fill=(255, 222, 120))
     draw.text((18, 56), "Vellum is the decision anchor. Paisley/token are context. Candidate is review-only until the user decides.", font=small, fill=(230, 205, 135))
+    draw.text((18, 76), "Anchor priority: Vellum can veto the candidate; later passing proofs cannot average away the target.", font=small, fill=(230, 205, 135))
 
     tile = (260, 260)
     x_positions = [18, 310, 602, 894, 1186]
@@ -155,10 +156,12 @@ def write_visual_packet(
     text_x = 18
     draw.text((text_x, current_y), "Decision Questions", font=title, fill=(255, 222, 120))
     questions = [
+        "Does the candidate pass beside Vellum before considering any newer accepted or current proofs?",
         "Does Creep still read as the planned smooth alien/demon assassin, not a generic corpse or flayed anatomy monster?",
         "Does the skin/tendril finish look dry, chalky, absorptive, and hand-painted beside Vellum?",
         "Does it preserve enough Vellum/Paisley-level tactile detail without becoming chaotic at board scale?",
         "Is there any sweaty, glossy, wet, latex, polished, or shiny creature-concept finish?",
+        "Are later passing proofs being used only for narrow risk context, not as an averaged style pool?",
         "If accepted, will it remain a narrow horror-side proof, not a global style anchor?",
     ]
     y = current_y + 46
@@ -222,6 +225,20 @@ def write_markdown(
         "Approve only if the candidate passes Vellum-first visual review as a dry, detailed, smooth-alien horror unit. Approval keeps it as a narrow proof, not a global style anchor.",
         "",
         "Reject or request revision if it reads shiny/sweaty, corpse/flayed, too low-detail, too generic creature-concept, too cartoony, or not readable at board scale.",
+        "",
+        "## Vellum-First Scoring Contract",
+        "",
+        "- Judge the raw candidate beside Vellum first for dry material finish, detail richness, grounded realism, silhouette mood, and board-scale readability.",
+        "- Paisley only checks whether brighter or stranger units can keep the same dry gothic richness. The token only checks small-asset material language.",
+        "- Later accepted proofs can explain a narrow silhouette, material, or cutout risk, but they cannot rescue a candidate that is weaker than Vellum on the core style target.",
+        "- If the candidate matches the newer passing pool but loses Vellum's dry detail richness, request a revision or reject it.",
+        "- Acceptance records this as a narrow proof only. It does not add Creep to the global anchor pool.",
+        "",
+        "## Human Reply Contract",
+        "",
+        "- Reply `approve Creep` only if the candidate survives the Vellum-first scoring contract.",
+        "- Reply `revise Creep: <needed change>` if it is close but needs a concrete correction such as less shine, more Vellum-level dry detail, or stronger smooth-alien identity.",
+        "- Reply `reject Creep: <reason>` if the current direction should become a negative example.",
         "",
         "## Apply The Decision",
         "",

@@ -64,6 +64,8 @@ REQUIRED_DOC_SNIPPETS = [
     "do not average all passing images together",
     "Every future candidate must be checked side by side against Vellum first",
     "Vellum-first side-by-side comparison",
+    "Vellum can veto any candidate",
+    "they cannot rescue a candidate that is weaker than Vellum",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -105,6 +107,9 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Visual decision sheet",
     "Creep is the next human-review gate",
     "Approve only if",
+    "Vellum-First Scoring Contract",
+    "Human Reply Contract",
+    "weaker than Vellum",
     "request_revision",
     "Prior Creep Lessons",
 ]
@@ -135,6 +140,8 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "Every serious candidate must also get a Vellum-first pairwise audit sheet",
     "Do not generate Veyra or broader roster batches",
     "Do not replace any live `assets/units/*.png` file",
+    "Vellum can veto any candidate",
+    "Later proofs can answer only narrow risk questions",
     "Matte does not mean low-detail",
     "reference_role",
     "Current Next Gate",
@@ -158,6 +165,7 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "Raw image matches Vellum/Paisley anchor-level detail richness",
     "reviewed side by side against the primary Vellum anchor first",
     "do not dilute or average away the Vellum target",
+    "Vellum veto rule",
     "Reference Hierarchy",
     "reference_policy",
     "Promotion rule",
@@ -229,6 +237,9 @@ REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Review Decision Packet",
     "Creep is the next human-review gate",
     "Prior Creep Lessons",
+    "Vellum-First Scoring Contract",
+    "Human Reply Contract",
+    "later passing proofs cannot average away the target",
     "write_visual_packet",
     "Visual decision sheet",
 ]
@@ -274,6 +285,7 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "Vellum is the primary and ultimate character style anchor",
     "Later accepted/current proofs are narrow coverage examples",
     "side_by_side_rule",
+    "veto_rule",
     "passing_pool_rule",
 ]
 
@@ -1056,6 +1068,7 @@ def main() -> int:
         ("promotion_rule", ("user", "explicitly promote", "global style anchors")),
         ("candidate_rule", ("current candidates", "review-only", "never anchor references")),
         ("side_by_side_rule", ("vellum-first", "side-by-side")),
+        ("veto_rule", ("vellum can veto", "weaker than vellum")),
         ("passing_pool_rule", ("do not average", "passing pool")),
     ):
         value = as_text(reference_policy.get(field, "")).lower()
