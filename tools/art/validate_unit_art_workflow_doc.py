@@ -58,6 +58,7 @@ REQUIRED_DOC_SNIPPETS = [
     "unit_art_style_drift_audit_2026-06-30.md",
     "unit_art_candidate_style_triage_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01.md",
+    "creep_review_decision_packet_2026-07-01_scorecard_template.json",
     "unit_art_future_agent_handoff.md",
     "less shine is not the same as less detail",
     "Vellum is the primary/ultimate style anchor",
@@ -65,6 +66,7 @@ REQUIRED_DOC_SNIPPETS = [
     "Every future candidate must be checked side by side against Vellum first",
     "Vellum-first side-by-side comparison",
     "reference-ladder sheet",
+    "--scorecard-json",
     "Vellum can veto any candidate",
     "they cannot rescue a candidate that is weaker than Vellum",
 ]
@@ -139,6 +141,9 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "creep_review_decision_packet_2026-07-01.md",
     "apply_unit_art_review_decision.py",
     "--decision request_revision",
+    "--scorecard-json",
+    "Scorecard template",
+    "creep_review_decision_packet_2026-07-01_scorecard_template.json",
 ]
 
 REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
@@ -161,6 +166,8 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "apply_unit_art_review_decision.py",
     "unit_art_candidate_style_triage_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01.md",
+    "creep_review_decision_packet_2026-07-01_scorecard_template.json",
+    "--scorecard-json",
     "RoleMatrixProbe.tscn",
     "Completion Standard",
 ]
@@ -283,7 +290,7 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "approve as accepted proof",
     "reject with a concrete reason",
     "apply_unit_art_review_decision.py",
-    "--scorecard-gate",
+    "--scorecard-json",
     "--decision accept",
     "--decision reject",
     "--decision request_revision",
@@ -294,6 +301,7 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "Vellum pairwise audit",
     "Reference ladder audit",
     "creep_review_decision_packet_2026-07-01.md",
+    "creep_review_decision_packet_2026-07-01_scorecard_template.json",
 ]
 
 REQUIRED_COMPLETION_BUILDER_SNIPPETS = [
@@ -312,6 +320,7 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "layered fabric/parchment/dry edge wear",
     "hand-painted surface breakup",
     "reference_policy",
+    "scorecard_template",
     "promotion_rule",
     "reference_role",
     "low-detail smooth creature model",

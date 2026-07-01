@@ -255,6 +255,9 @@ def assert_review_queue(queue_path: Path, report: list[str]) -> None:
         "Do not continue to Veyra or broader roster generation",
         "apply_unit_art_review_decision.py",
         "--decision request_revision",
+        "--scorecard-json",
+        "Scorecard template",
+        "creep_review_decision_packet_2026-07-01_scorecard_template.json",
         "Approval Checklist",
         "Rejection Checklist",
     ]

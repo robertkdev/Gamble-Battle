@@ -234,6 +234,7 @@
       "style_gate": "Current candidate after Vellum-primary side-by-side correction: smooth oval alien face and gray-blue skin remain, while dry occult markings, subtle chalk/mottled surface breakup, cord/ribbon/talisman scraps, and dull ink-black serrated tendrils restore more anchor-level detail richness without returning to wet corpse anatomy. Vellum-first audit shows edge/detail proxy 32.65, back in the Vellum/Paisley range rather than the failed smooth Creep's 14.49.",
       "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout completed, board preview reads on checker/black/white, and Vellum-first audit sheet keeps Creep readable at board scale without making the raw under-detailed.",
       "style_audit": "outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png",
+      "scorecard_template": "docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json",
       "telegram_message": "118",
       "telegram_board_message": "119",
       "decision_notes": "Current Creep candidate and first real test of the tightened Vellum-primary process. It is not a live replacement and must not touch assets/units/creep.png without explicit approval.",
