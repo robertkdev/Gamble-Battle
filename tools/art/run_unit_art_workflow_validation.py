@@ -726,6 +726,16 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
     required = [
         "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
         "synthetic edge-clean regression removed",
+        "Metrics Reference Hierarchy Gate",
+        "Tampered Metrics Negative-Control Gate",
+        "bad reference row order",
+        "duplicate Vellum reference row",
+        "wrong token anchor role",
+        "extra reference anchor row",
+        "ordinary row promoted to primary anchor",
+        "missing Totem metrics row fails required negative-control enforcement",
+        "Totem low-proxy metric mutation",
+        "tampered metric controls prove corrupted anchors and broken Totem sentinel states fail",
         "Totem fails style triage while still proving proxy metrics can lie",
         "hot-highlight matte-review rows present",
     ]

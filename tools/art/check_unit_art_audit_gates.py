@@ -4,6 +4,7 @@ import argparse
 import csv
 import subprocess
 import sys
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
 
@@ -67,6 +68,16 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
+    if not rows:
+        raise RuntimeError(f"cannot write empty CSV: {rel(path)}")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def csv_fields(path: Path) -> set[str]:
     with path.open(encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
@@ -77,6 +88,18 @@ def metric_csv_is_current_shape(path: Path) -> bool:
     if not path.exists():
         return False
     return STYLE_METRIC_FIELDS.issubset(csv_fields(path))
+
+
+def expect_runtime_failure(label: str, expected_message: str, action: Callable[[], None], report: list[str]) -> None:
+    try:
+        action()
+    except RuntimeError as exc:
+        message = str(exc)
+        if expected_message not in message:
+            raise RuntimeError(f"{label} failed for the wrong reason: {message}") from exc
+        report.append(f"- PASS {label} fails with `{expected_message}`.")
+        return
+    raise RuntimeError(f"{label} unexpectedly passed")
 
 
 def find_latest_metrics_csv() -> Path:
@@ -352,6 +375,124 @@ def assert_metrics_reference_hierarchy(metrics_csv: Path, report: list[str]) -> 
     report.append("")
 
 
+def assert_tampered_metrics_negative_controls(metrics_csv: Path, output_dir: Path, report: list[str]) -> None:
+    report.append("## Tampered Metrics Negative-Control Gate")
+    report.append("")
+    control_dir = output_dir / "tampered_metric_controls"
+    rows = read_csv(metrics_csv)
+    if len(rows) < 4:
+        raise RuntimeError("metrics CSV is too small for tampered negative controls")
+
+    def write_case(name: str, case_rows: list[dict[str, str]]) -> Path:
+        path = control_dir / f"{name}.csv"
+        write_csv(path, case_rows)
+        return path
+
+    swapped_rows = [dict(row) for row in rows]
+    swapped_rows[0], swapped_rows[1] = swapped_rows[1], swapped_rows[0]
+    swapped_path = write_case("bad_reference_order", swapped_rows)
+    expect_runtime_failure(
+        "bad reference row order",
+        "metrics CSV must start with Vellum, Paisley, token rows",
+        lambda: assert_metrics_reference_hierarchy(swapped_path, []),
+        report,
+    )
+
+    duplicate_path = write_case("duplicate_vellum_reference", [dict(row) for row in rows] + [dict(rows[0])])
+    expect_runtime_failure(
+        "duplicate Vellum reference row",
+        "metrics CSV must contain exactly one REF Vellum raw row",
+        lambda: assert_metrics_reference_hierarchy(duplicate_path, []),
+        report,
+    )
+
+    wrong_token_rows = [dict(row) for row in rows]
+    for row in wrong_token_rows:
+        if row.get("label") == "REF Token":
+            row["role"] = "secondary_contrast_anchor"
+            break
+    wrong_token_path = write_case("wrong_token_anchor_role", wrong_token_rows)
+    expect_runtime_failure(
+        "wrong token anchor role",
+        "REF Token role must be small_asset_material_reference",
+        lambda: assert_metrics_reference_hierarchy(wrong_token_path, []),
+        report,
+    )
+
+    extra_anchor = dict(rows[3])
+    extra_anchor["label"] = "REF Fake Extra Anchor"
+    extra_anchor["kind"] = "fake_extra_anchor"
+    extra_anchor["role"] = "primary_anchor"
+    extra_anchor_path = write_case("extra_ref_anchor_role", [dict(row) for row in rows] + [extra_anchor])
+    expect_runtime_failure(
+        "extra reference anchor row",
+        "only locked reference rows can use anchor roles",
+        lambda: assert_metrics_reference_hierarchy(extra_anchor_path, []),
+        report,
+    )
+
+    ordinary_anchor_rows = [dict(row) for row in rows]
+    ordinary_row = next((row for row in ordinary_anchor_rows if not str(row.get("label", "")).startswith("REF ")), None)
+    if ordinary_row is None:
+        raise RuntimeError("metrics CSV has no ordinary row for anchor-role tamper check")
+    ordinary_row["role"] = "primary_anchor"
+    ordinary_anchor_path = write_case("ordinary_row_anchor_role", ordinary_anchor_rows)
+    expect_runtime_failure(
+        "ordinary row promoted to primary anchor",
+        "only locked reference rows can use anchor roles",
+        lambda: assert_metrics_reference_hierarchy(ordinary_anchor_path, []),
+        report,
+    )
+
+    missing_totem_rows = [
+        dict(row)
+        for row in rows
+        if row.get("kind") != "totem_dry_wood_guardian_refit"
+    ]
+    missing_totem_path = write_case("missing_totem_negative_control", missing_totem_rows)
+    triage_missing_dir = control_dir / "missing_totem_triage"
+    missing_totem_command = [
+        sys.executable,
+        "tools/art/build_unit_art_candidate_triage.py",
+        "--metrics-csv",
+        rel(missing_totem_path),
+        "--output-dir",
+        rel(triage_missing_dir),
+        "--report-date",
+        date.today().isoformat(),
+    ]
+    missing_totem_result = subprocess.run(
+        missing_totem_command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if missing_totem_result.returncode == 0:
+        raise RuntimeError("missing Totem negative-control metrics unexpectedly passed candidate triage")
+    if "required style negative controls missing" not in missing_totem_result.stdout:
+        raise RuntimeError("missing Totem negative-control metrics failed for the wrong reason")
+    report.append("- PASS missing Totem metrics row fails required negative-control enforcement.")
+
+    low_proxy_rows = [dict(row) for row in rows]
+    vellum_row = next((row for row in low_proxy_rows if row.get("label") == "REF Vellum raw"), None)
+    totem_row = next((row for row in low_proxy_rows if row.get("kind") == "totem_dry_wood_guardian_refit"), None)
+    if vellum_row is None or totem_row is None:
+        raise RuntimeError("cannot build low-proxy Totem metric negative control")
+    totem_row["edge_mean"] = f"{float(vellum_row['edge_mean']) - 8.0:.4f}"
+    totem_row["gray_std"] = f"{float(vellum_row['gray_std']) - 8.0:.4f}"
+    low_proxy_path = write_case("totem_low_proxy_metrics", low_proxy_rows)
+    expect_runtime_failure(
+        "Totem low-proxy metric mutation",
+        "Totem is no longer marked as the metric false-positive sentinel",
+        lambda: assert_style_sentinels(low_proxy_path, control_dir / "totem_low_proxy_sentinel", []),
+        report,
+    )
+    report.append("- PASS tampered metric controls prove corrupted anchors and broken Totem sentinel states fail.")
+    report.append("")
+
+
 def assert_vellum_first_visual_evidence(metrics_csv: Path, report: list[str]) -> None:
     report.append("## Vellum-First Visual Evidence Gate")
     report.append("")
@@ -396,6 +537,7 @@ def main() -> int:
         if not metric_csv_is_current_shape(metrics_csv):
             raise RuntimeError(f"metrics CSV missing hot-highlight/luma fields: {rel(metrics_csv)}")
         assert_metrics_reference_hierarchy(metrics_csv, report)
+        assert_tampered_metrics_negative_controls(metrics_csv, output_dir, report)
         assert_vellum_first_visual_evidence(metrics_csv, report)
         assert_style_sentinels(metrics_csv, output_dir, report)
     else:
