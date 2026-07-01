@@ -1,20 +1,21 @@
 # Unit Art Cutout Orange-Fringe Audit
 
 - Date: 2026-07-01
-- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_perfect_softalpha_clean/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
-- Manifest: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_perfect_softalpha_clean/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit_manifest.json`
-- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_perfect_softalpha_clean/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
+- CSV: `outputs/art_pipeline/style_validation/workflow_validation_rawkey_2026_07_01/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
+- Manifest: `outputs/art_pipeline/style_validation/workflow_validation_rawkey_2026_07_01/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit_manifest.json`
+- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_rawkey_2026_07_01/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
 - Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.
 - Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.
-- Input rule: the gate reads only each cutout's RGBA pixels. It does not load raw art, board previews, Vellum, Paisley, the token, or any other reference image.
+- Input rule: cutout-only mode reads only each cutout's RGBA pixels. It cannot prove internal raw-background holes after cleanup has recolored pixels.
 
 ## Objective Background-Contamination Gate
 
 - Edge band radius: `4` px.
-- Pass threshold: edge-orange pixels <= `50`, edge-orange ratio <= `0.0600%`, and soft-alpha orange pixels <= `20`.
-- The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests each cutout against the known safety-orange background color family directly.
-- Manifest rule: `reference_images_loaded`, `raw_images_loaded`, `board_preview_images_loaded`, and `style_anchor_images_loaded` must all be `false` for every run.
-- Interior orange/gold pixels are counted but do not fail the audit by themselves; the fail gate is edge/soft-alpha residue because that is the visible background-contamination risk.
+- Pass threshold: edge-orange pixels <= `50`, edge-orange ratio <= `0.0600%`, soft-alpha orange pixels <= `20`, and raw-key visible pixels <= `0` when a raw source is supplied.
+- Raw-key check: pixels within `20` RGB units of reserved safety-orange `#f84401` in the raw source must not remain visible in the cutout alpha matte.
+- The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests cutout contamination against the known safety-orange background contract directly.
+- Manifest rule: `reference_images_loaded`, `raw_images_loaded`, `board_preview_images_loaded`, and `style_anchor_images_loaded` must all be `false` for cutout-only runs.
+- Interior orange/gold pixels in the cutout are counted but do not fail by themselves. Raw-backed mode fails only pixels that match the reserved raw background key, which is the internal-hole risk.
 
 ## Summary
 
@@ -25,12 +26,13 @@
 
 ## Flagged Rows
 
-| id | proof status | edge orange | edge ratio | soft orange | issue |
-| --- | --- | ---: | ---: | ---: | --- |
-| `creep_unit_refit_rejected` | `rejected` | 75 | 0.0456% | 6 | edge_background_orange_contamination |
+| id | proof status | edge orange | edge ratio | soft orange | raw-key visible | issue |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| `creep_unit_refit_rejected` | `rejected` | 75 | 0.0456% | 6 | 0 | edge_background_orange_contamination |
 
 ## Decision Rule
 
-- Protected ledger rows, meaning accepted proofs and anchor/status rows from the proof ledger, must have no measurable safety-orange background contamination above the objective gate. If one fails here, re-run cutout cleanup before using it as a technical cutout example.
-- Current candidates that fail can stay in the ledger as review candidates, but they need an edge-orange-clean pass before acceptance or live asset replacement.
+- Protected ledger rows, meaning accepted proofs and anchor/status rows from the proof ledger, must have no measurable safety-orange background contamination above the active objective gate. If one fails here, re-run cutout cleanup before using it as a technical cutout example.
+- Current candidates that fail can stay in the ledger as review candidates, but they need an edge-orange/raw-key clean pass before acceptance or live asset replacement.
+- Perfect-exit claims must use raw-backed mode so opaque or soft internal background holes cannot hide behind recolored cutout RGB.
 - Review the PNG sheet before trusting the metric when the character has intentional orange materials near the silhouette.

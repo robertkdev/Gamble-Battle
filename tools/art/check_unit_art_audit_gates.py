@@ -35,22 +35,33 @@ CLEANER_DELTA_STAT_KEYS = [
     "target_edge_orange_pixels",
     "target_soft_orange_pixels",
     "target_cleanup_pixels",
+    "target_raw_key_visible_pixels",
     "changed_rgb_pixels",
     "changed_alpha_pixels",
     "changed_outside_target_pixels",
     "changed_outside_edge_pixels",
     "changed_opaque_interior_pixels",
+    "changed_opaque_interior_outside_raw_key_pixels",
+    "changed_alpha_outside_raw_key_pixels",
     "remaining_edge_orange_pixels",
     "remaining_soft_orange_pixels",
+    "remaining_raw_key_visible_pixels",
     "removed_edge_orange_pixels",
     "removed_soft_orange_pixels",
     "removed_cleanup_pixels",
+    "cleared_raw_key_visible_pixels",
 ]
 CUTOUT_AUDIT_THRESHOLDS = {
     "edge_radius": 4,
     "max_edge_orange_pixels": 50,
     "max_soft_orange_pixels": 20,
     "max_edge_orange_ratio": 0.0006,
+}
+STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS = {
+    "edge_radius": 4,
+    "max_edge_orange_pixels": 0,
+    "max_soft_orange_pixels": 0,
+    "max_edge_orange_ratio": 0.0,
 }
 
 
@@ -111,14 +122,19 @@ def assert_cleaner_stats_json(
     edge_radius: int,
     cleaned_pixels: int,
     delta_stats: dict[str, int],
+    raw_source_path: Path | None = None,
+    raw_key_cleared_pixels: int = 0,
 ) -> None:
     if not path.exists():
         raise RuntimeError(f"edge cleaner stats JSON missing: {rel(path)}")
     payload = read_json(path)
-    if payload.get("audit_input_contract") != "cutout_rgba_pixels_only":
-        raise RuntimeError("edge cleaner stats JSON does not declare cutout_rgba_pixels_only")
-    if payload.get("edge_clean_contract") != "safety_orange_alpha_edge_or_soft_pixels_only":
-        raise RuntimeError("edge cleaner stats JSON does not declare safety_orange_alpha_edge_or_soft_pixels_only")
+    raw_loaded = raw_source_path is not None
+    expected_input_contract = "cutout_rgba_plus_raw_background_key_pixels" if raw_loaded else "cutout_rgba_pixels_only"
+    expected_clean_contract = "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only"
+    if payload.get("audit_input_contract") != expected_input_contract:
+        raise RuntimeError(f"edge cleaner stats JSON does not declare {expected_input_contract}")
+    if payload.get("edge_clean_contract") != expected_clean_contract:
+        raise RuntimeError(f"edge cleaner stats JSON does not declare {expected_clean_contract}")
     if payload.get("contract_status") != "pass":
         raise RuntimeError("edge cleaner stats JSON does not record contract_status=pass")
     for key in (
@@ -127,12 +143,15 @@ def assert_cleaner_stats_json(
         "board_preview_images_loaded",
         "style_anchor_images_loaded",
     ):
-        if payload.get(key) is not False:
+        expected_value = raw_loaded if key == "raw_images_loaded" else False
+        if payload.get(key) is not expected_value:
             raise RuntimeError(f"edge cleaner stats JSON must set {key}=false")
     if int(payload.get("cleaned_safety_orange_pixels", -1)) != cleaned_pixels:
         raise RuntimeError("edge cleaner stats JSON cleaned safety-orange pixel count does not match stdout")
     if int(payload.get("cleaned_edge_orange_pixels", -1)) != cleaned_pixels:
         raise RuntimeError("edge cleaner stats JSON cleaned pixel count does not match stdout")
+    if int(payload.get("raw_key_alpha_cleared_pixels", -1)) != raw_key_cleared_pixels:
+        raise RuntimeError("edge cleaner stats JSON raw-key alpha clear count does not match stdout")
     expected_paths = {
         "input": rel(input_path),
         "output": rel(output_path),
@@ -152,6 +171,11 @@ def assert_cleaner_stats_json(
     for key, expected_hash in expected_hashes.items():
         if payload.get(key) != expected_hash:
             raise RuntimeError(f"edge cleaner stats JSON {key} mismatch")
+    if raw_source_path is not None:
+        if payload.get("raw_source") != rel(raw_source_path):
+            raise RuntimeError("edge cleaner stats JSON raw_source path mismatch")
+        if payload.get("raw_source_sha256") != file_sha256(raw_source_path):
+            raise RuntimeError("edge cleaner stats JSON raw_source_sha256 mismatch")
     if int(payload.get("edge_radius", -1)) != edge_radius:
         raise RuntimeError("edge cleaner stats JSON edge_radius does not match command")
     json_delta = payload.get("delta_stats")
@@ -279,6 +303,7 @@ def assert_reference_free_manifest(
     expected_proof_matrix_loaded: bool,
     expected_source_kinds: set[str],
     expected_row_count: int | None = None,
+    expected_thresholds: dict[str, int | float] | None = None,
 ) -> None:
     if not manifest_path.exists():
         raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
@@ -303,7 +328,8 @@ def assert_reference_free_manifest(
     thresholds = manifest.get("thresholds")
     if not isinstance(thresholds, dict):
         raise RuntimeError(f"{label} missing thresholds")
-    for key, expected in CUTOUT_AUDIT_THRESHOLDS.items():
+    threshold_contract = expected_thresholds if expected_thresholds is not None else CUTOUT_AUDIT_THRESHOLDS
+    for key, expected in threshold_contract.items():
         actual = thresholds.get(key)
         if isinstance(expected, float):
             if abs(float(actual) - expected) > 0.0000001:
@@ -313,6 +339,45 @@ def assert_reference_free_manifest(
     report.append(f"- PASS {label} proves reference-free cutout-only input contract: `{rel(manifest_path)}`.")
 
 
+def assert_raw_backed_cutout_manifest(
+    manifest_path: Path,
+    label: str,
+    report: list[str],
+    expected_row_count: int = 1,
+    expected_thresholds: dict[str, int | float] | None = None,
+) -> None:
+    if not manifest_path.exists():
+        raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
+    manifest = read_json(manifest_path)
+    if manifest.get("audit_input_contract") != "cutout_rgba_plus_raw_background_key_pixels":
+        raise RuntimeError(f"{label} does not declare cutout_rgba_plus_raw_background_key_pixels")
+    if manifest.get("raw_images_loaded") is not True:
+        raise RuntimeError(f"{label} must set raw_images_loaded=true")
+    for key in (
+        "reference_images_loaded",
+        "board_preview_images_loaded",
+        "style_anchor_images_loaded",
+    ):
+        if manifest.get(key) is not False:
+            raise RuntimeError(f"{label} must set {key}=false")
+    if int(manifest.get("row_count", -1)) != expected_row_count:
+        raise RuntimeError(f"{label} row_count expected {expected_row_count}, got {manifest.get('row_count')}")
+    thresholds = manifest.get("thresholds")
+    if not isinstance(thresholds, dict):
+        raise RuntimeError(f"{label} missing thresholds")
+    threshold_contract = expected_thresholds if expected_thresholds is not None else STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS
+    for key, expected in threshold_contract.items():
+        actual = thresholds.get(key)
+        if isinstance(expected, float):
+            if abs(float(actual) - expected) > 0.0000001:
+                raise RuntimeError(f"{label} threshold {key} expected {expected}, got {actual}")
+        elif int(actual) != expected:
+            raise RuntimeError(f"{label} threshold {key} expected {expected}, got {actual}")
+    if int(thresholds.get("max_raw_key_visible_pixels", -1)) != 0:
+        raise RuntimeError(f"{label} raw-key visible threshold must be zero")
+    report.append(f"- PASS {label} proves raw-backed cutout/raw-key input contract: `{rel(manifest_path)}`.")
+
+
 def write_synthetic_cutout(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     image = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
@@ -320,6 +385,47 @@ def write_synthetic_cutout(path: Path) -> None:
     draw.ellipse((34, 18, 94, 112), fill=(70, 80, 92, 255))
     draw.ellipse((56, 56, 72, 72), fill=(248, 68, 1, 255))
     draw.ellipse((34, 18, 94, 112), outline=(248, 68, 1, 255), width=6)
+    image.save(path)
+
+
+def write_raw_key_hole_control(control_dir: Path) -> tuple[Path, Path]:
+    control_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = control_dir / "raw_key_hole_control_raw.png"
+    cutout_path = control_dir / "raw_key_hole_control_cutout.png"
+
+    raw = Image.new("RGB", (128, 128), (248, 68, 1))
+    raw_draw = ImageDraw.Draw(raw)
+    raw_draw.ellipse((26, 18, 102, 112), fill=(70, 80, 92))
+    raw_draw.rectangle((60, 48, 68, 84), fill=(248, 68, 1))
+    raw_draw.ellipse((42, 64, 54, 76), fill=(216, 124, 48))
+    raw.save(raw_path)
+
+    cutout = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+    cutout_draw = ImageDraw.Draw(cutout)
+    cutout_draw.ellipse((26, 18, 102, 112), fill=(70, 80, 92, 255))
+    cutout_draw.rectangle((60, 48, 68, 84), fill=(54, 64, 82, 255))
+    cutout_draw.ellipse((42, 64, 54, 76), fill=(216, 124, 48, 255))
+    cutout.save(cutout_path)
+    return raw_path, cutout_path
+
+
+def count_visible_alpha_pixels_in_box(path: Path, box: tuple[int, int, int, int]) -> int:
+    alpha = Image.open(path).convert("RGBA").crop(box).getchannel("A")
+    return sum(1 for value in alpha.getdata() if value > 8)
+
+
+def write_strict_zero_single_pixel_control(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    pixels = image.load()
+    orange_written = False
+    for y in range(8, 504, 2):
+        for x in range(8, 504, 2):
+            if not orange_written:
+                pixels[x, y] = (248, 68, 1, 255)
+                orange_written = True
+            else:
+                pixels[x, y] = (70, 80, 92, 255)
     image.save(path)
 
 
@@ -502,6 +608,209 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_strict_zero_cutout_gate(output_dir: Path, report: list[str]) -> None:
+    report.append("## Strict-Zero Cutout Gate")
+    report.append("")
+    control_dir = output_dir / "strict_zero_cutout_control"
+    cutout_path = control_dir / "single_edge_orange_pixel_control.png"
+    default_audit_dir = control_dir / "audit_default_thresholds"
+    strict_audit_dir = control_dir / "audit_strict_zero"
+    write_strict_zero_single_pixel_control(cutout_path)
+
+    base_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cutout_path),
+        "--cutout-id",
+        "single_edge_orange_pixel_control",
+        "--cutout-label",
+        "single edge orange pixel control",
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+    ]
+
+    default_command = base_command + ["--output-dir", rel(default_audit_dir)]
+    default_result = run_command(default_command, report, expect_success=True)
+    if "flagged=0" not in default_result.stdout:
+        raise RuntimeError("default-threshold one-pixel residue control did not report flagged=0")
+    assert_reference_free_manifest(
+        default_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "strict-zero default-threshold control manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+    )
+
+    strict_command = base_command + ["--output-dir", rel(strict_audit_dir), "--strict-zero"]
+    strict_result = run_command(strict_command, report, expect_success=False)
+    if "flagged=1" not in strict_result.stdout:
+        raise RuntimeError("strict-zero one-pixel residue control did not report flagged=1")
+    assert_reference_free_manifest(
+        strict_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "strict-zero one-pixel control manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+    )
+    strict_rows = read_csv(strict_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    strict_row = strict_rows[0]
+    if strict_row.get("quality_status") != "fail":
+        raise RuntimeError("strict-zero one-pixel residue control did not fail")
+    if int(strict_row.get("edge_orange_pixels", "0")) != 1:
+        raise RuntimeError("strict-zero one-pixel residue control did not create exactly one edge-orange pixel")
+    report.append("- PASS default-threshold audit passes a one-pixel edge-orange residue control.")
+    report.append("- PASS strict-zero audit fails the same one-pixel edge-orange residue control.")
+    report.append("")
+
+
+def assert_raw_key_hole_gate(output_dir: Path, report: list[str]) -> None:
+    report.append("## Raw-Key Background-Hole Gate")
+    report.append("")
+    control_dir = output_dir / "raw_key_hole_control"
+    raw_path, cutout_path = write_raw_key_hole_control(control_dir)
+    cutout_only_audit_dir = control_dir / "audit_cutout_only"
+    raw_backed_audit_dir = control_dir / "audit_raw_backed"
+    cleaned_path = control_dir / "raw_key_hole_control_cleaned.png"
+    cleaner_review_path = control_dir / "raw_key_hole_control_cleaned_review.png"
+    cleaner_stats_path = stats_output_path(cleaned_path)
+    cleaned_audit_dir = control_dir / "audit_cleaned_raw_backed"
+
+    base_audit_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cutout_path),
+        "--cutout-id",
+        "raw_key_hole_control",
+        "--cutout-label",
+        "raw key hole control",
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cutout_only_result = run_command(
+        base_audit_command + ["--output-dir", rel(cutout_only_audit_dir)],
+        report,
+        expect_success=True,
+    )
+    if "flagged=0" not in cutout_only_result.stdout:
+        raise RuntimeError("raw-key hole cutout-only audit did not report flagged=0")
+    assert_reference_free_manifest(
+        cutout_only_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "raw-key hole cutout-only audit manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+    )
+
+    raw_backed_result = run_command(
+        base_audit_command + ["--raw-source", rel(raw_path), "--output-dir", rel(raw_backed_audit_dir)],
+        report,
+        expect_success=False,
+    )
+    if "flagged=1" not in raw_backed_result.stdout:
+        raise RuntimeError("raw-key hole raw-backed audit did not report flagged=1")
+    assert_raw_backed_cutout_manifest(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "raw-key hole raw-backed audit manifest",
+        report,
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+    )
+    raw_rows = read_csv(raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    raw_row = raw_rows[0]
+    if raw_row.get("quality_status") != "fail":
+        raise RuntimeError("raw-key hole raw-backed audit did not fail")
+    if "raw_key_visible_background_contamination" not in raw_row.get("issue", ""):
+        raise RuntimeError("raw-key hole raw-backed audit did not fail on visible raw key")
+    raw_key_visible_pixels = int(raw_row.get("raw_key_visible_pixels", "0"))
+    if raw_key_visible_pixels <= 0:
+        raise RuntimeError("raw-key hole raw-backed audit did not measure visible raw-key pixels")
+
+    clean_command = [
+        sys.executable,
+        "tools/art/clean_unit_cutout_orange_edge.py",
+        "--input",
+        rel(cutout_path),
+        "--raw-source",
+        rel(raw_path),
+        "--output",
+        rel(cleaned_path),
+        "--review-output",
+        rel(cleaner_review_path),
+    ]
+    clean_result = run_command(clean_command, report, expect_success=True)
+    if "raw_key_alpha_cleared_pixels=" not in clean_result.stdout:
+        raise RuntimeError("raw-key cleaner did not report raw_key_alpha_cleared_pixels")
+    raw_key_cleared_pixels = int(clean_result.stdout.split("raw_key_alpha_cleared_pixels=", 1)[1].splitlines()[0].strip())
+    if raw_key_cleared_pixels != raw_key_visible_pixels:
+        raise RuntimeError("raw-key cleaner did not clear the measured visible raw-key pixels")
+    cleaner_stdout_stats = parse_cleaner_delta_stdout(clean_result.stdout)
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4, Image.open(raw_path))
+    for key in CLEANER_DELTA_STAT_KEYS:
+        if cleaner_stdout_stats[key] != delta_stats[key]:
+            raise RuntimeError(f"raw-key cleaner self-reported {key}={cleaner_stdout_stats[key]}, actual={delta_stats[key]}")
+    assert_cleaner_stats_json(
+        cleaner_stats_path,
+        cutout_path,
+        cleaned_path,
+        cleaner_review_path,
+        4,
+        int(clean_result.stdout.split("cleaned_safety_orange_pixels=", 1)[1].splitlines()[0].strip()),
+        delta_stats,
+        raw_path,
+        raw_key_cleared_pixels,
+    )
+    assert_nonblank_image(cleaner_review_path, "raw-key cleaner review sheet")
+
+    cleaned_audit_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cleaned_path),
+        "--cutout-id",
+        "raw_key_hole_control_cleaned",
+        "--cutout-label",
+        "raw key hole control cleaned",
+        "--raw-source",
+        rel(raw_path),
+        "--output-dir",
+        rel(cleaned_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cleaned_result = run_command(cleaned_audit_command, report, expect_success=True)
+    if "flagged=0" not in cleaned_result.stdout:
+        raise RuntimeError("raw-key cleaned audit did not report flagged=0")
+    assert_raw_backed_cutout_manifest(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "raw-key hole cleaned raw-backed audit manifest",
+        report,
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+    )
+    cleaned_rows = read_csv(cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    if int(cleaned_rows[0].get("raw_key_visible_pixels", "-1")) != 0:
+        raise RuntimeError("raw-key cleaned audit still measured visible raw-key pixels")
+    report.append("- PASS cutout-only strict-zero audit passes a recolored raw-key hole because no raw/reference images are loaded.")
+    report.append("- PASS raw-backed audit fails the same cutout for visible reserved background-key pixels without style references.")
+    report.append("- PASS raw-backed cleaner clears the measured background-key alpha leak and the cleaned raw-backed audit passes.")
+    report.append("")
+
+
 def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     report.append("## Synthetic Edge-Clean Regression")
     report.append("")
@@ -532,6 +841,7 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         "--report-date",
         date.today().isoformat(),
         "--fail-on-any-fail",
+        "--strict-zero",
     ]
     before_result = run_command(before_command, report, expect_success=False)
     if "flagged=1" not in before_result.stdout:
@@ -543,6 +853,7 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         expected_proof_matrix_loaded=False,
         expected_source_kinds={"standalone_cutout"},
         expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
     )
     before_review_width, before_review_height = assert_nonblank_image(
         audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
@@ -607,6 +918,7 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         "--report-date",
         date.today().isoformat(),
         "--fail-on-any-fail",
+        "--strict-zero",
     ]
     after_result = run_command(after_command, report, expect_success=True)
     if "flagged=0" not in after_result.stdout:
@@ -618,6 +930,7 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
         expected_proof_matrix_loaded=False,
         expected_source_kinds={"standalone_cutout"},
         expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
     )
     after_review_width, after_review_height = assert_nonblank_image(
         cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
@@ -639,11 +952,197 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     report.append("- PASS edge cleaner stats JSON path provenance matches the audited input, output, review image, and stats file.")
     report.append("- PASS edge cleaner stats JSON file hashes match the audited input, output, and review image bytes.")
     report.append("- PASS edge cleaner default stats-output path is exercised by the quick gate.")
+    report.append("- PASS synthetic cleaned cutout audit reruns with strict-zero thresholds.")
     report.append(
         "- PASS synthetic edge-clean review sheets exist and are nonblank: "
         f"before `{before_review_width}x{before_review_height}`, "
         f"cleaner `{cleaner_review_width}x{cleaner_review_height}`, "
         f"after `{after_review_width}x{after_review_height}`."
+    )
+    report.append("")
+
+
+def assert_synthetic_raw_key_hole_clean(output_dir: Path, report: list[str]) -> None:
+    report.append("## Synthetic Raw-Key Internal-Hole Regression")
+    report.append("")
+    control_dir = output_dir / "synthetic_raw_key_hole"
+    raw_path, cutout_path = write_raw_key_hole_control(control_dir)
+    cleaned_path = control_dir / "raw_key_hole_control_cleaned.png"
+    cleaner_review_path = control_dir / "raw_key_hole_control_cleaned_review.png"
+    cleaner_stats_path = stats_output_path(cleaned_path)
+    cutout_only_audit_dir = control_dir / "audit_cutout_only"
+    raw_backed_audit_dir = control_dir / "audit_raw_backed_before"
+    cleaned_audit_dir = control_dir / "audit_raw_backed_after"
+    hole_box = (60, 48, 69, 85)
+    material_box = (42, 64, 55, 77)
+
+    if count_visible_alpha_pixels_in_box(cutout_path, hole_box) <= 0:
+        raise RuntimeError("synthetic raw-key hole control did not create an opaque internal hole")
+    material_alpha_before = count_visible_alpha_pixels_in_box(cutout_path, material_box)
+    if material_alpha_before <= 0:
+        raise RuntimeError("synthetic raw-key hole control did not create a non-key orange material marker")
+
+    cutout_only_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cutout_path),
+        "--cutout-id",
+        "raw_key_hole_cutout_only_miss_control",
+        "--cutout-label",
+        "raw-key hole cutout-only miss control",
+        "--output-dir",
+        rel(cutout_only_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cutout_only_result = run_command(cutout_only_command, report, expect_success=True)
+    if "flagged=0" not in cutout_only_result.stdout:
+        raise RuntimeError("cutout-only strict audit did not reproduce the raw-key hole blind spot")
+    assert_reference_free_manifest(
+        cutout_only_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "raw-key hole cutout-only audit manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+    )
+
+    raw_backed_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cutout_path),
+        "--raw-source",
+        rel(raw_path),
+        "--cutout-id",
+        "raw_key_hole_raw_backed_fail_control",
+        "--cutout-label",
+        "raw-key hole raw-backed fail control",
+        "--output-dir",
+        rel(raw_backed_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    raw_backed_result = run_command(raw_backed_command, report, expect_success=False)
+    if "flagged=1" not in raw_backed_result.stdout:
+        raise RuntimeError("raw-backed strict audit did not flag the synthetic internal raw-key hole")
+    assert_raw_backed_cutout_manifest(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "raw-key hole raw-backed audit manifest",
+        report,
+    )
+    raw_rows = read_csv(raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    raw_row = raw_rows[0]
+    if "raw_key_visible_background_contamination" not in raw_row.get("issue", ""):
+        raise RuntimeError("raw-backed synthetic hole audit failed for the wrong issue")
+    if int(raw_row.get("raw_key_opaque_interior_pixels", "0")) <= 0:
+        raise RuntimeError("raw-backed synthetic hole audit did not measure opaque interior raw-key pixels")
+
+    clean_command = [
+        sys.executable,
+        "tools/art/clean_unit_cutout_orange_edge.py",
+        "--input",
+        rel(cutout_path),
+        "--raw-source",
+        rel(raw_path),
+        "--output",
+        rel(cleaned_path),
+        "--review-output",
+        rel(cleaner_review_path),
+    ]
+    clean_result = run_command(clean_command, report, expect_success=True)
+    if "raw_key_alpha_cleared_pixels=" not in clean_result.stdout:
+        raise RuntimeError("raw-backed cleaner did not report raw_key_alpha_cleared_pixels")
+    raw_key_cleared = int(clean_result.stdout.split("raw_key_alpha_cleared_pixels=", 1)[1].splitlines()[0].strip())
+    if raw_key_cleared <= 0:
+        raise RuntimeError("raw-backed cleaner did not clear the synthetic internal raw-key hole")
+    cleaned_pixels = int(clean_result.stdout.split("cleaned_safety_orange_pixels=", 1)[1].splitlines()[0].strip())
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4, Image.open(raw_path), 20)
+    cleaner_stdout_stats = parse_cleaner_delta_stdout(clean_result.stdout)
+    for key in CLEANER_DELTA_STAT_KEYS:
+        if cleaner_stdout_stats[key] != delta_stats[key]:
+            raise RuntimeError(f"raw-backed cleaner self-reported {key}={cleaner_stdout_stats[key]}, actual={delta_stats[key]}")
+    assert_cleaner_stats_json(
+        cleaner_stats_path,
+        cutout_path,
+        cleaned_path,
+        cleaner_review_path,
+        4,
+        cleaned_pixels,
+        delta_stats,
+        raw_path,
+        raw_key_cleared,
+    )
+    try:
+        assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, raw_key_cleared, require_changed=True)
+    except ValueError as exc:
+        raise RuntimeError(str(exc)) from exc
+    if count_visible_alpha_pixels_in_box(cleaned_path, hole_box) != 0:
+        raise RuntimeError("raw-backed cleaner left visible alpha in the synthetic raw-key internal hole")
+    if count_visible_alpha_pixels_in_box(cleaned_path, material_box) != material_alpha_before:
+        raise RuntimeError("raw-backed cleaner changed non-key intentional orange material alpha")
+
+    cleaned_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cleaned_path),
+        "--raw-source",
+        rel(raw_path),
+        "--cutout-id",
+        "raw_key_hole_cleaned_control",
+        "--cutout-label",
+        "raw-key hole cleaned control",
+        "--output-dir",
+        rel(cleaned_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cleaned_result = run_command(cleaned_command, report, expect_success=True)
+    if "flagged=0" not in cleaned_result.stdout:
+        raise RuntimeError("raw-backed cleaned synthetic hole audit did not report flagged=0")
+    assert_raw_backed_cutout_manifest(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "raw-key hole cleaned raw-backed audit manifest",
+        report,
+    )
+    cutout_only_size = assert_nonblank_image(
+        cutout_only_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "raw-key hole cutout-only audit review sheet",
+    )
+    raw_backed_size = assert_nonblank_image(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "raw-key hole raw-backed audit review sheet",
+    )
+    cleaner_size = assert_nonblank_image(cleaner_review_path, "raw-key hole cleaner review sheet")
+    cleaned_size = assert_nonblank_image(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "raw-key hole cleaned audit review sheet",
+    )
+    report.append("- PASS cutout-only strict audit reproduces the old blind spot on an opaque internal raw-key hole.")
+    report.append("- PASS raw-backed strict audit fails that same internal-hole control with raw_key_visible_background_contamination.")
+    report.append(
+        "- PASS raw-backed cleaner alpha-clears the raw-key internal hole while preserving non-key intentional orange material "
+        f"(raw_key_alpha_cleared={raw_key_cleared})."
+    )
+    report.append("- PASS raw-backed cleaned cutout reruns with strict-zero raw-key thresholds.")
+    report.append(
+        "- PASS raw-key regression review sheets are nonblank: "
+        f"cutout-only `{cutout_only_size[0]}x{cutout_only_size[1]}`, "
+        f"raw-before `{raw_backed_size[0]}x{raw_backed_size[1]}`, "
+        f"cleaner `{cleaner_size[0]}x{cleaner_size[1]}`, "
+        f"raw-after `{cleaned_size[0]}x{cleaned_size[1]}`."
     )
     report.append("")
 
@@ -1024,7 +1523,10 @@ def main() -> int:
     ]
     assert_cutout_gate(output_dir, report)
     assert_cutout_self_test_matrix(output_dir, report)
+    assert_strict_zero_cutout_gate(output_dir, report)
+    assert_raw_key_hole_gate(output_dir, report)
     assert_synthetic_edge_clean(output_dir, report)
+    assert_synthetic_raw_key_hole_clean(output_dir, report)
     if not args.skip_style:
         metrics_csv = args.metrics_csv if args.metrics_csv is not None else find_latest_metrics_csv()
         if not metrics_csv.is_absolute():

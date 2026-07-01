@@ -9,6 +9,9 @@ from PIL import Image, ImageDraw, ImageFilter
 from torchvision import transforms
 from transformers import AutoModelForImageSegmentation
 
+SAFETY_ORANGE_KEY = np.array([248, 68, 1], dtype=np.int16)
+DEFAULT_RAW_KEY_TOLERANCE = 20
+
 
 def extract_prediction(output: object) -> torch.Tensor:
     if isinstance(output, torch.Tensor):
@@ -106,6 +109,12 @@ def safety_orange_residue(rgb: np.ndarray) -> np.ndarray:
     return safety_orange_like & saturated
 
 
+def background_key_residue(rgb: np.ndarray, tolerance: int = DEFAULT_RAW_KEY_TOLERANCE) -> np.ndarray:
+    values = rgb.astype(np.int16)
+    distance = np.max(np.abs(values - SAFETY_ORANGE_KEY), axis=2)
+    return distance <= tolerance
+
+
 def alpha_edge_band(mask: Image.Image, radius: int) -> np.ndarray:
     alpha = np.asarray(mask).astype(np.uint8)
     foreground = Image.fromarray(np.where(alpha > 8, 255, 0).astype(np.uint8), "L")
@@ -161,6 +170,14 @@ def clean_edge_orange_rgb(rgb: np.ndarray, mask: Image.Image, radius: int) -> tu
     out[target, 1] = gray[target] * 0.34
     out[target, 2] = np.maximum(out[target, 2], gray[target] * 0.86)
     return np.clip(out, 0, 255).astype(np.uint8), int(np.count_nonzero(target))
+
+
+def clear_raw_key_alpha(raw: Image.Image, mask: Image.Image, raw_key_tolerance: int) -> tuple[Image.Image, int]:
+    raw_key = background_key_residue(np.asarray(raw.convert("RGB")), raw_key_tolerance)
+    alpha = np.asarray(mask).astype(np.uint8).copy()
+    target = raw_key & (alpha > 0)
+    alpha[target] = 0
+    return Image.fromarray(alpha, "L"), int(np.count_nonzero(target))
 
 
 def preview_tile(cutout: Image.Image, background: Image.Image, label: str, tile_size: int) -> Image.Image:
@@ -220,6 +237,7 @@ def main() -> None:
     parser.add_argument("--despill-orange", action="store_true")
     parser.add_argument("--edge-orange-clean", action="store_true")
     parser.add_argument("--edge-clean-radius", type=int, default=4)
+    parser.add_argument("--raw-key-tolerance", type=int, default=DEFAULT_RAW_KEY_TOLERANCE)
     args = parser.parse_args()
 
     raw = Image.open(args.input).convert("RGBA")
@@ -264,8 +282,10 @@ def main() -> None:
     if args.despill_orange:
         rgb = despill_orange_rgb(rgb, raw, mask)
     safety_orange_cleaned = 0
+    raw_key_alpha_cleared = 0
     if args.edge_orange_clean:
         rgb, safety_orange_cleaned = clean_edge_orange_rgb(rgb, mask, args.edge_clean_radius)
+        mask, raw_key_alpha_cleared = clear_raw_key_alpha(raw, mask, args.raw_key_tolerance)
 
     cutout = Image.fromarray(rgb, "RGB").convert("RGBA")
     cutout.putalpha(mask)
@@ -281,6 +301,7 @@ def main() -> None:
     if args.edge_orange_clean:
         print(f"safety_orange_cleaned={safety_orange_cleaned}")
         print(f"edge_orange_cleaned={safety_orange_cleaned}")
+        print(f"raw_key_alpha_cleared={raw_key_alpha_cleared}")
     print(args.output)
     print(args.mask_output)
     print(args.review_output)

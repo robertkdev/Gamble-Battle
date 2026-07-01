@@ -15,6 +15,8 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"cutout_orange_fringe_audit_{date.today().strftime('%Y_%m_%d')}"
+SAFETY_ORANGE_KEY = np.array([248, 68, 1], dtype=np.int16)
+DEFAULT_RAW_KEY_TOLERANCE = 20
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class CutoutAuditRow:
     reference_role: str
     source_kind: str
     cutout: str
+    raw_source: str
     quality_status: str
     issue: str
     visible_pixels: int
@@ -34,6 +37,10 @@ class CutoutAuditRow:
     edge_orange_pixels: int
     soft_orange_pixels: int
     edge_orange_ratio: float
+    raw_key_visible_pixels: int
+    raw_key_edge_pixels: int
+    raw_key_soft_pixels: int
+    raw_key_opaque_interior_pixels: int
 
 
 def rel(path: str | Path) -> str:
@@ -87,6 +94,12 @@ def safety_orange_residue(rgb: np.ndarray) -> np.ndarray:
     return orange_like & saturated
 
 
+def background_key_residue(rgb: np.ndarray, tolerance: int = DEFAULT_RAW_KEY_TOLERANCE) -> np.ndarray:
+    values = rgb.astype(np.int16)
+    distance = np.max(np.abs(values - SAFETY_ORANGE_KEY), axis=2)
+    return distance <= tolerance
+
+
 def alpha_edge_band(alpha: np.ndarray, radius: int) -> np.ndarray:
     foreground = Image.fromarray(np.where(alpha > 8, 255, 0).astype(np.uint8), "L")
     filter_size = max(3, radius * 2 + 1)
@@ -101,9 +114,11 @@ def issue_for_metrics(
     edge_orange_pixels: int,
     soft_orange_pixels: int,
     edge_orange_ratio: float,
+    raw_key_visible_pixels: int,
     max_edge_orange_pixels: int,
     max_soft_orange_pixels: int,
     max_edge_orange_ratio: float,
+    max_raw_key_visible_pixels: int | None,
 ) -> str:
     issues: list[str] = []
     if edge_orange_pixels > max_edge_orange_pixels:
@@ -112,11 +127,14 @@ def issue_for_metrics(
         issues.append("edge_background_orange_ratio_contamination")
     if soft_orange_pixels > max_soft_orange_pixels:
         issues.append("soft_alpha_background_orange_contamination")
+    if max_raw_key_visible_pixels is not None and raw_key_visible_pixels > max_raw_key_visible_pixels:
+        issues.append("raw_key_visible_background_contamination")
     return ", ".join(issues)
 
 
 def audit_cutout(
     cutout_path: str,
+    raw_source_path: str | None,
     row_id: str,
     display_name: str,
     proof_status: str,
@@ -126,9 +144,12 @@ def audit_cutout(
     max_edge_orange_pixels: int,
     max_soft_orange_pixels: int,
     max_edge_orange_ratio: float,
+    max_raw_key_visible_pixels: int | None,
+    raw_key_tolerance: int,
 ) -> CutoutAuditRow:
     path = resolve_image_path(cutout_path)
     cutout_ref = rel(path)
+    raw_ref = rel(raw_source_path) if raw_source_path else ""
     if not path.exists():
         return CutoutAuditRow(
             id=row_id,
@@ -137,6 +158,7 @@ def audit_cutout(
             reference_role=reference_role,
             source_kind=source_kind,
             cutout=cutout_ref,
+            raw_source=raw_ref,
             quality_status="fail",
             issue="missing_cutout",
             visible_pixels=0,
@@ -146,6 +168,10 @@ def audit_cutout(
             edge_orange_pixels=0,
             soft_orange_pixels=0,
             edge_orange_ratio=1.0,
+            raw_key_visible_pixels=0,
+            raw_key_edge_pixels=0,
+            raw_key_soft_pixels=0,
+            raw_key_opaque_interior_pixels=0,
         )
 
     image = Image.open(path).convert("RGBA")
@@ -161,14 +187,44 @@ def audit_cutout(
     edge_orange_pixels = int(np.count_nonzero(edge_orange))
     soft_orange_pixels = int(np.count_nonzero(soft_orange))
     edge_orange_ratio = edge_orange_pixels / max(edge_pixels, 1)
+
+    raw_key_visible_pixels = 0
+    raw_key_edge_pixels = 0
+    raw_key_soft_pixels = 0
+    raw_key_opaque_interior_pixels = 0
+    raw_issue = ""
+    if raw_source_path:
+        raw_path = resolve_image_path(raw_source_path)
+        raw_ref = rel(raw_path)
+        if not raw_path.exists():
+            raw_issue = "missing_raw_source"
+        else:
+            raw_image = Image.open(raw_path).convert("RGB")
+            if raw_image.size != image.size:
+                raw_issue = "raw_source_size_mismatch"
+            else:
+                raw_key = background_key_residue(np.asarray(raw_image), raw_key_tolerance)
+                raw_key_visible = raw_key & visible
+                raw_key_edge = raw_key_visible & edge
+                raw_key_soft = raw_key_visible & soft_alpha
+                raw_key_opaque_interior = raw_key_visible & (alpha >= 245) & ~edge
+                raw_key_visible_pixels = int(np.count_nonzero(raw_key_visible))
+                raw_key_edge_pixels = int(np.count_nonzero(raw_key_edge))
+                raw_key_soft_pixels = int(np.count_nonzero(raw_key_soft))
+                raw_key_opaque_interior_pixels = int(np.count_nonzero(raw_key_opaque_interior))
+
     issue = issue_for_metrics(
         edge_orange_pixels,
         soft_orange_pixels,
         edge_orange_ratio,
+        raw_key_visible_pixels,
         max_edge_orange_pixels,
         max_soft_orange_pixels,
         max_edge_orange_ratio,
+        max_raw_key_visible_pixels if raw_source_path and not raw_issue else None,
     )
+    if raw_issue:
+        issue = ", ".join(part for part in (issue, raw_issue) if part)
     return CutoutAuditRow(
         id=row_id,
         display_name=display_name,
@@ -176,6 +232,7 @@ def audit_cutout(
         reference_role=reference_role,
         source_kind=source_kind,
         cutout=cutout_ref,
+        raw_source=raw_ref,
         quality_status="fail" if issue else "pass",
         issue=issue,
         visible_pixels=int(np.count_nonzero(visible)),
@@ -185,6 +242,10 @@ def audit_cutout(
         edge_orange_pixels=edge_orange_pixels,
         soft_orange_pixels=soft_orange_pixels,
         edge_orange_ratio=edge_orange_ratio,
+        raw_key_visible_pixels=raw_key_visible_pixels,
+        raw_key_edge_pixels=raw_key_edge_pixels,
+        raw_key_soft_pixels=raw_key_soft_pixels,
+        raw_key_opaque_interior_pixels=raw_key_opaque_interior_pixels,
     )
 
 
@@ -196,6 +257,7 @@ def row_to_dict(row: CutoutAuditRow) -> dict[str, str]:
         "reference_role": row.reference_role,
         "source_kind": row.source_kind,
         "cutout": row.cutout,
+        "raw_source": row.raw_source,
         "quality_status": row.quality_status,
         "issue": row.issue,
         "visible_pixels": str(row.visible_pixels),
@@ -205,6 +267,10 @@ def row_to_dict(row: CutoutAuditRow) -> dict[str, str]:
         "edge_orange_pixels": str(row.edge_orange_pixels),
         "soft_orange_pixels": str(row.soft_orange_pixels),
         "edge_orange_ratio": f"{row.edge_orange_ratio:.6f}",
+        "raw_key_visible_pixels": str(row.raw_key_visible_pixels),
+        "raw_key_edge_pixels": str(row.raw_key_edge_pixels),
+        "raw_key_soft_pixels": str(row.raw_key_soft_pixels),
+        "raw_key_opaque_interior_pixels": str(row.raw_key_opaque_interior_pixels),
     }
 
 
@@ -213,9 +279,11 @@ def standalone_cutout_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
     for index, cutout in enumerate(args.cutout):
         row_id = args.cutout_id[index] if index < len(args.cutout_id) else f"standalone_cutout_{index + 1}"
         label = args.cutout_label[index] if index < len(args.cutout_label) else row_id
+        raw_source = args.raw_source[index] if index < len(args.raw_source) else None
         rows.append(
             audit_cutout(
                 str(cutout),
+                str(raw_source) if raw_source is not None else None,
                 str(row_id),
                 str(label),
                 "standalone",
@@ -225,6 +293,8 @@ def standalone_cutout_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
                 args.max_edge_orange_pixels,
                 args.max_soft_orange_pixels,
                 args.max_edge_orange_ratio,
+                args.max_raw_key_visible_pixels,
+                args.raw_key_tolerance,
             )
         )
     return rows
@@ -241,9 +311,11 @@ def collect_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
             cutout = str(proof.get("cutout", ""))
             if not cutout:
                 continue
+            raw_source = str(proof.get("raw", "")) if args.use_proof_raw_source else None
             rows.append(
                 audit_cutout(
                     cutout,
+                    raw_source if raw_source else None,
                     str(proof.get("id", "")),
                     str(proof.get("display_name", proof.get("subject_id", ""))),
                     str(proof.get("status", "")),
@@ -253,6 +325,8 @@ def collect_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
                     args.max_edge_orange_pixels,
                     args.max_soft_orange_pixels,
                     args.max_edge_orange_ratio,
+                    args.max_raw_key_visible_pixels,
+                    args.raw_key_tolerance,
                 )
             )
     rows.extend(standalone_cutout_rows(args))
@@ -270,16 +344,19 @@ def write_csv(path: Path, rows: list[CutoutAuditRow]) -> None:
 
 
 def write_manifest(path: Path, rows: list[CutoutAuditRow], report_date: str, args: argparse.Namespace) -> None:
+    raw_images_loaded = any(row.raw_source for row in rows)
     manifest = {
         "schema_version": 1,
         "report_date": report_date,
-        "audit_input_contract": "cutout_rgba_pixels_only",
+        "audit_input_contract": "cutout_rgba_plus_raw_background_key_pixels" if raw_images_loaded else "cutout_rgba_pixels_only",
         "reference_images_loaded": False,
-        "raw_images_loaded": False,
+        "raw_images_loaded": raw_images_loaded,
         "board_preview_images_loaded": False,
         "style_anchor_images_loaded": False,
         "proof_matrix_loaded_for_cutout_paths": bool(args.include_proof_matrix),
         "standalone_cutout_count": len(args.cutout),
+        "standalone_raw_source_count": len(args.raw_source),
+        "proof_matrix_raw_source_loaded": bool(args.include_proof_matrix and args.use_proof_raw_source),
         "row_count": len(rows),
         "source_kinds": sorted({row.source_kind for row in rows}),
         "thresholds": {
@@ -287,6 +364,8 @@ def write_manifest(path: Path, rows: list[CutoutAuditRow], report_date: str, arg
             "max_edge_orange_pixels": args.max_edge_orange_pixels,
             "max_soft_orange_pixels": args.max_soft_orange_pixels,
             "max_edge_orange_ratio": args.max_edge_orange_ratio,
+            "max_raw_key_visible_pixels": args.max_raw_key_visible_pixels,
+            "raw_key_tolerance": args.raw_key_tolerance,
         },
         "cutout_ids": [row.id for row in rows],
     }
@@ -302,19 +381,31 @@ def compose_preview(cutout_path: str, background: Image.Image, size: tuple[int, 
     return canvas.convert("RGB")
 
 
-def orange_overlay(cutout_path: str, size: tuple[int, int], edge_radius: int) -> Image.Image:
+def orange_overlay(cutout_path: str, raw_source_path: str, size: tuple[int, int], edge_radius: int, raw_key_tolerance: int) -> Image.Image:
     image = Image.open(resolve_image_path(cutout_path)).convert("RGBA")
     rgba = np.asarray(image)
     alpha = rgba[:, :, 3]
     edge = alpha_edge_band(alpha, edge_radius)
-    orange = safety_orange_residue(rgba[:, :, :3]) & (alpha > 8) & edge
+    visible = alpha > 8
+    cutout_orange = safety_orange_residue(rgba[:, :, :3]) & visible & (edge | ((alpha > 8) & (alpha < 245)))
+    raw_key_visible = np.zeros_like(visible, dtype=bool)
+    if raw_source_path:
+        raw_path = resolve_image_path(raw_source_path)
+        if raw_path.exists():
+            raw_image = Image.open(raw_path).convert("RGB")
+            if raw_image.size == image.size:
+                raw_key_visible = background_key_residue(np.asarray(raw_image), raw_key_tolerance) & visible
     base = Image.new("RGBA", image.size, (0, 0, 0, 255))
     base.alpha_composite(image)
     overlay = np.asarray(base).copy()
-    overlay[orange, 0] = 255
-    overlay[orange, 1] = 0
-    overlay[orange, 2] = 0
-    overlay[orange, 3] = 255
+    overlay[cutout_orange, 0] = 255
+    overlay[cutout_orange, 1] = 0
+    overlay[cutout_orange, 2] = 0
+    overlay[cutout_orange, 3] = 255
+    overlay[raw_key_visible, 0] = 255
+    overlay[raw_key_visible, 1] = 230
+    overlay[raw_key_visible, 2] = 0
+    overlay[raw_key_visible, 3] = 255
     result = Image.fromarray(overlay, "RGBA")
     result.thumbnail(size, Image.Resampling.LANCZOS)
     canvas = Image.new("RGBA", size, (0, 0, 0, 255))
@@ -322,9 +413,9 @@ def orange_overlay(cutout_path: str, size: tuple[int, int], edge_radius: int) ->
     return canvas.convert("RGB")
 
 
-def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int) -> None:
+def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int, raw_key_tolerance: int) -> None:
     failing_rows = [row for row in rows if row.quality_status == "fail"]
-    top_rows = sorted(rows, key=lambda row: row.edge_orange_pixels, reverse=True)
+    top_rows = sorted(rows, key=lambda row: row.edge_orange_pixels + row.soft_orange_pixels + row.raw_key_visible_pixels, reverse=True)
     selected: list[CutoutAuditRow] = []
     for row in failing_rows + top_rows:
         if row not in selected and row.cutout and resolve_image_path(row.cutout).exists():
@@ -342,7 +433,7 @@ def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int)
     draw = ImageDraw.Draw(sheet)
     title_font = load_font(18)
     small_font = load_font(12)
-    draw.text((12, 14), "Objective Cutout Orange-Fringe Audit: checker / black / white / red edge-residue overlay", font=title_font, fill=(255, 222, 120))
+    draw.text((12, 14), "Objective Cutout Orange-Fringe Audit: checker / black / white / overlay (red=cutout residue, yellow=raw key leak)", font=title_font, fill=(255, 222, 120))
 
     backgrounds = [
         checker(tile),
@@ -355,14 +446,14 @@ def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int)
             compose_preview(row.cutout, backgrounds[0], tile),
             compose_preview(row.cutout, backgrounds[1], tile),
             compose_preview(row.cutout, backgrounds[2], tile),
-            orange_overlay(row.cutout, tile, edge_radius),
+            orange_overlay(row.cutout, row.raw_source, tile, edge_radius, raw_key_tolerance),
         ]
         for column, preview in enumerate(previews):
             sheet.paste(preview, (column * tile[0], y))
-        label = f"{row.id} | {row.quality_status} | edge orange {row.edge_orange_pixels}"
+        label = f"{row.id} | {row.quality_status} | edge {row.edge_orange_pixels} soft {row.soft_orange_pixels} raw-key {row.raw_key_visible_pixels}"
         draw.rectangle((0, y + tile[1], width, y + row_h), fill=(12, 13, 17))
         draw.text((10, y + tile[1] + 8), label[:118], font=small_font, fill=(235, 236, 240))
-        issue = row.issue or "no measurable safety-orange background contamination in the edge/soft-alpha gate"
+        issue = row.issue or "no measurable safety-orange contamination in the active cutout/raw-key gate"
         draw.text((10, y + tile[1] + 30), issue[:132], font=small_font, fill=(255, 170, 130) if row.issue else (170, 220, 170))
         draw.text((10, y + tile[1] + 52), row.cutout[:132], font=small_font, fill=(170, 170, 180))
 
@@ -382,6 +473,17 @@ def write_markdown(
     failing = [row for row in rows if row.quality_status == "fail"]
     protected_failures = [row for row in failing if row.proof_status in {"accepted", "reference"}]
     current_failures = [row for row in failing if row.proof_status == "current_candidate"]
+    raw_backed = any(row.raw_source for row in rows)
+    input_rule = (
+        "- Input rule: raw-backed mode reads each cutout's RGBA pixels plus its matching raw orange-background source, then fails any visible reserved background-key pixels anywhere in the alpha matte."
+        if raw_backed
+        else "- Input rule: cutout-only mode reads only each cutout's RGBA pixels. It cannot prove internal raw-background holes after cleanup has recolored pixels."
+    )
+    manifest_rule = (
+        "- Manifest rule: `raw_images_loaded` is `true` only in raw-backed mode; reference, board-preview, and style-anchor image loads must stay `false`."
+        if raw_backed
+        else "- Manifest rule: `reference_images_loaded`, `raw_images_loaded`, `board_preview_images_loaded`, and `style_anchor_images_loaded` must all be `false` for cutout-only runs."
+    )
     lines = [
         "# Unit Art Cutout Orange-Fringe Audit",
         "",
@@ -391,15 +493,16 @@ def write_markdown(
         f"- Review sheet: `{rel(review_sheet_path)}`",
         "- Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.",
         "- Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.",
-        "- Input rule: the gate reads only each cutout's RGBA pixels. It does not load raw art, board previews, Vellum, Paisley, the token, or any other reference image.",
+        input_rule,
         "",
         "## Objective Background-Contamination Gate",
         "",
         f"- Edge band radius: `{args.edge_radius}` px.",
-        f"- Pass threshold: edge-orange pixels <= `{args.max_edge_orange_pixels}`, edge-orange ratio <= `{args.max_edge_orange_ratio:.4%}`, and soft-alpha orange pixels <= `{args.max_soft_orange_pixels}`.",
-        "- The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests each cutout against the known safety-orange background color family directly.",
-        "- Manifest rule: `reference_images_loaded`, `raw_images_loaded`, `board_preview_images_loaded`, and `style_anchor_images_loaded` must all be `false` for every run.",
-        "- Interior orange/gold pixels are counted but do not fail the audit by themselves; the fail gate is edge/soft-alpha residue because that is the visible background-contamination risk.",
+        f"- Pass threshold: edge-orange pixels <= `{args.max_edge_orange_pixels}`, edge-orange ratio <= `{args.max_edge_orange_ratio:.4%}`, soft-alpha orange pixels <= `{args.max_soft_orange_pixels}`, and raw-key visible pixels <= `{args.max_raw_key_visible_pixels}` when a raw source is supplied.",
+        f"- Raw-key check: pixels within `{args.raw_key_tolerance}` RGB units of reserved safety-orange `#f84401` in the raw source must not remain visible in the cutout alpha matte.",
+        "- The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests cutout contamination against the known safety-orange background contract directly.",
+        manifest_rule,
+        "- Interior orange/gold pixels in the cutout are counted but do not fail by themselves. Raw-backed mode fails only pixels that match the reserved raw background key, which is the internal-hole risk.",
         "",
         "## Summary",
         "",
@@ -411,19 +514,20 @@ def write_markdown(
     ]
     if failing:
         lines.extend(["## Flagged Rows", ""])
-        lines.append("| id | proof status | edge orange | edge ratio | soft orange | issue |")
-        lines.append("| --- | --- | ---: | ---: | ---: | --- |")
-        for row in sorted(failing, key=lambda item: item.edge_orange_pixels, reverse=True):
+        lines.append("| id | proof status | edge orange | edge ratio | soft orange | raw-key visible | issue |")
+        lines.append("| --- | --- | ---: | ---: | ---: | ---: | --- |")
+        for row in sorted(failing, key=lambda item: item.edge_orange_pixels + item.soft_orange_pixels + item.raw_key_visible_pixels, reverse=True):
             lines.append(
-                f"| `{row.id}` | `{row.proof_status}` | {row.edge_orange_pixels} | {row.edge_orange_ratio:.4%} | {row.soft_orange_pixels} | {row.issue} |"
+                f"| `{row.id}` | `{row.proof_status}` | {row.edge_orange_pixels} | {row.edge_orange_ratio:.4%} | {row.soft_orange_pixels} | {row.raw_key_visible_pixels} | {row.issue} |"
             )
         lines.append("")
     lines.extend(
         [
             "## Decision Rule",
             "",
-            "- Protected ledger rows, meaning accepted proofs and anchor/status rows from the proof ledger, must have no measurable safety-orange background contamination above the objective gate. If one fails here, re-run cutout cleanup before using it as a technical cutout example.",
-            "- Current candidates that fail can stay in the ledger as review candidates, but they need an edge-orange-clean pass before acceptance or live asset replacement.",
+            "- Protected ledger rows, meaning accepted proofs and anchor/status rows from the proof ledger, must have no measurable safety-orange background contamination above the active objective gate. If one fails here, re-run cutout cleanup before using it as a technical cutout example.",
+            "- Current candidates that fail can stay in the ledger as review candidates, but they need an edge-orange/raw-key clean pass before acceptance or live asset replacement.",
+            "- Perfect-exit claims must use raw-backed mode so opaque or soft internal background holes cannot hide behind recolored cutout RGB.",
             "- Review the PNG sheet before trusting the metric when the character has intentional orange materials near the silhouette.",
             "",
         ]
@@ -437,8 +541,10 @@ def main() -> int:
     parser.add_argument("--proof-matrix", type=Path, default=PROOF_MATRIX_PATH)
     parser.add_argument("--include-proof-matrix", action=argparse.BooleanOptionalAction, default=True, help="Use --no-include-proof-matrix for a reference-free standalone cutout audit.")
     parser.add_argument("--cutout", type=Path, action="append", default=[], help="Standalone transparent cutout path to audit without requiring a reference image.")
+    parser.add_argument("--raw-source", type=Path, action="append", default=[], help="Optional matching raw orange-background image for each --cutout. Enables raw-key visible background-hole detection.")
     parser.add_argument("--cutout-id", action="append", default=[], help="Optional id for each --cutout entry.")
     parser.add_argument("--cutout-label", action="append", default=[], help="Optional display label for each --cutout entry.")
+    parser.add_argument("--use-proof-raw-source", action="store_true", help="When auditing the proof matrix, also load each proof's raw image for raw-key visible background-hole detection.")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--docs-output", type=Path)
     parser.add_argument("--report-date", default=date.today().isoformat())
@@ -446,6 +552,8 @@ def main() -> int:
     parser.add_argument("--max-edge-orange-pixels", type=int, default=50)
     parser.add_argument("--max-soft-orange-pixels", type=int, default=20)
     parser.add_argument("--max-edge-orange-ratio", type=float, default=0.0006)
+    parser.add_argument("--max-raw-key-visible-pixels", type=int, default=0, help="Raw-backed mode threshold for visible raw background-key pixels anywhere in the cutout alpha matte.")
+    parser.add_argument("--raw-key-tolerance", type=int, default=DEFAULT_RAW_KEY_TOLERANCE, help="Max per-channel RGB distance from #f84401 for raw background-key detection.")
     parser.add_argument(
         "--strict-zero",
         action="store_true",
@@ -459,6 +567,7 @@ def main() -> int:
         args.max_edge_orange_pixels = 0
         args.max_soft_orange_pixels = 0
         args.max_edge_orange_ratio = 0.0
+        args.max_raw_key_visible_pixels = 0
 
     if args.include_proof_matrix and not args.proof_matrix.is_absolute():
         args.proof_matrix = ROOT / args.proof_matrix
@@ -472,7 +581,7 @@ def main() -> int:
     report_path = output_dir / "unit_art_cutout_orange_fringe_audit.md"
     write_csv(csv_path, rows)
     write_manifest(manifest_path, rows, args.report_date, args)
-    write_review_sheet(review_sheet_path, rows, args.edge_radius)
+    write_review_sheet(review_sheet_path, rows, args.edge_radius, args.raw_key_tolerance)
     write_markdown(report_path, rows, csv_path, manifest_path, review_sheet_path, args.report_date, args)
     if args.docs_output:
         docs_output = args.docs_output if args.docs_output.is_absolute() else ROOT / args.docs_output

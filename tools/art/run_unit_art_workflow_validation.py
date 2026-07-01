@@ -47,22 +47,33 @@ CLEANER_DELTA_STAT_KEYS = [
     "target_edge_orange_pixels",
     "target_soft_orange_pixels",
     "target_cleanup_pixels",
+    "target_raw_key_visible_pixels",
     "changed_rgb_pixels",
     "changed_alpha_pixels",
     "changed_outside_target_pixels",
     "changed_outside_edge_pixels",
     "changed_opaque_interior_pixels",
+    "changed_opaque_interior_outside_raw_key_pixels",
+    "changed_alpha_outside_raw_key_pixels",
     "remaining_edge_orange_pixels",
     "remaining_soft_orange_pixels",
+    "remaining_raw_key_visible_pixels",
     "removed_edge_orange_pixels",
     "removed_soft_orange_pixels",
     "removed_cleanup_pixels",
+    "cleared_raw_key_visible_pixels",
 ]
 CUTOUT_AUDIT_THRESHOLDS = {
     "edge_radius": 4,
     "max_edge_orange_pixels": 50,
     "max_soft_orange_pixels": 20,
     "max_edge_orange_ratio": 0.0006,
+}
+STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS = {
+    "edge_radius": 4,
+    "max_edge_orange_pixels": 0,
+    "max_soft_orange_pixels": 0,
+    "max_edge_orange_ratio": 0.0,
 }
 
 
@@ -119,14 +130,19 @@ def assert_cleaner_stats_json(
     edge_radius: int,
     cleaned_pixels: int,
     delta_stats: dict[str, int],
+    raw_source_path: Path | None = None,
+    raw_key_cleared_pixels: int = 0,
 ) -> None:
     if not path.exists():
         raise RuntimeError(f"edge cleaner stats JSON missing: {rel(path)}")
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if payload.get("audit_input_contract") != "cutout_rgba_pixels_only":
-        raise RuntimeError("edge cleaner stats JSON does not declare cutout_rgba_pixels_only")
-    if payload.get("edge_clean_contract") != "safety_orange_alpha_edge_or_soft_pixels_only":
-        raise RuntimeError("edge cleaner stats JSON does not declare safety_orange_alpha_edge_or_soft_pixels_only")
+    raw_loaded = raw_source_path is not None
+    expected_input_contract = "cutout_rgba_plus_raw_background_key_pixels" if raw_loaded else "cutout_rgba_pixels_only"
+    expected_clean_contract = "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only"
+    if payload.get("audit_input_contract") != expected_input_contract:
+        raise RuntimeError(f"edge cleaner stats JSON does not declare {expected_input_contract}")
+    if payload.get("edge_clean_contract") != expected_clean_contract:
+        raise RuntimeError(f"edge cleaner stats JSON does not declare {expected_clean_contract}")
     if payload.get("contract_status") != "pass":
         raise RuntimeError("edge cleaner stats JSON does not record contract_status=pass")
     for key in (
@@ -135,12 +151,15 @@ def assert_cleaner_stats_json(
         "board_preview_images_loaded",
         "style_anchor_images_loaded",
     ):
-        if payload.get(key) is not False:
+        expected_value = raw_loaded if key == "raw_images_loaded" else False
+        if payload.get(key) is not expected_value:
             raise RuntimeError(f"edge cleaner stats JSON must set {key}=false")
     if int(payload.get("cleaned_safety_orange_pixels", -1)) != cleaned_pixels:
         raise RuntimeError("edge cleaner stats JSON cleaned safety-orange pixel count does not match stdout")
     if int(payload.get("cleaned_edge_orange_pixels", -1)) != cleaned_pixels:
         raise RuntimeError("edge cleaner stats JSON cleaned pixel count does not match stdout")
+    if int(payload.get("raw_key_alpha_cleared_pixels", -1)) != raw_key_cleared_pixels:
+        raise RuntimeError("edge cleaner stats JSON raw-key alpha clear count does not match stdout")
     expected_paths = {
         "input": rel(input_path),
         "output": rel(output_path),
@@ -160,6 +179,11 @@ def assert_cleaner_stats_json(
     for key, expected_hash in expected_hashes.items():
         if payload.get(key) != expected_hash:
             raise RuntimeError(f"edge cleaner stats JSON {key} mismatch")
+    if raw_source_path is not None:
+        if payload.get("raw_source") != rel(raw_source_path):
+            raise RuntimeError("edge cleaner stats JSON raw_source path mismatch")
+        if payload.get("raw_source_sha256") != file_sha256(raw_source_path):
+            raise RuntimeError("edge cleaner stats JSON raw_source_sha256 mismatch")
     if int(payload.get("edge_radius", -1)) != edge_radius:
         raise RuntimeError("edge cleaner stats JSON edge_radius does not match command")
     json_delta = payload.get("delta_stats")
@@ -512,6 +536,7 @@ def assert_reference_free_cutout_manifest(
     expected_proof_matrix_loaded: bool,
     expected_source_kinds: set[str],
     expected_row_count: int | None = None,
+    expected_thresholds: dict[str, int | float] | None = None,
 ) -> dict[str, object]:
     if not manifest_path.exists():
         raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
@@ -536,7 +561,8 @@ def assert_reference_free_cutout_manifest(
     thresholds = manifest.get("thresholds")
     if not isinstance(thresholds, dict):
         raise RuntimeError(f"{label} missing thresholds")
-    for key, expected in CUTOUT_AUDIT_THRESHOLDS.items():
+    threshold_contract = expected_thresholds if expected_thresholds is not None else CUTOUT_AUDIT_THRESHOLDS
+    for key, expected in threshold_contract.items():
         actual = thresholds.get(key)
         if isinstance(expected, float):
             if abs(float(actual) - expected) > 0.0000001:
@@ -881,6 +907,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         "--report-date",
         "2026-07-01",
         "--fail-on-any-fail",
+        "--strict-zero",
     ]
     report.append("")
     report.append("```powershell")
@@ -910,6 +937,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         expected_proof_matrix_loaded=False,
         expected_source_kinds={"standalone_cutout"},
         expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
     )
     after_review_size = assert_nonblank_report_image(
         cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
@@ -929,6 +957,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     report.append("- PASS edge-cleaner stats JSON path provenance matches the audited input, output, review image, and stats file.")
     report.append("- PASS edge-cleaner stats JSON file hashes match the audited input, output, and review image bytes.")
     report.append("- PASS edge-cleaner default stats-output path is exercised by the full workflow runner.")
+    report.append("- PASS synthetic cleaned cutout audit reruns with strict-zero thresholds.")
     report.append(
         "- PASS synthetic cutout review sheets are nonblank: "
         f"before `{before_review_size[0]}x{before_review_size[1]}`, "
@@ -969,11 +998,24 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
         "edge-orange ratio threshold control fails even below the pixel-count limit",
         "soft-alpha 21-pixel threshold control fails exactly one pixel over the limit",
         "cutout self-test matrix review sheet exists and is nonblank",
+        "Strict-Zero Cutout Gate",
+        "default-threshold audit passes a one-pixel edge-orange residue control",
+        "strict-zero audit fails the same one-pixel edge-orange residue control",
+        "Raw-Key Background-Hole Gate",
+        "cutout-only strict-zero audit passes a recolored raw-key hole",
+        "raw-backed audit fails the same cutout for visible reserved background-key pixels",
+        "raw-backed cleaner clears the measured background-key alpha leak",
         "synthetic edge-clean regression removed",
         "edge cleaner pixel delta is limited to safety-orange alpha-edge/soft-alpha targets",
         "synthetic contaminated cutout audit manifest proves reference-free cutout-only input contract",
         "synthetic cleaned cutout audit manifest proves reference-free cutout-only input contract",
+        "synthetic cleaned cutout audit reruns with strict-zero thresholds",
         "synthetic edge-clean review sheets exist and are nonblank",
+        "Synthetic Raw-Key Internal-Hole Regression",
+        "cutout-only strict audit reproduces the old blind spot on an opaque internal raw-key hole",
+        "raw-backed strict audit fails that same internal-hole control with raw_key_visible_background_contamination",
+        "raw-backed cleaner alpha-clears the raw-key internal hole while preserving non-key intentional orange material",
+        "raw-backed cleaned cutout reruns with strict-zero raw-key thresholds",
         "Metrics Reference Hierarchy Gate",
         "Tampered Metrics Negative-Control Gate",
         "Tampered Proof-Matrix Negative-Control Gate",
