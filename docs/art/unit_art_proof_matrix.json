@@ -600,6 +600,7 @@
         "verdict": "fail",
         "reason": "user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not"
       },
+      "style_negative_control": true,
       "reference_role": "narrow_proof_only"
     },
     {

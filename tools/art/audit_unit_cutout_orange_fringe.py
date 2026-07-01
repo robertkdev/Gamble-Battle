@@ -46,6 +46,13 @@ def rel(path: str | Path) -> str:
         return str(candidate)
 
 
+def resolve_image_path(path_text: str | Path) -> Path:
+    path = Path(path_text)
+    if not path.is_absolute():
+        path = ROOT / path
+    return path
+
+
 def load_font(size: int) -> ImageFont.ImageFont:
     try:
         return ImageFont.truetype("arial.ttf", size)
@@ -120,7 +127,8 @@ def audit_cutout(
     max_soft_orange_pixels: int,
     max_edge_orange_ratio: float,
 ) -> CutoutAuditRow:
-    path = ROOT / cutout_path
+    path = resolve_image_path(cutout_path)
+    cutout_ref = rel(path)
     if not path.exists():
         return CutoutAuditRow(
             id=row_id,
@@ -128,7 +136,7 @@ def audit_cutout(
             proof_status=proof_status,
             reference_role=reference_role,
             source_kind=source_kind,
-            cutout=cutout_path,
+            cutout=cutout_ref,
             quality_status="fail",
             issue="missing_cutout",
             visible_pixels=0,
@@ -167,7 +175,7 @@ def audit_cutout(
         proof_status=proof_status,
         reference_role=reference_role,
         source_kind=source_kind,
-        cutout=cutout_path,
+        cutout=cutout_ref,
         quality_status="fail" if issue else "pass",
         issue=issue,
         visible_pixels=int(np.count_nonzero(visible)),
@@ -200,30 +208,54 @@ def row_to_dict(row: CutoutAuditRow) -> dict[str, str]:
     }
 
 
-def collect_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
-    proof_data = json.loads(args.proof_matrix.read_text(encoding="utf-8"))
+def standalone_cutout_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
     rows: list[CutoutAuditRow] = []
-
-    for proof in proof_data.get("proofs", []):
-        if not isinstance(proof, dict):
-            continue
-        cutout = str(proof.get("cutout", ""))
-        if not cutout:
-            continue
+    for index, cutout in enumerate(args.cutout):
+        row_id = args.cutout_id[index] if index < len(args.cutout_id) else f"standalone_cutout_{index + 1}"
+        label = args.cutout_label[index] if index < len(args.cutout_label) else row_id
         rows.append(
             audit_cutout(
-                cutout,
-                str(proof.get("id", "")),
-                str(proof.get("display_name", proof.get("subject_id", ""))),
-                str(proof.get("status", "")),
-                str(proof.get("reference_role", "")),
-                "proof_matrix_cutout",
+                str(cutout),
+                str(row_id),
+                str(label),
+                "standalone",
+                "none",
+                "standalone_cutout",
                 args.edge_radius,
                 args.max_edge_orange_pixels,
                 args.max_soft_orange_pixels,
                 args.max_edge_orange_ratio,
             )
         )
+    return rows
+
+
+def collect_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
+    rows: list[CutoutAuditRow] = []
+
+    if args.include_proof_matrix:
+        proof_data = json.loads(args.proof_matrix.read_text(encoding="utf-8"))
+        for proof in proof_data.get("proofs", []):
+            if not isinstance(proof, dict):
+                continue
+            cutout = str(proof.get("cutout", ""))
+            if not cutout:
+                continue
+            rows.append(
+                audit_cutout(
+                    cutout,
+                    str(proof.get("id", "")),
+                    str(proof.get("display_name", proof.get("subject_id", ""))),
+                    str(proof.get("status", "")),
+                    str(proof.get("reference_role", "")),
+                    "proof_matrix_cutout",
+                    args.edge_radius,
+                    args.max_edge_orange_pixels,
+                    args.max_soft_orange_pixels,
+                    args.max_edge_orange_ratio,
+                )
+            )
+    rows.extend(standalone_cutout_rows(args))
     return rows
 
 
@@ -238,7 +270,7 @@ def write_csv(path: Path, rows: list[CutoutAuditRow]) -> None:
 
 
 def compose_preview(cutout_path: str, background: Image.Image, size: tuple[int, int]) -> Image.Image:
-    image = Image.open(ROOT / cutout_path).convert("RGBA")
+    image = Image.open(resolve_image_path(cutout_path)).convert("RGBA")
     image.thumbnail(size, Image.Resampling.LANCZOS)
     canvas = background.resize(size, Image.Resampling.BICUBIC).convert("RGBA")
     canvas.alpha_composite(image, ((size[0] - image.width) // 2, (size[1] - image.height) // 2))
@@ -246,7 +278,7 @@ def compose_preview(cutout_path: str, background: Image.Image, size: tuple[int, 
 
 
 def orange_overlay(cutout_path: str, size: tuple[int, int], edge_radius: int) -> Image.Image:
-    image = Image.open(ROOT / cutout_path).convert("RGBA")
+    image = Image.open(resolve_image_path(cutout_path)).convert("RGBA")
     rgba = np.asarray(image)
     alpha = rgba[:, :, 3]
     edge = alpha_edge_band(alpha, edge_radius)
@@ -266,12 +298,11 @@ def orange_overlay(cutout_path: str, size: tuple[int, int], edge_radius: int) ->
 
 
 def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int) -> None:
-    reference_rows = [row for row in rows if row.reference_role in {"primary_cutout_anchor", "secondary_contrast_anchor", "small_asset_material_reference"}]
     failing_rows = [row for row in rows if row.quality_status == "fail"]
     top_rows = sorted(rows, key=lambda row: row.edge_orange_pixels, reverse=True)
     selected: list[CutoutAuditRow] = []
-    for row in reference_rows + failing_rows + top_rows:
-        if row not in selected and row.cutout and (ROOT / row.cutout).exists():
+    for row in failing_rows + top_rows:
+        if row not in selected and row.cutout and resolve_image_path(row.cutout).exists():
             selected.append(row)
         if len(selected) >= 12:
             break
@@ -286,7 +317,7 @@ def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int)
     draw = ImageDraw.Draw(sheet)
     title_font = load_font(18)
     small_font = load_font(12)
-    draw.text((12, 14), "Cutout Orange-Fringe Audit: checker / black / white / red edge-residue overlay", font=title_font, fill=(255, 222, 120))
+    draw.text((12, 14), "Objective Cutout Orange-Fringe Audit: checker / black / white / red edge-residue overlay", font=title_font, fill=(255, 222, 120))
 
     backgrounds = [
         checker(tile),
@@ -333,6 +364,7 @@ def write_markdown(
         f"- Review sheet: `{rel(review_sheet_path)}`",
         "- Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.",
         "- Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.",
+        "- Input rule: the gate reads only each cutout's RGBA pixels. It does not load raw art, board previews, Vellum, Paisley, the token, or any other reference image.",
         "",
         "## Objective Background-Contamination Gate",
         "",
@@ -375,6 +407,10 @@ def write_markdown(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--proof-matrix", type=Path, default=PROOF_MATRIX_PATH)
+    parser.add_argument("--include-proof-matrix", action=argparse.BooleanOptionalAction, default=True, help="Use --no-include-proof-matrix for a reference-free standalone cutout audit.")
+    parser.add_argument("--cutout", type=Path, action="append", default=[], help="Standalone transparent cutout path to audit without requiring a reference image.")
+    parser.add_argument("--cutout-id", action="append", default=[], help="Optional id for each --cutout entry.")
+    parser.add_argument("--cutout-label", action="append", default=[], help="Optional display label for each --cutout entry.")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--docs-output", type=Path)
     parser.add_argument("--report-date", default=date.today().isoformat())
@@ -386,7 +422,7 @@ def main() -> int:
     parser.add_argument("--fail-on-any-fail", action="store_true")
     args = parser.parse_args()
 
-    if not args.proof_matrix.is_absolute():
+    if args.include_proof_matrix and not args.proof_matrix.is_absolute():
         args.proof_matrix = ROOT / args.proof_matrix
     output_dir = args.output_dir if args.output_dir.is_absolute() else ROOT / args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)

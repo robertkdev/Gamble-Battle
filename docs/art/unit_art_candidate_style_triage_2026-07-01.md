@@ -1,8 +1,8 @@
 # Unit Art Candidate Style Triage
 
 - Generated: 2026-07-01
-- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_preledger_candidate_audit/style_drift_audit_all_current/foreground_detail_metrics.csv`
-- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_preledger_candidate_audit/candidate_style_triage/candidate_style_triage_review_sheet.png`
+- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_brutal_controls/style_drift_audit_all_current/foreground_detail_metrics.csv`
+- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_brutal_controls/candidate_style_triage/candidate_style_triage_review_sheet.png`
 - Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.
 - Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.
 
@@ -10,16 +10,23 @@
 
 - Non-reference rows reviewed: 16
 - Human negative-control failures: 1
+- Required style negative controls: 1
 - High-risk re-review rows: 5
 - Review-gate rows: 1
 
 Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.
 
+Required style negative controls are expected to fail every run. Totem is the current required negative control; if it stops failing, the style audit is broken or the ledger has changed without a new human promotion decision.
+
 High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.
+
+## Required Style Negative Controls
+
+- `Totem` / `totem_dry_wood_guardian_refit`: expected to fail style triage; actual stance `style_audit_failed_negative_control`.
 
 ## Human Negative-Control Failures
 
-- `Totem` / `totem_dry_wood_guardian_refit`: candidate_not_accepted, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not (edge vs Vellum 0.45, contrast vs Vellum 0.48).
+- `Totem` / `totem_dry_wood_guardian_refit`: candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not (edge vs Vellum 0.45, contrast vs Vellum 0.48).
 
 ## Highest Risk Rows
 
@@ -50,7 +57,7 @@ High-risk here means the candidate is materially below Paisley or Vellum on edge
 | Brute | `brute_guardian_bulk_refit` | `current_candidate` | `narrow_proof_only` | -5.06 | 0.22 | edge_detail_below_vellum, very_muted_color_proxy, candidate_not_accepted | needs_vellum_pairwise_visual_review |
 | Bonko | `bonko_wiry_raider_refit` | `current_candidate` | `narrow_proof_only` | -1.42 | 7.23 | candidate_not_accepted | metrics_do_not_replace_visual_review |
 | Hexeon | `hexeon_time_blade_refit` | `current_candidate` | `narrow_proof_only` | 4.05 | 1.64 | very_muted_color_proxy, candidate_not_accepted | metrics_do_not_replace_visual_review |
-| Totem | `totem_dry_wood_guardian_refit` | `current_candidate` | `narrow_proof_only` | 0.45 | 0.48 | candidate_not_accepted, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not | style_audit_failed_negative_control |
+| Totem | `totem_dry_wood_guardian_refit` | `current_candidate` | `narrow_proof_only` | 0.45 | 0.48 | candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not | style_audit_failed_negative_control |
 | Sari | `sari_spectral_tendril_refit` | `current_candidate` | `narrow_proof_only` | -9.39 | -6.37 | edge_detail_far_below_paisley, contrast_far_below_paisley, very_muted_color_proxy, candidate_not_accepted | high_risk_re_review_before_acceptance |
 
 ## Use

@@ -9,6 +9,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from PIL import Image, ImageDraw
+
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflow_validation_{date.today().strftime('%Y_%m_%d')}"
@@ -288,6 +290,8 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         "Vellum is the ultimate character reference",
         "Passing-pool rule",
         "Visual review sheet",
+        "Required Style Negative Controls",
+        "Totem is the current required negative control",
         "Human Negative-Control Failures",
         "style_audit_failed_negative_control",
         "Highest Risk Rows",
@@ -307,6 +311,8 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     totem_rows = [row for row in rows if row.get("proof_id") == "totem_dry_wood_guardian_refit"]
     if not totem_rows:
         raise RuntimeError("candidate style triage missing Totem negative-control row")
+    if totem_rows[0].get("expected_negative_control") != "yes":
+        raise RuntimeError("Totem negative control is not marked expected_negative_control=yes")
     if totem_rows[0].get("review_stance") != "style_audit_failed_negative_control":
         raise RuntimeError("Totem negative control did not fail candidate style triage")
     report.append("## Candidate Style Triage")
@@ -347,6 +353,63 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
     report.append("")
     report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue as objective safety-orange background contamination.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for fast checker/black/white/overlay review.")
+    report.append("")
+
+
+def write_synthetic_orange_fringe_cutout(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    draw.ellipse((34, 18, 94, 112), fill=(70, 80, 92, 255))
+    draw.ellipse((34, 18, 94, 112), outline=(248, 68, 1, 255), width=6)
+    image.save(path)
+
+
+def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]) -> None:
+    control_dir = output_dir / "synthetic_cutout_orange_fringe_negative_control"
+    cutout_path = control_dir / "synthetic_orange_fringe_cutout.png"
+    audit_dir = control_dir / "audit"
+    write_synthetic_orange_fringe_cutout(cutout_path)
+    command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cutout_path),
+        "--cutout-id",
+        "synthetic_orange_fringe_negative_control",
+        "--cutout-label",
+        "Synthetic orange-fringe negative control",
+        "--output-dir",
+        rel(audit_dir),
+        "--report-date",
+        "2026-07-01",
+        "--fail-on-any-fail",
+    ]
+    report.append("## Synthetic Cutout Orange-Fringe Negative Control")
+    report.append("")
+    report.append("```powershell")
+    report.append(" ".join(command))
+    report.append("```")
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if result.stdout.strip():
+        report.append("")
+        report.append("```text")
+        report.append(result.stdout.strip())
+        report.append("```")
+    report.append("")
+    if result.returncode == 0:
+        raise RuntimeError("synthetic orange-fringe negative control unexpectedly passed")
+    if "flagged=1" not in result.stdout:
+        raise RuntimeError("synthetic orange-fringe negative control failed without expected flagged=1 output")
+    report.append("- PASS standalone cutout audit fails a synthetic safety-orange edge-contamination sample without loading any reference images.")
     report.append("")
 
 
@@ -584,6 +647,7 @@ def main() -> int:
             report,
         )
         assert_cutout_orange_fringe_audit(cutout_fringe_audit_dir / "unit_art_cutout_orange_fringe_audit.md", report)
+        assert_synthetic_cutout_negative_control(output_dir, report)
         run_step(
             "Focused Proof Style Drift Audit",
             [

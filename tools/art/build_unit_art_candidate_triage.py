@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 DEFAULT_METRICS = ROOT / "outputs" / "art_pipeline" / "style_validation" / "style_drift_audit_2026_06_30" / "foreground_detail_metrics.csv"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"candidate_style_triage_{date.today().strftime('%Y_%m_%d')}"
+REQUIRED_STYLE_NEGATIVE_CONTROLS = {"totem_dry_wood_guardian_refit"}
 
 
 def rel(path_text: str | Path) -> str:
@@ -76,6 +77,10 @@ def style_audit_override(proof: dict[str, Any]) -> dict[str, str]:
     return {str(key): str(value) for key, value in override.items()}
 
 
+def is_style_negative_control(proof_id: str, proof: dict[str, Any]) -> bool:
+    return proof_id in REQUIRED_STYLE_NEGATIVE_CONTROLS or bool(proof.get("style_negative_control", False))
+
+
 def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -> list[dict[str, str]]:
     by_kind = proof_lookup(proof_data)
     by_label = {row["label"]: row for row in metrics_rows}
@@ -99,6 +104,7 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
         override = style_audit_override(proof)
         override_verdict = override.get("verdict", "").strip().lower()
         override_reason = override.get("reason", "").strip()
+        negative_control = is_style_negative_control(kind, proof)
         edge_delta_vellum = metric(row, "edge_mean") - vellum_edge
         edge_delta_paisley = metric(row, "edge_mean") - paisley_edge
         contrast_delta_vellum = metric(row, "gray_std") - vellum_contrast
@@ -123,6 +129,8 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 flags.append("human_review_gate")
             if status == "current_candidate":
                 flags.append("candidate_not_accepted")
+            if negative_control:
+                flags.append("required_style_negative_control")
             if override_verdict == "fail":
                 flags.append("human_style_fail_negative_control")
                 if override_reason:
@@ -153,11 +161,28 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 "contrast_delta_paisley": f"{contrast_delta_paisley:.2f}",
                 "flags": ", ".join(flags) if flags else "none",
                 "review_stance": stance,
+                "expected_negative_control": "yes" if negative_control else "no",
                 "raw": raw_path,
                 "board_preview": board_preview,
             }
         )
     return rows
+
+
+def enforce_negative_controls(rows: list[dict[str, str]]) -> None:
+    by_proof_id = {row["proof_id"]: row for row in rows}
+    missing = sorted(REQUIRED_STYLE_NEGATIVE_CONTROLS - set(by_proof_id))
+    if missing:
+        raise RuntimeError(f"required style negative controls missing from triage metrics: {', '.join(missing)}")
+    not_failed = [
+        row
+        for row in rows
+        if row["expected_negative_control"] == "yes"
+        and row["review_stance"] != "style_audit_failed_negative_control"
+    ]
+    if not_failed:
+        details = ", ".join(f"{row['proof_id']} -> {row['review_stance']}" for row in not_failed)
+        raise RuntimeError(f"style negative controls did not fail triage: {details}")
 
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
@@ -258,6 +283,7 @@ def write_markdown(
 ) -> None:
     non_reference = [row for row in rows if not row["label"].startswith("REF ")]
     failed_controls = [row for row in non_reference if row["review_stance"] == "style_audit_failed_negative_control"]
+    expected_controls = [row for row in non_reference if row["expected_negative_control"] == "yes"]
     high_risk = [row for row in non_reference if row["review_stance"] == "high_risk_re_review_before_acceptance"]
     review_gate = [row for row in non_reference if row["reference_role"] == "review_candidate_not_anchor"]
     lines: list[str] = [
@@ -273,16 +299,31 @@ def write_markdown(
         "",
         f"- Non-reference rows reviewed: {len(non_reference)}",
         f"- Human negative-control failures: {len(failed_controls)}",
+        f"- Required style negative controls: {len(expected_controls)}",
         f"- High-risk re-review rows: {len(high_risk)}",
         f"- Review-gate rows: {len(review_gate)}",
         "",
         "Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.",
         "",
+        "Required style negative controls are expected to fail every run. Totem is the current required negative control; if it stops failing, the style audit is broken or the ledger has changed without a new human promotion decision.",
+        "",
         "High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.",
+        "",
+        "## Required Style Negative Controls",
+        "",
+    ]
+    if expected_controls:
+        for row in expected_controls:
+            lines.append(
+                f"- `{row['label']}` / `{row['proof_id']}`: expected to fail style triage; actual stance `{row['review_stance']}`."
+            )
+    else:
+        lines.append("- None configured. This is invalid for the current workflow because Totem should be a failing control.")
+    lines.extend([
         "",
         "## Human Negative-Control Failures",
         "",
-    ]
+    ])
     if failed_controls:
         for row in failed_controls:
             lines.append(
@@ -337,6 +378,7 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--docs-output", type=Path)
     parser.add_argument("--report-date", default=date.today().isoformat())
+    parser.add_argument("--enforce-negative-controls", action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args()
 
     metrics_path = args.metrics_csv if args.metrics_csv.is_absolute() else ROOT / args.metrics_csv
@@ -344,6 +386,8 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     proof_data = load_json(PROOF_MATRIX_PATH)
     rows = build_rows(load_metrics(metrics_path), proof_data)
+    if args.enforce_negative_controls:
+        enforce_negative_controls(rows)
     csv_path = output_dir / "unit_art_candidate_style_triage.csv"
     md_path = output_dir / "unit_art_candidate_style_triage.md"
     review_sheet_path = output_dir / "candidate_style_triage_review_sheet.png"
