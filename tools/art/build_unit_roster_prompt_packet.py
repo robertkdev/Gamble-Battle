@@ -52,6 +52,7 @@ def render_reference_policy(proof_matrix: dict[str, Any]) -> str:
         "- Primary rule: compare against Vellum first for mood, material language, detail richness, and de-shined matte finish.",
         f"- Secondary contrast anchor proof ids: `{secondary}`.",
         f"- Small-asset material reference proof ids: `{small_asset}`.",
+        f"- Small-asset rule: {policy.get('small_asset_rule', 'Small-asset references cannot be used as character palette or unit style anchors; warmer parchment palette belongs to token/icon material context only.')}",
         f"- Promotion rule: {policy.get('promotion_rule', 'Later proofs remain narrow unless the user explicitly promotes them.')}",
         f"- Candidate rule: {policy.get('candidate_rule', 'Current candidates are review-only and never anchor references until approved.')}",
         f"- Side-by-side rule: {policy.get('side_by_side_rule', 'Every serious candidate must be reviewed beside Vellum first.')}",

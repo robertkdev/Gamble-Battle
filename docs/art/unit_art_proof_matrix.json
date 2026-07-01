@@ -30,6 +30,7 @@
       "small_asset_reference_proof_ids": [
         "ability_token_contract_mark"
       ],
+      "small_asset_rule": "The contract token is small-asset material context only. Do not use its warmer parchment palette as a character palette or unit style anchor.",
       "promotion_rule": "Later accepted/current proofs are narrow coverage examples only. They do not become global style anchors just because they passed; user must explicitly promote a proof before it can change the anchor hierarchy.",
       "candidate_rule": "Current candidates can demonstrate process progress, but they are review-only and never anchor references until approved.",
       "side_by_side_rule": "Every serious candidate must be reviewed in a Vellum-first side-by-side comparison before acceptance. Paisley, token, and later accepted proofs can add secondary context, but Vellum remains the first visual question.",

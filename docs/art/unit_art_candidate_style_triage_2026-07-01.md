@@ -1,8 +1,8 @@
 # Unit Art Candidate Style Triage
 
 - Generated: 2026-07-01
-- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_metric_false_positive_sentinel_final/style_drift_audit_all_current/foreground_detail_metrics.csv`
-- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_metric_false_positive_sentinel_final/candidate_style_triage/candidate_style_triage_review_sheet.png`
+- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_token_small_asset_fence/style_drift_audit_all_current/foreground_detail_metrics.csv`
+- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_token_small_asset_fence/candidate_style_triage/candidate_style_triage_review_sheet.png`
 - Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.
 - Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.
 
@@ -25,6 +25,8 @@ Metric false-positive controls are required failures whose edge/detail and contr
 High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.
 
 Prompt-context quarantine is the machine-readable guardrail for the user's warning about the passing pool getting muddy. Quarantined rows must not be used as prompt/style context until they pass a fresh Vellum-first visual review or receive an explicit user promotion/reclassification.
+
+Small-asset context rows are not character palette references. The token can inform small non-character material treatment, but it cannot pull unit character color, silhouette, or style decisions away from Vellum.
 
 ## Required Style Negative Controls
 
@@ -70,7 +72,7 @@ Prompt-context quarantine is the machine-readable guardrail for the user's warni
 | --- | --- | --- | --- | --- | ---: | ---: | --- | --- |
 | REF Vellum raw | `vellum_raw_anchor` | `reference` | `primary_anchor` | `primary_anchor` | 0.00 | 0.00 | none | ultimate_reference |
 | REF Paisley | `paisley_goth_bubble_refit` | `accepted` | `secondary_contrast_anchor` | `reference_context_only` | -2.85 | -0.34 | none | reference_context_not_primary |
-| REF Token | `ability_token_contract_mark` | `accepted` | `small_asset_material_reference` | `reference_context_only` | 7.80 | 20.53 | none | reference_context_not_primary |
+| REF Token | `ability_token_contract_mark` | `accepted` | `small_asset_material_reference` | `small_asset_context_only_not_character_palette` | 7.80 | 20.53 | none | reference_context_not_primary |
 | Kythera | `kythera_mummy_goth_refit` | `accepted` | `narrow_proof_only` | `narrow_context_only_not_anchor` | 13.96 | 17.94 | metric_detail_near_or_above_vellum | metrics_do_not_replace_visual_review |
 | Creep | `creep_vellum_primary_detail_refit` | `current_candidate` | `review_candidate_not_anchor` | `blocked_current_candidate` | 0.73 | 2.56 | human_review_gate, candidate_not_accepted | next_gate_human_review_required |
 | Grint | `grint_hard_matte_refit` | `accepted` | `narrow_proof_only` | `blocked_until_vellum_pairwise_review` | -5.38 | -3.60 | edge_detail_below_vellum, contrast_below_vellum | needs_vellum_pairwise_visual_review |

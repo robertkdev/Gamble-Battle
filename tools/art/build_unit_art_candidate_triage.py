@@ -149,8 +149,10 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 stance = "metrics_do_not_replace_visual_review"
         if role == "primary_anchor":
             prompt_context_status = "primary_anchor"
-        elif role in {"secondary_contrast_anchor", "small_asset_material_reference"}:
+        elif role == "secondary_contrast_anchor":
             prompt_context_status = "reference_context_only"
+        elif role == "small_asset_material_reference":
+            prompt_context_status = "small_asset_context_only_not_character_palette"
         elif negative_control:
             prompt_context_status = "blocked_style_negative_control"
         elif status == "current_candidate":
@@ -354,6 +356,8 @@ def write_markdown(
         "High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.",
         "",
         "Prompt-context quarantine is the machine-readable guardrail for the user's warning about the passing pool getting muddy. Quarantined rows must not be used as prompt/style context until they pass a fresh Vellum-first visual review or receive an explicit user promotion/reclassification.",
+        "",
+        "Small-asset context rows are not character palette references. The token can inform small non-character material treatment, but it cannot pull unit character color, silhouette, or style decisions away from Vellum.",
         "",
         "## Required Style Negative Controls",
         "",

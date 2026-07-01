@@ -205,6 +205,8 @@ def assert_packet_reference_hierarchy(packet_dir: Path, report: list[str]) -> No
         "Primary/ultimate anchor: `vellum_raw_anchor`",
         "Promotion rule:",
         "Candidate rule:",
+        "Small-asset rule:",
+        "Do not use its warmer parchment palette as a character palette or unit style anchor.",
         "Prompt-context rule:",
         "## Unit Proof Context",
     ]
@@ -286,6 +288,8 @@ def assert_proof_policy(report: list[str]) -> None:
         raise RuntimeError("Paisley missing from secondary anchor proof ids")
     if "ability_token_contract_mark" not in policy["small_asset_reference_proof_ids"]:
         raise RuntimeError("contract token missing from small asset reference proof ids")
+    if "character palette" not in str(policy.get("small_asset_rule", "")):
+        raise RuntimeError("small asset rule must fence the token away from character palette use")
     for field, phrases in (
         ("side_by_side_rule", ("Vellum-first", "side-by-side")),
         ("passing_pool_rule", ("Do not average", "passing pool")),
@@ -298,6 +302,7 @@ def assert_proof_policy(report: list[str]) -> None:
     report.append("")
     report.append(f"- PASS primary anchor `{primary['id']}` exists at `{primary['path']}`.")
     report.append("- PASS Paisley/token remain the only promoted secondary/small-asset references.")
+    report.append("- PASS The token is fenced as small-asset material context, not a character palette/style anchor.")
     report.append("")
 
 
@@ -392,6 +397,13 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         raise RuntimeError("candidate style triage missing Grint row")
     if grint_rows[0].get("prompt_context_status") != "blocked_until_vellum_pairwise_review":
         raise RuntimeError("Grint is not quarantined from prompt context despite Vellum-pairwise warning")
+    token_rows = [row for row in rows if row.get("proof_id") == "ability_token_contract_mark"]
+    if not token_rows:
+        raise RuntimeError("candidate style triage missing token small-asset row")
+    if token_rows[0].get("reference_role") != "small_asset_material_reference":
+        raise RuntimeError("token is not marked as small_asset_material_reference")
+    if token_rows[0].get("prompt_context_status") != "small_asset_context_only_not_character_palette":
+        raise RuntimeError("token is not fenced off from character palette/style context")
     unsafe_accepted = [
         row
         for row in rows
@@ -407,6 +419,7 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     report.append("")
     report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks and fails the Totem negative control.")
     report.append("- PASS Totem remains a metric false-positive sentinel: proxy metrics look acceptable, but visual review still fails the matte gothic style.")
+    report.append("- PASS Token remains small-asset context only and cannot become a character palette reference.")
     report.append("- PASS Grint and any accepted risky narrow proofs are quarantined from prompt context until Vellum-first review clears them.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")
     report.append("")
