@@ -261,9 +261,28 @@ def assert_packet_reference_hierarchy(packet_dir: Path, report: list[str]) -> No
 
 
 def assert_audit_roles(csv_path: Path, report: list[str]) -> None:
-    rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    with csv_path.open(encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        rows = list(reader)
+        fieldnames = reader.fieldnames or []
     if len(rows) < 4:
         raise RuntimeError(f"style audit CSV too small: {rel(csv_path)}")
+    required_metric_fields = {"p95_luma", "p99_luma", "bright_pixel_ratio", "hot_highlight_ratio"}
+    missing_metric_fields = sorted(required_metric_fields - set(fieldnames))
+    if missing_metric_fields:
+        raise RuntimeError(f"{rel(csv_path)} missing matte hot-highlight metric fields: {missing_metric_fields}")
+    invalid_metric_rows: list[str] = []
+    for row in rows:
+        for field in required_metric_fields:
+            try:
+                value = float(row.get(field, ""))
+            except ValueError:
+                invalid_metric_rows.append(f"{row.get('label', '<unknown>')}:{field}=not-float")
+                continue
+            if value < 0.0:
+                invalid_metric_rows.append(f"{row.get('label', '<unknown>')}:{field}=negative")
+    if invalid_metric_rows:
+        raise RuntimeError(f"{rel(csv_path)} has invalid hot-highlight metric values: {', '.join(invalid_metric_rows[:8])}")
     by_label = {row["label"]: row for row in rows}
     for label, role in REFERENCE_ROLE_EXPECTATIONS.items():
         actual = by_label.get(label, {}).get("role")
@@ -276,6 +295,7 @@ def assert_audit_roles(csv_path: Path, report: list[str]) -> None:
     report.append("## Style Audit Reference Roles")
     report.append("")
     report.append(f"- PASS `{rel(csv_path)}` keeps Vellum/Paisley/token as the only reference rows.")
+    report.append("- PASS foreground-detail metrics include p95/p99 luma plus bright/hot-highlight ratios for matte-sheen review.")
     report.append(f"- Non-reference roles present: `{', '.join(sorted(ordinary_roles))}`.")
     report.append("")
 
@@ -383,6 +403,9 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         "Required Style Negative Controls",
         "Totem is the current required negative control",
         "Human Negative-Control Failures",
+        "Hot-Highlight Matte Review",
+        "Hot-highlight matte-review rows",
+        "hot_highlight_matte_review",
         "style_audit_failed_negative_control",
         "Highest Risk Rows",
         "Prompt-Context Quarantine",
@@ -415,6 +438,28 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     totem_contrast_delta = float(totem_rows[0].get("contrast_delta_vellum", "0"))
     if totem_edge_delta < 0.0 or totem_contrast_delta < 0.0:
         raise RuntimeError("Totem no longer proves the metric false-positive case against Vellum")
+    hot_highlight_rows = [
+        row
+        for row in rows
+        if "hot_highlight_matte_review" in row.get("flags", "")
+    ]
+    if not hot_highlight_rows:
+        raise RuntimeError("candidate style triage has no hot-highlight matte-review rows")
+    pale_material_sentinels = [
+        row
+        for row in hot_highlight_rows
+        if row.get("proof_id") in {"kythera_mummy_goth_refit", "korath_haloed_tank_refit"}
+    ]
+    if not pale_material_sentinels:
+        raise RuntimeError("hot-highlight matte review does not flag a known bright pale-material sentinel")
+    for row in hot_highlight_rows:
+        try:
+            hot_ratio = float(row.get("hot_highlight_ratio", ""))
+            p99_luma = float(row.get("p99_luma", ""))
+        except ValueError as exc:
+            raise RuntimeError(f"hot-highlight review row has invalid metrics: {row.get('proof_id', '<unknown>')}") from exc
+        if hot_ratio < 0.5 or p99_luma < 210.0:
+            raise RuntimeError(f"hot-highlight review row below its own threshold: {row.get('proof_id', '<unknown>')}")
     grint_rows = [row for row in rows if row.get("proof_id") == "grint_hard_matte_refit"]
     if not grint_rows:
         raise RuntimeError("candidate style triage missing Grint row")
@@ -442,6 +487,7 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     report.append("")
     report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks and fails the Totem negative control.")
     report.append("- PASS Totem remains a metric false-positive sentinel: proxy metrics look acceptable, but visual review still fails the matte gothic style.")
+    report.append("- PASS Hot-highlight proxy flags bright/pale-material rows for matte visual review without auto-approving or auto-rejecting them.")
     report.append("- PASS Token remains small-asset context only and cannot become a character palette reference.")
     report.append("- PASS Grint and any accepted risky narrow proofs are quarantined from prompt context until Vellum-first review clears them.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")

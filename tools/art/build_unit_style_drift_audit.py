@@ -319,6 +319,9 @@ def foreground_metrics(entry: dict[str, str]) -> dict[str, str | float | int]:
         histogram[value] += 1
     total = len(foreground_values)
     entropy = -sum((count / total) * math.log2(count / total) for count in histogram if count)
+    sorted_luma = sorted(foreground_values)
+    p95_luma = sorted_luma[int((total - 1) * 0.95)]
+    p99_luma = sorted_luma[int((total - 1) * 0.99)]
     edges = gray.filter(ImageFilter.FIND_EDGES)
     edge_values = [value for value, a_value in zip(edges.getdata(), alpha_values) if a_value > 32]
     edge_mean = sum(edge_values) / len(edge_values)
@@ -326,10 +329,20 @@ def foreground_metrics(entry: dict[str, str]) -> dict[str, str | float | int]:
     gray_std = (sum((value - mean) ** 2 for value in foreground_values) / total) ** 0.5
     rg_values: list[float] = []
     yb_values: list[float] = []
+    hot_highlight_pixels = 0
+    bright_pixels = 0
     for red, green, blue, a_value in crop.convert("RGBA").getdata():
         if a_value > 32:
             rg_values.append(abs(red - green))
             yb_values.append(abs(0.5 * (red + green) - blue))
+            luma = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+            max_channel = max(red, green, blue)
+            min_channel = min(red, green, blue)
+            saturation = 0.0 if max_channel == 0 else (max_channel - min_channel) / max_channel
+            if luma >= 215.0:
+                bright_pixels += 1
+            if luma >= 225.0 and saturation <= 0.22:
+                hot_highlight_pixels += 1
     colorfulness = (sum(rg_values) / len(rg_values) + sum(yb_values) / len(yb_values)) / 2
     return {
         "label": entry["label"],
@@ -339,6 +352,10 @@ def foreground_metrics(entry: dict[str, str]) -> dict[str, str | float | int]:
         "edge_mean": round(edge_mean, 2),
         "gray_std": round(gray_std, 2),
         "colorfulness": round(colorfulness, 2),
+        "p95_luma": round(float(p95_luma), 2),
+        "p99_luma": round(float(p99_luma), 2),
+        "bright_pixel_ratio": round((bright_pixels / total) * 100.0, 3),
+        "hot_highlight_ratio": round((hot_highlight_pixels / total) * 100.0, 3),
         "fg_pixels": total,
     }
 
@@ -350,7 +367,20 @@ def write_metrics(entries: list[dict[str, str]], csv_path: Path, summary_path: P
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["label", "kind", "role", "entropy", "edge_mean", "gray_std", "colorfulness", "fg_pixels"],
+            fieldnames=[
+                "label",
+                "kind",
+                "role",
+                "entropy",
+                "edge_mean",
+                "gray_std",
+                "colorfulness",
+                "p95_luma",
+                "p99_luma",
+                "bright_pixel_ratio",
+                "hot_highlight_ratio",
+                "fg_pixels",
+            ],
         )
         writer.writeheader()
         writer.writerows(rows)
@@ -358,13 +388,15 @@ def write_metrics(entries: list[dict[str, str]], csv_path: Path, summary_path: P
         handle.write("Reference hierarchy: Vellum is primary/ultimate; Paisley is secondary contrast; token is small-asset material only; later proofs are narrow coverage and keep their ledger reference_role unless user-promoted.\n")
         handle.write(
             "Foreground metrics are proxies only; visual audit decides. "
-            "Higher entropy/edge_mean/std usually means more texture/detail/contrast.\n"
+            "Higher entropy/edge_mean/std usually means more texture/detail/contrast. "
+            "Hot-highlight ratios flag possible sheen or bright pale-material risk for visual review, not automatic failure.\n"
         )
         for row in rows:
             handle.write(
                 f"{str(row['label'])[:14]:14s} {str(row['kind'])[:32]:32s} {str(row['role'])[:28]:28s} "
                 f"entropy={float(row['entropy']):.3f} edge={float(row['edge_mean']):.2f} "
-                f"contrast={float(row['gray_std']):.2f} color={float(row['colorfulness']):.2f}\n"
+                f"contrast={float(row['gray_std']):.2f} color={float(row['colorfulness']):.2f} "
+                f"p99={float(row['p99_luma']):.2f} hot={float(row['hot_highlight_ratio']):.3f}%\n"
             )
 
 

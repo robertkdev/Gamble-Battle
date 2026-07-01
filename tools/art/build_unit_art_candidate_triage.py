@@ -40,6 +40,13 @@ def metric(row: dict[str, str], field: str) -> float:
     return float(row[field])
 
 
+def optional_metric(row: dict[str, str], field: str, default: float = 0.0) -> float:
+    value = row.get(field, "")
+    if value == "":
+        return default
+    return float(value)
+
+
 def require_path(path_text: str) -> Path:
     path = ROOT / path_text
     if not path.exists():
@@ -90,6 +97,7 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
     paisley_edge = metric(paisley, "edge_mean")
     vellum_contrast = metric(vellum, "gray_std")
     paisley_contrast = metric(paisley, "gray_std")
+    vellum_hot_highlight = optional_metric(vellum, "hot_highlight_ratio")
     rows: list[dict[str, str]] = []
     for row in metrics_rows:
         kind = row["kind"]
@@ -109,6 +117,9 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
         edge_delta_paisley = metric(row, "edge_mean") - paisley_edge
         contrast_delta_vellum = metric(row, "gray_std") - vellum_contrast
         contrast_delta_paisley = metric(row, "gray_std") - paisley_contrast
+        p99_luma = optional_metric(row, "p99_luma")
+        hot_highlight_ratio = optional_metric(row, "hot_highlight_ratio")
+        hot_highlight_delta_vellum = hot_highlight_ratio - vellum_hot_highlight
         flags: list[str] = []
         if role == "primary_anchor":
             stance = "ultimate_reference"
@@ -125,6 +136,8 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 flags.append("contrast_below_vellum")
             if metric(row, "colorfulness") < 8.0:
                 flags.append("very_muted_color_proxy")
+            if hot_highlight_ratio >= 0.5 and p99_luma >= 210.0:
+                flags.append("hot_highlight_matte_review")
             if role == "review_candidate_not_anchor":
                 flags.append("human_review_gate")
             if status == "current_candidate":
@@ -182,6 +195,9 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 "gray_std": row["gray_std"],
                 "contrast_delta_vellum": f"{contrast_delta_vellum:.2f}",
                 "contrast_delta_paisley": f"{contrast_delta_paisley:.2f}",
+                "p99_luma": f"{p99_luma:.2f}",
+                "hot_highlight_ratio": f"{hot_highlight_ratio:.3f}",
+                "hot_highlight_delta_vellum": f"{hot_highlight_delta_vellum:.3f}",
                 "flags": ", ".join(flags) if flags else "none",
                 "review_stance": stance,
                 "expected_negative_control": "yes" if negative_control else "no",
@@ -243,6 +259,14 @@ def metric_false_positive_controls(rows: list[dict[str, str]]) -> list[dict[str,
         row
         for row in rows
         if row["metric_false_positive_control"] == "yes"
+    ]
+
+
+def hot_highlight_review_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [
+        row
+        for row in rows
+        if "hot_highlight_matte_review" in row["flags"]
     ]
 
 
@@ -328,6 +352,7 @@ def write_markdown(
     review_gate = [row for row in non_reference if row["reference_role"] == "review_candidate_not_anchor"]
     quarantined = prompt_context_quarantine_rows(rows)
     false_positive_controls = metric_false_positive_controls(rows)
+    hot_highlight_rows = hot_highlight_review_rows(non_reference)
     lines: list[str] = [
         "# Unit Art Candidate Style Triage",
         "",
@@ -346,12 +371,15 @@ def write_markdown(
         f"- Review-gate rows: {len(review_gate)}",
         f"- Prompt-context quarantined rows: {len(quarantined)}",
         f"- Metric false-positive controls: {len(false_positive_controls)}",
+        f"- Hot-highlight matte-review rows: {len(hot_highlight_rows)}",
         "",
         "Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.",
         "",
         "Required style negative controls are expected to fail every run. Totem is the current required negative control; if it stops failing, the style audit is broken or the ledger has changed without a new human promotion decision.",
         "",
         "Metric false-positive controls are required failures whose edge/detail and contrast proxies are near or above Vellum. They prove that proxy metrics cannot approve style by themselves.",
+        "",
+        "Hot-highlight matte-review rows have enough near-white foreground pixels to deserve visual review for possible sheen, pale-material glare, or board-scale hot spots. This is a proxy warning only; pale parchment, bone, ivory, or holy materials can be valid if they still read dry beside Vellum.",
         "",
         "High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.",
         "",
@@ -398,6 +426,20 @@ def write_markdown(
         lines.append("- None. This is suspicious while Totem remains the required negative control.")
     lines.extend([
         "",
+        "## Hot-Highlight Matte Review",
+        "",
+    ])
+    if hot_highlight_rows:
+        for row in hot_highlight_rows:
+            lines.append(
+                f"- `{row['label']}` / `{row['proof_id']}`: hot highlight ratio {row['hot_highlight_ratio']}%, "
+                f"delta vs Vellum {row['hot_highlight_delta_vellum']}%, p99 luma {row['p99_luma']}; "
+                "review beside Vellum to confirm this is dry pale material rather than sheen."
+            )
+    else:
+        lines.append("- None by the current proxy thresholds.")
+    lines.extend([
+        "",
         "## Highest Risk Rows",
         "",
     ])
@@ -426,13 +468,14 @@ def write_markdown(
         "",
         "## Full Triage Table",
         "",
-        "| Label | Proof | Status | Role | Prompt context | Edge vs Vellum | Contrast vs Vellum | Flags | Stance |",
-        "| --- | --- | --- | --- | --- | ---: | ---: | --- | --- |",
+        "| Label | Proof | Status | Role | Prompt context | Edge vs Vellum | Contrast vs Vellum | Hot highlight % | Flags | Stance |",
+        "| --- | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- |",
     ])
     for row in rows:
         lines.append(
             f"| {row['label']} | `{row['proof_id']}` | `{row['status']}` | `{row['reference_role']}` | "
-            f"`{row['prompt_context_status']}` | {row['edge_delta_vellum']} | {row['contrast_delta_vellum']} | {row['flags']} | {row['review_stance']} |"
+            f"`{row['prompt_context_status']}` | {row['edge_delta_vellum']} | {row['contrast_delta_vellum']} | "
+            f"{row['hot_highlight_ratio']} | {row['flags']} | {row['review_stance']} |"
         )
     lines.extend([
         "",
