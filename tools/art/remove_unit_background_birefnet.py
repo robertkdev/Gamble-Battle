@@ -89,6 +89,34 @@ def focused_orange_spill(rgb: np.ndarray) -> np.ndarray:
     return (bright | dark) & saturated
 
 
+def safety_orange_residue(rgb: np.ndarray) -> np.ndarray:
+    red = rgb[:, :, 0].astype(np.int16)
+    green = rgb[:, :, 1].astype(np.int16)
+    blue = rgb[:, :, 2].astype(np.int16)
+
+    safety_orange_like = (
+        (red > 175)
+        & (green > 35)
+        & (green < 170)
+        & (blue < 115)
+        & ((red - green) > 42)
+        & ((green - blue) > 10)
+    )
+    saturated = ((red.astype(np.float32) - blue.astype(np.float32)) / np.maximum(red.astype(np.float32), 1.0)) > 0.35
+    return safety_orange_like & saturated
+
+
+def alpha_edge_band(mask: Image.Image, radius: int) -> np.ndarray:
+    alpha = np.asarray(mask).astype(np.uint8)
+    foreground = Image.fromarray(np.where(alpha > 8, 255, 0).astype(np.uint8), "L")
+    filter_size = max(3, radius * 2 + 1)
+    if filter_size % 2 == 0:
+        filter_size += 1
+    dilated = np.asarray(foreground.filter(ImageFilter.MaxFilter(filter_size))) > 0
+    eroded = np.asarray(foreground.filter(ImageFilter.MinFilter(filter_size))) > 0
+    return dilated & ~eroded
+
+
 def estimate_foreground_rgb(source: Image.Image, mask: Image.Image) -> np.ndarray:
     from pymatting import estimate_foreground_ml
 
@@ -119,6 +147,19 @@ def despill_orange_rgb(rgb: np.ndarray, source: Image.Image, mask: Image.Image) 
     out[target, 1] = gray[target] * 0.34
     out[target, 2] = np.maximum(out[target, 2], gray[target] * 0.85)
     return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def clean_edge_orange_rgb(rgb: np.ndarray, mask: Image.Image, radius: int) -> tuple[np.ndarray, int]:
+    alpha = np.asarray(mask).astype(np.uint8)
+    edge_band = alpha_edge_band(mask, radius)
+    target = safety_orange_residue(rgb) & edge_band & (alpha > 0)
+
+    out = rgb.copy().astype(np.float32)
+    gray = out[:, :, 0] * 0.22 + out[:, :, 1] * 0.46 + out[:, :, 2] * 0.32
+    out[target, 0] = gray[target] * 0.24
+    out[target, 1] = gray[target] * 0.34
+    out[target, 2] = np.maximum(out[target, 2], gray[target] * 0.86)
+    return np.clip(out, 0, 255).astype(np.uint8), int(np.count_nonzero(target))
 
 
 def preview_tile(cutout: Image.Image, background: Image.Image, label: str, tile_size: int) -> Image.Image:
@@ -176,6 +217,8 @@ def main() -> None:
     parser.add_argument("--defringe-orange", action="store_true")
     parser.add_argument("--foreground-ml", action="store_true")
     parser.add_argument("--despill-orange", action="store_true")
+    parser.add_argument("--edge-orange-clean", action="store_true")
+    parser.add_argument("--edge-clean-radius", type=int, default=4)
     args = parser.parse_args()
 
     raw = Image.open(args.input).convert("RGBA")
@@ -219,6 +262,9 @@ def main() -> None:
     rgb = estimate_foreground_rgb(raw, mask) if args.foreground_ml else np.asarray(raw.convert("RGB")).astype(np.uint8)
     if args.despill_orange:
         rgb = despill_orange_rgb(rgb, raw, mask)
+    edge_orange_cleaned = 0
+    if args.edge_orange_clean:
+        rgb, edge_orange_cleaned = clean_edge_orange_rgb(rgb, mask, args.edge_clean_radius)
 
     cutout = Image.fromarray(rgb, "RGB").convert("RGBA")
     cutout.putalpha(mask)
@@ -231,6 +277,8 @@ def main() -> None:
 
     print(f"device={device}")
     print(f"model={args.model}")
+    if args.edge_orange_clean:
+        print(f"edge_orange_cleaned={edge_orange_cleaned}")
     print(args.output)
     print(args.mask_output)
     print(args.review_output)

@@ -13,10 +13,12 @@ TEST_LOG_PATH = ROOT / "docs" / "art" / "unit_art_workflow_test_log_2026-06-29.m
 ROSTER_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_roster_prompt_matrix.json"
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 REVIEW_DECISION_HELPER_PATH = ROOT / "tools" / "art" / "apply_unit_art_review_decision.py"
+CUTOUT_FRINGE_AUDIT_BUILDER_PATH = ROOT / "tools" / "art" / "audit_unit_cutout_orange_fringe.py"
 ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py"
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
 CANDIDATE_TRIAGE_PATH = ROOT / "docs" / "art" / "unit_art_candidate_style_triage_2026-07-01.md"
 CANDIDATE_TRIAGE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py"
+CUTOUT_FRINGE_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_cutout_orange_fringe_audit_2026-07-01.md"
 REVIEW_PACKET_PATH = ROOT / "docs" / "art" / "creep_review_decision_packet_2026-07-01.md"
 REVIEW_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_packet.py"
 REVIEW_QUEUE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_queue.py"
@@ -47,6 +49,7 @@ REQUIRED_DOC_SNIPPETS = [
     "build_unit_art_review_packet.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
+    "audit_unit_cutout_orange_fringe.py",
     "run_unit_art_workflow_validation.py",
     "End-to-End Validation",
     "unit_art_proof_matrix.json",
@@ -57,6 +60,7 @@ REQUIRED_DOC_SNIPPETS = [
     "real planned unit",
     "unit_art_style_drift_audit_2026-06-30.md",
     "unit_art_candidate_style_triage_2026-07-01.md",
+    "unit_art_cutout_orange_fringe_audit_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01_scorecard_template.json",
     "unit_art_future_agent_handoff.md",
@@ -69,6 +73,8 @@ REQUIRED_DOC_SNIPPETS = [
     "--scorecard-json",
     "Vellum can veto any candidate",
     "they cannot rescue a candidate that is weaker than Vellum",
+    "--edge-orange-clean",
+    "orange-fringe audit",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -105,6 +111,14 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "candidate_style_triage_review_sheet.png",
 ]
 
+REQUIRED_CUTOUT_FRINGE_AUDIT_SNIPPETS = [
+    "Unit Art Cutout Orange-Fringe Audit",
+    "Vellum/Paisley Cutout Cleanliness Baseline",
+    "Accepted/reference rows flagged: `0`",
+    "Current candidates that fail can stay in the ledger as review candidates",
+    "unit_art_cutout_orange_fringe_review_sheet.png",
+]
+
 REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Review Decision Packet",
     "Visual decision sheet",
@@ -118,6 +132,7 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Human Reply Contract",
     "weaker than Vellum",
     "Reference ladder audit",
+    "orange-fringe audit",
     "--scorecard-json",
     "request_revision",
     "Prior Creep Lessons",
@@ -135,6 +150,7 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "Rejection Checklist",
     "too glossy or sweaty",
     "too low-detail or smooth after de-shining",
+    "orange-fringe audit",
     "Do not let the growing passing pool muddy the target",
     "Vellum pairwise audit",
     "Reference ladder audit",
@@ -164,7 +180,9 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "Standard Validation Command",
     "run_unit_art_workflow_validation.py",
     "apply_unit_art_review_decision.py",
+    "audit_unit_cutout_orange_fringe.py",
     "unit_art_candidate_style_triage_2026-07-01.md",
+    "unit_art_cutout_orange_fringe_audit_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01_scorecard_template.json",
     "--scorecard-json",
@@ -181,6 +199,8 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "Detail-richness rule: de-shining must preserve tactile dry detail",
     "palette-only match",
     "Raw image matches Vellum-level dry detail richness",
+    "edge-orange-clean",
+    "orange-fringe audit",
     "reviewed side by side against the primary Vellum anchor first",
     "do not dilute or average away the Vellum target",
     "Vellum veto rule",
@@ -190,6 +210,7 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "Current candidates are review-only",
     "Side-by-side rule",
     "Passing-pool rule",
+    "orange-fringe audit",
 ]
 
 REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS = [
@@ -215,6 +236,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "apply_unit_art_review_decision.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_candidate_triage.py",
+    "audit_unit_cutout_orange_fringe.py",
     "build_unit_art_review_packet.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
@@ -234,6 +256,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "write_all_pass_scorecard",
     "--scorecard-json",
     "Candidate Style Triage",
+    "Cutout Orange-Fringe Audit",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
     "reference_ladder_raw_comparison.png",
@@ -266,6 +289,17 @@ REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
     "write_visual_review_sheet",
 ]
 
+REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS = [
+    "Unit Art Cutout Orange-Fringe Audit",
+    "Vellum/Paisley Cutout Cleanliness Baseline",
+    "safety_orange_residue",
+    "alpha_edge_band",
+    "edge_orange_pixels_above_vellum_baseline",
+    "unit_art_cutout_orange_fringe_review_sheet.png",
+    "Accepted/reference rows flagged",
+    "fail-on-accepted-fail",
+]
+
 REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Review Decision Packet",
     "Creep is the next human-review gate",
@@ -278,6 +312,7 @@ REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Human Reply Contract",
     "later passing proofs cannot average away the target",
     "Reference ladder audit",
+    "orange-fringe audit",
     "Scorecard template",
     "write_scorecard_template",
     "write_visual_packet",
@@ -299,6 +334,7 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "Approval Checklist",
     "Rejection Checklist",
     "Do not let the growing passing pool muddy the target",
+    "orange-fringe audit",
     "Vellum pairwise audit",
     "Reference ladder audit",
     "creep_review_decision_packet_2026-07-01.md",
@@ -321,6 +357,8 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "Paisley as secondary contrast context only",
     "layered fabric/parchment/dry edge wear",
     "hand-painted surface breakup",
+    "--edge-orange-clean",
+    "orange-fringe audit",
     "reference_policy",
     "scorecard_template",
     "promotion_rule",
@@ -587,6 +625,8 @@ def main() -> int:
         fail(f"Missing proof matrix: {PROOF_MATRIX_PATH}", failures)
     if not REVIEW_DECISION_HELPER_PATH.exists():
         fail(f"Missing review decision helper: {REVIEW_DECISION_HELPER_PATH}", failures)
+    if not CUTOUT_FRINGE_AUDIT_BUILDER_PATH.exists():
+        fail(f"Missing cutout orange-fringe audit builder: {CUTOUT_FRINGE_AUDIT_BUILDER_PATH}", failures)
     if not ROSTER_PACKET_BUILDER_PATH.exists():
         fail(f"Missing roster prompt packet builder: {ROSTER_PACKET_BUILDER_PATH}", failures)
     if not STYLE_DRIFT_BUILDER_PATH.exists():
@@ -605,6 +645,8 @@ def main() -> int:
         fail(f"Missing style drift audit: {STYLE_DRIFT_AUDIT_PATH}", failures)
     if not CANDIDATE_TRIAGE_PATH.exists():
         fail(f"Missing candidate style triage: {CANDIDATE_TRIAGE_PATH}", failures)
+    if not CUTOUT_FRINGE_AUDIT_PATH.exists():
+        fail(f"Missing cutout orange-fringe audit: {CUTOUT_FRINGE_AUDIT_PATH}", failures)
     if not REVIEW_PACKET_PATH.exists():
         fail(f"Missing review packet: {REVIEW_PACKET_PATH}", failures)
     if not COMPLETION_AUDIT_PATH.exists():
@@ -641,6 +683,12 @@ def main() -> int:
     for snippet in REQUIRED_CANDIDATE_TRIAGE_SNIPPETS:
         if snippet.lower() not in candidate_triage_lower:
             fail(f"candidate style triage missing required snippet: {snippet}", failures)
+
+    cutout_fringe_audit = CUTOUT_FRINGE_AUDIT_PATH.read_text(encoding="utf-8")
+    cutout_fringe_audit_lower = cutout_fringe_audit.lower()
+    for snippet in REQUIRED_CUTOUT_FRINGE_AUDIT_SNIPPETS:
+        if snippet.lower() not in cutout_fringe_audit_lower:
+            fail(f"cutout orange-fringe audit missing required snippet: {snippet}", failures)
 
     review_packet = REVIEW_PACKET_PATH.read_text(encoding="utf-8")
     review_packet_lower = review_packet.lower()
@@ -689,6 +737,12 @@ def main() -> int:
     for snippet in REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS:
         if snippet.lower() not in candidate_triage_builder_lower:
             fail(f"candidate triage builder missing required snippet: {snippet}", failures)
+
+    cutout_fringe_audit_builder = CUTOUT_FRINGE_AUDIT_BUILDER_PATH.read_text(encoding="utf-8")
+    cutout_fringe_audit_builder_lower = cutout_fringe_audit_builder.lower()
+    for snippet in REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS:
+        if snippet.lower() not in cutout_fringe_audit_builder_lower:
+            fail(f"cutout orange-fringe audit builder missing required snippet: {snippet}", failures)
 
     review_packet_builder = REVIEW_PACKET_BUILDER_PATH.read_text(encoding="utf-8")
     review_packet_builder_lower = review_packet_builder.lower()

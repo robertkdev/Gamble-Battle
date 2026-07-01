@@ -571,7 +571,7 @@ python tools\art\build_unit_art_prompt_packet.py --case-id ability_token_contrac
 python tools\art\build_unit_art_prompt_packet.py --case-id paisley_goth_bubble_refit --output-dir outputs\art_pipeline\style_validation\prompt_packets_2026_06_29_single_paisley
 python tools\art\build_unit_art_board_preview.py --input <cutout.png> --output <board_preview.png> --title <title>
 python tools\art\combine_unit_alpha_masks.py --source <raw.png> --primary-mask <birefnet_mask.png> --rescue-mask <connected_orange_mask.png> --output <union_cutout.png> --mask-output <union_mask.png> --review-output <union_review.png>
-C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_unit_background_birefnet.py --input <raw.png> --output <cutout.png> --mask-output <mask.png> --review-output <review.png> --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange
+C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_unit_background_birefnet.py --input <raw.png> --output <cutout.png> --mask-output <mask.png> --review-output <review.png> --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange --edge-orange-clean
 ```
 
 ## Current Completion State

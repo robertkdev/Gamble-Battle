@@ -201,19 +201,30 @@ Use this with `docs/art/unit_art_pipeline_2026-06-28.md`.
 Default for premium orange-backed unit art:
 
 ```powershell
-C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_unit_background_birefnet.py --input <raw.png> --output <cutout.png> --mask-output <mask.png> --review-output <review.png> --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange
+C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_unit_background_birefnet.py --input <raw.png> --output <cutout.png> --mask-output <mask.png> --review-output <review.png> --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange --edge-orange-clean
 ```
 
 Method guidance:
 
-- Use BiRefNet with `--foreground-ml --despill-orange` first for Vellum-like complex units with hair, parchment, ribbons, bubbles, ink, fingers, or detached magic shapes.
+- Use BiRefNet with `--foreground-ml --despill-orange --edge-orange-clean` first for Vellum-like complex units with hair, parchment, ribbons, bubbles, ink, fingers, or detached magic shapes. The final edge clean is narrow: it only cools safety-orange-like residue in the alpha edge band after the AI matte and foreground estimation are already done.
 - Use defringe-only as a comparison proof, not the preferred final, when orange spill remains but the cutout shape is good.
 - Use connected-orange keying only when the background is a clean flat border-connected field and the foreground has few intentional orange fragments. It can damage parchment, wax, bubbles, fire, and fragmented magic.
 - For Paisley-like detached bubbles or detached magic identity effects, first try to fix the prompt so the key effects physically touch or overlap the hands/body. If the raw is otherwise accepted but BiRefNet drops detached identity effects, create a connected-orange foreground mask and union it with the BiRefNet mask using `tools/art/combine_unit_alpha_masks.py`, then inspect for extra fragments at board scale.
 - Use chroma key only as a control or emergency fallback. It contaminated the newer Vellum colors and is not the selected path for complex premium units.
 - If every cutout method leaves fringe, fix the raw generation prompt first. A textured or smoky orange background is a generation failure, not an alpha problem.
 
-The "perfected cutout approach" from the successful pass is not gone: it is the refined BiRefNet command with foreground estimation and focused orange despill. For the latest Vellum de-shine run, that approach beat defringe-only, global chroma key, connected-orange, hybrid clipping, and tightened-alpha variants.
+The "perfected cutout approach" from the successful pass is not gone: it is the refined BiRefNet command with foreground estimation, focused orange despill, and the final edge-only safety-orange cleanup. For the latest Vellum de-shine run, that approach beat defringe-only, global chroma key, connected-orange, hybrid clipping, and tightened-alpha variants.
+
+Fast orange-fringe audit:
+
+```powershell
+python tools\art\audit_unit_cutout_orange_fringe.py --output-dir outputs\art_pipeline\style_validation\cutout_orange_fringe_audit_2026_07_01 --docs-output docs\art\unit_art_cutout_orange_fringe_audit_2026-07-01.md --report-date 2026-07-01
+```
+
+- The audit measures safety-orange-like residue only in the transparent alpha edge band and soft-alpha pixels; interior orange/gold detail is reported but does not fail by itself.
+- The Vellum cutout, Paisley, and token define the current cutout cleanliness baseline: accepted/reference rows must pass before they can be used as technical references.
+- Current candidates that fail the audit can remain review candidates, but need an edge-orange-clean pass before acceptance or live asset replacement.
+- Use `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png` for quick checker, black, white, and red-overlay review.
 
 ## File Conventions
 

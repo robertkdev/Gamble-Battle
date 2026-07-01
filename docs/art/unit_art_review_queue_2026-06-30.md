@@ -1,6 +1,6 @@
 # Unit Art Review Queue
 
-- Generated: 2026-06-30
+- Generated: 2026-07-01
 - Current candidates needing review: 14
 - Next gate unit: `creep`
 - Next gate reason: Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests.
@@ -186,7 +186,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Skin/materials are matte, dry, absorptive, dusty, or cloth/parchment/bone/dull-metal-like, not sweaty, wet, glossy, plastic, latex, or polished.
 - Unit identity remains recognizable from the source sprite.
 - Board preview keeps head, torso, hands, weapon/prop, and main effect readable at 96 px.
-- Cutout/review sheet has no unacceptable orange fringe or missing identity-critical detached effects.
+- Cutout/review sheet and orange-fringe audit have no unacceptable safety-orange edge residue or missing identity-critical detached effects.
 - The proof ledger `reference_role` remains correct after the decision.
 
 ## Rejection Checklist
@@ -198,5 +198,5 @@ When rejecting, record which concrete failure happened:
 - too low-detail or smooth after de-shining
 - wrong identity or silhouette
 - wrong detail type: wet anatomy, shiny armor, generic fantasy sculpting, or noisy chaos
-- bad orange background or alpha/cutout failure
+- bad orange background, orange-fringe audit failure, or alpha/cutout failure
 - poor 96 px board read

@@ -135,7 +135,7 @@ def render_acceptance(entry: dict[str, Any]) -> list[str]:
         "Armor and weapons avoid polished bevels, bright specular highlights, smooth airbrushed metal, chrome, and lacquer.",
         f"{entry['display_name']} remains recognizable against the source image `{entry['source_image']}`.",
         "The full body fits in frame and reads at 96 px board scale.",
-        "Refined BiRefNet foreground-ML/despill cutout passes checker, black, white, and board preview review.",
+        "Refined BiRefNet foreground-ML/despill/edge-orange-clean cutout passes the orange-fringe audit, checker, black, white, and board preview review.",
         "Do not replace the live `assets/units/*.png` file without explicit user approval.",
     ]
     for item in entry.get("preserve", []):

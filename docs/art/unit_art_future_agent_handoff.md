@@ -25,8 +25,9 @@ Read these in order:
 5. `docs/art/unit_art_roster_prompt_matrix.json`
 6. `docs/art/unit_art_style_drift_audit_2026-06-30.md`
 7. `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
-8. `docs/art/creep_review_decision_packet_2026-07-01.md`
-9. `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
+8. `docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md`
+9. `docs/art/creep_review_decision_packet_2026-07-01.md`
+10. `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 
 The completion audit is the current truth for remaining blockers. At the latest audit, 23 roster entries were checked: 3 accepted unit proofs, 14 current-candidate unit proofs needing human approval, and 6 roster entries with no visual proof (`berebell`, `cashmere`, `mortem`, `nyxa`, `repo`, `veyra`).
 
@@ -38,6 +39,7 @@ The completion audit is the current truth for remaining blockers. At the latest 
 - Matte does not mean low-detail. De-shining must preserve tactile dry detail, layered costume/material storytelling, scratches, dust, worn edges, and hand-painted surface breakup.
 - Reject sweaty skin, wet shine, glossy leather, latex, plastic, polished metal, chrome, clean fantasy render, cartoon/comic style, toy proportions, anime/gacha, and cinematic rim-light polish.
 - Use flat solid safety-orange `#f84401` for cutout-bound raw generations.
+- Use the refined BiRefNet command with `--foreground-ml --despill-orange --edge-orange-clean`, then run the orange-fringe audit. Accepted/reference cutouts must stay under the Vellum/Paisley cleanliness baseline.
 - Keep the board-scale read at 96 px: head, torso, hands, weapon/prop, and main magic shape must survive.
 
 ## Reference Roles
@@ -64,6 +66,8 @@ The next decision is human review of:
 - Reference ladder audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/reference_ladder_raw_comparison.png`
 - Board-scale decision sheet: `outputs/art_pipeline/style_validation/creep_review_packet_2026_07_01/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
 - Candidate style triage: `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
+- Cutout orange-fringe audit: `docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md`
+- Cutout orange-fringe review sheet: `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png`
 - Creep decision packet: `docs/art/creep_review_decision_packet_2026-07-01.md`
 - Scorecard worksheet: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 
@@ -81,7 +85,7 @@ Run this before handoff:
 python tools\art\run_unit_art_workflow_validation.py --output-dir outputs\art_pipeline\style_validation\workflow_validation_<date>
 ```
 
-That command validates the proof policy, completion audit, workflow docs, all 23 generated roster packets, generated packet reference hierarchy, role-labeled style audits, the mandatory Vellum-first pairwise audit output, candidate style triage, the current review packet, and art-tool syntax.
+That command validates the proof policy, completion audit, workflow docs, all 23 generated roster packets, generated packet reference hierarchy, role-labeled style audits, the mandatory Vellum-first pairwise audit output, candidate style triage, the cutout orange-fringe audit, the current review packet, and art-tool syntax.
 
 Godot validation is separate because this repo requires MCP-only Godot execution. Run:
 
@@ -99,13 +103,14 @@ Require `errors=[]` before handoff.
 3. Generate a prompt packet with `tools/art/build_unit_roster_prompt_packet.py`.
 4. Generate raw candidates without weakening the Vellum-first dry material rules.
 5. Reject glossy or textured-background raws before cutout.
-6. Run the refined BiRefNet foreground-ML/despill cutout command from the packet.
-7. Build or inspect the board preview.
-8. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
-9. Rebuild `tools/art/build_unit_art_candidate_triage.py` after all-current audits if the candidate pool changed.
-10. Rebuild `tools/art/build_unit_art_review_packet.py --proof-id <proof_id>` before asking the user to decide.
-11. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
-12. Run the standard validation command plus MCP Godot validation.
+6. Run the refined BiRefNet foreground-ML/despill/edge-orange-clean cutout command from the packet.
+7. Run `tools/art/audit_unit_cutout_orange_fringe.py` and inspect the review sheet if any current candidate is flagged.
+8. Build or inspect the board preview.
+9. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
+10. Rebuild `tools/art/build_unit_art_candidate_triage.py` after all-current audits if the candidate pool changed.
+11. Rebuild `tools/art/build_unit_art_review_packet.py --proof-id <proof_id>` before asking the user to decide.
+12. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
+13. Run the standard validation command plus MCP Godot validation.
 
 ## Completion Standard
 

@@ -1,6 +1,6 @@
 # Unit Art Workflow Completion Audit
 
-- Generated: 2026-06-30
+- Generated: 2026-07-01
 - Roster entries audited: 23
 - Playable units in matrix: 22
 - Other art-bearing units in matrix: 1

@@ -56,7 +56,7 @@ C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_uni
 Refined second-stage cleanup for orange-backed premium art:
 
 ```powershell
-C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_unit_background_birefnet.py --input outputs\art_pipeline\openai_new_unit_concepts\vellum_contract_witch\vellum_contract_witch_raw.png --output outputs\art_pipeline\ai_background_removal\vellum_refine\vellum_birefnet_foregroundml_despill_cutout.png --mask-output outputs\art_pipeline\ai_background_removal\vellum_refine\vellum_birefnet_foregroundml_despill_mask.png --review-output outputs\art_pipeline\ai_background_removal\vellum_refine\vellum_birefnet_foregroundml_despill_review.png --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange
+C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_unit_background_birefnet.py --input outputs\art_pipeline\openai_new_unit_concepts\vellum_contract_witch\vellum_contract_witch_raw.png --output outputs\art_pipeline\ai_background_removal\vellum_refine\vellum_birefnet_foregroundml_despill_cutout.png --mask-output outputs\art_pipeline\ai_background_removal\vellum_refine\vellum_birefnet_foregroundml_despill_mask.png --review-output outputs\art_pipeline\ai_background_removal\vellum_refine\vellum_birefnet_foregroundml_despill_review.png --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange --edge-orange-clean
 ```
 
 ## Verified proof
@@ -75,7 +75,7 @@ C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_uni
 - Pure orange/chroma keying is no longer the preferred final-alpha path. It can preserve a silhouette on simple units, but it is too fragile for premium unit art with hands, parchment strips, ink tendrils, hair, mummy ribbons, bubbles, and glow interiors.
 - `ZhengPeng7/BiRefNet` is the current default AI segmentation model for generated unit art. It worked on Vellum's complex contract-paper silhouette and Kythera's mummy-ribbon silhouette, preserving the main body and most detached/near-detached magic strips better than color keying alone.
 - The repeatable tracked tool is `tools/art/remove_unit_background_birefnet.py`. Use the Comfy venv Python because it has CUDA PyTorch on the GTX 1080 Ti. `timm` was added to that venv for BiRefNet; cached CUDA runs were about 15 seconds after model load/cache.
-- Initial proof command options were `--device cuda --input-size 1024 --feather 0.6 --defringe-orange`. After the refined despill test below, use `--foreground-ml --despill-orange` as well for orange-backed premium art. The AI mask owns the silhouette; defringe and despill only clean edge/background contamination.
+- Initial proof command options were `--device cuda --input-size 1024 --feather 0.6 --defringe-orange`. After the refined despill and edge-clean tests below, use `--foreground-ml --despill-orange --edge-orange-clean` as well for orange-backed premium art, then run the orange-fringe audit. The AI mask owns the silhouette; defringe/despill/edge-clean only clean edge/background contamination.
 - BRIA RMBG-2.0 could not be tested locally because Hugging Face returned gated-repo access without an authenticated accepted-license token. BRIA RMBG-1.4 did run, but it left a large orange haze on Vellum and is not acceptable for this unit-art problem.
 - Current proof outputs:
   - Vellum comparison: `outputs/art_pipeline/ai_background_removal/vellum/vellum_alpha_methods_direct_comparison_v2.png`.
@@ -88,10 +88,17 @@ C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_uni
 
 - Research finding: defringe is not the best final second step by itself. BiRefNet and its matting variants produce the alpha/silhouette, but the remaining orange around hair and weapon edges is foreground-color contamination baked into RGB pixels. The stronger second step is foreground color estimation plus targeted spill cleanup.
 - Tested `ZhengPeng7/BiRefNet-matting` and `ZhengPeng7/BiRefNet_HR-matting` on Vellum. Both ran successfully, but neither solved the orange hair/weapon contamination by itself. The best overall balance was the base `ZhengPeng7/BiRefNet` mask plus PyMatting foreground estimation and focused key-orange despill.
-- `tools/art/remove_unit_background_birefnet.py` now supports `--foreground-ml` and `--despill-orange`. `--foreground-ml` uses PyMatting `estimate_foreground_ml` to estimate foreground RGB from the alpha matte. `--despill-orange` targets orange-key-like spill near transparent/soft matte regions and cools it toward dark blue-neutral ink instead of deleting real parchment/wax details.
+- `tools/art/remove_unit_background_birefnet.py` now supports `--foreground-ml`, `--despill-orange`, and `--edge-orange-clean`. `--foreground-ml` uses PyMatting `estimate_foreground_ml` to estimate foreground RGB from the alpha matte. `--despill-orange` targets orange-key-like spill near transparent/soft matte regions, and `--edge-orange-clean` catches remaining safety-orange-like residue in the alpha edge band instead of deleting real parchment/wax details.
 - Current selected Vellum output: `outputs/art_pipeline/ai_background_removal/vellum_refine/vellum_birefnet_foregroundml_despill_cutout.png`, with review sheet `outputs/art_pipeline/ai_background_removal/vellum_refine/vellum_birefnet_foregroundml_despill_review.png`.
 - Closeup comparison outputs: `outputs/art_pipeline/ai_background_removal/vellum_refine/vellum_final_despill_compare_hair_top_edge.png`, `vellum_final_despill_compare_weapon_edge.png`, and `vellum_final_despill_compare_right_scroll_edge.png`.
 - Cross-check: the same refined command ran on Kythera and produced `outputs/art_pipeline/ai_background_removal/kythera_refine/kythera_birefnet_foregroundml_despill_review.png` without damaging the mummy-ribbon silhouette.
+
+## Edge-clean audit - 2026-07-01
+
+- The perfected cutout process is now BiRefNet alpha + foreground ML + focused orange despill + final `--edge-orange-clean`, followed by `tools/art/audit_unit_cutout_orange_fringe.py`.
+- The edge clean is deliberately narrow: it targets safety-orange-like residue only in the alpha edge band after the matte and foreground RGB are already established. It should not be used as a broad chroma key or silhouette rescue.
+- The fast audit output is `docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md` plus `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png`.
+- Current baseline result: Vellum, Paisley, token, and accepted technical references pass; current candidates Teller, Korath, and Hexeon are flagged for edge-orange cleanup before any acceptance/live swap.
 
 ## Quality notes
 

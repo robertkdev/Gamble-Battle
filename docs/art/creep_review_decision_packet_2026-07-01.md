@@ -4,8 +4,8 @@
 - Proof id: `creep_vellum_primary_detail_refit`
 - Status: `current_candidate`
 - Reference role: `review_candidate_not_anchor`
-- Visual decision sheet: `outputs/art_pipeline/style_validation/creep_review_packet_2026_07_01/creep_vellum_primary_detail_refit_review_decision_sheet.png`
-- Board-scale decision sheet: `outputs/art_pipeline/style_validation/creep_review_packet_2026_07_01/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
+- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_orange_fringe_audit_final/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
+- Board-scale decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_orange_fringe_audit_final/review_packet/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
 - Scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
@@ -37,7 +37,7 @@ Reject or request revision if it reads shiny/sweaty, corpse/flayed, too low-deta
 | De-shined material | Raw, Vellum pairwise audit, and board-scale decision sheet | Skin and tendrils read dry, chalky, absorptive, low-sheen, and hand-painted. | Any area reads sweaty, wet, glossy, plastic, latex, polished leather, shiny black blade, or slick creature concept. |
 | Detail richness | Raw, reference ladder audit, and candidate triage | De-shining preserves Vellum-level tactile dry detail, dry surface breakup, occult material marks, and readable grouped complexity; Paisley remains secondary contrast context only. | The result becomes low-detail, over-smoothed, palette-only, cartoony, or chaotic micro-detail. |
 | Board-scale read | Board-scale decision sheet and board preview | At 96 px, the smooth head, torso, hands/feet, and blade-tendril ring survive without hiding style problems. | The board view loses the identity, hides a shiny/weak raw, or looks readable only because detail collapsed. |
-| Cutout quality | Cutout review sheet | Checker, black, and white review have no unacceptable orange fringe and no missing identity-critical tendrils. | Fringe, spill, missing tendrils, or alpha damage would affect board readability. |
+| Cutout quality | Cutout review sheet and orange-fringe audit | Checker, black, white, and audit review have no unacceptable safety-orange edge residue and no missing identity-critical tendrils. | Fringe, spill, missing tendrils, or alpha damage would affect board readability. |
 | Reference role | Proof ledger and decision helper output | If approved, it remains a narrow horror-side proof only. | Approval would be treated as a global style anchor or permission to replace live art. |
 
 Scorecard rule: approve only if every gate is Pass. Request revision if one or more gates are close but fixable. Reject if the core identity, material, or Vellum-veto gate fails. Do not continue to Veyra or broader roster generation on a partial pass.

@@ -15,6 +15,7 @@ DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflo
 
 ART_TOOLS = [
     ROOT / "tools" / "art" / "apply_unit_art_review_decision.py",
+    ROOT / "tools" / "art" / "audit_unit_cutout_orange_fringe.py",
     ROOT / "tools" / "art" / "build_unit_art_board_preview.py",
     ROOT / "tools" / "art" / "build_unit_art_prompt_packet.py",
     ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py",
@@ -293,6 +294,39 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> None:
+    text = audit_path.read_text(encoding="utf-8")
+    required = [
+        "Unit Art Cutout Orange-Fringe Audit",
+        "Vellum/Paisley Cutout Cleanliness Baseline",
+        "Accepted/reference rows flagged: `0`",
+        "Current candidates that fail can stay in the ledger as review candidates",
+    ]
+    missing = [snippet for snippet in required if snippet not in text]
+    if missing:
+        raise RuntimeError(f"{rel(audit_path)} missing cutout orange-fringe audit snippets: {missing}")
+    csv_path = audit_path.with_name("unit_art_cutout_orange_fringe_audit.csv")
+    review_sheet = audit_path.with_name("unit_art_cutout_orange_fringe_review_sheet.png")
+    if not csv_path.exists():
+        raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe audit CSV")
+    if not review_sheet.exists():
+        raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe review sheet")
+    rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    accepted_failures = [
+        row
+        for row in rows
+        if row.get("quality_status") == "fail" and row.get("proof_status") in {"accepted", "reference"}
+    ]
+    if accepted_failures:
+        ids = ", ".join(row.get("id", "<unknown>") for row in accepted_failures)
+        raise RuntimeError(f"accepted/reference cutouts failed orange-fringe audit: {ids}")
+    report.append("## Cutout Orange-Fringe Audit")
+    report.append("")
+    report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue against the Vellum/Paisley cleanliness baseline.")
+    report.append(f"- PASS `{rel(review_sheet)}` exists for fast checker/black/white/overlay review.")
+    report.append("")
+
+
 def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     text = packet_path.read_text(encoding="utf-8")
     required = [
@@ -350,6 +384,7 @@ def main() -> int:
     review_queue_dir = output_dir / "review_queue"
     review_packet_dir = output_dir / "review_packet"
     candidate_triage_dir = output_dir / "candidate_style_triage"
+    cutout_fringe_audit_dir = output_dir / "cutout_orange_fringe_audit"
     report: list[str] = [
         "# Unit Art Workflow Validation Report",
         "",
@@ -483,6 +518,21 @@ def main() -> int:
         )
         assert_candidate_triage(candidate_triage_dir / "unit_art_candidate_style_triage.md", report)
         run_step(
+            "Cutout Orange-Fringe Audit",
+            [
+                sys.executable,
+                "tools/art/audit_unit_cutout_orange_fringe.py",
+                "--output-dir",
+                rel(cutout_fringe_audit_dir),
+                "--docs-output",
+                "docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md",
+                "--report-date",
+                "2026-07-01",
+            ],
+            report,
+        )
+        assert_cutout_orange_fringe_audit(cutout_fringe_audit_dir / "unit_art_cutout_orange_fringe_audit.md", report)
+        run_step(
             "Focused Proof Style Drift Audit",
             [
                 sys.executable,
@@ -503,7 +553,7 @@ def main() -> int:
         report.append("")
         report.append("## Result")
         report.append("")
-        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, candidate style triage, completion audit, review queue, review packet, review-decision dry run, and art-tool syntax are coherent.")
+        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, candidate style triage, cutout orange-fringe audit, completion audit, review queue, review packet, review-decision dry run, and art-tool syntax are coherent.")
         report_path = write_report(output_dir, report)
         print(f"PASS: wrote {rel(report_path)}")
         return 0

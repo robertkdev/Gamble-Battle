@@ -19,7 +19,7 @@ SCORECARD_TEMPLATE_GATES = {
     "de_shined_material": "Skin, tendrils, clothing, and blades read dry, chalky, absorptive, low-sheen, and hand-painted beside Vellum.",
     "detail_richness": "De-shining preserves Vellum-level tactile dry detail, dry surface breakup, occult material marks, and readable grouped complexity; Paisley is secondary contrast context only.",
     "board_scale_read": "The 96 px board preview keeps the smooth head, torso, hands/feet, and blade-tendril ring without hiding style problems.",
-    "cutout_quality": "Checker, black, and white cutout review show no unacceptable orange fringe and no missing identity-critical tendrils.",
+    "cutout_quality": "Checker, black, white, and orange-fringe audit review show no unacceptable safety-orange edge residue and no missing identity-critical tendrils.",
     "reference_role": "If approved, the proof remains narrow horror-side coverage only and does not change the global anchor hierarchy.",
 }
 
@@ -244,7 +244,7 @@ def write_board_decision_sheet(
         "Does Creep keep enough Vellum-level dry surface breakup at small scale, or does de-shining make him too smooth/plain?",
         "Does the board preview avoid glossy creature skin, wet tendrils, shiny black blades, and plastic highlights?",
         "Does the silhouette feel like the planned creepy humanoid/demon assassin, not a generic corpse or unreadable tendril knot?",
-        "Does the cutout avoid visible orange fringe or missing identity-critical tendrils on checker, black, and white?",
+        "Does the cutout avoid visible orange fringe, orange-fringe audit flags, or missing identity-critical tendrils on checker, black, and white?",
     ]
     text_y = y + 46
     for question in questions:
@@ -341,7 +341,7 @@ def write_markdown(
         "| De-shined material | Raw, Vellum pairwise audit, and board-scale decision sheet | Skin and tendrils read dry, chalky, absorptive, low-sheen, and hand-painted. | Any area reads sweaty, wet, glossy, plastic, latex, polished leather, shiny black blade, or slick creature concept. |",
         "| Detail richness | Raw, reference ladder audit, and candidate triage | De-shining preserves Vellum-level tactile dry detail, dry surface breakup, occult material marks, and readable grouped complexity; Paisley remains secondary contrast context only. | The result becomes low-detail, over-smoothed, palette-only, cartoony, or chaotic micro-detail. |",
         "| Board-scale read | Board-scale decision sheet and board preview | At 96 px, the smooth head, torso, hands/feet, and blade-tendril ring survive without hiding style problems. | The board view loses the identity, hides a shiny/weak raw, or looks readable only because detail collapsed. |",
-        "| Cutout quality | Cutout review sheet | Checker, black, and white review have no unacceptable orange fringe and no missing identity-critical tendrils. | Fringe, spill, missing tendrils, or alpha damage would affect board readability. |",
+        "| Cutout quality | Cutout review sheet and orange-fringe audit | Checker, black, white, and audit review have no unacceptable safety-orange edge residue and no missing identity-critical tendrils. | Fringe, spill, missing tendrils, or alpha damage would affect board readability. |",
         "| Reference role | Proof ledger and decision helper output | If approved, it remains a narrow horror-side proof only. | Approval would be treated as a global style anchor or permission to replace live art. |",
         "",
         "Scorecard rule: approve only if every gate is Pass. Request revision if one or more gates are close but fixable. Reject if the core identity, material, or Vellum-veto gate fails. Do not continue to Veyra or broader roster generation on a partial pass.",

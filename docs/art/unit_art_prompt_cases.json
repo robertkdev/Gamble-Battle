@@ -66,8 +66,8 @@
   ],
   "cutout_default": {
     "tool": "tools/art/remove_unit_background_birefnet.py",
-    "command_template": "C:\\Users\\Flipm\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe .\\tools\\art\\remove_unit_background_birefnet.py --input <raw.png> --output <cutout.png> --mask-output <mask.png> --review-output <review.png> --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange",
-    "strategy": "Use BiRefNet with foreground ML and focused orange despill for premium unit art. Use chroma key only as a rejected/control comparison on complex units."
+    "command_template": "C:\\Users\\Flipm\\Documents\\ComfyUI\\.venv\\Scripts\\python.exe .\\tools\\art\\remove_unit_background_birefnet.py --input <raw.png> --output <cutout.png> --mask-output <mask.png> --review-output <review.png> --device cuda --input-size 1024 --feather 0.6 --defringe-orange --foreground-ml --despill-orange --edge-orange-clean",
+    "strategy": "Use BiRefNet with foreground ML, focused orange despill, and final edge-only safety-orange cleanup for premium unit art. Use chroma key only as a rejected/control comparison on complex units, then run the orange-fringe audit before any proof is accepted."
   },
   "cases": [
     {
