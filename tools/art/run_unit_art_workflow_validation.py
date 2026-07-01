@@ -99,6 +99,34 @@ def parse_cleaner_delta_stdout(stdout: str) -> dict[str, int]:
     return stats
 
 
+def assert_cleaner_stats_json(path: Path, cleaned_pixels: int, delta_stats: dict[str, int]) -> None:
+    if not path.exists():
+        raise RuntimeError(f"edge cleaner stats JSON missing: {rel(path)}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("audit_input_contract") != "cutout_rgba_pixels_only":
+        raise RuntimeError("edge cleaner stats JSON does not declare cutout_rgba_pixels_only")
+    if payload.get("edge_clean_contract") != "safety_orange_alpha_edge_pixels_only":
+        raise RuntimeError("edge cleaner stats JSON does not declare safety_orange_alpha_edge_pixels_only")
+    if payload.get("contract_status") != "pass":
+        raise RuntimeError("edge cleaner stats JSON does not record contract_status=pass")
+    for key in (
+        "reference_images_loaded",
+        "raw_images_loaded",
+        "board_preview_images_loaded",
+        "style_anchor_images_loaded",
+    ):
+        if payload.get(key) is not False:
+            raise RuntimeError(f"edge cleaner stats JSON must set {key}=false")
+    if int(payload.get("cleaned_edge_orange_pixels", -1)) != cleaned_pixels:
+        raise RuntimeError("edge cleaner stats JSON cleaned pixel count does not match stdout")
+    json_delta = payload.get("delta_stats")
+    if not isinstance(json_delta, dict):
+        raise RuntimeError("edge cleaner stats JSON missing delta_stats object")
+    for key in CLEANER_DELTA_STAT_KEYS:
+        if int(json_delta.get(key, -1)) != delta_stats[key]:
+            raise RuntimeError(f"edge cleaner stats JSON {key}={json_delta.get(key)}, actual={delta_stats[key]}")
+
+
 def find_proof(proof_id: str) -> dict[str, str]:
     data = json.loads(PROOF_MATRIX_PATH.read_text(encoding="utf-8"))
     for proof in data.get("proofs", []):
@@ -663,6 +691,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     audit_dir = control_dir / "audit"
     cleaned_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean.png"
     cleaner_review_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_review.png"
+    cleaner_stats_path = control_dir / "synthetic_orange_fringe_cutout_edgeclean_stats.json"
     cleaned_audit_dir = control_dir / "audit_after_edgeclean"
     write_synthetic_orange_fringe_cutout(cutout_path)
     interior_box = (52, 52, 76, 76)
@@ -729,6 +758,8 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         rel(cleaned_path),
         "--review-output",
         rel(cleaner_review_path),
+        "--stats-output",
+        rel(cleaner_stats_path),
     ]
     report.append("")
     report.append("```powershell")
@@ -765,6 +796,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     for key in CLEANER_DELTA_STAT_KEYS:
         if cleaner_stdout_stats[key] != delta_stats[key]:
             raise RuntimeError(f"edge cleaner self-reported {key}={cleaner_stdout_stats[key]}, actual={delta_stats[key]}")
+    assert_cleaner_stats_json(cleaner_stats_path, cleaned_pixels, delta_stats)
     try:
         assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, require_changed=True)
     except ValueError as exc:
@@ -827,6 +859,10 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         "- PASS edge-cleaner pixel delta is limited to safety-orange alpha-edge targets "
         f"(changed={delta_stats['changed_rgb_pixels']}, outside_target={delta_stats['changed_outside_target_pixels']}, "
         f"outside_edge={delta_stats['changed_outside_edge_pixels']}, alpha_changes={delta_stats['changed_alpha_pixels']})."
+    )
+    report.append(
+        "- PASS edge-cleaner stats JSON records the cutout-only/no-reference contract and matches stdout plus pixel delta: "
+        f"`{rel(cleaner_stats_path)}`."
     )
     report.append(
         "- PASS synthetic cutout review sheets are nonblank: "

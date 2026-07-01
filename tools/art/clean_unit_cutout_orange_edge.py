@@ -1,12 +1,23 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from audit_unit_cutout_orange_fringe import alpha_edge_band, checker, safety_orange_residue
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def rel(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def load_font(size: int) -> ImageFont.ImageFont:
@@ -85,6 +96,43 @@ def assert_edge_clean_delta_contract(
         raise ValueError("edge-clean delta contract failed: " + "; ".join(errors))
 
 
+def stats_output_path(output_path: Path) -> Path:
+    return output_path.with_name(f"{output_path.stem}_edgeclean_stats.json")
+
+
+def edge_clean_stats_payload(
+    input_path: Path,
+    output_path: Path,
+    review_output_path: Path,
+    stats_path: Path,
+    edge_radius: int,
+    cleaned_pixels: int,
+    delta_stats: dict[str, int],
+) -> dict[str, object]:
+    return {
+        "tool": "clean_unit_cutout_orange_edge.py",
+        "audit_input_contract": "cutout_rgba_pixels_only",
+        "edge_clean_contract": "safety_orange_alpha_edge_pixels_only",
+        "contract_status": "pass",
+        "reference_images_loaded": False,
+        "raw_images_loaded": False,
+        "board_preview_images_loaded": False,
+        "style_anchor_images_loaded": False,
+        "input": rel(input_path),
+        "output": rel(output_path),
+        "review_output": rel(review_output_path),
+        "stats_output": rel(stats_path),
+        "edge_radius": edge_radius,
+        "cleaned_edge_orange_pixels": cleaned_pixels,
+        "delta_stats": delta_stats,
+    }
+
+
+def write_stats_json(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
 def preview(cutout: Image.Image, background: Image.Image, size: tuple[int, int]) -> Image.Image:
     image = cutout.copy()
     image.thumbnail(size, Image.Resampling.LANCZOS)
@@ -154,6 +202,7 @@ def main() -> int:
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--review-output", required=True, type=Path)
+    parser.add_argument("--stats-output", type=Path, help="Optional JSON stats output. Defaults beside --output.")
     parser.add_argument("--edge-radius", type=int, default=4)
     args = parser.parse_args()
 
@@ -161,9 +210,22 @@ def main() -> int:
     after, cleaned_pixels = clean_edge_orange(before, args.edge_radius)
     delta_stats = edge_clean_delta_stats(before, after, args.edge_radius)
     assert_edge_clean_delta_contract(delta_stats, cleaned_pixels)
+    stats_path = args.stats_output if args.stats_output is not None else stats_output_path(args.output)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     after.save(args.output)
     write_review_sheet(args.review_output, before, after, cleaned_pixels, args.edge_radius)
+    write_stats_json(
+        stats_path,
+        edge_clean_stats_payload(
+            args.input,
+            args.output,
+            args.review_output,
+            stats_path,
+            args.edge_radius,
+            cleaned_pixels,
+            delta_stats,
+        ),
+    )
 
     print(f"cleaned_edge_orange_pixels={cleaned_pixels}")
     for key in [
@@ -176,6 +238,7 @@ def main() -> int:
         "removed_edge_orange_pixels",
     ]:
         print(f"{key}={delta_stats[key]}")
+    print(f"stats_output={stats_path}")
     print(args.output)
     print(args.review_output)
     return 0
