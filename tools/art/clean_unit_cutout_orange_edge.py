@@ -54,6 +54,37 @@ def edge_clean_delta_stats(before: Image.Image, after: Image.Image, edge_radius:
     }
 
 
+def edge_clean_delta_contract_errors(
+    delta_stats: dict[str, int],
+    cleaned_pixels: int,
+    require_changed: bool = False,
+) -> list[str]:
+    errors: list[str] = []
+    if delta_stats["target_edge_orange_pixels"] != cleaned_pixels:
+        errors.append("reported pixel count does not match target edge-orange pixels")
+    if require_changed and delta_stats["changed_rgb_pixels"] <= 0:
+        errors.append("no RGB pixels changed")
+    if delta_stats["changed_alpha_pixels"] != 0:
+        errors.append("alpha pixels changed")
+    if delta_stats["changed_outside_target_pixels"] != 0:
+        errors.append("pixels outside safety-orange edge target changed")
+    if delta_stats["changed_outside_edge_pixels"] != 0:
+        errors.append("pixels outside alpha edge band changed")
+    if delta_stats["remaining_edge_orange_pixels"] != 0:
+        errors.append("safety-orange residue remains in alpha edge band")
+    return errors
+
+
+def assert_edge_clean_delta_contract(
+    delta_stats: dict[str, int],
+    cleaned_pixels: int,
+    require_changed: bool = False,
+) -> None:
+    errors = edge_clean_delta_contract_errors(delta_stats, cleaned_pixels, require_changed)
+    if errors:
+        raise ValueError("edge-clean delta contract failed: " + "; ".join(errors))
+
+
 def preview(cutout: Image.Image, background: Image.Image, size: tuple[int, int]) -> Image.Image:
     image = cutout.copy()
     image.thumbnail(size, Image.Resampling.LANCZOS)
@@ -128,11 +159,23 @@ def main() -> int:
 
     before = Image.open(args.input).convert("RGBA")
     after, cleaned_pixels = clean_edge_orange(before, args.edge_radius)
+    delta_stats = edge_clean_delta_stats(before, after, args.edge_radius)
+    assert_edge_clean_delta_contract(delta_stats, cleaned_pixels)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     after.save(args.output)
     write_review_sheet(args.review_output, before, after, cleaned_pixels, args.edge_radius)
 
     print(f"cleaned_edge_orange_pixels={cleaned_pixels}")
+    for key in [
+        "target_edge_orange_pixels",
+        "changed_rgb_pixels",
+        "changed_alpha_pixels",
+        "changed_outside_target_pixels",
+        "changed_outside_edge_pixels",
+        "remaining_edge_orange_pixels",
+        "removed_edge_orange_pixels",
+    ]:
+        print(f"{key}={delta_stats[key]}")
     print(args.output)
     print(args.review_output)
     return 0

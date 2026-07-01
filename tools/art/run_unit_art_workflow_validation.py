@@ -11,7 +11,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from clean_unit_cutout_orange_edge import edge_clean_delta_stats
+from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -43,6 +43,15 @@ REFERENCE_ROLE_EXPECTATIONS = {
     "REF Paisley": "secondary_contrast_anchor",
     "REF Token": "small_asset_material_reference",
 }
+CLEANER_DELTA_STAT_KEYS = [
+    "target_edge_orange_pixels",
+    "changed_rgb_pixels",
+    "changed_alpha_pixels",
+    "changed_outside_target_pixels",
+    "changed_outside_edge_pixels",
+    "remaining_edge_orange_pixels",
+    "removed_edge_orange_pixels",
+]
 
 
 def rel(path: Path) -> str:
@@ -74,6 +83,20 @@ def run_step(name: str, command: list[str], report: list[str]) -> None:
     report.append("")
     if result.returncode != 0:
         raise RuntimeError(f"{name} failed with exit code {result.returncode}")
+
+
+def parse_cleaner_delta_stdout(stdout: str) -> dict[str, int]:
+    stats: dict[str, int] = {}
+    for key in CLEANER_DELTA_STAT_KEYS:
+        marker = f"{key}="
+        if marker not in stdout:
+            raise RuntimeError(f"edge cleaner did not self-report {key}")
+        text = stdout.split(marker, 1)[1].splitlines()[0].strip()
+        try:
+            stats[key] = int(text)
+        except ValueError as exc:
+            raise RuntimeError(f"edge cleaner reported non-integer {key}: {text}") from exc
+    return stats
 
 
 def find_proof(proof_id: str) -> dict[str, str]:
@@ -738,18 +761,14 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
     if cleaned_pixels <= 0:
         raise RuntimeError("synthetic edge cleaner did not remove any safety-orange edge pixels")
     delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4)
-    if delta_stats["target_edge_orange_pixels"] != cleaned_pixels:
-        raise RuntimeError("edge cleaner reported pixel count does not match target edge-orange pixels")
-    if delta_stats["changed_rgb_pixels"] <= 0:
-        raise RuntimeError("edge cleaner did not change any RGB pixels")
-    if delta_stats["changed_alpha_pixels"] != 0:
-        raise RuntimeError("edge cleaner changed alpha pixels")
-    if delta_stats["changed_outside_target_pixels"] != 0:
-        raise RuntimeError("edge cleaner changed pixels outside safety-orange edge target")
-    if delta_stats["changed_outside_edge_pixels"] != 0:
-        raise RuntimeError("edge cleaner changed pixels outside the alpha edge band")
-    if delta_stats["remaining_edge_orange_pixels"] != 0:
-        raise RuntimeError("edge cleaner left synthetic safety-orange residue in the alpha edge band")
+    cleaner_stdout_stats = parse_cleaner_delta_stdout(clean_result.stdout)
+    for key in CLEANER_DELTA_STAT_KEYS:
+        if cleaner_stdout_stats[key] != delta_stats[key]:
+            raise RuntimeError(f"edge cleaner self-reported {key}={cleaner_stdout_stats[key]}, actual={delta_stats[key]}")
+    try:
+        assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, require_changed=True)
+    except ValueError as exc:
+        raise RuntimeError(str(exc)) from exc
     interior_orange_after = count_safety_orange_pixels_in_box(cleaned_path, interior_box)
     if interior_orange_after != interior_orange_before:
         raise RuntimeError("edge-orange cleaner changed intentional interior orange material")

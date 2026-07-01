@@ -235,7 +235,7 @@ Fast brutal gate:
 python tools\art\check_unit_art_audit_gates.py --output-dir outputs\art_pipeline\style_validation\quick_art_audit_gates_<date> --metrics-csv <foreground_detail_metrics.csv>
 ```
 
-- Use this after a style-drift audit exists and before trusting any current cutout/style audit state. It is faster than the full workflow runner but still strict: non-rejected cutout contamination fails, cutout review sheets must exist and be nonblank, clean and intentional-interior-orange synthetic controls pass, edge-orange and soft-alpha orange synthetic controls fail, the synthetic edge-clean regression must fail-clean-pass, the edge cleaner must prove its pixel delta is limited to safety-orange alpha-edge targets with zero alpha/non-edge/interior damage, the metrics CSV must keep Vellum/Paisley/token as the only anchor rows, every other row is forbidden from using anchor roles, tampered reference/Totem metric controls must fail, the Vellum-first pairwise/reference-ladder sheets must exist and be nonblank, Totem must fail style triage, the token must stay small-asset-only, and hot-highlight matte-review rows must remain visible.
+- Use this after a style-drift audit exists and before trusting any current cutout/style audit state. It is faster than the full workflow runner but still strict: non-rejected cutout contamination fails, cutout review sheets must exist and be nonblank, clean and intentional-interior-orange synthetic controls pass, edge-orange and soft-alpha orange synthetic controls fail, the synthetic edge-clean regression must fail-clean-pass, the edge cleaner must self-report and prove its pixel delta is limited to safety-orange alpha-edge targets with zero alpha/non-edge/interior damage, the metrics CSV must keep Vellum/Paisley/token as the only anchor rows, every other row is forbidden from using anchor roles, tampered reference/Totem metric controls must fail, the Vellum-first pairwise/reference-ladder sheets must exist and be nonblank, Totem must fail style triage, the token must stay small-asset-only, and hot-highlight matte-review rows must remain visible.
 
 Fast post-clean for an existing transparent cutout:
 
@@ -244,8 +244,9 @@ python tools\art\clean_unit_cutout_orange_edge.py --input <cutout.png> --output 
 ```
 
 - Use this when the full BiRefNet cutout is already good but the audit catches a small safety-orange edge residue problem.
+- The cleaner command prints its own delta contract: target edge-orange pixels, changed RGB pixels, changed alpha pixels, changed pixels outside the target, changed pixels outside the alpha edge band, remaining edge-orange pixels, and removed edge-orange pixels. Treat any nonzero alpha/outside-target/outside-edge/remaining-edge-orange count as a failed clean.
 - After post-cleaning, rebuild the board preview and rerun the orange-fringe audit before changing the proof ledger path.
-- The standard validation runner includes a synthetic edge-clean regression: a reference-free contaminated cutout must fail the orange-fringe audit first, then pass after `clean_unit_cutout_orange_edge.py` while preserving alpha and intentional interior orange material. The regression also counts the before/after pixel delta and fails if the cleaner changes anything outside safety-orange alpha-edge target pixels, changes alpha, touches non-edge pixels, or leaves edge-orange residue behind.
+- The standard validation runner includes a synthetic edge-clean regression: a reference-free contaminated cutout must fail the orange-fringe audit first, then pass after `clean_unit_cutout_orange_edge.py` while preserving alpha and intentional interior orange material. The regression also requires the cleaner's self-reported delta stats to match the actual before/after pixels, and fails if the cleaner changes anything outside safety-orange alpha-edge target pixels, changes alpha, touches non-edge pixels, or leaves edge-orange residue behind.
 
 ## File Conventions
 
