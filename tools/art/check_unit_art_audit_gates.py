@@ -13,6 +13,12 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"quick_art_audit_gates_{date.today().strftime('%Y_%m_%d')}"
 STYLE_METRIC_FIELDS = {"p95_luma", "p99_luma", "bright_pixel_ratio", "hot_highlight_ratio"}
+STYLE_AUDIT_SHEETS = [
+    "raw_anchor_vs_later_contact_sheet.png",
+    "vellum_first_pairwise_raw_comparison.png",
+    "reference_ladder_raw_comparison.png",
+    "board_preview_drift_contact_sheet.png",
+]
 
 
 def rel(path_text: str | Path) -> str:
@@ -111,6 +117,22 @@ def assert_alpha_unchanged(before_path: Path, after_path: Path) -> None:
     after_alpha = list(Image.open(after_path).convert("RGBA").getchannel("A").getdata())
     if before_alpha != after_alpha:
         raise RuntimeError("edge-orange cleaner changed synthetic cutout alpha")
+
+
+def assert_nonblank_image(path: Path, label: str) -> tuple[int, int]:
+    if not path.exists():
+        raise RuntimeError(f"{label} missing: {rel(path)}")
+    if path.stat().st_size <= 0:
+        raise RuntimeError(f"{label} is empty: {rel(path)}")
+    image = Image.open(path).convert("RGB")
+    width, height = image.size
+    if width < 128 or height < 128:
+        raise RuntimeError(f"{label} is too small to be useful visual evidence: {width}x{height} at {rel(path)}")
+    extrema = image.getextrema()
+    channel_ranges = [high - low for low, high in extrema]
+    if max(channel_ranges) < 16:
+        raise RuntimeError(f"{label} appears blank or near-flat: {rel(path)}")
+    return width, height
 
 
 def write_synthetic_cutout(path: Path) -> None:
@@ -249,6 +271,8 @@ def assert_style_sentinels(metrics_csv: Path, output_dir: Path, report: list[str
         date.today().isoformat(),
     ]
     run_command(command, report, expect_success=True)
+    triage_sheet = triage_dir / "candidate_style_triage_review_sheet.png"
+    triage_width, triage_height = assert_nonblank_image(triage_sheet, "candidate style triage review sheet")
     rows = read_csv(triage_dir / "unit_art_candidate_style_triage.csv")
     by_proof = {row.get("proof_id", ""): row for row in rows}
     totem = by_proof.get("totem_dry_wood_guardian_refit")
@@ -270,6 +294,21 @@ def assert_style_sentinels(metrics_csv: Path, output_dir: Path, report: list[str
     report.append("- PASS Totem fails style triage while still proving proxy metrics can lie.")
     report.append("- PASS Token remains small-asset-only context.")
     report.append(f"- PASS hot-highlight matte-review rows present: `{len(hot_highlight_rows)}`.")
+    report.append(f"- PASS candidate triage review sheet exists and is nonblank: `{triage_width}x{triage_height}`.")
+    report.append("")
+
+
+def assert_vellum_first_visual_evidence(metrics_csv: Path, report: list[str]) -> None:
+    report.append("## Vellum-First Visual Evidence Gate")
+    report.append("")
+    audit_dir = metrics_csv.parent
+    sizes: list[str] = []
+    for sheet_name in STYLE_AUDIT_SHEETS:
+        width, height = assert_nonblank_image(audit_dir / sheet_name, sheet_name)
+        sizes.append(f"`{sheet_name}` {width}x{height}")
+    report.append(f"- Metrics source: `{rel(metrics_csv)}`")
+    report.append("- PASS Vellum-first pairwise, reference-ladder, raw contact, and board contact sheets exist and are nonblank.")
+    report.append(f"- Sheet sizes: {', '.join(sizes)}.")
     report.append("")
 
 
@@ -302,6 +341,7 @@ def main() -> int:
             metrics_csv = ROOT / metrics_csv
         if not metric_csv_is_current_shape(metrics_csv):
             raise RuntimeError(f"metrics CSV missing hot-highlight/luma fields: {rel(metrics_csv)}")
+        assert_vellum_first_visual_evidence(metrics_csv, report)
         assert_style_sentinels(metrics_csv, output_dir, report)
     else:
         report.append("## Style Sentinel Gate")

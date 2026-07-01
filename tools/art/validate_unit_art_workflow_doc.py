@@ -90,6 +90,7 @@ REQUIRED_DOC_SNIPPETS = [
     "intentional interior orange material",
     "Fast brutal gate",
     "non-rejected cutout contamination fails",
+    "Vellum-first pairwise/reference-ladder sheets must exist and be nonblank",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -462,6 +463,13 @@ REQUIRED_QUICK_AUDIT_GATE_SNIPPETS = [
     "Token remains small-asset-only context",
     "hot-highlight matte-review rows present",
     "find_latest_metrics_csv",
+    "Vellum-First Visual Evidence Gate",
+    "STYLE_AUDIT_SHEETS",
+    "assert_nonblank_image",
+    "vellum_first_pairwise_raw_comparison.png",
+    "reference_ladder_raw_comparison.png",
+    "triage_width",
+    "triage_height",
 ]
 
 REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
