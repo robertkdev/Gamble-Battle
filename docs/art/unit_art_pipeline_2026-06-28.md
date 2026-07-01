@@ -98,7 +98,7 @@ C:\Users\Flipm\Documents\ComfyUI\.venv\Scripts\python.exe .\tools\art\remove_uni
 - The perfected cutout process is now BiRefNet alpha + foreground ML + focused orange despill + final `--edge-orange-clean`, followed by `tools/art/audit_unit_cutout_orange_fringe.py`.
 - The edge clean is deliberately narrow: it targets safety-orange-like residue only in the alpha edge band after the matte and foreground RGB are already established. It should not be used as a broad chroma key or silhouette rescue.
 - The fast audit output is `docs/art/unit_art_cutout_orange_fringe_audit_2026-07-01.md` plus `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png`.
-- Current baseline result: Vellum, Paisley, token, and accepted technical references pass; current candidates Teller, Korath, and Hexeon are flagged for edge-orange cleanup before any acceptance/live swap.
+- Current baseline result after post-clean: Vellum, Paisley, token, accepted technical references, and the edge-cleaned Teller/Korath/Hexeon current-candidate cutouts pass. The only remaining flagged row is the rejected older Creep proof, which stays useful as a negative example.
 
 ## Quality notes
 

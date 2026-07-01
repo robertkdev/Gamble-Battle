@@ -4,8 +4,8 @@
 - Proof id: `creep_vellum_primary_detail_refit`
 - Status: `current_candidate`
 - Reference role: `review_candidate_not_anchor`
-- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_orange_fringe_audit_final/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
-- Board-scale decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_orange_fringe_audit_final/review_packet/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
+- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_edgecleaned_candidates/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
+- Board-scale decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_edgecleaned_candidates/review_packet/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
 - Scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`

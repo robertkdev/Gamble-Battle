@@ -26,6 +26,7 @@ ART_TOOLS = [
     ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py",
     ROOT / "tools" / "art" / "build_unit_style_drift_audit.py",
     ROOT / "tools" / "art" / "combine_unit_alpha_masks.py",
+    ROOT / "tools" / "art" / "clean_unit_cutout_orange_edge.py",
     ROOT / "tools" / "art" / "run_unit_art_workflow_validation.py",
     ROOT / "tools" / "art" / "validate_unit_art_workflow_doc.py",
 ]

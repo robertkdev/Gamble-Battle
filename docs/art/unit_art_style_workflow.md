@@ -226,6 +226,15 @@ python tools\art\audit_unit_cutout_orange_fringe.py --output-dir outputs\art_pip
 - Current candidates that fail the audit can remain review candidates, but need an edge-orange-clean pass before acceptance or live asset replacement.
 - Use `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png` for quick checker, black, white, and red-overlay review.
 
+Fast post-clean for an existing transparent cutout:
+
+```powershell
+python tools\art\clean_unit_cutout_orange_edge.py --input <cutout.png> --output <cutout_edgeclean.png> --review-output <review_edgeclean.png>
+```
+
+- Use this when the full BiRefNet cutout is already good but the audit catches a small safety-orange edge residue problem.
+- After post-cleaning, rebuild the board preview and rerun the orange-fringe audit before changing the proof ledger path.
+
 ## File Conventions
 
 Use this folder pattern for a style test:

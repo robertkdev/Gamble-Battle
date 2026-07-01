@@ -40,6 +40,7 @@ The completion audit is the current truth for remaining blockers. At the latest 
 - Reject sweaty skin, wet shine, glossy leather, latex, plastic, polished metal, chrome, clean fantasy render, cartoon/comic style, toy proportions, anime/gacha, and cinematic rim-light polish.
 - Use flat solid safety-orange `#f84401` for cutout-bound raw generations.
 - Use the refined BiRefNet command with `--foreground-ml --despill-orange --edge-orange-clean`, then run the orange-fringe audit. Accepted/reference cutouts must stay under the Vellum/Paisley cleanliness baseline.
+- If an existing transparent cutout only fails on small edge residue, use `tools/art/clean_unit_cutout_orange_edge.py`, rebuild its board preview, and rerun the audit before updating the proof ledger.
 - Keep the board-scale read at 96 px: head, torso, hands, weapon/prop, and main magic shape must survive.
 
 ## Reference Roles
@@ -105,12 +106,13 @@ Require `errors=[]` before handoff.
 5. Reject glossy or textured-background raws before cutout.
 6. Run the refined BiRefNet foreground-ML/despill/edge-orange-clean cutout command from the packet.
 7. Run `tools/art/audit_unit_cutout_orange_fringe.py` and inspect the review sheet if any current candidate is flagged.
-8. Build or inspect the board preview.
-9. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
-10. Rebuild `tools/art/build_unit_art_candidate_triage.py` after all-current audits if the candidate pool changed.
-11. Rebuild `tools/art/build_unit_art_review_packet.py --proof-id <proof_id>` before asking the user to decide.
-12. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
-13. Run the standard validation command plus MCP Godot validation.
+8. If the alpha is otherwise good, run `tools/art/clean_unit_cutout_orange_edge.py`, rebuild the board preview, and rerun the audit.
+9. Build or inspect the board preview.
+10. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
+11. Rebuild `tools/art/build_unit_art_candidate_triage.py` after all-current audits if the candidate pool changed.
+12. Rebuild `tools/art/build_unit_art_review_packet.py --proof-id <proof_id>` before asking the user to decide.
+13. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
+14. Run the standard validation command plus MCP Godot validation.
 
 ## Completion Standard
 

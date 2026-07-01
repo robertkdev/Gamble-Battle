@@ -97,7 +97,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Reference role: `narrow_proof_only`
 - Coverage: `monster_assassin, detached_effects`
 - Raw: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_raw_selected.png`
-- Board preview: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_board_preview.png`
+- Board preview: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_board_preview_edgeclean.png`
 - Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
 
 ### Korath (`korath`)
@@ -107,7 +107,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Reference role: `narrow_proof_only`
 - Coverage: `large_tank`
 - Raw: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_raw_selected.png`
-- Board preview: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_board_preview.png`
+- Board preview: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_board_preview_edgeclean.png`
 - Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
 
 ### Luna (`luna`)
@@ -147,7 +147,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Reference role: `narrow_proof_only`
 - Coverage: `humanoid_mage, weapon_heavy, small_narrow`
 - Raw: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_raw_selected.png`
-- Board preview: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_board_preview.png`
+- Board preview: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_board_preview_edgeclean.png`
 - Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
 
 ### Totem (`totem`)

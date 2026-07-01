@@ -14,6 +14,7 @@ ROSTER_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_roster_prompt_matrix.json
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 REVIEW_DECISION_HELPER_PATH = ROOT / "tools" / "art" / "apply_unit_art_review_decision.py"
 CUTOUT_FRINGE_AUDIT_BUILDER_PATH = ROOT / "tools" / "art" / "audit_unit_cutout_orange_fringe.py"
+CUTOUT_EDGE_CLEANER_PATH = ROOT / "tools" / "art" / "clean_unit_cutout_orange_edge.py"
 ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py"
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
 CANDIDATE_TRIAGE_PATH = ROOT / "docs" / "art" / "unit_art_candidate_style_triage_2026-07-01.md"
@@ -50,6 +51,7 @@ REQUIRED_DOC_SNIPPETS = [
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "audit_unit_cutout_orange_fringe.py",
+    "clean_unit_cutout_orange_edge.py",
     "run_unit_art_workflow_validation.py",
     "End-to-End Validation",
     "unit_art_proof_matrix.json",
@@ -237,6 +239,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "build_unit_art_review_queue.py",
     "build_unit_art_candidate_triage.py",
     "audit_unit_cutout_orange_fringe.py",
+    "clean_unit_cutout_orange_edge.py",
     "build_unit_art_review_packet.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
@@ -298,6 +301,14 @@ REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS = [
     "unit_art_cutout_orange_fringe_review_sheet.png",
     "Accepted/reference rows flagged",
     "fail-on-accepted-fail",
+]
+
+REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS = [
+    "clean_edge_orange",
+    "safety_orange_residue",
+    "alpha_edge_band",
+    "cleaned_edge_orange_pixels",
+    "Unit cutout edge-orange post-clean review",
 ]
 
 REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
@@ -627,6 +638,8 @@ def main() -> int:
         fail(f"Missing review decision helper: {REVIEW_DECISION_HELPER_PATH}", failures)
     if not CUTOUT_FRINGE_AUDIT_BUILDER_PATH.exists():
         fail(f"Missing cutout orange-fringe audit builder: {CUTOUT_FRINGE_AUDIT_BUILDER_PATH}", failures)
+    if not CUTOUT_EDGE_CLEANER_PATH.exists():
+        fail(f"Missing cutout edge-orange cleaner: {CUTOUT_EDGE_CLEANER_PATH}", failures)
     if not ROSTER_PACKET_BUILDER_PATH.exists():
         fail(f"Missing roster prompt packet builder: {ROSTER_PACKET_BUILDER_PATH}", failures)
     if not STYLE_DRIFT_BUILDER_PATH.exists():
@@ -743,6 +756,12 @@ def main() -> int:
     for snippet in REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS:
         if snippet.lower() not in cutout_fringe_audit_builder_lower:
             fail(f"cutout orange-fringe audit builder missing required snippet: {snippet}", failures)
+
+    cutout_edge_cleaner = CUTOUT_EDGE_CLEANER_PATH.read_text(encoding="utf-8")
+    cutout_edge_cleaner_lower = cutout_edge_cleaner.lower()
+    for snippet in REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS:
+        if snippet.lower() not in cutout_edge_cleaner_lower:
+            fail(f"cutout edge-orange cleaner missing required snippet: {snippet}", failures)
 
     review_packet_builder = REVIEW_PACKET_BUILDER_PATH.read_text(encoding="utf-8")
     review_packet_builder_lower = review_packet_builder.lower()

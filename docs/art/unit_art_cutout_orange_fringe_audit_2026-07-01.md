@@ -1,8 +1,8 @@
 # Unit Art Cutout Orange-Fringe Audit
 
 - Date: 2026-07-01
-- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_orange_fringe_audit_final/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
-- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_orange_fringe_audit_final/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
+- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_edgecleaned_candidates/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
+- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_edgecleaned_candidates/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
 - Purpose: quickly catch safety-orange fringe on transparent cutouts before a proof is accepted or used as visual context.
 - Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.
 
@@ -16,17 +16,14 @@
 ## Summary
 
 - Rows audited: `24`
-- Rows flagged for orange-fringe cleanup: `4`
+- Rows flagged for orange-fringe cleanup: `1`
 - Accepted/reference rows flagged: `0`
-- Current-candidate rows flagged: `3`
+- Current-candidate rows flagged: `0`
 
 ## Flagged Rows
 
 | id | proof status | edge orange | edge ratio | soft orange | issue |
 | --- | --- | ---: | ---: | ---: | --- |
-| `teller_contract_mogul_refit` | `current_candidate` | 344 | 0.3103% | 65 | edge_orange_pixels_above_vellum_baseline, edge_orange_ratio_above_vellum_baseline, soft_alpha_orange_above_vellum_baseline |
-| `korath_haloed_tank_refit` | `current_candidate` | 127 | 0.1334% | 7 | edge_orange_pixels_above_vellum_baseline, edge_orange_ratio_above_vellum_baseline |
-| `hexeon_time_blade_refit` | `current_candidate` | 99 | 0.0747% | 2 | edge_orange_pixels_above_vellum_baseline, edge_orange_ratio_above_vellum_baseline |
 | `creep_unit_refit_rejected` | `rejected` | 75 | 0.0456% | 6 | edge_orange_pixels_above_vellum_baseline |
 
 ## Decision Rule
