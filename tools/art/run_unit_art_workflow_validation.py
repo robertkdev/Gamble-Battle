@@ -106,6 +106,29 @@ def assert_accept_requires_scorecard(proof_id: str, report: list[str]) -> None:
     report.append("")
 
 
+def write_all_pass_scorecard(path: Path, proof_id: str) -> None:
+    scorecard = {
+        "vellum_veto": "pass",
+        "creep_identity": "pass",
+        "de_shined_material": "pass",
+        "detail_richness": "pass",
+        "board_scale_read": "pass",
+        "cutout_quality": "pass",
+        "reference_role": "pass",
+    }
+    path.write_text(
+        json.dumps(
+            {
+                "proof_id": proof_id,
+                "scorecard": scorecard,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
 def compile_art_tools(report: list[str]) -> None:
     report.append("## Python Compile")
     report.append("")
@@ -275,8 +298,10 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
         "Board-scale decision sheet",
         "Creep is the next human-review gate",
         "Decision Scorecard",
+        "Scorecard template",
         "Scorecard rule",
         "Approve only if",
+        "--scorecard-json",
         "request_revision",
         "Prior Creep Lessons",
     ]
@@ -289,11 +314,15 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     board_sheet = packet_path.with_name(packet_path.stem.replace("_review_decision_packet", "_board_scale_decision_sheet") + ".png")
     if not board_sheet.exists():
         raise RuntimeError(f"{rel(packet_path.parent)} missing board-scale decision sheet")
+    scorecard_template = packet_path.with_name(packet_path.stem.replace("_review_decision_packet", "_scorecard_template") + ".json")
+    if not scorecard_template.exists():
+        raise RuntimeError(f"{rel(packet_path.parent)} missing scorecard template")
     report.append("## Review Decision Packet")
     report.append("")
     report.append(f"- PASS `{rel(packet_path)}` packages the current gate for human review.")
     report.append(f"- PASS `{rel(visual_sheet)}` exists for Creep visual review.")
     report.append(f"- PASS `{rel(board_sheet)}` exists for board-scale review.")
+    report.append(f"- PASS `{rel(scorecard_template)}` exists for Vellum-first gate recording.")
     report.append("")
 
 
@@ -371,6 +400,8 @@ def main() -> int:
             report,
         )
         assert_review_packet(review_packet_dir / f"{args.audit_proof_id}_review_decision_packet.md", report)
+        all_pass_scorecard_path = output_dir / f"{args.audit_proof_id}_all_pass_scorecard.json"
+        write_all_pass_scorecard(all_pass_scorecard_path, args.audit_proof_id)
         run_step(
             "Review Decision Helper Dry Run",
             [
@@ -399,20 +430,8 @@ def main() -> int:
                 "validation all-gates-pass dry run only",
                 "--next-unit-id",
                 "veyra",
-                "--scorecard-gate",
-                "vellum_veto=pass",
-                "--scorecard-gate",
-                "creep_identity=pass",
-                "--scorecard-gate",
-                "de_shined_material=pass",
-                "--scorecard-gate",
-                "detail_richness=pass",
-                "--scorecard-gate",
-                "board_scale_read=pass",
-                "--scorecard-gate",
-                "cutout_quality=pass",
-                "--scorecard-gate",
-                "reference_role=pass",
+                "--scorecard-json",
+                rel(all_pass_scorecard_path),
                 "--dry-run",
             ],
             report,

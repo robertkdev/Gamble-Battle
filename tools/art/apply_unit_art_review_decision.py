@@ -54,20 +54,62 @@ def append_review_history(proof: dict[str, Any], decision: str, reason: str, sco
     history.append(entry)
 
 
+def normalize_scorecard_entry(gate: str, value: object) -> tuple[str, str]:
+    gate = gate.strip()
+    if not isinstance(value, str):
+        raise ValueError(f"scorecard value for {gate} must be a string")
+    normalized_value = value.strip().lower()
+    if gate not in SCORECARD_GATES:
+        raise ValueError(f"unknown scorecard gate {gate}; expected one of {SCORECARD_GATES}")
+    if normalized_value not in SCORECARD_VALUES:
+        raise ValueError(f"scorecard value for {gate} must be one of {sorted(SCORECARD_VALUES)}")
+    return gate, normalized_value
+
+
 def parse_scorecard(items: list[str]) -> dict[str, str]:
     scorecard: dict[str, str] = {}
     for item in items:
         if "=" not in item:
             raise ValueError(f"scorecard entry must use gate=value format: {item}")
         gate, value = item.split("=", 1)
-        gate = gate.strip()
-        value = value.strip().lower()
-        if gate not in SCORECARD_GATES:
-            raise ValueError(f"unknown scorecard gate {gate}; expected one of {SCORECARD_GATES}")
-        if value not in SCORECARD_VALUES:
-            raise ValueError(f"scorecard value for {gate} must be one of {sorted(SCORECARD_VALUES)}")
-        scorecard[gate] = value
+        normalized_gate, normalized_value = normalize_scorecard_entry(gate, value)
+        scorecard[normalized_gate] = normalized_value
     return scorecard
+
+
+def load_scorecard_json(path: Path, expected_proof_id: str) -> dict[str, str]:
+    data = load_json(path)
+    if not isinstance(data, dict):
+        raise ValueError("scorecard JSON must be an object")
+    proof_id = data.get("proof_id")
+    if isinstance(proof_id, str) and proof_id != expected_proof_id:
+        raise ValueError(f"scorecard proof_id {proof_id} does not match expected proof_id {expected_proof_id}")
+
+    payload = data.get("scorecard")
+    if payload is None:
+        payload = data.get("gates")
+    if payload is None:
+        payload = {gate: data[gate] for gate in SCORECARD_GATES if gate in data}
+    if not isinstance(payload, dict):
+        raise ValueError("scorecard JSON must contain a scorecard object, gates object, or top-level gate values")
+    if not payload:
+        raise ValueError("scorecard JSON did not contain any scorecard gates")
+
+    scorecard: dict[str, str] = {}
+    for gate, value in payload.items():
+        normalized_gate, normalized_value = normalize_scorecard_entry(str(gate), value)
+        scorecard[normalized_gate] = normalized_value
+    return scorecard
+
+
+def merge_scorecards(json_scorecard: dict[str, str], cli_scorecard: dict[str, str]) -> dict[str, str]:
+    merged = dict(json_scorecard)
+    for gate, value in cli_scorecard.items():
+        existing = merged.get(gate)
+        if existing is not None and existing != value:
+            raise ValueError(f"conflicting scorecard value for {gate}: JSON has {existing}, CLI has {value}")
+        merged[gate] = value
+    return merged
 
 
 def validate_scorecard(decision: str, scorecard: dict[str, str]) -> None:
@@ -153,6 +195,11 @@ def main() -> int:
         default=[],
         help="Record one scorecard gate as gate=value. Gates: vellum_veto, creep_identity, de_shined_material, detail_richness, board_scale_read, cutout_quality, reference_role. Values: pass, revise, reject.",
     )
+    parser.add_argument(
+        "--scorecard-json",
+        type=Path,
+        help="Load scorecard gate values from a JSON file. Supports {'scorecard': {...}}, {'gates': {...}}, or top-level gate values.",
+    )
     parser.add_argument("--next-unit-id")
     parser.add_argument("--next-reason")
     parser.add_argument("--proof-matrix", type=Path, default=PROOF_MATRIX_PATH)
@@ -161,7 +208,12 @@ def main() -> int:
 
     path = args.proof_matrix if args.proof_matrix.is_absolute() else ROOT / args.proof_matrix
     original = load_json(path)
-    scorecard = parse_scorecard(args.scorecard_gate)
+    scorecard_path = None
+    if args.scorecard_json:
+        scorecard_path = args.scorecard_json if args.scorecard_json.is_absolute() else ROOT / args.scorecard_json
+    json_scorecard = load_scorecard_json(scorecard_path, args.proof_id) if scorecard_path else {}
+    cli_scorecard = parse_scorecard(args.scorecard_gate)
+    scorecard = merge_scorecards(json_scorecard, cli_scorecard)
     updated = apply_decision(
         copy.deepcopy(original),
         args.proof_id,

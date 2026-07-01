@@ -4,8 +4,9 @@
 - Proof id: `creep_vellum_primary_detail_refit`
 - Status: `current_candidate`
 - Reference role: `review_candidate_not_anchor`
-- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_scorecard_guard/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
-- Board-scale decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_scorecard_guard/review_packet/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
+- Visual decision sheet: `outputs/art_pipeline/style_validation/creep_review_packet_2026_07_01/creep_vellum_primary_detail_refit_review_decision_sheet.png`
+- Board-scale decision sheet: `outputs/art_pipeline/style_validation/creep_review_packet_2026_07_01/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
+- Scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
 - Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
@@ -41,6 +42,8 @@ Reject or request revision if it reads shiny/sweaty, corpse/flayed, too low-deta
 
 Scorecard rule: approve only if every gate is Pass. Request revision if one or more gates are close but fixable. Reject if the core identity, material, or Vellum-veto gate fails. Do not continue to Veyra or broader roster generation on a partial pass.
 
+Use `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json` as the worksheet. It defaults to `revise` so it cannot accidentally approve the candidate; edit every gate after side-by-side review before applying the decision.
+
 ## Human Reply Contract
 
 - Reply `approve Creep` only if the candidate survives the Vellum-first scoring contract.
@@ -50,9 +53,9 @@ Scorecard rule: approve only if every gate is Pass. Request revision if one or m
 ## Apply The Decision
 
 ```powershell
-python tools\art\apply_unit_art_review_decision.py --proof-id creep_vellum_primary_detail_refit --decision accept --reason "<human-approved reason>" --next-unit-id veyra --scorecard-gate vellum_veto=pass --scorecard-gate creep_identity=pass --scorecard-gate de_shined_material=pass --scorecard-gate detail_richness=pass --scorecard-gate board_scale_read=pass --scorecard-gate cutout_quality=pass --scorecard-gate reference_role=pass
-python tools\art\apply_unit_art_review_decision.py --proof-id creep_vellum_primary_detail_refit --decision reject --reason "<concrete failure reason>" --scorecard-gate vellum_veto=reject
-python tools\art\apply_unit_art_review_decision.py --proof-id creep_vellum_primary_detail_refit --decision request_revision --reason "<needed change>" --scorecard-gate vellum_veto=revise
+python tools\art\apply_unit_art_review_decision.py --proof-id creep_vellum_primary_detail_refit --decision accept --reason "<human-approved reason>" --next-unit-id veyra --scorecard-json docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json
+python tools\art\apply_unit_art_review_decision.py --proof-id creep_vellum_primary_detail_refit --decision reject --reason "<concrete failure reason>" --scorecard-json docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json
+python tools\art\apply_unit_art_review_decision.py --proof-id creep_vellum_primary_detail_refit --decision request_revision --reason "<needed change>" --scorecard-json docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json
 ```
 
 ## Prior Creep Lessons

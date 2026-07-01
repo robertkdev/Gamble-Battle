@@ -1,0 +1,35 @@
+{
+  "proof_id": "creep_vellum_primary_detail_refit",
+  "subject_id": "creep",
+  "generated": "2026-07-01",
+  "instructions": [
+    "Judge the candidate side by side against Vellum first.",
+    "Use pass only when the gate survives Vellum-first review.",
+    "Use revise for close or fixable issues.",
+    "Use reject for core failures.",
+    "Acceptance is blocked unless every scorecard value is pass."
+  ],
+  "allowed_values": [
+    "pass",
+    "revise",
+    "reject"
+  ],
+  "scorecard": {
+    "vellum_veto": "revise",
+    "creep_identity": "revise",
+    "de_shined_material": "revise",
+    "detail_richness": "revise",
+    "board_scale_read": "revise",
+    "cutout_quality": "revise",
+    "reference_role": "revise"
+  },
+  "gate_notes": {
+    "vellum_veto": "Candidate survives the first side-by-side comparison against Vellum on dry material, detail richness, grounded realism, silhouette mood, and board-scale readability.",
+    "creep_identity": "Candidate still reads as the planned smooth alien/demon assassin, not a corpse, flayed anatomy monster, generic creature, or unreadable tendril knot.",
+    "de_shined_material": "Skin, tendrils, clothing, and blades read dry, chalky, absorptive, low-sheen, and hand-painted beside Vellum.",
+    "detail_richness": "De-shining preserves Vellum/Paisley-level tactile detail, dry surface breakup, occult material marks, and readable grouped complexity.",
+    "board_scale_read": "The 96 px board preview keeps the smooth head, torso, hands/feet, and blade-tendril ring without hiding style problems.",
+    "cutout_quality": "Checker, black, and white cutout review show no unacceptable orange fringe and no missing identity-critical tendrils.",
+    "reference_role": "If approved, the proof remains narrow horror-side coverage only and does not change the global anchor hierarchy."
+  }
+}

@@ -112,13 +112,13 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Vellum-First Scoring Contract",
     "Decision Scorecard",
     "Scorecard rule",
+    "Scorecard template",
     "Human Reply Contract",
     "weaker than Vellum",
     "Reference ladder audit",
+    "--scorecard-json",
     "request_revision",
     "Prior Creep Lessons",
-    "--scorecard-gate",
-    "vellum_veto=pass",
 ]
 
 REQUIRED_REVIEW_QUEUE_SNIPPETS = [
@@ -223,6 +223,8 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Review Decision Helper Accept Scorecard Dry Run",
     "Review Decision Helper Missing Scorecard Guard",
     "accept without scorecard unexpectedly passed",
+    "write_all_pass_scorecard",
+    "--scorecard-json",
     "Candidate Style Triage",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
@@ -234,6 +236,9 @@ REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS = [
     "VALID_DECISIONS",
     "SCORECARD_GATES",
     "scorecard-gate",
+    "scorecard-json",
+    "load_scorecard_json",
+    "merge_scorecards",
     "accept requires every scorecard gate to be pass",
     "request_revision",
     "current_candidate",
@@ -265,6 +270,8 @@ REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Human Reply Contract",
     "later passing proofs cannot average away the target",
     "Reference ladder audit",
+    "Scorecard template",
+    "write_scorecard_template",
     "write_visual_packet",
     "Visual decision sheet",
 ]

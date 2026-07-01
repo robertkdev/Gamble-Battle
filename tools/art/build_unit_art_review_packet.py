@@ -13,6 +13,15 @@ ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"review_packet_{date.today().strftime('%Y_%m_%d')}"
 VELLUM_BOARD_REFERENCE = "outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_cleanliness_comparison.png"
+SCORECARD_TEMPLATE_GATES = {
+    "vellum_veto": "Candidate survives the first side-by-side comparison against Vellum on dry material, detail richness, grounded realism, silhouette mood, and board-scale readability.",
+    "creep_identity": "Candidate still reads as the planned smooth alien/demon assassin, not a corpse, flayed anatomy monster, generic creature, or unreadable tendril knot.",
+    "de_shined_material": "Skin, tendrils, clothing, and blades read dry, chalky, absorptive, low-sheen, and hand-painted beside Vellum.",
+    "detail_richness": "De-shining preserves Vellum/Paisley-level tactile detail, dry surface breakup, occult material marks, and readable grouped complexity.",
+    "board_scale_read": "The 96 px board preview keeps the smooth head, torso, hands/feet, and blade-tendril ring without hiding style problems.",
+    "cutout_quality": "Checker, black, and white cutout review show no unacceptable orange fringe and no missing identity-critical tendrils.",
+    "reference_role": "If approved, the proof remains narrow horror-side coverage only and does not change the global anchor hierarchy.",
+}
 
 
 def rel(path_text: str | Path) -> str:
@@ -259,26 +268,39 @@ def write_board_decision_sheet(
     sheet.save(output_path)
 
 
+def write_scorecard_template(path: Path, proof: dict[str, Any], report_date: str) -> None:
+    template: dict[str, Any] = {
+        "proof_id": proof.get("id"),
+        "subject_id": proof.get("subject_id"),
+        "generated": report_date,
+        "instructions": [
+            "Judge the candidate side by side against Vellum first.",
+            "Use pass only when the gate survives Vellum-first review.",
+            "Use revise for close or fixable issues.",
+            "Use reject for core failures.",
+            "Acceptance is blocked unless every scorecard value is pass.",
+        ],
+        "allowed_values": ["pass", "revise", "reject"],
+        "scorecard": {gate: "revise" for gate in SCORECARD_TEMPLATE_GATES},
+        "gate_notes": SCORECARD_TEMPLATE_GATES,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(template, indent=2) + "\n", encoding="utf-8")
+
+
 def write_markdown(
     path: Path,
     proof: dict[str, Any],
     related: list[dict[str, Any]],
     visual_path: Path,
     board_decision_path: Path,
+    scorecard_template_path: Path,
     report_date: str,
 ) -> None:
     style_audit = str(proof.get("style_audit", ""))
     pairwise_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "vellum_first_pairwise_raw_comparison.png")
     reference_ladder_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "reference_ladder_raw_comparison.png")
-    all_pass_scorecard = (
-        "--scorecard-gate vellum_veto=pass "
-        "--scorecard-gate creep_identity=pass "
-        "--scorecard-gate de_shined_material=pass "
-        "--scorecard-gate detail_richness=pass "
-        "--scorecard-gate board_scale_read=pass "
-        "--scorecard-gate cutout_quality=pass "
-        "--scorecard-gate reference_role=pass"
-    )
+    scorecard_template_rel = rel(scorecard_template_path)
     lines: list[str] = [
         f"# {proof.get('display_name', proof.get('subject_id'))} Review Decision Packet",
         "",
@@ -288,6 +310,7 @@ def write_markdown(
         f"- Reference role: `{proof.get('reference_role')}`",
         f"- Visual decision sheet: `{rel(visual_path)}`",
         f"- Board-scale decision sheet: `{rel(board_decision_path)}`",
+        f"- Scorecard template: `{scorecard_template_rel}`",
         f"- Raw: `{proof.get('raw')}`",
         f"- Board preview: `{proof.get('board_preview')}`",
         f"- Vellum pairwise audit: `{pairwise_audit}`",
@@ -323,6 +346,8 @@ def write_markdown(
         "",
         "Scorecard rule: approve only if every gate is Pass. Request revision if one or more gates are close but fixable. Reject if the core identity, material, or Vellum-veto gate fails. Do not continue to Veyra or broader roster generation on a partial pass.",
         "",
+        f"Use `{scorecard_template_rel}` as the worksheet. It defaults to `revise` so it cannot accidentally approve the candidate; edit every gate after side-by-side review before applying the decision.",
+        "",
         "## Human Reply Contract",
         "",
         "- Reply `approve Creep` only if the candidate survives the Vellum-first scoring contract.",
@@ -332,9 +357,9 @@ def write_markdown(
         "## Apply The Decision",
         "",
         "```powershell",
-        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision accept --reason "<human-approved reason>" --next-unit-id veyra {all_pass_scorecard}',
-        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision reject --reason "<concrete failure reason>" --scorecard-gate vellum_veto=reject',
-        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision request_revision --reason "<needed change>" --scorecard-gate vellum_veto=revise',
+        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision accept --reason "<human-approved reason>" --next-unit-id veyra --scorecard-json {scorecard_template_rel}',
+        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision reject --reason "<concrete failure reason>" --scorecard-json {scorecard_template_rel}',
+        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision request_revision --reason "<needed change>" --scorecard-json {scorecard_template_rel}',
         "```",
         "",
         "## Prior Creep Lessons",
@@ -362,17 +387,23 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     visual_path = output_dir / f"{args.proof_id}_review_decision_sheet.png"
     board_decision_path = output_dir / f"{args.proof_id}_board_scale_decision_sheet.png"
+    scorecard_template_path = output_dir / f"{args.proof_id}_scorecard_template.json"
     md_path = output_dir / f"{args.proof_id}_review_decision_packet.md"
     write_visual_packet(visual_path, proof_data, proof, related)
     write_board_decision_sheet(board_decision_path, proof_data, proof)
-    write_markdown(md_path, proof, related, visual_path, board_decision_path, args.report_date)
+    write_scorecard_template(scorecard_template_path, proof, args.report_date)
+    write_markdown(md_path, proof, related, visual_path, board_decision_path, scorecard_template_path, args.report_date)
     if args.docs_output:
         docs_path = args.docs_output if args.docs_output.is_absolute() else ROOT / args.docs_output
-        write_markdown(docs_path, proof, related, visual_path, board_decision_path, args.report_date)
+        docs_scorecard_template_path = docs_path.with_name(f"{docs_path.stem}_scorecard_template.json")
+        write_scorecard_template(docs_scorecard_template_path, proof, args.report_date)
+        write_markdown(docs_path, proof, related, visual_path, board_decision_path, docs_scorecard_template_path, args.report_date)
         print(rel(docs_path))
+        print(rel(docs_scorecard_template_path))
     print(rel(md_path))
     print(rel(visual_path))
     print(rel(board_decision_path))
+    print(rel(scorecard_template_path))
     return 0
 
 
