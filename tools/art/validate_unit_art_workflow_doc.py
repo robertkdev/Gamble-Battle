@@ -17,6 +17,8 @@ ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
 CANDIDATE_TRIAGE_PATH = ROOT / "docs" / "art" / "unit_art_candidate_style_triage_2026-07-01.md"
 CANDIDATE_TRIAGE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py"
+REVIEW_PACKET_PATH = ROOT / "docs" / "art" / "creep_review_decision_packet_2026-07-01.md"
+REVIEW_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_packet.py"
 REVIEW_QUEUE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_queue.py"
 COMPLETION_AUDIT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py"
 WORKFLOW_RUNNER_PATH = ROOT / "tools" / "art" / "run_unit_art_workflow_validation.py"
@@ -42,6 +44,7 @@ REQUIRED_DOC_SNIPPETS = [
     "apply_unit_art_review_decision.py",
     "build_unit_style_drift_audit.py",
     "build_unit_art_candidate_triage.py",
+    "build_unit_art_review_packet.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "run_unit_art_workflow_validation.py",
@@ -54,6 +57,7 @@ REQUIRED_DOC_SNIPPETS = [
     "real planned unit",
     "unit_art_style_drift_audit_2026-06-30.md",
     "unit_art_candidate_style_triage_2026-07-01.md",
+    "creep_review_decision_packet_2026-07-01.md",
     "unit_art_future_agent_handoff.md",
     "less shine is not the same as less detail",
     "Vellum is the primary/ultimate style anchor",
@@ -96,6 +100,15 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "candidate_style_triage_review_sheet.png",
 ]
 
+REQUIRED_REVIEW_PACKET_SNIPPETS = [
+    "Review Decision Packet",
+    "Visual decision sheet",
+    "Creep is the next human-review gate",
+    "Approve only if",
+    "request_revision",
+    "Prior Creep Lessons",
+]
+
 REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "Unit Art Review Queue",
     "Current candidates needing review",
@@ -110,6 +123,7 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "too low-detail or smooth after de-shining",
     "Do not let the growing passing pool muddy the target",
     "Vellum pairwise audit",
+    "creep_review_decision_packet_2026-07-01.md",
     "apply_unit_art_review_decision.py",
     "--decision request_revision",
 ]
@@ -129,6 +143,7 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "run_unit_art_workflow_validation.py",
     "apply_unit_art_review_decision.py",
     "unit_art_candidate_style_triage_2026-07-01.md",
+    "creep_review_decision_packet_2026-07-01.md",
     "RoleMatrixProbe.tscn",
     "Completion Standard",
 ]
@@ -171,6 +186,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "apply_unit_art_review_decision.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_candidate_triage.py",
+    "build_unit_art_review_packet.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
     "build_unit_style_drift_audit.py",
@@ -181,6 +197,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Focused Proof Style Drift Audit",
     "Workflow Completion Audit",
     "Review Queue",
+    "Review Decision Packet",
     "Review Decision Helper Dry Run",
     "Candidate Style Triage",
     "Godot Validation",
@@ -208,6 +225,14 @@ REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
     "write_visual_review_sheet",
 ]
 
+REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
+    "Review Decision Packet",
+    "Creep is the next human-review gate",
+    "Prior Creep Lessons",
+    "write_visual_packet",
+    "Visual decision sheet",
+]
+
 REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "current_candidate",
     "next_gate",
@@ -223,6 +248,7 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "Rejection Checklist",
     "Do not let the growing passing pool muddy the target",
     "Vellum pairwise audit",
+    "creep_review_decision_packet_2026-07-01.md",
 ]
 
 REQUIRED_COMPLETION_BUILDER_SNIPPETS = [
@@ -509,6 +535,8 @@ def main() -> int:
         fail(f"Missing style drift audit builder: {STYLE_DRIFT_BUILDER_PATH}", failures)
     if not CANDIDATE_TRIAGE_BUILDER_PATH.exists():
         fail(f"Missing candidate triage builder: {CANDIDATE_TRIAGE_BUILDER_PATH}", failures)
+    if not REVIEW_PACKET_BUILDER_PATH.exists():
+        fail(f"Missing review packet builder: {REVIEW_PACKET_BUILDER_PATH}", failures)
     if not REVIEW_QUEUE_BUILDER_PATH.exists():
         fail(f"Missing review queue builder: {REVIEW_QUEUE_BUILDER_PATH}", failures)
     if not COMPLETION_AUDIT_BUILDER_PATH.exists():
@@ -519,6 +547,8 @@ def main() -> int:
         fail(f"Missing style drift audit: {STYLE_DRIFT_AUDIT_PATH}", failures)
     if not CANDIDATE_TRIAGE_PATH.exists():
         fail(f"Missing candidate style triage: {CANDIDATE_TRIAGE_PATH}", failures)
+    if not REVIEW_PACKET_PATH.exists():
+        fail(f"Missing review packet: {REVIEW_PACKET_PATH}", failures)
     if not COMPLETION_AUDIT_PATH.exists():
         fail(f"Missing completion audit: {COMPLETION_AUDIT_PATH}", failures)
     if not REVIEW_QUEUE_PATH.exists():
@@ -553,6 +583,12 @@ def main() -> int:
     for snippet in REQUIRED_CANDIDATE_TRIAGE_SNIPPETS:
         if snippet.lower() not in candidate_triage_lower:
             fail(f"candidate style triage missing required snippet: {snippet}", failures)
+
+    review_packet = REVIEW_PACKET_PATH.read_text(encoding="utf-8")
+    review_packet_lower = review_packet.lower()
+    for snippet in REQUIRED_REVIEW_PACKET_SNIPPETS:
+        if snippet.lower() not in review_packet_lower:
+            fail(f"review packet missing required snippet: {snippet}", failures)
 
     completion_audit = COMPLETION_AUDIT_PATH.read_text(encoding="utf-8")
     completion_audit_lower = completion_audit.lower()
@@ -595,6 +631,12 @@ def main() -> int:
     for snippet in REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS:
         if snippet.lower() not in candidate_triage_builder_lower:
             fail(f"candidate triage builder missing required snippet: {snippet}", failures)
+
+    review_packet_builder = REVIEW_PACKET_BUILDER_PATH.read_text(encoding="utf-8")
+    review_packet_builder_lower = review_packet_builder.lower()
+    for snippet in REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS:
+        if snippet.lower() not in review_packet_builder_lower:
+            fail(f"review packet builder missing required snippet: {snippet}", failures)
 
     review_queue_builder = REVIEW_QUEUE_BUILDER_PATH.read_text(encoding="utf-8")
     review_queue_builder_lower = review_queue_builder.lower()

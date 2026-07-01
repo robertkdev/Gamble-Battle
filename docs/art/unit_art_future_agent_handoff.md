@@ -25,6 +25,7 @@ Read these in order:
 5. `docs/art/unit_art_roster_prompt_matrix.json`
 6. `docs/art/unit_art_style_drift_audit_2026-06-30.md`
 7. `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
+8. `docs/art/creep_review_decision_packet_2026-07-01.md`
 
 The completion audit is the current truth for remaining blockers. At the latest audit, 23 roster entries were checked: 3 accepted unit proofs, 14 current-candidate unit proofs needing human approval, and 6 roster entries with no visual proof (`berebell`, `cashmere`, `mortem`, `nyxa`, `repo`, `veyra`).
 
@@ -59,6 +60,7 @@ The next decision is human review of:
 - Vellum-first audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png`
 - Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
 - Candidate style triage: `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
+- Creep decision packet: `docs/art/creep_review_decision_packet_2026-07-01.md`
 
 The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement.
 
@@ -74,7 +76,7 @@ Run this before handoff:
 python tools\art\run_unit_art_workflow_validation.py --output-dir outputs\art_pipeline\style_validation\workflow_validation_<date>
 ```
 
-That command validates the proof policy, completion audit, workflow docs, all 23 generated roster packets, generated packet reference hierarchy, role-labeled style audits, the mandatory Vellum-first pairwise audit output, candidate style triage, and art-tool syntax.
+That command validates the proof policy, completion audit, workflow docs, all 23 generated roster packets, generated packet reference hierarchy, role-labeled style audits, the mandatory Vellum-first pairwise audit output, candidate style triage, the current review packet, and art-tool syntax.
 
 Godot validation is separate because this repo requires MCP-only Godot execution. Run:
 
@@ -96,8 +98,9 @@ Require `errors=[]` before handoff.
 7. Build or inspect the board preview.
 8. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
 9. Rebuild `tools/art/build_unit_art_candidate_triage.py` after all-current audits if the candidate pool changed.
-10. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
-11. Run the standard validation command plus MCP Godot validation.
+10. Rebuild `tools/art/build_unit_art_review_packet.py --proof-id <proof_id>` before asking the user to decide.
+11. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
+12. Run the standard validation command plus MCP Godot validation.
 
 ## Completion Standard
 

@@ -18,6 +18,7 @@ ART_TOOLS = [
     ROOT / "tools" / "art" / "build_unit_art_board_preview.py",
     ROOT / "tools" / "art" / "build_unit_art_prompt_packet.py",
     ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py",
+    ROOT / "tools" / "art" / "build_unit_art_review_packet.py",
     ROOT / "tools" / "art" / "build_unit_art_review_queue.py",
     ROOT / "tools" / "art" / "build_unit_roster_contact_sheet.py",
     ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py",
@@ -226,6 +227,29 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_review_packet(packet_path: Path, report: list[str]) -> None:
+    text = packet_path.read_text(encoding="utf-8")
+    required = [
+        "Review Decision Packet",
+        "Visual decision sheet",
+        "Creep is the next human-review gate",
+        "Approve only if",
+        "request_revision",
+        "Prior Creep Lessons",
+    ]
+    missing = [snippet for snippet in required if snippet not in text]
+    if missing:
+        raise RuntimeError(f"{rel(packet_path)} missing review packet snippets: {missing}")
+    visual_sheet = packet_path.with_name(packet_path.stem.replace("_packet", "_sheet") + ".png")
+    if not visual_sheet.exists():
+        raise RuntimeError(f"{rel(packet_path.parent)} missing review decision visual sheet")
+    report.append("## Review Decision Packet")
+    report.append("")
+    report.append(f"- PASS `{rel(packet_path)}` packages the current gate for human review.")
+    report.append(f"- PASS `{rel(visual_sheet)}` exists for Creep visual review.")
+    report.append("")
+
+
 def write_report(output_dir: Path, report: list[str]) -> Path:
     path = output_dir / "workflow_validation_report.md"
     path.write_text("\n".join(report).rstrip() + "\n", encoding="utf-8")
@@ -245,6 +269,7 @@ def main() -> int:
     proof_audit_dir = output_dir / f"style_drift_audit_{args.audit_proof_id}"
     completion_audit_dir = output_dir / "workflow_completion_audit"
     review_queue_dir = output_dir / "review_queue"
+    review_packet_dir = output_dir / "review_packet"
     candidate_triage_dir = output_dir / "candidate_style_triage"
     report: list[str] = [
         "# Unit Art Workflow Validation Report",
@@ -282,6 +307,23 @@ def main() -> int:
             report,
         )
         assert_review_queue(review_queue_dir / "unit_art_review_queue.md", report)
+        run_step(
+            "Review Decision Packet",
+            [
+                sys.executable,
+                "tools/art/build_unit_art_review_packet.py",
+                "--proof-id",
+                args.audit_proof_id,
+                "--output-dir",
+                rel(review_packet_dir),
+                "--docs-output",
+                "docs/art/creep_review_decision_packet_2026-07-01.md",
+                "--report-date",
+                "2026-07-01",
+            ],
+            report,
+        )
+        assert_review_packet(review_packet_dir / f"{args.audit_proof_id}_review_decision_packet.md", report)
         run_step(
             "Review Decision Helper Dry Run",
             [
@@ -360,7 +402,7 @@ def main() -> int:
         report.append("")
         report.append("## Result")
         report.append("")
-        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, candidate style triage, completion audit, review queue, review-decision dry run, and art-tool syntax are coherent.")
+        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, candidate style triage, completion audit, review queue, review packet, review-decision dry run, and art-tool syntax are coherent.")
         report_path = write_report(output_dir, report)
         print(f"PASS: wrote {rel(report_path)}")
         return 0
