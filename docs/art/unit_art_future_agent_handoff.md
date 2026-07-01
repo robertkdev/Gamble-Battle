@@ -9,7 +9,7 @@ Use this when a new Codex agent has no conversation history and needs to continu
 - Paisley is the secondary contrast anchor.
 - The Vellum contract token is the small-asset material reference.
 - Later passing/current proofs are narrow coverage examples only. Do not average them into the target style.
-- Every serious candidate must also get a Vellum-first pairwise audit sheet; pooled passing images are not enough.
+- Every serious candidate must also get a Vellum-first pairwise audit sheet and a reference-ladder sheet with Vellum, Paisley, token, and the candidate in the same row; pooled passing images are not enough.
 - The current Creep pass is a review candidate only: `creep_vellum_primary_detail_refit_2026_06_30`.
 - Do not generate Veyra or broader roster batches until the user approves or rejects the Creep review candidate.
 - Do not replace any live `assets/units/*.png` file without explicit user approval.
@@ -111,6 +111,6 @@ Do not mark the larger goal complete until current evidence proves:
 - candidate review gates are resolved,
 - missing visual proofs are resolved or explicitly deferred,
 - non-character assets have more than the single token proof where needed,
-- generated prompt packets and style-drift audits still enforce Vellum-first comparison,
+- generated prompt packets and style-drift audits still enforce Vellum-first comparison plus the reference-ladder review sheet,
 - the standard runner and MCP Godot validation pass,
 - and the canonical brain is synced with the final state.

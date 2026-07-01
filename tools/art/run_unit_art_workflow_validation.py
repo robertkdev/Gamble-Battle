@@ -125,6 +125,7 @@ def assert_audit_outputs(audit_dir: Path, report: list[str]) -> None:
     required = [
         "raw_anchor_vs_later_contact_sheet.png",
         "vellum_first_pairwise_raw_comparison.png",
+        "reference_ladder_raw_comparison.png",
         "board_preview_drift_contact_sheet.png",
         "foreground_detail_metrics.csv",
     ]
@@ -133,7 +134,7 @@ def assert_audit_outputs(audit_dir: Path, report: list[str]) -> None:
         raise RuntimeError(f"{rel(audit_dir)} missing style audit outputs: {missing}")
     report.append("## Vellum Pairwise Audit Output")
     report.append("")
-    report.append(f"- PASS `{rel(audit_dir)}` includes the mandatory Vellum-first pairwise comparison sheet.")
+    report.append(f"- PASS `{rel(audit_dir)}` includes the mandatory Vellum-first pairwise comparison sheet and reference-ladder sheet.")
     report.append("")
 
 

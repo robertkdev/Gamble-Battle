@@ -192,6 +192,61 @@ def write_vellum_pairwise_sheet(entries: list[dict[str, str]], output_path: Path
     sheet.save(output_path)
 
 
+def write_reference_ladder_sheet(entries: list[dict[str, str]], output_path: Path) -> None:
+    vellum = entries[0]
+    paisley = entries[1]
+    token = entries[2]
+    comparison_entries = entries[3:]
+    font = load_font(17)
+    small = load_font(13)
+    header = load_font(20)
+    header_h = 104
+    thumb = 190
+    col_w = 210
+    text_w = 410
+    row_h = 270
+    rows = max(1, len(comparison_entries))
+    sheet = Image.new("RGB", (col_w * 4 + text_w, rows * row_h + header_h), (18, 18, 20))
+    draw = ImageDraw.Draw(sheet)
+    draw.text((10, 10), "Reference ladder: Vellum first, context second, candidate last", font=header, fill=(255, 222, 120))
+    draw.text(
+        (10, 40),
+        "Vellum can veto. Paisley/token/later proofs are narrow context and cannot rescue weaker candidates.",
+        font=small,
+        fill=(230, 205, 135),
+    )
+    if not comparison_entries:
+        draw.text((10, header_h), "No comparison entries found.", font=font, fill=(255, 150, 150))
+        sheet.save(output_path)
+        return
+    vellum_tile = fit_square(Image.open(require_path(vellum["raw"])), thumb)
+    paisley_tile = fit_square(Image.open(require_path(paisley["raw"])), thumb)
+    token_tile = fit_square(Image.open(require_path(token["raw"])), thumb)
+    for index, entry in enumerate(comparison_entries):
+        y = header_h + index * row_h
+        candidate_tile = fit_square(Image.open(require_path(entry["raw"])), thumb)
+        sheet.paste(vellum_tile, (10, y))
+        sheet.paste(paisley_tile, (col_w + 10, y))
+        sheet.paste(token_tile, (col_w * 2 + 10, y))
+        sheet.paste(candidate_tile, (col_w * 3 + 10, y))
+        role = entry.get("role", "narrow_proof_only")
+        color = role_color(role)
+        draw.text((10, y + thumb + 8), "1 REF Vellum", font=small, fill=role_color("primary_anchor"))
+        draw.text((col_w + 10, y + thumb + 8), "2 REF Paisley", font=small, fill=role_color("secondary_contrast_anchor"))
+        draw.text((col_w * 2 + 10, y + thumb + 8), "3 REF Token", font=small, fill=role_color("small_asset_material_reference"))
+        draw.text((col_w * 3 + 10, y + thumb + 8), entry["label"][:22], font=small, fill=color)
+        text_x = col_w * 4 + 10
+        draw.text((text_x, y), entry["label"][:38], font=font, fill=color)
+        draw.text((text_x, y + 30), f"Role: {role[:34]}", font=small, fill=(190, 190, 195))
+        draw.text((text_x, y + 54), f"Proof: {entry['kind'][:38]}", font=small, fill=(145, 145, 150))
+        draw.text((text_x, y + 92), "Read order", font=font, fill=(255, 222, 120))
+        draw.text((text_x, y + 124), "1. Vellum veto: dry detail, realism, mood, scale.", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 148), "2. Paisley: contrast only, not a new average.", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 172), "3. Token: material/icon context only.", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 196), "4. Candidate may stay narrow even if accepted.", font=small, fill=(220, 220, 225))
+    sheet.save(output_path)
+
+
 def write_board_sheet(entries: list[dict[str, str]], output_path: Path) -> None:
     font = load_font(18)
     small = load_font(14)
@@ -300,6 +355,7 @@ def main() -> int:
     entries = collect_entries(proof_data, set(args.proof_id), args.include_rejected)
     write_raw_sheet(entries, output_dir / "raw_anchor_vs_later_contact_sheet.png")
     write_vellum_pairwise_sheet(entries, output_dir / "vellum_first_pairwise_raw_comparison.png")
+    write_reference_ladder_sheet(entries, output_dir / "reference_ladder_raw_comparison.png")
     write_board_sheet(entries, output_dir / "board_preview_drift_contact_sheet.png")
     write_metrics(
         entries,
@@ -307,6 +363,7 @@ def main() -> int:
         output_dir / "foreground_detail_metrics_summary.txt",
     )
     print(output_dir / "raw_anchor_vs_later_contact_sheet.png")
+    print(output_dir / "reference_ladder_raw_comparison.png")
     print(output_dir / "board_preview_drift_contact_sheet.png")
     print(output_dir / "foreground_detail_metrics.csv")
     return 0

@@ -64,6 +64,7 @@ REQUIRED_DOC_SNIPPETS = [
     "do not average all passing images together",
     "Every future candidate must be checked side by side against Vellum first",
     "Vellum-first side-by-side comparison",
+    "reference-ladder sheet",
     "Vellum can veto any candidate",
     "they cannot rescue a candidate that is weaker than Vellum",
 ]
@@ -138,6 +139,7 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "The larger art-workflow goal is active, not complete",
     "Vellum is the only primary/ultimate character style anchor",
     "Every serious candidate must also get a Vellum-first pairwise audit sheet",
+    "reference-ladder sheet",
     "Do not generate Veyra or broader roster batches",
     "Do not replace any live `assets/units/*.png` file",
     "Vellum can veto any candidate",
@@ -186,6 +188,9 @@ REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS = [
     "visual audit decides",
     "Mandatory Vellum-first side-by-side audit",
     "vellum_first_pairwise_raw_comparison.png",
+    "reference_ladder_raw_comparison.png",
+    "Vellum can veto",
+    "cannot rescue weaker candidates",
     "passing proofs are narrow comparisons",
 ]
 
@@ -210,6 +215,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Candidate Style Triage",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
+    "reference_ladder_raw_comparison.png",
     "PASS: art workflow docs",
 ]
 
