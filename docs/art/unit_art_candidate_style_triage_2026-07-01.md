@@ -1,8 +1,8 @@
 # Unit Art Candidate Style Triage
 
 - Generated: 2026-07-01
-- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_brutal_pixel_objective_controls/style_drift_audit_all_current/foreground_detail_metrics.csv`
-- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_brutal_pixel_objective_controls/candidate_style_triage/candidate_style_triage_review_sheet.png`
+- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_metric_false_positive_sentinel_final/style_drift_audit_all_current/foreground_detail_metrics.csv`
+- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_metric_false_positive_sentinel_final/candidate_style_triage/candidate_style_triage_review_sheet.png`
 - Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.
 - Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.
 
@@ -14,10 +14,13 @@
 - High-risk re-review rows: 5
 - Review-gate rows: 1
 - Prompt-context quarantined rows: 15
+- Metric false-positive controls: 1
 
 Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.
 
 Required style negative controls are expected to fail every run. Totem is the current required negative control; if it stops failing, the style audit is broken or the ledger has changed without a new human promotion decision.
+
+Metric false-positive controls are required failures whose edge/detail and contrast proxies are near or above Vellum. They prove that proxy metrics cannot approve style by themselves.
 
 High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.
 
@@ -29,7 +32,11 @@ Prompt-context quarantine is the machine-readable guardrail for the user's warni
 
 ## Human Negative-Control Failures
 
-- `Totem` / `totem_dry_wood_guardian_refit`: candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not (edge vs Vellum 0.45, contrast vs Vellum 0.48).
+- `Totem` / `totem_dry_wood_guardian_refit`: candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not, metric_false_positive_style_sentinel (edge vs Vellum 0.45, contrast vs Vellum 0.48).
+
+## Metric False-Positive Controls
+
+- `Totem` / `totem_dry_wood_guardian_refit`: proxy metrics look acceptable (edge vs Vellum 0.45, contrast vs Vellum 0.48), but visual review still fails it for missing the matte gothic target.
 
 ## Highest Risk Rows
 
@@ -54,7 +61,7 @@ Prompt-context quarantine is the machine-readable guardrail for the user's warni
 - `Brute` / `brute_guardian_bulk_refit`: `blocked_current_candidate`; stance `needs_vellum_pairwise_visual_review`; edge_detail_below_vellum, very_muted_color_proxy, candidate_not_accepted.
 - `Bonko` / `bonko_wiry_raider_refit`: `blocked_current_candidate`; stance `metrics_do_not_replace_visual_review`; candidate_not_accepted.
 - `Hexeon` / `hexeon_time_blade_refit`: `blocked_current_candidate`; stance `metrics_do_not_replace_visual_review`; very_muted_color_proxy, candidate_not_accepted.
-- `Totem` / `totem_dry_wood_guardian_refit`: `blocked_style_negative_control`; stance `style_audit_failed_negative_control`; candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not.
+- `Totem` / `totem_dry_wood_guardian_refit`: `blocked_style_negative_control`; stance `style_audit_failed_negative_control`; candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not, metric_false_positive_style_sentinel.
 - `Sari` / `sari_spectral_tendril_refit`: `blocked_current_candidate`; stance `high_risk_re_review_before_acceptance`; edge_detail_far_below_paisley, contrast_far_below_paisley, very_muted_color_proxy, candidate_not_accepted.
 
 ## Full Triage Table
@@ -78,7 +85,7 @@ Prompt-context quarantine is the machine-readable guardrail for the user's warni
 | Brute | `brute_guardian_bulk_refit` | `current_candidate` | `narrow_proof_only` | `blocked_current_candidate` | -5.06 | 0.22 | edge_detail_below_vellum, very_muted_color_proxy, candidate_not_accepted | needs_vellum_pairwise_visual_review |
 | Bonko | `bonko_wiry_raider_refit` | `current_candidate` | `narrow_proof_only` | `blocked_current_candidate` | -1.42 | 7.23 | candidate_not_accepted | metrics_do_not_replace_visual_review |
 | Hexeon | `hexeon_time_blade_refit` | `current_candidate` | `narrow_proof_only` | `blocked_current_candidate` | 4.05 | 1.64 | very_muted_color_proxy, candidate_not_accepted | metrics_do_not_replace_visual_review |
-| Totem | `totem_dry_wood_guardian_refit` | `current_candidate` | `narrow_proof_only` | `blocked_style_negative_control` | 0.45 | 0.48 | candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not | style_audit_failed_negative_control |
+| Totem | `totem_dry_wood_guardian_refit` | `current_candidate` | `narrow_proof_only` | `blocked_style_negative_control` | 0.45 | 0.48 | candidate_not_accepted, required_style_negative_control, human_style_fail_negative_control, user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not, metric_false_positive_style_sentinel | style_audit_failed_negative_control |
 | Sari | `sari_spectral_tendril_refit` | `current_candidate` | `narrow_proof_only` | `blocked_current_candidate` | -9.39 | -6.37 | edge_detail_far_below_paisley, contrast_far_below_paisley, very_muted_color_proxy, candidate_not_accepted | high_risk_re_review_before_acceptance |
 
 ## Use

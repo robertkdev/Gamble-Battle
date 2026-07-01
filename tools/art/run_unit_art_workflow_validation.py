@@ -379,6 +379,14 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         raise RuntimeError("Totem negative control is not marked expected_negative_control=yes")
     if totem_rows[0].get("review_stance") != "style_audit_failed_negative_control":
         raise RuntimeError("Totem negative control did not fail candidate style triage")
+    if totem_rows[0].get("metric_false_positive_control") != "yes":
+        raise RuntimeError("Totem is not marked as the metric false-positive style sentinel")
+    if "metric_false_positive_style_sentinel" not in totem_rows[0].get("flags", ""):
+        raise RuntimeError("Totem metric false-positive sentinel flag is missing")
+    totem_edge_delta = float(totem_rows[0].get("edge_delta_vellum", "0"))
+    totem_contrast_delta = float(totem_rows[0].get("contrast_delta_vellum", "0"))
+    if totem_edge_delta < 0.0 or totem_contrast_delta < 0.0:
+        raise RuntimeError("Totem no longer proves the metric false-positive case against Vellum")
     grint_rows = [row for row in rows if row.get("proof_id") == "grint_hard_matte_refit"]
     if not grint_rows:
         raise RuntimeError("candidate style triage missing Grint row")
@@ -398,6 +406,7 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     report.append("## Candidate Style Triage")
     report.append("")
     report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks and fails the Totem negative control.")
+    report.append("- PASS Totem remains a metric false-positive sentinel: proxy metrics look acceptable, but visual review still fails the matte gothic style.")
     report.append("- PASS Grint and any accepted risky narrow proofs are quarantined from prompt context until Vellum-first review clears them.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")
     report.append("")

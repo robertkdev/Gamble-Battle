@@ -159,6 +159,14 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
             prompt_context_status = "blocked_until_vellum_pairwise_review"
         else:
             prompt_context_status = "narrow_context_only_not_anchor"
+        metric_false_positive_control = (
+            negative_control
+            and stance == "style_audit_failed_negative_control"
+            and edge_delta_vellum >= 0.0
+            and contrast_delta_vellum >= 0.0
+        )
+        if metric_false_positive_control:
+            flags.append("metric_false_positive_style_sentinel")
         rows.append(
             {
                 "label": row["label"],
@@ -175,6 +183,7 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 "flags": ", ".join(flags) if flags else "none",
                 "review_stance": stance,
                 "expected_negative_control": "yes" if negative_control else "no",
+                "metric_false_positive_control": "yes" if metric_false_positive_control else "no",
                 "raw": raw_path,
                 "board_preview": board_preview,
             }
@@ -224,6 +233,14 @@ def prompt_context_quarantine_rows(rows: list[dict[str, str]]) -> list[dict[str,
         row
         for row in rows
         if row["prompt_context_status"].startswith("blocked_")
+    ]
+
+
+def metric_false_positive_controls(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [
+        row
+        for row in rows
+        if row["metric_false_positive_control"] == "yes"
     ]
 
 
@@ -308,6 +325,7 @@ def write_markdown(
     high_risk = [row for row in non_reference if row["review_stance"] == "high_risk_re_review_before_acceptance"]
     review_gate = [row for row in non_reference if row["reference_role"] == "review_candidate_not_anchor"]
     quarantined = prompt_context_quarantine_rows(rows)
+    false_positive_controls = metric_false_positive_controls(rows)
     lines: list[str] = [
         "# Unit Art Candidate Style Triage",
         "",
@@ -325,10 +343,13 @@ def write_markdown(
         f"- High-risk re-review rows: {len(high_risk)}",
         f"- Review-gate rows: {len(review_gate)}",
         f"- Prompt-context quarantined rows: {len(quarantined)}",
+        f"- Metric false-positive controls: {len(false_positive_controls)}",
         "",
         "Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.",
         "",
         "Required style negative controls are expected to fail every run. Totem is the current required negative control; if it stops failing, the style audit is broken or the ledger has changed without a new human promotion decision.",
+        "",
+        "Metric false-positive controls are required failures whose edge/detail and contrast proxies are near or above Vellum. They prove that proxy metrics cannot approve style by themselves.",
         "",
         "High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.",
         "",
@@ -357,6 +378,20 @@ def write_markdown(
             )
     else:
         lines.append("- None recorded. This is suspicious if known visual failures exist.")
+    lines.extend([
+        "",
+        "## Metric False-Positive Controls",
+        "",
+    ])
+    if false_positive_controls:
+        for row in false_positive_controls:
+            lines.append(
+                f"- `{row['label']}` / `{row['proof_id']}`: proxy metrics look acceptable "
+                f"(edge vs Vellum {row['edge_delta_vellum']}, contrast vs Vellum {row['contrast_delta_vellum']}), "
+                "but visual review still fails it for missing the matte gothic target."
+            )
+    else:
+        lines.append("- None. This is suspicious while Totem remains the required negative control.")
     lines.extend([
         "",
         "## Highest Risk Rows",
