@@ -15,6 +15,8 @@ PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 REVIEW_DECISION_HELPER_PATH = ROOT / "tools" / "art" / "apply_unit_art_review_decision.py"
 ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py"
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
+CANDIDATE_TRIAGE_PATH = ROOT / "docs" / "art" / "unit_art_candidate_style_triage_2026-07-01.md"
+CANDIDATE_TRIAGE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py"
 REVIEW_QUEUE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_queue.py"
 COMPLETION_AUDIT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py"
 WORKFLOW_RUNNER_PATH = ROOT / "tools" / "art" / "run_unit_art_workflow_validation.py"
@@ -39,6 +41,7 @@ REQUIRED_DOC_SNIPPETS = [
     "build_unit_roster_prompt_packet.py",
     "apply_unit_art_review_decision.py",
     "build_unit_style_drift_audit.py",
+    "build_unit_art_candidate_triage.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "run_unit_art_workflow_validation.py",
@@ -50,6 +53,7 @@ REQUIRED_DOC_SNIPPETS = [
     "smooth oval alien face",
     "real planned unit",
     "unit_art_style_drift_audit_2026-06-30.md",
+    "unit_art_candidate_style_triage_2026-07-01.md",
     "unit_art_future_agent_handoff.md",
     "less shine is not the same as less detail",
     "Vellum is the primary/ultimate style anchor",
@@ -79,6 +83,15 @@ REQUIRED_COMPLETION_AUDIT_SNIPPETS = [
     "coverage gaps remain",
     "next recommended stress test remains `creep`",
     "Creep Vellum-primary detail candidate",
+]
+
+REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
+    "Unit Art Candidate Style Triage",
+    "Vellum is the ultimate character reference",
+    "Passing-pool rule",
+    "Highest Risk Rows",
+    "high_risk_re_review_before_acceptance",
+    "Start visual review from the Vellum pairwise sheet",
 ]
 
 REQUIRED_REVIEW_QUEUE_SNIPPETS = [
@@ -113,6 +126,7 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "Standard Validation Command",
     "run_unit_art_workflow_validation.py",
     "apply_unit_art_review_decision.py",
+    "unit_art_candidate_style_triage_2026-07-01.md",
     "RoleMatrixProbe.tscn",
     "Completion Standard",
 ]
@@ -154,6 +168,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "validate_unit_art_workflow_doc.py",
     "apply_unit_art_review_decision.py",
     "build_unit_art_review_queue.py",
+    "build_unit_art_candidate_triage.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
     "build_unit_style_drift_audit.py",
@@ -165,6 +180,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Workflow Completion Audit",
     "Review Queue",
     "Review Decision Helper Dry Run",
+    "Candidate Style Triage",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
     "PASS: art workflow docs",
@@ -178,6 +194,14 @@ REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS = [
     "negative_example",
     "review helper does not promote proofs into global style anchors",
     "dry_run=true",
+]
+
+REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
+    "Vellum is the ultimate character reference",
+    "Passing-pool rule",
+    "high_risk_re_review_before_acceptance",
+    "Start visual review from the Vellum pairwise sheet",
+    "edge_detail_far_below_paisley",
 ]
 
 REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
@@ -479,6 +503,8 @@ def main() -> int:
         fail(f"Missing roster prompt packet builder: {ROSTER_PACKET_BUILDER_PATH}", failures)
     if not STYLE_DRIFT_BUILDER_PATH.exists():
         fail(f"Missing style drift audit builder: {STYLE_DRIFT_BUILDER_PATH}", failures)
+    if not CANDIDATE_TRIAGE_BUILDER_PATH.exists():
+        fail(f"Missing candidate triage builder: {CANDIDATE_TRIAGE_BUILDER_PATH}", failures)
     if not REVIEW_QUEUE_BUILDER_PATH.exists():
         fail(f"Missing review queue builder: {REVIEW_QUEUE_BUILDER_PATH}", failures)
     if not COMPLETION_AUDIT_BUILDER_PATH.exists():
@@ -487,6 +513,8 @@ def main() -> int:
         fail(f"Missing workflow validation runner: {WORKFLOW_RUNNER_PATH}", failures)
     if not STYLE_DRIFT_AUDIT_PATH.exists():
         fail(f"Missing style drift audit: {STYLE_DRIFT_AUDIT_PATH}", failures)
+    if not CANDIDATE_TRIAGE_PATH.exists():
+        fail(f"Missing candidate style triage: {CANDIDATE_TRIAGE_PATH}", failures)
     if not COMPLETION_AUDIT_PATH.exists():
         fail(f"Missing completion audit: {COMPLETION_AUDIT_PATH}", failures)
     if not REVIEW_QUEUE_PATH.exists():
@@ -515,6 +543,12 @@ def main() -> int:
     for snippet in REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS:
         if snippet.lower() not in style_drift_audit_lower:
             fail(f"style drift audit missing required snippet: {snippet}", failures)
+
+    candidate_triage = CANDIDATE_TRIAGE_PATH.read_text(encoding="utf-8")
+    candidate_triage_lower = candidate_triage.lower()
+    for snippet in REQUIRED_CANDIDATE_TRIAGE_SNIPPETS:
+        if snippet.lower() not in candidate_triage_lower:
+            fail(f"candidate style triage missing required snippet: {snippet}", failures)
 
     completion_audit = COMPLETION_AUDIT_PATH.read_text(encoding="utf-8")
     completion_audit_lower = completion_audit.lower()
@@ -551,6 +585,12 @@ def main() -> int:
     for snippet in REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS:
         if snippet.lower() not in style_drift_builder_lower:
             fail(f"style drift audit builder missing required snippet: {snippet}", failures)
+
+    candidate_triage_builder = CANDIDATE_TRIAGE_BUILDER_PATH.read_text(encoding="utf-8")
+    candidate_triage_builder_lower = candidate_triage_builder.lower()
+    for snippet in REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS:
+        if snippet.lower() not in candidate_triage_builder_lower:
+            fail(f"candidate triage builder missing required snippet: {snippet}", failures)
 
     review_queue_builder = REVIEW_QUEUE_BUILDER_PATH.read_text(encoding="utf-8")
     review_queue_builder_lower = review_queue_builder.lower()

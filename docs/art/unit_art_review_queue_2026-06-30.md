@@ -4,11 +4,13 @@
 - Current candidates needing review: 14
 - Next gate unit: `creep`
 - Next gate reason: Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests.
+- Candidate style triage: `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
 
 ## Review Rules
 
 - Review Vellum side by side first at raw scale and board scale. Paisley and token remain secondary/narrow references.
 - Do not let the growing passing pool muddy the target. Passing means narrow evidence, not a new average style.
+- Use candidate style triage as a warning layer only. It can flag likely drift, but final decisions still require visual Vellum-first review.
 - Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.
 - Rejection needs a concrete reason that can become a future negative prompt or failure gate.
 - Do not replace live `assets/units/*.png` files from this queue without explicit user approval.

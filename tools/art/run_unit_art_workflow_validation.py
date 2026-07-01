@@ -17,6 +17,7 @@ ART_TOOLS = [
     ROOT / "tools" / "art" / "apply_unit_art_review_decision.py",
     ROOT / "tools" / "art" / "build_unit_art_board_preview.py",
     ROOT / "tools" / "art" / "build_unit_art_prompt_packet.py",
+    ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py",
     ROOT / "tools" / "art" / "build_unit_art_review_queue.py",
     ROOT / "tools" / "art" / "build_unit_roster_contact_sheet.py",
     ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py",
@@ -202,6 +203,24 @@ def assert_review_queue(queue_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
+    text = triage_path.read_text(encoding="utf-8")
+    required = [
+        "Vellum is the ultimate character reference",
+        "Passing-pool rule",
+        "Highest Risk Rows",
+        "high_risk_re_review_before_acceptance",
+        "Start visual review from the Vellum pairwise sheet",
+    ]
+    missing = [snippet for snippet in required if snippet not in text]
+    if missing:
+        raise RuntimeError(f"{rel(triage_path)} missing candidate triage snippets: {missing}")
+    report.append("## Candidate Style Triage")
+    report.append("")
+    report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks against Vellum/Paisley metrics.")
+    report.append("")
+
+
 def write_report(output_dir: Path, report: list[str]) -> Path:
     path = output_dir / "workflow_validation_report.md"
     path.write_text("\n".join(report).rstrip() + "\n", encoding="utf-8")
@@ -221,6 +240,7 @@ def main() -> int:
     proof_audit_dir = output_dir / f"style_drift_audit_{args.audit_proof_id}"
     completion_audit_dir = output_dir / "workflow_completion_audit"
     review_queue_dir = output_dir / "review_queue"
+    candidate_triage_dir = output_dir / "candidate_style_triage"
     report: list[str] = [
         "# Unit Art Workflow Validation Report",
         "",
@@ -298,6 +318,23 @@ def main() -> int:
         assert_audit_roles(all_audit_dir / "foreground_detail_metrics.csv", report)
         assert_audit_outputs(all_audit_dir, report)
         run_step(
+            "Candidate Style Triage",
+            [
+                sys.executable,
+                "tools/art/build_unit_art_candidate_triage.py",
+                "--metrics-csv",
+                rel(all_audit_dir / "foreground_detail_metrics.csv"),
+                "--output-dir",
+                rel(candidate_triage_dir),
+                "--docs-output",
+                "docs/art/unit_art_candidate_style_triage_2026-07-01.md",
+                "--report-date",
+                "2026-07-01",
+            ],
+            report,
+        )
+        assert_candidate_triage(candidate_triage_dir / "unit_art_candidate_style_triage.md", report)
+        run_step(
             "Focused Proof Style Drift Audit",
             [
                 sys.executable,
@@ -318,7 +355,7 @@ def main() -> int:
         report.append("")
         report.append("## Result")
         report.append("")
-        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, completion audit, review queue, review-decision dry run, and art-tool syntax are coherent.")
+        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, candidate style triage, completion audit, review queue, review-decision dry run, and art-tool syntax are coherent.")
         report_path = write_report(output_dir, report)
         print(f"PASS: wrote {rel(report_path)}")
         return 0
