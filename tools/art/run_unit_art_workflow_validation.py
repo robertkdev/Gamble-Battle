@@ -235,6 +235,8 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
         "Visual decision sheet",
         "Board-scale decision sheet",
         "Creep is the next human-review gate",
+        "Decision Scorecard",
+        "Scorecard rule",
         "Approve only if",
         "request_revision",
         "Prior Creep Lessons",
