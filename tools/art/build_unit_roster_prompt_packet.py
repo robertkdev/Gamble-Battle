@@ -75,7 +75,7 @@ def render_positive_prompt(entry: dict[str, Any], style_reference: str) -> str:
         "about 10 percent grounded realism, premium tabletop-card painting, dry powder-matte skin, "
         "de-shined velvet cloth, dull aged metal, parchment, soot, ink, matte gouache, dry brush, "
         "high-detail matte gothic illustration, layered fabric, parchment, and dry edge wear, "
-        "hand-painted surface breakup, Vellum/Paisley anchor-level detail richness, "
+        "hand-painted surface breakup, Vellum-level dry detail richness, Paisley as secondary contrast context only, "
         "heavy occlusion shadows, grim low-sheen gothic realism, grounded adult proportions, "
         "rough dry material texture, low-specular ambient light, broad heavy shadow, "
         "clean readable game-board silhouette, flat solid safety-orange #f84401 background, no text, logo, watermark. "
@@ -127,7 +127,7 @@ def render_acceptance(entry: dict[str, Any]) -> list[str]:
         "Raw image uses a perfectly flat solid safety-orange #f84401 background.",
         "Skin, cloth, armor, weapon, and effects are dry and matte, not sweaty, shiny, wet, plastic, or polished.",
         "Rendering stays grim low-sheen gothic and grounded, not cartoon, comic-book, toy-like, clean fantasy, or heroic mobile-game.",
-        "Raw image matches Vellum/Paisley anchor-level detail richness, not just the darker palette.",
+        "Raw image matches Vellum-level dry detail richness, using Paisley only as secondary contrast context, not just the darker palette.",
         "Candidate has been reviewed side by side against the primary Vellum anchor first, not only against later passing proofs.",
         "Paisley and later proofs are used as secondary/narrow comparisons and do not dilute or average away the Vellum target.",
         "De-shining preserves tactile dry detail, layered costume/material storytelling, dry scratches, dust, worn edges, and hand-painted surface breakup.",

@@ -2,7 +2,7 @@
   "version": 1,
   "usage": "Machine-readable proof ledger for the Gamble Battle matte gothic unit-art workflow. Use this before generation to see which archetypes are proven, which examples were rejected, and which coverage gaps still need a deliberate stress test. Do not treat a proof here as permission to replace live assets; live swaps still require explicit user approval.",
   "style_contract": {
-    "target": "western dark gothic board-game unit art, about 10 percent grounded realism, high-detail matte gothic illustration, Vellum/Paisley anchor-level detail richness, powder-matte dry material language, layered fabric/parchment/dry edge wear, hand-painted surface breakup, low-specular ambient light, broad heavy shadow, readable at 96 px",
+    "target": "western dark gothic board-game unit art, about 10 percent grounded realism, high-detail matte gothic illustration, Vellum-level dry detail richness, Paisley as secondary contrast context only, powder-matte dry material language, layered fabric/parchment/dry edge wear, hand-painted surface breakup, low-specular ambient light, broad heavy shadow, readable at 96 px",
     "reference_hierarchy": [
       "Vellum is the primary and ultimate character style anchor.",
       "Paisley is the secondary contrast anchor for brighter or stranger units that still need the same dry gothic richness.",
@@ -12,7 +12,7 @@
     "hard_reject_if": [
       "sweaty, oily, wet, glossy, plastic, latex, lacquered, or polished-leather skin/clothing",
       "clean fantasy, mobile-game, gacha, cartoon, comic-book, toy-like, or heroic splash-art rendering",
-      "low-detail smooth creature model, over-smoothed simplified matte shapes, or palette-only match that lacks Vellum/Paisley dry detail richness",
+      "low-detail smooth creature model, over-smoothed simplified matte shapes, or palette-only match that lacks Vellum-level dry detail richness",
       "polished bevels, chrome, bright specular highlights, shiny plate, or cinematic bloom",
       "textured/smoky/scenic background instead of flat safety-orange #f84401"
     ],
@@ -205,7 +205,7 @@
       "cutout": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_cutout_birefnet_foregroundml_despill.png",
       "review": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_review_birefnet_foregroundml_despill.png",
       "board_preview": "outputs/art_pipeline/style_validation/creep_smooth_alien_matte_match_refit_2026_06_30/creep_smooth_alien_matte_match_refit_board_preview.png",
-      "style_gate": "Fail after style-drift audit: restores smooth alien face/skin and reduces sweaty corpse shine, but overcorrects into an under-detailed smooth creature that lacks Vellum/Paisley-level dry gothic illustration richness.",
+      "style_gate": "Fail after style-drift audit: restores smooth alien face/skin and reduces sweaty corpse shine, but overcorrects into an under-detailed smooth creature that lacks Vellum-level dry gothic illustration richness.",
       "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the smooth head/body read, hands/feet, dull tendril ring, and 96 px board-scale silhouette on checker, black, and white.",
       "telegram_message": "117",
       "failure_reason": "Clean/readable but too simplified: the smooth body lost the layered dry texture, tactile surface breakup, small gothic accents, and hand-painted material richness that make Vellum and Paisley work. Detail score was also visibly and metrically far below the reference pair.",

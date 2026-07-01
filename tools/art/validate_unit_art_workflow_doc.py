@@ -176,10 +176,11 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "high-detail matte gothic illustration",
     "layered fabric, parchment, and dry edge wear",
     "hand-painted surface breakup",
-    "Vellum/Paisley anchor-level detail richness",
+    "Vellum-level dry detail richness",
+    "Paisley as secondary contrast context only",
     "Detail-richness rule: de-shining must preserve tactile dry detail",
     "palette-only match",
-    "Raw image matches Vellum/Paisley anchor-level detail richness",
+    "Raw image matches Vellum-level dry detail richness",
     "reviewed side by side against the primary Vellum anchor first",
     "do not dilute or average away the Vellum target",
     "Vellum veto rule",
@@ -316,7 +317,8 @@ REQUIRED_COMPLETION_BUILDER_SNIPPETS = [
 
 REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "high-detail matte gothic illustration",
-    "Vellum/Paisley anchor-level detail richness",
+    "Vellum-level dry detail richness",
+    "Paisley as secondary contrast context only",
     "layered fabric/parchment/dry edge wear",
     "hand-painted surface breakup",
     "reference_policy",
@@ -433,7 +435,8 @@ REQUIRED_POSITIVES = [
     "high-detail matte gothic illustration",
     "layered fabric, parchment, and dry edge wear",
     "hand-painted surface breakup",
-    "Vellum/Paisley anchor-level detail richness",
+    "Vellum-level dry detail richness",
+    "Paisley as secondary contrast context only",
 ]
 
 UNIT_ONLY_POSITIVES = [
@@ -859,7 +862,8 @@ def main() -> int:
                 "subtle chalk pores",
                 "dry mottled skin variation",
                 "thin occult scarring",
-                "vellum/paisley-level dry detail richness",
+                "vellum-level dry detail richness",
+                "paisley only as secondary contrast context",
                 "ripped-apart corpse",
                 "exposed muscle",
                 "sweaty skin",
