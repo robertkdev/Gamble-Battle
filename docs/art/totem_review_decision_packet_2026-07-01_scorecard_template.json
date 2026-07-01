@@ -1,0 +1,50 @@
+{
+  "unit": "Totem",
+  "status": "research_candidate",
+  "candidate": "totem_creep_process_research_v17b_residual_outline_buried_vertical_grain_raw_candidate",
+  "fallback_candidate": "totem_creep_process_research_v16b_pair_region_subdued_broken_center_raw_candidate",
+  "reference_role": "review_candidate_not_anchor",
+  "decision": "pending",
+  "gates": {
+    "vellum_veto": {
+      "status": "revise",
+      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v17_decision_zoom.png",
+      "notes": ""
+    },
+    "totem_identity": {
+      "status": "revise",
+      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v17_source_identity_review.png",
+      "notes": ""
+    },
+    "de_shined_bark_material": {
+      "status": "revise",
+      "evidence": "v17b raw and chest crop",
+      "notes": ""
+    },
+    "detail_richness": {
+      "status": "revise",
+      "evidence": "Vellum and Totem chest crops",
+      "notes": ""
+    },
+    "chest_symbol_correction": {
+      "status": "revise",
+      "evidence": "v14b, v16b, v17b comparison",
+      "notes": ""
+    },
+    "board_scale_read": {
+      "status": "revise",
+      "evidence": "112px, 88px, 64px, and 48px reads",
+      "notes": ""
+    },
+    "cutout_readiness": {
+      "status": "not_applicable_pending_candidate_choice",
+      "evidence": "cutout pass intentionally not run for artwork research",
+      "notes": ""
+    },
+    "reference_role": {
+      "status": "pass",
+      "evidence": "docs/art/totem_review_decision_packet_2026-07-01.md",
+      "notes": "Research candidate only; not an anchor."
+    }
+  }
+}

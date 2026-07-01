@@ -60,7 +60,7 @@ REQUIRED_DOC_SNIPPETS = [
     "unit_art_proof_matrix.json",
     "proof ledger",
     "Hard Matte Gothic Gate",
-    "Creep is the current horror-side anchor",
+    "Creep is the current horror-side research example, not a final style anchor",
     "smooth oval alien face",
     "real planned unit",
     "unit_art_style_drift_audit_2026-06-30.md",
