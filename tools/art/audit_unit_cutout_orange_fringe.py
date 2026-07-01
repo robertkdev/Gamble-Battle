@@ -269,6 +269,31 @@ def write_csv(path: Path, rows: list[CutoutAuditRow]) -> None:
             writer.writerow(row_to_dict(row))
 
 
+def write_manifest(path: Path, rows: list[CutoutAuditRow], report_date: str, args: argparse.Namespace) -> None:
+    manifest = {
+        "schema_version": 1,
+        "report_date": report_date,
+        "audit_input_contract": "cutout_rgba_pixels_only",
+        "reference_images_loaded": False,
+        "raw_images_loaded": False,
+        "board_preview_images_loaded": False,
+        "style_anchor_images_loaded": False,
+        "proof_matrix_loaded_for_cutout_paths": bool(args.include_proof_matrix),
+        "standalone_cutout_count": len(args.cutout),
+        "row_count": len(rows),
+        "source_kinds": sorted({row.source_kind for row in rows}),
+        "thresholds": {
+            "edge_radius": args.edge_radius,
+            "max_edge_orange_pixels": args.max_edge_orange_pixels,
+            "max_soft_orange_pixels": args.max_soft_orange_pixels,
+            "max_edge_orange_ratio": args.max_edge_orange_ratio,
+        },
+        "cutout_ids": [row.id for row in rows],
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+
 def compose_preview(cutout_path: str, background: Image.Image, size: tuple[int, int]) -> Image.Image:
     image = Image.open(resolve_image_path(cutout_path)).convert("RGBA")
     image.thumbnail(size, Image.Resampling.LANCZOS)
@@ -349,6 +374,7 @@ def write_markdown(
     path: Path,
     rows: list[CutoutAuditRow],
     csv_path: Path,
+    manifest_path: Path,
     review_sheet_path: Path,
     report_date: str,
     args: argparse.Namespace,
@@ -361,6 +387,7 @@ def write_markdown(
         "",
         f"- Date: {report_date}",
         f"- CSV: `{rel(csv_path)}`",
+        f"- Manifest: `{rel(manifest_path)}`",
         f"- Review sheet: `{rel(review_sheet_path)}`",
         "- Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.",
         "- Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.",
@@ -371,6 +398,7 @@ def write_markdown(
         f"- Edge band radius: `{args.edge_radius}` px.",
         f"- Pass threshold: edge-orange pixels <= `{args.max_edge_orange_pixels}`, edge-orange ratio <= `{args.max_edge_orange_ratio:.4%}`, and soft-alpha orange pixels <= `{args.max_soft_orange_pixels}`.",
         "- The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests each cutout against the known safety-orange background color family directly.",
+        "- Manifest rule: `reference_images_loaded`, `raw_images_loaded`, `board_preview_images_loaded`, and `style_anchor_images_loaded` must all be `false` for every run.",
         "- Interior orange/gold pixels are counted but do not fail the audit by themselves; the fail gate is edge/soft-alpha residue because that is the visible background-contamination risk.",
         "",
         "## Summary",
@@ -429,14 +457,16 @@ def main() -> int:
 
     rows = collect_rows(args)
     csv_path = output_dir / "unit_art_cutout_orange_fringe_audit.csv"
+    manifest_path = output_dir / "unit_art_cutout_orange_fringe_audit_manifest.json"
     review_sheet_path = output_dir / "unit_art_cutout_orange_fringe_review_sheet.png"
     report_path = output_dir / "unit_art_cutout_orange_fringe_audit.md"
     write_csv(csv_path, rows)
+    write_manifest(manifest_path, rows, args.report_date, args)
     write_review_sheet(review_sheet_path, rows, args.edge_radius)
-    write_markdown(report_path, rows, csv_path, review_sheet_path, args.report_date, args)
+    write_markdown(report_path, rows, csv_path, manifest_path, review_sheet_path, args.report_date, args)
     if args.docs_output:
         docs_output = args.docs_output if args.docs_output.is_absolute() else ROOT / args.docs_output
-        write_markdown(docs_output, rows, csv_path, review_sheet_path, args.report_date, args)
+        write_markdown(docs_output, rows, csv_path, manifest_path, review_sheet_path, args.report_date, args)
 
     failing = [row for row in rows if row.quality_status == "fail"]
     protected_failures = [row for row in failing if row.proof_status in {"accepted", "reference"}]
@@ -444,6 +474,7 @@ def main() -> int:
     print(f"flagged={len(failing)}")
     print(f"protected_ledger_flagged={len(protected_failures)}")
     print(f"report={rel(report_path)}")
+    print(f"manifest={rel(manifest_path)}")
     print(f"review_sheet={rel(review_sheet_path)}")
 
     if args.fail_on_any_fail and failing:

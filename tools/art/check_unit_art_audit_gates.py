@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import subprocess
 import sys
 from collections.abc import Callable
@@ -66,6 +67,10 @@ def run_command(command: list[str], report: list[str], expect_success: bool) -> 
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
+
+
+def read_json(path: Path) -> dict[str, object]:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
@@ -164,6 +169,37 @@ def assert_nonblank_image(path: Path, label: str) -> tuple[int, int]:
     return width, height
 
 
+def assert_reference_free_manifest(
+    manifest_path: Path,
+    label: str,
+    report: list[str],
+    expected_proof_matrix_loaded: bool,
+    expected_source_kinds: set[str],
+    expected_row_count: int | None = None,
+) -> None:
+    if not manifest_path.exists():
+        raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
+    manifest = read_json(manifest_path)
+    if manifest.get("audit_input_contract") != "cutout_rgba_pixels_only":
+        raise RuntimeError(f"{label} does not declare cutout_rgba_pixels_only")
+    for key in (
+        "reference_images_loaded",
+        "raw_images_loaded",
+        "board_preview_images_loaded",
+        "style_anchor_images_loaded",
+    ):
+        if manifest.get(key) is not False:
+            raise RuntimeError(f"{label} must set {key}=false")
+    if manifest.get("proof_matrix_loaded_for_cutout_paths") is not expected_proof_matrix_loaded:
+        raise RuntimeError(f"{label} proof_matrix_loaded_for_cutout_paths mismatch")
+    source_kinds = set(str(value) for value in manifest.get("source_kinds", []))
+    if source_kinds != expected_source_kinds:
+        raise RuntimeError(f"{label} source_kinds expected {sorted(expected_source_kinds)}, got {sorted(source_kinds)}")
+    if expected_row_count is not None and int(manifest.get("row_count", -1)) != expected_row_count:
+        raise RuntimeError(f"{label} row_count expected {expected_row_count}, got {manifest.get('row_count')}")
+    report.append(f"- PASS {label} proves reference-free cutout-only input contract: `{rel(manifest_path)}`.")
+
+
 def write_synthetic_cutout(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     image = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
@@ -210,6 +246,13 @@ def assert_cutout_gate(output_dir: Path, report: list[str]) -> None:
         "--fail-on-accepted-fail",
     ]
     run_command(command, report, expect_success=True)
+    assert_reference_free_manifest(
+        audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "current cutout audit manifest",
+        report,
+        expected_proof_matrix_loaded=True,
+        expected_source_kinds={"proof_matrix_cutout"},
+    )
     review_sheet = audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png"
     review_width, review_height = assert_nonblank_image(review_sheet, "current cutout orange-fringe review sheet")
     rows = read_csv(audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
@@ -257,6 +300,14 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
             control_id.replace("_", " "),
         ])
     run_command(command, report, expect_success=True)
+    assert_reference_free_manifest(
+        audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "cutout self-test matrix manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=4,
+    )
     review_sheet = audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png"
     review_width, review_height = assert_nonblank_image(review_sheet, "cutout self-test matrix review sheet")
     rows = read_csv(audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
@@ -325,6 +376,14 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     before_result = run_command(before_command, report, expect_success=False)
     if "flagged=1" not in before_result.stdout:
         raise RuntimeError("synthetic contaminated cutout did not fail with flagged=1")
+    assert_reference_free_manifest(
+        audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "synthetic contaminated cutout audit manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+    )
     before_review_width, before_review_height = assert_nonblank_image(
         audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
         "synthetic contaminated cutout audit review sheet",
@@ -372,6 +431,14 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     after_result = run_command(after_command, report, expect_success=True)
     if "flagged=0" not in after_result.stdout:
         raise RuntimeError("synthetic cleaned cutout did not pass with flagged=0")
+    assert_reference_free_manifest(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "synthetic cleaned cutout audit manifest",
+        report,
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+    )
     after_review_width, after_review_height = assert_nonblank_image(
         cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
         "synthetic cleaned cutout audit review sheet",

@@ -410,6 +410,36 @@ def assert_nonblank_report_image(path: Path, label: str, min_width: int = 128, m
     return width, height
 
 
+def assert_reference_free_cutout_manifest(
+    manifest_path: Path,
+    label: str,
+    expected_proof_matrix_loaded: bool,
+    expected_source_kinds: set[str],
+    expected_row_count: int | None = None,
+) -> dict[str, object]:
+    if not manifest_path.exists():
+        raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest.get("audit_input_contract") != "cutout_rgba_pixels_only":
+        raise RuntimeError(f"{label} does not declare cutout_rgba_pixels_only")
+    for key in (
+        "reference_images_loaded",
+        "raw_images_loaded",
+        "board_preview_images_loaded",
+        "style_anchor_images_loaded",
+    ):
+        if manifest.get(key) is not False:
+            raise RuntimeError(f"{label} must set {key}=false")
+    if manifest.get("proof_matrix_loaded_for_cutout_paths") is not expected_proof_matrix_loaded:
+        raise RuntimeError(f"{label} proof_matrix_loaded_for_cutout_paths mismatch")
+    source_kinds = set(str(value) for value in manifest.get("source_kinds", []))
+    if source_kinds != expected_source_kinds:
+        raise RuntimeError(f"{label} source_kinds expected {sorted(expected_source_kinds)}, got {sorted(source_kinds)}")
+    if expected_row_count is not None and int(manifest.get("row_count", -1)) != expected_row_count:
+        raise RuntimeError(f"{label} row_count expected {expected_row_count}, got {manifest.get('row_count')}")
+    return manifest
+
+
 def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     text = triage_path.read_text(encoding="utf-8")
     required = [
@@ -530,11 +560,20 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
     if missing:
         raise RuntimeError(f"{rel(audit_path)} missing cutout orange-fringe audit snippets: {missing}")
     csv_path = audit_path.with_name("unit_art_cutout_orange_fringe_audit.csv")
+    manifest_path = audit_path.with_name("unit_art_cutout_orange_fringe_audit_manifest.json")
     review_sheet = audit_path.with_name("unit_art_cutout_orange_fringe_review_sheet.png")
     if not csv_path.exists():
         raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe audit CSV")
+    if not manifest_path.exists():
+        raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe audit manifest")
     if not review_sheet.exists():
         raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe review sheet")
+    manifest = assert_reference_free_cutout_manifest(
+        manifest_path,
+        "cutout orange-fringe audit manifest",
+        expected_proof_matrix_loaded=True,
+        expected_source_kinds={"proof_matrix_cutout"},
+    )
     review_width, review_height = assert_nonblank_report_image(review_sheet, "cutout orange-fringe review sheet")
     rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
     protected_failures = [
@@ -548,6 +587,7 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
     report.append("## Cutout Orange-Fringe Audit")
     report.append("")
     report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue as objective safety-orange background contamination.")
+    report.append(f"- PASS `{rel(manifest_path)}` proves the audit input contract is `{manifest['audit_input_contract']}` and no reference/raw/board/style-anchor images were loaded.")
     report.append(f"- PASS `{rel(review_sheet)}` exists and is nonblank for fast checker/black/white/overlay review: `{review_width}x{review_height}`.")
     report.append("")
 
@@ -643,6 +683,13 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         raise RuntimeError("synthetic orange-fringe negative control unexpectedly passed")
     if "flagged=1" not in result.stdout:
         raise RuntimeError("synthetic orange-fringe negative control failed without expected flagged=1 output")
+    assert_reference_free_cutout_manifest(
+        audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "synthetic contaminated cutout audit manifest",
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+    )
     before_review_size = assert_nonblank_report_image(
         audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
         "synthetic contaminated cutout audit review sheet",
@@ -730,6 +777,13 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         raise RuntimeError("synthetic cleaned cutout still failed orange-fringe audit")
     if "flagged=0" not in cleaned_audit_result.stdout:
         raise RuntimeError("synthetic cleaned cutout did not report flagged=0")
+    assert_reference_free_cutout_manifest(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "synthetic cleaned cutout audit manifest",
+        expected_proof_matrix_loaded=False,
+        expected_source_kinds={"standalone_cutout"},
+        expected_row_count=1,
+    )
     after_review_size = assert_nonblank_report_image(
         cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
         "synthetic cleaned cutout audit review sheet",
@@ -763,14 +817,18 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
     text = quick_report.read_text(encoding="utf-8")
     required = [
         "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
+        "current cutout audit manifest proves reference-free cutout-only input contract",
         "current cutout orange-fringe review sheet exists and is nonblank",
         "Objective Cutout Self-Test Matrix",
+        "cutout self-test matrix manifest proves reference-free cutout-only input contract",
         "clean transparent cutout control passes",
         "intentional interior orange material control passes",
         "safety-orange edge contamination control fails",
         "soft-alpha safety-orange halo control fails",
         "cutout self-test matrix review sheet exists and is nonblank",
         "synthetic edge-clean regression removed",
+        "synthetic contaminated cutout audit manifest proves reference-free cutout-only input contract",
+        "synthetic cleaned cutout audit manifest proves reference-free cutout-only input contract",
         "synthetic edge-clean review sheets exist and are nonblank",
         "Metrics Reference Hierarchy Gate",
         "Tampered Metrics Negative-Control Gate",

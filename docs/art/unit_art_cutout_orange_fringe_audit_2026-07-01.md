@@ -1,8 +1,9 @@
 # Unit Art Cutout Orange-Fringe Audit
 
 - Date: 2026-07-01
-- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_review_sheets/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
-- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_review_sheets/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
+- CSV: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_manifest_contract/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit.csv`
+- Manifest: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_manifest_contract/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_audit_manifest.json`
+- Review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_manifest_contract/cutout_orange_fringe_audit/unit_art_cutout_orange_fringe_review_sheet.png`
 - Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.
 - Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.
 - Input rule: the gate reads only each cutout's RGBA pixels. It does not load raw art, board previews, Vellum, Paisley, the token, or any other reference image.
@@ -12,6 +13,7 @@
 - Edge band radius: `4` px.
 - Pass threshold: edge-orange pixels <= `50`, edge-orange ratio <= `0.0600%`, and soft-alpha orange pixels <= `20`.
 - The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests each cutout against the known safety-orange background color family directly.
+- Manifest rule: `reference_images_loaded`, `raw_images_loaded`, `board_preview_images_loaded`, and `style_anchor_images_loaded` must all be `false` for every run.
 - Interior orange/gold pixels are counted but do not fail the audit by themselves; the fail gate is edge/soft-alpha residue because that is the visible background-contamination risk.
 
 ## Summary
