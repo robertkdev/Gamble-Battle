@@ -1,26 +1,27 @@
 {
   "unit": "Totem",
   "status": "research_candidate",
-  "candidate": "totem_creep_process_research_v22_original_silhouette_matte_raw_candidate",
-  "fallback_candidate": "totem_creep_process_research_v19_tall_idol_matte_raw_candidate",
-  "older_fallback_candidate": "totem_creep_process_research_v17b_residual_outline_buried_vertical_grain_raw_candidate",
+  "candidate": "totem_creep_process_research_v23_reduced_chest_cue_matte_raw_candidate",
+  "fallback_candidate": "totem_creep_process_research_v22_original_silhouette_matte_raw_candidate",
+  "older_fallback_candidate": "totem_creep_process_research_v19_tall_idol_matte_raw_candidate",
+  "old_fallback_candidate": "totem_creep_process_research_v17b_residual_outline_buried_vertical_grain_raw_candidate",
   "oldest_fallback_candidate": "totem_creep_process_research_v16b_pair_region_subdued_broken_center_raw_candidate",
   "reference_role": "review_candidate_not_anchor",
   "decision": "pending",
   "gates": {
     "vellum_veto": {
       "status": "revise",
-      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v22_source_identity_review.png",
+      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v23_source_identity_review.png",
       "notes": ""
     },
     "totem_identity": {
       "status": "revise",
-      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v22_source_identity_review.png",
+      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v23_source_identity_review.png",
       "notes": ""
     },
     "de_shined_bark_material": {
       "status": "revise",
-      "evidence": "v22 raw and identity/material crop",
+      "evidence": "v23 raw and identity/material crop",
       "notes": ""
     },
     "detail_richness": {
@@ -30,7 +31,7 @@
     },
     "chest_symbol_correction": {
       "status": "revise",
-      "evidence": "v14b, v16b, v17b, v19, and v22 comparison",
+      "evidence": "v14b, v16b, v17b, v19, v22, and v23 comparison",
       "notes": ""
     },
     "board_scale_read": {
