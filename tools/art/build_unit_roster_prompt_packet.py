@@ -54,6 +54,8 @@ def render_reference_policy(proof_matrix: dict[str, Any]) -> str:
         f"- Small-asset material reference proof ids: `{small_asset}`.",
         f"- Promotion rule: {policy.get('promotion_rule', 'Later proofs remain narrow unless the user explicitly promotes them.')}",
         f"- Candidate rule: {policy.get('candidate_rule', 'Current candidates are review-only and never anchor references until approved.')}",
+        f"- Side-by-side rule: {policy.get('side_by_side_rule', 'Every serious candidate must be reviewed beside Vellum first.')}",
+        f"- Passing-pool rule: {policy.get('passing_pool_rule', 'Do not average passing images into a new target.')}",
     ])
 
 

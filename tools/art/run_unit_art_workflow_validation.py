@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"workflow_validation_{date.today().strftime('%Y_%m_%d')}"
 
 ART_TOOLS = [
+    ROOT / "tools" / "art" / "apply_unit_art_review_decision.py",
     ROOT / "tools" / "art" / "build_unit_art_board_preview.py",
     ROOT / "tools" / "art" / "build_unit_art_prompt_packet.py",
     ROOT / "tools" / "art" / "build_unit_art_review_queue.py",
@@ -118,6 +119,22 @@ def assert_audit_roles(csv_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_audit_outputs(audit_dir: Path, report: list[str]) -> None:
+    required = [
+        "raw_anchor_vs_later_contact_sheet.png",
+        "vellum_first_pairwise_raw_comparison.png",
+        "board_preview_drift_contact_sheet.png",
+        "foreground_detail_metrics.csv",
+    ]
+    missing = [name for name in required if not (audit_dir / name).exists()]
+    if missing:
+        raise RuntimeError(f"{rel(audit_dir)} missing style audit outputs: {missing}")
+    report.append("## Vellum Pairwise Audit Output")
+    report.append("")
+    report.append(f"- PASS `{rel(audit_dir)}` includes the mandatory Vellum-first pairwise comparison sheet.")
+    report.append("")
+
+
 def assert_proof_policy(report: list[str]) -> None:
     proof_path = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
     data = json.loads(proof_path.read_text(encoding="utf-8"))
@@ -132,6 +149,14 @@ def assert_proof_policy(report: list[str]) -> None:
         raise RuntimeError("Paisley missing from secondary anchor proof ids")
     if "ability_token_contract_mark" not in policy["small_asset_reference_proof_ids"]:
         raise RuntimeError("contract token missing from small asset reference proof ids")
+    for field, phrases in (
+        ("side_by_side_rule", ("Vellum-first", "side-by-side")),
+        ("passing_pool_rule", ("Do not average", "passing pool")),
+    ):
+        value = str(policy.get(field, ""))
+        missing = [phrase for phrase in phrases if phrase.lower() not in value.lower()]
+        if missing:
+            raise RuntimeError(f"reference policy {field} missing {missing}")
     report.append("## Proof Reference Policy")
     report.append("")
     report.append(f"- PASS primary anchor `{primary['id']}` exists at `{primary['path']}`.")
@@ -163,6 +188,8 @@ def assert_review_queue(queue_path: Path, report: list[str]) -> None:
         "Creep (`creep`)",
         "creep_vellum_primary_detail_refit",
         "Do not continue to Veyra or broader roster generation",
+        "apply_unit_art_review_decision.py",
+        "--decision request_revision",
         "Approval Checklist",
         "Rejection Checklist",
     ]
@@ -230,6 +257,21 @@ def main() -> int:
             report,
         )
         assert_review_queue(review_queue_dir / "unit_art_review_queue.md", report)
+        run_step(
+            "Review Decision Helper Dry Run",
+            [
+                sys.executable,
+                "tools/art/apply_unit_art_review_decision.py",
+                "--proof-id",
+                args.audit_proof_id,
+                "--decision",
+                "request_revision",
+                "--reason",
+                "validation dry run only",
+                "--dry-run",
+            ],
+            report,
+        )
         run_step("Workflow Document Validator", [sys.executable, "tools/art/validate_unit_art_workflow_doc.py"], report)
         run_step(
             "Full Roster Prompt Packet Build",
@@ -254,6 +296,7 @@ def main() -> int:
             report,
         )
         assert_audit_roles(all_audit_dir / "foreground_detail_metrics.csv", report)
+        assert_audit_outputs(all_audit_dir, report)
         run_step(
             "Focused Proof Style Drift Audit",
             [
@@ -267,6 +310,7 @@ def main() -> int:
             report,
         )
         assert_audit_roles(proof_audit_dir / "foreground_detail_metrics.csv", report)
+        assert_audit_outputs(proof_audit_dir, report)
         compile_art_tools(report)
         report.append("## Godot Validation")
         report.append("")
@@ -274,7 +318,7 @@ def main() -> int:
         report.append("")
         report.append("## Result")
         report.append("")
-        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, completion audit, review queue, and art-tool syntax are coherent.")
+        report.append("- PASS: art workflow docs, proof policy, packet generation, role-labeled audits, completion audit, review queue, review-decision dry run, and art-tool syntax are coherent.")
         report_path = write_report(output_dir, report)
         print(f"PASS: wrote {rel(report_path)}")
         return 0

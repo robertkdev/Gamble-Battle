@@ -71,6 +71,10 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             priority = "review_candidate"
         else:
             priority = "candidate_backlog"
+        style_audit = str(proof.get("style_audit", ""))
+        pairwise_audit = ""
+        if style_audit:
+            pairwise_audit = str(Path(style_audit).with_name("vellum_first_pairwise_raw_comparison.png")).replace("\\", "/")
         rows.append({
             "priority": priority,
             "subject_id": subject_id,
@@ -80,7 +84,8 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             "coverage_group": ", ".join(proof.get("coverage_group", [])),
             "raw": str(proof.get("raw", "")),
             "board_preview": str(proof.get("board_preview", "")),
-            "style_audit": str(proof.get("style_audit", "")),
+            "style_audit": style_audit,
+            "pairwise_audit": pairwise_audit,
             "decision_needed": "approve as accepted proof, reject with reason, or request revision",
         })
     return rows
@@ -107,6 +112,8 @@ def candidate_section(row: dict[str, str]) -> list[str]:
     ]
     if row["style_audit"]:
         lines.append(f"- Style audit: `{row['style_audit']}`")
+    if row["pairwise_audit"]:
+        lines.append(f"- Vellum pairwise audit: `{row['pairwise_audit']}`")
     lines.extend([
         "- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.",
         "",
@@ -129,11 +136,24 @@ def write_markdown(path: Path, rows: list[dict[str, str]], proof_data: dict[str,
         "",
         "## Review Rules",
         "",
-        "- Review Vellum side by side first. Paisley and token remain secondary/narrow references.",
+        "- Review Vellum side by side first at raw scale and board scale. Paisley and token remain secondary/narrow references.",
+        "- Do not let the growing passing pool muddy the target. Passing means narrow evidence, not a new average style.",
         "- Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.",
         "- Rejection needs a concrete reason that can become a future negative prompt or failure gate.",
         "- Do not replace live `assets/units/*.png` files from this queue without explicit user approval.",
         "- Do not continue to Veyra or broader roster generation until the next gate is resolved.",
+        "",
+        "## Decision Commands",
+        "",
+        "After the user decides, apply the review result through `tools/art/apply_unit_art_review_decision.py` instead of hand-editing the proof ledger.",
+        "",
+        "```powershell",
+        'python tools\\art\\apply_unit_art_review_decision.py --proof-id <proof_id> --decision accept --reason "<human-approved reason>" --next-unit-id <next_unit_id>',
+        'python tools\\art\\apply_unit_art_review_decision.py --proof-id <proof_id> --decision reject --reason "<concrete failure reason>"',
+        'python tools\\art\\apply_unit_art_review_decision.py --proof-id <proof_id> --decision request_revision --reason "<needed change>"',
+        "```",
+        "",
+        "Accepting a review candidate records it as an accepted narrow proof only. The helper does not promote candidates into global style anchors; Vellum stays the primary/ultimate reference unless the user explicitly says otherwise.",
         "",
         "## Next Gate",
         "",

@@ -144,6 +144,54 @@ def write_raw_sheet(entries: list[dict[str, str]], output_path: Path) -> None:
     sheet.save(output_path)
 
 
+def write_vellum_pairwise_sheet(entries: list[dict[str, str]], output_path: Path) -> None:
+    vellum = entries[0]
+    comparison_entries = entries[1:]
+    font = load_font(18)
+    small = load_font(14)
+    header = load_font(20)
+    header_h = 96
+    cell_w = 300
+    text_w = 440
+    cell_h = 330
+    thumb = 260
+    rows = max(1, len(comparison_entries))
+    sheet = Image.new("RGB", (cell_w * 2 + text_w, rows * cell_h + header_h), (18, 18, 20))
+    draw = ImageDraw.Draw(sheet)
+    draw.text((10, 10), "Mandatory Vellum-first side-by-side audit", font=header, fill=(255, 222, 120))
+    draw.text(
+        (10, 40),
+        "Vellum remains the ultimate reference; passing proofs are narrow comparisons, not a pooled target.",
+        font=small,
+        fill=(230, 205, 135),
+    )
+    if not comparison_entries:
+        draw.text((10, header_h), "No comparison entries found.", font=font, fill=(255, 150, 150))
+        sheet.save(output_path)
+        return
+    vellum_image = Image.open(require_path(vellum["raw"]))
+    vellum_tile = fit_square(vellum_image, thumb)
+    for index, entry in enumerate(comparison_entries):
+        y = index * cell_h + header_h
+        compare_image = Image.open(require_path(entry["raw"]))
+        compare_tile = fit_square(compare_image, thumb)
+        sheet.paste(vellum_tile, (10, y))
+        sheet.paste(compare_tile, (cell_w + 10, y))
+        role = entry.get("role", "narrow_proof_only")
+        color = role_color(role)
+        draw.text((10, y + thumb + 8), "REF Vellum raw", font=font, fill=role_color("primary_anchor"))
+        draw.text((cell_w + 10, y + thumb + 8), entry["label"][:28], font=font, fill=color)
+        draw.text((cell_w + 10, y + thumb + 32), role[:36], font=small, fill=(190, 190, 195))
+        text_x = cell_w * 2 + 10
+        draw.text((text_x, y), "Decision order", font=font, fill=(255, 222, 120))
+        draw.text((text_x, y + 34), "1. Does this match Vellum's dry material richness?", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 58), "2. If not, reject or revise before cutout/live use.", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 82), "3. Use Paisley/token/later proofs only as narrow context.", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 122), f"Proof id: {entry['kind'][:42]}", font=small, fill=(145, 145, 150))
+        draw.text((text_x, y + 146), "Ledger reference_role controls how this may be reused.", font=small, fill=(145, 145, 150))
+    sheet.save(output_path)
+
+
 def write_board_sheet(entries: list[dict[str, str]], output_path: Path) -> None:
     font = load_font(18)
     small = load_font(14)
@@ -251,6 +299,7 @@ def main() -> int:
     proof_data = load_json(PROOF_MATRIX_PATH)
     entries = collect_entries(proof_data, set(args.proof_id), args.include_rejected)
     write_raw_sheet(entries, output_dir / "raw_anchor_vs_later_contact_sheet.png")
+    write_vellum_pairwise_sheet(entries, output_dir / "vellum_first_pairwise_raw_comparison.png")
     write_board_sheet(entries, output_dir / "board_preview_drift_contact_sheet.png")
     write_metrics(
         entries,

@@ -7,11 +7,24 @@
 
 ## Review Rules
 
-- Review Vellum side by side first. Paisley and token remain secondary/narrow references.
+- Review Vellum side by side first at raw scale and board scale. Paisley and token remain secondary/narrow references.
+- Do not let the growing passing pool muddy the target. Passing means narrow evidence, not a new average style.
 - Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.
 - Rejection needs a concrete reason that can become a future negative prompt or failure gate.
 - Do not replace live `assets/units/*.png` files from this queue without explicit user approval.
 - Do not continue to Veyra or broader roster generation until the next gate is resolved.
+
+## Decision Commands
+
+After the user decides, apply the review result through `tools/art/apply_unit_art_review_decision.py` instead of hand-editing the proof ledger.
+
+```powershell
+python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision accept --reason "<human-approved reason>" --next-unit-id <next_unit_id>
+python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision reject --reason "<concrete failure reason>"
+python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision request_revision --reason "<needed change>"
+```
+
+Accepting a review candidate records it as an accepted narrow proof only. The helper does not promote candidates into global style anchors; Vellum stays the primary/ultimate reference unless the user explicitly says otherwise.
 
 ## Next Gate
 
@@ -24,6 +37,7 @@
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
 - Style audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png`
+- Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
 - Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
 
 ## Candidate Backlog

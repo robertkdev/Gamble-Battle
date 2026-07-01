@@ -5,6 +5,7 @@ This audit pauses the proof-led generation run after human review flagged that t
 Audit artifacts:
 
 - Raw contact sheet: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30/raw_anchor_vs_later_contact_sheet.png`
+- Vellum-first pairwise comparison sheet: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30/vellum_first_pairwise_raw_comparison.png`
 - Board-preview contact sheet: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30/board_preview_drift_contact_sheet.png`
 - Foreground metric table: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30/foreground_detail_metrics.csv`
 
@@ -28,6 +29,8 @@ Reference hierarchy:
 2. Paisley is the secondary contrast reference for brighter, stranger, or more playful units that still need the same dry gothic richness.
 3. The token is a small-asset material/detail reference only.
 4. Later passing proofs are narrow coverage examples, not equal anchors. Do not average the passing pool into the target style.
+
+Every future audit should include the Vellum-first pairwise comparison sheet, not only the pooled contact sheet. The pooled sheet is useful for scanning the roster, but the pairwise sheet is the decision surface: Vellum on the left, candidate on the right, then Paisley/token/later proofs only as narrow context.
 
 The proof matrix now encodes that hierarchy structurally through `style_contract.reference_policy` and per-proof `reference_role` values. Use `secondary_contrast_anchor` only for Paisley, `small_asset_material_reference` only for the token, `narrow_proof_only` for ordinary accepted/current proof coverage, `review_candidate_not_anchor` for unresolved candidates such as the latest Creep pass, and `negative_example` for rejected examples. A later proof can become a global anchor only if the user explicitly promotes it.
 

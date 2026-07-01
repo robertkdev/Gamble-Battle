@@ -9,6 +9,7 @@ Use this when a new Codex agent has no conversation history and needs to continu
 - Paisley is the secondary contrast anchor.
 - The Vellum contract token is the small-asset material reference.
 - Later passing/current proofs are narrow coverage examples only. Do not average them into the target style.
+- Every serious candidate must also get a Vellum-first pairwise audit sheet; pooled passing images are not enough.
 - The current Creep pass is a review candidate only: `creep_vellum_primary_detail_refit_2026_06_30`.
 - Do not generate Veyra or broader roster batches until the user approves or rejects the Creep review candidate.
 - Do not replace any live `assets/units/*.png` file without explicit user approval.
@@ -29,6 +30,7 @@ The completion audit is the current truth for remaining blockers. At the latest 
 ## Non-Negotiable Style Rules
 
 - Compare every serious candidate side by side against Vellum first.
+- Do not let the growing passing pool muddy the target; Vellum remains the ultimate reference even when more narrow proofs are accepted.
 - Matte does not mean low-detail. De-shining must preserve tactile dry detail, layered costume/material storytelling, scratches, dust, worn edges, and hand-painted surface breakup.
 - Reject sweaty skin, wet shine, glossy leather, latex, plastic, polished metal, chrome, clean fantasy render, cartoon/comic style, toy proportions, anime/gacha, and cinematic rim-light polish.
 - Use flat solid safety-orange `#f84401` for cutout-bound raw generations.
@@ -54,10 +56,13 @@ The next decision is human review of:
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
 - Vellum-first audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/raw_anchor_vs_later_contact_sheet.png`
+- Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
 
 The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement.
 
 Use `docs/art/unit_art_review_queue_2026-06-30.md` as the current human-review script. It lists the next gate first, then the candidate backlog, and provides approval/rejection criteria.
+
+After the user decides, apply the result with `tools/art/apply_unit_art_review_decision.py` instead of hand-editing the proof ledger. Use `--decision accept` only when the candidate passes Vellum-first visual review, `--decision reject` when the reason should become a negative example, or `--decision request_revision` when it needs another pass. The helper records the review history and keeps accepted candidates as narrow proofs, not global anchors.
 
 ## Standard Validation Command
 
@@ -67,7 +72,7 @@ Run this before handoff:
 python tools\art\run_unit_art_workflow_validation.py --output-dir outputs\art_pipeline\style_validation\workflow_validation_<date>
 ```
 
-That command validates the proof policy, completion audit, workflow docs, all 23 generated roster packets, generated packet reference hierarchy, role-labeled style audits, and art-tool syntax.
+That command validates the proof policy, completion audit, workflow docs, all 23 generated roster packets, generated packet reference hierarchy, role-labeled style audits, the mandatory Vellum-first pairwise audit output, and art-tool syntax.
 
 Godot validation is separate because this repo requires MCP-only Godot execution. Run:
 
@@ -88,7 +93,7 @@ Require `errors=[]` before handoff.
 6. Run the refined BiRefNet foreground-ML/despill cutout command from the packet.
 7. Build or inspect the board preview.
 8. Run `tools/art/build_unit_style_drift_audit.py --proof-id <proof_id>`.
-9. Update the proof ledger, completion audit, test log, and brain notes.
+9. Apply the user's review decision with `tools/art/apply_unit_art_review_decision.py`, then update the completion audit, test log, and brain notes.
 10. Run the standard validation command plus MCP Godot validation.
 
 ## Completion Standard

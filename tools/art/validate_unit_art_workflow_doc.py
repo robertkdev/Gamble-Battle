@@ -12,6 +12,7 @@ CASES_PATH = ROOT / "docs" / "art" / "unit_art_prompt_cases.json"
 TEST_LOG_PATH = ROOT / "docs" / "art" / "unit_art_workflow_test_log_2026-06-29.md"
 ROSTER_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_roster_prompt_matrix.json"
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
+REVIEW_DECISION_HELPER_PATH = ROOT / "tools" / "art" / "apply_unit_art_review_decision.py"
 ROSTER_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_roster_prompt_packet.py"
 STYLE_DRIFT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_style_drift_audit.py"
 REVIEW_QUEUE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_queue.py"
@@ -36,6 +37,7 @@ REQUIRED_DOC_SNIPPETS = [
     "unit_art_workflow_test_log_2026-06-29.md",
     "unit_art_roster_prompt_matrix.json",
     "build_unit_roster_prompt_packet.py",
+    "apply_unit_art_review_decision.py",
     "build_unit_style_drift_audit.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
@@ -52,6 +54,8 @@ REQUIRED_DOC_SNIPPETS = [
     "less shine is not the same as less detail",
     "Vellum is the primary/ultimate style anchor",
     "do not average all passing images together",
+    "Every future candidate must be checked side by side against Vellum first",
+    "Vellum-first side-by-side comparison",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -63,6 +67,7 @@ REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
     "de-shining must preserve high-detail dry rendering",
     "Vellum is the ultimate character style reference",
     "Do not average the passing pool into the target style",
+    "Vellum-first pairwise comparison sheet",
 ]
 
 REQUIRED_COMPLETION_AUDIT_SNIPPETS = [
@@ -88,12 +93,17 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "Rejection Checklist",
     "too glossy or sweaty",
     "too low-detail or smooth after de-shining",
+    "Do not let the growing passing pool muddy the target",
+    "Vellum pairwise audit",
+    "apply_unit_art_review_decision.py",
+    "--decision request_revision",
 ]
 
 REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "Gamble Battle Unit Art Future Agent Handoff",
     "The larger art-workflow goal is active, not complete",
     "Vellum is the only primary/ultimate character style anchor",
+    "Every serious candidate must also get a Vellum-first pairwise audit sheet",
     "Do not generate Veyra or broader roster batches",
     "Do not replace any live `assets/units/*.png` file",
     "Matte does not mean low-detail",
@@ -102,6 +112,7 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "creep_vellum_primary_detail_refit_2026_06_30",
     "Standard Validation Command",
     "run_unit_art_workflow_validation.py",
+    "apply_unit_art_review_decision.py",
     "RoleMatrixProbe.tscn",
     "Completion Standard",
 ]
@@ -120,6 +131,8 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "reference_policy",
     "Promotion rule",
     "Current candidates are review-only",
+    "Side-by-side rule",
+    "Passing-pool rule",
 ]
 
 REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS = [
@@ -132,10 +145,14 @@ REQUIRED_STYLE_DRIFT_BUILDER_SNIPPETS = [
     "ledger reference_role",
     "foreground_detail_metrics.csv",
     "visual audit decides",
+    "Mandatory Vellum-first side-by-side audit",
+    "vellum_first_pairwise_raw_comparison.png",
+    "passing proofs are narrow comparisons",
 ]
 
 REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "validate_unit_art_workflow_doc.py",
+    "apply_unit_art_review_decision.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
@@ -147,8 +164,20 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Focused Proof Style Drift Audit",
     "Workflow Completion Audit",
     "Review Queue",
+    "Review Decision Helper Dry Run",
     "Godot Validation",
+    "Vellum Pairwise Audit Output",
     "PASS: art workflow docs",
+]
+
+REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS = [
+    "VALID_DECISIONS",
+    "request_revision",
+    "current_candidate",
+    "review_candidate_not_anchor",
+    "negative_example",
+    "review helper does not promote proofs into global style anchors",
+    "dry_run=true",
 ]
 
 REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
@@ -157,9 +186,15 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "review_candidate_not_anchor",
     "approve as accepted proof",
     "reject with a concrete reason",
+    "apply_unit_art_review_decision.py",
+    "--decision accept",
+    "--decision reject",
+    "--decision request_revision",
     "Do not continue to Veyra or broader roster generation",
     "Approval Checklist",
     "Rejection Checklist",
+    "Do not let the growing passing pool muddy the target",
+    "Vellum pairwise audit",
 ]
 
 REQUIRED_COMPLETION_BUILDER_SNIPPETS = [
@@ -184,6 +219,8 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "palette-only match",
     "Vellum is the primary and ultimate character style anchor",
     "Later accepted/current proofs are narrow coverage examples",
+    "side_by_side_rule",
+    "passing_pool_rule",
 ]
 
 REQUIRED_TEST_LOG_SNIPPETS = [
@@ -436,6 +473,8 @@ def main() -> int:
         fail(f"Missing roster prompt matrix: {ROSTER_MATRIX_PATH}", failures)
     if not PROOF_MATRIX_PATH.exists():
         fail(f"Missing proof matrix: {PROOF_MATRIX_PATH}", failures)
+    if not REVIEW_DECISION_HELPER_PATH.exists():
+        fail(f"Missing review decision helper: {REVIEW_DECISION_HELPER_PATH}", failures)
     if not ROSTER_PACKET_BUILDER_PATH.exists():
         fail(f"Missing roster prompt packet builder: {ROSTER_PACKET_BUILDER_PATH}", failures)
     if not STYLE_DRIFT_BUILDER_PATH.exists():
@@ -500,6 +539,12 @@ def main() -> int:
     for snippet in REQUIRED_PACKET_BUILDER_SNIPPETS:
         if snippet.lower() not in packet_builder_lower:
             fail(f"roster packet builder missing required snippet: {snippet}", failures)
+
+    review_decision_helper = REVIEW_DECISION_HELPER_PATH.read_text(encoding="utf-8")
+    review_decision_helper_lower = review_decision_helper.lower()
+    for snippet in REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS:
+        if snippet.lower() not in review_decision_helper_lower:
+            fail(f"review decision helper missing required snippet: {snippet}", failures)
 
     style_drift_builder = STYLE_DRIFT_BUILDER_PATH.read_text(encoding="utf-8")
     style_drift_builder_lower = style_drift_builder.lower()
@@ -924,6 +969,8 @@ def main() -> int:
     for field, phrases in (
         ("promotion_rule", ("user", "explicitly promote", "global style anchors")),
         ("candidate_rule", ("current candidates", "review-only", "never anchor references")),
+        ("side_by_side_rule", ("vellum-first", "side-by-side")),
+        ("passing_pool_rule", ("do not average", "passing pool")),
     ):
         value = as_text(reference_policy.get(field, "")).lower()
         for phrase in phrases:
