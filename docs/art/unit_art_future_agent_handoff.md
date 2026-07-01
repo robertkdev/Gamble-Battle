@@ -29,7 +29,8 @@ Read these in order:
 9. `docs/art/creep_review_decision_packet_2026-07-01.md`
 10. `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 11. `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md`
-12. `docs/art/creep_builtin_revision_candidate_v3_2026-07-01.md`
+12. `docs/art/creep_builtin_revision_candidate_v4_2026-07-01.md`
+13. `docs/art/creep_builtin_revision_candidate_v3_2026-07-01.md`
 
 The completion audit is the current truth for remaining blockers. At the latest audit, 23 roster entries were checked: 3 accepted unit proofs, 14 current-candidate unit proofs needing human approval, and 6 roster entries with no visual proof (`berebell`, `cashmere`, `mortem`, `nyxa`, `repo`, `veyra`).
 
@@ -80,7 +81,9 @@ The previous candidate evidence is:
 
 The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement. Its current failure is specific: it needs the original smooth alien head/body and uninterrupted gray-blue skin restored harder while keeping Vellum-level matte dry richness. The next prompt must not use segmented armor tendrils, mechanical black tube tendrils, talisman clutter, or shiny blade highlights as a substitute for surface detail.
 
-Pre-ledger follow-up candidate: `docs/art/creep_builtin_revision_candidate_v3_2026-07-01.md` records a newer built-in Creep pass with flatter matte scythe-ribbon tendrils, clean standalone orange-fringe audit, and readable board preview. It is the current best direction for fixing the ribbed/tube-tendril failure, but it remains pre-ledger and unaccepted because the torso/limb striation and lower Vellum-level detail proxy still need human review.
+Current best pre-ledger follow-up candidate: `docs/art/creep_builtin_revision_candidate_v4_2026-07-01.md` records a newer built-in Creep pass with flatter matte scythe-ribbon tendrils, clean standalone orange-fringe audit, readable board preview, and Vellum-range detail proxy. It supersedes v3 as the best current direction because it reduces body/limb anatomical striation while preserving the flat scythe-ring fix. It remains pre-ledger and unaccepted pending human review of skin highlight level, orange flecks on the black scythe-ribbons, and tight ring margins.
+
+Prior pre-ledger follow-up candidate: `docs/art/creep_builtin_revision_candidate_v3_2026-07-01.md` fixed the ribbed/tube-tendril issue but had lower Vellum-level detail proxy and more torso/limb striation than v4.
 
 Use `docs/art/unit_art_review_queue_2026-06-30.md` as the current human-review script. It lists the next gate first, then the candidate backlog, and provides approval/rejection criteria. Use the decision scorecard in `docs/art/creep_review_decision_packet_2026-07-01.md` and fill `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json` before applying any approve/revise/reject command.
 
