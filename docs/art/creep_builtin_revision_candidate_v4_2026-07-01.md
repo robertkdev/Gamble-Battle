@@ -1,6 +1,6 @@
 # Creep Builtin Revision Candidate V4 - 2026-07-01
 
-Status: current best pre-ledger review candidate, not an accepted proof, not a live replacement.
+Status: prior pre-ledger review candidate, not an accepted proof, not a live replacement.
 
 ## Files
 
@@ -25,7 +25,7 @@ Status: current best pre-ledger review candidate, not an accepted proof, not a l
 
 ## Art Read
 
-V4 is the strongest current Creep candidate. It preserves v3's main improvement, the flatter matte black scythe-ribbon ring, while reducing the body/limb anatomical striation and bringing the dry-detail proxy back into the Vellum range.
+V4 was the strongest Creep candidate before v5. It preserves v3's main improvement, the flatter matte black scythe-ribbon ring, while reducing the body/limb anatomical striation and bringing the dry-detail proxy back into the Vellum range.
 
 It is still not an accepted proof. The remaining human-review questions are whether the brighter gray-blue skin highlights still feel too shiny in context, whether the orange flecks on the black scythe-ribbons are acceptable dry chipped-paint texture or too close to background contamination, and whether the tighter ring margins are acceptable for future cutout-bound generation.
 
