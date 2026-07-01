@@ -91,6 +91,7 @@ REQUIRED_DOC_SNIPPETS = [
     "Fast brutal gate",
     "non-rejected cutout contamination fails",
     "Vellum-first pairwise/reference-ladder sheets must exist and be nonblank",
+    "metrics CSV must keep Vellum/Paisley/token as the only anchor rows",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -464,6 +465,14 @@ REQUIRED_QUICK_AUDIT_GATE_SNIPPETS = [
     "hot-highlight matte-review rows present",
     "find_latest_metrics_csv",
     "Vellum-First Visual Evidence Gate",
+    "Metrics Reference Hierarchy Gate",
+    "REFERENCE_ROLE_EXPECTATIONS",
+    "ANCHOR_ROLES",
+    "assert_metrics_reference_hierarchy",
+    "REF Vellum raw",
+    "REF Paisley",
+    "REF Token",
+    "only locked reference rows can use anchor roles",
     "STYLE_AUDIT_SHEETS",
     "assert_nonblank_image",
     "vellum_first_pairwise_raw_comparison.png",

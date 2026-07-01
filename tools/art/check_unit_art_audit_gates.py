@@ -13,6 +13,12 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"quick_art_audit_gates_{date.today().strftime('%Y_%m_%d')}"
 STYLE_METRIC_FIELDS = {"p95_luma", "p99_luma", "bright_pixel_ratio", "hot_highlight_ratio"}
+REFERENCE_ROLE_EXPECTATIONS = {
+    "REF Vellum raw": ("vellum_raw_anchor", "primary_anchor"),
+    "REF Paisley": ("paisley_goth_bubble_refit", "secondary_contrast_anchor"),
+    "REF Token": ("ability_token_contract_mark", "small_asset_material_reference"),
+}
+ANCHOR_ROLES = {"primary_anchor", "secondary_contrast_anchor", "small_asset_material_reference"}
 STYLE_AUDIT_SHEETS = [
     "raw_anchor_vs_later_contact_sheet.png",
     "vellum_first_pairwise_raw_comparison.png",
@@ -298,6 +304,54 @@ def assert_style_sentinels(metrics_csv: Path, output_dir: Path, report: list[str
     report.append("")
 
 
+def assert_metrics_reference_hierarchy(metrics_csv: Path, report: list[str]) -> None:
+    report.append("## Metrics Reference Hierarchy Gate")
+    report.append("")
+    rows = read_csv(metrics_csv)
+    required_fields = {"label", "kind", "role"} | STYLE_METRIC_FIELDS
+    present_fields = csv_fields(metrics_csv)
+    missing_fields = sorted(required_fields - present_fields)
+    if missing_fields:
+        raise RuntimeError(f"metrics CSV missing required hierarchy fields: {missing_fields}")
+    if len(rows) < len(REFERENCE_ROLE_EXPECTATIONS) + 1:
+        raise RuntimeError("metrics CSV is too small to prove reference hierarchy")
+    expected_labels = list(REFERENCE_ROLE_EXPECTATIONS.keys())
+    actual_first_labels = [row.get("label", "") for row in rows[: len(expected_labels)]]
+    if actual_first_labels != expected_labels:
+        raise RuntimeError(f"metrics CSV must start with Vellum, Paisley, token rows; got {actual_first_labels}")
+    by_label = {row.get("label", ""): row for row in rows}
+    for label, (expected_kind, expected_role) in REFERENCE_ROLE_EXPECTATIONS.items():
+        matching_rows = [row for row in rows if row.get("label") == label]
+        if len(matching_rows) != 1:
+            raise RuntimeError(f"metrics CSV must contain exactly one {label} row, got {len(matching_rows)}")
+        row = by_label.get(label)
+        if row is None:
+            raise RuntimeError(f"metrics CSV missing reference row {label}")
+        if row.get("kind") != expected_kind:
+            raise RuntimeError(f"{label} kind must be {expected_kind}, got {row.get('kind')}")
+        if row.get("role") != expected_role:
+            raise RuntimeError(f"{label} role must be {expected_role}, got {row.get('role')}")
+    invalid_anchor_rows = [
+        row
+        for row in rows
+        if row.get("label", "") not in REFERENCE_ROLE_EXPECTATIONS
+        and row.get("role", "") in ANCHOR_ROLES
+    ]
+    if invalid_anchor_rows:
+        details = ", ".join(f"{row.get('label')}:{row.get('role')}" for row in invalid_anchor_rows)
+        raise RuntimeError(f"only locked reference rows can use anchor roles: {details}")
+    ordinary_roles = sorted({
+        row.get("role", "")
+        for row in rows
+        if not str(row.get("label", "")).startswith("REF ")
+    })
+    report.append("- PASS metrics CSV starts with Vellum, Paisley, and token reference rows in that order.")
+    report.append("- PASS Vellum is the only primary anchor, Paisley is secondary contrast, and the token is small-asset-only.")
+    report.append("- PASS only locked reference rows can use anchor roles.")
+    report.append(f"- Non-reference roles present: `{', '.join(ordinary_roles)}`.")
+    report.append("")
+
+
 def assert_vellum_first_visual_evidence(metrics_csv: Path, report: list[str]) -> None:
     report.append("## Vellum-First Visual Evidence Gate")
     report.append("")
@@ -341,6 +395,7 @@ def main() -> int:
             metrics_csv = ROOT / metrics_csv
         if not metric_csv_is_current_shape(metrics_csv):
             raise RuntimeError(f"metrics CSV missing hot-highlight/luma fields: {rel(metrics_csv)}")
+        assert_metrics_reference_hierarchy(metrics_csv, report)
         assert_vellum_first_visual_evidence(metrics_csv, report)
         assert_style_sentinels(metrics_csv, output_dir, report)
     else:
