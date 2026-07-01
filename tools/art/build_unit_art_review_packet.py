@@ -270,6 +270,15 @@ def write_markdown(
     style_audit = str(proof.get("style_audit", ""))
     pairwise_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "vellum_first_pairwise_raw_comparison.png")
     reference_ladder_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "reference_ladder_raw_comparison.png")
+    all_pass_scorecard = (
+        "--scorecard-gate vellum_veto=pass "
+        "--scorecard-gate creep_identity=pass "
+        "--scorecard-gate de_shined_material=pass "
+        "--scorecard-gate detail_richness=pass "
+        "--scorecard-gate board_scale_read=pass "
+        "--scorecard-gate cutout_quality=pass "
+        "--scorecard-gate reference_role=pass"
+    )
     lines: list[str] = [
         f"# {proof.get('display_name', proof.get('subject_id'))} Review Decision Packet",
         "",
@@ -323,9 +332,9 @@ def write_markdown(
         "## Apply The Decision",
         "",
         "```powershell",
-        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision accept --reason "<human-approved reason>" --next-unit-id veyra',
-        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision reject --reason "<concrete failure reason>"',
-        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision request_revision --reason "<needed change>"',
+        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision accept --reason "<human-approved reason>" --next-unit-id veyra {all_pass_scorecard}',
+        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision reject --reason "<concrete failure reason>" --scorecard-gate vellum_veto=reject',
+        f'python tools\\art\\apply_unit_art_review_decision.py --proof-id {proof.get("id")} --decision request_revision --reason "<needed change>" --scorecard-gate vellum_veto=revise',
         "```",
         "",
         "## Prior Creep Lessons",

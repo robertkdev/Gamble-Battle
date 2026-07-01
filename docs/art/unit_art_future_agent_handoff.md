@@ -69,7 +69,7 @@ The Creep candidate improves the under-detailed smooth-creature failure, but it 
 
 Use `docs/art/unit_art_review_queue_2026-06-30.md` as the current human-review script. It lists the next gate first, then the candidate backlog, and provides approval/rejection criteria. Use the decision scorecard in `docs/art/creep_review_decision_packet_2026-07-01.md` before applying any approve/revise/reject command.
 
-After the user decides, apply the result with `tools/art/apply_unit_art_review_decision.py` instead of hand-editing the proof ledger. Use `--decision accept` only when the candidate passes Vellum-first visual review, `--decision reject` when the reason should become a negative example, or `--decision request_revision` when it needs another pass. The helper records the review history and keeps accepted candidates as narrow proofs, not global anchors.
+After the user decides, apply the result with `tools/art/apply_unit_art_review_decision.py` instead of hand-editing the proof ledger. Use `--decision accept` only when the candidate passes Vellum-first visual review and every scorecard gate is recorded as `pass` with `--scorecard-gate`; use `--decision reject` when the reason should become a negative example, or `--decision request_revision` when it needs another pass. The helper records the review history and keeps accepted candidates as narrow proofs, not global anchors.
 
 ## Standard Validation Command
 

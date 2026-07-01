@@ -12,6 +12,16 @@ ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 VALID_DECISIONS = {"accept", "reject", "request_revision"}
 ANCHOR_ROLES = {"primary_anchor", "secondary_contrast_anchor", "small_asset_material_reference"}
+SCORECARD_GATES = [
+    "vellum_veto",
+    "creep_identity",
+    "de_shined_material",
+    "detail_richness",
+    "board_scale_read",
+    "cutout_quality",
+    "reference_role",
+]
+SCORECARD_VALUES = {"pass", "revise", "reject"}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -29,16 +39,48 @@ def find_proof(data: dict[str, Any], proof_id: str) -> dict[str, Any]:
     raise ValueError(f"unknown proof id: {proof_id}")
 
 
-def append_review_history(proof: dict[str, Any], decision: str, reason: str) -> None:
+def append_review_history(proof: dict[str, Any], decision: str, reason: str, scorecard: dict[str, str]) -> None:
     history = proof.setdefault("review_history", [])
     if not isinstance(history, list):
         history = []
         proof["review_history"] = history
-    history.append({
+    entry: dict[str, Any] = {
         "date": date.today().isoformat(),
         "decision": decision,
         "reason": reason,
-    })
+    }
+    if scorecard:
+        entry["scorecard"] = scorecard
+    history.append(entry)
+
+
+def parse_scorecard(items: list[str]) -> dict[str, str]:
+    scorecard: dict[str, str] = {}
+    for item in items:
+        if "=" not in item:
+            raise ValueError(f"scorecard entry must use gate=value format: {item}")
+        gate, value = item.split("=", 1)
+        gate = gate.strip()
+        value = value.strip().lower()
+        if gate not in SCORECARD_GATES:
+            raise ValueError(f"unknown scorecard gate {gate}; expected one of {SCORECARD_GATES}")
+        if value not in SCORECARD_VALUES:
+            raise ValueError(f"scorecard value for {gate} must be one of {sorted(SCORECARD_VALUES)}")
+        scorecard[gate] = value
+    return scorecard
+
+
+def validate_scorecard(decision: str, scorecard: dict[str, str]) -> None:
+    if decision == "accept":
+        missing = [gate for gate in SCORECARD_GATES if scorecard.get(gate) != "pass"]
+        if missing:
+            raise ValueError(f"accept requires every scorecard gate to be pass; missing/non-pass gates: {missing}")
+    if not scorecard:
+        return
+    if decision == "request_revision" and all(value == "pass" for value in scorecard.values()):
+        raise ValueError("request_revision scorecard cannot be all pass")
+    if decision == "reject" and "reject" not in set(scorecard.values()):
+        raise ValueError("reject scorecard must include at least one reject gate")
 
 
 def update_decision_notes(proof: dict[str, Any], decision: str, reason: str) -> None:
@@ -54,19 +96,24 @@ def apply_decision(
     reason: str,
     next_unit_id: str | None,
     next_reason: str | None,
+    scorecard: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     if decision not in VALID_DECISIONS:
         raise ValueError(f"decision must be one of {sorted(VALID_DECISIONS)}")
     if not reason.strip():
         raise ValueError("review reason is required")
+    scorecard = scorecard or {}
+    validate_scorecard(decision, scorecard)
 
     proof = find_proof(data, proof_id)
     status = str(proof.get("status", ""))
     if status != "current_candidate":
         raise ValueError(f"proof {proof_id} is {status}; only current_candidate proofs can be reviewed by this helper")
 
-    append_review_history(proof, decision, reason)
+    append_review_history(proof, decision, reason, scorecard)
     update_decision_notes(proof, decision, reason)
+    if scorecard:
+        proof["latest_scorecard"] = scorecard
 
     if decision == "accept":
         proof["status"] = "accepted"
@@ -100,6 +147,12 @@ def main() -> int:
     parser.add_argument("--proof-id", required=True)
     parser.add_argument("--decision", required=True, choices=sorted(VALID_DECISIONS))
     parser.add_argument("--reason", required=True)
+    parser.add_argument(
+        "--scorecard-gate",
+        action="append",
+        default=[],
+        help="Record one scorecard gate as gate=value. Gates: vellum_veto, creep_identity, de_shined_material, detail_richness, board_scale_read, cutout_quality, reference_role. Values: pass, revise, reject.",
+    )
     parser.add_argument("--next-unit-id")
     parser.add_argument("--next-reason")
     parser.add_argument("--proof-matrix", type=Path, default=PROOF_MATRIX_PATH)
@@ -108,6 +161,7 @@ def main() -> int:
 
     path = args.proof_matrix if args.proof_matrix.is_absolute() else ROOT / args.proof_matrix
     original = load_json(path)
+    scorecard = parse_scorecard(args.scorecard_gate)
     updated = apply_decision(
         copy.deepcopy(original),
         args.proof_id,
@@ -115,6 +169,7 @@ def main() -> int:
         args.reason,
         args.next_unit_id,
         args.next_reason,
+        scorecard,
     )
     proof = find_proof(updated, args.proof_id)
     print(f"proof_id={proof['id']}")
@@ -122,6 +177,8 @@ def main() -> int:
     print(f"status={proof.get('status')}")
     print(f"reference_role={proof.get('reference_role')}")
     print(f"next_unit={updated.get('next_recommended_stress_test', {}).get('unit_id')}")
+    if scorecard:
+        print(f"scorecard={json.dumps(scorecard, sort_keys=True)}")
     if args.dry_run:
         print("dry_run=true")
         return 0

@@ -67,6 +67,45 @@ def run_step(name: str, command: list[str], report: list[str]) -> None:
         raise RuntimeError(f"{name} failed with exit code {result.returncode}")
 
 
+def assert_accept_requires_scorecard(proof_id: str, report: list[str]) -> None:
+    command = [
+        sys.executable,
+        "tools/art/apply_unit_art_review_decision.py",
+        "--proof-id",
+        proof_id,
+        "--decision",
+        "accept",
+        "--reason",
+        "validation missing-scorecard negative control",
+        "--dry-run",
+    ]
+    report.append("## Review Decision Helper Missing Scorecard Guard")
+    report.append("")
+    report.append("```powershell")
+    report.append(" ".join(command))
+    report.append("```")
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if result.stdout.strip():
+        report.append("")
+        report.append("```text")
+        report.append(result.stdout.strip())
+        report.append("```")
+    report.append("")
+    if result.returncode == 0:
+        raise RuntimeError("accept without scorecard unexpectedly passed")
+    if "accept requires every scorecard gate to be pass" not in result.stdout:
+        raise RuntimeError("accept missing-scorecard guard failed without the expected error")
+    report.append("- PASS accept is blocked unless every scorecard gate is recorded as pass.")
+    report.append("")
+
+
 def compile_art_tools(report: list[str]) -> None:
     report.append("## Python Compile")
     report.append("")
@@ -347,6 +386,38 @@ def main() -> int:
             ],
             report,
         )
+        run_step(
+            "Review Decision Helper Accept Scorecard Dry Run",
+            [
+                sys.executable,
+                "tools/art/apply_unit_art_review_decision.py",
+                "--proof-id",
+                args.audit_proof_id,
+                "--decision",
+                "accept",
+                "--reason",
+                "validation all-gates-pass dry run only",
+                "--next-unit-id",
+                "veyra",
+                "--scorecard-gate",
+                "vellum_veto=pass",
+                "--scorecard-gate",
+                "creep_identity=pass",
+                "--scorecard-gate",
+                "de_shined_material=pass",
+                "--scorecard-gate",
+                "detail_richness=pass",
+                "--scorecard-gate",
+                "board_scale_read=pass",
+                "--scorecard-gate",
+                "cutout_quality=pass",
+                "--scorecard-gate",
+                "reference_role=pass",
+                "--dry-run",
+            ],
+            report,
+        )
+        assert_accept_requires_scorecard(args.audit_proof_id, report)
         run_step("Workflow Document Validator", [sys.executable, "tools/art/validate_unit_art_workflow_doc.py"], report)
         run_step(
             "Full Roster Prompt Packet Build",

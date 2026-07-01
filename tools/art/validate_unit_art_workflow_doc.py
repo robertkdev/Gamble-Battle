@@ -117,6 +117,8 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Reference ladder audit",
     "request_revision",
     "Prior Creep Lessons",
+    "--scorecard-gate",
+    "vellum_veto=pass",
 ]
 
 REQUIRED_REVIEW_QUEUE_SNIPPETS = [
@@ -218,6 +220,9 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Review Queue",
     "Review Decision Packet",
     "Review Decision Helper Dry Run",
+    "Review Decision Helper Accept Scorecard Dry Run",
+    "Review Decision Helper Missing Scorecard Guard",
+    "accept without scorecard unexpectedly passed",
     "Candidate Style Triage",
     "Godot Validation",
     "Vellum Pairwise Audit Output",
@@ -227,6 +232,9 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
 
 REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS = [
     "VALID_DECISIONS",
+    "SCORECARD_GATES",
+    "scorecard-gate",
+    "accept requires every scorecard gate to be pass",
     "request_revision",
     "current_candidate",
     "review_candidate_not_anchor",
@@ -268,6 +276,7 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "approve as accepted proof",
     "reject with a concrete reason",
     "apply_unit_art_review_decision.py",
+    "--scorecard-gate",
     "--decision accept",
     "--decision reject",
     "--decision request_revision",

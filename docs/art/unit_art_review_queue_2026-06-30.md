@@ -22,12 +22,12 @@
 After the user decides, apply the review result through `tools/art/apply_unit_art_review_decision.py` instead of hand-editing the proof ledger.
 
 ```powershell
-python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision accept --reason "<human-approved reason>" --next-unit-id <next_unit_id>
-python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision reject --reason "<concrete failure reason>"
-python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision request_revision --reason "<needed change>"
+python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision accept --reason "<human-approved reason>" --next-unit-id <next_unit_id> --scorecard-gate vellum_veto=pass --scorecard-gate creep_identity=pass --scorecard-gate de_shined_material=pass --scorecard-gate detail_richness=pass --scorecard-gate board_scale_read=pass --scorecard-gate cutout_quality=pass --scorecard-gate reference_role=pass
+python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision reject --reason "<concrete failure reason>" --scorecard-gate vellum_veto=reject
+python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decision request_revision --reason "<needed change>" --scorecard-gate vellum_veto=revise
 ```
 
-Accepting a review candidate records it as an accepted narrow proof only. The helper does not promote candidates into global style anchors; Vellum stays the primary/ultimate reference unless the user explicitly says otherwise.
+Accepting a review candidate requires every scorecard gate to be recorded as `pass`, and records it as an accepted narrow proof only. The helper does not promote candidates into global style anchors; Vellum stays the primary/ultimate reference unless the user explicitly says otherwise.
 
 ## Next Gate
 
