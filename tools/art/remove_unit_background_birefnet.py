@@ -9,6 +9,8 @@ from PIL import Image, ImageDraw, ImageFilter
 from torchvision import transforms
 from transformers import AutoModelForImageSegmentation
 
+from clean_unit_cutout_orange_edge import clean_cutout_background
+
 SAFETY_ORANGE_KEY = np.array([248, 68, 1], dtype=np.int16)
 DEFAULT_RAW_KEY_TOLERANCE = 20
 
@@ -283,12 +285,18 @@ def main() -> None:
         rgb = despill_orange_rgb(rgb, raw, mask)
     safety_orange_cleaned = 0
     raw_key_alpha_cleared = 0
-    if args.edge_orange_clean:
-        rgb, safety_orange_cleaned = clean_edge_orange_rgb(rgb, mask, args.edge_clean_radius)
-        mask, raw_key_alpha_cleared = clear_raw_key_alpha(raw, mask, args.raw_key_tolerance)
+    visual_fringe_alpha_cleared = 0
 
     cutout = Image.fromarray(rgb, "RGB").convert("RGBA")
     cutout.putalpha(mask)
+    if args.edge_orange_clean:
+        cutout, safety_orange_cleaned, raw_key_alpha_cleared, visual_fringe_alpha_cleared = clean_cutout_background(
+            cutout,
+            args.edge_clean_radius,
+            raw,
+            args.raw_key_tolerance,
+        )
+        mask = cutout.getchannel("A")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.mask_output.parent.mkdir(parents=True, exist_ok=True)
@@ -302,6 +310,7 @@ def main() -> None:
         print(f"safety_orange_cleaned={safety_orange_cleaned}")
         print(f"edge_orange_cleaned={safety_orange_cleaned}")
         print(f"raw_key_alpha_cleared={raw_key_alpha_cleared}")
+        print(f"visual_fringe_alpha_cleared={visual_fringe_alpha_cleared}")
     print(args.output)
     print(args.mask_output)
     print(args.review_output)

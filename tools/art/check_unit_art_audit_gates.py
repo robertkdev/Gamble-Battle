@@ -36,6 +36,8 @@ CLEANER_DELTA_STAT_KEYS = [
     "target_soft_orange_pixels",
     "target_cleanup_pixels",
     "target_raw_key_visible_pixels",
+    "target_visual_fringe_pixels",
+    "target_background_alpha_pixels",
     "changed_rgb_pixels",
     "changed_alpha_pixels",
     "changed_outside_target_pixels",
@@ -43,13 +45,17 @@ CLEANER_DELTA_STAT_KEYS = [
     "changed_opaque_interior_pixels",
     "changed_opaque_interior_outside_raw_key_pixels",
     "changed_alpha_outside_raw_key_pixels",
+    "changed_opaque_interior_outside_background_target_pixels",
+    "changed_alpha_outside_background_target_pixels",
     "remaining_edge_orange_pixels",
     "remaining_soft_orange_pixels",
     "remaining_raw_key_visible_pixels",
+    "remaining_visual_fringe_pixels",
     "removed_edge_orange_pixels",
     "removed_soft_orange_pixels",
     "removed_cleanup_pixels",
     "cleared_raw_key_visible_pixels",
+    "cleared_visual_fringe_pixels",
 ]
 CUTOUT_AUDIT_THRESHOLDS = {
     "edge_radius": 4,
@@ -62,6 +68,7 @@ STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS = {
     "max_edge_orange_pixels": 0,
     "max_soft_orange_pixels": 0,
     "max_edge_orange_ratio": 0.0,
+    "max_visual_fringe_pixels": 0,
 }
 
 
@@ -129,8 +136,8 @@ def assert_cleaner_stats_json(
         raise RuntimeError(f"edge cleaner stats JSON missing: {rel(path)}")
     payload = read_json(path)
     raw_loaded = raw_source_path is not None
-    expected_input_contract = "cutout_rgba_plus_raw_background_key_pixels" if raw_loaded else "cutout_rgba_pixels_only"
-    expected_clean_contract = "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only"
+    expected_input_contract = "cutout_rgba_plus_raw_background_key_pixels_plus_visual_background_fringe" if raw_loaded else "cutout_rgba_pixels_only"
+    expected_clean_contract = "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear_plus_visual_fringe_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only"
     if payload.get("audit_input_contract") != expected_input_contract:
         raise RuntimeError(f"edge cleaner stats JSON does not declare {expected_input_contract}")
     if payload.get("edge_clean_contract") != expected_clean_contract:
@@ -152,6 +159,8 @@ def assert_cleaner_stats_json(
         raise RuntimeError("edge cleaner stats JSON cleaned pixel count does not match stdout")
     if int(payload.get("raw_key_alpha_cleared_pixels", -1)) != raw_key_cleared_pixels:
         raise RuntimeError("edge cleaner stats JSON raw-key alpha clear count does not match stdout")
+    if int(payload.get("visual_fringe_alpha_cleared_pixels", -1)) != delta_stats["target_visual_fringe_pixels"]:
+        raise RuntimeError("edge cleaner stats JSON visual-fringe alpha clear count does not match pixel delta")
     expected_paths = {
         "input": rel(input_path),
         "output": rel(output_path),
@@ -352,8 +361,8 @@ def assert_raw_backed_cutout_manifest(
     if not manifest_path.exists():
         raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
     manifest = read_json(manifest_path)
-    if manifest.get("audit_input_contract") != "cutout_rgba_plus_raw_background_key_pixels":
-        raise RuntimeError(f"{label} does not declare cutout_rgba_plus_raw_background_key_pixels")
+    if manifest.get("audit_input_contract") != "cutout_rgba_plus_raw_background_key_pixels_plus_visual_background_fringe":
+        raise RuntimeError(f"{label} does not declare cutout_rgba_plus_raw_background_key_pixels_plus_visual_background_fringe")
     if manifest.get("raw_images_loaded") is not True:
         raise RuntimeError(f"{label} must set raw_images_loaded=true")
     for key in (
@@ -420,8 +429,30 @@ def write_raw_key_hole_control(control_dir: Path) -> tuple[Path, Path]:
     cutout = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
     cutout_draw = ImageDraw.Draw(cutout)
     cutout_draw.ellipse((26, 18, 102, 112), fill=(70, 80, 92, 255))
-    cutout_draw.rectangle((60, 48, 68, 84), fill=(54, 64, 82, 255))
+    cutout_draw.rectangle((60, 48, 68, 84), fill=(78, 76, 72, 255))
     cutout_draw.ellipse((42, 64, 54, 76), fill=(216, 124, 48, 255))
+    cutout.save(cutout_path)
+    return raw_path, cutout_path
+
+
+def write_visual_background_fringe_control(control_dir: Path) -> tuple[Path, Path]:
+    control_dir.mkdir(parents=True, exist_ok=True)
+    raw_path = control_dir / "visual_background_fringe_control_raw.png"
+    cutout_path = control_dir / "visual_background_fringe_control_cutout.png"
+
+    raw = Image.new("RGB", (128, 128), (248, 68, 1))
+    raw_draw = ImageDraw.Draw(raw)
+    raw_draw.rectangle((26, 20, 42, 112), fill=(178, 80, 50))
+    raw_draw.ellipse((42, 30, 88, 98), fill=(70, 80, 92))
+    raw_draw.ellipse((58, 58, 72, 72), fill=(216, 124, 48))
+    raw.save(raw_path)
+
+    cutout = Image.new("RGBA", (128, 128), (0, 0, 0, 0))
+    cutout_draw = ImageDraw.Draw(cutout)
+    cutout_draw.ellipse((30, 18, 98, 110), fill=(70, 80, 92, 255))
+    cutout_draw.arc((28, 18, 98, 110), 112, 252, fill=(22, 44, 126, 255), width=4)
+    cutout_draw.rectangle((62, 18, 69, 30), fill=(222, 69, 20, 255))
+    cutout_draw.ellipse((58, 58, 72, 72), fill=(216, 124, 48, 255))
     cutout.save(cutout_path)
     return raw_path, cutout_path
 
@@ -683,6 +714,151 @@ def assert_strict_zero_cutout_gate(output_dir: Path, report: list[str]) -> None:
         raise RuntimeError("strict-zero one-pixel residue control did not create exactly one edge-orange pixel")
     report.append("- PASS default-threshold audit passes a one-pixel edge-orange residue control.")
     report.append("- PASS strict-zero audit fails the same one-pixel edge-orange residue control.")
+    report.append("")
+
+
+def assert_visual_background_fringe_gate(output_dir: Path, report: list[str]) -> None:
+    report.append("## Visual Background-Fringe Gate")
+    report.append("")
+    control_dir = output_dir / "visual_background_fringe_control"
+    raw_path, cutout_path = write_visual_background_fringe_control(control_dir)
+    raw_backed_audit_dir = control_dir / "audit_raw_backed_before"
+    cleaned_path = control_dir / "visual_background_fringe_control_cleaned.png"
+    cleaner_review_path = control_dir / "visual_background_fringe_control_cleaned_review.png"
+    cleaner_stats_path = stats_output_path(cleaned_path)
+    cleaned_audit_dir = control_dir / "audit_raw_backed_after"
+    material_box = (58, 58, 73, 73)
+    material_alpha_before = count_visible_alpha_pixels_in_box(cutout_path, material_box)
+    if material_alpha_before <= 0:
+        raise RuntimeError("visual-fringe control did not create intentional interior orange material")
+
+    audit_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cutout_path),
+        "--raw-source",
+        rel(raw_path),
+        "--cutout-id",
+        "visual_background_fringe_control",
+        "--cutout-label",
+        "visual background-fringe control",
+        "--output-dir",
+        rel(raw_backed_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    audit_result = run_command(audit_command, report, expect_success=False)
+    if "flagged=1" not in audit_result.stdout:
+        raise RuntimeError("visual background-fringe control did not fail with flagged=1")
+    assert_raw_backed_cutout_manifest(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "visual-fringe raw-backed audit manifest",
+        report,
+    )
+    rows = read_csv(raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    row = rows[0]
+    if "visual_background_fringe_contamination" not in row.get("issue", ""):
+        raise RuntimeError("visual background-fringe control failed for the wrong issue")
+    if int(row.get("visual_fringe_pixels", "0")) <= 0:
+        raise RuntimeError("visual background-fringe audit did not measure visual_fringe_pixels")
+    if int(row.get("visual_blue_fringe_pixels", "0")) <= 0:
+        raise RuntimeError("visual background-fringe audit did not measure blue fringe")
+
+    clean_command = [
+        sys.executable,
+        "tools/art/clean_unit_cutout_orange_edge.py",
+        "--input",
+        rel(cutout_path),
+        "--raw-source",
+        rel(raw_path),
+        "--output",
+        rel(cleaned_path),
+        "--review-output",
+        rel(cleaner_review_path),
+    ]
+    clean_result = run_command(clean_command, report, expect_success=True)
+    if "visual_fringe_alpha_cleared_pixels=" not in clean_result.stdout:
+        raise RuntimeError("visual-fringe cleaner did not report visual_fringe_alpha_cleared_pixels")
+    visual_cleared = int(clean_result.stdout.split("visual_fringe_alpha_cleared_pixels=", 1)[1].splitlines()[0].strip())
+    if visual_cleared <= 0:
+        raise RuntimeError("visual-fringe cleaner did not clear any visual background-fringe pixels")
+    cleaned_pixels = int(clean_result.stdout.split("cleaned_safety_orange_pixels=", 1)[1].splitlines()[0].strip())
+    raw_key_cleared = int(clean_result.stdout.split("raw_key_alpha_cleared_pixels=", 1)[1].splitlines()[0].strip())
+    cleaner_stdout_stats = parse_cleaner_delta_stdout(clean_result.stdout)
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4, Image.open(raw_path))
+    for key in CLEANER_DELTA_STAT_KEYS:
+        if cleaner_stdout_stats[key] != delta_stats[key]:
+            raise RuntimeError(f"visual-fringe cleaner self-reported {key}={cleaner_stdout_stats[key]}, actual={delta_stats[key]}")
+    assert_cleaner_stats_json(
+        cleaner_stats_path,
+        cutout_path,
+        cleaned_path,
+        cleaner_review_path,
+        4,
+        cleaned_pixels,
+        delta_stats,
+        raw_path,
+        raw_key_cleared,
+    )
+    try:
+        assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, raw_key_cleared, visual_cleared, require_changed=True)
+    except ValueError as exc:
+        raise RuntimeError(str(exc)) from exc
+    if count_visible_alpha_pixels_in_box(cleaned_path, material_box) != material_alpha_before:
+        raise RuntimeError("visual-fringe cleaner changed intentional interior orange material alpha")
+
+    cleaned_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--no-include-proof-matrix",
+        "--cutout",
+        rel(cleaned_path),
+        "--raw-source",
+        rel(raw_path),
+        "--cutout-id",
+        "visual_background_fringe_cleaned_control",
+        "--cutout-label",
+        "visual background-fringe cleaned control",
+        "--output-dir",
+        rel(cleaned_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cleaned_result = run_command(cleaned_command, report, expect_success=True)
+    if "flagged=0" not in cleaned_result.stdout:
+        raise RuntimeError("visual-fringe cleaned audit did not report flagged=0")
+    assert_raw_backed_cutout_manifest(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "visual-fringe cleaned raw-backed audit manifest",
+        report,
+    )
+    before_size = assert_nonblank_image(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "visual-fringe raw-backed audit review sheet",
+    )
+    cleaner_size = assert_nonblank_image(cleaner_review_path, "visual-fringe cleaner review sheet")
+    after_size = assert_nonblank_image(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "visual-fringe cleaned audit review sheet",
+    )
+    report.append("- PASS raw-backed strict audit fails blue/orange visual background-fringe residue with visual_background_fringe_contamination.")
+    report.append(
+        "- PASS visual-fringe cleaner alpha-clears measured blue/orange background-field residue while preserving intentional interior orange material "
+        f"(visual_fringe_alpha_cleared={visual_cleared}, raw_key_alpha_cleared={raw_key_cleared})."
+    )
+    report.append("- PASS visual-fringe cleaned cutout reruns with strict-zero visual-fringe thresholds.")
+    report.append(
+        "- PASS visual-fringe review sheets are nonblank: "
+        f"raw-before `{before_size[0]}x{before_size[1]}`, "
+        f"cleaner `{cleaner_size[0]}x{cleaner_size[1]}`, "
+        f"raw-after `{after_size[0]}x{after_size[1]}`."
+    )
     report.append("")
 
 
@@ -1082,7 +1258,7 @@ def assert_synthetic_raw_key_hole_clean(output_dir: Path, report: list[str]) -> 
     if raw_key_cleared <= 0:
         raise RuntimeError("raw-backed cleaner did not clear the synthetic internal raw-key hole")
     cleaned_pixels = int(clean_result.stdout.split("cleaned_safety_orange_pixels=", 1)[1].splitlines()[0].strip())
-    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4, Image.open(raw_path), 20)
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4, Image.open(raw_path))
     cleaner_stdout_stats = parse_cleaner_delta_stdout(clean_result.stdout)
     for key in CLEANER_DELTA_STAT_KEYS:
         if cleaner_stdout_stats[key] != delta_stats[key]:
@@ -1190,6 +1366,7 @@ def assert_proof_matrix_raw_source_gate(output_dir: Path, report: list[str]) -> 
     raw_path, cutout_path = write_raw_key_hole_control(control_dir)
     cleaned_path = control_dir / "raw_key_hole_proof_matrix_control_cleaned.png"
     cleaner_review_path = control_dir / "raw_key_hole_proof_matrix_control_cleaned_review.png"
+    cleaner_stats_path = stats_output_path(cleaned_path)
     proof_matrix_path = control_dir / "raw_key_hole_proof_matrix.json"
     cutout_only_audit_dir = control_dir / "audit_cutout_only"
     raw_backed_audit_dir = control_dir / "audit_raw_backed_before"
@@ -1273,6 +1450,28 @@ def assert_proof_matrix_raw_source_gate(output_dir: Path, report: list[str]) -> 
     raw_key_cleared = int(clean_result.stdout.split("raw_key_alpha_cleared_pixels=", 1)[1].splitlines()[0].strip())
     if raw_key_cleared != raw_key_visible_pixels:
         raise RuntimeError("proof-matrix raw-source cleaner did not clear measured visible raw-key pixels")
+    cleaned_pixels = int(clean_result.stdout.split("cleaned_safety_orange_pixels=", 1)[1].splitlines()[0].strip())
+    cleaner_stdout_stats = parse_cleaner_delta_stdout(clean_result.stdout)
+    delta_stats = edge_clean_delta_stats(Image.open(cutout_path), Image.open(cleaned_path), 4, Image.open(raw_path))
+    for key in CLEANER_DELTA_STAT_KEYS:
+        if cleaner_stdout_stats[key] != delta_stats[key]:
+            raise RuntimeError(f"proof-matrix raw-source cleaner self-reported {key}={cleaner_stdout_stats[key]}, actual={delta_stats[key]}")
+    assert_cleaner_stats_json(
+        cleaner_stats_path,
+        cutout_path,
+        cleaned_path,
+        cleaner_review_path,
+        4,
+        cleaned_pixels,
+        delta_stats,
+        raw_path,
+        raw_key_cleared,
+    )
+    try:
+        assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, raw_key_cleared, require_changed=True)
+    except ValueError as exc:
+        raise RuntimeError(str(exc)) from exc
+    cleaner_size = assert_nonblank_image(cleaner_review_path, "proof-matrix raw-source cleaner review sheet")
 
     write_raw_key_hole_proof_matrix(proof_matrix_path, raw_path, cleaned_path)
     cleaned_command = [
@@ -1302,11 +1501,37 @@ def assert_proof_matrix_raw_source_gate(output_dir: Path, report: list[str]) -> 
         expected_source_kinds={"proof_matrix_cutout"},
     )
     cleaned_rows = read_csv(cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
-    if int(cleaned_rows[0].get("raw_key_visible_pixels", "-1")) != 0:
+    cleaned_row = cleaned_rows[0]
+    if cleaned_row.get("quality_status") != "pass":
+        raise RuntimeError("cleaned proof-matrix raw-source audit row did not pass")
+    if int(cleaned_row.get("raw_key_visible_pixels", "-1")) != 0:
         raise RuntimeError("cleaned proof-matrix raw-source audit still measured visible raw-key pixels")
+    cutout_only_size = assert_nonblank_image(
+        cutout_only_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "proof-matrix cutout-only audit review sheet",
+    )
+    raw_backed_size = assert_nonblank_image(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "proof-matrix raw-source audit review sheet",
+    )
+    cleaned_size = assert_nonblank_image(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "cleaned proof-matrix raw-source audit review sheet",
+    )
     report.append("- PASS proof-matrix cutout-only audit reproduces the raw-key blind spot without loading raw images.")
     report.append("- PASS proof-matrix raw-source audit fails an internal raw-key hole through --use-proof-raw-source.")
+    report.append(
+        "- PASS proof-matrix raw-source cleaner stats JSON records raw-source hashes, stdout parity, and pixel delta: "
+        f"`{rel(cleaner_stats_path)}`."
+    )
     report.append("- PASS cleaned proof-matrix raw-source audit passes with strict-zero raw-key thresholds.")
+    report.append(
+        "- PASS proof-matrix raw-source review sheets are nonblank: "
+        f"cutout-only `{cutout_only_size[0]}x{cutout_only_size[1]}`, "
+        f"raw-before `{raw_backed_size[0]}x{raw_backed_size[1]}`, "
+        f"cleaner `{cleaner_size[0]}x{cleaner_size[1]}`, "
+        f"raw-after `{cleaned_size[0]}x{cleaned_size[1]}`."
+    )
     report.append("")
 
 
@@ -1687,6 +1912,7 @@ def main() -> int:
     assert_cutout_gate(output_dir, report)
     assert_cutout_self_test_matrix(output_dir, report)
     assert_strict_zero_cutout_gate(output_dir, report)
+    assert_visual_background_fringe_gate(output_dir, report)
     assert_raw_key_hole_gate(output_dir, report)
     assert_synthetic_edge_clean(output_dir, report)
     assert_synthetic_raw_key_hole_clean(output_dir, report)

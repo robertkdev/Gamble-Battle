@@ -48,6 +48,8 @@ CLEANER_DELTA_STAT_KEYS = [
     "target_soft_orange_pixels",
     "target_cleanup_pixels",
     "target_raw_key_visible_pixels",
+    "target_visual_fringe_pixels",
+    "target_background_alpha_pixels",
     "changed_rgb_pixels",
     "changed_alpha_pixels",
     "changed_outside_target_pixels",
@@ -55,13 +57,17 @@ CLEANER_DELTA_STAT_KEYS = [
     "changed_opaque_interior_pixels",
     "changed_opaque_interior_outside_raw_key_pixels",
     "changed_alpha_outside_raw_key_pixels",
+    "changed_opaque_interior_outside_background_target_pixels",
+    "changed_alpha_outside_background_target_pixels",
     "remaining_edge_orange_pixels",
     "remaining_soft_orange_pixels",
     "remaining_raw_key_visible_pixels",
+    "remaining_visual_fringe_pixels",
     "removed_edge_orange_pixels",
     "removed_soft_orange_pixels",
     "removed_cleanup_pixels",
     "cleared_raw_key_visible_pixels",
+    "cleared_visual_fringe_pixels",
 ]
 CUTOUT_AUDIT_THRESHOLDS = {
     "edge_radius": 4,
@@ -74,6 +80,7 @@ STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS = {
     "max_edge_orange_pixels": 0,
     "max_soft_orange_pixels": 0,
     "max_edge_orange_ratio": 0.0,
+    "max_visual_fringe_pixels": 0,
 }
 
 
@@ -137,8 +144,8 @@ def assert_cleaner_stats_json(
         raise RuntimeError(f"edge cleaner stats JSON missing: {rel(path)}")
     payload = json.loads(path.read_text(encoding="utf-8"))
     raw_loaded = raw_source_path is not None
-    expected_input_contract = "cutout_rgba_plus_raw_background_key_pixels" if raw_loaded else "cutout_rgba_pixels_only"
-    expected_clean_contract = "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only"
+    expected_input_contract = "cutout_rgba_plus_raw_background_key_pixels_plus_visual_background_fringe" if raw_loaded else "cutout_rgba_pixels_only"
+    expected_clean_contract = "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear_plus_visual_fringe_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only"
     if payload.get("audit_input_contract") != expected_input_contract:
         raise RuntimeError(f"edge cleaner stats JSON does not declare {expected_input_contract}")
     if payload.get("edge_clean_contract") != expected_clean_contract:
@@ -160,6 +167,8 @@ def assert_cleaner_stats_json(
         raise RuntimeError("edge cleaner stats JSON cleaned pixel count does not match stdout")
     if int(payload.get("raw_key_alpha_cleared_pixels", -1)) != raw_key_cleared_pixels:
         raise RuntimeError("edge cleaner stats JSON raw-key alpha clear count does not match stdout")
+    if int(payload.get("visual_fringe_alpha_cleared_pixels", -1)) != delta_stats["target_visual_fringe_pixels"]:
+        raise RuntimeError("edge cleaner stats JSON visual-fringe alpha clear count does not match pixel delta")
     expected_paths = {
         "input": rel(input_path),
         "output": rel(output_path),
@@ -1001,6 +1010,11 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
         "Strict-Zero Cutout Gate",
         "default-threshold audit passes a one-pixel edge-orange residue control",
         "strict-zero audit fails the same one-pixel edge-orange residue control",
+        "Visual Background-Fringe Gate",
+        "raw-backed strict audit fails blue/orange visual background-fringe residue with visual_background_fringe_contamination",
+        "visual-fringe cleaner alpha-clears measured blue/orange background-field residue while preserving intentional interior orange material",
+        "visual-fringe cleaned cutout reruns with strict-zero visual-fringe thresholds",
+        "visual-fringe review sheets are nonblank",
         "Raw-Key Background-Hole Gate",
         "cutout-only strict-zero audit passes a recolored raw-key hole",
         "raw-backed audit fails the same cutout for visible reserved background-key pixels",
@@ -1019,7 +1033,9 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
         "Proof-Matrix Raw-Source Gate",
         "proof-matrix cutout-only audit reproduces the raw-key blind spot without loading raw images",
         "proof-matrix raw-source audit fails an internal raw-key hole through --use-proof-raw-source",
+        "proof-matrix raw-source cleaner stats JSON records raw-source hashes, stdout parity, and pixel delta",
         "cleaned proof-matrix raw-source audit passes with strict-zero raw-key thresholds",
+        "proof-matrix raw-source review sheets are nonblank",
         "Metrics Reference Hierarchy Gate",
         "Tampered Metrics Negative-Control Gate",
         "Tampered Proof-Matrix Negative-Control Gate",

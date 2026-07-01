@@ -11,7 +11,8 @@ from PIL import Image, ImageDraw, ImageFont
 from audit_unit_cutout_orange_fringe import (
     DEFAULT_RAW_KEY_TOLERANCE,
     alpha_edge_band,
-    background_key_residue,
+    background_residue_masks,
+    raw_background_residue,
     checker,
     safety_orange_residue,
 )
@@ -57,11 +58,58 @@ def raw_background_key_target_mask(rgba: np.ndarray, raw_source: Image.Image | N
     raw = raw_source.convert("RGB")
     if raw.size != (rgba.shape[1], rgba.shape[0]):
         raise ValueError("raw source and cutout image have different sizes")
-    return background_key_residue(np.asarray(raw), raw_key_tolerance) & (alpha > 0)
+    return raw_background_residue(np.asarray(raw), raw_key_tolerance) & (alpha > 0)
+
+
+def visual_background_fringe_target_mask(
+    rgba: np.ndarray,
+    edge_radius: int,
+    raw_source: Image.Image | None,
+    raw_key_tolerance: int,
+) -> np.ndarray:
+    if raw_source is None:
+        return np.zeros(rgba.shape[:2], dtype=bool)
+    raw = raw_source.convert("RGB")
+    if raw.size != (rgba.shape[1], rgba.shape[0]):
+        raise ValueError("raw source and cutout image have different sizes")
+    masks = background_residue_masks(rgba, edge_radius, np.asarray(raw), raw_key_tolerance)
+    return masks["visual_fringe"] & (rgba[:, :, 3] > 0)
+
+
+def background_alpha_target_masks(
+    rgba: np.ndarray,
+    edge_radius: int,
+    raw_source: Image.Image | None,
+    raw_key_tolerance: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    raw_key_target = raw_background_key_target_mask(rgba, raw_source, raw_key_tolerance)
+    cleaned_alpha = rgba[:, :, 3].copy()
+    cleaned_alpha[raw_key_target] = 0
+    visual_target = np.zeros(rgba.shape[:2], dtype=bool)
+    original_alpha = rgba[:, :, 3]
+    original_soft_alpha = (original_alpha > 8) & (original_alpha < 245)
+    original_edge_shell = alpha_edge_band(original_alpha, max(edge_radius * 3, edge_radius))
+    visual_search_shell = (original_alpha > 8) & (original_edge_shell | original_soft_alpha)
+
+    # Clearing one fringe band can expose the next matte boundary. Iterate so the
+    # cleaner and audit agree on a fixed point instead of a single shell. Keep
+    # that iteration inside the original matte boundary so valid interior warm
+    # materials do not get eaten as the edge moves inward.
+    for _index in range(8):
+        target_rgba = rgba.copy()
+        target_rgba[:, :, 3] = cleaned_alpha
+        next_visual = visual_background_fringe_target_mask(target_rgba, edge_radius, raw_source, raw_key_tolerance)
+        next_visual &= visual_search_shell
+        next_visual &= ~visual_target
+        if not np.any(next_visual):
+            break
+        visual_target |= next_visual
+        cleaned_alpha[next_visual] = 0
+    return raw_key_target, visual_target
 
 
 def clean_edge_orange(image: Image.Image, edge_radius: int) -> tuple[Image.Image, int]:
-    after, cleaned_pixels, _raw_key_cleared_pixels = clean_cutout_background(image, edge_radius, None, DEFAULT_RAW_KEY_TOLERANCE)
+    after, cleaned_pixels, _raw_key_cleared_pixels, _visual_fringe_cleared_pixels = clean_cutout_background(image, edge_radius, None, DEFAULT_RAW_KEY_TOLERANCE)
     return after, cleaned_pixels
 
 
@@ -70,12 +118,13 @@ def clean_cutout_background(
     edge_radius: int,
     raw_source: Image.Image | None = None,
     raw_key_tolerance: int = DEFAULT_RAW_KEY_TOLERANCE,
-) -> tuple[Image.Image, int, int]:
+) -> tuple[Image.Image, int, int, int]:
     rgba = np.asarray(image.convert("RGBA"))
     alpha = rgba[:, :, 3]
-    raw_key_target = raw_background_key_target_mask(rgba, raw_source, raw_key_tolerance)
+    raw_key_target, visual_fringe_target = background_alpha_target_masks(rgba, edge_radius, raw_source, raw_key_tolerance)
     cleaned_alpha = alpha.copy()
     cleaned_alpha[raw_key_target] = 0
+    cleaned_alpha[visual_fringe_target] = 0
 
     target_rgba = rgba.copy()
     target_rgba[:, :, 3] = cleaned_alpha
@@ -83,15 +132,21 @@ def clean_cutout_background(
 
     rgb = rgba[:, :, :3].copy().astype(np.float32)
     gray = rgb[:, :, 0] * 0.22 + rgb[:, :, 1] * 0.46 + rgb[:, :, 2] * 0.32
-    rgb[target, 0] = gray[target] * 0.24
-    rgb[target, 1] = gray[target] * 0.34
-    rgb[target, 2] = np.maximum(rgb[target, 2], gray[target] * 0.86)
+    rgb[target, 0] = gray[target] * 0.42
+    rgb[target, 1] = gray[target] * 0.43
+    rgb[target, 2] = gray[target] * 0.45
 
     cleaned_rgb = np.clip(rgb, 0, 255).astype(np.uint8)
-    cleaned_rgb[raw_key_target] = 0
+    alpha_cleared_target = raw_key_target | visual_fringe_target
+    cleaned_rgb[alpha_cleared_target] = 0
 
     cleaned = np.dstack((cleaned_rgb, cleaned_alpha))
-    return Image.fromarray(cleaned, "RGBA"), int(np.count_nonzero(target)), int(np.count_nonzero(raw_key_target))
+    return (
+        Image.fromarray(cleaned, "RGBA"),
+        int(np.count_nonzero(target)),
+        int(np.count_nonzero(raw_key_target)),
+        int(np.count_nonzero(visual_fringe_target)),
+    )
 
 
 def edge_clean_delta_stats(
@@ -106,9 +161,10 @@ def edge_clean_delta_stats(
     if before_rgba.shape != after_rgba.shape:
         raise ValueError("before/after images have different shapes")
     alpha = before_rgba[:, :, 3]
-    raw_key_target = raw_background_key_target_mask(before_rgba, raw_source, raw_key_tolerance)
+    raw_key_target, visual_fringe_target = background_alpha_target_masks(before_rgba, edge_radius, raw_source, raw_key_tolerance)
     contract_alpha = alpha.copy()
     contract_alpha[raw_key_target] = 0
+    contract_alpha[visual_fringe_target] = 0
     edge = alpha_edge_band(contract_alpha, edge_radius)
     soft_alpha = (contract_alpha > 8) & (contract_alpha < 245)
     target_edge = safety_orange_residue(before_rgba[:, :, :3]) & edge & (contract_alpha > 0)
@@ -121,12 +177,16 @@ def edge_clean_delta_stats(
     changed_rgb = np.any(before_rgba[:, :, :3] != after_rgba[:, :, :3], axis=2)
     changed_alpha = before_rgba[:, :, 3] != after_rgba[:, :, 3]
     opaque_interior = (alpha >= 245) & ~edge
+    background_alpha_target = raw_key_target | visual_fringe_target
     after_raw_key_visible = raw_key_target & (after_rgba[:, :, 3] > 0)
+    after_visual_fringe = visual_background_fringe_target_mask(after_rgba, edge_radius, raw_source, raw_key_tolerance)
     return {
         "target_edge_orange_pixels": int(np.count_nonzero(target_edge)),
         "target_soft_orange_pixels": int(np.count_nonzero(target_soft)),
         "target_cleanup_pixels": int(np.count_nonzero(target)),
         "target_raw_key_visible_pixels": int(np.count_nonzero(raw_key_target)),
+        "target_visual_fringe_pixels": int(np.count_nonzero(visual_fringe_target)),
+        "target_background_alpha_pixels": int(np.count_nonzero(background_alpha_target)),
         "changed_rgb_pixels": int(np.count_nonzero(changed_rgb)),
         "changed_alpha_pixels": int(np.count_nonzero(changed_alpha)),
         "changed_outside_target_pixels": int(np.count_nonzero(changed_rgb & ~target)),
@@ -134,13 +194,17 @@ def edge_clean_delta_stats(
         "changed_opaque_interior_pixels": int(np.count_nonzero(changed_rgb & opaque_interior)),
         "changed_opaque_interior_outside_raw_key_pixels": int(np.count_nonzero(changed_rgb & opaque_interior & ~raw_key_target)),
         "changed_alpha_outside_raw_key_pixels": int(np.count_nonzero(changed_alpha & ~raw_key_target)),
+        "changed_opaque_interior_outside_background_target_pixels": int(np.count_nonzero(changed_rgb & opaque_interior & ~background_alpha_target)),
+        "changed_alpha_outside_background_target_pixels": int(np.count_nonzero(changed_alpha & ~background_alpha_target)),
         "remaining_edge_orange_pixels": int(np.count_nonzero(after_edge_orange)),
         "remaining_soft_orange_pixels": int(np.count_nonzero(after_soft_orange)),
         "remaining_raw_key_visible_pixels": int(np.count_nonzero(after_raw_key_visible)),
+        "remaining_visual_fringe_pixels": int(np.count_nonzero(after_visual_fringe)),
         "removed_edge_orange_pixels": int(np.count_nonzero(target_edge & ~after_edge_orange)),
         "removed_soft_orange_pixels": int(np.count_nonzero(target_soft & ~after_soft_orange)),
         "removed_cleanup_pixels": int(np.count_nonzero(target & ~after_orange)),
         "cleared_raw_key_visible_pixels": int(np.count_nonzero(raw_key_target & (after_rgba[:, :, 3] == 0))),
+        "cleared_visual_fringe_pixels": int(np.count_nonzero(visual_fringe_target & (after_rgba[:, :, 3] == 0))),
     }
 
 
@@ -148,6 +212,7 @@ def edge_clean_delta_contract_errors(
     delta_stats: dict[str, int],
     cleaned_pixels: int,
     raw_key_cleared_pixels: int = 0,
+    visual_fringe_cleared_pixels: int = 0,
     require_changed: bool = False,
 ) -> list[str]:
     errors: list[str] = []
@@ -155,9 +220,13 @@ def edge_clean_delta_contract_errors(
         errors.append("reported pixel count does not match target cleanup pixels")
     if delta_stats["target_raw_key_visible_pixels"] != raw_key_cleared_pixels:
         errors.append("reported raw-key cleared count does not match raw-key target pixels")
+    if delta_stats["target_visual_fringe_pixels"] != visual_fringe_cleared_pixels:
+        errors.append("reported visual-fringe cleared count does not match visual-fringe target pixels")
+    if delta_stats["target_background_alpha_pixels"] != raw_key_cleared_pixels + visual_fringe_cleared_pixels:
+        errors.append("reported background alpha target count does not match raw-key plus visual-fringe targets")
     if require_changed and delta_stats["changed_rgb_pixels"] <= 0:
         errors.append("no RGB pixels changed")
-    if raw_key_cleared_pixels <= 0:
+    if raw_key_cleared_pixels <= 0 and visual_fringe_cleared_pixels <= 0:
         if delta_stats["changed_alpha_pixels"] != 0:
             errors.append("alpha pixels changed")
         if delta_stats["changed_outside_target_pixels"] != 0:
@@ -165,12 +234,14 @@ def edge_clean_delta_contract_errors(
         if delta_stats["changed_opaque_interior_pixels"] != 0:
             errors.append("opaque interior pixels changed")
     else:
-        if delta_stats["changed_alpha_outside_raw_key_pixels"] != 0:
-            errors.append("alpha pixels outside raw background-key target changed")
-        if delta_stats["changed_opaque_interior_outside_raw_key_pixels"] != 0:
-            errors.append("opaque interior pixels outside raw background-key target changed")
+        if delta_stats["changed_alpha_outside_background_target_pixels"] != 0:
+            errors.append("alpha pixels outside raw background-key or visual-fringe target changed")
+        if delta_stats["changed_opaque_interior_outside_background_target_pixels"] != 0:
+            errors.append("opaque interior pixels outside raw background-key or visual-fringe target changed")
         if delta_stats["remaining_raw_key_visible_pixels"] != 0:
             errors.append("raw background-key pixels remain visible")
+        if delta_stats["remaining_visual_fringe_pixels"] != 0:
+            errors.append("visual background-fringe pixels remain visible")
     if delta_stats["remaining_edge_orange_pixels"] != 0:
         errors.append("safety-orange residue remains in alpha edge band")
     if delta_stats["remaining_soft_orange_pixels"] != 0:
@@ -182,9 +253,10 @@ def assert_edge_clean_delta_contract(
     delta_stats: dict[str, int],
     cleaned_pixels: int,
     raw_key_cleared_pixels: int = 0,
+    visual_fringe_cleared_pixels: int = 0,
     require_changed: bool = False,
 ) -> None:
-    errors = edge_clean_delta_contract_errors(delta_stats, cleaned_pixels, raw_key_cleared_pixels, require_changed)
+    errors = edge_clean_delta_contract_errors(delta_stats, cleaned_pixels, raw_key_cleared_pixels, visual_fringe_cleared_pixels, require_changed)
     if errors:
         raise ValueError("edge-clean delta contract failed: " + "; ".join(errors))
 
@@ -203,6 +275,7 @@ def edge_clean_stats_payload(
     edge_radius: int,
     cleaned_pixels: int,
     raw_key_cleared_pixels: int,
+    visual_fringe_cleared_pixels: int,
     delta_stats: dict[str, int],
     raw_source_path: Path | None = None,
     raw_key_tolerance: int = DEFAULT_RAW_KEY_TOLERANCE,
@@ -210,8 +283,8 @@ def edge_clean_stats_payload(
     raw_loaded = raw_source_path is not None
     payload: dict[str, object] = {
         "tool": "clean_unit_cutout_orange_edge.py",
-        "audit_input_contract": "cutout_rgba_plus_raw_background_key_pixels" if raw_loaded else "cutout_rgba_pixels_only",
-        "edge_clean_contract": "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only",
+        "audit_input_contract": "cutout_rgba_plus_raw_background_key_pixels_plus_visual_background_fringe" if raw_loaded else "cutout_rgba_pixels_only",
+        "edge_clean_contract": "safety_orange_alpha_edge_or_soft_rgb_plus_raw_key_visible_alpha_clear_plus_visual_fringe_alpha_clear" if raw_loaded else "safety_orange_alpha_edge_or_soft_pixels_only",
         "contract_status": "pass",
         "reference_images_loaded": False,
         "raw_images_loaded": raw_loaded,
@@ -230,6 +303,7 @@ def edge_clean_stats_payload(
         "cleaned_safety_orange_pixels": cleaned_pixels,
         "cleaned_edge_orange_pixels": cleaned_pixels,
         "raw_key_alpha_cleared_pixels": raw_key_cleared_pixels,
+        "visual_fringe_alpha_cleared_pixels": visual_fringe_cleared_pixels,
         "delta_stats": delta_stats,
     }
     if raw_source_path is not None:
@@ -264,17 +338,14 @@ def overlay_removed(
     before_orange = cleanup_target_mask(before_rgba, edge_radius)
     after_orange = cleanup_target_mask(after_rgba, edge_radius)
     removed = before_orange & ~after_orange
-    raw_cleared = raw_background_key_target_mask(before_rgba, raw_source, raw_key_tolerance) & (after_rgba[:, :, 3] == 0)
+    raw_target, visual_target = background_alpha_target_masks(before_rgba, edge_radius, raw_source, raw_key_tolerance)
+    raw_cleared = raw_target & (after_rgba[:, :, 3] == 0)
+    visual_cleared = visual_target & (after_rgba[:, :, 3] == 0)
 
     overlay = before_rgba.copy()
-    overlay[removed, 0] = 255
-    overlay[removed, 1] = 0
-    overlay[removed, 2] = 0
-    overlay[removed, 3] = 255
-    overlay[raw_cleared, 0] = 255
-    overlay[raw_cleared, 1] = 230
-    overlay[raw_cleared, 2] = 0
-    overlay[raw_cleared, 3] = 255
+    overlay[removed] = [255, 0, 0, 255]
+    overlay[visual_cleared] = [0, 210, 255, 255]
+    overlay[raw_cleared] = [255, 230, 0, 255]
     image = Image.fromarray(overlay, "RGBA")
     image.thumbnail(size, Image.Resampling.LANCZOS)
     canvas = Image.new("RGBA", size, (0, 0, 0, 255))
@@ -299,6 +370,7 @@ def write_review_sheet(
     after: Image.Image,
     cleaned_pixels: int,
     raw_key_cleared_pixels: int,
+    visual_fringe_cleared_pixels: int,
     edge_radius: int,
     raw_source: Image.Image | None = None,
     raw_key_tolerance: int = DEFAULT_RAW_KEY_TOLERANCE,
@@ -309,12 +381,12 @@ def write_review_sheet(
     check = checker(size)
     tiles = [
         label_tile(preview(before, check, size), "before checker"),
-        label_tile(preview(after, check, size), "after checker", f"rgb safety: {cleaned_pixels} raw alpha: {raw_key_cleared_pixels}"),
+        label_tile(preview(after, check, size), "after checker", f"rgb safety: {cleaned_pixels} raw: {raw_key_cleared_pixels} fringe: {visual_fringe_cleared_pixels}"),
         label_tile(preview(after, black, size), "after black"),
         label_tile(preview(after, white, size), "after white"),
         label_tile(
             overlay_removed(before, after, edge_radius, size, raw_source, raw_key_tolerance),
-            "red rgb / yellow raw alpha",
+            "red rgb / yellow raw / cyan fringe",
         ),
     ]
     title_h = 42
@@ -342,14 +414,14 @@ def main() -> int:
 
     before = Image.open(args.input).convert("RGBA")
     raw_source = Image.open(args.raw_source).convert("RGBA") if args.raw_source else None
-    after, cleaned_pixels, raw_key_cleared_pixels = clean_cutout_background(
+    after, cleaned_pixels, raw_key_cleared_pixels, visual_fringe_cleared_pixels = clean_cutout_background(
         before,
         args.edge_radius,
         raw_source,
         args.raw_key_tolerance,
     )
     delta_stats = edge_clean_delta_stats(before, after, args.edge_radius, raw_source, args.raw_key_tolerance)
-    assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, raw_key_cleared_pixels)
+    assert_edge_clean_delta_contract(delta_stats, cleaned_pixels, raw_key_cleared_pixels, visual_fringe_cleared_pixels)
     stats_path = args.stats_output if args.stats_output is not None else stats_output_path(args.output)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     after.save(args.output)
@@ -359,6 +431,7 @@ def main() -> int:
         after,
         cleaned_pixels,
         raw_key_cleared_pixels,
+        visual_fringe_cleared_pixels,
         args.edge_radius,
         raw_source,
         args.raw_key_tolerance,
@@ -373,6 +446,7 @@ def main() -> int:
             args.edge_radius,
             cleaned_pixels,
             raw_key_cleared_pixels,
+            visual_fringe_cleared_pixels,
             delta_stats,
             args.raw_source,
             args.raw_key_tolerance,
@@ -382,11 +456,14 @@ def main() -> int:
     print(f"cleaned_safety_orange_pixels={cleaned_pixels}")
     print(f"cleaned_edge_orange_pixels={cleaned_pixels}")
     print(f"raw_key_alpha_cleared_pixels={raw_key_cleared_pixels}")
+    print(f"visual_fringe_alpha_cleared_pixels={visual_fringe_cleared_pixels}")
     for key in [
         "target_edge_orange_pixels",
         "target_soft_orange_pixels",
         "target_cleanup_pixels",
         "target_raw_key_visible_pixels",
+        "target_visual_fringe_pixels",
+        "target_background_alpha_pixels",
         "changed_rgb_pixels",
         "changed_alpha_pixels",
         "changed_outside_target_pixels",
@@ -394,13 +471,17 @@ def main() -> int:
         "changed_opaque_interior_pixels",
         "changed_opaque_interior_outside_raw_key_pixels",
         "changed_alpha_outside_raw_key_pixels",
+        "changed_opaque_interior_outside_background_target_pixels",
+        "changed_alpha_outside_background_target_pixels",
         "remaining_edge_orange_pixels",
         "remaining_soft_orange_pixels",
         "remaining_raw_key_visible_pixels",
+        "remaining_visual_fringe_pixels",
         "removed_edge_orange_pixels",
         "removed_soft_orange_pixels",
         "removed_cleanup_pixels",
         "cleared_raw_key_visible_pixels",
+        "cleared_visual_fringe_pixels",
     ]:
         print(f"{key}={delta_stats[key]}")
     print(f"stats_output={stats_path}")
