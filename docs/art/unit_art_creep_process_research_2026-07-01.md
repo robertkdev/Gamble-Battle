@@ -8,6 +8,7 @@
 - Current Totem source-identity review sheet: `outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v17_source_identity_review.png`.
 - Latest Totem negative-control sheet: `outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v15.png`.
 - Totem review packet: `docs/art/totem_review_decision_packet_2026-07-01.md`.
+- Totem preliminary artwork audit: `docs/art/totem_preliminary_artwork_audit_2026-07-01.md`.
 
 ## What Worked In The Creep Pass
 
@@ -106,6 +107,8 @@ Source-identity read: use the source-identity sheet before judging v17b or v16b.
 Delivery: v14b was sent to Telegram as message `174`; the v14 comparison sheet was sent as message `175`. v16b was sent to Telegram as message `176`; the v16 comparison sheet was sent as message `177`. v17b was sent to Telegram as message `178`; the v17 comparison sheet was sent as message `179`; the v17 decision zoom sheet was sent as message `180`; the first v17 source-identity review sheet was sent as message `182`; the regenerated reusable-builder source-identity sheet was sent as message `190`.
 
 Human review packet: `docs/art/totem_review_decision_packet_2026-07-01.md` is the current decision surface. Use it to choose v17b, choose the v16b fallback, request a targeted revision, or reject the route. Do not run proof-ledger approval commands from this research note; create a cutout/proof artifact first if a candidate is chosen.
+
+Preliminary audit: `docs/art/totem_preliminary_artwork_audit_2026-07-01.md` records the current non-approval gate read. It keeps v17b as the current best review candidate, names v16b as the fallback, and flags the remaining human-review watchpoints: Vellum veto, tall-idol identity versus broader bark-monster silhouette, chest detail richness, and any polished carved-wood read.
 
 ## Prompting Notes
 

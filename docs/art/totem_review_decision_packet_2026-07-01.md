@@ -10,6 +10,7 @@
 - V17 comparison sheet: `outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v17.png`
 - Negative-control sheet: `outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v15.png`
 - Research note: `docs/art/unit_art_creep_process_research_2026-07-01.md`
+- Preliminary artwork audit: `docs/art/totem_preliminary_artwork_audit_2026-07-01.md`
 - Scorecard template: `docs/art/totem_review_decision_packet_2026-07-01_scorecard_template.json`
 
 ## Decision
@@ -21,6 +22,8 @@ Current recommendation: review v17b as the best current research candidate, with
 Do not create v18 unless human review identifies a new visible target. The current decision zoom already exposes the main tradeoff: v17b has the weakest paired chest-outline memory; v16b is slightly safer and less intervention-heavy.
 
 No live asset has been replaced. If a candidate is approved, the next step is a separate cutout/edge pass and proof-ledger decision path, not immediate promotion into the passing pool.
+
+Read `docs/art/totem_preliminary_artwork_audit_2026-07-01.md` before choosing a cutout pass. It is not an approval; it records the current strengths, watchpoints, and evidence limits.
 
 ## Vellum-First Scoring Contract
 
