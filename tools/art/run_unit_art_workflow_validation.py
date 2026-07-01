@@ -11,7 +11,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats, stats_output_path
+from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge_clean_delta_stats, file_sha256, stats_output_path
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -136,6 +136,16 @@ def assert_cleaner_stats_json(
     for key, expected_path in expected_paths.items():
         if payload.get(key) != expected_path:
             raise RuntimeError(f"edge cleaner stats JSON {key} path mismatch: expected {expected_path}, got {payload.get(key)}")
+    if payload.get("hash_algorithm") != "sha256":
+        raise RuntimeError("edge cleaner stats JSON does not declare hash_algorithm=sha256")
+    expected_hashes = {
+        "input_sha256": file_sha256(input_path),
+        "output_sha256": file_sha256(output_path),
+        "review_output_sha256": file_sha256(review_output_path),
+    }
+    for key, expected_hash in expected_hashes.items():
+        if payload.get(key) != expected_hash:
+            raise RuntimeError(f"edge cleaner stats JSON {key} mismatch")
     if int(payload.get("edge_radius", -1)) != edge_radius:
         raise RuntimeError("edge cleaner stats JSON edge_radius does not match command")
     json_delta = payload.get("delta_stats")
@@ -890,6 +900,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         f"`{rel(cleaner_stats_path)}`."
     )
     report.append("- PASS edge-cleaner stats JSON path provenance matches the audited input, output, review image, and stats file.")
+    report.append("- PASS edge-cleaner stats JSON file hashes match the audited input, output, and review image bytes.")
     report.append("- PASS edge-cleaner default stats-output path is exercised by the full workflow runner.")
     report.append(
         "- PASS synthetic cutout review sheets are nonblank: "

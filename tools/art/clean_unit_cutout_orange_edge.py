@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -18,6 +19,14 @@ def rel(path: Path) -> str:
         return path.resolve().relative_to(ROOT).as_posix()
     except ValueError:
         return str(path)
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def load_font(size: int) -> ImageFont.ImageFont:
@@ -124,6 +133,10 @@ def edge_clean_stats_payload(
         "output": rel(output_path),
         "review_output": rel(review_output_path),
         "stats_output": rel(stats_path),
+        "hash_algorithm": "sha256",
+        "input_sha256": file_sha256(input_path),
+        "output_sha256": file_sha256(output_path),
+        "review_output_sha256": file_sha256(review_output_path),
         "edge_radius": edge_radius,
         "cleaned_edge_orange_pixels": cleaned_pixels,
         "delta_stats": delta_stats,
