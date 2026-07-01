@@ -1,24 +1,25 @@
 {
   "unit": "Totem",
   "status": "research_candidate",
-  "candidate": "totem_creep_process_research_v17b_residual_outline_buried_vertical_grain_raw_candidate",
-  "fallback_candidate": "totem_creep_process_research_v16b_pair_region_subdued_broken_center_raw_candidate",
+  "candidate": "totem_creep_process_research_v19_tall_idol_matte_raw_candidate",
+  "fallback_candidate": "totem_creep_process_research_v17b_residual_outline_buried_vertical_grain_raw_candidate",
+  "older_fallback_candidate": "totem_creep_process_research_v16b_pair_region_subdued_broken_center_raw_candidate",
   "reference_role": "review_candidate_not_anchor",
   "decision": "pending",
   "gates": {
     "vellum_veto": {
       "status": "revise",
-      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v17_decision_zoom.png",
+      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v19_source_identity_review.png",
       "notes": ""
     },
     "totem_identity": {
       "status": "revise",
-      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v17_source_identity_review.png",
+      "evidence": "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_sheet_v19_source_identity_review.png",
       "notes": ""
     },
     "de_shined_bark_material": {
       "status": "revise",
-      "evidence": "v17b raw and chest crop",
+      "evidence": "v19 raw and identity/material crop",
       "notes": ""
     },
     "detail_richness": {
@@ -28,7 +29,7 @@
     },
     "chest_symbol_correction": {
       "status": "revise",
-      "evidence": "v14b, v16b, v17b comparison",
+      "evidence": "v14b, v16b, v17b, and v19 comparison",
       "notes": ""
     },
     "board_scale_read": {
