@@ -462,6 +462,7 @@ REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS = [
 REQUIRED_QUICK_AUDIT_GATE_SNIPPETS = [
     "Quick Unit Art Audit Gates",
     "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
+    "current cutout orange-fringe review sheet exists and is nonblank",
     "Objective Cutout Self-Test Matrix",
     "write_cutout_self_test_images",
     "clean_cutout_control",
@@ -469,8 +470,10 @@ REQUIRED_QUICK_AUDIT_GATE_SNIPPETS = [
     "edge_orange_contamination_control",
     "soft_alpha_orange_halo_control",
     "intentional interior orange material control passes",
+    "cutout self-test matrix review sheet exists and is nonblank",
     "soft-alpha safety-orange halo control fails",
     "Synthetic Edge-Clean Regression",
+    "synthetic edge-clean review sheets exist and are nonblank",
     "flagged=1",
     "flagged=0",
     "intentional interior orange material",

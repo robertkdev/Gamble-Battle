@@ -210,6 +210,8 @@ def assert_cutout_gate(output_dir: Path, report: list[str]) -> None:
         "--fail-on-accepted-fail",
     ]
     run_command(command, report, expect_success=True)
+    review_sheet = audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png"
+    review_width, review_height = assert_nonblank_image(review_sheet, "current cutout orange-fringe review sheet")
     rows = read_csv(audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
     non_rejected_failures = [
         row
@@ -225,6 +227,7 @@ def assert_cutout_gate(output_dir: Path, report: list[str]) -> None:
         if row.get("quality_status") == "fail" and row.get("proof_status") == "rejected"
     ]
     report.append(f"- PASS non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination.")
+    report.append(f"- PASS current cutout orange-fringe review sheet exists and is nonblank: `{review_width}x{review_height}`.")
     report.append(f"- Rejected negative-example cutouts still flagged: `{len(rejected_failures)}`.")
     report.append("")
 
@@ -254,6 +257,8 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
             control_id.replace("_", " "),
         ])
     run_command(command, report, expect_success=True)
+    review_sheet = audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png"
+    review_width, review_height = assert_nonblank_image(review_sheet, "cutout self-test matrix review sheet")
     rows = read_csv(audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
     by_id = {row.get("id", ""): row for row in rows}
     expected_status = {
@@ -283,6 +288,7 @@ def assert_cutout_self_test_matrix(output_dir: Path, report: list[str]) -> None:
     report.append("- PASS intentional interior orange material control passes while recording orange pixels.")
     report.append("- PASS safety-orange edge contamination control fails.")
     report.append("- PASS soft-alpha safety-orange halo control fails.")
+    report.append(f"- PASS cutout self-test matrix review sheet exists and is nonblank: `{review_width}x{review_height}`.")
     report.append("")
 
 
@@ -319,6 +325,10 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     before_result = run_command(before_command, report, expect_success=False)
     if "flagged=1" not in before_result.stdout:
         raise RuntimeError("synthetic contaminated cutout did not fail with flagged=1")
+    before_review_width, before_review_height = assert_nonblank_image(
+        audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "synthetic contaminated cutout audit review sheet",
+    )
     clean_command = [
         sys.executable,
         "tools/art/clean_unit_cutout_orange_edge.py",
@@ -332,6 +342,10 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     clean_result = run_command(clean_command, report, expect_success=True)
     if "cleaned_edge_orange_pixels=" not in clean_result.stdout:
         raise RuntimeError("edge cleaner did not report cleaned_edge_orange_pixels")
+    cleaner_review_width, cleaner_review_height = assert_nonblank_image(
+        cleaner_review_path,
+        "synthetic edge-cleaner review sheet",
+    )
     cleaned_pixels = int(clean_result.stdout.split("cleaned_edge_orange_pixels=", 1)[1].splitlines()[0].strip())
     if cleaned_pixels <= 0:
         raise RuntimeError("edge cleaner did not remove any synthetic safety-orange edge pixels")
@@ -358,8 +372,18 @@ def assert_synthetic_edge_clean(output_dir: Path, report: list[str]) -> None:
     after_result = run_command(after_command, report, expect_success=True)
     if "flagged=0" not in after_result.stdout:
         raise RuntimeError("synthetic cleaned cutout did not pass with flagged=0")
+    after_review_width, after_review_height = assert_nonblank_image(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "synthetic cleaned cutout audit review sheet",
+    )
     report.append(
         f"- PASS synthetic edge-clean regression removed `{cleaned_pixels}` edge-orange pixels while preserving alpha and interior orange material."
+    )
+    report.append(
+        "- PASS synthetic edge-clean review sheets exist and are nonblank: "
+        f"before `{before_review_width}x{before_review_height}`, "
+        f"cleaner `{cleaner_review_width}x{cleaner_review_height}`, "
+        f"after `{after_review_width}x{after_review_height}`."
     )
     report.append("")
 

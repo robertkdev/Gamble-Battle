@@ -395,6 +395,21 @@ def assert_review_queue(queue_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_nonblank_report_image(path: Path, label: str, min_width: int = 128, min_height: int = 128) -> tuple[int, int]:
+    if not path.exists():
+        raise RuntimeError(f"{label} missing: {rel(path)}")
+    if path.stat().st_size <= 0:
+        raise RuntimeError(f"{label} is empty: {rel(path)}")
+    image = Image.open(path).convert("RGB")
+    width, height = image.size
+    if width < min_width or height < min_height:
+        raise RuntimeError(f"{label} is too small to be useful: {width}x{height}")
+    extrema = image.getextrema()
+    if max(high - low for low, high in extrema) < 16:
+        raise RuntimeError(f"{label} appears blank or near-flat: {rel(path)}")
+    return width, height
+
+
 def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     text = triage_path.read_text(encoding="utf-8")
     required = [
@@ -424,16 +439,8 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     negative_control_sheet = triage_path.with_name("style_negative_control_review_sheet.png")
     if not negative_control_sheet.exists():
         raise RuntimeError(f"{rel(triage_path.parent)} missing style negative-control review sheet")
-    for sheet_path, label in (
-        (review_sheet, "candidate style triage review sheet"),
-        (negative_control_sheet, "style negative-control review sheet"),
-    ):
-        image = Image.open(sheet_path).convert("RGB")
-        if image.size[0] < 300 or image.size[1] < 200:
-            raise RuntimeError(f"{label} is too small to be useful: {image.size[0]}x{image.size[1]}")
-        extrema = image.getextrema()
-        if max(high - low for low, high in extrema) < 16:
-            raise RuntimeError(f"{label} appears blank or near-flat: {rel(sheet_path)}")
+    assert_nonblank_report_image(review_sheet, "candidate style triage review sheet", 300, 200)
+    assert_nonblank_report_image(negative_control_sheet, "style negative-control review sheet", 300, 200)
     csv_path = triage_path.with_name("unit_art_candidate_style_triage.csv")
     if not csv_path.exists():
         raise RuntimeError(f"{rel(triage_path.parent)} missing candidate style triage CSV")
@@ -528,6 +535,7 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
         raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe audit CSV")
     if not review_sheet.exists():
         raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe review sheet")
+    review_width, review_height = assert_nonblank_report_image(review_sheet, "cutout orange-fringe review sheet")
     rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
     protected_failures = [
         row
@@ -540,7 +548,7 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
     report.append("## Cutout Orange-Fringe Audit")
     report.append("")
     report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue as objective safety-orange background contamination.")
-    report.append(f"- PASS `{rel(review_sheet)}` exists for fast checker/black/white/overlay review.")
+    report.append(f"- PASS `{rel(review_sheet)}` exists and is nonblank for fast checker/black/white/overlay review: `{review_width}x{review_height}`.")
     report.append("")
 
 
@@ -635,6 +643,10 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         raise RuntimeError("synthetic orange-fringe negative control unexpectedly passed")
     if "flagged=1" not in result.stdout:
         raise RuntimeError("synthetic orange-fringe negative control failed without expected flagged=1 output")
+    before_review_size = assert_nonblank_report_image(
+        audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "synthetic contaminated cutout audit review sheet",
+    )
     report.append("- PASS standalone cutout audit fails a synthetic safety-orange edge-contamination sample without loading any reference images.")
     clean_command = [
         sys.executable,
@@ -668,6 +680,7 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         raise RuntimeError("synthetic orange-fringe edge cleaner failed")
     if "cleaned_edge_orange_pixels=" not in clean_result.stdout:
         raise RuntimeError("synthetic edge cleaner did not report cleaned_edge_orange_pixels")
+    cleaner_review_size = assert_nonblank_report_image(cleaner_review_path, "synthetic edge-cleaner review sheet")
     cleaned_pixels_text = clean_result.stdout.split("cleaned_edge_orange_pixels=", 1)[1].splitlines()[0].strip()
     try:
         cleaned_pixels = int(cleaned_pixels_text)
@@ -717,7 +730,17 @@ def assert_synthetic_cutout_negative_control(output_dir: Path, report: list[str]
         raise RuntimeError("synthetic cleaned cutout still failed orange-fringe audit")
     if "flagged=0" not in cleaned_audit_result.stdout:
         raise RuntimeError("synthetic cleaned cutout did not report flagged=0")
+    after_review_size = assert_nonblank_report_image(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_review_sheet.png",
+        "synthetic cleaned cutout audit review sheet",
+    )
     report.append("- PASS edge cleaner removes synthetic safety-orange edge contamination while preserving alpha and intentional interior orange material.")
+    report.append(
+        "- PASS synthetic cutout review sheets are nonblank: "
+        f"before `{before_review_size[0]}x{before_review_size[1]}`, "
+        f"cleaner `{cleaner_review_size[0]}x{cleaner_review_size[1]}`, "
+        f"after `{after_review_size[0]}x{after_review_size[1]}`."
+    )
     report.append("")
 
 
@@ -740,12 +763,15 @@ def assert_quick_audit_gates(metrics_csv: Path, output_dir: Path, report: list[s
     text = quick_report.read_text(encoding="utf-8")
     required = [
         "non-rejected cutouts have no objective safety-orange edge/soft-alpha contamination",
+        "current cutout orange-fringe review sheet exists and is nonblank",
         "Objective Cutout Self-Test Matrix",
         "clean transparent cutout control passes",
         "intentional interior orange material control passes",
         "safety-orange edge contamination control fails",
         "soft-alpha safety-orange halo control fails",
+        "cutout self-test matrix review sheet exists and is nonblank",
         "synthetic edge-clean regression removed",
+        "synthetic edge-clean review sheets exist and are nonblank",
         "Metrics Reference Hierarchy Gate",
         "Tampered Metrics Negative-Control Gate",
         "bad reference row order",
