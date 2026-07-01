@@ -1,9 +1,9 @@
 # Unit Art Candidate Style Triage
 
 - Generated: 2026-07-01
-- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_default_stats_path/style_drift_audit_all_current/foreground_detail_metrics.csv`
-- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_default_stats_path/candidate_style_triage/candidate_style_triage_review_sheet.png`
-- Style negative-control sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_default_stats_path/candidate_style_triage/style_negative_control_review_sheet.png`
+- Metrics source: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_stats_path_provenance/style_drift_audit_all_current/foreground_detail_metrics.csv`
+- Visual review sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_stats_path_provenance/candidate_style_triage/candidate_style_triage_review_sheet.png`
+- Style negative-control sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_stats_path_provenance/candidate_style_triage/style_negative_control_review_sheet.png`
 - Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.
 - Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.
 
