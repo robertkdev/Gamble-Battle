@@ -345,6 +345,9 @@ def assert_raw_backed_cutout_manifest(
     report: list[str],
     expected_row_count: int = 1,
     expected_thresholds: dict[str, int | float] | None = None,
+    expected_proof_matrix_loaded: bool | None = None,
+    expected_proof_matrix_raw_source_loaded: bool | None = None,
+    expected_source_kinds: set[str] | None = None,
 ) -> None:
     if not manifest_path.exists():
         raise RuntimeError(f"{label} missing: {rel(manifest_path)}")
@@ -362,6 +365,20 @@ def assert_raw_backed_cutout_manifest(
             raise RuntimeError(f"{label} must set {key}=false")
     if int(manifest.get("row_count", -1)) != expected_row_count:
         raise RuntimeError(f"{label} row_count expected {expected_row_count}, got {manifest.get('row_count')}")
+    if (
+        expected_proof_matrix_loaded is not None
+        and manifest.get("proof_matrix_loaded_for_cutout_paths") is not expected_proof_matrix_loaded
+    ):
+        raise RuntimeError(f"{label} proof_matrix_loaded_for_cutout_paths mismatch")
+    if (
+        expected_proof_matrix_raw_source_loaded is not None
+        and manifest.get("proof_matrix_raw_source_loaded") is not expected_proof_matrix_raw_source_loaded
+    ):
+        raise RuntimeError(f"{label} proof_matrix_raw_source_loaded mismatch")
+    if expected_source_kinds is not None:
+        source_kinds = set(str(value) for value in manifest.get("source_kinds", []))
+        if source_kinds != expected_source_kinds:
+            raise RuntimeError(f"{label} source_kinds expected {sorted(expected_source_kinds)}, got {sorted(source_kinds)}")
     thresholds = manifest.get("thresholds")
     if not isinstance(thresholds, dict):
         raise RuntimeError(f"{label} missing thresholds")
@@ -1147,6 +1164,152 @@ def assert_synthetic_raw_key_hole_clean(output_dir: Path, report: list[str]) -> 
     report.append("")
 
 
+def write_raw_key_hole_proof_matrix(path: Path, raw_path: Path, cutout_path: Path) -> None:
+    write_json(
+        path,
+        {
+            "proofs": [
+                {
+                    "id": "raw_key_hole_proof_matrix_control",
+                    "subject_id": "raw_key_hole_control",
+                    "display_name": "Raw-key hole proof-matrix control",
+                    "status": "current_candidate",
+                    "reference_role": "review_candidate_not_anchor",
+                    "raw": rel(raw_path),
+                    "cutout": rel(cutout_path),
+                }
+            ]
+        },
+    )
+
+
+def assert_proof_matrix_raw_source_gate(output_dir: Path, report: list[str]) -> None:
+    report.append("## Proof-Matrix Raw-Source Gate")
+    report.append("")
+    control_dir = output_dir / "proof_matrix_raw_source_control"
+    raw_path, cutout_path = write_raw_key_hole_control(control_dir)
+    cleaned_path = control_dir / "raw_key_hole_proof_matrix_control_cleaned.png"
+    cleaner_review_path = control_dir / "raw_key_hole_proof_matrix_control_cleaned_review.png"
+    proof_matrix_path = control_dir / "raw_key_hole_proof_matrix.json"
+    cutout_only_audit_dir = control_dir / "audit_cutout_only"
+    raw_backed_audit_dir = control_dir / "audit_raw_backed_before"
+    cleaned_audit_dir = control_dir / "audit_raw_backed_after"
+    write_raw_key_hole_proof_matrix(proof_matrix_path, raw_path, cutout_path)
+
+    cutout_only_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--proof-matrix",
+        rel(proof_matrix_path),
+        "--output-dir",
+        rel(cutout_only_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cutout_only_result = run_command(cutout_only_command, report, expect_success=True)
+    if "flagged=0" not in cutout_only_result.stdout:
+        raise RuntimeError("proof-matrix cutout-only audit did not report flagged=0")
+    assert_reference_free_manifest(
+        cutout_only_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "proof-matrix cutout-only raw-key hole manifest",
+        report,
+        expected_proof_matrix_loaded=True,
+        expected_source_kinds={"proof_matrix_cutout"},
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+    )
+
+    raw_backed_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--proof-matrix",
+        rel(proof_matrix_path),
+        "--use-proof-raw-source",
+        "--output-dir",
+        rel(raw_backed_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    raw_backed_result = run_command(raw_backed_command, report, expect_success=False)
+    if "flagged=1" not in raw_backed_result.stdout:
+        raise RuntimeError("proof-matrix raw-source audit did not report flagged=1")
+    assert_raw_backed_cutout_manifest(
+        raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "proof-matrix raw-source raw-key hole manifest",
+        report,
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+        expected_proof_matrix_loaded=True,
+        expected_proof_matrix_raw_source_loaded=True,
+        expected_source_kinds={"proof_matrix_cutout"},
+    )
+    raw_rows = read_csv(raw_backed_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    raw_row = raw_rows[0]
+    if raw_row.get("quality_status") != "fail":
+        raise RuntimeError("proof-matrix raw-source audit did not fail")
+    if "raw_key_visible_background_contamination" not in raw_row.get("issue", ""):
+        raise RuntimeError("proof-matrix raw-source audit did not fail on visible raw-key contamination")
+    raw_key_visible_pixels = int(raw_row.get("raw_key_visible_pixels", "0"))
+    if raw_key_visible_pixels <= 0:
+        raise RuntimeError("proof-matrix raw-source audit did not measure visible raw-key pixels")
+
+    clean_command = [
+        sys.executable,
+        "tools/art/clean_unit_cutout_orange_edge.py",
+        "--input",
+        rel(cutout_path),
+        "--raw-source",
+        rel(raw_path),
+        "--output",
+        rel(cleaned_path),
+        "--review-output",
+        rel(cleaner_review_path),
+    ]
+    clean_result = run_command(clean_command, report, expect_success=True)
+    raw_key_cleared = int(clean_result.stdout.split("raw_key_alpha_cleared_pixels=", 1)[1].splitlines()[0].strip())
+    if raw_key_cleared != raw_key_visible_pixels:
+        raise RuntimeError("proof-matrix raw-source cleaner did not clear measured visible raw-key pixels")
+
+    write_raw_key_hole_proof_matrix(proof_matrix_path, raw_path, cleaned_path)
+    cleaned_command = [
+        sys.executable,
+        "tools/art/audit_unit_cutout_orange_fringe.py",
+        "--proof-matrix",
+        rel(proof_matrix_path),
+        "--use-proof-raw-source",
+        "--output-dir",
+        rel(cleaned_audit_dir),
+        "--report-date",
+        date.today().isoformat(),
+        "--fail-on-any-fail",
+        "--strict-zero",
+    ]
+    cleaned_result = run_command(cleaned_command, report, expect_success=True)
+    if "flagged=0" not in cleaned_result.stdout:
+        raise RuntimeError("cleaned proof-matrix raw-source audit did not report flagged=0")
+    assert_raw_backed_cutout_manifest(
+        cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit_manifest.json",
+        "cleaned proof-matrix raw-source manifest",
+        report,
+        expected_row_count=1,
+        expected_thresholds=STRICT_ZERO_CUTOUT_AUDIT_THRESHOLDS,
+        expected_proof_matrix_loaded=True,
+        expected_proof_matrix_raw_source_loaded=True,
+        expected_source_kinds={"proof_matrix_cutout"},
+    )
+    cleaned_rows = read_csv(cleaned_audit_dir / "unit_art_cutout_orange_fringe_audit.csv")
+    if int(cleaned_rows[0].get("raw_key_visible_pixels", "-1")) != 0:
+        raise RuntimeError("cleaned proof-matrix raw-source audit still measured visible raw-key pixels")
+    report.append("- PASS proof-matrix cutout-only audit reproduces the raw-key blind spot without loading raw images.")
+    report.append("- PASS proof-matrix raw-source audit fails an internal raw-key hole through --use-proof-raw-source.")
+    report.append("- PASS cleaned proof-matrix raw-source audit passes with strict-zero raw-key thresholds.")
+    report.append("")
+
+
 def assert_style_sentinels(metrics_csv: Path, output_dir: Path, report: list[str]) -> None:
     report.append("## Style Sentinel Gate")
     report.append("")
@@ -1527,6 +1690,7 @@ def main() -> int:
     assert_raw_key_hole_gate(output_dir, report)
     assert_synthetic_edge_clean(output_dir, report)
     assert_synthetic_raw_key_hole_clean(output_dir, report)
+    assert_proof_matrix_raw_source_gate(output_dir, report)
     if not args.skip_style:
         metrics_csv = args.metrics_csv if args.metrics_csv is not None else find_latest_metrics_csv()
         if not metrics_csv.is_absolute():
