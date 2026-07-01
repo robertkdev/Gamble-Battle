@@ -278,6 +278,8 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         "Vellum is the ultimate character reference",
         "Passing-pool rule",
         "Visual review sheet",
+        "Human Negative-Control Failures",
+        "style_audit_failed_negative_control",
         "Highest Risk Rows",
         "high_risk_re_review_before_acceptance",
         "Start visual review from the Vellum pairwise sheet",
@@ -288,9 +290,18 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     review_sheet = triage_path.with_name("candidate_style_triage_review_sheet.png")
     if not review_sheet.exists():
         raise RuntimeError(f"{rel(triage_path.parent)} missing candidate style triage review sheet")
+    csv_path = triage_path.with_name("unit_art_candidate_style_triage.csv")
+    if not csv_path.exists():
+        raise RuntimeError(f"{rel(triage_path.parent)} missing candidate style triage CSV")
+    rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
+    totem_rows = [row for row in rows if row.get("proof_id") == "totem_dry_wood_guardian_refit"]
+    if not totem_rows:
+        raise RuntimeError("candidate style triage missing Totem negative-control row")
+    if totem_rows[0].get("review_stance") != "style_audit_failed_negative_control":
+        raise RuntimeError("Totem negative control did not fail candidate style triage")
     report.append("## Candidate Style Triage")
     report.append("")
-    report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks against Vellum/Paisley metrics.")
+    report.append(f"- PASS `{rel(triage_path)}` flags candidate-pool drift risks and fails the Totem negative control.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")
     report.append("")
 
@@ -299,7 +310,8 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
     text = audit_path.read_text(encoding="utf-8")
     required = [
         "Unit Art Cutout Orange-Fringe Audit",
-        "Vellum/Paisley Cutout Cleanliness Baseline",
+        "Objective Background-Contamination Gate",
+        "does not compare to Vellum, Paisley, the token, or any other reference image",
         "Accepted/reference rows flagged: `0`",
         "Current candidates that fail can stay in the ledger as review candidates",
     ]
@@ -323,7 +335,7 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
         raise RuntimeError(f"accepted/reference cutouts failed orange-fringe audit: {ids}")
     report.append("## Cutout Orange-Fringe Audit")
     report.append("")
-    report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue against the Vellum/Paisley cleanliness baseline.")
+    report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue as objective safety-orange background contamination.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for fast checker/black/white/overlay review.")
     report.append("")
 
@@ -334,7 +346,9 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
         "Review Decision Packet",
         "Visual decision sheet",
         "Board-scale decision sheet",
-        "Creep is the next human-review gate",
+        "Creep is the next revision gate",
+        "Active revision request",
+        "Latest scorecard",
         "Decision Scorecard",
         "Scorecard template",
         "Scorecard rule",

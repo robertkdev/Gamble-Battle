@@ -14,7 +14,6 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[2]
 PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
-PROMPT_CASES_PATH = ROOT / "docs" / "art" / "unit_art_prompt_cases.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"cutout_orange_fringe_audit_{date.today().strftime('%Y_%m_%d')}"
 
 
@@ -101,11 +100,11 @@ def issue_for_metrics(
 ) -> str:
     issues: list[str] = []
     if edge_orange_pixels > max_edge_orange_pixels:
-        issues.append("edge_orange_pixels_above_vellum_baseline")
+        issues.append("edge_background_orange_contamination")
     if edge_orange_ratio > max_edge_orange_ratio:
-        issues.append("edge_orange_ratio_above_vellum_baseline")
+        issues.append("edge_background_orange_ratio_contamination")
     if soft_orange_pixels > max_soft_orange_pixels:
-        issues.append("soft_alpha_orange_above_vellum_baseline")
+        issues.append("soft_alpha_background_orange_contamination")
     return ", ".join(issues)
 
 
@@ -203,26 +202,7 @@ def row_to_dict(row: CutoutAuditRow) -> dict[str, str]:
 
 def collect_rows(args: argparse.Namespace) -> list[CutoutAuditRow]:
     proof_data = json.loads(args.proof_matrix.read_text(encoding="utf-8"))
-    prompt_cases = json.loads(args.prompt_cases.read_text(encoding="utf-8"))
     rows: list[CutoutAuditRow] = []
-
-    anchor = prompt_cases.get("style_anchor", {})
-    anchor_cutout = str(anchor.get("cutout_proof", ""))
-    if anchor_cutout:
-        rows.append(
-            audit_cutout(
-                anchor_cutout,
-                "vellum_cutout_anchor",
-                "Vellum",
-                "reference",
-                "primary_cutout_anchor",
-                "prompt_case_anchor",
-                args.edge_radius,
-                args.max_edge_orange_pixels,
-                args.max_soft_orange_pixels,
-                args.max_edge_orange_ratio,
-            )
-        )
 
     for proof in proof_data.get("proofs", []):
         if not isinstance(proof, dict):
@@ -326,7 +306,7 @@ def write_review_sheet(path: Path, rows: list[CutoutAuditRow], edge_radius: int)
         label = f"{row.id} | {row.quality_status} | edge orange {row.edge_orange_pixels}"
         draw.rectangle((0, y + tile[1], width, y + row_h), fill=(12, 13, 17))
         draw.text((10, y + tile[1] + 8), label[:118], font=small_font, fill=(235, 236, 240))
-        issue = row.issue or "within Vellum/Paisley cutout cleanliness baseline"
+        issue = row.issue or "no measurable safety-orange background contamination in the edge/soft-alpha gate"
         draw.text((10, y + tile[1] + 30), issue[:132], font=small_font, fill=(255, 170, 130) if row.issue else (170, 220, 170))
         draw.text((10, y + tile[1] + 52), row.cutout[:132], font=small_font, fill=(170, 170, 180))
 
@@ -351,15 +331,15 @@ def write_markdown(
         f"- Date: {report_date}",
         f"- CSV: `{rel(csv_path)}`",
         f"- Review sheet: `{rel(review_sheet_path)}`",
-        "- Purpose: quickly catch safety-orange fringe on transparent cutouts before a proof is accepted or used as visual context.",
+        "- Purpose: objectively catch safety-orange background contamination in transparent cutouts before a proof is accepted or used as visual context.",
         "- Scope: cutout quality only. This does not approve style, matte finish, identity, or board readability.",
         "",
-        "## Vellum/Paisley Cutout Cleanliness Baseline",
+        "## Objective Background-Contamination Gate",
         "",
         f"- Edge band radius: `{args.edge_radius}` px.",
         f"- Pass threshold: edge-orange pixels <= `{args.max_edge_orange_pixels}`, edge-orange ratio <= `{args.max_edge_orange_ratio:.4%}`, and soft-alpha orange pixels <= `{args.max_soft_orange_pixels}`.",
-        "- Vellum is included from the prompt-case anchor cutout. Paisley and the token are included from the proof ledger.",
-        "- Interior orange/gold pixels are counted but do not fail the audit by themselves; the gate is edge/soft-alpha residue because that is the visible fringe risk.",
+        "- The gate does not compare to Vellum, Paisley, the token, or any other reference image. It tests each cutout against the known safety-orange background color family directly.",
+        "- Interior orange/gold pixels are counted but do not fail the audit by themselves; the fail gate is edge/soft-alpha residue because that is the visible background-contamination risk.",
         "",
         "## Summary",
         "",
@@ -382,7 +362,7 @@ def write_markdown(
         [
             "## Decision Rule",
             "",
-            "- Accepted/reference rows should stay under the Vellum/Paisley baseline. If an accepted proof fails here, re-run cutout cleanup before using it as a reference.",
+            "- Accepted/reference rows must have no measurable safety-orange background contamination above the objective gate. If an accepted proof fails here, re-run cutout cleanup before using it as a reference.",
             "- Current candidates that fail can stay in the ledger as review candidates, but they need an edge-orange-clean pass before acceptance or live asset replacement.",
             "- Review the PNG sheet before trusting the metric when the character has intentional orange materials near the silhouette.",
             "",
@@ -395,7 +375,6 @@ def write_markdown(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--proof-matrix", type=Path, default=PROOF_MATRIX_PATH)
-    parser.add_argument("--prompt-cases", type=Path, default=PROMPT_CASES_PATH)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--docs-output", type=Path)
     parser.add_argument("--report-date", default=date.today().isoformat())
@@ -409,8 +388,6 @@ def main() -> int:
 
     if not args.proof_matrix.is_absolute():
         args.proof_matrix = ROOT / args.proof_matrix
-    if not args.prompt_cases.is_absolute():
-        args.prompt_cases = ROOT / args.prompt_cases
     output_dir = args.output_dir if args.output_dir.is_absolute() else ROOT / args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 

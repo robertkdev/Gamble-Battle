@@ -4,17 +4,23 @@
 - Proof id: `creep_vellum_primary_detail_refit`
 - Status: `current_candidate`
 - Reference role: `review_candidate_not_anchor`
-- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_edgecleaned_candidates/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
-- Board-scale decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_cutout_edgecleaned_candidates/review_packet/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
+- Visual decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_brutal_cutout_totem_gate/review_packet/creep_vellum_primary_detail_refit_review_decision_sheet.png`
+- Board-scale decision sheet: `outputs/art_pipeline/style_validation/workflow_validation_2026_07_01_brutal_cutout_totem_gate/review_packet/creep_vellum_primary_detail_refit_board_scale_decision_sheet.png`
 - Scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 - Raw: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/creep_vellum_primary_detail_refit_2026_06_30/creep_vellum_primary_detail_refit_board_preview.png`
 - Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
 - Reference ladder audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/reference_ladder_raw_comparison.png`
+- Active revision request: User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target.
+- Latest scorecard: `board_scale_read=revise, creep_identity=revise, cutout_quality=pass, de_shined_material=revise, detail_richness=revise, reference_role=pass, vellum_veto=revise`
 
 ## Decision
 
-Creep is the next human-review gate. Do not generate Veyra or broader roster batches until this is approved, rejected, or sent back for revision.
+Creep is the next revision gate. Do not generate Veyra or broader roster batches until a new Creep pass resolves the active revision request.
+
+Active revision request: User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target.
+
+Do not approve the previous candidate as-is. Use it as a comparison target for what to improve: smoother alien identity, drier Vellum-level material, and more convincing matte gothic detail without becoming low-detail or corpse-like.
 
 Approve only if the candidate passes Vellum-first visual review as a dry, detailed, smooth-alien horror unit. Approval keeps it as a narrow proof, not a global style anchor.
 

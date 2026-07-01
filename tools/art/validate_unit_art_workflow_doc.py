@@ -99,7 +99,7 @@ REQUIRED_COMPLETION_AUDIT_SNIPPETS = [
     "current candidates, not accepted proofs",
     "coverage gaps remain",
     "next recommended stress test remains `creep`",
-    "Creep Vellum-primary detail candidate",
+    "Revise Creep before Veyra or broader roster work",
 ]
 
 REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
@@ -107,6 +107,9 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "Vellum is the ultimate character reference",
     "Passing-pool rule",
     "Visual review sheet",
+    "Human Negative-Control Failures",
+    "Totem",
+    "style_audit_failed_negative_control",
     "Highest Risk Rows",
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
@@ -115,7 +118,8 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
 
 REQUIRED_CUTOUT_FRINGE_AUDIT_SNIPPETS = [
     "Unit Art Cutout Orange-Fringe Audit",
-    "Vellum/Paisley Cutout Cleanliness Baseline",
+    "Objective Background-Contamination Gate",
+    "does not compare to Vellum, Paisley, the token, or any other reference image",
     "Accepted/reference rows flagged: `0`",
     "Current candidates that fail can stay in the ledger as review candidates",
     "unit_art_cutout_orange_fringe_review_sheet.png",
@@ -125,7 +129,9 @@ REQUIRED_REVIEW_PACKET_SNIPPETS = [
     "Review Decision Packet",
     "Visual decision sheet",
     "Board-scale decision sheet",
-    "Creep is the next human-review gate",
+    "Creep is the next revision gate",
+    "Active revision request",
+    "Latest scorecard",
     "Approve only if",
     "Vellum-First Scoring Contract",
     "Decision Scorecard",
@@ -146,7 +152,7 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "Next gate unit: `creep`",
     "Creep (`creep`)",
     "creep_vellum_primary_detail_refit",
-    "approve as accepted proof, reject with a concrete reason, or request a revision",
+    "approve as accepted proof, reject with reason, or request revision",
     "Do not continue to Veyra or broader roster generation",
     "Approval Checklist",
     "Rejection Checklist",
@@ -162,6 +168,8 @@ REQUIRED_REVIEW_QUEUE_SNIPPETS = [
     "--scorecard-json",
     "Scorecard template",
     "creep_review_decision_packet_2026-07-01_scorecard_template.json",
+    "Active revision request",
+    "revise before approval",
 ]
 
 REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
@@ -185,6 +193,8 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "audit_unit_cutout_orange_fringe.py",
     "unit_art_candidate_style_triage_2026-07-01.md",
     "unit_art_cutout_orange_fringe_audit_2026-07-01.md",
+    "objective safety-orange background-contamination gate",
+    "do not compare cutout cleanliness to Vellum",
     "creep_review_decision_packet_2026-07-01.md",
     "creep_review_decision_packet_2026-07-01_scorecard_template.json",
     "--scorecard-json",
@@ -285,6 +295,9 @@ REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS = [
 REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
     "Vellum is the ultimate character reference",
     "Passing-pool rule",
+    "style_audit_override",
+    "human_style_fail_negative_control",
+    "style_audit_failed_negative_control",
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
     "edge_detail_far_below_paisley",
@@ -294,10 +307,11 @@ REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
 
 REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS = [
     "Unit Art Cutout Orange-Fringe Audit",
-    "Vellum/Paisley Cutout Cleanliness Baseline",
+    "Objective Background-Contamination Gate",
+    "does not compare to Vellum, Paisley, the token, or any other reference image",
     "safety_orange_residue",
     "alpha_edge_band",
-    "edge_orange_pixels_above_vellum_baseline",
+    "edge_background_orange_contamination",
     "unit_art_cutout_orange_fringe_review_sheet.png",
     "Accepted/reference rows flagged",
     "fail-on-accepted-fail",
@@ -314,6 +328,10 @@ REQUIRED_CUTOUT_EDGE_CLEANER_SNIPPETS = [
 REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS = [
     "Review Decision Packet",
     "Creep is the next human-review gate",
+    "Creep is the next revision gate",
+    "Active revision request",
+    "Latest scorecard",
+    "format_latest_scorecard",
     "Prior Creep Lessons",
     "Board-Scale Decision Sheet",
     "Board-scale decision sheet",
@@ -334,8 +352,10 @@ REQUIRED_REVIEW_QUEUE_BUILDER_SNIPPETS = [
     "current_candidate",
     "next_gate",
     "review_candidate_not_anchor",
+    "Active revision request",
+    "revise before approval",
     "approve as accepted proof",
-    "reject with a concrete reason",
+    "Rejection needs a concrete reason",
     "apply_unit_art_review_decision.py",
     "--scorecard-json",
     "--decision accept",
@@ -368,6 +388,8 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "Paisley as secondary contrast context only",
     "layered fabric/parchment/dry edge wear",
     "hand-painted surface breakup",
+    "style_audit_override",
+    "user says Totem should fail",
     "--edge-orange-clean",
     "orange-fringe audit",
     "reference_policy",

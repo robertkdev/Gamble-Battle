@@ -3,7 +3,7 @@
 - Generated: 2026-07-01
 - Current candidates needing review: 14
 - Next gate unit: `creep`
-- Next gate reason: Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests.
+- Next gate reason: Revise Creep before Veyra or broader roster work; user wants smooth alien identity restored and Vellum-level matte gothic detail locked harder.
 - Candidate style triage: `docs/art/unit_art_candidate_style_triage_2026-07-01.md`
 - Current gate decision packet: `docs/art/creep_review_decision_packet_2026-07-01.md`
 - Current gate scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
@@ -46,7 +46,8 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Vellum pairwise audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/vellum_first_pairwise_raw_comparison.png`
 - Reference ladder audit: `outputs/art_pipeline/style_validation/style_drift_audit_2026_06_30_creep_vellum_primary_detail_refit/reference_ladder_raw_comparison.png`
 - Scorecard template: `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Active revision request: User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target.
+- Decision needed: revise before approval.
 
 ## Candidate Backlog
 
@@ -58,7 +59,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `humanoid_mage, small_narrow`
 - Raw: `outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/axiom_compact_scholar_refit_2026_06_30/axiom_compact_scholar_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Bo (`bo`)
 
@@ -68,7 +69,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `large_tank, monster_assassin, weapon_heavy, goth_horror_anchor`
 - Raw: `outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/bo_large_brute_refit_2026_06_30/bo_large_brute_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Bonko (`bonko`)
 
@@ -78,7 +79,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `monster_assassin, weapon_heavy, small_narrow`
 - Raw: `outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/bonko_wiry_raider_refit_2026_06_30/bonko_wiry_raider_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Brute (`brute`)
 
@@ -88,7 +89,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `large_tank, guardian_bulk, stone_bone_construct`
 - Raw: `outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/brute_guardian_bulk_refit_2026_06_30/brute_guardian_bulk_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Hexeon (`hexeon`)
 
@@ -98,7 +99,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `monster_assassin, detached_effects`
 - Raw: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/hexeon_time_blade_refit_2026_06_30/hexeon_time_blade_refit_board_preview_edgeclean.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Korath (`korath`)
 
@@ -108,7 +109,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `large_tank`
 - Raw: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/korath_haloed_tank_refit_2026_06_30/korath_haloed_tank_refit_board_preview_edgeclean.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Luna (`luna`)
 
@@ -118,7 +119,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `humanoid_mage, detached_effects`
 - Raw: `outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/luna_bright_caster_refit_2026_06_30/luna_bright_caster_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Morrak (`morrak`)
 
@@ -128,7 +129,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `monster_assassin, weapon_heavy`
 - Raw: `outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/morrak_polearm_executioner_refit_2026_06_30/morrak_polearm_executioner_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Sari (`sari`)
 
@@ -138,7 +139,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `monster_assassin, small_narrow, detached_effects`
 - Raw: `outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/sari_spectral_tendril_refit_2026_06_30/sari_spectral_tendril_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Teller (`teller`)
 
@@ -148,7 +149,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `humanoid_mage, weapon_heavy, small_narrow`
 - Raw: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/teller_contract_mogul_refit_2026_06_30/teller_contract_mogul_refit_board_preview_edgeclean.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Totem (`totem`)
 
@@ -158,7 +159,8 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `large_tank, humanoid_mage, guardian_bulk, stone_bone_construct`
 - Raw: `outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Active revision request: Revise Totem before any acceptance: keep the bark idol identity but move away from clean fantasy carved armor / stylized game-creature detail and toward Vellum-level dry gothic material richness, dirtier hand-painted surface breakup, heavier shadow, and less polished/heroic rendering.
+- Decision needed: revise before approval.
 
 ### Volt (`volt`)
 
@@ -168,7 +170,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `humanoid_mage, detached_effects`
 - Raw: `outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/volt_attached_energy_refit_2026_06_30/volt_attached_energy_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ### Vykos (`vykos`)
 
@@ -178,7 +180,7 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 - Coverage: `large_tank, monster_assassin, weapon_heavy, goth_horror_anchor`
 - Raw: `outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/vykos_pale_sanguine_refit_2026_06_30/vykos_pale_sanguine_refit_board_preview.png`
-- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.
+- Decision needed: approve as accepted proof, reject with reason, or request revision.
 
 ## Approval Checklist
 

@@ -90,7 +90,8 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             "pairwise_audit": pairwise_audit,
             "reference_ladder_audit": reference_ladder_audit,
             "scorecard_template": str(proof.get("scorecard_template", "")),
-            "decision_needed": "approve as accepted proof, reject with reason, or request revision",
+            "revision_request": str(proof.get("revision_request", "")),
+            "decision_needed": "revise before approval" if proof.get("revision_request") else "approve as accepted proof, reject with reason, or request revision",
         })
     return rows
 
@@ -122,8 +123,10 @@ def candidate_section(row: dict[str, str]) -> list[str]:
         lines.append(f"- Reference ladder audit: `{row['reference_ladder_audit']}`")
     if row["scorecard_template"]:
         lines.append(f"- Scorecard template: `{row['scorecard_template']}`")
+    if row["revision_request"]:
+        lines.append(f"- Active revision request: {row['revision_request']}")
     lines.extend([
-        "- Decision needed: approve as accepted proof, reject with a concrete reason, or request a revision.",
+        f"- Decision needed: {row['decision_needed']}.",
         "",
     ])
     return lines

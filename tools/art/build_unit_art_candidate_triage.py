@@ -69,6 +69,13 @@ def proof_lookup(proof_data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return result
 
 
+def style_audit_override(proof: dict[str, Any]) -> dict[str, str]:
+    override = proof.get("style_audit_override", {})
+    if not isinstance(override, dict):
+        return {}
+    return {str(key): str(value) for key, value in override.items()}
+
+
 def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -> list[dict[str, str]]:
     by_kind = proof_lookup(proof_data)
     by_label = {row["label"]: row for row in metrics_rows}
@@ -89,6 +96,9 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
             primary_anchor = proof_data.get("style_contract", {}).get("reference_policy", {}).get("primary_anchor", {})
             raw_path = str(primary_anchor.get("path", ""))
         status = str(proof.get("status", "reference" if row["label"].startswith("REF ") else "unknown"))
+        override = style_audit_override(proof)
+        override_verdict = override.get("verdict", "").strip().lower()
+        override_reason = override.get("reason", "").strip()
         edge_delta_vellum = metric(row, "edge_mean") - vellum_edge
         edge_delta_paisley = metric(row, "edge_mean") - paisley_edge
         contrast_delta_vellum = metric(row, "gray_std") - vellum_contrast
@@ -113,9 +123,15 @@ def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -
                 flags.append("human_review_gate")
             if status == "current_candidate":
                 flags.append("candidate_not_accepted")
+            if override_verdict == "fail":
+                flags.append("human_style_fail_negative_control")
+                if override_reason:
+                    flags.append(override_reason)
             if not flags and edge_delta_vellum >= 0.0 and contrast_delta_vellum >= 0.0:
                 flags.append("metric_detail_near_or_above_vellum")
-            if "edge_detail_far_below_paisley" in flags or "contrast_far_below_paisley" in flags:
+            if override_verdict == "fail":
+                stance = "style_audit_failed_negative_control"
+            elif "edge_detail_far_below_paisley" in flags or "contrast_far_below_paisley" in flags:
                 stance = "high_risk_re_review_before_acceptance"
             elif "edge_detail_below_vellum" in flags or "contrast_below_vellum" in flags:
                 stance = "needs_vellum_pairwise_visual_review"
@@ -157,6 +173,7 @@ def visual_review_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
         row
         for row in rows
         if row["review_stance"] in {
+            "style_audit_failed_negative_control",
             "high_risk_re_review_before_acceptance",
             "needs_vellum_pairwise_visual_review",
             "next_gate_human_review_required",
@@ -218,7 +235,7 @@ def write_visual_review_sheet(path: Path, rows: list[dict[str, str]]) -> None:
             board_tile = fit_image(row["board_preview"], (board_w - 20, 210), (26, 26, 29))
             sheet.paste(board_tile, (vellum_w + raw_w + 34, y + 8))
         text_x = vellum_w + raw_w + board_w + 44
-        color = (255, 170, 130) if row["review_stance"] == "high_risk_re_review_before_acceptance" else (210, 220, 255)
+        color = (255, 170, 130) if row["review_stance"] in {"style_audit_failed_negative_control", "high_risk_re_review_before_acceptance"} else (210, 220, 255)
         draw.text((14, y + 224), "REF Vellum raw", font=small, fill=(255, 222, 120))
         draw.text((vellum_w + 24, y + 224), row["label"], font=small, fill=color)
         draw.text((text_x, y + 8), row["label"], font=font, fill=color)
@@ -240,6 +257,7 @@ def write_markdown(
     review_sheet_path: Path,
 ) -> None:
     non_reference = [row for row in rows if not row["label"].startswith("REF ")]
+    failed_controls = [row for row in non_reference if row["review_stance"] == "style_audit_failed_negative_control"]
     high_risk = [row for row in non_reference if row["review_stance"] == "high_risk_re_review_before_acceptance"]
     review_gate = [row for row in non_reference if row["reference_role"] == "review_candidate_not_anchor"]
     lines: list[str] = [
@@ -254,14 +272,30 @@ def write_markdown(
         "## Summary",
         "",
         f"- Non-reference rows reviewed: {len(non_reference)}",
+        f"- Human negative-control failures: {len(failed_controls)}",
         f"- High-risk re-review rows: {len(high_risk)}",
         f"- Review-gate rows: {len(review_gate)}",
         "",
+        "Human negative-control failures are hard fails recorded from visual review. They prove the audit can reject a candidate that has palette/detail but still misses Vellum's dry gothic finish.",
+        "",
         "High-risk here means the candidate is materially below Paisley or Vellum on edge/contrast proxies and should not be allowed to pull the target style, even if the image has a clean cutout or matches the palette.",
+        "",
+        "## Human Negative-Control Failures",
+        "",
+    ]
+    if failed_controls:
+        for row in failed_controls:
+            lines.append(
+                f"- `{row['label']}` / `{row['proof_id']}`: {row['flags']} "
+                f"(edge vs Vellum {row['edge_delta_vellum']}, contrast vs Vellum {row['contrast_delta_vellum']})."
+            )
+    else:
+        lines.append("- None recorded. This is suspicious if known visual failures exist.")
+    lines.extend([
         "",
         "## Highest Risk Rows",
         "",
-    ]
+    ])
     if high_risk:
         for row in high_risk:
             lines.append(

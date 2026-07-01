@@ -237,8 +237,34 @@
       "scorecard_template": "docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json",
       "telegram_message": "118",
       "telegram_board_message": "119",
-      "decision_notes": "Current Creep candidate and first real test of the tightened Vellum-primary process. It is not a live replacement and must not touch assets/units/creep.png without explicit approval.",
-      "reference_role": "review_candidate_not_anchor"
+      "decision_notes": "Current Creep candidate and first real test of the tightened Vellum-primary process. It is not a live replacement and must not touch assets/units/creep.png without explicit approval. Review decision 2026-07-01: request_revision - User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target.",
+      "reference_role": "review_candidate_not_anchor",
+      "review_history": [
+        {
+          "date": "2026-07-01",
+          "decision": "request_revision",
+          "reason": "User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target.",
+          "scorecard": {
+            "vellum_veto": "revise",
+            "creep_identity": "revise",
+            "de_shined_material": "revise",
+            "detail_richness": "revise",
+            "board_scale_read": "revise",
+            "cutout_quality": "pass",
+            "reference_role": "pass"
+          }
+        }
+      ],
+      "latest_scorecard": {
+        "vellum_veto": "revise",
+        "creep_identity": "revise",
+        "de_shined_material": "revise",
+        "detail_richness": "revise",
+        "board_scale_read": "revise",
+        "cutout_quality": "pass",
+        "reference_role": "pass"
+      },
+      "revision_request": "User critique requires another Creep pass: restore the original smooth alien face and uninterrupted gray-blue skin while pushing the finish closer to Vellum-level matte gothic dry detail; current candidate still does not fully meet the Vellum matte/detail target."
     },
     {
       "id": "grint_tank_weapon_refit_rejected",
@@ -565,10 +591,15 @@
       "cutout": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_cutout_birefnet_foregroundml_despill.png",
       "review": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_review_birefnet_foregroundml_despill.png",
       "board_preview": "outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_board_preview.png",
-      "style_gate": "First-try current candidate: Totem keeps the crown-like bark mask, cyan glowing eyes, stern carved face, layered bark armor plates, cyan spiral chest runes, turquoise markings, feather/leaf shoulder fringe, clawed wooden hands and feet, and upright protective idol silhouette while reading as dry carved bark, raw splintered wood, dusty dark grain, chalky turquoise pigment, and matte gouache instead of glossy varnished wood, toy totem, generic druid, or foliage blob.",
+      "style_gate": "Failing current candidate / audit negative control: Totem keeps the crown-like bark mask, cyan eyes, bark plates, turquoise markings, and readable guardian silhouette, but visual review says it still misses the Vellum target. The detail reads too clean-fantasy carved armor / stylized game-creature and not enough Vellum-level dry gothic fabric/parchment/ink richness, so matching the palette and having local detail is not enough.",
       "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout preserves the full crown mask, cyan eyes/runes, shoulder fringe, clawed hands/feet, lower bark tassels, and 96 px board read on checker/black/white.",
       "telegram_message": "110",
-      "decision_notes": "Current Totem candidate and first-try proof for dry wood/nature guardian material. Not a live replacement.",
+      "decision_notes": "Current Totem candidate is retained as a required style-audit negative control after user review. It must fail candidate style triage until revised; clean cutout and palette match do not make it a passing style proof. Not a live replacement.",
+      "revision_request": "Revise Totem before any acceptance: keep the bark idol identity but move away from clean fantasy carved armor / stylized game-creature detail and toward Vellum-level dry gothic material richness, dirtier hand-painted surface breakup, heavier shadow, and less polished/heroic rendering.",
+      "style_audit_override": {
+        "verdict": "fail",
+        "reason": "user says Totem should fail: palette/detail matched but Vellum-level matte gothic finish did not"
+      },
       "reference_role": "narrow_proof_only"
     },
     {
@@ -633,6 +664,6 @@
   ],
   "next_recommended_stress_test": {
     "unit_id": "creep",
-    "reason": "Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests."
+    "reason": "Revise Creep before Veyra or broader roster work; user wants smooth alien identity restored and Vellum-level matte gothic detail locked harder."
   }
 }

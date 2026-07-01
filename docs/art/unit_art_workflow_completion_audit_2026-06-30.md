@@ -65,7 +65,7 @@ Completion blockers:
 ## Next Gate
 
 - Unit id: `creep`
-- Reason: Review the new Creep Vellum-primary detail candidate before broader roster expansion. It is the first process-guided pass to correct the under-detailed smooth-creature failure, but it still needs human art-direction approval before the workflow can safely continue to Veyra or other roster stress tests.
+- Reason: Revise Creep before Veyra or broader roster work; user wants smooth alien identity restored and Vellum-level matte gothic detail locked harder.
 
 ## Interpretation
 

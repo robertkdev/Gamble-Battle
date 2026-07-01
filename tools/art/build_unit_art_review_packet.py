@@ -288,6 +288,14 @@ def write_scorecard_template(path: Path, proof: dict[str, Any], report_date: str
     path.write_text(json.dumps(template, indent=2) + "\n", encoding="utf-8")
 
 
+def format_latest_scorecard(proof: dict[str, Any]) -> str:
+    scorecard = proof.get("latest_scorecard")
+    if not isinstance(scorecard, dict) or not scorecard:
+        return ""
+    parts = [f"{gate}={value}" for gate, value in sorted(scorecard.items())]
+    return ", ".join(parts)
+
+
 def write_markdown(
     path: Path,
     proof: dict[str, Any],
@@ -301,6 +309,8 @@ def write_markdown(
     pairwise_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "vellum_first_pairwise_raw_comparison.png")
     reference_ladder_audit = style_audit.replace("raw_anchor_vs_later_contact_sheet.png", "reference_ladder_raw_comparison.png")
     scorecard_template_rel = rel(scorecard_template_path)
+    revision_request = str(proof.get("revision_request", "")).strip()
+    latest_scorecard = format_latest_scorecard(proof)
     lines: list[str] = [
         f"# {proof.get('display_name', proof.get('subject_id'))} Review Decision Packet",
         "",
@@ -315,10 +325,27 @@ def write_markdown(
         f"- Board preview: `{proof.get('board_preview')}`",
         f"- Vellum pairwise audit: `{pairwise_audit}`",
         f"- Reference ladder audit: `{reference_ladder_audit}`",
+    ]
+    if revision_request:
+        lines.append(f"- Active revision request: {revision_request}")
+    if latest_scorecard:
+        lines.append(f"- Latest scorecard: `{latest_scorecard}`")
+    lines.extend([
         "",
         "## Decision",
         "",
-        "Creep is the next human-review gate. Do not generate Veyra or broader roster batches until this is approved, rejected, or sent back for revision.",
+    ])
+    if revision_request:
+        lines.extend([
+            "Creep is the next revision gate. Do not generate Veyra or broader roster batches until a new Creep pass resolves the active revision request.",
+            "",
+            f"Active revision request: {revision_request}",
+            "",
+            "Do not approve the previous candidate as-is. Use it as a comparison target for what to improve: smoother alien identity, drier Vellum-level material, and more convincing matte gothic detail without becoming low-detail or corpse-like.",
+        ])
+    else:
+        lines.append("Creep is the next human-review gate. Do not generate Veyra or broader roster batches until this is approved, rejected, or sent back for revision.")
+    lines.extend([
         "",
         "Approve only if the candidate passes Vellum-first visual review as a dry, detailed, smooth-alien horror unit. Approval keeps it as a narrow proof, not a global style anchor.",
         "",
@@ -364,7 +391,7 @@ def write_markdown(
         "",
         "## Prior Creep Lessons",
         "",
-    ]
+    ])
     for old_proof in related:
         lines.append(f"- `{old_proof.get('id')}` / `{old_proof.get('status')}`: {old_proof.get('failure_reason', old_proof.get('style_gate', ''))}")
     lines.append("")

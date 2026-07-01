@@ -39,7 +39,7 @@ The completion audit is the current truth for remaining blockers. At the latest 
 - Matte does not mean low-detail. De-shining must preserve tactile dry detail, layered costume/material storytelling, scratches, dust, worn edges, and hand-painted surface breakup.
 - Reject sweaty skin, wet shine, glossy leather, latex, plastic, polished metal, chrome, clean fantasy render, cartoon/comic style, toy proportions, anime/gacha, and cinematic rim-light polish.
 - Use flat solid safety-orange `#f84401` for cutout-bound raw generations.
-- Use the refined BiRefNet command with `--foreground-ml --despill-orange --edge-orange-clean`, then run the orange-fringe audit. Accepted/reference cutouts must stay under the Vellum/Paisley cleanliness baseline.
+- Use the refined BiRefNet command with `--foreground-ml --despill-orange --edge-orange-clean`, then run the orange-fringe audit. Accepted/reference cutouts must pass the objective safety-orange background-contamination gate; do not compare cutout cleanliness to Vellum, Paisley, the token, or any other reference image.
 - If an existing transparent cutout only fails on small edge residue, use `tools/art/clean_unit_cutout_orange_edge.py`, rebuild its board preview, and rerun the audit before updating the proof ledger.
 - Keep the board-scale read at 96 px: head, torso, hands, weapon/prop, and main magic shape must survive.
 
