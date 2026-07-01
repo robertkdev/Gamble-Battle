@@ -103,7 +103,7 @@ Decision zoom read: do not create v18 without a new visible target. The current 
 
 Source-identity read: use the source-identity sheet before judging v17b or v16b. It adds the original/live Totem as an identity reference beside Vellum, v16b, and v17b so the Creep-process rule stays concrete: original identity first, Vellum material/detail second, candidate review third. The original Totem is not a style target and should not overrule Vellum on matte gothic material quality.
 
-Delivery: v14b was sent to Telegram as message `174`; the v14 comparison sheet was sent as message `175`. v16b was sent to Telegram as message `176`; the v16 comparison sheet was sent as message `177`. v17b was sent to Telegram as message `178`; the v17 comparison sheet was sent as message `179`; the v17 decision zoom sheet was sent as message `180`; the v17 source-identity review sheet was sent as message `182`.
+Delivery: v14b was sent to Telegram as message `174`; the v14 comparison sheet was sent as message `175`. v16b was sent to Telegram as message `176`; the v16 comparison sheet was sent as message `177`. v17b was sent to Telegram as message `178`; the v17 comparison sheet was sent as message `179`; the v17 decision zoom sheet was sent as message `180`; the first v17 source-identity review sheet was sent as message `182`; the regenerated reusable-builder source-identity sheet was sent as message `190`.
 
 Human review packet: `docs/art/totem_review_decision_packet_2026-07-01.md` is the current decision surface. Use it to choose v17b, choose the v16b fallback, request a targeted revision, or reject the route. Do not run proof-ledger approval commands from this research note; create a cutout/proof artifact first if a candidate is chosen.
 

@@ -23,6 +23,7 @@ QUICK_AUDIT_GATE_PATH = ROOT / "tools" / "art" / "check_unit_art_audit_gates.py"
 CUTOUT_FRINGE_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_cutout_orange_fringe_audit_2026-07-01.md"
 REVIEW_PACKET_PATH = ROOT / "docs" / "art" / "creep_review_decision_packet_2026-07-01.md"
 REVIEW_PACKET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_packet.py"
+SOURCE_IDENTITY_SHEET_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_source_identity_sheet.py"
 REVIEW_QUEUE_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_review_queue.py"
 COMPLETION_AUDIT_BUILDER_PATH = ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py"
 WORKFLOW_RUNNER_PATH = ROOT / "tools" / "art" / "run_unit_art_workflow_validation.py"
@@ -51,6 +52,7 @@ REQUIRED_DOC_SNIPPETS = [
     "build_unit_art_candidate_triage.py",
     "check_unit_art_audit_gates.py",
     "build_unit_art_review_packet.py",
+    "build_unit_art_source_identity_sheet.py",
     "build_unit_art_review_queue.py",
     "build_unit_art_workflow_completion_audit.py",
     "audit_unit_cutout_orange_fringe.py",
@@ -348,6 +350,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "audit_unit_cutout_orange_fringe.py",
     "clean_unit_cutout_orange_edge.py",
     "build_unit_art_review_packet.py",
+    "build_unit_art_source_identity_sheet.py",
     "build_unit_art_workflow_completion_audit.py",
     "build_unit_roster_prompt_packet.py",
     "build_unit_style_drift_audit.py",
@@ -365,8 +368,10 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Workflow Completion Audit",
     "Review Queue",
     "Review Decision Packet",
+    "Source Identity Review Sheet",
     "Creep Revision Prompt Packet",
     "assert_creep_revision_prompt_packet",
+    "assert_source_identity_sheet",
     "Review Decision Helper Dry Run",
     "Review Decision Helper Accept Scorecard Dry Run",
     "Review Decision Helper Missing Scorecard Guard",
@@ -435,6 +440,20 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "Vellum Pairwise Audit Output",
     "reference_ladder_raw_comparison.png",
     "PASS: art workflow docs",
+]
+
+REQUIRED_SOURCE_IDENTITY_SHEET_BUILDER_SNIPPETS = [
+    "Build a source identity vs Vellum vs candidate review sheet",
+    "source identity, not passing style proof",
+    "Vellum ultimate reference",
+    "material/detail authority",
+    "board-scale identity read",
+    "Decision rule: do not promote",
+    "the original source stays the identity reference",
+    "--source-image",
+    "--candidate",
+    "--fallback",
+    "--board-sizes",
 ]
 
 REQUIRED_REVIEW_DECISION_HELPER_SNIPPETS = [
@@ -1179,6 +1198,12 @@ def main() -> int:
     for snippet in REQUIRED_REVIEW_PACKET_BUILDER_SNIPPETS:
         if snippet.lower() not in review_packet_builder_lower:
             fail(f"review packet builder missing required snippet: {snippet}", failures)
+
+    source_identity_sheet_builder = SOURCE_IDENTITY_SHEET_BUILDER_PATH.read_text(encoding="utf-8")
+    source_identity_sheet_builder_lower = source_identity_sheet_builder.lower()
+    for snippet in REQUIRED_SOURCE_IDENTITY_SHEET_BUILDER_SNIPPETS:
+        if snippet.lower() not in source_identity_sheet_builder_lower:
+            fail(f"source identity sheet builder missing required snippet: {snippet}", failures)
 
     review_queue_builder = REVIEW_QUEUE_BUILDER_PATH.read_text(encoding="utf-8")
     review_queue_builder_lower = review_queue_builder.lower()

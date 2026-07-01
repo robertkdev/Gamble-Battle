@@ -26,6 +26,7 @@ ART_TOOLS = [
     ROOT / "tools" / "art" / "build_unit_art_prompt_packet.py",
     ROOT / "tools" / "art" / "build_unit_art_candidate_triage.py",
     ROOT / "tools" / "art" / "build_unit_art_review_packet.py",
+    ROOT / "tools" / "art" / "build_unit_art_source_identity_sheet.py",
     ROOT / "tools" / "art" / "build_unit_art_review_queue.py",
     ROOT / "tools" / "art" / "build_unit_roster_contact_sheet.py",
     ROOT / "tools" / "art" / "build_unit_art_workflow_completion_audit.py",
@@ -1100,6 +1101,16 @@ def assert_review_packet(packet_path: Path, report: list[str]) -> None:
     report.append("")
 
 
+def assert_source_identity_sheet(sheet_path: Path, report: list[str]) -> None:
+    width, height = assert_nonblank_report_image(sheet_path, "source identity review sheet", 600, 400)
+    report.append("## Source Identity Review Sheet")
+    report.append("")
+    report.append(
+        f"- PASS `{rel(sheet_path)}` exists and is nonblank for source identity, Vellum material, fallback, and candidate review: `{width}x{height}`."
+    )
+    report.append("")
+
+
 def assert_creep_revision_prompt_packet(report: list[str]) -> None:
     if not CREEP_REVISION_PROMPT_PACKET.exists():
         raise RuntimeError(f"missing Creep revision prompt packet: {rel(CREEP_REVISION_PROMPT_PACKET)}")
@@ -1146,6 +1157,7 @@ def main() -> int:
     completion_audit_dir = output_dir / "workflow_completion_audit"
     review_queue_dir = output_dir / "review_queue"
     review_packet_dir = output_dir / "review_packet"
+    source_identity_dir = output_dir / "source_identity_review"
     candidate_triage_dir = output_dir / "candidate_style_triage"
     cutout_fringe_audit_dir = output_dir / "cutout_orange_fringe_audit"
     report: list[str] = [
@@ -1201,6 +1213,34 @@ def main() -> int:
             report,
         )
         assert_review_packet(review_packet_dir / f"{args.audit_proof_id}_review_decision_packet.md", report)
+        source_identity_sheet = source_identity_dir / "totem_source_identity_review.png"
+        run_step(
+            "Source Identity Review Sheet",
+            [
+                sys.executable,
+                "tools/art/build_unit_art_source_identity_sheet.py",
+                "--display-name",
+                "Totem",
+                "--source-image",
+                "assets/units/totem.png",
+                "--fallback",
+                "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_v16b_pair_region_subdued_broken_center_raw_candidate.png",
+                "--fallback-label",
+                "Totem v16b fallback",
+                "--fallback-role",
+                "safer fallback",
+                "--candidate",
+                "outputs/art_pipeline/style_validation/totem_creep_process_research_2026_07_01/totem_creep_process_research_v17b_residual_outline_buried_vertical_grain_raw_candidate.png",
+                "--candidate-label",
+                "Totem v17b candidate",
+                "--candidate-role",
+                "current research candidate",
+                "--output",
+                rel(source_identity_sheet),
+            ],
+            report,
+        )
+        assert_source_identity_sheet(source_identity_sheet, report)
         assert_creep_revision_prompt_packet(report)
         all_pass_scorecard_path = output_dir / f"{args.audit_proof_id}_all_pass_scorecard.json"
         write_all_pass_scorecard(all_pass_scorecard_path, args.audit_proof_id)
