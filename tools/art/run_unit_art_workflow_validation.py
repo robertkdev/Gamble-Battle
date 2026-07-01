@@ -120,6 +120,49 @@ def assert_accept_requires_scorecard(proof_id: str, report: list[str]) -> None:
     report.append("")
 
 
+def assert_style_negative_control_cannot_accept(proof_id: str, report: list[str]) -> None:
+    scorecard_path = ROOT / "outputs" / "art_pipeline" / "style_validation" / "_validation_style_negative_control_all_pass_scorecard.json"
+    write_all_pass_scorecard(scorecard_path, proof_id)
+    command = [
+        sys.executable,
+        "tools/art/apply_unit_art_review_decision.py",
+        "--proof-id",
+        proof_id,
+        "--decision",
+        "accept",
+        "--reason",
+        "validation negative-control accept guard",
+        "--scorecard-json",
+        rel(scorecard_path),
+        "--dry-run",
+    ]
+    report.append("## Review Decision Helper Style Negative-Control Guard")
+    report.append("")
+    report.append("```powershell")
+    report.append(" ".join(command))
+    report.append("```")
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if result.stdout.strip():
+        report.append("")
+        report.append("```text")
+        report.append(result.stdout.strip())
+        report.append("```")
+    report.append("")
+    if result.returncode == 0:
+        raise RuntimeError(f"style negative control {proof_id} unexpectedly accepted")
+    if "style_negative_control and cannot be accepted" not in result.stdout:
+        raise RuntimeError("style negative-control accept guard failed without the expected error")
+    report.append(f"- PASS `{proof_id}` cannot be accepted even with an all-pass scorecard.")
+    report.append("")
+
+
 def write_all_pass_scorecard(path: Path, proof_id: str) -> None:
     scorecard = {
         "vellum_veto": "pass",
@@ -248,6 +291,8 @@ def assert_completion_audit(audit_path: Path, report: list[str]) -> None:
     required = [
         "Verdict: **INCOMPLETE**",
         "candidate needs human approval",
+        "style negative control, must fail audit",
+        "Expected style negative controls are not candidates for approval",
         "needs visual proof",
         "next recommended stress test remains `creep`",
     ]
@@ -270,6 +315,8 @@ def assert_review_queue(queue_path: Path, report: list[str]) -> None:
         "apply_unit_art_review_decision.py",
         "--decision request_revision",
         "--scorecard-json",
+        "Expected style negative controls are non-approvable",
+        "style_negative_control",
         "Scorecard template",
         "creep_review_decision_packet_2026-07-01_scorecard_template.json",
         "Approval Checklist",
@@ -590,6 +637,7 @@ def main() -> int:
             report,
         )
         assert_accept_requires_scorecard(args.audit_proof_id, report)
+        assert_style_negative_control_cannot_accept("totem_dry_wood_guardian_refit", report)
         run_step("Workflow Document Validator", [sys.executable, "tools/art/validate_unit_art_workflow_doc.py"], report)
         run_step(
             "Full Roster Prompt Packet Build",

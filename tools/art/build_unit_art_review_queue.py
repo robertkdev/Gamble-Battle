@@ -48,6 +48,10 @@ def candidate_priority(proof: dict[str, Any], next_unit_id: str) -> tuple[int, s
     return (2, str(proof.get("id", "")))
 
 
+def is_style_negative_control(proof: dict[str, Any]) -> bool:
+    return bool(proof.get("style_negative_control", False))
+
+
 def current_candidates(proof_data: dict[str, Any]) -> list[dict[str, Any]]:
     next_unit_id = str(proof_data.get("next_recommended_stress_test", {}).get("unit_id", ""))
     candidates = [
@@ -72,6 +76,9 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             priority = "review_candidate"
         else:
             priority = "candidate_backlog"
+        negative_control = is_style_negative_control(proof)
+        if negative_control:
+            priority = "style_negative_control"
         style_audit = str(proof.get("style_audit", ""))
         pairwise_audit = ""
         reference_ladder_audit = ""
@@ -93,7 +100,8 @@ def queue_rows(proof_data: dict[str, Any], roster_data: dict[str, Any]) -> list[
             "scorecard_template": str(proof.get("scorecard_template", "")),
             "revision_request": str(proof.get("revision_request", "")),
             "revision_prompt_packet": CREEP_REVISION_PROMPT_PACKET if subject_id == "creep" and proof.get("revision_request") else "",
-            "decision_needed": "revise before approval" if proof.get("revision_request") else "approve as accepted proof, reject with reason, or request revision",
+            "expected_style_negative_control": "yes" if negative_control else "no",
+            "decision_needed": "reject or request revision only; style negative controls cannot be accepted" if negative_control else ("revise before approval" if proof.get("revision_request") else "approve as accepted proof, reject with reason, or request revision"),
         })
     return rows
 
@@ -129,6 +137,8 @@ def candidate_section(row: dict[str, str]) -> list[str]:
         lines.append(f"- Active revision request: {row['revision_request']}")
     if row["revision_prompt_packet"]:
         lines.append(f"- Revision prompt packet: `{row['revision_prompt_packet']}`")
+    if row["expected_style_negative_control"] == "yes":
+        lines.append("- Expected style negative control: `yes`; this row must fail style audit and cannot be accepted.")
     lines.extend([
         f"- Decision needed: {row['decision_needed']}.",
         "",
@@ -157,6 +167,7 @@ def write_markdown(path: Path, rows: list[dict[str, str]], proof_data: dict[str,
         "- Review Vellum side by side first at raw scale and board scale. Use the reference-ladder sheet to see Vellum, Paisley, token, and candidate in one row; Paisley and token remain secondary/narrow references.",
         "- Do not let the growing passing pool muddy the target. Passing means narrow evidence, not a new average style.",
         "- Use candidate style triage as a warning layer only. It can flag likely drift, but final decisions still require visual Vellum-first review.",
+        "- Expected style negative controls are non-approvable. If Totem or any future negative control stops failing style triage, the audit is broken; if it appears in this queue, reject it or request revision, never accept it.",
         "- Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.",
         "- Rejection needs a concrete reason that can become a future negative prompt or failure gate.",
         "- Do not replace live `assets/units/*.png` files from this queue without explicit user approval.",
@@ -175,6 +186,8 @@ def write_markdown(path: Path, rows: list[dict[str, str]], proof_data: dict[str,
         "```",
         "",
         "Accepting a review candidate requires every scorecard gate to be recorded as `pass`, and records it as an accepted narrow proof only. The helper does not promote candidates into global style anchors; Vellum stays the primary/ultimate reference unless the user explicitly says otherwise. If a proof has no tracked scorecard template yet, rebuild its review packet before applying a decision.",
+        "",
+        "The helper also rejects `accept` for any proof marked `style_negative_control`; Totem is the current required negative control and must remain a failing audit control until the user explicitly changes that role.",
         "",
         "## Next Gate",
         "",

@@ -16,7 +16,7 @@ Completion blockers:
 ## Counts
 
 - Unit proof statuses: `{'accepted': 3, 'current_candidate': 14, 'missing': 6}`
-- Unit completion states: `{'accepted proof': 3, 'candidate needs human approval': 14, 'needs visual proof': 6}`
+- Unit completion states: `{'accepted proof': 3, 'candidate needs human approval': 13, 'needs visual proof': 6, 'style negative control, must fail audit': 1}`
 - Proof reference roles: `{'narrow_proof_only': 15, 'negative_example': 5, 'review_candidate_not_anchor': 1, 'secondary_contrast_anchor': 1, 'small_asset_material_reference': 1}`
 - Coverage groups defined: `detached_effects, goth_horror_anchor, guardian_bulk, humanoid_mage, large_tank, monster_assassin, other_unit, small_narrow, stone_bone_construct, weapon_heavy`
 - Coverage groups currently represented by accepted/current proofs: `detached_effects, goth_horror_anchor, guardian_bulk, humanoid_mage, large_tank, monster_assassin, other_unit, small_narrow, stone_bone_construct, weapon_heavy`
@@ -43,7 +43,7 @@ Completion blockers:
 | `repo` | Repo | `units` | `-` | `missing` | `-` | needs visual proof |
 | `sari` | Sari | `units` | `sari_spectral_tendril_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
 | `teller` | Teller | `units` | `teller_contract_mogul_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
-| `totem` | Totem | `units` | `totem_dry_wood_guardian_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
+| `totem` | Totem | `units` | `totem_dry_wood_guardian_refit` | `current_candidate` | `narrow_proof_only` | style negative control, must fail audit |
 | `veyra` | Veyra | `units` | `-` | `missing` | `-` | needs visual proof |
 | `volt` | Volt | `units` | `volt_attached_energy_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
 | `vykos` | Vykos | `units` | `vykos_pale_sanguine_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
@@ -70,3 +70,5 @@ Completion blockers:
 ## Interpretation
 
 This audit is intentionally conservative. A `current_candidate` can prove that the workflow made progress, but it is not an accepted style proof, live replacement, or global style anchor. The larger workflow goal should stay active until the missing roster proofs, candidate review gates, and asset-class gaps are resolved or explicitly scoped down by the user.
+
+Expected style negative controls are not candidates for approval. They exist to prove the audit fails known-bad art; a negative-control row staying in the roster table is a blocker until it is rejected, revised, or explicitly reclassified by the user.

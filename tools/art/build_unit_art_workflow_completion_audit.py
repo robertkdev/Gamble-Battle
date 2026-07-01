@@ -79,12 +79,16 @@ def row_for_unit(unit: dict[str, Any], proof: dict[str, Any] | None) -> dict[str
             "proof_id": "",
             "proof_status": "missing",
             "reference_role": "",
+            "style_negative_control": "no",
             "artifact_state": "missing",
             "completion_state": "needs visual proof",
         }
     status = str(proof.get("status", ""))
     reference_role = str(proof.get("reference_role", ""))
-    if status == "accepted":
+    style_negative_control = bool(proof.get("style_negative_control", False))
+    if style_negative_control:
+        completion_state = "style negative control, must fail audit"
+    elif status == "accepted":
         completion_state = "accepted proof"
     elif status == "current_candidate":
         completion_state = "candidate needs human approval"
@@ -100,6 +104,7 @@ def row_for_unit(unit: dict[str, Any], proof: dict[str, Any] | None) -> dict[str
         "proof_id": str(proof.get("id", "")),
         "proof_status": status,
         "reference_role": reference_role,
+        "style_negative_control": "yes" if style_negative_control else "no",
         "artifact_state": artifact_state(proof),
         "completion_state": completion_state,
     }
@@ -225,6 +230,8 @@ def write_markdown(
         "## Interpretation",
         "",
         "This audit is intentionally conservative. A `current_candidate` can prove that the workflow made progress, but it is not an accepted style proof, live replacement, or global style anchor. The larger workflow goal should stay active until the missing roster proofs, candidate review gates, and asset-class gaps are resolved or explicitly scoped down by the user.",
+        "",
+        "Expected style negative controls are not candidates for approval. They exist to prove the audit fails known-bad art; a negative-control row staying in the roster table is a blocker until it is rejected, revised, or explicitly reclassified by the user.",
         "",
     ])
     path.parent.mkdir(parents=True, exist_ok=True)

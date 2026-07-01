@@ -13,6 +13,7 @@
 - Review Vellum side by side first at raw scale and board scale. Use the reference-ladder sheet to see Vellum, Paisley, token, and candidate in one row; Paisley and token remain secondary/narrow references.
 - Do not let the growing passing pool muddy the target. Passing means narrow evidence, not a new average style.
 - Use candidate style triage as a warning layer only. It can flag likely drift, but final decisions still require visual Vellum-first review.
+- Expected style negative controls are non-approvable. If Totem or any future negative control stops failing style triage, the audit is broken; if it appears in this queue, reject it or request revision, never accept it.
 - Approving a candidate can make it an accepted proof for its coverage group, but does not promote it to a global style anchor.
 - Rejection needs a concrete reason that can become a future negative prompt or failure gate.
 - Do not replace live `assets/units/*.png` files from this queue without explicit user approval.
@@ -31,6 +32,8 @@ python tools\art\apply_unit_art_review_decision.py --proof-id <proof_id> --decis
 ```
 
 Accepting a review candidate requires every scorecard gate to be recorded as `pass`, and records it as an accepted narrow proof only. The helper does not promote candidates into global style anchors; Vellum stays the primary/ultimate reference unless the user explicitly says otherwise. If a proof has no tracked scorecard template yet, rebuild its review packet before applying a decision.
+
+The helper also rejects `accept` for any proof marked `style_negative_control`; Totem is the current required negative control and must remain a failing audit control until the user explicitly changes that role.
 
 ## Next Gate
 
@@ -154,14 +157,15 @@ Accepting a review candidate requires every scorecard gate to be recorded as `pa
 
 ### Totem (`totem`)
 
-- Priority: `candidate_backlog`
+- Priority: `style_negative_control`
 - Proof id: `totem_dry_wood_guardian_refit`
 - Reference role: `narrow_proof_only`
 - Coverage: `large_tank, humanoid_mage, guardian_bulk, stone_bone_construct`
 - Raw: `outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_raw_selected.png`
 - Board preview: `outputs/art_pipeline/style_validation/totem_dry_wood_guardian_refit_2026_06_30/totem_dry_wood_guardian_refit_board_preview.png`
 - Active revision request: Revise Totem before any acceptance: keep the bark idol identity but move away from clean fantasy carved armor / stylized game-creature detail and toward Vellum-level dry gothic material richness, dirtier hand-painted surface breakup, heavier shadow, and less polished/heroic rendering.
-- Decision needed: revise before approval.
+- Expected style negative control: `yes`; this row must fail style audit and cannot be accepted.
+- Decision needed: reject or request revision only; style negative controls cannot be accepted.
 
 ### Volt (`volt`)
 

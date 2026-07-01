@@ -125,6 +125,10 @@ def validate_scorecard(decision: str, scorecard: dict[str, str]) -> None:
         raise ValueError("reject scorecard must include at least one reject gate")
 
 
+def is_style_negative_control(proof: dict[str, Any]) -> bool:
+    return bool(proof.get("style_negative_control", False))
+
+
 def update_decision_notes(proof: dict[str, Any], decision: str, reason: str) -> None:
     existing = str(proof.get("decision_notes", "")).strip()
     note = f"Review decision {date.today().isoformat()}: {decision} - {reason}"
@@ -151,6 +155,8 @@ def apply_decision(
     status = str(proof.get("status", ""))
     if status != "current_candidate":
         raise ValueError(f"proof {proof_id} is {status}; only current_candidate proofs can be reviewed by this helper")
+    if decision == "accept" and is_style_negative_control(proof):
+        raise ValueError(f"proof {proof_id} is a style_negative_control and cannot be accepted")
 
     append_review_history(proof, decision, reason, scorecard)
     update_decision_notes(proof, decision, reason)
