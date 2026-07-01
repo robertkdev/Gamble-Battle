@@ -61,6 +61,75 @@ def render_reference_policy(proof_matrix: dict[str, Any]) -> str:
     ])
 
 
+def subject_proofs(proof_matrix: dict[str, Any], subject_id: str) -> list[dict[str, Any]]:
+    proofs = [
+        proof
+        for proof in proof_matrix.get("proofs", [])
+        if isinstance(proof, dict)
+        and proof.get("subject_type") == "unit"
+        and proof.get("subject_id") == subject_id
+    ]
+    status_order = {"accepted": 0, "current_candidate": 1, "rejected": 2}
+    proofs.sort(key=lambda proof: (status_order.get(str(proof.get("status", "")), 9), str(proof.get("id", ""))))
+    return proofs
+
+
+def proof_prompt_context_status(proof: dict[str, Any]) -> str:
+    explicit = str(proof.get("prompt_context_status", "")).strip()
+    if explicit:
+        return explicit
+    status = str(proof.get("status", ""))
+    role = str(proof.get("reference_role", ""))
+    if bool(proof.get("style_negative_control", False)):
+        return "blocked_style_negative_control"
+    if status == "rejected" or role == "negative_example":
+        return "negative_example_only"
+    if status == "current_candidate":
+        return "blocked_current_candidate"
+    if status == "accepted":
+        return "narrow_context_only_not_anchor"
+    return "unknown_review_required"
+
+
+def prompt_context_action(status: str) -> str:
+    if status.startswith("blocked_"):
+        return "Do not use as prompt/style context until Vellum-first review clears it."
+    if status == "negative_example_only":
+        return "Use only as a negative lesson; do not imitate as style."
+    if status == "narrow_context_only_not_anchor":
+        return "May answer narrow identity/material risk only; do not use as a global style anchor."
+    if status == "reference_context_only":
+        return "Reference context only; Vellum remains primary."
+    return "Needs explicit review before use."
+
+
+def render_unit_proof_context(entry: dict[str, Any], proof_matrix: dict[str, Any]) -> str:
+    lines = [
+        "## Unit Proof Context",
+        "",
+        "Use prior proofs only according to `prompt_context_status`; blocked rows are not prompt/style references.",
+        "",
+    ]
+    proofs = subject_proofs(proof_matrix, str(entry["id"]))
+    if not proofs:
+        lines.append("- No prior generated proof is recorded for this unit.")
+        return "\n".join(lines)
+    for proof in proofs:
+        status = proof_prompt_context_status(proof)
+        lines.append(
+            f"- `{proof.get('id', '')}`: status `{proof.get('status', '')}`, "
+            f"role `{proof.get('reference_role', '')}`, prompt context `{status}`. "
+            f"{prompt_context_action(status)}"
+        )
+        note = str(proof.get("prompt_context_notes", "")).strip()
+        if note:
+            lines.append(f"  - Note: {note}")
+        raw = str(proof.get("raw", "")).strip()
+        if raw and not status.startswith("blocked_") and status != "negative_example_only":
+            lines.append(f"  - Narrow proof raw: `{raw}`")
+    return "\n".join(lines)
+
+
 def render_positive_prompt(entry: dict[str, Any], style_reference: str) -> str:
     traits = format_list(entry.get("traits", [])) or "no traits listed"
     preserve = format_list(entry.get("preserve", []))
@@ -176,6 +245,8 @@ def render_packet(entry: dict[str, Any], cases: dict[str, Any], matrix: dict[str
 ## Reference Hierarchy
 
 {render_reference_policy(proof_matrix)}
+
+{render_unit_proof_context(entry, proof_matrix)}
 
 ## Positive Prompt
 

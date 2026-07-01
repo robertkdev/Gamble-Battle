@@ -312,6 +312,8 @@
       "cutout_gate": "Pass: checker/black/white review held the shield, hammer, and board-scale read.",
       "telegram_message": "96",
       "decision_notes": "Accepted as tank/weapon-heavy workflow proof. Not a live asset replacement.",
+      "prompt_context_status": "blocked_until_vellum_pairwise_review",
+      "prompt_context_notes": "Quarantined by 2026-07-01 candidate triage after user critique: accepted as narrow tank/weapon-heavy history, but not safe as prompt/style context until fresh Vellum-first review clears the cartoony/less-matte concern.",
       "reference_role": "narrow_proof_only"
     },
     {

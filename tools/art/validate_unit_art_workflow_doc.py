@@ -81,6 +81,7 @@ REQUIRED_DOC_SNIPPETS = [
     "--edge-orange-clean",
     "orange-fringe audit",
     "Cutout cleanliness is not judged against Vellum",
+    "if one exists and is not blocked by `prompt_context_status`",
 ]
 
 REQUIRED_STYLE_DRIFT_AUDIT_SNIPPETS = [
@@ -133,7 +134,7 @@ REQUIRED_CUTOUT_FRINGE_AUDIT_SNIPPETS = [
     "Objective Background-Contamination Gate",
     "does not compare to Vellum, Paisley, the token, or any other reference image",
     "does not load raw art, board previews, Vellum, Paisley, the token, or any other reference image",
-    "Accepted/reference rows flagged: `0`",
+    "Protected ledger rows flagged: `0`",
     "Current candidates that fail can stay in the ledger as review candidates",
     "unit_art_cutout_orange_fringe_review_sheet.png",
 ]
@@ -269,6 +270,9 @@ REQUIRED_PACKET_BUILDER_SNIPPETS = [
     "Side-by-side rule",
     "Passing-pool rule",
     "Prompt-context rule",
+    "Unit Proof Context",
+    "proof_prompt_context_status",
+    "Do not use as prompt/style context",
     "orange-fringe audit",
 ]
 
@@ -307,6 +311,7 @@ REQUIRED_WORKFLOW_RUNNER_SNIPPETS = [
     "reference_role",
     "Workflow Document Validator",
     "Full Roster Prompt Packet Build",
+    "Grint prompt packet carries its prompt-context quarantine",
     "All Current Style Drift Audit",
     "Focused Proof Style Drift Audit",
     "Pre-Ledger Candidate Style Audit Dry Run",
@@ -389,7 +394,7 @@ REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS = [
     "--no-include-proof-matrix",
     "standalone_cutout",
     "unit_art_cutout_orange_fringe_review_sheet.png",
-    "Accepted/reference rows flagged",
+    "Protected ledger rows flagged",
     "fail-on-accepted-fail",
 ]
 
@@ -492,6 +497,8 @@ REQUIRED_PROOF_MATRIX_SNIPPETS = [
     "veto_rule",
     "passing_pool_rule",
     "prompt_context_rule",
+    "prompt_context_status",
+    "blocked_until_vellum_pairwise_review",
 ]
 
 REQUIRED_TEST_LOG_SNIPPETS = [

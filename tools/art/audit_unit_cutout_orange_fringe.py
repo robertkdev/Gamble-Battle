@@ -354,7 +354,7 @@ def write_markdown(
     args: argparse.Namespace,
 ) -> None:
     failing = [row for row in rows if row.quality_status == "fail"]
-    accepted_failures = [row for row in failing if row.proof_status in {"accepted", "reference"}]
+    protected_failures = [row for row in failing if row.proof_status in {"accepted", "reference"}]
     current_failures = [row for row in failing if row.proof_status == "current_candidate"]
     lines = [
         "# Unit Art Cutout Orange-Fringe Audit",
@@ -377,7 +377,7 @@ def write_markdown(
         "",
         f"- Rows audited: `{len(rows)}`",
         f"- Rows flagged for orange-fringe cleanup: `{len(failing)}`",
-        f"- Accepted/reference rows flagged: `{len(accepted_failures)}`",
+        f"- Protected ledger rows flagged: `{len(protected_failures)}`",
         f"- Current-candidate rows flagged: `{len(current_failures)}`",
         "",
     ]
@@ -394,7 +394,7 @@ def write_markdown(
         [
             "## Decision Rule",
             "",
-            "- Accepted/reference rows must have no measurable safety-orange background contamination above the objective gate. If an accepted proof fails here, re-run cutout cleanup before using it as a reference.",
+            "- Protected ledger rows, meaning accepted proofs and anchor/status rows from the proof ledger, must have no measurable safety-orange background contamination above the objective gate. If one fails here, re-run cutout cleanup before using it as a technical cutout example.",
             "- Current candidates that fail can stay in the ledger as review candidates, but they need an edge-orange-clean pass before acceptance or live asset replacement.",
             "- Review the PNG sheet before trusting the metric when the character has intentional orange materials near the silhouette.",
             "",
@@ -439,16 +439,16 @@ def main() -> int:
         write_markdown(docs_output, rows, csv_path, review_sheet_path, args.report_date, args)
 
     failing = [row for row in rows if row.quality_status == "fail"]
-    accepted_failures = [row for row in failing if row.proof_status in {"accepted", "reference"}]
+    protected_failures = [row for row in failing if row.proof_status in {"accepted", "reference"}]
     print(f"rows={len(rows)}")
     print(f"flagged={len(failing)}")
-    print(f"accepted_or_reference_flagged={len(accepted_failures)}")
+    print(f"protected_ledger_flagged={len(protected_failures)}")
     print(f"report={rel(report_path)}")
     print(f"review_sheet={rel(review_sheet_path)}")
 
     if args.fail_on_any_fail and failing:
         return 1
-    if args.fail_on_accepted_fail and accepted_failures:
+    if args.fail_on_accepted_fail and protected_failures:
         return 1
     return 0
 

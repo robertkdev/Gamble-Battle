@@ -72,7 +72,7 @@ For an existing character:
 - Current source texture from `assets/units/<unit>.png`.
 - Unit id, display name, and traits from `data/units/<unit>.tres` or an art-bearing planned/hidden unit resource such as `data/other_units/other/creep.tres`.
 - The current best Vellum raw anchor above as the style reference.
-- Any accepted prior generated proof for that unit, if one exists.
+- Any accepted prior generated proof for that unit, if one exists and is not blocked by `prompt_context_status`. Quarantined proofs such as Grint are history/negative lessons, not prompt style context.
 
 For a future character:
 
@@ -224,7 +224,7 @@ python tools\art\audit_unit_cutout_orange_fringe.py --output-dir outputs\art_pip
 ```
 
 - The audit measures safety-orange-like residue only in the transparent alpha edge band and soft-alpha pixels; interior orange/gold detail is reported but does not fail by itself.
-- Cutout cleanliness is not judged against Vellum, Paisley, the token, or any other reference image. Accepted/reference rows must pass the objective safety-orange edge/soft-alpha contamination gate before they can be used as technical examples.
+- Cutout cleanliness is not judged against Vellum, Paisley, the token, or any other reference image. Protected ledger rows, meaning accepted proofs and anchor/status rows, must pass the objective safety-orange edge/soft-alpha contamination gate before they can be used as technical cutout examples.
 - Current candidates that fail the audit can remain review candidates, but need an edge-orange-clean pass before acceptance or live asset replacement.
 - Use `outputs/art_pipeline/style_validation/cutout_orange_fringe_audit_2026_07_01/unit_art_cutout_orange_fringe_review_sheet.png` for quick checker, black, white, and red-overlay review.
 

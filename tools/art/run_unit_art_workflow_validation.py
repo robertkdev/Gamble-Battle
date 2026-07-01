@@ -205,6 +205,8 @@ def assert_packet_reference_hierarchy(packet_dir: Path, report: list[str]) -> No
         "Primary/ultimate anchor: `vellum_raw_anchor`",
         "Promotion rule:",
         "Candidate rule:",
+        "Prompt-context rule:",
+        "## Unit Proof Context",
     ]
     failures: list[str] = []
     for path in unit_packets:
@@ -214,9 +216,22 @@ def assert_packet_reference_hierarchy(packet_dir: Path, report: list[str]) -> No
             failures.append(f"{rel(path)} missing {missing}")
     if failures:
         raise RuntimeError("; ".join(failures))
+    grint_packet = packet_dir / "grint.md"
+    if not grint_packet.exists():
+        raise RuntimeError(f"expected Grint prompt packet: {rel(grint_packet)}")
+    grint_text = grint_packet.read_text(encoding="utf-8")
+    grint_required = [
+        "grint_hard_matte_refit",
+        "blocked_until_vellum_pairwise_review",
+        "Do not use as prompt/style context until Vellum-first review clears it.",
+    ]
+    missing_grint = [snippet for snippet in grint_required if snippet not in grint_text]
+    if missing_grint:
+        raise RuntimeError(f"{rel(grint_packet)} missing Grint quarantine snippets: {missing_grint}")
     report.append("## Packet Reference Hierarchy")
     report.append("")
     report.append(f"- PASS `{rel(packet_dir)}` contains {len(unit_packets)} unit packets with Vellum-first reference hierarchy sections.")
+    report.append("- PASS Grint prompt packet carries its prompt-context quarantine instead of treating the accepted proof as reusable style context.")
     report.append("")
 
 
@@ -394,7 +409,7 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
         "Unit Art Cutout Orange-Fringe Audit",
         "Objective Background-Contamination Gate",
         "does not compare to Vellum, Paisley, the token, or any other reference image",
-        "Accepted/reference rows flagged: `0`",
+        "Protected ledger rows flagged: `0`",
         "Current candidates that fail can stay in the ledger as review candidates",
     ]
     missing = [snippet for snippet in required if snippet not in text]
@@ -407,14 +422,14 @@ def assert_cutout_orange_fringe_audit(audit_path: Path, report: list[str]) -> No
     if not review_sheet.exists():
         raise RuntimeError(f"{rel(audit_path.parent)} missing cutout orange-fringe review sheet")
     rows = list(csv.DictReader(csv_path.open(encoding="utf-8")))
-    accepted_failures = [
+    protected_failures = [
         row
         for row in rows
         if row.get("quality_status") == "fail" and row.get("proof_status") in {"accepted", "reference"}
     ]
-    if accepted_failures:
-        ids = ", ".join(row.get("id", "<unknown>") for row in accepted_failures)
-        raise RuntimeError(f"accepted/reference cutouts failed orange-fringe audit: {ids}")
+    if protected_failures:
+        ids = ", ".join(row.get("id", "<unknown>") for row in protected_failures)
+        raise RuntimeError(f"protected ledger cutouts failed orange-fringe audit: {ids}")
     report.append("## Cutout Orange-Fringe Audit")
     report.append("")
     report.append(f"- PASS `{rel(audit_path)}` scores cutout edge residue as objective safety-orange background contamination.")
