@@ -124,6 +124,7 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "Vellum is the ultimate character reference",
     "Passing-pool rule",
     "Visual review sheet",
+    "Style negative-control sheet",
     "Required Style Negative Controls",
     "Totem is the current required negative control",
     "Human Negative-Control Failures",
@@ -145,6 +146,7 @@ REQUIRED_CANDIDATE_TRIAGE_SNIPPETS = [
     "high_risk_re_review_before_acceptance",
     "Start visual review from the Vellum pairwise sheet",
     "candidate_style_triage_review_sheet.png",
+    "style_negative_control_review_sheet.png",
 ]
 
 REQUIRED_CUTOUT_FRINGE_AUDIT_SNIPPETS = [
@@ -428,6 +430,10 @@ REQUIRED_CANDIDATE_TRIAGE_BUILDER_SNIPPETS = [
     "edge_detail_far_below_paisley",
     "candidate_style_triage_review_sheet.png",
     "write_visual_review_sheet",
+    "style_negative_control_review_sheet.png",
+    "write_negative_control_sheet",
+    "Required Style Negative Controls: Vellum First",
+    "Small asset only, not unit palette",
 ]
 
 REQUIRED_CUTOUT_FRINGE_AUDIT_BUILDER_SNIPPETS = [

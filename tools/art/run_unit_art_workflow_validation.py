@@ -401,6 +401,7 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
         "Vellum is the ultimate character reference",
         "Passing-pool rule",
         "Visual review sheet",
+        "Style negative-control sheet",
         "Required Style Negative Controls",
         "Totem is the current required negative control",
         "Human Negative-Control Failures",
@@ -420,6 +421,19 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     review_sheet = triage_path.with_name("candidate_style_triage_review_sheet.png")
     if not review_sheet.exists():
         raise RuntimeError(f"{rel(triage_path.parent)} missing candidate style triage review sheet")
+    negative_control_sheet = triage_path.with_name("style_negative_control_review_sheet.png")
+    if not negative_control_sheet.exists():
+        raise RuntimeError(f"{rel(triage_path.parent)} missing style negative-control review sheet")
+    for sheet_path, label in (
+        (review_sheet, "candidate style triage review sheet"),
+        (negative_control_sheet, "style negative-control review sheet"),
+    ):
+        image = Image.open(sheet_path).convert("RGB")
+        if image.size[0] < 300 or image.size[1] < 200:
+            raise RuntimeError(f"{label} is too small to be useful: {image.size[0]}x{image.size[1]}")
+        extrema = image.getextrema()
+        if max(high - low for low, high in extrema) < 16:
+            raise RuntimeError(f"{label} appears blank or near-flat: {rel(sheet_path)}")
     csv_path = triage_path.with_name("unit_art_candidate_style_triage.csv")
     if not csv_path.exists():
         raise RuntimeError(f"{rel(triage_path.parent)} missing candidate style triage CSV")
@@ -492,6 +506,7 @@ def assert_candidate_triage(triage_path: Path, report: list[str]) -> None:
     report.append("- PASS Token remains small-asset context only and cannot become a character palette reference.")
     report.append("- PASS Grint and any accepted risky narrow proofs are quarantined from prompt context until Vellum-first review clears them.")
     report.append(f"- PASS `{rel(review_sheet)}` exists for focused visual review.")
+    report.append(f"- PASS `{rel(negative_control_sheet)}` exists for Vellum/Paisley/token/Totem negative-control review.")
     report.append("")
 
 

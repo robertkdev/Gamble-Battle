@@ -302,6 +302,11 @@ def assert_style_sentinels(metrics_csv: Path, output_dir: Path, report: list[str
     run_command(command, report, expect_success=True)
     triage_sheet = triage_dir / "candidate_style_triage_review_sheet.png"
     triage_width, triage_height = assert_nonblank_image(triage_sheet, "candidate style triage review sheet")
+    negative_control_sheet = triage_dir / "style_negative_control_review_sheet.png"
+    negative_control_width, negative_control_height = assert_nonblank_image(
+        negative_control_sheet,
+        "style negative-control review sheet",
+    )
     rows = read_csv(triage_dir / "unit_art_candidate_style_triage.csv")
     by_proof = {row.get("proof_id", ""): row for row in rows}
     totem = by_proof.get("totem_dry_wood_guardian_refit")
@@ -324,6 +329,7 @@ def assert_style_sentinels(metrics_csv: Path, output_dir: Path, report: list[str
     report.append("- PASS Token remains small-asset-only context.")
     report.append(f"- PASS hot-highlight matte-review rows present: `{len(hot_highlight_rows)}`.")
     report.append(f"- PASS candidate triage review sheet exists and is nonblank: `{triage_width}x{triage_height}`.")
+    report.append(f"- PASS style negative-control review sheet exists and is nonblank: `{negative_control_width}x{negative_control_height}`.")
     report.append("")
 
 

@@ -338,12 +338,118 @@ def write_visual_review_sheet(path: Path, rows: list[dict[str, str]]) -> None:
     sheet.save(path)
 
 
+def draw_reference_tile(
+    sheet: Image.Image,
+    draw: ImageDraw.ImageDraw,
+    row: dict[str, str],
+    x: int,
+    y: int,
+    title: str,
+    subtitle: str,
+    font: ImageFont.ImageFont,
+    small: ImageFont.ImageFont,
+    title_color: tuple[int, int, int],
+) -> None:
+    tile = fit_image(row["raw"], (210, 210), (248, 68, 1))
+    sheet.paste(tile, (x, y))
+    draw.text((x, y + 216), title, font=font, fill=title_color)
+    for line_index, line in enumerate(wrap_text(subtitle, 29)[:3]):
+        draw.text((x, y + 242 + line_index * 18), line, font=small, fill=(205, 205, 210))
+
+
+def write_negative_control_sheet(path: Path, rows: list[dict[str, str]]) -> None:
+    vellum = next(row for row in rows if row["reference_role"] == "primary_anchor")
+    paisley = next(row for row in rows if row["reference_role"] == "secondary_contrast_anchor")
+    token = next(row for row in rows if row["reference_role"] == "small_asset_material_reference")
+    negative_controls = [row for row in rows if row["expected_negative_control"] == "yes"]
+    if not negative_controls:
+        raise RuntimeError("cannot write negative-control sheet without required negative controls")
+    font = load_font(16)
+    small = load_font(13)
+    header = load_font(24)
+    width = 1280
+    row_h = 350
+    header_h = 100
+    height = header_h + len(negative_controls) * row_h
+    sheet = Image.new("RGB", (width, height), (18, 18, 20))
+    draw = ImageDraw.Draw(sheet)
+    draw.text((16, 12), "Required Style Negative Controls: Vellum First", font=header, fill=(255, 222, 120))
+    draw.text(
+        (16, 48),
+        "These rows must fail. Vellum stays primary; Paisley is secondary contrast; token is small-asset material only.",
+        font=small,
+        fill=(230, 205, 135),
+    )
+    for index, row in enumerate(negative_controls):
+        y = header_h + index * row_h
+        draw_reference_tile(
+            sheet,
+            draw,
+            vellum,
+            16,
+            y + 10,
+            "REF Vellum raw",
+            "Ultimate unit style anchor",
+            font,
+            small,
+            (255, 222, 120),
+        )
+        draw_reference_tile(
+            sheet,
+            draw,
+            paisley,
+            250,
+            y + 10,
+            "REF Paisley",
+            "Secondary contrast only",
+            font,
+            small,
+            (210, 220, 255),
+        )
+        draw_reference_tile(
+            sheet,
+            draw,
+            token,
+            484,
+            y + 10,
+            "REF Token",
+            "Small asset only, not unit palette",
+            font,
+            small,
+            (210, 220, 255),
+        )
+        draw_reference_tile(
+            sheet,
+            draw,
+            row,
+            718,
+            y + 10,
+            f"{row['label']} MUST FAIL",
+            row["review_stance"],
+            font,
+            small,
+            (255, 170, 130),
+        )
+        text_x = 952
+        draw.text((text_x, y + 12), row["label"], font=font, fill=(255, 170, 130))
+        draw.text((text_x, y + 40), f"Proof: {row['proof_id']}", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 62), f"Prompt context: {row['prompt_context_status']}", font=small, fill=(220, 220, 225))
+        draw.text((text_x, y + 84), f"Edge vs Vellum: {row['edge_delta_vellum']}", font=small, fill=(180, 180, 185))
+        draw.text((text_x, y + 106), f"Contrast vs Vellum: {row['contrast_delta_vellum']}", font=small, fill=(180, 180, 185))
+        draw.text((text_x, y + 128), f"Hot highlight: {row['hot_highlight_ratio']}%", font=small, fill=(180, 180, 185))
+        for line_index, line in enumerate(wrap_text(f"Fail reason: {row['flags']}", 46)[:8]):
+            draw.text((text_x, y + 160 + line_index * 19), line, font=small, fill=(205, 205, 210))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    sheet.save(path)
+
+
 def write_markdown(
     path: Path,
     rows: list[dict[str, str]],
     metrics_path: Path,
     report_date: str,
     review_sheet_path: Path,
+    negative_control_sheet_path: Path,
 ) -> None:
     non_reference = [row for row in rows if not row["label"].startswith("REF ")]
     failed_controls = [row for row in non_reference if row["review_stance"] == "style_audit_failed_negative_control"]
@@ -359,6 +465,7 @@ def write_markdown(
         f"- Generated: {report_date}",
         f"- Metrics source: `{rel(metrics_path)}`",
         f"- Visual review sheet: `{rel(review_sheet_path)}`",
+        f"- Style negative-control sheet: `{rel(negative_control_sheet_path)}`",
         "- Primary rule: Vellum is the ultimate character reference. Metrics are proxies only; visual side-by-side review decides.",
         "- Passing-pool rule: accepted/current proofs remain narrow evidence by `reference_role` unless the user explicitly promotes one.",
         "",
@@ -511,16 +618,19 @@ def main() -> int:
     csv_path = output_dir / "unit_art_candidate_style_triage.csv"
     md_path = output_dir / "unit_art_candidate_style_triage.md"
     review_sheet_path = output_dir / "candidate_style_triage_review_sheet.png"
+    negative_control_sheet_path = output_dir / "style_negative_control_review_sheet.png"
     write_csv(csv_path, rows)
     write_visual_review_sheet(review_sheet_path, rows)
-    write_markdown(md_path, rows, metrics_path, args.report_date, review_sheet_path)
+    write_negative_control_sheet(negative_control_sheet_path, rows)
+    write_markdown(md_path, rows, metrics_path, args.report_date, review_sheet_path, negative_control_sheet_path)
     if args.docs_output:
         docs_path = args.docs_output if args.docs_output.is_absolute() else ROOT / args.docs_output
-        write_markdown(docs_path, rows, metrics_path, args.report_date, review_sheet_path)
+        write_markdown(docs_path, rows, metrics_path, args.report_date, review_sheet_path, negative_control_sheet_path)
         print(rel(docs_path))
     print(rel(md_path))
     print(rel(csv_path))
     print(rel(review_sheet_path))
+    print(rel(negative_control_sheet_path))
     return 0
 
 
