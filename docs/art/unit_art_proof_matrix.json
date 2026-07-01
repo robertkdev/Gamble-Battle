@@ -16,7 +16,7 @@
       "polished bevels, chrome, bright specular highlights, shiny plate, or cinematic bloom",
       "textured/smoky/scenic background instead of flat safety-orange #f84401"
     ],
-    "cutout_default": "BiRefNet with --foreground-ml --despill-orange --edge-orange-clean, orange-fringe audit, and board preview on checker, black, and white",
+    "cutout_default": "BiRefNet with --foreground-ml --despill-orange --edge-orange-clean, raw-backed strict audit against exact #f84401 plus border-connected raw orange background-field pixels, and review on checker, black, white, and board scale",
     "reference_policy": {
       "primary_anchor": {
         "id": "vellum_raw_anchor",

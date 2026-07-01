@@ -201,6 +201,7 @@ The runner does not launch Godot because this repo requires Godot execution thro
 ## Background Removal Decision Tree
 
 Use this with `docs/art/unit_art_pipeline_2026-06-28.md`.
+For the current accepted-for-now cutout runbook and zoom-review evidence, see `docs/art/unit_art_rawfield_cutout_workflow_2026-07-01.md`.
 
 Default for premium orange-backed unit art:
 
