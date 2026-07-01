@@ -88,6 +88,21 @@ def is_style_negative_control(proof_id: str, proof: dict[str, Any]) -> bool:
     return proof_id in REQUIRED_STYLE_NEGATIVE_CONTROLS or bool(proof.get("style_negative_control", False))
 
 
+def validate_required_negative_control_policy(proof_data: dict[str, Any]) -> None:
+    by_kind = proof_lookup(proof_data)
+    for proof_id in sorted(REQUIRED_STYLE_NEGATIVE_CONTROLS):
+        proof = by_kind.get(proof_id)
+        if proof is None:
+            raise RuntimeError(f"required style negative control missing from proof matrix: {proof_id}")
+        if proof.get("style_negative_control") is not True:
+            raise RuntimeError(f"required style negative control must be explicit style_negative_control=true: {proof_id}")
+        override = style_audit_override(proof)
+        if override.get("verdict", "").strip().lower() != "fail":
+            raise RuntimeError(f"required style negative control must declare style_audit_override verdict=fail: {proof_id}")
+        if not override.get("reason", "").strip():
+            raise RuntimeError(f"required style negative control must include style_audit_override reason: {proof_id}")
+
+
 def build_rows(metrics_rows: list[dict[str, str]], proof_data: dict[str, Any]) -> list[dict[str, str]]:
     by_kind = proof_lookup(proof_data)
     by_label = {row["label"]: row for row in metrics_rows}
@@ -602,6 +617,7 @@ def write_markdown(
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--metrics-csv", type=Path, default=DEFAULT_METRICS)
+    parser.add_argument("--proof-matrix", type=Path, default=PROOF_MATRIX_PATH)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
     parser.add_argument("--docs-output", type=Path)
     parser.add_argument("--report-date", default=date.today().isoformat())
@@ -609,9 +625,12 @@ def main() -> int:
     args = parser.parse_args()
 
     metrics_path = args.metrics_csv if args.metrics_csv.is_absolute() else ROOT / args.metrics_csv
+    proof_matrix_path = args.proof_matrix if args.proof_matrix.is_absolute() else ROOT / args.proof_matrix
     output_dir = args.output_dir if args.output_dir.is_absolute() else ROOT / args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
-    proof_data = load_json(PROOF_MATRIX_PATH)
+    proof_data = load_json(proof_matrix_path)
+    if args.enforce_negative_controls:
+        validate_required_negative_control_policy(proof_data)
     rows = build_rows(load_metrics(metrics_path), proof_data)
     if args.enforce_negative_controls:
         enforce_negative_controls(rows)

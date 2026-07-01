@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 from PIL import Image, ImageDraw
 
@@ -15,6 +16,7 @@ from clean_unit_cutout_orange_edge import assert_edge_clean_delta_contract, edge
 
 
 ROOT = Path(__file__).resolve().parents[2]
+PROOF_MATRIX_PATH = ROOT / "docs" / "art" / "unit_art_proof_matrix.json"
 DEFAULT_OUT = ROOT / "outputs" / "art_pipeline" / "style_validation" / f"quick_art_audit_gates_{date.today().strftime('%Y_%m_%d')}"
 STYLE_METRIC_FIELDS = {"p95_luma", "p99_luma", "bright_pixel_ratio", "hot_highlight_ratio"}
 REFERENCE_ROLE_EXPECTATIONS = {
@@ -153,6 +155,11 @@ def read_csv(path: Path) -> list[dict[str, str]]:
 
 def read_json(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
@@ -782,6 +789,131 @@ def assert_tampered_metrics_negative_controls(metrics_csv: Path, output_dir: Pat
     report.append("")
 
 
+def proof_matrix_copy_with_totem_mutation(mutator: Callable[[dict[str, Any], dict[str, Any]], None]) -> dict[str, Any]:
+    proof_data = json.loads(json.dumps(read_json(PROOF_MATRIX_PATH)))
+    proofs = proof_data.get("proofs")
+    if not isinstance(proofs, list):
+        raise RuntimeError("proof matrix missing proofs array")
+    totem = next(
+        (
+            proof
+            for proof in proofs
+            if isinstance(proof, dict) and proof.get("id") == "totem_dry_wood_guardian_refit"
+        ),
+        None,
+    )
+    if totem is None:
+        raise RuntimeError("live proof matrix missing Totem negative-control proof")
+    mutator(proof_data, totem)
+    return proof_data
+
+
+def expect_tampered_proof_matrix_failure(
+    label: str,
+    proof_data: dict[str, Any],
+    expected_message: str,
+    metrics_csv: Path,
+    control_dir: Path,
+    report: list[str],
+) -> None:
+    proof_path = control_dir / f"{label}.json"
+    triage_dir = control_dir / f"{label}_triage"
+    write_json(proof_path, proof_data)
+    command = [
+        sys.executable,
+        "tools/art/build_unit_art_candidate_triage.py",
+        "--metrics-csv",
+        rel(metrics_csv),
+        "--proof-matrix",
+        rel(proof_path),
+        "--output-dir",
+        rel(triage_dir),
+        "--report-date",
+        date.today().isoformat(),
+    ]
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=False,
+    )
+    if result.returncode == 0:
+        raise RuntimeError(f"{label} proof-matrix mutation unexpectedly passed candidate triage")
+    if expected_message not in result.stdout:
+        raise RuntimeError(f"{label} proof-matrix mutation failed for the wrong reason: {result.stdout.strip()}")
+    report.append(f"- PASS {label} fails with `{expected_message}`.")
+
+
+def assert_tampered_proof_matrix_negative_controls(metrics_csv: Path, output_dir: Path, report: list[str]) -> None:
+    report.append("## Tampered Proof-Matrix Negative-Control Gate")
+    report.append("")
+    control_dir = output_dir / "tampered_proof_matrix_controls"
+
+    def remove_totem(proof_data: dict[str, Any], _totem: dict[str, Any]) -> None:
+        proofs = proof_data.get("proofs")
+        if not isinstance(proofs, list):
+            raise RuntimeError("proof matrix missing proofs array")
+        proof_data["proofs"] = [
+            proof
+            for proof in proofs
+            if not (isinstance(proof, dict) and proof.get("id") == "totem_dry_wood_guardian_refit")
+        ]
+
+    def remove_negative_control_flag(_proof_data: dict[str, Any], totem: dict[str, Any]) -> None:
+        totem["style_negative_control"] = False
+
+    def promote_totem_verdict(_proof_data: dict[str, Any], totem: dict[str, Any]) -> None:
+        override = totem.get("style_audit_override")
+        if not isinstance(override, dict):
+            override = {}
+            totem["style_audit_override"] = override
+        override["verdict"] = "pass"
+
+    def remove_totem_reason(_proof_data: dict[str, Any], totem: dict[str, Any]) -> None:
+        override = totem.get("style_audit_override")
+        if not isinstance(override, dict):
+            override = {}
+            totem["style_audit_override"] = override
+        override["reason"] = ""
+
+    expect_tampered_proof_matrix_failure(
+        "missing_totem_proof",
+        proof_matrix_copy_with_totem_mutation(remove_totem),
+        "required style negative control missing from proof matrix",
+        metrics_csv,
+        control_dir,
+        report,
+    )
+    expect_tampered_proof_matrix_failure(
+        "totem_negative_control_flag_removed",
+        proof_matrix_copy_with_totem_mutation(remove_negative_control_flag),
+        "required style negative control must be explicit style_negative_control=true",
+        metrics_csv,
+        control_dir,
+        report,
+    )
+    expect_tampered_proof_matrix_failure(
+        "totem_verdict_promoted_to_pass",
+        proof_matrix_copy_with_totem_mutation(promote_totem_verdict),
+        "required style negative control must declare style_audit_override verdict=fail",
+        metrics_csv,
+        control_dir,
+        report,
+    )
+    expect_tampered_proof_matrix_failure(
+        "totem_override_reason_removed",
+        proof_matrix_copy_with_totem_mutation(remove_totem_reason),
+        "required style negative control must include style_audit_override reason",
+        metrics_csv,
+        control_dir,
+        report,
+    )
+    report.append("- PASS tampered proof-matrix controls prove Totem source-policy corruption fails before style report generation.")
+    report.append("")
+
+
 def assert_vellum_first_visual_evidence(metrics_csv: Path, report: list[str]) -> None:
     report.append("## Vellum-First Visual Evidence Gate")
     report.append("")
@@ -828,6 +960,7 @@ def main() -> int:
             raise RuntimeError(f"metrics CSV missing hot-highlight/luma fields: {rel(metrics_csv)}")
         assert_metrics_reference_hierarchy(metrics_csv, report)
         assert_tampered_metrics_negative_controls(metrics_csv, output_dir, report)
+        assert_tampered_proof_matrix_negative_controls(metrics_csv, output_dir, report)
         assert_vellum_first_visual_evidence(metrics_csv, report)
         assert_style_sentinels(metrics_csv, output_dir, report)
     else:
