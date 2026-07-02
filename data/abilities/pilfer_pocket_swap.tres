@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "pilfer_pocket_swap"
+name = "Pocket Swap"
+description = "Dashes through the farthest enemy, drops targetability briefly, cuts and disrupts them, and pockets Catalyst charge."
+base_cost = 25
+tags = ["damage", "dash", "untargetable", "catalyst", "cc"]

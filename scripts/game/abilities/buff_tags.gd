@@ -10,6 +10,7 @@ const TAG_KYTHERA := "kythera_siphon_active"
 const TAG_BONKO := "bonko_buddy_active"
 const TAG_BONKO_EMPOWER := "bonko_empower"
 const TAG_BEREBELL := "berebell_unstable_active"
+const TAG_SARI_ON_HIT := "sari_on_hit_active"
 
 # Generic ability-damage amplifier tag; data may include { ability_damage_amp: 0.40 }
 const TAG_ABILITY_AMP := "ability_amp"

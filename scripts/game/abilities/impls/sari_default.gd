@@ -1,5 +1,7 @@
 extends AbilityImplBase
 
+const BuffTags := preload("res://scripts/game/abilities/buff_tags.gd")
+
 # Sari — Strike
 # Fires a precise shot at the current target, shredding armor and ramping attack speed.
 
@@ -41,6 +43,11 @@ func cast(ctx: AbilityContext) -> bool:
     var delta_ad: float = float(caster.attack_damage) * AD_BUFF_PCT
     if delta_ad > 0.0:
         bs.apply_stats_buff(ctx.state, ctx.caster_team, ctx.caster_index, {"attack_damage": delta_ad}, AS_BUFF_DUR)
+    bs.apply_tag(ctx.state, ctx.caster_team, ctx.caster_index, BuffTags.TAG_SARI_ON_HIT, AS_BUFF_DUR, {
+        "armor_shred": ARMOR_SHRED,
+        "duration": SHRED_DURATION,
+        "magnitude_pct": 0.15
+    })
     ctx.emit_ramp_state("timed_window", 1, delta_as + delta_ad, 1, AS_BUFF_DUR, "sari_strike_attack_speed_window")
     # Armor shred on target to amplify follow-up pressure
     bs.apply_stats_buff(ctx.state, _enemy_team(ctx.caster_team), tgt_idx, {"armor": -ARMOR_SHRED}, SHRED_DURATION)

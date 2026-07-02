@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "rooket_brace_shot"
+name = "Brace Shot"
+description = "Braces with damage reduction and CC immunity, then fires a piercing bolt that shreds enemies."
+base_cost = 55
+tags = ["damage", "line", "debuff", "defense"]

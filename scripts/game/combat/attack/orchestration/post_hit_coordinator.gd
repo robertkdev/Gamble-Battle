@@ -81,6 +81,8 @@ func apply(source_team: String, source_index: int, target_team: String, target_i
 			# Keep mana block active only while there are charges remaining
 			new_meta["block_mana_gain"] = (new_hits > 0)
 			bs.apply_tag(state, source_team, source_index, BuffTags.TAG_BONKO_EMPOWER, 9999.0, new_meta)
+	if bool(is_basic_attack) and dealt > 0 and bs != null and bs.has_tag(state, source_team, source_index, BuffTags.TAG_SARI_ON_HIT):
+		_apply_sari_on_hit(bs, source_team, source_index, target_team, target_index, dealt)
 
 	# Unit stat emits (HP/Mana for shooter; HP for target)
 	var tgt: Unit = TeamUtils.unit_at(state, target_team, target_index)
@@ -108,3 +110,24 @@ func apply(source_team: String, source_index: int, target_team: String, target_i
 	# Frame outcome flags
 	var flags: Dictionary = frame_calc.update_after_hit(state, cd_service, source_team)
 	return flags
+
+func _apply_sari_on_hit(buff_system: BuffSystem, source_team: String, source_index: int, target_team: String, target_index: int, dealt: int) -> void:
+	var target: Unit = TeamUtils.unit_at(state, target_team, target_index)
+	if target == null or not target.is_alive():
+		return
+	var meta: Dictionary = buff_system.get_tag_data(state, source_team, source_index, BuffTags.TAG_SARI_ON_HIT)
+	if meta.is_empty():
+		return
+	var armor_shred: float = max(0.0, float(meta.get("armor_shred", 0.0)))
+	var duration: float = max(0.1, float(meta.get("duration", 3.0)))
+	var magnitude_pct: float = max(0.0, float(meta.get("magnitude_pct", 0.0)))
+	var magnitude: float = max(1.0, float(dealt) * magnitude_pct)
+	var fields: Dictionary = {}
+	if armor_shred > 0.0:
+		fields["armor"] = -armor_shred
+	buff_system.push_source(source_team, source_index, "on_hit")
+	if fields.is_empty():
+		buff_system.record_debuff(state, target_team, target_index, "sari_on_hit", {"magnitude": magnitude}, magnitude, duration)
+	else:
+		buff_system.apply_stats_labeled(state, target_team, target_index, "sari_on_hit_shred", fields, duration)
+	buff_system.pop_source()

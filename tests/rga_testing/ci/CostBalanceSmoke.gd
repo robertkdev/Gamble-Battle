@@ -16,24 +16,30 @@ const COST_1_UNITS: Array[String] = [
 	"brute",
 	"cashmere",
 	"grint",
+	"knoll",
 	"korath",
 	"morrak",
 	"mortem",
+	"pilfer",
 	"repo",
 	"sari",
 ]
 const COST_2_UNITS: Array[String] = [
+	"cinder",
 	"kythera",
 	"luna",
+	"miri",
 	"nyxa",
 	"paisley",
+	"rooket",
 	"teller",
 	"totem",
 	"veyra",
+	"velour",
 	"volt",
 	"vykos",
 ]
-const COST_3_UNITS: Array[String] = ["hexeon"]
+const COST_3_UNITS: Array[String] = ["creep", "hexeon"]
 
 const ROLL_SHOPS_PER_LEVEL: int = 600
 const EPSILON: float = 0.0001

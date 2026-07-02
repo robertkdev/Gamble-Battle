@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "knoll_receipt_mark"
+name = "Receipt Mark"
+description = "Marks one enemy with a stun, armor and magic-resist shred, and a ledger strike."
+base_cost = 50
+tags = ["damage", "control", "debuff"]

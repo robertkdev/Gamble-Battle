@@ -1,16 +1,16 @@
 [gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
 
 [ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
-[ext_resource path="res://data/identity/unit_identities/sari_identity.tres" type="Resource" id=2]
+[ext_resource path="res://data/identity/unit_identities/pilfer_identity.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource( 1 )
-id = "sari"
-name = "Sari"
-sprite_path = "res://assets/units/sari (3).png"
-ability_id = "sari_default"
-traits = ["Exile", "Scholar"]
-roles = ["marksman"]
+id = "pilfer"
+name = "Pilfer"
+sprite_path = "res://assets/units/pilfer.png"
+ability_id = "pilfer_pocket_swap"
+traits = ["Catalyst", "Cartel"]
+roles = ["assassin"]
 cost = 1
 level = 1
 primary_role = ""

@@ -159,6 +159,8 @@ func _handle_event(evt: Dictionary) -> void:
 			_handle_kythera_siphon_end(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"creep_eaves_tick":
 			_handle_creep_eaves_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
+		"cinder_fuse_tick":
+			_handle_cinder_fuse_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"bo_wos_dash_tick":
 			_handle_bo_wos_dash_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"bo_wos_land":
@@ -230,6 +232,37 @@ func _handle_creep_eaves_tick(team: String, index: int, data: Dictionary) -> voi
 	if ticks_left > 0:
 		data["ticks_left"] = ticks_left
 		schedule_event("creep_eaves_tick", team, index, max(0.0, interval), data)
+
+func _handle_cinder_fuse_tick(team: String, index: int, data: Dictionary) -> void:
+	if state == null or engine == null:
+		return
+	var caster: Unit = _unit_at(team, index)
+	if caster == null or not caster.is_alive():
+		return
+	var ticks_left: int = int(data.get("ticks_left", 0))
+	if ticks_left <= 0:
+		return
+	var interval: float = max(0.05, float(data.get("interval", 0.5)))
+	var damage: int = int(max(1, int(data.get("damage", 1))))
+	var radius: float = max(0.1, float(data.get("radius", 1.0)))
+	var center: Vector2 = data.get("center", Vector2.ZERO)
+	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
+	ctx.buff_system = buff_system
+	var target_team: String = "enemy" if team == "player" else "player"
+	var victims: Array[int] = ctx.enemies_in_radius_at(team, center, radius)
+	for victim_index: int in victims:
+		var result: Dictionary = AbilityEffects.damage_single(engine, state, team, index, victim_index, damage, "magic")
+		if bool(result.get("processed", false)):
+			var dealt_amount: int = int(max(0, int(result.get("dealt", damage))))
+			if engine.has_method("_resolver_emit_dot_tick_applied"):
+				engine._resolver_emit_dot_tick_applied(team, index, target_team, victim_index, dealt_amount, "cinder_burn")
+			ctx.emit_zone_exposure(target_team, victim_index, "cinder_burn_zone", interval, float(dealt_amount), radius)
+			if buff_system != null:
+				buff_system.record_debuff(state, target_team, victim_index, "cinder_burn", {"burn": dealt_amount}, float(dealt_amount), interval)
+	ticks_left -= 1
+	if ticks_left > 0:
+		data["ticks_left"] = ticks_left
+		schedule_event("cinder_fuse_tick", team, index, interval, data)
 
 func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 	if state == null or engine == null:

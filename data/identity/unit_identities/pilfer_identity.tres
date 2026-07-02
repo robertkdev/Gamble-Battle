@@ -5,6 +5,6 @@
 [resource]
 script = ExtResource( 1 )
 primary_role = "assassin"
-primary_goal = "assassin.backline_elimination"
-approaches = ["access_backline", "aoe", "damage_reduction"]
+primary_goal = "assassin.disrupt_and_escape"
+approaches = ["access_backline", "untargetable", "reposition"]
 alt_goals = []

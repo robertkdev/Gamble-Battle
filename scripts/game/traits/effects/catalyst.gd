@@ -10,11 +10,11 @@ const TRAIT_ID := "Catalyst"
 # Tier is 0-based: thresholds[0] -> tier 0 -> 1 combine, etc.
 const COMBINES_PER_TIER := [1, 2, 3]
 
-func on_battle_end(ctx):
+func on_battle_end(ctx: TraitContext) -> void:
     if ctx == null or ctx.state == null:
         return
     # Resolve Items autoload safely
-    var items = _items_singleton(ctx)
+    var items: Node = _items_singleton(ctx)
     if items == null:
         return
     var members: Array[int] = StackUtils.members(ctx, "player", TRAIT_ID)
@@ -34,15 +34,20 @@ func on_battle_end(ctx):
     if total_combined > 0 and ctx.engine != null and ctx.engine.has_method("_resolver_emit_log"):
         ctx.engine._resolver_emit_log("[Catalyst] evolved %d item(s) across carriers" % total_combined)
 
-func _items_singleton(_ctx) -> Node:
+func _items_singleton(_ctx: TraitContext) -> Node:
     if Engine.has_singleton("Items"):
         return Items
-    var root: Node = (_ctx.engine.get_tree().root if _ctx and _ctx.engine else null)
-    if root:
+    if _ctx == null or _ctx.engine == null or not _ctx.engine.has_method("get_tree"):
+        return null
+    var tree: SceneTree = _ctx.engine.get_tree()
+    if tree == null:
+        return null
+    var root: Node = tree.root
+    if root != null:
         return root.get_node_or_null("/root/Items")
     return null
 
-func _try_auto_combine_for_unit(items, unit: Unit, max_combines: int) -> int:
+func _try_auto_combine_for_unit(items: Object, unit: Unit, max_combines: int) -> int:
     if items == null or unit == null or max_combines <= 0:
         return 0
     var equipped: Array = []
@@ -52,8 +57,8 @@ func _try_auto_combine_for_unit(items, unit: Unit, max_combines: int) -> int:
         return 0
     # Gather component indices by id
     var components: Array[String] = []
-    for raw in equipped:
-        var id := String(raw)
+    for raw: Variant in equipped:
+        var id: String = String(raw)
         if ItemCatalog.is_component(id):
             components.append(id)
     if components.size() < 2:
@@ -62,12 +67,12 @@ func _try_auto_combine_for_unit(items, unit: Unit, max_combines: int) -> int:
     # Greedy: attempt up to max_combines valid pairs using CombineRules
     # Work on a multiset-like list and remove on use
     while combined_count < max_combines and components.size() >= 2:
-        var pair := _find_any_valid_pair(components)
+        var pair: Array[String] = _find_any_valid_pair(components)
         if pair.size() != 2:
             break
-        var a := String(pair[0])
-        var b := String(pair[1])
-        var cid := CombineRules.completed_for(a, b)
+        var a: String = String(pair[0])
+        var b: String = String(pair[1])
+        var cid: String = CombineRules.completed_for(a, b)
         if cid == "":
             break
         # Consume the two components from the unit, then grant the completed item back to the unit
@@ -77,7 +82,7 @@ func _try_auto_combine_for_unit(items, unit: Unit, max_combines: int) -> int:
         if items.has_method("add_to_inventory"):
             items.add_to_inventory(cid, 1)
         if items.has_method("equip"):
-            var res = items.equip(unit, cid)
+            var res: Dictionary = items.equip(unit, cid)
             if not bool(res.get("ok", false)):
                 # If equipping failed (e.g., no slot), refund to inventory and stop further combines
                 if items.has_method("add_to_inventory"):
@@ -92,15 +97,15 @@ func _try_auto_combine_for_unit(items, unit: Unit, max_combines: int) -> int:
 
 func _find_any_valid_pair(components: Array[String]) -> Array[String]:
     # Scan for any pair that has a valid recipe
-    for i in range(components.size()):
-        for j in range(i, components.size()):
-            var a := String(components[i])
-            var b := String(components[j])
+    for i: int in range(components.size()):
+        for j: int in range(i, components.size()):
+            var a: String = String(components[i])
+            var b: String = String(components[j])
             if CombineRules.has_combo(a, b):
                 return [a, b]
     return []
 
 func _remove_first(arr: Array[String], value: String) -> void:
-    var idx := arr.find(String(value))
+    var idx: int = arr.find(String(value))
     if idx != -1:
         arr.remove_at(idx)

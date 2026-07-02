@@ -1,16 +1,16 @@
 [gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
 
 [ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
-[ext_resource path="res://data/identity/unit_identities/sari_identity.tres" type="Resource" id=2]
+[ext_resource path="res://data/identity/unit_identities/knoll_identity.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource( 1 )
-id = "sari"
-name = "Sari"
-sprite_path = "res://assets/units/sari (3).png"
-ability_id = "sari_default"
-traits = ["Exile", "Scholar"]
-roles = ["marksman"]
+id = "knoll"
+name = "Knoll"
+sprite_path = "res://assets/units/knoll.png"
+ability_id = "knoll_receipt_mark"
+traits = ["Trader", "Harmony"]
+roles = ["support"]
 cost = 1
 level = 1
 primary_role = ""

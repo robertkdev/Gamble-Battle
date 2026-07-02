@@ -14,8 +14,10 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "bonko": ["morrak", "grint", "mortem", "korath"],
     "cashmere": ["brute", "bonko"],
     "korath": ["bonko", "sari", "morrak", "berebell"],
+    "knoll": ["sari", "brute", "grint", "bonko", "morrak"],
     "morrak": ["berebell", "sari", "bonko"],
     "mortem": ["morrak", "bonko", "sari", "berebell"],
+    "pilfer": ["brute", "bonko", "grint", "morrak", "sari"],
     "repo": ["berebell", "bonko", "sari"],
     "sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
@@ -25,8 +27,10 @@ const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
     "bonko": ["axiom"],
     "cashmere": ["korath", "repo", "axiom"],
     "korath": ["brute", "axiom"],
+    "knoll": ["axiom", "knoll", "pilfer"],
     "morrak": ["repo", "brute", "korath", "grint"],
     "mortem": ["brute", "axiom"],
+    "pilfer": ["axiom", "knoll", "pilfer"],
     "repo": ["axiom", "mortem", "korath", "brute", "cashmere", "grint", "repo"],
     "sari": ["axiom"],
 }

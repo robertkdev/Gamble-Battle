@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "miri_lesson_plan"
+name = "Lesson Plan"
+description = "Names a Student, grants mana, shield, damage amp, and steps the lesson group into a protected opener."
+base_cost = 30
+tags = ["support", "shield", "amp", "engage", "cc"]

@@ -1,17 +1,17 @@
 [gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
 
 [ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
-[ext_resource path="res://data/identity/unit_identities/sari_identity.tres" type="Resource" id=2]
+[ext_resource path="res://data/identity/unit_identities/miri_identity.tres" type="Resource" id=2]
 
 [resource]
 script = ExtResource( 1 )
-id = "sari"
-name = "Sari"
-sprite_path = "res://assets/units/sari (3).png"
-ability_id = "sari_default"
-traits = ["Exile", "Scholar"]
-roles = ["marksman"]
-cost = 1
+id = "miri"
+name = "Miri"
+sprite_path = "res://assets/units/miri.png"
+ability_id = "miri_lesson_plan"
+traits = ["Mentor", "Trader"]
+roles = ["support"]
+cost = 2
 level = 1
 primary_role = ""
 primary_goal = ""

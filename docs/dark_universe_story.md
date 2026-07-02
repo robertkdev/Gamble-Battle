@@ -718,9 +718,9 @@ Vykos is not compelling because he is monstrous. He is compelling because his mo
 - The old mechanics-first `docs/lore.md` should remain deleted. This new document is story-first.
 - The universe contains gods, but none of them are simple moral authorities.
 - The factions are ideological and religious responses to divine failure, not abstract design categories inside the fiction.
-- Current roster faction membership matches current trait data except Sari, who remains intentionally unclaimed because the live roster has no assigned traits for her.
-- Trader and Catalyst exist as world factions, but no current roster member is assigned to them.
-- Creep is treated as hidden/planned creature material rather than one of the 22 current roster members.
+- Current roster faction membership matches current trait data; Sari now carries Exile and Scholar while still occupying the story position of an unclaimed soul.
+- Trader and Catalyst now have first live roster representatives through Knoll, Miri, and Pilfer, but their world-faction rules remain thin and need later story passes.
+- Creep is now a playable Exile/Executioner unit, while older hidden/non-playable Creep material under `data/other_units/` remains excluded from roster-count audits.
 - The central conflict is not a contest structure. It is the moral crisis caused by gods who made mortal suffering meaningful before they learned guilt.
 - The story includes non-roster characters: Ilyra Vale, Brother Caldus, Mother Orren, Saint Morrow-of-the-Wall, the Child Under the Choir, Ivara the first accuser, and the Nameless Mercy.
 - The ending changes the metaphysical condition of the world without solving politics, grief, exploitation, hunger, or violence.
