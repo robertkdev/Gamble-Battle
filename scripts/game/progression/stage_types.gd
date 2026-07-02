@@ -7,6 +7,7 @@ const KIND_CREEPS := "CREEPS"
 const KIND_ELITE := "ELITE"
 const KIND_BOSS := "BOSS"
 const KIND_EVENT := "EVENT"
+const KIND_MIRROR := "MIRROR"
 
 const KNOWN_KINDS := [
     KIND_NORMAL,
@@ -14,6 +15,7 @@ const KNOWN_KINDS := [
     KIND_ELITE,
     KIND_BOSS,
     KIND_EVENT,
+    KIND_MIRROR,
 ]
 
 # StageSpec shape (Dictionary):
@@ -28,11 +30,11 @@ const KEY_KIND := "kind"
 const KEY_RULES := "rules"
 
 static func is_valid_kind(kind: String) -> bool:
-    var k := String(kind).strip_edges().to_upper()
+    var k: String = String(kind).strip_edges().to_upper()
     return KNOWN_KINDS.has(k)
 
 static func make_spec(ids: Array, kind: String = KIND_NORMAL, rules: Dictionary = {}) -> Dictionary:
-    var k := String(kind).strip_edges().to_upper()
+    var k: String = String(kind).strip_edges().to_upper()
     if not is_valid_kind(k):
         k = KIND_NORMAL
     var spec: Dictionary = {}
@@ -53,4 +55,3 @@ static func validate_spec(spec: Dictionary) -> bool:
     if typeof(spec[KEY_RULES]) != TYPE_DICTIONARY:
         return false
     return is_valid_kind(String(spec[KEY_KIND]))
-

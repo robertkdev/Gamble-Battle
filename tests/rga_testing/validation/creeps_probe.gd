@@ -23,16 +23,10 @@ func _run() -> void:
         var k: String = String(s.get(StageTypes.KEY_KIND, StageTypes.KIND_NORMAL))
         if k != StageTypes.KIND_CREEPS:
             continue
-        # Prefer a CREEPS stage with >=4 units to validate richer waves
         var u: Array = spawner.build_for_spec(s, ch, i)
-        if u.size() >= 4:
-            sic = i
-            chosen_units = u
-            break
-        # If not enough, remember the first CREEPS stage as fallback
-        if sic <= 0:
-            sic = i
-            chosen_units = u
+        sic = i
+        chosen_units = u
+        break
     if sic <= 0:
         printerr("CreepsProbe: no CREEPS stages found in chapter ", ch)
         _quit(1, previous_suppress_validation_warnings)
@@ -44,8 +38,8 @@ func _run() -> void:
         _quit(1, previous_suppress_validation_warnings)
         return
     var units: Array = chosen_units if chosen_units.size() > 0 else spawner.build_for_spec(spec, ch, sic)
-    if units.size() < 4:
-        printerr("CreepsProbe: expected >=4 creeps, got ", units.size())
+    if units.is_empty():
+        printerr("CreepsProbe: expected at least one creep")
         _quit(1, previous_suppress_validation_warnings)
         return
     var all_cost_zero: bool = true

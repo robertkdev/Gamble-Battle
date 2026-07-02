@@ -107,15 +107,15 @@ func _restore_actual_opening_entry() -> void:
 	_actual_opening_entry_forced = false
 
 func _assert_stage_one_runway() -> void:
-	var elite_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 4)
-	var elite_rules: Dictionary = elite_spec.get(RunLoopStageTypes.KEY_RULES, {})
-	_expect(String(elite_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_ELITE, "chapter 1 round 4 should remain an elite runway check")
-	_expect(not elite_rules.has("items"), "chapter 1 round 4 should not carry items before the first boss")
-	var pressure_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 5)
-	_expect(_max_authored_level(pressure_spec) <= 1, "chapter 1 round 5 should stay level 1 so natural first-stage teams can stabilize")
-	var boss_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 6)
-	_expect(String(boss_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_BOSS, "chapter 1 round 6 should remain the boss")
+	var first_normal_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 2)
+	_expect(String(first_normal_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_NORMAL, "chapter 1 round 2 should be a normal RGA puzzle")
+	var second_normal_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 3)
+	_expect(String(second_normal_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_NORMAL, "chapter 1 round 3 should be a normal RGA puzzle")
+	var boss_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 4)
+	_expect(String(boss_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_BOSS, "chapter 1 round 4 should be the boss")
 	_expect(_max_authored_level(boss_spec) <= 2, "chapter 1 first boss should not exceed level 2 during the runway")
+	var mirror_spec: Dictionary = RunLoopRosterCatalog.get_spec(1, 5)
+	_expect(String(mirror_spec.get(RunLoopStageTypes.KEY_KIND, "")) == RunLoopStageTypes.KIND_MIRROR, "chapter 1 round 5 should be the mirror fight")
 
 func _max_authored_level(spec: Dictionary) -> int:
 	var max_level: int = 1

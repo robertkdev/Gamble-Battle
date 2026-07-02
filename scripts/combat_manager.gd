@@ -9,7 +9,9 @@ const ProgressionService := preload("res://scripts/game/progression/progression_
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
 const LogSchema := preload("res://scripts/util/log_schema.gd")
 const StageRuleRunner := preload("res://scripts/game/progression/stage_rule_runner.gd")
+const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
+const MirrorBoardStore := preload("res://scripts/game/progression/mirror_board_store.gd")
 const EnemyScaling := preload("res://scripts/game/combat/enemy_scaling.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const RoleLibrary := preload("res://scripts/game/units/role_library.gd")
@@ -332,6 +334,9 @@ func start_stage() -> void:
 	var mapping := ProgressionService.from_global_stage(int(stage))
 	var ch: int = int(mapping.get("chapter", 1))
 	var sic: int = int(mapping.get("stage_in_chapter", 1))
+	if ch == 1 and sic == 1:
+		RosterCatalog.clear_runtime()
+		MirrorBoardStore.clear_runtime()
 	var total: int = int(ChapterCatalog.stages_in(ch))
 	emit_signal("log_line", LogSchema.format_stage(ch, sic, total))
 	# Snapshot current team before reset to avoid aliasing issues
@@ -357,6 +362,8 @@ func start_stage() -> void:
 	var spawner: EnemySpawner = load("res://scripts/game/combat/enemy_spawner.gd").new()
 	# Build spec via catalog and run rule hooks around spawn
 	var spec: Dictionary = RosterCatalog.get_spec(ch, sic)
+	if String(spec.get(StageTypes.KEY_KIND, StageTypes.KIND_NORMAL)) == StageTypes.KIND_BOSS:
+		MirrorBoardStore.capture_boss_board(ch, _state.player_team)
 	StageRuleRunner.pre_spawn(spec, ch, sic)
 	Trace.step("CM.start_stage: build enemy team from spec")
 	_state.enemy_team = spawner.build_for_spec(spec, ch, sic)

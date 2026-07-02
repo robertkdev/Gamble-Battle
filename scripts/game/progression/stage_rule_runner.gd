@@ -80,9 +80,7 @@ static func _apply_level_overrides(units: Array, spec: Dictionary) -> void:
 			var L: int = int(arr[i])
 			if L <= 0:
 				continue
-			u.level = L
-			UnitScaler.apply_cost_level_scaling(u, {})
-			u.hp = u.max_hp
+			_apply_level_to_unit(u, L)
 		return
 	if typeof(lv) == TYPE_DICTIONARY:
 		# Support mapping by index (0-based) or by unit id string
@@ -105,9 +103,41 @@ static func _apply_level_overrides(units: Array, spec: Dictionary) -> void:
 				if lv.has(sid):
 					chosen_level = int(lv[sid])
 			if chosen_level > 0:
-				u.level = chosen_level
-				UnitScaler.apply_cost_level_scaling(u, {})
-				u.hp = u.max_hp
+				_apply_level_to_unit(u, chosen_level)
+
+static func _apply_level_to_unit(unit: Unit, target_level: int) -> void:
+	if unit == null:
+		return
+	var current_level: int = max(1, int(unit.level))
+	var chosen_level: int = max(1, int(target_level))
+	if chosen_level <= current_level:
+		unit.level = chosen_level
+		unit.hp = min(unit.hp, unit.max_hp)
+		return
+	var steps: int = chosen_level - current_level
+	for _step: int in range(steps):
+		for key: String in UnitScaler.SCALE_KEYS:
+			var current_value: float = float(unit.get(key))
+			current_value *= 1.5
+			match key:
+				"max_hp":
+					unit.max_hp = max(1, int(current_value))
+				"hp_regen":
+					unit.hp_regen = max(0.0, current_value)
+				"attack_damage":
+					unit.attack_damage = max(0.0, current_value)
+				"spell_power":
+					unit.spell_power = max(0.0, current_value)
+				"lifesteal":
+					unit.lifesteal = clampf(current_value, 0.0, 0.9)
+				"armor":
+					unit.armor = max(0.0, current_value)
+				"magic_resist":
+					unit.magic_resist = max(0.0, current_value)
+				"true_damage":
+					unit.true_damage = max(0.0, current_value)
+	unit.level = chosen_level
+	unit.hp = unit.max_hp
 
 static func _apply_stat_overrides(units: Array, spec: Dictionary) -> void:
 	if typeof(spec) != TYPE_DICTIONARY or not spec.has(StageTypes.KEY_RULES):
@@ -210,7 +240,8 @@ static func _normalize_item_rules(value) -> Dictionary:
 						continue
 					by_id[key] = arr2
 			for k in dict_value.keys():
-				if k == "index" or k == "id":
+				var key_text: String = str(k)
+				if key_text == "index" or key_text == "id":
 					continue
 				var arr3: Array[String] = _sanitize_item_list(dict_value[k])
 				if arr3.is_empty():

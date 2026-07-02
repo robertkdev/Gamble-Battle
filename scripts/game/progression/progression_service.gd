@@ -2,6 +2,7 @@ extends Object
 class_name ProgressionService
 
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
+const ProgressionConfig := preload("res://scripts/game/progression/progression_config.gd")
 
 # Stateless chapter/stage mapping utilities.
 
@@ -69,8 +70,7 @@ static func advance(ch: int, sic: int, win: bool) -> Dictionary:
 		# stay on current stage
 		chapter_cleared = false
 
-	var next_per_ch: int = int(ChapterCatalog.stages_in(next_ch))
-	var is_boss_next: bool = (next_sic == next_per_ch)
+	var is_boss_next: bool = (next_sic == int(ProgressionConfig.BOSS_STAGE))
 
 	return {
 		"chapter": next_ch,

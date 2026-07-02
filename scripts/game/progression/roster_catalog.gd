@@ -4,71 +4,67 @@ class_name RosterCatalog
 const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
+const ProgressionConfig := preload("res://scripts/game/progression/progression_config.gd")
+const RgaStageChallengeDirector := preload("res://scripts/game/progression/rga_stage_challenge_director.gd")
 
-# Single source of truth for enemy compositions per (stage/chapter, round_in_stage).
-# Chapters 1-5 are authored for the initial campaign pass. Each chapter uses
-# six rounds: creep reward rounds, normal pressure rounds, one occasional
-# special/elite round, and a boss round at round 6.
-#
-# You can specify unit levels inline using dictionaries in the ids list:
-#   ids: [ { id: "bonko", level: 2 }, "creep" ]
-# This will set bonko to level 2 for that round. You can mix strings and
-# dictionaries; unspecified levels use each unit's default.
+# Single source of truth for enemy stage composition.
+# Current pattern for authored chapters:
+# 1 CREEPS, 2 NORMAL RGA puzzle, 3 NORMAL RGA puzzle, 4 BOSS, 5 MIRROR.
+# Chapters 1-10 are authored; normal rounds are selected from bounded RGA puzzle
+# pools at runtime and cached so preview and battle match.
 
 static var _entries: Dictionary = {
 	1: {
-		1: { StageTypes.KEY_IDS: [ {"id": "beegle", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {
-			"stat_overrides": { "index": { 0: { "max_hp": 120, "attack_damage": 50.0, "attack_range": 1 } } }
-		} },
-		2: { StageTypes.KEY_IDS: [ {"id": "berebell", "level": 1}, {"id": "axiom", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ "drubble", "drueling", "beegle" ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "bonko", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {} },
-		5: { StageTypes.KEY_IDS: [ {"id": "luna", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {} },
+		1: {StageTypes.KEY_IDS: [{"id": "beegle", "level": 1}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {
+			"stat_overrides": {"index": {0: {"max_hp": 120, "attack_damage": 50.0, "attack_range": 1}}},
+		}},
+		4: {StageTypes.KEY_IDS: [{"id": "morrak", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
 	},
 	2: {
-		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 1}, {"id": "beegle", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "grint", "level": 1}, {"id": "nyxa", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 1}, {"id": "beegle", "level": 1}, {"id": "faeling", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 2}, {"id": "cashmere", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["plate"], 1: ["wand"] } }
-		} },
-		5: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 1}, {"id": "sari", "level": 1}, {"id": "paisley", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "korath", "level": 4} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {
-			"items": [ ["guard"] ]
-		} },
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 1}, {"id": "drueling", "level": 1}, {"id": "beegle", "level": 1}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "korath", "level": 2}, {"id": "morrak", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["guard"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
 	},
 	3: {
-		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 2}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "vykos", "level": 1}, {"id": "volt", "level": 1}, {"id": "repo", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 3}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "mortem", "level": 1}, {"id": "berebell", "level": 1}, {"id": "veyra", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {} },
-		5: { StageTypes.KEY_IDS: [ {"id": "teller", "level": 1}, {"id": "axiom", "level": 1}, {"id": "luna", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "hexeon", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {} },
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 2}, {"id": "drueling", "level": 1}, {"id": "beegle", "level": 1}, {"id": "faeling", "level": 1}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "hexeon", "level": 2}, {"id": "totem", "level": 1}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
 	},
 	4: {
-		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 3}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 2} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 2}, {"id": "cashmere", "level": 2}, {"id": "nyxa", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 3}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "kythera", "level": 3}, {"id": "paisley", "level": 3}, {"id": "sari", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["wardheart"], 1: ["codex"], 2: ["shiv"] } }
-		} },
-		5: { StageTypes.KEY_IDS: [ {"id": "bo", "level": 3}, {"id": "korath", "level": 3}, {"id": "volt", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 4}, {"id": "repo", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["hyperstone"], 1: ["anchor"] } }
-		} },
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 2}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 1}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "morrak", "level": 3}, {"id": "repo", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["hyperstone"], 1: ["anchor"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
 	},
 	5: {
-		1: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 4}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		2: { StageTypes.KEY_IDS: [ {"id": "veyra", "level": 1}, {"id": "vykos", "level": 1}, {"id": "teller", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		3: { StageTypes.KEY_IDS: [ {"id": "drubble", "level": 4}, {"id": "drueling", "level": 4}, {"id": "beegle", "level": 4}, {"id": "faeling", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {} },
-		4: { StageTypes.KEY_IDS: [ {"id": "hexeon", "level": 1}, {"id": "totem", "level": 1} ], StageTypes.KEY_KIND: StageTypes.KIND_ELITE, StageTypes.KEY_RULES: {
-			"stat_overrides": { "id": { "hexeon": { "max_hp": 1000 }, "totem": { "max_hp": 300 } } }
-		} },
-		5: { StageTypes.KEY_IDS: [ {"id": "brute", "level": 4}, {"id": "cashmere", "level": 4}, {"id": "mortem", "level": 4}, {"id": "luna", "level": 3} ], StageTypes.KEY_KIND: StageTypes.KIND_NORMAL, StageTypes.KEY_RULES: {} },
-		6: { StageTypes.KEY_IDS: [ {"id": "morrak", "level": 5}, {"id": "korath", "level": 4}, {"id": "paisley", "level": 4} ], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {
-			"items": { "index": { 0: ["blood_engine"], 1: ["sanctum"], 2: ["mageheart"] } }
-		} },
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 3}, {"id": "drueling", "level": 2}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "morrak", "level": 4}, {"id": "korath", "level": 3}, {"id": "paisley", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["blood_engine"], 1: ["sanctum"], 2: ["mageheart"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
+	},
+	6: {
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 3}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 2}, {"id": "faeling", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "bastionne", "level": 2}, {"id": "gable", "level": 2}, {"id": "saffron", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["guard"], 1: ["shiv"], 2: ["wardheart"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
+	},
+	7: {
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 4}, {"id": "drueling", "level": 3}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 2}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "hexeon", "level": 3}, {"id": "nullora", "level": 2}, {"id": "quorra", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["blood_engine"], 1: ["shiv"], 2: ["anchor"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
+	},
+	8: {
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 4}, {"id": "drueling", "level": 4}, {"id": "beegle", "level": 3}, {"id": "faeling", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "malachor", "level": 2}, {"id": "quillith", "level": 2}, {"id": "orielle", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["sanctum"], 1: ["codex"], 2: ["mageheart"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
+	},
+	9: {
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 5}, {"id": "drueling", "level": 4}, {"id": "beegle", "level": 4}, {"id": "faeling", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "meridian", "level": 2}, {"id": "nullora", "level": 2}, {"id": "ravel", "level": 3}, {"id": "prisma", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["mageheart"], 1: ["blood_engine"], 2: ["wardheart"], 3: ["codex"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
+	},
+	10: {
+		1: {StageTypes.KEY_IDS: [{"id": "drubble", "level": 5}, {"id": "drueling", "level": 5}, {"id": "beegle", "level": 4}, {"id": "faeling", "level": 4}], StageTypes.KEY_KIND: StageTypes.KIND_CREEPS, StageTypes.KEY_RULES: {}},
+		4: {StageTypes.KEY_IDS: [{"id": "malachor", "level": 3}, {"id": "meridian", "level": 3}, {"id": "nullora", "level": 3}, {"id": "quillith", "level": 3}], StageTypes.KEY_KIND: StageTypes.KIND_BOSS, StageTypes.KEY_RULES: {"items": {0: ["sanctum"], 1: ["mageheart"], 2: ["blood_engine"], 3: ["codex"]}}},
+		5: {StageTypes.KEY_IDS: [], StageTypes.KEY_KIND: StageTypes.KIND_MIRROR, StageTypes.KEY_RULES: {}},
 	},
 }
 
@@ -79,60 +75,64 @@ const DEFAULT_CREEP_REWARDS: Dictionary = {
 	"source_team": "player",
 }
 
+static func clear_runtime() -> void:
+	RgaStageChallengeDirector.clear_runtime(true)
+
 static func get_spec(ch: int, sic: int) -> Dictionary:
 	var c: int = max(1, int(ch))
-	var s: int = max(1, int(sic))
+	var s: int = clampi(max(1, int(sic)), 1, int(ChapterCatalog.stages_in(c)))
 	var stage_map: Dictionary = _entries.get(c, {})
 	if stage_map.has(s):
-		var raw: Dictionary = stage_map[s]
-		var raw_ids_value: Variant = raw.get(StageTypes.KEY_IDS, []) if raw.has(StageTypes.KEY_IDS) else []
-		var raw_ids: Array = raw_ids_value if raw_ids_value is Array else []
-		var ids: Array[String] = []
-		var levels_from_inline: Dictionary = {}
-		var idx: int = 0
-		# Build ids and capture inline level overrides if present
-		for v in raw_ids:
-			if typeof(v) == TYPE_DICTIONARY:
-				var vid: String = String(v.get("id", "")).strip_edges()
-				if vid != "":
-					ids.append(vid)
-					var level_val: int = int(v.get("level", 0))
-					if level_val > 0:
-						# Support both index and id keys for robustness
-						levels_from_inline[idx] = level_val
-						levels_from_inline[vid] = level_val
-						idx += 1
-					else:
-						idx += 1
-			else:
-				var sid: String = String(v).strip_edges()
-				if sid != "":
-					ids.append(sid)
-					idx += 1
+		var raw_value: Variant = stage_map[s]
+		if typeof(raw_value) == TYPE_DICTIONARY:
+			var raw: Dictionary = raw_value
+			return _spec_from_raw(raw)
+	if s == int(ProgressionConfig.FIRST_RGA_STAGE) or s == int(ProgressionConfig.SECOND_RGA_STAGE):
+		return RgaStageChallengeDirector.get_normal_spec(c, s)
 
-		ids = RosterUtils.sanitize_ids(ids)
-
-		var kind: String = String(raw.get(StageTypes.KEY_KIND, StageTypes.KIND_NORMAL))
-		var rules: Variant = raw.get(StageTypes.KEY_RULES, {})
-		var rules_dict: Dictionary = (rules.duplicate(true) if typeof(rules) == TYPE_DICTIONARY else {})
-		# Merge/attach level overrides into rules.levels
-		if not levels_from_inline.is_empty():
-			if rules_dict.has("levels") and typeof(rules_dict["levels"]) == TYPE_DICTIONARY:
-				var existing: Dictionary = rules_dict["levels"]
-				for k in levels_from_inline.keys():
-					existing[k] = levels_from_inline[k]
-				rules_dict["levels"] = existing
-			else:
-				rules_dict["levels"] = levels_from_inline
-		_attach_default_creep_rewards(rules_dict, kind)
-		return StageTypes.make_spec(ids, kind, rules_dict)
-
-	# Fallback when chapter/stage not explicitly defined
 	var def_kind: String = _default_kind_for(c, s)
 	var def_ids: Array[String] = RosterUtils.sanitize_ids(_default_ids_for(c, s, def_kind))
 	var def_rules: Dictionary = {}
 	_attach_default_creep_rewards(def_rules, def_kind)
 	return StageTypes.make_spec(def_ids, def_kind, def_rules)
+
+static func _spec_from_raw(raw: Dictionary) -> Dictionary:
+	var raw_ids_value: Variant = raw.get(StageTypes.KEY_IDS, []) if raw.has(StageTypes.KEY_IDS) else []
+	var raw_ids: Array = raw_ids_value if raw_ids_value is Array else []
+	var ids: Array[String] = []
+	var levels_from_inline: Dictionary = {}
+	var idx: int = 0
+	for value: Variant in raw_ids:
+		if typeof(value) == TYPE_DICTIONARY:
+			var entry: Dictionary = value
+			var entry_id: String = String(entry.get("id", "")).strip_edges()
+			if entry_id != "":
+				ids.append(entry_id)
+				var level_value: int = int(entry.get("level", 0))
+				if level_value > 0:
+					levels_from_inline[idx] = level_value
+					levels_from_inline[entry_id] = level_value
+				idx += 1
+		else:
+			var sid: String = String(value).strip_edges()
+			if sid != "":
+				ids.append(sid)
+				idx += 1
+
+	ids = RosterUtils.sanitize_ids(ids)
+	var kind: String = String(raw.get(StageTypes.KEY_KIND, StageTypes.KIND_NORMAL))
+	var rules: Variant = raw.get(StageTypes.KEY_RULES, {})
+	var rules_dict: Dictionary = (rules.duplicate(true) if typeof(rules) == TYPE_DICTIONARY else {})
+	if not levels_from_inline.is_empty():
+		if rules_dict.has("levels") and typeof(rules_dict["levels"]) == TYPE_DICTIONARY:
+			var existing: Dictionary = rules_dict["levels"]
+			for key: Variant in levels_from_inline.keys():
+				existing[key] = levels_from_inline[key]
+			rules_dict["levels"] = existing
+		else:
+			rules_dict["levels"] = levels_from_inline
+	_attach_default_creep_rewards(rules_dict, kind)
+	return StageTypes.make_spec(ids, kind, rules_dict)
 
 static func _attach_default_creep_rewards(rules: Dictionary, kind: String) -> void:
 	if String(kind).strip_edges().to_upper() != StageTypes.KIND_CREEPS:
@@ -141,14 +141,22 @@ static func _attach_default_creep_rewards(rules: Dictionary, kind: String) -> vo
 		return
 	rules["rewards"] = DEFAULT_CREEP_REWARDS.duplicate(true)
 
-static func _default_kind_for(ch: int, sic: int) -> String:
-	var per_ch: int = int(ChapterCatalog.stages_in(ch))
-	return (StageTypes.KIND_BOSS if int(sic) >= per_ch else StageTypes.KIND_NORMAL)
+static func _default_kind_for(_ch: int, sic: int) -> String:
+	var s: int = int(sic)
+	if s == int(ProgressionConfig.CREEP_STAGE):
+		return StageTypes.KIND_CREEPS
+	if s == int(ProgressionConfig.BOSS_STAGE):
+		return StageTypes.KIND_BOSS
+	if s == int(ProgressionConfig.MIRROR_STAGE):
+		return StageTypes.KIND_MIRROR
+	return StageTypes.KIND_NORMAL
 
-static func _default_ids_for(_ch: int, _sic: int, kind: String) -> Array:
+static func _default_ids_for(_ch: int, _sic: int, kind: String) -> Array[String]:
 	var normalized_kind: String = String(kind).strip_edges().to_upper()
 	if normalized_kind == StageTypes.KIND_BOSS:
 		return ["morrak"]
 	if normalized_kind == StageTypes.KIND_CREEPS:
 		return ["drubble"]
+	if normalized_kind == StageTypes.KIND_MIRROR:
+		return []
 	return ["bonko"]

@@ -3,6 +3,7 @@ extends Node
 const RosterCatalog = preload("res://scripts/game/progression/roster_catalog.gd")
 const StageTypes = preload("res://scripts/game/progression/stage_types.gd")
 const ChapterCatalog = preload("res://scripts/game/progression/chapter_catalog.gd")
+const ProgressionConfig = preload("res://scripts/game/progression/progression_config.gd")
 const UnitFactory = preload("res://scripts/unit_factory.gd")
 const RewardPool = preload("res://scripts/game/progression/creeps/reward_pool.gd")
 const RewardEntry = preload("res://scripts/game/progression/creeps/reward_entry.gd")
@@ -12,7 +13,7 @@ func _ready() -> void:
 
 func _run() -> void:
 	var failures: Array[String] = []
-	for chapter: int in range(1, 6):
+	for chapter: int in range(1, int(ProgressionConfig.CHAPTER_COUNT) + 1):
 		_validate_chapter(chapter, failures)
 	if failures.is_empty():
 		print("StageProgressionProbe: PASS")
@@ -24,25 +25,42 @@ func _run() -> void:
 
 func _validate_chapter(chapter: int, failures: Array[String]) -> void:
 	var total: int = int(ChapterCatalog.stages_in(chapter))
-	_expect(total == 6, "chapter %d should have 6 rounds" % chapter, failures)
+	_expect(total == 5, "chapter %d should have 5 rounds" % chapter, failures)
 	var creep_rounds: int = 0
 	var boss_rounds: int = 0
-	var special_rounds: int = 0
+	var mirror_rounds: int = 0
+	var rga_normal_rounds: int = 0
 	for round_index: int in range(1, total + 1):
 		var spec: Dictionary = RosterCatalog.get_spec(chapter, round_index)
 		_expect(StageTypes.validate_spec(spec), "invalid spec at chapter %d round %d" % [chapter, round_index], failures)
 		var kind: String = String(spec.get(StageTypes.KEY_KIND, StageTypes.KIND_NORMAL)).strip_edges().to_upper()
+		var expected_kind: String = _expected_kind_for_round(round_index)
+		_expect(kind == expected_kind, "chapter %d round %d expected %s got %s" % [chapter, round_index, expected_kind, kind], failures)
 		if kind == StageTypes.KIND_CREEPS:
 			creep_rounds += 1
 			_validate_creep_round(chapter, round_index, spec, failures)
+		elif kind == StageTypes.KIND_NORMAL:
+			rga_normal_rounds += 1
+			_validate_rga_normal_round(chapter, round_index, spec, failures)
 		elif kind == StageTypes.KIND_BOSS:
 			boss_rounds += 1
-			_expect(round_index == total, "chapter %d boss should be round %d, got round %d" % [chapter, total, round_index], failures)
-		elif kind == StageTypes.KIND_ELITE or kind == StageTypes.KIND_EVENT:
-			special_rounds += 1
-	_expect(creep_rounds >= 2, "chapter %d should have at least two creep rounds" % chapter, failures)
+			_expect(round_index == int(ProgressionConfig.BOSS_STAGE), "chapter %d boss should be round %d, got round %d" % [chapter, int(ProgressionConfig.BOSS_STAGE), round_index], failures)
+		elif kind == StageTypes.KIND_MIRROR:
+			mirror_rounds += 1
+			_validate_mirror_round(chapter, round_index, spec, failures)
+	_expect(creep_rounds == 1, "chapter %d should have exactly one creep round" % chapter, failures)
+	_expect(rga_normal_rounds == 2, "chapter %d should have exactly two RGA normal rounds" % chapter, failures)
 	_expect(boss_rounds == 1, "chapter %d should have exactly one boss round" % chapter, failures)
-	_expect(special_rounds >= 1, "chapter %d should have at least one special round" % chapter, failures)
+	_expect(mirror_rounds == 1, "chapter %d should have exactly one mirror round" % chapter, failures)
+
+func _expected_kind_for_round(round_index: int) -> String:
+	if int(round_index) == int(ProgressionConfig.CREEP_STAGE):
+		return StageTypes.KIND_CREEPS
+	if int(round_index) == int(ProgressionConfig.BOSS_STAGE):
+		return StageTypes.KIND_BOSS
+	if int(round_index) == int(ProgressionConfig.MIRROR_STAGE):
+		return StageTypes.KIND_MIRROR
+	return StageTypes.KIND_NORMAL
 
 func _validate_creep_round(chapter: int, round_index: int, spec: Dictionary, failures: Array[String]) -> void:
 	var ids: Array = spec.get(StageTypes.KEY_IDS, [])
@@ -61,6 +79,22 @@ func _validate_creep_round(chapter: int, round_index: int, spec: Dictionary, fai
 	var pool_stats: Dictionary = _pool_action_stats(pool_path)
 	_expect(bool(pool_stats.get("has_component", false)), "creep reward pool should include component drops chapter %d round %d" % [chapter, round_index], failures)
 	_expect(not bool(pool_stats.get("has_completed", false)), "creep reward pool should not include completed drops chapter %d round %d" % [chapter, round_index], failures)
+
+func _validate_rga_normal_round(chapter: int, round_index: int, spec: Dictionary, failures: Array[String]) -> void:
+	var ids: Array = spec.get(StageTypes.KEY_IDS, [])
+	_expect(not ids.is_empty(), "RGA normal round should have units at chapter %d round %d" % [chapter, round_index], failures)
+	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {})
+	_expect(rules.has("rga_challenge"), "RGA normal round missing challenge metadata chapter %d round %d" % [chapter, round_index], failures)
+	if not rules.has("rga_challenge"):
+		return
+	var challenge: Dictionary = rules.get("rga_challenge", {})
+	_expect(String(challenge.get("id", "")).strip_edges() != "", "RGA challenge id missing chapter %d round %d" % [chapter, round_index], failures)
+	_expect(String(challenge.get("puzzle", "")).strip_edges() != "", "RGA challenge puzzle text missing chapter %d round %d" % [chapter, round_index], failures)
+
+func _validate_mirror_round(chapter: int, round_index: int, spec: Dictionary, failures: Array[String]) -> void:
+	_expect(round_index == int(ProgressionConfig.MIRROR_STAGE), "mirror should be round %d, got chapter %d round %d" % [int(ProgressionConfig.MIRROR_STAGE), chapter, round_index], failures)
+	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {})
+	_expect(typeof(rules) == TYPE_DICTIONARY, "mirror rules should be dictionary chapter %d round %d" % [chapter, round_index], failures)
 
 func _pool_action_stats(pool_path: String) -> Dictionary:
 	var stats: Dictionary = {"has_component": false, "has_completed": false}

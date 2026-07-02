@@ -11,38 +11,48 @@ const ProgressionConfig := preload("res://scripts/game/progression/progression_c
 #  - chapter_rules: Dictionary? (optional)
 
 static var _chapters: Dictionary = {
-    1: {
-        "name": "Chapter 1",
-        # Intentionally omit "stages" to exercise fallback path.
-        # "default_rule_id": "",   # example: "NORMAL"
-        # "chapter_rules": {},
-    },
-    2: {
-        "name": "Chapter 2",
-        # Uses default stages per chapter and default rules
-    },
+	1: {"name": "Chapter 1"},
+	2: {"name": "Chapter 2"},
+	3: {"name": "Chapter 3"},
+	4: {"name": "Chapter 4"},
+	5: {"name": "Chapter 5"},
+	6: {"name": "Chapter 6"},
+	7: {"name": "Chapter 7"},
+	8: {"name": "Chapter 8"},
+	9: {"name": "Chapter 9"},
+	10: {"name": "Chapter 10"},
 }
 
 static func get_meta_for(ch: int) -> Dictionary:
-    var c: int = int(ch)
-    if c <= 0:
-        c = 1
-    var meta: Dictionary = _chapters.get(c, {})
-    var out: Dictionary = {}
-    out["name"] = String(meta.get("name", "Chapter %d" % c))
-    if meta.has("stages"):
-        out["stages"] = int(meta["stages"])
-    if meta.has("default_rule_id"):
-        out["default_rule_id"] = String(meta["default_rule_id"]) 
-    if meta.has("chapter_rules"):
-        var cr = meta["chapter_rules"]
-        out["chapter_rules"] = (cr.duplicate(true) if typeof(cr) == TYPE_DICTIONARY else {})
-    return out
+	var c: int = int(ch)
+	if c <= 0:
+		c = 1
+	var meta: Dictionary = _chapters.get(c, {})
+	var out: Dictionary = {}
+	out["name"] = String(meta.get("name", "Chapter %d" % c))
+	if meta.has("stages"):
+		out["stages"] = int(meta["stages"])
+	if meta.has("default_rule_id"):
+		out["default_rule_id"] = String(meta["default_rule_id"])
+	if meta.has("chapter_rules"):
+		var cr: Variant = meta["chapter_rules"]
+		if typeof(cr) == TYPE_DICTIONARY:
+			var cr_dict: Dictionary = cr
+			out["chapter_rules"] = cr_dict.duplicate(true)
+		else:
+			out["chapter_rules"] = {}
+	return out
 
 static func stages_in(ch: int) -> int:
-    var meta := get_meta_for(ch)
-    if meta.has("stages"):
-        var s: int = int(meta["stages"])
-        if s > 0:
-            return s
-    return int(ProgressionConfig.STAGES_PER_CHAPTER)
+	var meta: Dictionary = get_meta_for(ch)
+	if meta.has("stages"):
+		var s: int = int(meta["stages"])
+		if s > 0:
+			return s
+	return int(ProgressionConfig.STAGES_PER_CHAPTER)
+
+static func chapter_count() -> int:
+	return int(ProgressionConfig.CHAPTER_COUNT)
+
+static func is_authored_chapter(ch: int) -> bool:
+	return int(ch) >= 1 and int(ch) <= chapter_count()

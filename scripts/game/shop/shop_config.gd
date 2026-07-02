@@ -51,13 +51,13 @@ const EARLY_RUN_CAP_FLOOR_STAGE := 3              # By the second shop, bought b
 const EARLY_RUN_CAP_FLOOR_TEAM_SIZE := 3
 const EARLY_LEVEL_TWO_CAP_FLOOR_STAGE := 3        # By the second shop, Buy XP should create a real board-slot payoff
 const EARLY_LEVEL_TWO_CAP_FLOOR_TEAM_SIZE := 4
-const CHAPTER_TWO_CAP_FLOOR_STAGE := 8            # Chapter 2 round 2 should let roster depth break retry loops
+const CHAPTER_TWO_CAP_FLOOR_STAGE := 7            # Chapter 2 round 2 should let roster depth break retry loops
 const CHAPTER_TWO_CAP_FLOOR_TEAM_SIZE := 6
-const CHAPTER_THREE_CAP_FLOOR_STAGE := 14         # Chapter 3 should let accumulated bench depth matter before normal fights
+const CHAPTER_THREE_CAP_FLOOR_STAGE := 12         # Chapter 3 should let accumulated bench depth matter before normal fights
 const CHAPTER_THREE_CAP_FLOOR_TEAM_SIZE := 7
-const CHAPTER_FOUR_CAP_FLOOR_STAGE := 20          # Late chapters should not strand a full bench at the same board cap
+const CHAPTER_FOUR_CAP_FLOOR_STAGE := 17          # Late chapters should not strand a full bench at the same board cap
 const CHAPTER_FOUR_CAP_FLOOR_TEAM_SIZE := 8
-const CHAPTER_FIVE_CAP_FLOOR_STAGE := 26
+const CHAPTER_FIVE_CAP_FLOOR_STAGE := 22
 const CHAPTER_FIVE_CAP_FLOOR_TEAM_SIZE := 9
 
 # XP required to go from (level-1) -> level. Keys are target level.

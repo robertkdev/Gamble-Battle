@@ -37,9 +37,9 @@ const RESOLVING_STUCK_WARNING_SECONDS: int = 10
 const RESOLVING_FALLBACK_TEXT: String = "Resolving fallback..."
 const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
 const OPENING_RETRY_MIN_GOLD: int = 3
-const FIRST_ELITE_PREP_CHAPTER: int = 1
-const FIRST_ELITE_PREP_ROUND: int = 4
-const FIRST_ELITE_PREP_MIN_GOLD: int = 6
+const FIRST_BOSS_PREP_CHAPTER: int = 1
+const FIRST_BOSS_PREP_ROUND: int = 4
+const FIRST_BOSS_PREP_MIN_GOLD: int = 6
 const CHAPTER_TWO_STABILITY_CHAPTER: int = 2
 const CHAPTER_TWO_STABILITY_FIRST_ROUND: int = 2
 const CHAPTER_TWO_STABILITY_LAST_ROUND: int = 5
@@ -49,7 +49,7 @@ const CHAPTER_THREE_STABILITY_FIRST_ROUND: int = 2
 const CHAPTER_THREE_STABILITY_LAST_ROUND: int = 5
 const CHAPTER_THREE_STABILITY_MIN_GOLD: int = 4
 const BOSS_PREP_MIN_CHAPTER: int = 3
-const BOSS_PREP_ROUND: int = 6
+const BOSS_PREP_ROUND: int = 4
 const BOSS_PREP_MIN_GOLD: int = 4
 const EARLY_RETRY_RECOVERY_MAX_CHAPTER: int = 2
 const EARLY_RETRY_RECOVERY_MIN_GOLD: int = 4
@@ -1382,7 +1382,7 @@ func _on_intermission_finished() -> void:
 			if _post_combat_outcome != "":
 				var win: bool = (_post_combat_outcome == "victory")
 				Economy.resolve(win)
-				_apply_first_elite_prep_gold_floor(win)
+				_apply_first_boss_prep_gold_floor(win)
 				_apply_chapter_two_stability_gold_floor(win)
 				_apply_chapter_three_stability_gold_floor(win)
 				_apply_boss_prep_gold_floor(win)
@@ -1452,22 +1452,22 @@ func _on_intermission_finished() -> void:
 	_pending_continue = false
 	_post_combat_outcome = ""
 
-func _apply_first_elite_prep_gold_floor(win: bool) -> void:
+func _apply_first_boss_prep_gold_floor(win: bool) -> void:
 	if not win:
 		return
 	if not (Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy"))):
 		return
 	if not (Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState"))):
 		return
-	if int(GameState.chapter) != FIRST_ELITE_PREP_CHAPTER:
+	if int(GameState.chapter) != FIRST_BOSS_PREP_CHAPTER:
 		return
-	if int(GameState.stage_in_chapter) != FIRST_ELITE_PREP_ROUND:
+	if int(GameState.stage_in_chapter) != FIRST_BOSS_PREP_ROUND:
 		return
-	var missing_gold: int = max(0, FIRST_ELITE_PREP_MIN_GOLD - int(Economy.gold))
+	var missing_gold: int = max(0, FIRST_BOSS_PREP_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("First elite prep stipend: +%d gold." % missing_gold)
+	_on_log_line("First boss prep stipend: +%d gold." % missing_gold)
 
 func _apply_chapter_two_stability_gold_floor(win: bool) -> void:
 	if not win:
