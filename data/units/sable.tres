@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource path="res://data/identity/unit_identities/sable_identity.tres" type="Resource" id=2]
+
+[resource]
+script = ExtResource( 1 )
+id = "sable"
+name = "Sable"
+sprite_path = "res://assets/units/sable.png"
+ability_id = "sable_footnote_piercer"
+traits = ["Vindicator", "Scholar"]
+roles = ["marksman"]
+cost = 3
+level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )

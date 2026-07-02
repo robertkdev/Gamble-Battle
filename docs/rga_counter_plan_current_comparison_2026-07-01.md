@@ -1,30 +1,34 @@
-# RGA Counter Plan vs Current Implementation - 2026-07-01
+# RGA Counter Plan vs Current Implementation - 2026-07-02
 
-Status: updated after the first planned content batch. This document now compares the target counter-web plan against the live implementation after adding Knoll, Pilfer, Miri, Cinder, Rooket, Velour, Sari's traits/on-hit identity, and playable Creep.
+Status: updated after the first planned content batch, Sari/Creep reconciliation, and the planned cost-3 counter batch.
 
 ## Summary Verdict
 
-The counter-web plan is now partially implemented as content, but still mostly missing as a first-class RGA/counter-system.
+The counter-web plan is now substantially caught up as roster content through cost 3, but it is still not implemented as a first-class counter system.
 
 What is implemented:
 
-- The live roster now has 29 playable units.
+- The live roster now has 39 playable units.
+- Thirty-eight of the 50 target-matrix rows are live.
+- Creep is playable at cost 3 by user request, outside the 50-unit target matrix for now.
 - The planned cost-1 and cost-2 batch is live: Knoll, Pilfer, Miri, Cinder, Rooket, and Velour.
-- Sari now has Exile/Scholar traits and a live `on_hit_effect` identity hook.
-- Creep is playable at cost 3 by user request, using the existing Creep identity and ability surface.
-- The live identity vocabulary has all 6 roles, 22 primary goals, and 22 approaches.
-- The RGA harness has substantial telemetry and validation support for approaches, goals, accepted-miss triage, scenario labels, and focused 6v6 probes.
-- Several later RGA improvements already caught up with parts of the counter idea at the telemetry layer: counterplay pressure, cooldown pressure, zone exposure, redirect threat swaps, reset events, DoT ticks, execute bonus evidence, ramp state, untargetable windows, and focused scenario-pack smokes.
+- Sari now has Exile/Scholar traits and a live sustained-DPS/on-hit identity.
+- The planned cost-3 target batch is live: Caldera, Ivara, Noxley, Quorra, Juno Vale, Kett, Egress, Marble, Prisma, and Sable.
+- Cost balance validation sees `units=39` with live tier shape `1:14 2:13 3:12`.
+- The RGA focused cost-3 batch smoke passes for all ten new cost-3 target units.
+- The ability system now supports planned area tick events used by zone/DoT counter kits.
+- The RGA harness already has telemetry and validation support for role/goal/approach tags, focused scenario labels, counterplay pressure, cooldown pressure, zone exposure, redirect threat swaps, reset events, DoT ticks, execute evidence, ramp state, untargetable windows, and focused 6v6 smokes.
 
 What is not implemented:
 
-- The planned 50-unit roster is not complete; 22 target-matrix units remain absent.
-- Creep is now playable but is not yet represented as a formal row in the 50-unit counter matrix, so the target roster needs a follow-up decision.
+- Twelve target-matrix units remain absent: all eight cost-4 units and all four cost-5 units.
+- Creep is playable but is not represented as a formal target-matrix row, so the target roster still needs a decision: fold Creep in, replace a planned assassin, or keep Creep as an extra 51st-style roster oddity.
 - Cost 4 and cost 5 shop exposure is not implemented.
 - The target matrix's board archetypes, counter-boards, beats/loses-to statements, and proof intents exist only in docs.
 - There is no executable `data/counters` layer, `CounterRecipes`, `TargetingCountersMatrix`, or equivalent counter-profile schema.
 - RGA opponent selection is still mostly role/scenario driven; it does not consume the planned approach and goal counter matrix as a matchup generator.
 - No ten-unit board-archetype tests exist for Bastion Siege, Dive Reset, Zone Control, Attrition Engine, Wombo Engage, Control Prison, Wide Trait Engine, or Anti-Meta Flex.
+- Some probes still pass through alternate evidence paths while individual diagnostic lines show `FAIL` or `DIAG`, especially around anti-DoT uptime, redirect/zone share lines, and frontline-pressure submetrics. Those are useful telemetry gaps, not current cost-3 blockers.
 
 ## Source Plan
 
@@ -35,7 +39,7 @@ The plan being compared is:
 
 The target plan called for:
 
-- 50 total playable units.
+- 50 total target-matrix playable units.
 - Cost shape: 14 cost-1, 13 cost-2, 11 cost-3, 8 cost-4, 4 cost-5.
 - Role shape: 9 tank, 8 brawler, 6 assassin, 9 marksman, 9 mage, 9 support.
 - All 22 primary goals used, with no goal above 3 copies.
@@ -45,125 +49,138 @@ The target plan called for:
 
 ## Live Roster Snapshot
 
-Current playable units: 29.
+Current playable units: 39.
 
-Current cost shape:
+Target-matrix progress: 38 of 50 rows live, plus playable Creep outside the target matrix.
 
-| Cost | Current | Target | Delta |
+Current live cost shape:
+
+| Cost | Current playable | Target matrix | Read |
+| --- | ---: | ---: | --- |
+| 1 | 14 | 14 | At target. |
+| 2 | 13 | 13 | At target. |
+| 3 | 12 | 11 | One over target because playable Creep is outside the target matrix. |
+| 4 | 0 | 8 | Missing. |
+| 5 | 0 | 4 | Missing. |
+| Total | 39 | 50 | Thirty-eight target rows live plus Creep. |
+
+Current live role shape:
+
+| Role | Current playable | Target matrix | Remaining target gap |
 | --- | ---: | ---: | ---: |
-| 1 | 14 | 14 | 0 |
-| 2 | 13 | 13 | 0 |
-| 3 | 2 | 11 | +9 |
-| 4 | 0 | 8 | +8 |
-| 5 | 0 | 4 | +4 |
+| Tank | 7 | 9 | +2 |
+| Brawler | 7 | 8 | +1 |
+| Assassin | 5 | 6 | +1 if Creep is counted, +2 against target rows only |
+| Marksman | 7 | 9 | +2 |
+| Mage | 7 | 9 | +2 |
+| Support | 6 | 9 | +3 |
+| Total | 39 | 50 | +11 live-count gap, +12 target-row gap because Creep is extra |
 
-Current role shape:
-
-| Role | Current | Target | Delta |
-| --- | ---: | ---: | ---: |
-| Tank | 6 | 9 | +3 |
-| Brawler | 6 | 8 | +2 |
-| Assassin | 3 | 6 | +3 |
-| Marksman | 4 | 9 | +5 |
-| Mage | 5 | 9 | +4 |
-| Support | 5 | 9 | +4 |
-
-The first batch fixed the cost-1 and cost-2 count gaps, and it reduced the assassin, mage, marksman, and support role deficits. The live roster is still missing most mid-game and late-game counter-web pieces, especially cost 3-5 content.
+The first batch closed the cost-1 and cost-2 gaps. The cost-3 batch closed the planned cost-3 target rows. The remaining target roster work is now the late-game layer: cost 4 and cost 5, plus the Creep target-matrix decision.
 
 ## Goal Coverage Gap
 
 Current live goal counts compared to the target matrix:
 
-| Goal | Current | Target | Delta |
+| Goal | Current playable | Target | Delta |
 | --- | ---: | ---: | ---: |
 | `tank.frontline_absorb` | 3 | 3 | 0 |
 | `tank.team_fortification` | 2 | 2 | 0 |
-| `tank.initiate_fight` | 1 | 2 | +1 |
+| `tank.initiate_fight` | 2 | 2 | 0 |
 | `tank.single_target_lockdown` | 0 | 2 | +2 |
 | `brawler.attrition_dps` | 5 | 3 | -2 |
-| `brawler.frontline_disruption` | 0 | 3 | +3 |
+| `brawler.frontline_disruption` | 1 | 3 | +2 |
 | `brawler.skirmish_dive` | 1 | 2 | +1 |
 | `assassin.backline_elimination` | 2 | 2 | 0 |
-| `assassin.cleanup_execution` | 0 | 2 | +2 |
-| `assassin.disrupt_and_escape` | 1 | 2 | +1 |
+| `assassin.cleanup_execution` | 1 | 2 | +1 |
+| `assassin.disrupt_and_escape` | 2 | 2 | 0 |
 | `marksman.sustained_dps` | 2 | 3 | +1 |
-| `marksman.backline_siege` | 1 | 3 | +2 |
-| `marksman.tank_shredding` | 1 | 3 | +2 |
+| `marksman.backline_siege` | 2 | 3 | +1 |
+| `marksman.tank_shredding` | 3 | 3 | 0 |
 | `mage.wombo_combo_burst` | 2 | 3 | +1 |
-| `mage.area_denial_zone` | 1 | 3 | +2 |
+| `mage.area_denial_zone` | 2 | 3 | +1 |
 | `mage.pick_burst` | 2 | 2 | 0 |
-| `mage.sustained_dps` | 0 | 1 | +1 |
+| `mage.sustained_dps` | 1 | 1 | 0 |
 | `support.team_amplification` | 1 | 2 | +1 |
 | `support.peel_carry` | 1 | 2 | +1 |
 | `support.enemy_lockdown` | 2 | 2 | 0 |
 | `support.initiate_fight` | 1 | 1 | 0 |
-| `support.formation_breaking` | 0 | 2 | +2 |
+| `support.formation_breaking` | 1 | 2 | +1 |
 
 Important read:
 
-- `tank.frontline_absorb`, `tank.team_fortification`, `assassin.backline_elimination`, `mage.pick_burst`, `support.enemy_lockdown`, and `support.initiate_fight` are now at target count.
-- `brawler.attrition_dps` is over target by 2.
-- Five target goals are not represented by any playable unit yet: `tank.single_target_lockdown`, `brawler.frontline_disruption`, `assassin.cleanup_execution`, `mage.sustained_dps`, and `support.formation_breaking`.
-- The most important remaining counter-web goal gaps are cost-3-plus disruption/frontline breaking, cleanup assassins, premium lockdown tanks, sustained mage DPS, and formation-breaking supports.
+- The cost-3 batch filled `tank.initiate_fight`, `brawler.frontline_disruption`, `assassin.cleanup_execution`, `assassin.disrupt_and_escape`, `marksman.backline_siege`, `marksman.tank_shredding`, `mage.area_denial_zone`, `mage.sustained_dps`, and `support.formation_breaking`.
+- `tank.single_target_lockdown` remains completely absent because both rows are late-game tanks: Bastionne and Malachor.
+- `brawler.attrition_dps` remains over target because several original live units still carry attrition identities that the target matrix intends to retag later.
+- Counting Creep makes `assassin.backline_elimination` look full, but the target-matrix capstone Nullora is still absent.
 
 ## Approach Coverage Gap
 
 Current approach counts compared to the target matrix:
 
-| Approach | Current | Target | Delta |
+| Approach | Current playable | Target | Delta |
 | --- | ---: | ---: | ---: |
-| `access_backline` | 3 | 6 | +3 |
-| `amp` | 3 | 8 | +5 |
-| `aoe` | 7 | 8 | +1 |
+| `access_backline` | 4 | 6 | +2 |
+| `amp` | 4 | 8 | +4 |
+| `aoe` | 9 | 8 | -1 |
 | `burst` | 8 | 9 | +1 |
 | `cc_immunity` | 3 | 5 | +2 |
 | `damage_reduction` | 10 | 8 | -2 |
-| `debuff` | 4 | 8 | +4 |
-| `disrupt` | 3 | 8 | +5 |
-| `dot` | 1 | 5 | +4 |
-| `engage` | 4 | 7 | +3 |
-| `execute` | 2 | 6 | +4 |
+| `debuff` | 8 | 8 | 0 |
+| `disrupt` | 4 | 8 | +4 |
+| `dot` | 3 | 5 | +2 |
+| `engage` | 6 | 7 | +1 |
+| `execute` | 3 | 6 | +3 |
 | `lockdown` | 4 | 6 | +2 |
-| `long_range` | 4 | 8 | +4 |
-| `on_hit_effect` | 1 | 6 | +5 |
-| `peel` | 5 | 8 | +3 |
-| `ramp` | 3 | 8 | +5 |
-| `redirect` | 1 | 5 | +4 |
+| `long_range` | 7 | 8 | +1 |
+| `on_hit_effect` | 3 | 6 | +3 |
+| `peel` | 6 | 8 | +2 |
+| `ramp` | 5 | 8 | +3 |
+| `redirect` | 2 | 5 | +3 |
 | `reposition` | 4 | 6 | +2 |
-| `reset_mechanic` | 0 | 5 | +5 |
-| `sustain` | 4 | 8 | +4 |
-| `untargetable` | 1 | 5 | +4 |
-| `zone` | 1 | 6 | +5 |
+| `reset_mechanic` | 1 | 5 | +4 |
+| `sustain` | 5 | 8 | +3 |
+| `untargetable` | 3 | 5 | +2 |
+| `zone` | 4 | 6 | +2 |
 
 Important read:
 
-- `damage_reduction` is now over the target count because playable Creep uses the existing Creep identity outside the target matrix.
-- `burst` is close to target, but that does not mean the target burst design is implemented; many planned burst rows require specific target rules, delays, reset logic, or counter windows.
-- `dot`, `on_hit_effect`, `untargetable`, and `zone` now have at least one live carrier. `reset_mechanic` is still unrepresented.
-- The biggest counter-web holes are still `amp`, `disrupt`, `ramp`, `zone`, `on_hit_effect`, `redirect`, `dot`, `execute`, `sustain`, `reset_mechanic`, and `untargetable`.
+- `debuff` is now exactly at target and the major cost-3 counter tags are no longer empty.
+- `aoe` and `damage_reduction` are over target in live resources, partly because playable Creep remains outside the matrix and several current units have not been retagged to future target identities.
+- The biggest remaining approach holes are `amp`, `disrupt`, `reset_mechanic`, `execute`, `on_hit_effect`, `ramp`, `redirect`, and `sustain`. Most of those remaining copies belong to the cost-4/cost-5 rows or to future retags of old units.
 
 ## Current Unit Alignment
 
-Fourteen live units match their target matrix role, goal, and approach tags:
+Twenty-four live units match their target matrix role, goal, and approach tags:
 
 | Unit | Target/live identity |
 | --- | --- |
 | Axiom | `support.team_amplification`: `amp`, `peel`, `sustain` |
 | Berebell | `brawler.attrition_dps`: `sustain`, `reposition`, `burst` |
 | Brute | `tank.frontline_absorb`: `engage`, `damage_reduction`, `lockdown` |
+| Caldera | `tank.initiate_fight`: `engage`, `zone`, `aoe` |
+| Cinder | `mage.area_denial_zone`: `zone`, `aoe`, `dot` |
+| Egress | `assassin.cleanup_execution`: `execute`, `reset_mechanic`, `untargetable` |
 | Hexeon | `assassin.backline_elimination`: `access_backline`, `burst`, `execute` |
+| Ivara | `marksman.tank_shredding`: `long_range`, `debuff`, `engage` |
+| Juno Vale | `support.formation_breaking`: `zone`, `disrupt`, `redirect` |
+| Kett | `brawler.frontline_disruption`: `on_hit_effect`, `ramp`, `debuff` |
 | Knoll | `support.enemy_lockdown`: `lockdown`, `debuff`, `disrupt` |
+| Marble | `marksman.backline_siege`: `long_range`, `peel`, `debuff` |
 | Miri | `support.initiate_fight`: `engage`, `amp`, `peel` |
+| Noxley | `mage.sustained_dps`: `dot`, `sustain`, `ramp` |
 | Pilfer | `assassin.disrupt_and_escape`: `access_backline`, `untargetable`, `reposition` |
+| Prisma | `mage.area_denial_zone`: `zone`, `amp`, `aoe` |
+| Quorra | `assassin.disrupt_and_escape`: `access_backline`, `dot`, `untargetable` |
 | Rooket | `marksman.tank_shredding`: `damage_reduction`, `debuff`, `cc_immunity` |
+| Sable | `marksman.tank_shredding`: `long_range`, `debuff`, `on_hit_effect` |
 | Sari | `marksman.sustained_dps`: `long_range`, `on_hit_effect`, `ramp` |
 | Teller | `marksman.sustained_dps`: `long_range`, `burst`, `aoe` |
 | Totem | `support.peel_carry`: `peel`, `cc_immunity`, `amp` |
 | Velour | `support.enemy_lockdown`: `lockdown`, `peel`, `sustain` |
 | Veyra | `tank.team_fortification`: `damage_reduction`, `cc_immunity`, `ramp` |
-| Cinder | `mage.area_denial_zone`: `zone`, `aoe`, `dot` |
 
-Fourteen current units do not match the target matrix exactly:
+Fourteen current units still do not match the target matrix exactly:
 
 | Unit | Target matrix | Live implementation |
 | --- | --- | --- |
@@ -182,8 +199,6 @@ Fourteen current units do not match the target matrix exactly:
 | Cashmere | `burst`, `execute`, `reset_mechanic` | `burst` |
 | Volt | `burst`, `lockdown`, `dot` | `burst`, `lockdown` |
 
-This is the practical crux: the target matrix retagged several current units as part of the future counter web, but most of those retags were not applied to live identity resources. Some should not be applied until their real kit telemetry can prove the target behavior.
-
 Playable outside target matrix:
 
 | Unit | Live implementation | Reconciliation needed |
@@ -192,42 +207,41 @@ Playable outside target matrix:
 
 ## Planned Units Still Absent
 
-Twenty-two target-matrix additions are still absent as playable unit resources:
+Twelve target-matrix additions are still absent as playable unit resources:
 
 | Cost | Planned units |
 | ---: | --- |
-| 1 | None |
-| 2 | None |
-| 3 | Caldera, Kett, Quorra, Juno Vale, Egress, Marble, Prisma, Sable, Ivara, Noxley |
 | 4 | Ravel, Draxelle, Orielle, Bastionne, Vesper, Gable, Saffron, Omenry |
 | 5 | Meridian, Malachor, Quillith, Nullora |
 
-This means the plan's most important missing counter tools are also absent as content:
+This means the remaining missing counter tools are concentrated in late game:
 
-- Tank shredding: Ivara and Sable still absent; Rooket is live.
-- Area-denial zone: Prisma and Orielle still absent; Cinder is live.
-- Single-target lockdown tanks: Bastionne, Malachor.
-- Assassin cleanup and premium dive: Egress, Vesper, Quorra, and Nullora still absent; Pilfer is live, and Creep adds an extra backline-elimination diver outside the target matrix.
-- Support formation breaking remains absent; Knoll, Velour, and Miri are live, while Juno Vale and Ravel are still absent.
-- Cost-5 rule-bending capstones: Meridian, Malachor, Quillith, Nullora.
+- Single-target lockdown tanks: Bastionne and Malachor.
+- Premium formation breaking: Ravel.
+- Premium brawler disruption and scaling: Draxelle.
+- Premium spell-zone denial and mana-spend payoff: Orielle.
+- Delayed cleanup assassin and capstone assassin: Vesper and Nullora.
+- Late-game economy/cartel marksman: Gable.
+- Premium peel/sustain/Catalyst support: Saffron.
+- Wide-board, item-evolution, and mana capstones: Meridian and Quillith.
 
 ## RGA Harness Catch-Up Already Done
 
-The RGA harness is not empty or naive anymore. It has caught up with a lot of the mechanical proof surface that the counter plan needs.
+The RGA harness is ready for counter-web implementation work, even though the counter web is not yet structured data.
 
 Implemented RGA support includes:
 
 - `RoleMatrixProbe.tscn` and `RoleMatrixProbe6v6.tscn`.
 - Targeted 6v6 scenes for the current live roster.
+- Focused cost-3 smoke scenes for the new cost-3 batch.
 - Catalog gates for role, goal, and approach semantics.
 - `ApproachCatalogCoverage.tscn` for 22-goal/22-approach vocabulary coverage.
 - Counterplay labels for `counterplay`, `cleanse`, and `high_tenacity_cleanse`.
 - Counterplay response shell using Totem and Veyra.
 - Role-level counter opponent selection in `tests/rga_testing/validation/opponent_selectors.gd`.
 - Positive controls for zone, redirect, reset, execute, ramp, DoT, untargetable, cooldown pressure, counterplay pressure, amp output, AoE, Wombo, fortification, skirmish dive, and sustain windows.
+- Scheduled planned-area ticks in `AbilitySystem`, giving zone/DoT kits a common event path.
 - Accepted-miss reporting and guard coverage, currently centered on Totem peel-carry save/interrupt residuals.
-
-That means the harness is ready for a counter-web implementation pass, but the target counter web is not yet a first-class input.
 
 ## RGA Harness Gaps Against The Counter Plan
 
@@ -253,11 +267,11 @@ The missing RGA pieces are mostly orchestration and contract layers, not raw met
 - `VALID_COSTS := [1, 2, 3]`
 - `ODDS_BY_LEVEL` only for costs 1, 2, and 3.
 
-The docs explicitly warned not to add the 50-unit target directly as resources until cost 4/5 exposure, max level, XP curve, and odds are decided. That warning is still current.
+The docs explicitly warned not to add the full 50-unit target directly as resources until cost 4/5 exposure, max level, XP curve, and odds are decided. That warning is still current.
 
 ## Recommended Catch-Up Sequence
 
-1. Codify the counter-web contract before adding many units.
+1. Codify the counter-web contract before adding cost-4/cost-5 units.
 
    Add either a companion counter-profile resource or a structured `data/counters` layer that can represent board archetype, counter-board, beats, loses-to, and proof intent without bloating `UnitIdentity`. Do not make RGA parse Markdown as the only source of truth.
 
@@ -265,13 +279,13 @@ The docs explicitly warned not to add the 50-unit target directly as resources u
 
    A small validation scene should verify that the target matrix has 50 rows, all 22 goals, all 22 approaches, the target role/cost counts, and required fields for board, counter-board, beats, loses-to, and proof intent. This preserves the planning artifact while implementation proceeds.
 
-3. Reconcile the live roster against the target matrix before adding the remaining planned units.
+3. Reconcile Creep and the fourteen mismatched current units.
 
-   For each mismatch above, decide whether the target matrix is still the intended future identity or whether the live kit proves a better identity. Do not retag a current unit just to satisfy the matrix unless the real ability and RGA telemetry can pass the intended role, goal, and approaches. Creep also needs an explicit target-matrix decision because it is playable now but outside the 50-unit plan.
+   Creep must become a target row, replace a planned row, or stay intentionally outside the target set. For each mismatch, decide whether the target matrix is still the intended future identity or whether the live kit proves a better identity. Do not retag a current unit just to satisfy the matrix unless the real ability and RGA telemetry can pass the intended role, goal, and approaches.
 
 4. Convert proof intents into expected span checks.
 
-   Current targeted 6v6 probes already support `expected_span_checks`. The next RGA catch-up should turn target rows into explicit unit contracts, starting with the fourteen aligned live units and then the mismatch/outside-matrix units after kit decisions are made.
+   Current targeted 6v6 probes already support `expected_span_checks`. The next RGA catch-up should turn target rows into explicit unit contracts, starting with the twenty-four aligned live units, then the mismatch/outside-matrix units after kit decisions are made.
 
 5. Extend opponent selection beyond role counters.
 
@@ -281,13 +295,9 @@ The docs explicitly warned not to add the 50-unit target directly as resources u
 
    Implement deterministic test builders for Bastion Siege, Dive Reset, Zone Control, Attrition Engine, Wombo Engage, Control Prison, Wide Trait Engine, and Anti-Meta Flex. Start with 6v6 versions while current team size and content are limited, then expand to 10-unit endgame tests after content and progression support exist.
 
-7. Add content in cost-band batches.
+7. Decide cost-4/cost-5 progression before adding late-game units.
 
-   After current-unit reconciliation, add planned units by cost band:
-
-   - Cost 1 and 2 first: Knoll, Pilfer, Miri, Cinder, Rooket, Velour. Done in the 2026-07-01 content checkpoint.
-   - Then cost 3 cores, including a decision on how playable Creep interacts with the target matrix.
-   - Only then cost 4/5, after shop odds and max-level design are implemented.
+   Shop odds, max level, XP curve, and late-game board expectations should land before Ravel, Draxelle, Orielle, Bastionne, Vesper, Gable, Saffron, Omenry, Meridian, Malachor, Quillith, or Nullora enter the live pool.
 
 8. Keep the accepted-miss audit separate.
 
@@ -295,9 +305,9 @@ The docs explicitly warned not to add the 50-unit target directly as resources u
 
 ## Bottom Line
 
-The RGA metric layer has advanced enough to support the counters idea, and the first planned content batch is live, but the counter idea itself is still not implemented as a system. The next useful implementation milestone is not "keep adding units one by one." It is:
+The RGA metric layer has advanced enough to support the counters idea, and the planned roster has caught up through cost 3. The next useful implementation milestone is no longer "add the missing cost-3 cores." It is:
 
 1. Turn the counter matrix into structured, testable data.
-2. Reconcile the live roster and playable Creep against that data.
+2. Reconcile playable Creep and the current-unit mismatches against that data.
 3. Make RGA select and evaluate matchups from the counter web.
-4. Then add the remaining planned units in batches with proof-intent checks.
+4. Decide cost-4/cost-5 progression, then add the remaining late-game rows with proof-intent checks.

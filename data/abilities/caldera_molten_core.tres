@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "caldera_molten_core"
+name = "Molten Core"
+description = "Charges into the fight, hardens, erupts around the target, and leaves a burning zone."
+base_cost = 60
+tags = ["damage", "engage", "zone", "aoe"]

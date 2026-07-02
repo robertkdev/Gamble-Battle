@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "quorra_timeplate_lunge"
+name = "Timeplate Lunge"
+description = "Blinks to a backline enemy, slips out of targetability, and leaves a ticking timeplate wound."
+base_cost = 55
+tags = ["damage", "access_backline", "dot", "untargetable"]

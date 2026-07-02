@@ -4,7 +4,7 @@
 
 [node name="RoleMatrixSmokePlannedBatch" type="Node"]
 script = ExtResource("1")
-units = PackedStringArray("knoll", "pilfer", "miri", "cinder", "rooket", "velour", "creep", "sari")
+units = PackedStringArray("knoll", "pilfer", "miri", "cinder", "rooket", "velour", "caldera", "ivara", "noxley", "quorra", "juno_vale", "kett", "egress", "marble", "prisma", "sable", "creep", "sari")
 run_all_units = false
 opponents_per_pack = 1
 repeats = 1

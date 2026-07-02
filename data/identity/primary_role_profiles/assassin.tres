@@ -24,6 +24,7 @@ base_stats = {
 "mana_max": 0.0,
 "mana_regen": 0.0,
 "mana_start": 0.0,
+"move_speed": 140.0,
 "max_hp": 980.0,
 "mr_pen_flat": 0.0,
 "mr_pen_pct": 0.0,

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "kett_union_breaker"
+name = "Union Breaker"
+description = "Punches three times, stacking on-hit pressure, ramp evidence, and a frontline debuff."
+base_cost = 50
+tags = ["damage", "on_hit_effect", "ramp", "debuff"]

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource path="res://data/identity/unit_identities/prisma_identity.tres" type="Resource" id=2]
+
+[resource]
+script = ExtResource( 1 )
+id = "prisma"
+name = "Prisma"
+sprite_path = "res://assets/units/prisma.png"
+ability_id = "prisma_color_theory"
+traits = ["Kaleidoscope", "Harmony"]
+roles = ["mage"]
+cost = 3
+level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )

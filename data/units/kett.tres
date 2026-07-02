@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource path="res://data/identity/unit_identities/kett_identity.tres" type="Resource" id=2]
+
+[resource]
+script = ExtResource( 1 )
+id = "kett"
+name = "Kett"
+sprite_path = "res://assets/units/kett.png"
+ability_id = "kett_union_breaker"
+traits = ["Striker", "Cartel"]
+roles = ["brawler"]
+cost = 3
+level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )

@@ -161,6 +161,8 @@ func _handle_event(evt: Dictionary) -> void:
 			_handle_creep_eaves_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"cinder_fuse_tick":
 			_handle_cinder_fuse_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
+		"planned_area_tick":
+			_handle_planned_area_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"bo_wos_dash_tick":
 			_handle_bo_wos_dash_tick(String(evt.get("team", "player")), int(evt.get("index", -1)), evt.get("data", {}))
 		"bo_wos_land":
@@ -263,6 +265,58 @@ func _handle_cinder_fuse_tick(team: String, index: int, data: Dictionary) -> voi
 	if ticks_left > 0:
 		data["ticks_left"] = ticks_left
 		schedule_event("cinder_fuse_tick", team, index, interval, data)
+
+func _handle_planned_area_tick(team: String, index: int, data: Dictionary) -> void:
+	if state == null or engine == null:
+		return
+	var caster: Unit = _unit_at(team, index)
+	if caster == null or not caster.is_alive():
+		return
+	var ticks_left: int = int(data.get("ticks_left", 0))
+	if ticks_left <= 0:
+		return
+	var interval: float = max(0.05, float(data.get("interval", 0.45)))
+	var damage: int = int(max(1, int(data.get("damage", 1))))
+	var radius: float = max(0.0, float(data.get("radius", 0.0)))
+	var damage_type: String = String(data.get("damage_type", "magic"))
+	var dot_kind: String = String(data.get("dot_kind", "planned_dot"))
+	var zone_kind: String = String(data.get("zone_kind", ""))
+	var debuff_label: String = String(data.get("debuff_label", ""))
+	var debuff_duration: float = max(interval, float(data.get("debuff_duration", interval)))
+	var debuff_fields: Dictionary = data.get("debuff_fields", {}) if (data.get("debuff_fields", {}) is Dictionary) else {}
+	var self_heal_pct: float = max(0.0, float(data.get("self_heal_pct", 0.0)))
+	var ctx: AbilityContext = AbilityContext.new(engine, state, rng, team, index)
+	ctx.buff_system = buff_system
+	var target_team: String = "enemy" if team == "player" else "player"
+	var victims: Array[int] = []
+	var target_index: int = int(data.get("target_index", -1))
+	if target_index >= 0 and ctx.is_alive(target_team, target_index):
+		victims.append(target_index)
+	else:
+		var center_value: Variant = data.get("center", Vector2.ZERO)
+		var center: Vector2 = center_value if (center_value is Vector2) else Vector2.ZERO
+		if radius > 0.0:
+			victims = ctx.enemies_in_radius_at(team, center, radius)
+	for victim_index: int in victims:
+		var result: Dictionary = AbilityEffects.damage_single(engine, state, team, index, victim_index, damage, damage_type)
+		if not bool(result.get("processed", false)):
+			continue
+		var dealt_amount: int = int(max(0, int(result.get("dealt", damage))))
+		if dealt_amount > 0 and engine.has_method("_resolver_emit_dot_tick_applied"):
+			engine._resolver_emit_dot_tick_applied(team, index, target_team, victim_index, dealt_amount, dot_kind)
+		if zone_kind != "":
+			ctx.emit_zone_exposure(target_team, victim_index, zone_kind, interval, float(dealt_amount), radius)
+		if buff_system != null and not debuff_fields.is_empty():
+			if debuff_label != "":
+				buff_system.apply_stats_labeled(state, target_team, victim_index, debuff_label, debuff_fields, debuff_duration)
+			else:
+				buff_system.apply_stats_buff(state, target_team, victim_index, debuff_fields, debuff_duration)
+		if self_heal_pct > 0.0 and dealt_amount > 0:
+			ctx.heal_single(team, index, float(dealt_amount) * self_heal_pct)
+	ticks_left -= 1
+	if ticks_left > 0:
+		data["ticks_left"] = ticks_left
+		schedule_event("planned_area_tick", team, index, interval, data)
 
 func _handle_korath_release(team: String, index: int, data: Dictionary) -> void:
 	if state == null or engine == null:

@@ -304,6 +304,8 @@ static func _apply_stats_from_dict(u: Unit, stats: Dictionary) -> void:
 				u.lifesteal = clampf(float(raw_value), 0.0, 0.9)
 			"attack_range":
 				u.attack_range = max(1, int(round(float(raw_value))))
+			"move_speed":
+				u.move_speed = max(0.0, float(raw_value))
 			"armor":
 				u.armor = max(0.0, float(raw_value))
 			"magic_resist":

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "noxley_red_static"
+name = "Red Static"
+description = "Pays health to chain blood lightning, healing from damage dealt and leaving ticking red static."
+base_cost = 50
+tags = ["damage", "dot", "sustain", "ramp"]

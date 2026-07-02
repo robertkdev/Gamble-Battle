@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "prisma_color_theory"
+name = "Color Theory"
+description = "Amplifies the team, then creates a prismatic area burst and denial field."
+base_cost = 60
+tags = ["damage", "zone", "amp", "aoe"]

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "sable_footnote_piercer"
+name = "Footnote Piercer"
+description = "Fires a line shot that repeatedly shreds defenses as an on-hit scholar mark."
+base_cost = 50
+tags = ["damage", "long_range", "debuff", "on_hit_effect"]

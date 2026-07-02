@@ -37,7 +37,14 @@ validation_rules = [{
     }, {
         "label": "Marksman HP",
         "metric": "max_hp",
-        "max": 2000.0
+        "max": 2000.0,
+        "max_by_cost": {
+            "1": 2000.0,
+            "2": 2200.0,
+            "3": 3200.0,
+            "4": 4800.0,
+            "5": 7200.0
+        }
     }, {
         "label": "Marksman Damage",
         "metric": "attack_damage",
