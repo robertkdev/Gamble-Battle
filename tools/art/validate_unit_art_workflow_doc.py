@@ -1316,8 +1316,6 @@ def main() -> int:
     )
     if other_unit_ids != art_other_unit_ids:
         fail(f"roster matrix other_units ids do not match art-bearing data/other_units/other ids: matrix={other_unit_ids} data={art_other_unit_ids}", failures)
-    if "creep" not in other_unit_ids:
-        fail("roster matrix other_units must include creep", failures)
     for unit in roster_units + other_units:
         if not isinstance(unit, dict):
             fail("every roster unit/extra entry must be an object", failures)

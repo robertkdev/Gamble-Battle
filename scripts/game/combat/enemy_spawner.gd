@@ -69,8 +69,8 @@ func build_for_spec(spec: Dictionary, _ch: int, _sic: int) -> Array[Unit]:
 			Trace.step("EnemySpawner: failed to spawn '" + sid + "'")
 	# If all spawns failed (e.g., missing resources), attempt a final minimal fallback
 	if out.is_empty():
-		Trace.step("EnemySpawner: spawn list empty after attempts; using [creep] as emergency fallback")
-		var e2: Unit = uf.spawn("creep")
+		Trace.step("EnemySpawner: spawn list empty after attempts; using [drubble] as emergency fallback")
+		var e2: Unit = uf.spawn("drubble")
 		if e2:
 			out.append(e2)
 	Trace.step("EnemySpawner: spawned [" + ", ".join(label_parts) + "]")

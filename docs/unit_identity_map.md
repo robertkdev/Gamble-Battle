@@ -2,6 +2,8 @@
 
 Current playable-unit identity map. Source of truth is `data/units/*.tres` plus the linked `data/identity/unit_identities/*_identity.tres` resources; non-playable/test identities under `data/other_units/` are intentionally omitted.
 
+Terminology: capital-C `Creep` (`data/units/creep.tres`) is a playable roster unit. Lowercase creep-round NPCs are non-playable reward enemies under `data/other_units/creeps/`, such as Drubble, Faeling, Drueling, and Beegle; those are the units that count for creep-round reward drops.
+
 | Unit | ID | Primary Role | Primary Goal | Approaches | Identity Resource |
 | --- | --- | --- | --- | --- | --- |
 | Axiom | axiom | support | support.team_amplification | amp, peel, sustain | res://data/identity/unit_identities/axiom_identity.tres |

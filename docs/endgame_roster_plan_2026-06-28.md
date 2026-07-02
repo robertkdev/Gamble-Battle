@@ -1,6 +1,6 @@
 # Endgame Roster Plan - 2026-06-28
 
-Status: target roster implemented. The original plan remains the target-matrix source, while live resources now include the cost-1 through cost-5 target batches, Sari traits, and playable Creep as an extra outside the 50-unit target.
+Status: target roster implemented. The corrected target set is 51 playable units and includes Creep as a formal cost-3 Assassin unit. Sari is a normal playable unit with `Exile` and `Scholar` traits.
 
 ## Sources Checked
 
@@ -13,6 +13,8 @@ Status: target roster implemented. The original plan remains the target-matrix s
 - Current role baseline cost surface: `docs/role_baselines_costs.md`
 - Current RGA docs: `docs/identity_schema.md`, `docs/rga/roles.md`, `docs/rga/role_goal_approach_coverage_2026-06-23.md`, `tests/rga_testing/README.md`
 - Private Google design doc, read through the signed-in browser session
+
+Terminology note: capital-C `Creep` is the playable roster unit at `data/units/creep.tres`. Lowercase creep-round NPCs are non-playable reward enemies under `data/other_units/creeps/`; the shared word is historical naming, not a reason to treat playable Creep differently from other roster units.
 
 ## Original Roster Snapshot At Plan Start
 
@@ -54,7 +56,7 @@ Original playable unit inventory:
 | Morrak | 1 | Brawler | Striker, Executioner | Reaping Line |
 | Mortem | 1 | Brawler | Sanguine, Vindicator | Blood Feast |
 | Repo | 1 | Tank | Vindicator, Executioner | Writ of Severance |
-| Sari | 1 | Marksman | None currently assigned | Strike |
+| Sari | 1 | Marksman | Exile, Scholar | Strike |
 | Kythera | 2 | Tank | Aegis, Vindicator | Siphon |
 | Luna | 2 | Mage | Liaison, Kaleidoscope | Moon Beam |
 | Nyxa | 2 | Marksman | Sanguine, Chronomancer | Chaos Volley |
@@ -95,14 +97,15 @@ Original trait state:
 
 ## Endgame Target
 
-The first complete endgame roster should be 50 playable units.
+The first complete endgame roster should be 51 playable units.
 
-Why 50:
+Why 51:
 
 - The design doc says max team size is 10.
 - The design vocabulary already references cost-1 through cost-5 payoffs.
-- The repo has 22 trait resources. A 50-unit roster gives about 100 trait slots, enough for real verticals, splashes, and pivot builds without trying to make a full TFT-scale set.
-- Current content already has 22 units, so 50 keeps the next milestone large enough to feel like a finished first set but small enough to plan and validate.
+- The repo has 22 trait resources. A 51-unit roster gives about 102 trait slots, enough for real verticals, splashes, and pivot builds without trying to make a full TFT-scale set.
+- Creep is a real unit in the corrected first-set target.
+- Current content started from 22 playable units, so 51 keeps the next milestone large enough to feel like a finished first set but small enough to plan and validate.
 
 Final cost counts:
 
@@ -110,10 +113,10 @@ Final cost counts:
 | --- | ---: | ---: | ---: |
 | 1 | 12 | 14 | 2 |
 | 2 | 9 | 13 | 4 |
-| 3 | 1 | 11 | 10 |
+| 3 | 1 | 12 | 11 |
 | 4 | 0 | 8 | 8 |
 | 5 | 0 | 4 | 4 |
-| Total | 22 | 50 | 28 |
+| Total | 22 | 51 | 29 |
 
 Endgame board expectation:
 
@@ -138,13 +141,13 @@ Counterplay reference: `docs/rga_counter_matrix_2026-06-28.md` defines the plann
 
 These concepts are creative raw material for the first complete set. The target RGA matrix below is more authoritative than the original ability blurbs when there is tension between them. In a later implementation pass, tune the ability details to satisfy the target goal, approaches, board role, and counterplay row before creating or changing resources.
 
-Implementation checkpoint, 2026-07-01: the cost-1 and cost-2 addition batch is now live as playable resources: Knoll, Pilfer, Miri, Cinder, Rooket, and Velour. Creep was also made playable at cost 3 by user request, but Creep is outside the 50-unit target matrix until a later counter-row reconciliation decides whether to fold it into the target set or keep it as an extra.
+Implementation checkpoint, 2026-07-01: the cost-1 and cost-2 addition batch is now live as playable resources: Knoll, Pilfer, Miri, Cinder, Rooket, and Velour. Creep was also made playable at cost 3 and is now treated as a formal target-row unit.
 
-Implementation checkpoint, 2026-07-02: the planned cost-3 target batch is now live as playable resources: Caldera, Ivara, Noxley, Quorra, Juno Vale, Kett, Egress, Marble, Prisma, and Sable. The live playable roster is 39 units: 38 target-matrix rows plus playable Creep outside the 50-unit target. Remaining target-matrix additions are now the eight cost-4 units and four cost-5 units.
+Implementation checkpoint, 2026-07-02: the planned cost-3 target batch is now live as playable resources: Creep, Caldera, Ivara, Noxley, Quorra, Juno Vale, Kett, Egress, Marble, Prisma, and Sable. The live playable roster is 39 target-matrix units. Remaining target-matrix additions are now the eight cost-4 units and four cost-5 units.
 
-Implementation checkpoint, 2026-07-02: the planned cost-4 target batch is now live as playable resources: Ravel, Draxelle, Orielle, Bastionne, Vesper, Gable, Saffron, and Omenry. `ShopConfig.VALID_COSTS` now exposes cost 4, `ODDS_BY_LEVEL` gives levels 4-6 a small cost-4 chance, and `CostBalanceSmoke` now checks the live roster as 47 playable units: 46 target-matrix rows plus playable Creep outside the 50-unit target. Remaining target-matrix additions are the four cost-5 capstones.
+Implementation checkpoint, 2026-07-02: the planned cost-4 target batch is now live as playable resources: Ravel, Draxelle, Orielle, Bastionne, Vesper, Gable, Saffron, and Omenry. `ShopConfig.VALID_COSTS` now exposes cost 4, `ODDS_BY_LEVEL` gives levels 4-6 a small cost-4 chance, and `CostBalanceSmoke` now checks the live roster as 47 target-matrix units. Remaining target-matrix additions are the four cost-5 capstones.
 
-Implementation checkpoint, 2026-07-02: the planned cost-5 target batch is now live as playable resources: Meridian, Malachor, Quillith, and Nullora. `ShopConfig.VALID_COSTS` now exposes cost 5, `ODDS_BY_LEVEL` gives levels 5-6 capstone access, and `CostBalanceSmoke` now checks the live roster as 51 playable units: all 50 target-matrix rows plus playable Creep outside the target.
+Implementation checkpoint, 2026-07-02: the planned cost-5 target batch is now live as playable resources: Meridian, Malachor, Quillith, and Nullora. `ShopConfig.VALID_COSTS` now exposes cost 5, `ODDS_BY_LEVEL` gives levels 5-6 capstone access, and `CostBalanceSmoke` now checks the live roster as 51 playable target-matrix units.
 
 ### Cost 1 Additions: 2 Units
 
@@ -170,6 +173,7 @@ Implementation checkpoint, 2026-07-02: the planned cost-5 target batch is now li
 | Ivara | Marksman | Trader, Mogul | Auctioneer sniper with a long rifle shaped like a bidding gavel. | Open Bid: shoots the highest-current-HP enemy. If the shot helps kill the target, Ivara banks bonus gold after combat. | Turns economy into a marksman identity instead of only mage/support economy. |
 | Noxley | Mage | Sanguine, Overload | Blood-red street magician with sparking needles floating over one arm. | Red Static: spends a small amount of current health to reduce current mana cost, then fires chain magic that heals Noxley for a fraction of damage dealt. | Gives Sanguine a caster branch and Overload a risk/reward unit. |
 | Quorra | Assassin | Aegis, Chronomancer | Clockwork duelist with mirrored armor plates that tick backward after each hit. | Timeplate Lunge: blinks to a backline enemy, gains temporary Armor/MR, and slows the target's attack speed. | Adds a defensive assassin pattern: access plus survivability instead of pure burst. |
+| Creep | Assassin | Exile, Executioner | Smooth gray-blue alien-faced horror with hollow eyes and a ring of dull black tendril blades. | Eavesdropping: dashes to the lowest-health enemy, spins in rapid physical ticks while unstoppable and damage-reduced, and can chain on takedown through Exile. | Makes Creep a formal cost-3 assassin row with backline pressure, spin/AoE, and commitment protection. |
 | Juno Vale | Support | Liaison, Scholar | Star-map archivist with floating geometry charts and a quill halo. | Constellation Math: links two allies with no shared traits. Linked allies gain mana over time; if both cast, nearby allies gain a smaller mana burst. | Makes Liaison and Scholar become a positioning puzzle. |
 | Kett | Brawler | Striker, Cartel | Dockworker enforcer with coin-stamped brass knuckles and a broken paygate shield. | Union Breaker: punches the target three times. Each hit deals bonus physical damage based on Kett's cost and current Cartel tier. | Gives Cartel a mid-cost frontliner and Striker a tempo bruiser. |
 | Egress | Assassin | Exile, Executioner | Pale escape artist wrapped in black ticket stubs, always standing one tile away from allies. | Exit Wound: strikes the lowest-health enemy. On kill, Egress becomes briefly untargetable and reappears at the nearest edge tile. | Creates exact-count Exile assassin play and gives Executioner another reset unit below capstone rarity. |
@@ -201,16 +205,16 @@ Implementation checkpoint, 2026-07-02: the planned cost-5 target batch is now li
 
 ## Target Matrix Alignment
 
-The target matrix in `docs/rga_counter_matrix_2026-06-28.md` is the design authority for this roster. It supersedes the earlier 28-unit-only RGA draft because the game is moving toward a chess-like counter web where the full 50-unit set is balanced together.
+The target matrix in `docs/rga_counter_matrix_2026-06-28.md` is the design authority for this roster. It supersedes the earlier 28-unit-only RGA draft because the game is moving toward a chess-like counter web where the full 51-unit set is balanced together.
 
 This section is still the target matrix, not a complete live roster report. Rows marked `Live` have matching playable resources; rows marked `Current` are pre-existing playable units whose target-row identity may still differ from the current resource; rows marked `Planned` are not implemented yet.
 
 Target rules:
 
-- The first complete set remains 50 playable units.
-- Role counts target 9 tanks, 8 brawlers, 6 assassins, 9 marksmen, 9 mages, and 9 supports.
+- The first complete set is 51 playable units.
+- Role counts target 9 tanks, 8 brawlers, 7 assassins, 9 marksmen, 9 mages, and 9 supports.
 - All 22 primary goals are used. No goal appears more than three times.
-- All 22 approaches are used. The target roster carries 149 total approach assignments, almost exactly three per unit.
+- All 22 approaches are used. The target roster carries 152 total approach assignments, almost exactly three per unit.
 - Every unit row must say what it beats, what beats it, and what future RGA proof must show.
 
 ## Target Matrix RGA Assignments
@@ -236,6 +240,7 @@ Target rules:
 | Draxelle | Live | 4 | brawler | `brawler.frontline_disruption` | `engage`, `disrupt`, `ramp` | Colossus Hook starts the brawl, drags formation, then scales if ignored. | Wombo Engage | Zone Control | siege lines and clumps | zone, peel, long range | Prove hook displacement, disrupted enemy shape, and late-fight scaling after casts or takedowns. |
 | Hexeon | Current | 3 | assassin | `assassin.backline_elimination` | `access_backline`, `burst`, `execute` | Prismatic Guillotine is the clean carry-delete check. | Dive Reset | Peel Carry | exposed marksmen and mages | peel, redirect, untargetable | Prove backline target access, a short lethal damage window, and execute logic near threshold. |
 | Nullora | Live | 5 | assassin | `assassin.backline_elimination` | `access_backline`, `execute`, `untargetable` | Last Word is delayed capstone access with a dodge window after commitment. | Anti-Meta Flex | Control Prison | greedy wide boards and exposed carries | zone, redirect, peel | Prove delayed arrival, execution on the intended carry, and untargetability that ends after the strike. |
+| Creep | Live | 3 | assassin | `assassin.backline_elimination` | `access_backline`, `aoe`, `damage_reduction` | Eavesdropping hunts a low-health target, spins through nearby victims, and survives only during the commitment window. | Dive Reset | Peel Carry | wounded backlines and exposed carries | peel, lockdown, zone | Prove backline/low-health access, spin multi-hit pressure, and temporary damage reduction that does not make Creep permanently safe. |
 | Egress | Live | 3 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `untargetable` | Exit Wound needs the first kill, then vanishes and repeats. | Dive Reset | Sustain Peel | wounded teams | deny-first-kill, lockdown, redirect | Prove no reset without a kill, execute evidence on low-health targets, and temporary target drop. |
 | Vesper | Live | 4 | assassin | `assassin.cleanup_execution` | `execute`, `reset_mechanic`, `untargetable` | Late Fee is a delayed cleanup threat with baitable timing. | Dive Reset | Control Prison | teams that fail health thresholds | sustain, peel, lockdown | Prove the delay is readable, the cleanup triggers only at threshold, and the reset can be denied. |
 | Pilfer | Live | 1 | assassin | `assassin.disrupt_and_escape` | `access_backline`, `untargetable`, `reposition` | Pocket Swap is early chaos: enter, steal or tax, vanish, then land elsewhere. | Anti-Meta Flex | Zone Control | backline engines and item tempo | zone, lockdown, long range | Prove disruption without guaranteed kill, brief target drop, and a real escape movement. |
@@ -276,11 +281,11 @@ Role counts:
 | --- | ---: |
 | Tank | 9 |
 | Brawler | 8 |
-| Assassin | 6 |
+| Assassin | 7 |
 | Marksman | 9 |
 | Mage | 9 |
 | Support | 9 |
-| Total | 50 |
+| Total | 51 |
 
 Goal counts:
 
@@ -293,7 +298,7 @@ Goal counts:
 | `brawler.attrition_dps` | 3 |
 | `brawler.skirmish_dive` | 2 |
 | `brawler.frontline_disruption` | 3 |
-| `assassin.backline_elimination` | 2 |
+| `assassin.backline_elimination` | 3 |
 | `assassin.cleanup_execution` | 2 |
 | `assassin.disrupt_and_escape` | 2 |
 | `marksman.sustained_dps` | 3 |
@@ -308,18 +313,18 @@ Goal counts:
 | `support.enemy_lockdown` | 2 |
 | `support.initiate_fight` | 1 |
 | `support.formation_breaking` | 2 |
-| Total | 50 |
+| Total | 51 |
 
 Approach counts:
 
 | Approach | Target count |
 | --- | ---: |
-| `access_backline` | 6 |
+| `access_backline` | 7 |
 | `amp` | 8 |
-| `aoe` | 8 |
+| `aoe` | 9 |
 | `burst` | 9 |
 | `cc_immunity` | 5 |
-| `damage_reduction` | 8 |
+| `damage_reduction` | 9 |
 | `debuff` | 8 |
 | `disrupt` | 8 |
 | `dot` | 5 |
@@ -336,7 +341,7 @@ Approach counts:
 | `sustain` | 8 |
 | `untargetable` | 5 |
 | `zone` | 6 |
-| Total | 149 |
+| Total | 152 |
 
 ## Resulting Roster Shape
 
@@ -346,10 +351,10 @@ After these additions:
 | --- | ---: |
 | 1 | 14 |
 | 2 | 13 |
-| 3 | 11 |
+| 3 | 12 |
 | 4 | 8 |
 | 5 | 4 |
-| Total | 50 |
+| Total | 51 |
 
 Resulting role shape:
 
@@ -360,7 +365,7 @@ Resulting role shape:
 | Mage | 4 | 5 | 9 |
 | Marksman | 3 | 6 | 9 |
 | Support | 2 | 7 | 9 |
-| Assassin | 1 | 5 | 6 |
+| Assassin | 1 | 6 | 7 |
 
 Resulting trait coverage priorities:
 
@@ -371,14 +376,14 @@ Resulting trait coverage priorities:
 - Overload goes from 1 to 5 units, making caster mana builds real.
 - Harmony goes from 1 to 4 units, supporting wide boards without requiring a full vertical.
 - Cost 4/5 units give Cartel meaningful high-cost payoffs.
-- Assassins improve from one current unit to six total, but remain rarer than tanks/supports because backline access should be special.
+- Assassins improve from one current unit to seven total, but remain rarer than the broad 9-unit roles because backline access should be special.
 
 ## Implementation Notes For A Later Pass
 
 - Treat the target matrix rows above as the unit-identity backlog. The older concept blurbs give visual and fantasy direction, but the matrix owns role, goal, approach, board role, counter-board, and proof intent.
 - Do not add these directly as `.tres` files without first deciding whether cost 4/5 should be exposed by `ShopConfig.VALID_COSTS`, `MAX_LEVEL`, and `ODDS_BY_LEVEL`.
 - Sari now has Exile/Scholar traits, a sustained-DPS identity, and on-hit telemetry.
-- Cost 4/5 units need role-goal-approach identities and counter-board expectations before they should enter the playable pool.
+- Cost 4/5 units are now live; future balance should continue to hold every premium unit to role-goal-approach identity and counter-board expectations.
 - Catalyst and Trader already have resource definitions and effect handlers, but their play feel should be tested as soon as the first units are implemented.
 - New units should be implemented in small batches by cost band, with `CostBalanceSmoke`, `UnitStatAudit`, `RoleMatrixProbe`, and a Main-scene shop/playability smoke after each batch.
 - For each implemented unit, run an RGA pass that proves the assigned primary role, primary goal, and every listed approach. Catalog support alone is not enough; live kit telemetry must match the planned identity.

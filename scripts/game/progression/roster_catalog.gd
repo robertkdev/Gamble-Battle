@@ -146,6 +146,9 @@ static func _default_kind_for(ch: int, sic: int) -> String:
 	return (StageTypes.KIND_BOSS if int(sic) >= per_ch else StageTypes.KIND_NORMAL)
 
 static func _default_ids_for(_ch: int, _sic: int, kind: String) -> Array:
-	if String(kind) == StageTypes.KIND_BOSS:
+	var normalized_kind: String = String(kind).strip_edges().to_upper()
+	if normalized_kind == StageTypes.KIND_BOSS:
 		return ["morrak"]
-	return ["creep"]
+	if normalized_kind == StageTypes.KIND_CREEPS:
+		return ["drubble"]
+	return ["bonko"]

@@ -47,7 +47,7 @@ Completion blockers:
 | `veyra` | Veyra | `units` | `-` | `missing` | `-` | needs visual proof |
 | `volt` | Volt | `units` | `volt_attached_energy_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
 | `vykos` | Vykos | `units` | `vykos_pale_sanguine_refit` | `current_candidate` | `narrow_proof_only` | candidate needs human approval |
-| `creep` | Creep | `other_units` | `creep_vellum_primary_detail_refit` | `current_candidate` | `review_candidate_not_anchor` | candidate needs human approval |
+| `creep` | Creep | `units` | `creep_vellum_primary_detail_refit` | `current_candidate` | `review_candidate_not_anchor` | candidate needs human approval |
 
 ## Asset Coverage
 

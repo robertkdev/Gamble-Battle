@@ -1,6 +1,6 @@
 # RGA Counter Matrix - 2026-06-28
 
-Status: planning only. This document does not implement units, abilities, traits, shop odds, scripts, scenes, or balance numbers.
+Status: planning only. This document does not implement units, abilities, traits, shop odds, scripts, scenes, or balance numbers. The corrected first-set target is 51 units, with Creep included as a formal playable Assassin row.
 
 ## Sources Checked
 
@@ -41,7 +41,7 @@ Only promote a mode into a new top-level approach if at least three units need i
 
 ## Iteration Loop
 
-This matrix is balanced toward what the finished first set should create, not what the current 22-unit roster or the first 50-unit draft already contains.
+This matrix is balanced toward what the finished first set should create, not what the current 22-unit roster or the first 51-unit draft already contains.
 
 | Pass | Test | Finding | Change |
 | --- | --- | --- | --- |
@@ -67,17 +67,17 @@ Roles are the first rock-paper-scissors layer. They should create natural expect
 
 ## Target Role Counts
 
-For a 50-unit set, roles should be close to even while preserving assassin scarcity.
+For a 51-unit set, roles should be close to even while preserving assassin scarcity.
 
 | Role | Target count | Strategic job |
 | --- | ---: | --- |
 | Tank | 9 | Frontline structure, engage, fortification, lockdown. |
 | Brawler | 8 | Midline pressure, attrition, disruption, skirmish access. |
-| Assassin | 6 | Rare but decisive backline pressure, cleanup, and disruption. |
+| Assassin | 7 | Rare but decisive backline pressure, cleanup, and disruption. |
 | Marksman | 9 | Uptime damage, tank shredding, siege lines. |
 | Mage | 9 | Burst windows, zone control, magic damage over time. |
 | Support | 9 | Peel, amplification, initiation, formation control, lockdown. |
-| Total | 50 |  |
+| Total | 51 |  |
 
 ## Target Goal Counts
 
@@ -92,7 +92,7 @@ The goal budget intentionally uses every goal. No goal should exceed three units
 | `brawler.attrition_dps` | 3 | Uptime melee pressure. |
 | `brawler.frontline_disruption` | 3 | Anti-frontline and anti-clump pressure. |
 | `brawler.skirmish_dive` | 2 | Repeatable soft backline threat. |
-| `assassin.backline_elimination` | 2 | True carry deletion. |
+| `assassin.backline_elimination` | 3 | True carry deletion. |
 | `assassin.cleanup_execution` | 2 | Reset and threshold punishment. |
 | `assassin.disrupt_and_escape` | 2 | Backline chaos without guaranteed kill. |
 | `marksman.sustained_dps` | 3 | Classic protected carry plan. |
@@ -107,22 +107,22 @@ The goal budget intentionally uses every goal. No goal should exceed three units
 | `support.enemy_lockdown` | 2 | Control support and reset denial. |
 | `support.initiate_fight` | 1 | Rare support-led engage. |
 | `support.formation_breaking` | 2 | Anti-clump and anti-peel-ball tool. |
-| Total | 50 |  |
+| Total | 51 |  |
 
 ## Target Approach Budget
 
 The target budget is not equal on purpose. Damage approaches can be slightly more common because every board needs a way to win, but geometry, control, and response approaches must be common enough that boards are decided by matchup choices, not only by stats.
 
-Target total: 149 approach assignments across 50 units, or almost exactly three approach tags per unit.
+Target total: 152 approach assignments across 51 units, or almost exactly three approach tags per unit.
 
 | Approach | Target count | Strategic reason |
 | --- | ---: | --- |
-| `access_backline` | 6 | Enough to punish siege/amp engines, still rare enough to respect positioning. |
+| `access_backline` | 7 | Enough to punish siege/amp engines, still rare enough to respect positioning. |
 | `amp` | 8 | Important but no longer a default support answer. |
-| `aoe` | 8 | Needed to punish clumps, peel balls, and fortification. |
+| `aoe` | 9 | Needed to punish clumps, peel balls, and fortification. |
 | `burst` | 9 | Common enough for race plans, lower than the first draft. |
 | `cc_immunity` | 5 | Keeps lockdown/disrupt honest without erasing control. |
-| `damage_reduction` | 8 | Defensive pillar, but not allowed to dominate. |
+| `damage_reduction` | 9 | Defensive pillar, but not allowed to dominate. |
 | `debuff` | 8 | Main anti-stat, anti-sustain, and anti-tank tool. |
 | `disrupt` | 8 | Core plan-breaking approach. |
 | `dot` | 5 | Clock pressure against mitigation and target denial. |
@@ -139,17 +139,17 @@ Target total: 149 approach assignments across 50 units, or almost exactly three 
 | `sustain` | 8 | Attrition pillar with clear anti-heal/execute answers. |
 | `untargetable` | 5 | Timing dodge answer to burst/lockdown/execute. |
 | `zone` | 6 | Core chess-board approach; enough to matter but not clog every fight. |
-| Total | 149 |  |
+| Total | 152 |  |
 
 Category balance:
 
 | Category | Included approaches | Target total | Why this is acceptable |
 | --- | --- | ---: | --- |
-| Output and timing damage | `burst`, `aoe`, `dot`, `execute`, `reset_mechanic`, `on_hit_effect`, `ramp` | 47 | Damage remains the way fights end, but it is split across burst, clocks, uptime, threshold, and reset patterns. |
-| Stat and attrition modifiers | `amp`, `damage_reduction`, `debuff`, `sustain` | 32 | Broad stat tags matter without becoming the whole game. |
-| Board geometry and threat access | `access_backline`, `engage`, `long_range`, `redirect`, `reposition`, `zone` | 38 | Enough tools exist for tile placement and target access to decide fights. |
+| Output and timing damage | `burst`, `aoe`, `dot`, `execute`, `reset_mechanic`, `on_hit_effect`, `ramp` | 48 | Damage remains the way fights end, but it is split across burst, clocks, uptime, threshold, and reset patterns. |
+| Stat and attrition modifiers | `amp`, `damage_reduction`, `debuff`, `sustain` | 33 | Broad stat tags matter without becoming the whole game. |
+| Board geometry and threat access | `access_backline`, `engage`, `long_range`, `redirect`, `reposition`, `zone` | 39 | Enough tools exist for tile placement and target access to decide fights. |
 | Control and control answers | `cc_immunity`, `disrupt`, `lockdown`, `peel`, `untargetable` | 32 | Control can be important without becoming oppressive because answers are budgeted beside it. |
-| Total |  | 149 |  |
+| Total |  | 152 |  |
 
 ## Approach Counter Matrix
 
@@ -312,7 +312,7 @@ Use these rules when designing or retagging units:
 
 ## Immediate Plan Corrections
 
-The next roster design pass should keep the 50-unit cost counts but retag/reconcept planned identities toward the target matrix:
+The next roster design pass should keep the 51-unit cost counts but retag/reconcept planned identities toward the target matrix:
 
 - Target support goals at `peel_carry:2`, `team_amplification:2`, `enemy_lockdown:2`, `initiate_fight:1`, `formation_breaking:2`.
 - Target tank goals at `frontline_absorb:3`, `team_fortification:2`, `initiate_fight:2`, `single_target_lockdown:2`.

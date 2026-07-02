@@ -31,6 +31,9 @@ func _run() -> void:
 	var runtime: CreepRewardsRuntime = Runtime.new()
 	var pool: CreepRewardPool = _component_only_pool()
 
+	_expect(UnitFactory.is_creep_id("drubble"), "drubble should classify as a creep-round NPC", failures)
+	_expect(not UnitFactory.is_creep_id("creep"), "playable Creep should not classify as a creep-round NPC", failures)
+
 	_set_teams(state, ["sari"], ["drubble"])
 	runtime.configure(engine, pool, {"rolls_per_kill": 1, "only_creeps": true, "source_team": "player"})
 	var before_creep_kill: Dictionary = _inv()
@@ -44,6 +47,12 @@ func _run() -> void:
 	var before_non_creep_kill: Dictionary = _inv()
 	runtime._on_hit_applied("player", 0, 0, 10, 10, false, 10, 0, 0.0, 0.0)
 	_expect(_count_inv(_inv()) == _count_inv(before_non_creep_kill), "player kill on non-creep should not add creep reward", failures)
+
+	_set_teams(state, ["sari"], ["creep"])
+	runtime.configure(engine, pool, {"rolls_per_kill": 1, "only_creeps": true, "source_team": "player"})
+	var before_playable_creep_kill: Dictionary = _inv()
+	runtime._on_hit_applied("player", 0, 0, 10, 10, false, 10, 0, 0.0, 0.0)
+	_expect(_count_inv(_inv()) == _count_inv(before_playable_creep_kill), "player kill on playable Creep should not add creep-round reward", failures)
 
 	_set_teams(state, ["drubble"], ["bonko"])
 	runtime.configure(engine, pool, {"rolls_per_kill": 1, "only_creeps": true, "source_team": "player"})

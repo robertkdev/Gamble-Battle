@@ -184,7 +184,7 @@ Totem and Veyra stand in this lineage. One is an exiled wooden idol. The other i
 
 Executioners believe mercy without consequence is only cowardice. They inherit Auralis's black light and use it to decide when a life, reign, wound, or lie has reached its end.
 
-Bo, Hexeon, Morrak, Repo, and the hidden Creep all touch this covenant. None of them agree on who deserves the blade.
+Bo, Hexeon, Morrak, Repo, and Creep all touch this covenant. None of them agree on who deserves the blade.
 
 ### The Vindicator Inquest
 
@@ -280,7 +280,7 @@ Grint is Harmony-touched, which is why he is more complicated than a Cartel enfo
 
 Exile is not a faction in the normal sense. It is a condition that becomes a covenant only when loneliness is chosen back. Exiles are those no god can fully claim, or those who refuse the claim after it is made.
 
-Teller and Totem are Exiles. The Creep may be one. Sari is something stranger: not exiled from a covenant, but born outside the covenantal order entirely.
+Teller, Totem, Creep, and Sari are Exiles in different ways. Sari also carries Scholar influence: not traitless, but marked by a colder discipline than the covenantal orders know how to explain.
 
 ## The Current Roster In The World
 
@@ -304,7 +304,7 @@ This section is a continuity anchor for the current roster. The story can grow b
 | Nyxa | Sanguine, Chronomancer | A small dark beast with white mane and time-tendril instincts. | She is grief made fast: the moment before loss, given claws. |
 | Paisley | Arcanist, Kaleidoscope, Blessed | A bright bubble caster whose tenderness has survived divine attention. | She makes beauty protective, which terrifies those who only understand beauty as bait. |
 | Repo | Vindicator, Executioner | A horned collector who arrives when a soul's unpaid crime matures. | He is accountability without context. |
-| Sari | None | A spectral marksman outside every covenant, with green eyes and no god's mark. | She is the central impossibility: a person not explained by the divine system. |
+| Sari | Exile, Scholar | A spectral marksman whose exile and scholarship make her hard for the covenants to classify. | She is the central impossibility: a person the divine system can mark but not fully explain. |
 | Teller | Exile, Mogul | A thin gothic exile who made wealth from abandonment and hates himself for it. | He knows value can be invented, but still mourns what could not be bought back. |
 | Totem | Bulwark, Exile | A carved wooden guardian idol banished from the grove it still protects. | He proves exile does not always end loyalty. |
 | Veyra | Aegis, Bulwark | A white-silver guardian whose defense hardens into permanent change. | She asks whether protection is love if it makes the protected smaller. |
@@ -720,7 +720,7 @@ Vykos is not compelling because he is monstrous. He is compelling because his mo
 - The factions are ideological and religious responses to divine failure, not abstract design categories inside the fiction.
 - Current roster faction membership matches current trait data; Sari now carries Exile and Scholar while still occupying the story position of an unclaimed soul.
 - Trader and Catalyst now have first live roster representatives through Knoll, Miri, and Pilfer, but their world-faction rules remain thin and need later story passes.
-- Creep is now a playable Exile/Executioner unit, while older hidden/non-playable Creep material under `data/other_units/` remains excluded from roster-count audits.
+- Creep is now a playable Exile/Executioner unit at `data/units/creep.tres`; lowercase creep-round NPCs remain separate reward enemies under `data/other_units/creeps/`.
 - The central conflict is not a contest structure. It is the moral crisis caused by gods who made mortal suffering meaningful before they learned guilt.
 - The story includes non-roster characters: Ilyra Vale, Brother Caldus, Mother Orren, Saint Morrow-of-the-Wall, the Child Under the Choir, Ivara the first accuser, and the Nameless Mercy.
 - The ending changes the metaphysical condition of the world without solving politics, grief, exploitation, hunger, or violence.

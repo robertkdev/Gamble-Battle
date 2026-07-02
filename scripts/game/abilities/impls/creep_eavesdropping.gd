@@ -45,6 +45,7 @@ func cast(ctx: AbilityContext) -> bool:
 	var target_idx: int = _priority_backline_enemy(ctx)
 	if target_idx < 0:
 		return false
+	_set_current_target(ctx, target_idx)
 
 	var exiled: bool = _exile_active(ctx)
 	var li: int = _level_index(caster)
@@ -79,29 +80,71 @@ func cast(ctx: AbilityContext) -> bool:
 	return true
 
 func _priority_backline_enemy(ctx: AbilityContext) -> int:
-	var far_targets: Array[int] = ctx.two_furthest_enemies(ctx.caster_team)
-	if not far_targets.is_empty():
-		return int(far_targets[0])
-	return ctx.lowest_hp_enemy(ctx.caster_team)
+	var enemies: Array[Unit] = ctx.enemy_team_array(ctx.caster_team)
+	var target_team: String = _other(ctx.caster_team)
+	var side_sign: float = 1.0 if ctx.caster_team == "player" else -1.0
+	var candidates: Array[Dictionary] = []
+	for enemy_index: int in range(enemies.size()):
+		var enemy: Unit = enemies[enemy_index]
+		if enemy == null or not enemy.is_alive():
+			continue
+		var position: Vector2 = ctx.position_of(target_team, enemy_index)
+		candidates.append({
+			"idx": enemy_index,
+			"depth": position.x * side_sign,
+			"hp": int(enemy.hp)
+		})
+	if candidates.is_empty():
+		return -1
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var depth_a: float = float(a.get("depth", 0.0))
+		var depth_b: float = float(b.get("depth", 0.0))
+		if not is_equal_approx(depth_a, depth_b):
+			return depth_a > depth_b
+		return int(a.get("hp", 0)) < int(b.get("hp", 0))
+	)
+	var backline_count: int = max(1, int(ceil(float(candidates.size()) * 0.5)))
+	var best_index: int = -1
+	var best_hp: int = 1 << 30
+	for candidate_index: int in range(backline_count):
+		var candidate: Dictionary = candidates[candidate_index]
+		var hp: int = int(candidate.get("hp", best_hp))
+		if hp < best_hp:
+			best_hp = hp
+			best_index = int(candidate.get("idx", -1))
+	return best_index
+
+func _set_current_target(ctx: AbilityContext, target_index: int) -> void:
+	if ctx == null or ctx.state == null:
+		return
+	if ctx.caster_team == "player":
+		if ctx.caster_index >= 0 and ctx.caster_index < ctx.state.player_targets.size():
+			ctx.state.player_targets[ctx.caster_index] = target_index
+	else:
+		if ctx.caster_index >= 0 and ctx.caster_index < ctx.state.enemy_targets.size():
+			ctx.state.enemy_targets[ctx.caster_index] = target_index
 
 func _dash_to_enemy_backline(ctx: AbilityContext, target_team: String, target_index: int) -> Vector2:
 	var start: Vector2 = ctx.position_of(ctx.caster_team, ctx.caster_index)
 	var target_pos: Vector2 = ctx.position_of(target_team, target_index)
 	var sign_x: float = 1.0 if ctx.caster_team == "player" else -1.0
-	var enemy_depth_x: float = abs(target_pos.x) * sign_x
+	var backline_x: float = target_pos.x
+	var found_enemy: bool = false
 	var enemies: Array[Unit] = ctx.enemy_team_array(ctx.caster_team)
 	for enemy_index: int in range(enemies.size()):
 		var enemy: Unit = enemies[enemy_index]
 		if enemy == null or not enemy.is_alive():
 			continue
 		var enemy_pos: Vector2 = ctx.position_of(target_team, enemy_index)
-		var projected_enemy_x: float = abs(enemy_pos.x) * sign_x
-		if sign_x > 0.0:
-			enemy_depth_x = max(enemy_depth_x, projected_enemy_x)
+		if not found_enemy:
+			backline_x = enemy_pos.x
+			found_enemy = true
+		elif sign_x > 0.0:
+			backline_x = max(backline_x, enemy_pos.x)
 		else:
-			enemy_depth_x = min(enemy_depth_x, projected_enemy_x)
+			backline_x = min(backline_x, enemy_pos.x)
 	var tile: float = ctx.tile_size()
-	var destination: Vector2 = Vector2(enemy_depth_x + sign_x * DASH_OVERSHOOT_TILES * tile, 0.0)
+	var destination: Vector2 = Vector2(backline_x + sign_x * DASH_OVERSHOOT_TILES * tile, target_pos.y)
 	var delta: Vector2 = destination - start
 	if ctx.engine.arena_state != null and ctx.engine.arena_state.has_method("notify_forced_movement") and delta.length() > 0.001:
 		ctx.engine.arena_state.notify_forced_movement(ctx.caster_team, ctx.caster_index, delta, MOVE_DURATION)

@@ -88,14 +88,14 @@ Verdict: accepted as a workflow proof. The second-pass wording produced the inte
 
 ## Creep Planned Unit Horror Refit - Rejected Identity And Style Gate
 
-Source matrix entry: `docs/art/unit_art_roster_prompt_matrix.json`, `other_units[creep]`
+Source matrix entry: `docs/art/unit_art_roster_prompt_matrix.json`, `units[creep]`
 
 Design-source correction:
 
 - The Google design doc lists Creep as `Creep - (Assassin)`.
 - Ability: `Evesdropping` / `Eavesdropping` with Exile / Executioner.
 - Behavior: dashes to the lowest-health enemy, spins in rapid physical-damage ticks, is unstoppable and damage-reduced while spinning, and can extend/chase to the next lowest-health enemy after a takedown when Exile is active.
-- Current repo state: `data/other_units/other/creep.tres` is hidden and enemy-only, but the art workflow should treat Creep as a real planned unit and a goth/horror style anchor.
+- Current repo state: `data/units/creep.tres` is the playable Creep unit; the art workflow should treat Creep as a normal roster unit and a goth/horror style anchor.
 
 Key outputs:
 
