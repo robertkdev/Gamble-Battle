@@ -53,6 +53,16 @@ const COST_3_UNITS: Array[String] = [
 	"quorra",
 	"sable",
 ]
+const COST_4_UNITS: Array[String] = [
+	"bastionne",
+	"draxelle",
+	"gable",
+	"omenry",
+	"orielle",
+	"ravel",
+	"saffron",
+	"vesper",
+]
 
 const ROLL_SHOPS_PER_LEVEL: int = 600
 const EPSILON: float = 0.0001
@@ -73,7 +83,7 @@ func _run() -> void:
 	_validate_shop_rolls(shop_catalog, failures)
 
 	if failures.is_empty():
-		print("CostBalanceSmoke: PASS units=", rga_entries.size(), " tiers=1:", COST_1_UNITS.size(), " 2:", COST_2_UNITS.size(), " 3:", COST_3_UNITS.size())
+		print("CostBalanceSmoke: PASS units=", rga_entries.size(), " tiers=1:", COST_1_UNITS.size(), " 2:", COST_2_UNITS.size(), " 3:", COST_3_UNITS.size(), " 4:", COST_4_UNITS.size())
 		get_tree().quit(0)
 		return
 	for failure: String in failures:
@@ -94,6 +104,7 @@ func _validate_expected_tiers(rga_entries: Array[Dictionary], shop_catalog: Unit
 		1: COST_1_UNITS,
 		2: COST_2_UNITS,
 		3: COST_3_UNITS,
+		4: COST_4_UNITS,
 	}
 	var rga_by_cost: Dictionary[int, Array] = {}
 	for entry: Dictionary in rga_entries:
@@ -113,7 +124,7 @@ func _validate_expected_tiers(rga_entries: Array[Dictionary], shop_catalog: Unit
 	for unexpected_cost: int in rga_by_cost.keys():
 		if not expected_by_cost.has(unexpected_cost):
 			failures.append("unexpected RGA cost tier %d ids=%s" % [unexpected_cost, _format_list(_sorted_string_copy(rga_by_cost[unexpected_cost]))])
-	_expect_lists_equal("valid cost list", [1, 2, 3], ShopConfig.VALID_COSTS, failures)
+	_expect_lists_equal("valid cost list", [1, 2, 3, 4], ShopConfig.VALID_COSTS, failures)
 
 func _validate_starter_surface(shop_catalog: UnitCatalog, failures: Array[String]) -> void:
 	var starters: Array[String] = _sorted_string_copy(shop_catalog.list_starter_ids(ShopConfig.STARTING_LEVEL))
@@ -122,6 +133,7 @@ func _validate_starter_surface(shop_catalog: UnitCatalog, failures: Array[String
 	var premium_units: Array[String] = []
 	premium_units.append_array(COST_2_UNITS)
 	premium_units.append_array(COST_3_UNITS)
+	premium_units.append_array(COST_4_UNITS)
 	for premium_id: String in premium_units:
 		if starters.has(premium_id):
 			failures.append("premium unit %s should not be starter-visible at level 1" % premium_id)
@@ -170,8 +182,10 @@ func _validate_expected_level_access(level: int, probabilities: Dictionary, fail
 		_expect_cost_access(level, probabilities, [1], failures)
 	elif level == 2:
 		_expect_cost_access(level, probabilities, [1, 2], failures)
-	else:
+	elif level == 3:
 		_expect_cost_access(level, probabilities, [1, 2, 3], failures)
+	else:
+		_expect_cost_access(level, probabilities, [1, 2, 3, 4], failures)
 
 func _expect_cost_access(level: int, probabilities: Dictionary, expected_costs: Array[int], failures: Array[String]) -> void:
 	var actual_costs: Array[int] = []
@@ -209,6 +223,8 @@ func _validate_shop_rolls(shop_catalog: UnitCatalog, failures: Array[String]) ->
 			_expect_any_observed("level %d premium roll coverage" % level, COST_2_UNITS, observed_ids, failures)
 		if level >= 3:
 			_expect_any_observed("level %d capstone roll coverage" % level, COST_3_UNITS, observed_ids, failures)
+		if level >= 4:
+			_expect_any_observed("level %d pivot roll coverage" % level, COST_4_UNITS, observed_ids, failures)
 		print("CostBalanceSmoke: level=", level, " observed_cost_counts=", observed_counts)
 
 func _positive_costs_for_level(level: int) -> Array[int]:

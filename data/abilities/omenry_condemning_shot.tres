@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "omenry_condemning_shot"
+name = "Condemning Shot"
+description = "Finds the most isolated enemy, fires a long-range shred shot, and repositions the firing line."
+base_cost = 55
+tags = ["damage", "long_range", "on_hit_effect", "reposition"]

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "bastionne_no_pass_writ"
+name = "No-Pass Writ"
+description = "Raises a gate wall that locks one threat, redirects pressure, and briefly blocks crowd control."
+base_cost = 60
+tags = ["tank", "lockdown", "redirect", "cc_immunity"]

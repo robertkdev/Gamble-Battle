@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "gable_market_corner"
+name = "Market Corner"
+description = "Fires long-range rotating on-hit shots and ramps with protected high-cost board context."
+base_cost = 55
+tags = ["damage", "long_range", "on_hit_effect", "ramp"]

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "saffron_golden_poultice"
+name = "Golden Poultice"
+description = "Heals, shields, and reduces damage on the most threatened ally, then shares overheal as a small team shield."
+base_cost = 60
+tags = ["support", "peel", "sustain", "damage_reduction"]

@@ -142,6 +142,8 @@ Implementation checkpoint, 2026-07-01: the cost-1 and cost-2 addition batch is n
 
 Implementation checkpoint, 2026-07-02: the planned cost-3 target batch is now live as playable resources: Caldera, Ivara, Noxley, Quorra, Juno Vale, Kett, Egress, Marble, Prisma, and Sable. The live playable roster is 39 units: 38 target-matrix rows plus playable Creep outside the 50-unit target. Remaining target-matrix additions are now the eight cost-4 units and four cost-5 units.
 
+Implementation checkpoint, 2026-07-02: the planned cost-4 target batch is now live as playable resources: Ravel, Draxelle, Orielle, Bastionne, Vesper, Gable, Saffron, and Omenry. `ShopConfig.VALID_COSTS` now exposes cost 4, `ODDS_BY_LEVEL` gives levels 4-6 a small cost-4 chance, and `CostBalanceSmoke` now checks the live roster as 47 playable units: 46 target-matrix rows plus playable Creep outside the 50-unit target. Remaining target-matrix additions are the four cost-5 capstones.
+
 ### Cost 1 Additions: 2 Units
 
 | Name | Role | Traits | Look | Ability | Why it exists |

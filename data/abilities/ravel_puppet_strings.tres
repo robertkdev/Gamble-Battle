@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "ravel_puppet_strings"
+name = "Puppet Strings"
+description = "Links two allies with shared tempo, then yanks an enemy formation apart and redirects focus."
+base_cost = 30
+tags = ["support", "disrupt", "redirect", "engage"]

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="UnitProfile" load_steps=3]
+
+[ext_resource path="res://scripts/game/units/unit_profile.gd" type="Script" id=1]
+[ext_resource path="res://data/identity/unit_identities/saffron_identity.tres" type="Resource" id=2]
+
+[resource]
+script = ExtResource( 1 )
+id = "saffron"
+name = "Saffron"
+sprite_path = "res://assets/units/saffron.png"
+ability_id = "saffron_golden_poultice"
+traits = ["Blessed", "Catalyst"]
+roles = ["support"]
+cost = 4
+level = 1
+primary_role = ""
+primary_goal = ""
+approaches = []
+alt_goals = []
+identity = ExtResource( 2 )

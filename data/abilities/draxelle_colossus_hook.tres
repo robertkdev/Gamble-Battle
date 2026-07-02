@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "draxelle_colossus_hook"
+name = "Colossus Hook"
+description = "Hooks a distant enemy into the brawl, cleaves the frontline, and gains visible scaling plates."
+base_cost = 30
+tags = ["damage", "engage", "disrupt", "ramp"]
