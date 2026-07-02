@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "quillith_final_exam"
+name = "Final Exam"
+description = "Names a Pupil, protects and amplifies them, then forces a reduced recast with team mana spillover."
+base_cost = 36
+tags = ["utility", "amp", "reset_mechanic", "peel"]

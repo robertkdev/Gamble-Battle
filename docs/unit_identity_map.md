@@ -26,17 +26,21 @@ Current playable-unit identity map. Source of truth is `data/units/*.tres` plus 
 | Korath | korath | tank | tank.frontline_absorb | damage_reduction, engage, redirect | res://data/identity/unit_identities/korath_identity.tres |
 | Kythera | kythera | tank | tank.team_fortification | damage_reduction, debuff | res://data/identity/unit_identities/kythera_identity.tres |
 | Luna | luna | mage | mage.wombo_combo_burst | aoe, burst, long_range | res://data/identity/unit_identities/luna_identity.tres |
+| Malachor | malachor | tank | tank.single_target_lockdown | lockdown, sustain, dot | res://data/identity/unit_identities/malachor_identity.tres |
 | Marble | marble | marksman | marksman.backline_siege | long_range, peel, debuff | res://data/identity/unit_identities/marble_identity.tres |
+| Meridian | meridian | mage | mage.wombo_combo_burst | aoe, burst, amp | res://data/identity/unit_identities/meridian_identity.tres |
 | Miri | miri | support | support.initiate_fight | engage, amp, peel | res://data/identity/unit_identities/miri_identity.tres |
 | Morrak | morrak | brawler | brawler.attrition_dps | damage_reduction, execute, aoe | res://data/identity/unit_identities/morrak_identity.tres |
 | Mortem | mortem | brawler | brawler.attrition_dps | reposition, burst, disrupt | res://data/identity/unit_identities/mortem_identity.tres |
 | Noxley | noxley | mage | mage.sustained_dps | dot, sustain, ramp | res://data/identity/unit_identities/noxley_identity.tres |
+| Nullora | nullora | assassin | assassin.backline_elimination | access_backline, execute, untargetable | res://data/identity/unit_identities/nullora_identity.tres |
 | Nyxa | nyxa | marksman | marksman.backline_siege | long_range, ramp, aoe | res://data/identity/unit_identities/nyxa_identity.tres |
 | Omenry | omenry | marksman | marksman.backline_siege | long_range, on_hit_effect, reposition | res://data/identity/unit_identities/omenry_identity.tres |
 | Orielle | orielle | mage | mage.area_denial_zone | zone, disrupt, ramp | res://data/identity/unit_identities/orielle_identity.tres |
 | Paisley | paisley | mage | mage.wombo_combo_burst | aoe, peel | res://data/identity/unit_identities/paisley_identity.tres |
 | Pilfer | pilfer | assassin | assassin.disrupt_and_escape | access_backline, untargetable, reposition | res://data/identity/unit_identities/pilfer_identity.tres |
 | Prisma | prisma | mage | mage.area_denial_zone | zone, amp, aoe | res://data/identity/unit_identities/prisma_identity.tres |
+| Quillith | quillith | support | support.team_amplification | amp, reset_mechanic, peel | res://data/identity/unit_identities/quillith_identity.tres |
 | Quorra | quorra | assassin | assassin.disrupt_and_escape | access_backline, dot, untargetable | res://data/identity/unit_identities/quorra_identity.tres |
 | Ravel | ravel | support | support.formation_breaking | disrupt, redirect, engage | res://data/identity/unit_identities/ravel_identity.tres |
 | Repo | repo | tank | tank.frontline_absorb | damage_reduction | res://data/identity/unit_identities/repo_identity.tres |

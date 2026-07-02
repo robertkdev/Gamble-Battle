@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "meridian_full_spectrum_treaty"
+name = "Full Spectrum Treaty"
+description = "Links wide allies, amplifies the treaty board, then detonates a prism beam across clustered enemies."
+base_cost = 38
+tags = ["damage", "aoe", "burst", "amp"]

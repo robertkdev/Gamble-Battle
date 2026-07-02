@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AbilityDef" load_steps=2]
+
+[ext_resource path="res://scripts/game/abilities/ability_def.gd" type="Script" id=1]
+
+[resource]
+script = ExtResource( 1 )
+id = "nullora_last_word"
+name = "Last Word"
+description = "Vanishes into the enemy backline, marks the carry, executes the threshold, and leaves before retaliation."
+base_cost = 28
+tags = ["damage", "access_backline", "execute", "untargetable"]
