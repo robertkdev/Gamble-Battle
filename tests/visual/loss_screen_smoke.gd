@@ -59,7 +59,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 
 	_expect(int(GameState.stage) == 1, "New Game did not reset GameState.stage", failures)
-	_expect(int(Economy.gold) == 2, "New Game did not reset Economy.gold", failures)
+	_expect(int(Economy.gold) == int(Economy.STARTING_GOLD), "New Game did not reset Economy.gold", failures)
 	_expect(int(Roster.first_empty_slot()) == 0, "New Game did not clear Roster bench", failures)
 	_expect(not is_instance_valid(layer), "New Game did not clear the overlay CanvasLayer", failures)
 
