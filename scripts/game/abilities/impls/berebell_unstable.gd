@@ -12,6 +12,7 @@ const HEAL_PCT := [0.30, 0.45, 0.55]
 const IMPACT_BASE := [120, 180, 260]
 const IMPACT_AD_MULT := 0.55
 const ATTACK_DAMAGE_BUFF_PCT := 0.18
+const BLOOD_SHIELD_MAX_HP_PCT: Array[float] = [0.10, 0.14, 0.18]
 
 func _level_index(u: Unit) -> int:
 	var lvl: int = (int(u.level) if u != null else 1)
@@ -40,6 +41,8 @@ func cast(ctx: AbilityContext) -> bool:
 
 	# Lifesteal during frenzy equals heal percent
 	bs.apply_stats_buff(ctx.state, ctx.caster_team, ctx.caster_index, {"lifesteal": float(HEAL_PCT[li])}, DURATION)
+	var blood_shield: int = int(max(1.0, round(float(caster.max_hp) * BLOOD_SHIELD_MAX_HP_PCT[li])))
+	bs.apply_shield(ctx.state, ctx.caster_team, ctx.caster_index, blood_shield, DURATION)
 
 	# Flat attack-damage steroid while frenzied
 	var delta_ad: float = float(caster.attack_damage) * ATTACK_DAMAGE_BUFF_PCT
@@ -52,10 +55,11 @@ func cast(ctx: AbilityContext) -> bool:
 		"block_mana_gain": true
 	})
 
-	ctx.log("Unstable: smash +%d%% AS, +%d%% lifesteal, %d%% missing-HP bonus for %.1fs" % [
+	ctx.log("Unstable: smash +%d%% AS, +%d%% lifesteal, %d%% missing-HP bonus, %d blood shield for %.1fs" % [
 		int(AS_PCT[li] * 100.0),
 		int(HEAL_PCT[li] * 100.0),
 		int(MISSING_PCT[li] * 100.0),
+		blood_shield,
 		DURATION
 	])
 	return true

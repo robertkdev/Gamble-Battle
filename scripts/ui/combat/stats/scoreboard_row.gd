@@ -44,7 +44,7 @@ func _refresh() -> void:
 func _update_portrait() -> void:
 	var tex: Texture2D = null
 	if unit_ref != null and String(unit_ref.sprite_path) != "":
-		tex = load(unit_ref.sprite_path)
+		tex = TextureUtils.try_load_texture(unit_ref.sprite_path)
 	if tex == null:
 		tex = TextureUtils.make_circle_texture(Color(0.6, 0.65, 0.75), 32)
 	portrait.texture = tex

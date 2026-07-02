@@ -7,6 +7,5 @@ script = ExtResource( 1 )
 id = "hexeon_prismatic_guillotine"
 name = "Prismatic Guillotine"
 description = "Blinks to the lowest-HP enemy and strikes for heavy magic damage, executing below a threshold or applying a healing reduction debuff. On execute, recasts at reduced power."
-base_cost = 100
-tags = ["damage", "execute", "debuff"]
-
+base_cost = 40
+tags = ["damage", "access_backline", "execute", "debuff"]

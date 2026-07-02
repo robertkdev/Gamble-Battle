@@ -6,14 +6,16 @@ extends AbilityImplBase
 # If target HP% is at/under Executioner threshold (12% + 2% × stacks, up to 40%), execute it.
 # On execute, retarget lowest‑HP enemy and recast at 70% power.
 
-const BASE := [260, 390, 900]
-const SP_MULT := 0.90
+const BASE: Array[int] = [300, 450, 900]
+const SP_MULT: float = 0.90
 const TraitKeys := preload("res://scripts/game/traits/runtime/trait_keys.gd")
 const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
 const KALEI_KEY := "kaleidoscope_stacks" # Legacy fallback for old saved/test state.
 const EXEC_KEY := "executioner_stacks"    # Legacy fallback for old saved/test state.
-const RECAST_SCALE := 0.70
-const BLINK_OFFSET_TILES: float = 0.55
+const RECAST_SCALE: float = 0.70
+const BLINK_OFFSET_TILES: float = 0.85
+const EXECUTE_ARM_THRESHOLD: float = 0.85
+const MOVE_DURATION: float = 0.16
 
 func _level_index(u: Unit) -> int:
     var lvl: int = (int(u.level) if u != null else 1)
@@ -66,6 +68,14 @@ func _strike(ctx: AbilityContext, target_idx: int, power_scale: float) -> Dictio
     var tgt: Unit = ctx.unit_at(target_team, target_idx)
     if tgt != null and tgt.is_alive():
         var hp_pct: float = float(tgt.hp) / max(1.0, float(tgt.max_hp))
+        if power_scale >= 0.99 and hp_pct > threshold and hp_pct <= EXECUTE_ARM_THRESHOLD:
+            var threshold_hp: int = max(1, int(floor(float(tgt.max_hp) * threshold)))
+            var setup_damage: float = _damage_for_effective_amount(tgt, max(0.0, float(tgt.hp - threshold_hp - 1)))
+            if setup_damage > 0.0:
+                ctx.damage_single(ctx.caster_team, ctx.caster_index, target_idx, setup_damage, "true")
+                tgt = ctx.unit_at(target_team, target_idx)
+                if tgt != null and tgt.is_alive():
+                    hp_pct = float(tgt.hp) / max(1.0, float(tgt.max_hp))
         if hp_pct <= threshold:
             var to_kill: float = float(tgt.hp)
             if to_kill > 0.0:
@@ -80,36 +90,52 @@ func _priority_backline_enemy(ctx: AbilityContext) -> int:
     var enemies: Array[Unit] = ctx.enemy_team_array(ctx.caster_team)
     var target_team: String = ctx._other_team(ctx.caster_team)
     var side_sign: float = 1.0 if ctx.caster_team == "player" else -1.0
+    var min_depth: float = INF
+    var max_depth: float = -INF
+    for index in range(enemies.size()):
+        var enemy_for_depth: Unit = enemies[index]
+        if enemy_for_depth == null or not enemy_for_depth.is_alive():
+            continue
+        var depth_value: float = ctx.position_of(target_team, index).x * side_sign
+        min_depth = min(min_depth, depth_value)
+        max_depth = max(max_depth, depth_value)
+    if max_depth <= -INF:
+        return -1
+    var backline_depth: float = min_depth + max(0.0, max_depth - min_depth) * 0.5
     var candidates: Array[Dictionary] = []
     for i in range(enemies.size()):
         var enemy: Unit = enemies[i]
         if enemy == null or not enemy.is_alive():
             continue
         var pos: Vector2 = ctx.position_of(target_team, i)
+        var depth: float = pos.x * side_sign
+        if depth < backline_depth:
+            continue
+        var hp_pct: float = float(enemy.hp) / max(1.0, float(enemy.max_hp))
+        var role_id: String = String(enemy.primary_role).strip_edges().to_lower()
+        var priority_bonus: float = 0.0
+        if role_id == "marksman" or role_id == "mage" or role_id == "support":
+            priority_bonus = 200.0
         candidates.append({
             "idx": i,
-            "depth": pos.x * side_sign,
-            "hp": int(enemy.hp)
+            "depth": depth,
+            "hp_pct": hp_pct,
+            "score": priority_bonus + (1.0 - hp_pct) * 120.0 + depth * 0.01
         })
     if candidates.is_empty():
-        return -1
+        return ctx.lowest_hp_enemy(ctx.caster_team)
     candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-        var da: float = float(a.get("depth", 0.0))
-        var db: float = float(b.get("depth", 0.0))
-        if not is_equal_approx(da, db):
-            return da > db
-        return int(a.get("hp", 0)) < int(b.get("hp", 0))
+        var score_a: float = float(a.get("score", 0.0))
+        var score_b: float = float(b.get("score", 0.0))
+        if not is_equal_approx(score_a, score_b):
+            return score_a > score_b
+        var depth_a: float = float(a.get("depth", 0.0))
+        var depth_b: float = float(b.get("depth", 0.0))
+        if not is_equal_approx(depth_a, depth_b):
+            return depth_a > depth_b
+        return float(a.get("hp_pct", 1.0)) < float(b.get("hp_pct", 1.0))
     )
-    var backline_count: int = max(1, int(ceil(float(candidates.size()) * 0.5)))
-    var best_idx: int = -1
-    var best_hp: int = 1 << 30
-    for k in range(backline_count):
-        var candidate: Dictionary = candidates[k]
-        var hp: int = int(candidate.get("hp", best_hp))
-        if hp < best_hp:
-            best_hp = hp
-            best_idx = int(candidate.get("idx", -1))
-    return best_idx
+    return int(candidates[0].get("idx", -1))
 
 func _set_current_target(ctx: AbilityContext, target_idx: int) -> void:
     if ctx == null or ctx.state == null:
@@ -126,11 +152,26 @@ func _blink_near_target(ctx: AbilityContext, target_idx: int) -> void:
         return
     var target_team: String = ctx._other_team(ctx.caster_team)
     var target_pos: Vector2 = ctx.position_of(target_team, target_idx)
-    var caster_pos: Vector2 = ctx.position_of(ctx.caster_team, ctx.caster_index)
-    var away_from_target: Vector2 = caster_pos - target_pos
-    if away_from_target.length_squared() <= 0.0001:
-        away_from_target = Vector2(-1.0 if ctx.caster_team == "player" else 1.0, 0.0)
-    var dest: Vector2 = target_pos + away_from_target.normalized() * BLINK_OFFSET_TILES * ctx.tile_size()
+    var start: Vector2 = ctx.position_of(ctx.caster_team, ctx.caster_index)
+    var sign_x: float = 1.0 if ctx.caster_team == "player" else -1.0
+    var backline_x: float = target_pos.x
+    var found_enemy: bool = false
+    var enemies: Array[Unit] = ctx.enemy_team_array(ctx.caster_team)
+    for enemy_index in range(enemies.size()):
+        var enemy: Unit = enemies[enemy_index]
+        if enemy == null or not enemy.is_alive():
+            continue
+        var enemy_pos: Vector2 = ctx.position_of(target_team, enemy_index)
+        if not found_enemy:
+            backline_x = enemy_pos.x
+            found_enemy = true
+        elif sign_x > 0.0:
+            backline_x = max(backline_x, enemy_pos.x)
+        else:
+            backline_x = min(backline_x, enemy_pos.x)
+    var dest: Vector2 = Vector2(backline_x + sign_x * BLINK_OFFSET_TILES * ctx.tile_size(), target_pos.y)
+    if ctx.engine.arena_state.has_method("notify_forced_movement"):
+        ctx.engine.arena_state.notify_forced_movement(ctx.caster_team, ctx.caster_index, dest - start, MOVE_DURATION)
     if ctx.engine.arena_state.data != null:
         dest = MovementMath.clamp_to_rect(dest, ctx.engine.arena_state.data.arena_bounds)
         if ctx.caster_team == "player":
@@ -140,6 +181,14 @@ func _blink_near_target(ctx: AbilityContext, target_idx: int) -> void:
             if ctx.caster_index >= 0 and ctx.caster_index < ctx.engine.arena_state.data.enemy_positions.size():
                 ctx.engine.arena_state.data.enemy_positions[ctx.caster_index] = dest
         ctx.engine.emit_signal("position_updated", ctx.caster_team, ctx.caster_index, dest.x, dest.y)
+
+func _damage_for_effective_amount(target: Unit, desired_effective: float) -> float:
+    if target == null:
+        return 0.0
+    var target_dr: float = clamp(float(target.damage_reduction), 0.0, 0.95)
+    var target_flat_dr: float = max(0.0, float(target.damage_reduction_flat))
+    var damage_multiplier: float = max(0.05, 1.0 - target_dr)
+    return ceil((max(0.0, desired_effective) + target_flat_dr + 1.0) / damage_multiplier)
 
 func cast(ctx: AbilityContext) -> bool:
     if ctx == null or ctx.engine == null or ctx.state == null:

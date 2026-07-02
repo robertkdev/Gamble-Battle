@@ -3,6 +3,7 @@ class_name UnitActor
 
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const UnitEffectPlayer := preload("res://scripts/ui/vfx/unit_effect_player.gd")
+const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 
 var unit: Unit
 var focus_plate: Panel
@@ -267,7 +268,7 @@ func _update_texture() -> void:
 		return
 	var tex: Texture2D = null
 	if unit != null and unit.sprite_path != "":
-		tex = load(unit.sprite_path)
+		tex = TextureUtils.try_load_texture(unit.sprite_path)
 	if tex == null:
 		var img: Image = Image.create(int(size_px.x), int(size_px.y), false, Image.FORMAT_RGBA8)
 		img.fill(Color(0, 0, 0, 0))

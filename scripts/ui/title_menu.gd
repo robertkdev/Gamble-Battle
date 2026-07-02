@@ -7,6 +7,7 @@ const PrimaryRoleScript: GDScript = preload("res://scripts/game/identity/primary
 const GoalCatalogScript: GDScript = preload("res://scripts/game/identity/goal_catalog.gd")
 const ApproachCatalogScript: GDScript = preload("res://scripts/game/identity/approach_catalog.gd")
 const AbilityCatalogScript: GDScript = preload("res://scripts/game/abilities/ability_catalog.gd")
+const TextureUtils: GDScript = preload("res://scripts/util/texture_utils.gd")
 
 const SECTION_HOME: String = "home"
 const SECTION_HOW_TO_PLAY: String = "how_to_play"
@@ -679,8 +680,8 @@ func _add_unit_card(entry: Dictionary, compact: bool) -> void:
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	var sprite_path: String = String(entry.get("sprite_path", ""))
-	if sprite_path != "" and ResourceLoader.exists(sprite_path):
-		portrait.texture = ResourceLoader.load(sprite_path) as Texture2D
+	if sprite_path != "":
+		portrait.texture = TextureUtils.try_load_texture(sprite_path)
 	row.add_child(portrait)
 
 	var stack: VBoxContainer = VBoxContainer.new()

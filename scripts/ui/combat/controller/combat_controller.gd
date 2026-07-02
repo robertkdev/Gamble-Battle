@@ -1610,7 +1610,7 @@ func _on_projectile_fired(source_team: String, source_index: int, target_index: 
 func _set_sprite_texture(rect: TextureRect, path: String, fallback_color: Color) -> void:
 	var tex: Texture2D = null
 	if path != "":
-		tex = load(path)
+		tex = TextureUtils.try_load_texture(path)
 	if tex == null:
 		tex = TextureUtils.make_circle_texture(fallback_color, 96)
 	if rect:

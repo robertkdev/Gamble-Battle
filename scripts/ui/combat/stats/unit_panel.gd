@@ -247,7 +247,7 @@ func _apply_static_styles() -> void:
 func _refresh_header() -> void:
     var tex: Texture2D = null
     if unit_ref != null and String(unit_ref.sprite_path) != "":
-        tex = load(unit_ref.sprite_path)
+        tex = TextureUtils.try_load_texture(unit_ref.sprite_path)
     if tex == null:
         tex = TextureUtils.make_circle_texture(Color(0.7, 0.7, 0.9), 64)
     portrait.texture = tex

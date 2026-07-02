@@ -7,6 +7,7 @@ const UnitCatalog := preload("res://scripts/game/shop/unit_catalog.gd")
 const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
+const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
 const COLOR_PANEL: Color = Color(0.034, 0.029, 0.039, 0.94)
@@ -316,7 +317,7 @@ func _populate_units() -> void:
 		btn.set_meta("unit_id", uid2)
 		var sp: String = String(it.get("sprite_path", ""))
 		if sp != "":
-			var icon: Texture2D = load(sp) as Texture2D
+			var icon: Texture2D = TextureUtils.try_load_texture(sp)
 			if icon:
 				btn.icon = icon
 		var name_label: Label = Label.new()
@@ -424,7 +425,7 @@ func _update_preview(id: String, is_selected: bool = false) -> void:
 	_set_identity_summary(role_text, goal_text, approach_arr)
 	var sp: String = String(it.get("sprite_path", ""))
 	if preview_art:
-		preview_art.texture = load(sp) if sp != "" else null
+		preview_art.texture = TextureUtils.try_load_texture(sp) if sp != "" else null
 	if details_label:
 		var lines: Array[String] = _build_detail_lines(id, it)
 		details_label.text = "\n".join(lines)

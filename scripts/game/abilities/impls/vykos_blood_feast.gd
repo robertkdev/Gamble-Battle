@@ -12,6 +12,7 @@ const BASE_BY_LEVEL := [200, 350, 500]
 const AD_SCALE := 1.20
 
 const LEECH_PCT_BY_LEVEL := [0.20, 0.30, 0.40] # fraction of dealt per enemy
+const MIN_FEAST_HEAL_MAX_HP_PCT: Array[float] = [0.10, 0.13, 0.16]
 const BUFF_ARMOR_BY_LEVEL := [30, 40, 50]
 const BUFF_DR_DURATION := 4.0
 const LIFESTEAL_ON_EXECUTE := 0.10
@@ -93,7 +94,9 @@ func cast(ctx: AbilityContext) -> bool:
         if after_hp <= 0:
             killed_any = true
 
-    # Heal self based on sum across all hits
+    total_heal = max(total_heal, int(round(float(caster.max_hp) * MIN_FEAST_HEAL_MAX_HP_PCT[li])))
+
+    # Heal self based on sum across all hits, with a minimum return when armor or shields suppress dealt damage.
     if total_heal > 0:
         ctx.heal_single(ctx.caster_team, ctx.caster_index, float(total_heal))
 

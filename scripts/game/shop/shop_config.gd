@@ -11,7 +11,7 @@ const REPLACE_PURCHASE_WITH_EMPTY := true         # Purchased slots become SOLD/
 const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "axiom": ["sari"],
     "bo": ["berebell", "grint"],
-    "bonko": ["morrak", "grint", "mortem", "korath"],
+    "bonko": ["morrak", "grint", "mortem"],
     "cashmere": ["brute", "bonko"],
     "korath": ["bonko", "sari", "morrak", "berebell"],
     "knoll": ["sari", "brute", "grint", "bonko", "morrak"],
@@ -24,7 +24,7 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
 const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
     "axiom": ["axiom", "repo", "grint", "korath", "brute", "bo", "bonko", "morrak", "berebell", "mortem", "cashmere"],
     "bo": ["cashmere", "brute", "axiom"],
-    "bonko": ["axiom"],
+    "bonko": ["axiom", "repo", "korath"],
     "cashmere": ["korath", "repo", "axiom"],
     "korath": ["brute", "axiom"],
     "knoll": ["axiom", "knoll", "pilfer"],

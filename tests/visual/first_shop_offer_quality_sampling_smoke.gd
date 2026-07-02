@@ -22,7 +22,7 @@ const MIN_GOOD_RATES: Dictionary[String, float] = {
 const EXPECTED_BLOCKED_HELPERS_BY_STARTER: Dictionary[String, Array] = {
 	"axiom": ["axiom", "berebell", "bo", "bonko", "brute", "cashmere", "grint", "korath", "morrak", "mortem", "repo"],
 	"bo": ["axiom", "brute", "cashmere"],
-	"bonko": ["axiom"],
+	"bonko": ["axiom", "korath", "repo"],
 	"cashmere": ["axiom", "korath", "repo"],
 	"korath": ["axiom", "brute"],
 	"morrak": ["brute", "grint", "korath", "repo"],
@@ -211,7 +211,6 @@ func _good_helpers_for(starter_id: String) -> Array[String]:
 			helpers.append("morrak")
 			helpers.append("grint")
 			helpers.append("mortem")
-			helpers.append("korath")
 		"cashmere":
 			helpers.append("brute")
 			helpers.append("bonko")

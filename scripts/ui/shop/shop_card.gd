@@ -84,7 +84,7 @@ func set_data(props: Dictionary) -> void:
 	if _icon:
 		var tex: Texture2D = null
 		if img_path != "":
-			tex = load(img_path)
+			tex = TextureUtils.try_load_texture(img_path)
 		if tex == null:
 			tex = TextureUtils.make_circle_texture(Color(0.75, 0.75, 0.75), 96)
 		_icon.texture = tex

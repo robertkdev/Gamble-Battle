@@ -195,7 +195,7 @@ func _refresh_visual() -> void:
 	# Sprite
 	var tex: Texture2D = null
 	if unit.sprite_path != "":
-		tex = load(unit.sprite_path)
+		tex = TextureUtils.try_load_texture(unit.sprite_path)
 	if tex == null:
 		tex = TextureUtils.make_circle_texture(Color(0.8, 0.8, 0.8), 96)
 	sprite.texture = tex
