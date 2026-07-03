@@ -326,11 +326,11 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		var step: Vector2 = Vector2.ZERO
 
-		if forced_has_player_impulses and forced.has_active("player", i):
+		if forced_has_player_impulses:
 			step = forced.consume_step("player", i, delta)
-		elif movement_blockers_active and buff_adapter.is_blocked(state, "player", i):
+		if step == Vector2.ZERO and movement_blockers_active and buff_adapter.is_blocked(state, "player", i):
 			step = Vector2.ZERO
-		else:
+		elif step == Vector2.ZERO:
 			var prof: MovementProfile = _profile_for("player", i)
 			var within_enemy: bool = MovementMath.within_range(u, cur, tpos, ts, eps, prof.band_max)
 			if within_enemy:
@@ -411,11 +411,11 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		var step2: Vector2 = Vector2.ZERO
 
-		if forced_has_enemy_impulses and forced.has_active("enemy", j):
+		if forced_has_enemy_impulses:
 			step2 = forced.consume_step("enemy", j, delta)
-		elif movement_blockers_active and buff_adapter.is_blocked(state, "enemy", j):
+		if step2 == Vector2.ZERO and movement_blockers_active and buff_adapter.is_blocked(state, "enemy", j):
 			step2 = Vector2.ZERO
-		else:
+		elif step2 == Vector2.ZERO:
 			var prof2: MovementProfile = _profile_for("enemy", j)
 			var within_enemy2: bool = MovementMath.within_range(e, cur_e, tpos2, ts, eps, prof2.band_max)
 			if within_enemy2:
