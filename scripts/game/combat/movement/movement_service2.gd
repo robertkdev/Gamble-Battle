@@ -485,15 +485,13 @@ func _compute_arrive_step(cur: Vector2, slot_pos: Vector2, _target_pos: Vector2,
 	return dir_los * move_dist
 
 func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, _slow_radius: float, corridor_radius: float, radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
-	var dir_seek: Vector2 = MovementMath.radial(cur, slot_pos)
-	if dir_seek == Vector2.ZERO:
-		return Vector2.ZERO
-	if debug_frames_left > 0:
-		var raw_vec: Vector2 = (slot_pos - cur)
-		print("[Vec] ", team, " ", idx, " cur=", cur, " tgt=", target_pos, " slot=", slot_pos, " raw=", raw_vec)
-	var dist_to_slot: float = cur.distance_to(slot_pos)
+	var to_slot: Vector2 = slot_pos - cur
+	var dist_to_slot: float = to_slot.length()
 	if dist_to_slot <= ARRIVE_STOP_EPS:
 		return Vector2.ZERO
+	var dir_seek: Vector2 = to_slot / dist_to_slot
+	if debug_frames_left > 0:
+		print("[Vec] ", team, " ", idx, " cur=", cur, " tgt=", target_pos, " slot=", slot_pos, " raw=", to_slot)
 	var corridor_factor: float = _corridor_factor(dist_to_slot, corridor_radius)
 	var max_speed: float = max(0.0, unit.move_speed) * max(0.0, tuning.speed_scale)
 	var move_dist: float = max_speed * max(0.0, delta)
