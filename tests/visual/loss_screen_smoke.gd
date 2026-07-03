@@ -26,6 +26,16 @@ func _ready() -> void:
 
 	var stage_label: Label = screen.get_node_or_null("Panel/Center/Frame/VBox/StageLabel") as Label
 	_expect(stage_label != null, "StageLabel missing after deferred configure", failures)
+	var frame_panel: PanelContainer = screen.get_node_or_null("Panel/Center/Frame") as PanelContainer
+	_expect(frame_panel != null, "Loss frame panel missing", failures)
+	if frame_panel != null:
+		var frame_style: StyleBox = frame_panel.get_theme_stylebox("panel")
+		_expect(frame_style is StyleBoxTexture, "Loss frame should use the generated wide panel asset", failures)
+	var new_game_button: Button = screen.get_node_or_null("Panel/Center/Frame/VBox/NewGameButton") as Button
+	_expect(new_game_button != null, "NewGameButton missing", failures)
+	if new_game_button != null:
+		var new_game_style: StyleBox = new_game_button.get_theme_stylebox("normal")
+		_expect(new_game_style is StyleBoxTexture, "NewGameButton should use the generated primary button asset", failures)
 	if stage_label != null:
 		_expect(stage_label.text == "Stage Reached: 3", "StageLabel did not use live GameState", failures)
 	var scoreboard: Node = screen.get_node_or_null("Panel/Center/Frame/VBox/ScoreboardHolder/Scoreboard")

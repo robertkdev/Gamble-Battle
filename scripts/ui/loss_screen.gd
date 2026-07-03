@@ -3,6 +3,7 @@ class_name LossScreen
 
 const Scoreboard := preload("res://scenes/ui/stats/Scoreboard.tscn")
 const HighScore := preload("res://scripts/util/high_score.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const BACKDROP_COLOR: Color = Color(0.006, 0.005, 0.008, 1.0)
 const FRAME_COLOR: Color = Color(0.075, 0.057, 0.061, 1.0)
@@ -199,7 +200,7 @@ func _apply_styles() -> void:
 	if backdrop != null:
 		backdrop.color = BACKDROP_COLOR
 	if frame_panel != null:
-		frame_panel.add_theme_stylebox_override("panel", _make_style(FRAME_COLOR, FRAME_BORDER, 2, 8))
+		frame_panel.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_style(FRAME_COLOR, FRAME_BORDER, 2, 8)))
 	if content_box != null:
 		content_box.add_theme_constant_override("separation", 16)
 	if title_label != null:
@@ -220,9 +221,9 @@ func _apply_styles() -> void:
 		new_game_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		new_game_button.add_theme_color_override("font_color", BONE_COLOR)
 		new_game_button.add_theme_color_override("font_hover_color", Color(1.0, 0.92, 0.76, 1.0))
-		new_game_button.add_theme_stylebox_override("normal", _make_style(Color(0.14, 0.053, 0.045, 1.0), FRAME_BORDER, 2, 5))
-		new_game_button.add_theme_stylebox_override("hover", _make_style(Color(0.20, 0.07, 0.055, 1.0), DULL_GOLD, 2, 5))
-		new_game_button.add_theme_stylebox_override("pressed", _make_style(Color(0.09, 0.035, 0.035, 1.0), BLOOD_COLOR, 2, 5))
+		new_game_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _make_style(Color(0.14, 0.053, 0.045, 1.0), FRAME_BORDER, 2, 5)))
+		new_game_button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.16, 1.06, 0.92, 1.0)), _make_style(Color(0.20, 0.07, 0.055, 1.0), DULL_GOLD, 2, 5)))
+		new_game_button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_style(Color(0.09, 0.035, 0.035, 1.0), BLOOD_COLOR, 2, 5)))
 
 func _wire_new_game_hover() -> void:
 	if new_game_button == null:

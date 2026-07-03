@@ -1,6 +1,7 @@
 extends Object
 class_name GothicUITheme
 
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const BATTLEFIELD_SHADER: Shader = preload("res://shaders/gothic_battlefield.gdshader")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
@@ -119,10 +120,9 @@ static func _apply_named_nodes(root: Control) -> void:
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlayerPlate", _style(Color(0.025, 0.044, 0.046, 0.46), Color(0.27, 0.38, 0.38, 0.84), 2, 4), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", "GothicStatsAreaPlate", _style(Color(0.034, 0.029, 0.038, 0.94), Color(0.34, 0.27, 0.27, 0.90), 1, 6), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", "GothicItemsPlate", _style(Color(0.030, 0.026, 0.034, 0.88), Color(0.20, 0.18, 0.20, 0.84), 1, 6), -5)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/ActionsRow", "GothicCommandPlate", _style(Color(0.032, 0.026, 0.033, 0.96), Color(0.45, 0.33, 0.25, 0.82), 1, 5), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", "GothicGoldPlate", _style(Color(0.085, 0.061, 0.033, 0.74), Color(0.78, 0.48, 0.20, 0.72), 1, 4), -5)
 	_ensure_backplate_by_name(root, "GoldLabel", "GothicGoldPlate", _style(Color(0.085, 0.061, 0.033, 0.76), Color(0.78, 0.48, 0.20, 0.76), 1, 4), -5)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/BottomStorageArea", "GothicShopPlate", _style(Color(0.026, 0.022, 0.030, 0.96), Color(0.39, 0.29, 0.25, 0.90), 1, 6), -5)
+	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BottomStorageArea", "GothicShopPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _style(Color(0.026, 0.022, 0.030, 0.96), Color(0.39, 0.29, 0.25, 0.90), 1, 6)), 0, 10.0)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaVignette", _style(Color(0.0, 0.0, 0.0, 0.34), Color(0.54, 0.05, 0.08, 0.56), 1, 4), -5)
 
 static func _apply_tree(node: Node) -> void:
@@ -287,19 +287,19 @@ static func _apply_tile(button: Button, is_player: bool) -> void:
 
 static func _style_shop_card(button: Button) -> void:
 	button.custom_minimum_size = Vector2(150.0, 138.0)
-	button.add_theme_stylebox_override("normal", _style(Color(0.036, 0.030, 0.038, 0.98), Color(0.50, 0.37, 0.28, 0.98), 2, 5))
-	button.add_theme_stylebox_override("hover", _hover_style(Color(0.105, 0.046, 0.056, 0.99), COLOR_GOLD_HOT, 2, 5))
-	button.add_theme_stylebox_override("pressed", _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 2, 5))
+	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(), _style(Color(0.036, 0.030, 0.038, 0.98), Color(0.50, 0.37, 0.28, 0.98), 2, 5)))
+	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.105, 0.046, 0.056, 0.99), COLOR_GOLD_HOT, 2, 5)))
+	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(0.92, 0.82, 0.78, 1.0)), _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 2, 5)))
 	button.add_theme_font_size_override("font_size", 13)
 	button.clip_text = false
 
 static func _style_shop_action_button(button: Button) -> void:
 	button.custom_minimum_size = Vector2(100.0, 44.0)
 	button.add_theme_font_size_override("font_size", 15)
-	button.add_theme_stylebox_override("normal", _style(Color(0.055, 0.047, 0.058, 0.97), Color(0.31, 0.27, 0.28, 0.96), 1, 5))
-	button.add_theme_stylebox_override("hover", _hover_style(Color(0.13, 0.078, 0.088, 0.99), COLOR_GOLD_HOT, 1, 5))
-	button.add_theme_stylebox_override("pressed", _style(Color(0.17, 0.040, 0.055, 0.98), COLOR_BLOOD_HOT, 1, 5))
-	button.add_theme_stylebox_override("disabled", _style(Color(0.035, 0.032, 0.038, 0.84), Color(0.17, 0.16, 0.18, 0.80), 1, 5))
+	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(Color(0.055, 0.047, 0.058, 0.97), Color(0.31, 0.27, 0.28, 0.96), 1, 5)))
+	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.18, 1.08, 0.90, 1.0)), _hover_style(Color(0.13, 0.078, 0.088, 0.99), COLOR_GOLD_HOT, 1, 5)))
+	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.88, 0.72, 0.68, 1.0)), _style(Color(0.17, 0.040, 0.055, 0.98), COLOR_BLOOD_HOT, 1, 5)))
+	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.50, 0.48, 0.46, 0.82)), _style(Color(0.035, 0.032, 0.038, 0.84), Color(0.17, 0.16, 0.18, 0.80), 1, 5)))
 
 static func _style_metric_button(button: Button) -> void:
 	var is_small_expand: bool = button.name == "ExpandButton"
@@ -337,10 +337,10 @@ static func _style_button_node(button: Button, primary: bool) -> void:
 	if primary:
 		button.custom_minimum_size = Vector2(240.0, 54.0)
 		button.add_theme_font_size_override("font_size", 21)
-		button.add_theme_stylebox_override("normal", _style(COLOR_BLOOD, Color(0.92, 0.48, 0.31, 0.78), 1, 5))
-		button.add_theme_stylebox_override("hover", _hover_style(COLOR_BLOOD_HOT, COLOR_GOLD_HOT, 1, 5))
-		button.add_theme_stylebox_override("pressed", _style(Color(0.30, 0.018, 0.038, 1.0), COLOR_GOLD, 1, 5))
-		button.add_theme_stylebox_override("disabled", _style(Color(0.10, 0.07, 0.08, 0.76), Color(0.22, 0.18, 0.18, 0.82), 1, 5))
+		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _style(COLOR_BLOOD, Color(0.92, 0.48, 0.31, 0.78), 1, 5)))
+		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.18, 1.06, 0.92, 1.0)), _hover_style(COLOR_BLOOD_HOT, COLOR_GOLD_HOT, 1, 5)))
+		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _style(Color(0.30, 0.018, 0.038, 1.0), COLOR_GOLD, 1, 5)))
+		button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.46, 0.44, 0.42, 0.80)), _style(Color(0.10, 0.07, 0.08, 0.76), Color(0.22, 0.18, 0.18, 0.82), 1, 5)))
 	else:
 		button.custom_minimum_size.y = max(button.custom_minimum_size.y, 34.0)
 		button.add_theme_stylebox_override("normal", _style(COLOR_PANEL_SOFT, COLOR_IRON_DIM, 1, 5))
@@ -384,18 +384,18 @@ static func _add_grid_separator(root: Control, path: String, separation: int) ->
 	if box != null:
 		box.add_theme_constant_override("separation", separation)
 
-static func _ensure_backplate(root: Control, path: String, plate_name: String, style: StyleBoxFlat, z_value: int) -> void:
+static func _ensure_backplate(root: Control, path: String, plate_name: String, style: StyleBox, z_value: int) -> void:
 	var control: Control = root.get_node_or_null(path) as Control
 	if control == null:
 		return
 	_ensure_backplate_on_control(control, plate_name, style, z_value)
 
-static func _ensure_backplate_by_name(root: Control, node_name: String, plate_name: String, style: StyleBoxFlat, z_value: int) -> void:
+static func _ensure_backplate_by_name(root: Control, node_name: String, plate_name: String, style: StyleBox, z_value: int) -> void:
 	var control: Control = root.find_child(node_name, true, false) as Control
 	if control != null:
 		_ensure_backplate_on_control(control, plate_name, style, z_value)
 
-static func _ensure_backplate_on_control(control: Control, plate_name: String, style: StyleBoxFlat, z_value: int) -> void:
+static func _ensure_backplate_on_control(control: Control, plate_name: String, style: StyleBox, z_value: int) -> void:
 	var existing: Panel = control.get_node_or_null(plate_name) as Panel
 	if existing == null:
 		existing = Panel.new()
@@ -411,6 +411,48 @@ static func _ensure_backplate_on_control(control: Control, plate_name: String, s
 		existing.offset_bottom = 0.0
 	existing.add_theme_stylebox_override("panel", style)
 
+static func _ensure_external_backplate(root: Control, path: String, plate_name: String, style: StyleBox, z_value: int, pad: float) -> void:
+	var control: Control = root.get_node_or_null(path) as Control
+	if control == null:
+		return
+	_ensure_external_backplate_on_control(root, control, plate_name, style, z_value, pad)
+
+static func _ensure_external_backplate_on_control(root: Control, control: Control, plate_name: String, style: StyleBox, z_value: int, pad: float) -> void:
+	var existing: Panel = root.get_node_or_null(plate_name) as Panel
+	if existing == null:
+		existing = Panel.new()
+		existing.name = plate_name
+		existing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		existing.z_as_relative = false
+		existing.z_index = z_value
+		root.add_child(existing)
+		var background: Node = root.get_node_or_null("ColorRect")
+		if background != null:
+			root.move_child(existing, min(background.get_index() + 1, root.get_child_count() - 1))
+		else:
+			root.move_child(existing, 0)
+	existing.set_meta("target_path", root.get_path_to(control))
+	existing.set_meta("pad", pad)
+	existing.add_theme_stylebox_override("panel", style)
+	var resize_callback: Callable = Callable(GothicUITheme, "_position_external_backplate").bind(root, existing)
+	if not control.is_connected("resized", resize_callback):
+		control.resized.connect(resize_callback)
+	if not root.is_connected("resized", resize_callback):
+		root.resized.connect(resize_callback)
+	_position_external_backplate(root, existing)
+
+static func _position_external_backplate(root: Control, plate: Panel) -> void:
+	if root == null or plate == null or not is_instance_valid(root) or not is_instance_valid(plate):
+		return
+	if not plate.has_meta("target_path"):
+		return
+	var target: Control = root.get_node_or_null(plate.get_meta("target_path")) as Control
+	if target == null:
+		return
+	var pad: float = float(plate.get_meta("pad", 0.0))
+	plate.global_position = target.global_position - Vector2(pad, pad)
+	plate.size = target.size + Vector2(pad * 2.0, pad * 2.0)
+
 static func _style_shop_command_bar(root: Control) -> void:
 	var storage: Node = root.get_node_or_null("MarginContainer/VBoxContainer/BottomStorageArea")
 	if storage == null:
@@ -422,7 +464,7 @@ static func _style_shop_command_bar(root: Control) -> void:
 		bar.custom_minimum_size = Vector2(1120.0, 62.0)
 		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		bar.add_theme_constant_override("separation", 16)
-		_ensure_backplate_on_control(bar, "GothicCommandPlate", _style(Color(0.038, 0.030, 0.038, 0.96), Color(0.50, 0.34, 0.24, 0.84), 1, 5), -5)
+		_ensure_external_backplate_on_control(root, bar, "GothicShopCommandPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(), _style(Color(0.038, 0.030, 0.038, 0.96), Color(0.50, 0.34, 0.24, 0.84), 1, 5)), 0, 6.0)
 		for grandchild: Node in bar.get_children():
 			if grandchild is Label:
 				var label: Label = grandchild as Label

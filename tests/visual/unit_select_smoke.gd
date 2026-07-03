@@ -22,6 +22,8 @@ func _run() -> void:
 	_expect(preview_plate != null, "Preview gothic plate missing", failures)
 	if preview_plate != null:
 		_expect(preview_plate.size.y > 300.0, "Preview gothic plate collapsed", failures)
+		var preview_plate_style: StyleBox = preview_plate.get_theme_stylebox("panel")
+		_expect(preview_plate_style is StyleBoxTexture, "Preview gothic plate should use the generated wide panel asset", failures)
 	var heading: Label = view.get_node_or_null("Center/HBox/Left/Label") as Label
 	_expect(heading != null, "Heading missing", failures)
 	if heading != null:
@@ -31,6 +33,8 @@ func _run() -> void:
 	if start_button != null:
 		_expect(start_button.disabled, "StartButton should begin disabled", failures)
 		_expect(start_button.custom_minimum_size.x >= 500.0, "StartButton width is not visually prioritized", failures)
+		var start_style: StyleBox = start_button.get_theme_stylebox("normal")
+		_expect(start_style is StyleBoxTexture, "Unit Select StartButton should use the generated primary button asset", failures)
 	var selected_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/SelectedLabel") as Label
 	_expect(selected_label != null and selected_label.text == "No champion chosen", "Unit Select should begin with no inspected champion", failures)
 	var details_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/Details") as Label
@@ -58,6 +62,8 @@ func _run() -> void:
 	_expect(first_button != null, "No generated unit buttons found", failures)
 	if first_button != null:
 		_expect(first_button.custom_minimum_size.x >= 150.0, "Unit card button width too small", failures)
+		var first_button_style: StyleBox = first_button.get_theme_stylebox("normal")
+		_expect(first_button_style is StyleBoxTexture, "Starter card should use the generated 150x138 frame asset", failures)
 		first_button.emit_signal("pressed")
 		await get_tree().process_frame
 		_expect(not start_button.disabled, "StartButton did not enable after unit selection", failures)

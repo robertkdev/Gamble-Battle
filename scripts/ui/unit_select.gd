@@ -8,6 +8,7 @@ const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
 const COLOR_PANEL: Color = Color(0.034, 0.029, 0.039, 0.94)
@@ -159,11 +160,11 @@ func _apply_gothic_layout() -> void:
 	if left_column:
 		left_column.custom_minimum_size = Vector2(760.0, 740.0)
 		left_column.add_theme_constant_override("separation", 14)
-		_left_plate = _ensure_float_plate(left_column, "GothicRosterPlate", _make_panel_style(COLOR_PANEL, Color(0.36, 0.29, 0.27, 0.86), 1, 7), -2, 18.0)
+		_left_plate = _ensure_float_plate(left_column, "GothicRosterPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(COLOR_PANEL, Color(0.36, 0.29, 0.27, 0.86), 1, 7)), -2, 18.0)
 	if right_column:
 		right_column.custom_minimum_size = Vector2(500.0, 740.0)
 		right_column.add_theme_constant_override("separation", 16)
-		_right_plate = _ensure_float_plate(right_column, "GothicPreviewPlate", _make_panel_style(Color(0.030, 0.025, 0.034, 0.96), Color(0.48, 0.34, 0.25, 0.88), 1, 7), -2, 18.0)
+		_right_plate = _ensure_float_plate(right_column, "GothicPreviewPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(Color(0.030, 0.025, 0.034, 0.96), Color(0.48, 0.34, 0.25, 0.88), 1, 7)), -2, 18.0)
 	if heading_label:
 		heading_label.text = "Choose Your Starting Unit"
 		heading_label.add_theme_font_size_override("font_size", 38)
@@ -195,7 +196,7 @@ func _apply_gothic_layout() -> void:
 	var art_wrap: Control = right_column.get_node_or_null("Preview/ArtWrap") as Control
 	if art_wrap:
 		art_wrap.custom_minimum_size = Vector2(430.0, 360.0)
-		_preview_art_plate = _ensure_float_plate(art_wrap, "GothicArtPlate", _make_panel_style(Color(0.014, 0.012, 0.018, 0.86), Color(0.32, 0.24, 0.23, 0.84), 1, 6), -1, 8.0)
+		_preview_art_plate = _ensure_float_plate(art_wrap, "GothicArtPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(), _make_panel_style(Color(0.014, 0.012, 0.018, 0.86), Color(0.32, 0.24, 0.23, 0.84), 1, 6)), -1, 8.0)
 	call_deferred("_position_gothic_plates")
 	_style_start_button()
 
@@ -720,15 +721,18 @@ func _style_unit_card(tile: VBoxContainer, button: Button, name_label: Label, ro
 		role_label.add_theme_font_size_override("font_size", 11)
 		role_label.add_theme_color_override("font_color", COLOR_GOLD if selected or hovered else COLOR_MUTED)
 
-func _make_unit_button_style(selected: bool, highlighted: bool) -> StyleBoxFlat:
+func _make_unit_button_style(selected: bool, highlighted: bool) -> StyleBox:
 	var bg: Color = Color(0.040, 0.035, 0.045, 0.96)
 	var border: Color = Color(0.24, 0.21, 0.22, 0.92)
+	var modulate: Color = Color.WHITE
 	if selected:
 		bg = Color(0.105, 0.044, 0.056, 0.98)
 		border = COLOR_GOLD
+		modulate = Color(1.14, 1.04, 0.84, 1.0)
 	elif highlighted:
 		bg = Color(0.070, 0.047, 0.057, 0.98)
 		border = Color(0.62, 0.38, 0.25, 0.96)
+		modulate = Color(1.10, 1.02, 0.90, 1.0)
 	var sb: StyleBoxFlat = _make_panel_style(bg, border, 2 if selected or highlighted else 1, 5)
 	sb.shadow_size = 10 if selected or highlighted else 5
 	sb.shadow_color = Color(0.56, 0.15, 0.040, 0.30) if selected or highlighted else Color(0.0, 0.0, 0.0, 0.38)
@@ -736,7 +740,7 @@ func _make_unit_button_style(selected: bool, highlighted: bool) -> StyleBoxFlat:
 	sb.content_margin_right = 6
 	sb.content_margin_top = 6
 	sb.content_margin_bottom = 6
-	return sb
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(modulate), sb)
 
 func _style_start_button() -> void:
 	if start_button == null:
@@ -748,11 +752,11 @@ func _style_start_button() -> void:
 	start_button.add_theme_color_override("font_hover_color", Color(1.0, 0.91, 0.76, 1.0))
 	start_button.add_theme_color_override("font_pressed_color", Color(1.0, 0.80, 0.58, 1.0))
 	start_button.add_theme_color_override("font_disabled_color", Color(0.43, 0.40, 0.38, 1.0))
-	start_button.add_theme_stylebox_override("normal", _make_panel_style(COLOR_BLOOD, Color(0.92, 0.47, 0.30, 0.86), 2, 5))
-	start_button.add_theme_stylebox_override("hover", _make_panel_style(COLOR_BLOOD_HOT, COLOR_GOLD, 2, 5))
-	start_button.add_theme_stylebox_override("pressed", _make_panel_style(Color(0.22, 0.020, 0.040, 1.0), COLOR_GOLD, 2, 5))
-	start_button.add_theme_stylebox_override("focus", _make_panel_style(Color(0.18, 0.040, 0.052, 1.0), COLOR_GOLD, 2, 5))
-	start_button.add_theme_stylebox_override("disabled", _make_panel_style(Color(0.030, 0.027, 0.034, 0.84), Color(0.16, 0.15, 0.17, 0.88), 1, 5))
+	start_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _make_panel_style(COLOR_BLOOD, Color(0.92, 0.47, 0.30, 0.86), 2, 5)))
+	start_button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.18, 1.06, 0.92, 1.0)), _make_panel_style(COLOR_BLOOD_HOT, COLOR_GOLD, 2, 5)))
+	start_button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_panel_style(Color(0.22, 0.020, 0.040, 1.0), COLOR_GOLD, 2, 5)))
+	start_button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_panel_style(Color(0.18, 0.040, 0.052, 1.0), COLOR_GOLD, 2, 5)))
+	start_button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.46, 0.44, 0.42, 0.80)), _make_panel_style(Color(0.030, 0.027, 0.034, 0.84), Color(0.16, 0.15, 0.17, 0.88), 1, 5)))
 
 func _wire_start_button_hover() -> void:
 	if start_button == null:
@@ -803,7 +807,7 @@ func _apply_unit_button_motion(id: String, active: bool) -> void:
 	tween.tween_property(button, "scale", Vector2(1.035, 1.035) if active else Vector2.ONE, 0.09)
 	button.set_meta("hover_tween", tween)
 
-func _ensure_float_plate(control: Control, plate_name: String, style: StyleBoxFlat, z_value: int, pad: float) -> Panel:
+func _ensure_float_plate(control: Control, plate_name: String, style: StyleBox, z_value: int, pad: float) -> Panel:
 	var plate: Panel = get_node_or_null(plate_name) as Panel
 	if plate == null:
 		plate = Panel.new()

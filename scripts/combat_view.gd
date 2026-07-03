@@ -2,6 +2,7 @@ extends Control
 
 const GothicUITheme := preload("res://scripts/ui/combat/gothic_ui_theme.gd")
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
+const StageProgressTopBarScene: GDScript = preload("res://scripts/ui/combat/stage_progress_top_bar.gd")
 
 var _controller_script: Script = null
 
@@ -32,6 +33,7 @@ var _controller_script: Script = null
 var manager: CombatManager
 var controller
 var _teardown_done: bool = false
+var stage_progress_top_bar: Control
 
 var player_name: String = "Hero"
 
@@ -64,6 +66,7 @@ func _ready() -> void:
 		controller = _controller_script.new()
 	else:
 		controller = null
+	_ensure_stage_progress_top_bar()
 	controller.configure(self, manager, _collect_nodes())
 	controller.initialize()
 	_apply_visual_theme()
@@ -321,6 +324,25 @@ func _apply_visual_theme() -> void:
 func _apply_visual_theme_deferred() -> void:
 	GothicUITheme.apply(self)
 
+func _ensure_stage_progress_top_bar() -> void:
+	if stage_progress_top_bar != null and is_instance_valid(stage_progress_top_bar):
+		return
+	var vbox: VBoxContainer = get_node_or_null("MarginContainer/VBoxContainer") as VBoxContainer
+	if vbox == null:
+		return
+	var existing: Control = vbox.get_node_or_null("StageProgressTopBar") as Control
+	if existing == null:
+		existing = StageProgressTopBarScene.new() as Control
+		existing.name = "StageProgressTopBar"
+		vbox.add_child(existing)
+		var target_index: int = 1
+		if stage_label != null:
+			target_index = stage_label.get_index()
+		vbox.move_child(existing, target_index)
+	stage_progress_top_bar = existing
+	if stage_label != null:
+		stage_label.visible = false
+
 func _notification(_what: int) -> void:
 	if _what == NOTIFICATION_PREDELETE:
 		_teardown()
@@ -374,6 +396,7 @@ func _collect_nodes() -> Dictionary:
 		"player_stats_label": player_stats_label,
 		"enemy_stats_label": enemy_stats_label,
 		"stage_label": stage_label,
+		"stage_progress_top_bar": stage_progress_top_bar,
 		"player_sprite": player_sprite,
 		"enemy_sprite": enemy_sprite,
 		"player_grid": player_grid,

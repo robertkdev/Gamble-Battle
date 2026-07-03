@@ -62,6 +62,7 @@ var log_label: RichTextLabel
 var player_stats_label: Label
 var enemy_stats_label: Label
 var stage_label: Label
+var stage_progress_top_bar: Control
 var player_sprite: TextureRect
 var enemy_sprite: TextureRect
 var player_grid: GridContainer
@@ -151,6 +152,7 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	player_stats_label = nodes.get("player_stats_label")
 	enemy_stats_label = nodes.get("enemy_stats_label")
 	stage_label = nodes.get("stage_label")
+	stage_progress_top_bar = nodes.get("stage_progress_top_bar")
 	player_sprite = nodes.get("player_sprite")
 	enemy_sprite = nodes.get("enemy_sprite")
 	player_grid = nodes.get("player_grid")
@@ -1262,7 +1264,7 @@ func _on_gs_stage_changed(_prev: int, _next: int) -> void:
 	_update_stage_label()
 
 func _update_stage_label() -> void:
-	if stage_label == null:
+	if stage_label == null and stage_progress_top_bar == null:
 		return
 	var ch: int = 1
 	var sic: int = 1
@@ -1283,7 +1285,10 @@ func _update_stage_label() -> void:
 	var label := LogSchema.format_stage(ch, sic, total)
 	if RosterUtils.is_boss_stage(sic):
 		label += " " + LogSchema.format_boss_badge()
-	stage_label.text = label
+	if stage_label != null:
+		stage_label.text = label
+	if stage_progress_top_bar != null and stage_progress_top_bar.has_method("update_progress"):
+		stage_progress_top_bar.call("update_progress", ch, sic, total)
 
 func _log_to_file(_text: String) -> void:
 	return

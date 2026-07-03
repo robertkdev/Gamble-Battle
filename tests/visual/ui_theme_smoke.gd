@@ -29,10 +29,24 @@ func _run() -> void:
 	_expect(stage_label != null, "StageLabel missing", failures)
 	if stage_label != null:
 		_expect(stage_label.get_theme_font_size("font_size") == 34, "StageLabel font size was not set to 34", failures)
+	var progress_bar: Control = view.find_child("StageProgressTopBar", true, false) as Control
+	_expect(progress_bar != null, "StageProgressTopBar missing", failures)
+	if progress_bar != null:
+		progress_bar.call("update_progress", 2, 4, 5)
+		await get_tree().process_frame
+		var chapter_label: Label = progress_bar.find_child("ChapterLabel", true, false) as Label
+		_expect(chapter_label != null and String(chapter_label.text) == "Chapter 2", "StageProgressTopBar did not show current chapter", failures)
+		var selected_icon: TextureRect = progress_bar.find_child("StageIcon4", true, false) as TextureRect
+		var unselected_icon: TextureRect = progress_bar.find_child("StageIcon1", true, false) as TextureRect
+		_expect(selected_icon != null and selected_icon.texture != null and String(selected_icon.texture.resource_path).ends_with("stage_4_boss_selected.png"), "Current stage icon did not use selected asset", failures)
+		_expect(unselected_icon != null and unselected_icon.texture != null and String(unselected_icon.texture.resource_path).ends_with("stage_1_creep_unselected.png"), "Inactive stage icon did not use unselected asset", failures)
+		progress_bar.call("update_progress", 1, 1, 5)
 	var continue_button: Button = view.find_child("ContinueButton", true, false) as Button
 	_expect(continue_button != null, "ContinueButton missing", failures)
 	if continue_button != null:
 		_expect(continue_button.custom_minimum_size.x >= 230.0, "ContinueButton is not visually prioritized", failures)
+		var continue_style: StyleBox = continue_button.get_theme_stylebox("normal")
+		_expect(continue_style is StyleBoxTexture, "ContinueButton should use the generated primary button asset", failures)
 	var gold_label: Label = view.find_child("GoldLabel", true, false) as Label
 	_expect(gold_label != null, "GoldLabel missing", failures)
 	if gold_label != null:
@@ -47,8 +61,15 @@ func _run() -> void:
 		_expect(shop_grid.get_theme_constant("h_separation") >= 16, "Shop card gutters are too tight for pointer clarity", failures)
 	var bottom_storage: VBoxContainer = view.get_node_or_null("MarginContainer/VBoxContainer/BottomStorageArea") as VBoxContainer
 	_expect(bottom_storage != null, "BottomStorageArea missing", failures)
+	_expect(view.get_node_or_null("GothicActionsRowPlate") == null, "Obsolete ActionsRow generated plate should not render over the arena header", failures)
 	if bottom_storage != null:
 		_expect(bottom_storage.get_theme_constant("separation") >= 14, "Command strip and shop cards are too tightly stacked", failures)
+		var shop_plate: Panel = view.get_node_or_null("GothicShopPlate") as Panel
+		_expect(shop_plate != null, "Generated bottom storage asset plate missing", failures)
+		if shop_plate != null:
+			var shop_plate_style: StyleBox = shop_plate.get_theme_stylebox("panel")
+			_expect(shop_plate_style is StyleBoxTexture, "Bottom storage should use the generated wide panel asset", failures)
+			_expect(shop_plate.size.y >= 230.0, "Bottom storage generated plate collapsed in the full layout", failures)
 	if gold_label != null:
 		var command_bar: HBoxContainer = gold_label.get_parent() as HBoxContainer
 		_expect(command_bar != null, "Command bar missing", failures)

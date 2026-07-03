@@ -8,6 +8,7 @@ const GoalCatalogScript: GDScript = preload("res://scripts/game/identity/goal_ca
 const ApproachCatalogScript: GDScript = preload("res://scripts/game/identity/approach_catalog.gd")
 const AbilityCatalogScript: GDScript = preload("res://scripts/game/abilities/ability_catalog.gd")
 const TextureUtils: GDScript = preload("res://scripts/util/texture_utils.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const SECTION_HOME: String = "home"
 const SECTION_HOW_TO_PLAY: String = "how_to_play"
@@ -302,7 +303,7 @@ func _ensure_title_panel() -> void:
 	_title_panel.offset_top = 0.0
 	_title_panel.offset_right = 0.0
 	_title_panel.offset_bottom = 0.0
-	_title_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.023, 0.020, 0.028, 0.91), Color(0.55, 0.39, 0.22, 0.90), 1, 7, 28))
+	_title_panel.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(Color(0.023, 0.020, 0.028, 0.91), Color(0.55, 0.39, 0.22, 0.90), 1, 7, 28)))
 	if center != null:
 		center.z_index = 5
 
@@ -400,7 +401,7 @@ func _ensure_content_panel() -> void:
 	_content_panel.offset_top = 0.0
 	_content_panel.offset_right = 0.0
 	_content_panel.offset_bottom = 0.0
-	_content_panel.add_theme_stylebox_override("panel", _make_panel_style(Color(0.022, 0.019, 0.025, 0.96), Color(0.55, 0.39, 0.18, 0.94), 1, 7, 22))
+	_content_panel.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(Color(0.022, 0.019, 0.025, 0.96), Color(0.55, 0.39, 0.18, 0.94), 1, 7, 22)))
 
 	var margin: MarginContainer = _content_panel.get_node_or_null("Margin") as MarginContainer
 	if margin == null:
@@ -891,13 +892,15 @@ func _style_menu_button(button: Button, primary: bool) -> void:
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.72, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.76, 0.55, 1.0))
 	if primary:
-		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.34, 0.045, 0.062, 0.98), Color(0.96, 0.56, 0.30, 0.96), 2))
-		button.add_theme_stylebox_override("hover", _make_button_style(Color(0.55, 0.055, 0.080, 1.0), Color(1.0, 0.82, 0.45, 1.0), 2))
+		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _make_button_style(Color(0.34, 0.045, 0.062, 0.98), Color(0.96, 0.56, 0.30, 0.96), 2)))
+		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.18, 1.06, 0.92, 1.0)), _make_button_style(Color(0.55, 0.055, 0.080, 1.0), Color(1.0, 0.82, 0.45, 1.0), 2)))
+		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2)))
+		button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2)))
 	else:
-		button.add_theme_stylebox_override("normal", _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1))
-		button.add_theme_stylebox_override("hover", _make_button_style(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0), 1))
-	button.add_theme_stylebox_override("pressed", _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2))
-	button.add_theme_stylebox_override("focus", _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2))
+		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1)))
+		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _make_button_style(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0), 1)))
+		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2)))
+		button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2)))
 
 func _update_nav_state() -> void:
 	for nav_button: Button in _nav_buttons:
@@ -905,9 +908,9 @@ func _update_nav_state() -> void:
 		var is_active: bool = section == _active_section
 		nav_button.add_theme_color_override("font_color", Color(1.0, 0.86, 0.58, 1.0) if is_active else COLOR_TEXT)
 		if is_active:
-			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.15, 0.060, 0.062, 0.98), COLOR_GOLD, 1))
+			nav_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.04, 0.84, 1.0)), _make_button_style(Color(0.15, 0.060, 0.062, 0.98), COLOR_GOLD, 1)))
 		else:
-			nav_button.add_theme_stylebox_override("normal", _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1))
+			nav_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1)))
 
 func _make_panel_style(bg_color: Color, border_color: Color, border_width: int, radius: int, shadow_size: int) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()

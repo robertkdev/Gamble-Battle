@@ -26,6 +26,9 @@ func _run() -> void:
 			_expect(hero.texture != null, "TitleHero texture missing", failures)
 		var content_panel: PanelContainer = title_menu.get_node_or_null("ContentPanel") as PanelContainer
 		_expect(content_panel != null, "ContentPanel missing", failures)
+		if content_panel != null:
+			var content_style: StyleBox = content_panel.get_theme_stylebox("panel")
+			_expect(content_style is StyleBoxTexture, "ContentPanel should use the generated wide panel asset", failures)
 		var search_field: LineEdit = title_menu.get_node_or_null("ContentPanel/Margin/Stack/Header/SearchField") as LineEdit
 		_expect(search_field != null, "SearchField missing", failures)
 		var how_to_play_button: Button = title_menu.get_node_or_null("Center/VBox/HowToPlayButton") as Button
@@ -67,17 +70,23 @@ func _run() -> void:
 		_expect(start_button != null, "StartButton missing", failures)
 		if start_button != null:
 			_expect(start_button.custom_minimum_size.x >= 300.0, "StartButton is not visually prioritized", failures)
+			var start_style: StyleBox = start_button.get_theme_stylebox("normal")
+			_expect(start_style is StyleBoxTexture, "Title StartButton should use the generated primary button asset", failures)
 			start_button.emit_signal("pressed")
 			await get_tree().process_frame
 			var unit_select: Control = main.get_node_or_null("UnitSelect") as Control
 			_expect(unit_select != null and unit_select.visible, "StartButton did not open UnitSelect", failures)
 
 	if failures.size() > 0:
+		main.queue_free()
+		await get_tree().process_frame
 		for failure: String in failures:
 			push_error("TitleMenuSmoke: " + failure)
 		get_tree().quit(1)
 		return
 
+	main.queue_free()
+	await get_tree().process_frame
 	print("TitleMenuSmoke: OK")
 	get_tree().quit(0)
 
