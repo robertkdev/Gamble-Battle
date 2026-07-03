@@ -17,7 +17,8 @@ Player-facing naming stays on the original chapter pattern: `Chapter 1`, `Chapte
 Use a deterministic budgeted-board generator per run seed:
 
 - `target_rating_for(chapter, stage)` assigns a numeric difficulty budget.
-- Chapter 1 Round 1 uses the old easiest creep fight as the explicit baseline through `EASIEST_REFERENCE_RATING`.
+- Chapter 1 Round 1 uses a fixed runway Beegle opener as the explicit baseline through `EASIEST_REFERENCE_RATING`.
+- Chapter 1 Rounds 2 and 3 use starter-safe RGA director runway specs before the generic budgeted-board generator takes over.
 - Creep, normal, boss, and mirror stages each keep their current stage shape.
 - Normal and boss boards select a theme such as dive, siege, control, attrition, burst, or wide-value.
 - The assembler first guarantees a frontline unit and a damage unit, then fills utility/theme slots.
@@ -26,6 +27,7 @@ Use a deterministic budgeted-board generator per run seed:
 - The generator increments levels until the board lands near the target rating.
 - Recent board signatures are remembered during sequence generation to avoid repeated boards in a short window.
 - The result is still a normal `StageSpec`: `ids`, `kind`, and `rules`, with `levels`, `procedural`, `target_rating`, `difficulty_rating`, `theme`, and normal-stage `rga_challenge` metadata.
+- Runway specs are tagged with `runway = true` so audits can separate early teaching fights from fully budgeted generator output.
 - Use `tests/rga_testing/validation/DifficultyRatingAudit.tscn` to inspect per-unit, per-creep, item, active-trait, and generated-board rating breakdowns.
 
 This sits behind `RosterCatalog.get_spec()` starting at Chapter 1. `RosterCatalog` owns the runtime seed and generated StageSpec cache, so preview and combat agree.
@@ -36,6 +38,7 @@ Current formula:
 
 - Procedural Chapter 1 is game Chapter 1.
 - Chapter 1 Round 1 target rating is `ProgressionConfig.EASIEST_REFERENCE_RATING`.
+- Chapter 1 Round 2 and Round 3 keep measured `target_rating == difficulty_rating` because their purpose is starter readability, not free-form budget matching.
 - The chapter base adds `32` per chapter and adds a `55` step every 5 chapters.
 - Stage multipliers:
   - creep: `1.00`

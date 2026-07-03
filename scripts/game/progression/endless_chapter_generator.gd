@@ -3,6 +3,7 @@ class_name EndlessChapterGenerator
 
 const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 const ProgressionConfig := preload("res://scripts/game/progression/progression_config.gd")
+const RgaStageChallengeDirector := preload("res://scripts/game/progression/rga_stage_challenge_director.gd")
 
 const PLAYABLE_UNIT_ROOT := "res://data/units"
 const DEFAULT_SEED := 730711
@@ -25,6 +26,12 @@ const DEFAULT_CREEP_REWARDS: Dictionary = {
 }
 
 const CREEP_IDS: Array[String] = ["beegle", "drubble", "drueling", "faeling"]
+const RUNWAY_OPENER_CREEP_ID: String = "beegle"
+const RUNWAY_OPENER_STATS: Dictionary = {
+	"max_hp": 120,
+	"attack_damage": 50.0,
+	"attack_range": 1,
+}
 
 const THEMES: Array[Dictionary] = [
 	{
@@ -99,6 +106,8 @@ static func get_spec(chapter: int, stage_index: int, seed: int = DEFAULT_SEED, s
 		return _make_creep_spec(c, s, seed)
 	if s == int(ProgressionConfig.MIRROR_STAGE):
 		return _make_mirror_spec(c, s, seed)
+	if c == int(ProgressionConfig.PROCEDURAL_START_CHAPTER) and (s == int(ProgressionConfig.FIRST_RGA_STAGE) or s == int(ProgressionConfig.SECOND_RGA_STAGE)):
+		return _make_runway_rga_spec(c, s, seed)
 	var kind: String = StageTypes.KIND_BOSS if s == int(ProgressionConfig.BOSS_STAGE) else StageTypes.KIND_NORMAL
 	var target_rating: int = target_rating_for(c, s)
 	return _make_budgeted_board_spec(c, s, kind, target_rating, seed, state)
@@ -151,6 +160,8 @@ static func unit_rating(unit_id: String, level: int) -> int:
 	return max(1, int(round(value)))
 
 static func _make_creep_spec(chapter: int, stage_index: int, seed: int) -> Dictionary:
+	if int(chapter) == int(ProgressionConfig.PROCEDURAL_START_CHAPTER) and int(stage_index) == int(ProgressionConfig.CREEP_STAGE):
+		return _make_runway_opener_creep_spec(seed)
 	var target: int = target_rating_for(chapter, stage_index)
 	var procedural_index: int = _procedural_index_for(chapter)
 	var count: int = clampi(1 + int(floor(float(procedural_index - 1) / 4.0)), 1, CREEP_IDS.size())
@@ -184,6 +195,47 @@ static func _make_creep_spec(chapter: int, stage_index: int, seed: int) -> Dicti
 	}
 	rules["rating_error"] = int(rules["difficulty_rating"]) - target
 	return StageTypes.make_spec(ids, StageTypes.KIND_CREEPS, rules)
+
+static func _make_runway_opener_creep_spec(seed: int) -> Dictionary:
+	var target: int = int(ProgressionConfig.EASIEST_REFERENCE_RATING)
+	var rules: Dictionary = {
+		"levels": {0: 1, RUNWAY_OPENER_CREEP_ID: 1},
+		"rewards": DEFAULT_CREEP_REWARDS.duplicate(true),
+		"procedural": true,
+		"endless": true,
+		"runway": true,
+		"target_rating": target,
+		"unit_rating": target,
+		"trait_pressure_rating": 0,
+		"active_traits": [],
+		"difficulty_rating": target,
+		"rating_error": 0,
+		"generator_seed": int(seed),
+		"stat_overrides": {"index": {0: RUNWAY_OPENER_STATS.duplicate(true)}},
+	}
+	return StageTypes.make_spec([RUNWAY_OPENER_CREEP_ID], StageTypes.KIND_CREEPS, rules)
+
+static func _make_runway_rga_spec(chapter: int, stage_index: int, seed: int) -> Dictionary:
+	RgaStageChallengeDirector.set_runtime_seed(int(seed))
+	var spec: Dictionary = RgaStageChallengeDirector.get_normal_spec(int(chapter), int(stage_index))
+	var ids: Array[String] = _strings_from_array(spec.get(StageTypes.KEY_IDS, []))
+	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {}) if typeof(spec.get(StageTypes.KEY_RULES, {})) == TYPE_DICTIONARY else {}
+	var unit_rating: int = _score_ids_with_levels(ids, rules.get("levels", {}))
+	var trait_rows: Array[Dictionary] = _active_trait_rows_for_ids(ids, unit_rating)
+	var trait_pressure: int = _sum_trait_pressure(trait_rows)
+	var difficulty: int = unit_rating + trait_pressure
+	rules["procedural"] = true
+	rules["endless"] = true
+	rules["runway"] = true
+	rules["theme"] = "chapter_one_runway"
+	rules["target_rating"] = difficulty
+	rules["unit_rating"] = unit_rating
+	rules["trait_pressure_rating"] = trait_pressure
+	rules["active_traits"] = trait_rows
+	rules["difficulty_rating"] = difficulty
+	rules["rating_error"] = 0
+	rules["generator_seed"] = int(seed)
+	return StageTypes.make_spec(ids, StageTypes.KIND_NORMAL, rules)
 
 static func _make_mirror_spec(chapter: int, stage_index: int, seed: int) -> Dictionary:
 	var target: int = target_rating_for(chapter, stage_index)
@@ -491,6 +543,12 @@ static func _active_trait_rows_for_ids(ids: Array[String], unit_total: int) -> A
 		})
 	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a.get("id", "")) < String(b.get("id", "")))
 	return rows
+
+static func _sum_trait_pressure(rows: Array[Dictionary]) -> int:
+	var total: int = 0
+	for row: Dictionary in rows:
+		total += int(row.get("pressure_rating", 0))
+	return total
 
 static func _trait_pressure_rating(unit_total: int, count: int, tier: int, threshold: int) -> int:
 	var board_pressure: float = float(unit_total) * (TRAIT_BASE_PRESSURE + float(tier) * TRAIT_TIER_PRESSURE_STEP)

@@ -36,7 +36,7 @@ Unit and creep ratings:
 
 - Playable unit: `round((6 + cost * 6) * 1.45^(level - 1))`
 - Creep: `round(EASIEST_REFERENCE_RATING * 1.35^(level - 1))`
-- `EASIEST_REFERENCE_RATING = 100`, so Chapter 1 Round 1 starts from the old easiest creep fight.
+- `EASIEST_REFERENCE_RATING = 100`, so Chapter 1 Round 1 starts from a fixed runway Beegle opener that preserves the old easiest creep-fight stat overrides.
 
 Chapter target:
 
@@ -90,25 +90,25 @@ Use these as acceptance gates before tuning by feel:
 2. `EndlessChapterGenerationProbe.tscn` passes with normal/boss max relative error under `0.17`.
 3. `EndlessRuntimeIntegrationProbe.tscn` passes for Chapter 1 default procedural runtime and top-bar naming.
 4. `EndlessEntryMainFlowSmoke.tscn` passes: real entry flow, Chapter 1 Round 1 generated at `100/100`, win into Chapter 1 Round 2.
-5. A follow-up early-campaign smoke should play through at least Chapter 1 Round 3 from a normal starter and confirm the first generated RGA boards are not overpopulated or trait-spiking.
+5. A broad first-chapter natural-flow smoke should confirm every starter reaches first shop, can buy/deploy a first-shop helper, and resolves the second fight without the first generated RGA boards overpopulating or trait-spiking.
 6. Once enemy items are enabled, add item-pressure assertions to `DifficultyRatingAudit.tscn` and rerun the Main-flow smoke with at least one item-bearing generated board.
 
 ## Current balance read
 
-Latest audit after trait-aware scoring:
+Latest audit after trait-aware scoring and the Chapter 1 runway patch:
 
-- Chapter 1 Round 1 sample: one creep, target `100`, difficulty `100`.
-- Chapter 1 Round 2 sample: generated RGA target `190`, difficulty `187`, no active trait pressure.
-- Chapter 1 Round 3 sample: raw unit rating `187`, active trait pressure `34`, total difficulty `221` against target `225`.
+- Chapter 1 Round 1 sample: fixed Beegle runway opener, target `100`, difficulty `100`.
+- Chapter 1 Round 2 sample: starter-safe RGA director runway spec, with `target_rating` set to its measured `difficulty_rating`.
+- Chapter 1 Round 3 sample: starter-safe RGA director runway spec, with `target_rating` set to its measured `difficulty_rating`.
 - Chapter 1 boss sample: raw unit rating `182`, active trait pressure `57`, total difficulty `239` against target `265`.
 
-The important change is that trait pressure now pulls generated levels downward instead of silently stacking on top of a near-target raw unit board.
+The important change is that trait pressure now pulls generated levels downward instead of silently stacking on top of a near-target raw unit board. The Chapter 1 runway also keeps the first two RGA rounds authored around starter readability before the budgeted generator takes over.
 
 ## Next balancing work
 
 - Calibrate trait coefficients against RGA combat telemetry instead of treating the current formula as final.
 - Add role-specific item coefficients once generated enemies can receive items.
-- Build a first-chapter natural progression smoke that plays through Chapter 1 Round 3 or Round 4 and fails if a normal starter repeatedly loses before the player has meaningful shop agency.
+- Keep the first-chapter natural progression smoke broad enough to fail if any starter repeatedly loses before the player has meaningful shop agency.
 - Track per-stage win/loss bands by chapter:
   - Chapter 1 Round 1 should be nearly guaranteed after starter selection.
   - Chapter 1 RGA rounds should teach board reading, not punish missing hidden trait math.
