@@ -18,6 +18,8 @@ var tile_size: int = 72
 
 var _hidden_nodes: Array[Dictionary] = []
 var _position_signal_manager: CombatManager = null
+var _has_container_bounds: bool = false
+var _last_container_bounds: Rect2 = Rect2()
 
 func configure(_arena_container: Control, _arena_units: Control, _planning_area: Control, _arena_background: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class: Script, _tile_size: int) -> void:
     arena_container = _arena_container
@@ -47,6 +49,8 @@ func _sync_container_to_planning_rect() -> void:
     var bounds: Rect2 = get_arena_bounds()
     if bounds.size.x <= 1.0 or bounds.size.y <= 1.0:
         return
+    if _has_container_bounds and _rect_close(_last_container_bounds, bounds, 0.5):
+        return
     arena_container.set_anchors_preset(Control.PRESET_TOP_LEFT, false)
     var parent_control: Control = arena_container.get_parent() as Control
     if parent_control != null:
@@ -72,6 +76,8 @@ func _sync_container_to_planning_rect() -> void:
         arena_units.offset_bottom = 0.0
         arena_units.clip_contents = true
         arena_units.mouse_filter = Control.MOUSE_FILTER_IGNORE
+    _last_container_bounds = bounds
+    _has_container_bounds = true
 
 func _rect_close(a: Rect2, b: Rect2, tolerance: float) -> bool:
     return a.position.distance_to(b.position) <= tolerance and a.size.distance_to(b.size) <= tolerance
@@ -124,6 +130,8 @@ func sync(manager: CombatManager, player_views: Array[UnitSlotView], enemy_views
 
 func exit_arena() -> void:
     _disconnect_position_signal()
+    _has_container_bounds = false
+    _last_container_bounds = Rect2()
     if arena:
         arena.exit_arena()
     if arena_container:
