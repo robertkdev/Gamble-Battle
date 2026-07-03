@@ -19,6 +19,9 @@ var _effect_player: UnitEffectPlayer
 var _team_tint: Color = Color(0.40, 0.08, 0.10, 0.68)
 var _base_screen_pos: Vector2 = Vector2.ZERO
 var _effect_offset: Vector2 = Vector2.ZERO
+var _texture_signature_cache: String = ""
+var _bar_signature_cache: String = ""
+var _bars_initialized: bool = false
 var _knockup_offset_y: float = 0.0
 var knockup_offset_y: float:
 	get:
@@ -28,6 +31,35 @@ var knockup_offset_y: float:
 		_effect_offset.y = value
 		_update_screen_position()
 var _knockup_tween: Tween = null
+
+static var diagnostics_enabled: bool = false
+static var diagnostic_update_bars_calls: int = 0
+static var diagnostic_bar_apply_calls: int = 0
+static var diagnostic_bar_skip_calls: int = 0
+static var diagnostic_texture_refresh_calls: int = 0
+static var diagnostic_texture_skip_calls: int = 0
+static var diagnostic_texture_load_attempts: int = 0
+
+static func set_diagnostics_enabled(enabled: bool) -> void:
+	diagnostics_enabled = bool(enabled)
+
+static func reset_diagnostics() -> void:
+	diagnostic_update_bars_calls = 0
+	diagnostic_bar_apply_calls = 0
+	diagnostic_bar_skip_calls = 0
+	diagnostic_texture_refresh_calls = 0
+	diagnostic_texture_skip_calls = 0
+	diagnostic_texture_load_attempts = 0
+
+static func diagnostic_snapshot() -> Dictionary:
+	return {
+		"update_bars_calls": diagnostic_update_bars_calls,
+		"bar_apply_calls": diagnostic_bar_apply_calls,
+		"bar_skip_calls": diagnostic_bar_skip_calls,
+		"texture_refresh_calls": diagnostic_texture_refresh_calls,
+		"texture_skip_calls": diagnostic_texture_skip_calls,
+		"texture_load_attempts": diagnostic_texture_load_attempts
+	}
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -266,9 +298,21 @@ func _update_texture() -> void:
 	_ensure_sprite()
 	if sprite == null:
 		return
+	var sprite_path: String = String(unit.sprite_path) if unit != null else ""
+	var next_signature: String = sprite_path
+	if next_signature == "":
+		next_signature = "fallback:%d:%d" % [int(size_px.x), int(size_px.y)]
+	if next_signature == _texture_signature_cache and sprite.texture != null:
+		if diagnostics_enabled:
+			diagnostic_texture_skip_calls += 1
+		return
+	if diagnostics_enabled:
+		diagnostic_texture_refresh_calls += 1
 	var tex: Texture2D = null
-	if unit != null and unit.sprite_path != "":
-		tex = TextureUtils.try_load_texture(unit.sprite_path)
+	if sprite_path != "":
+		if diagnostics_enabled:
+			diagnostic_texture_load_attempts += 1
+		tex = TextureUtils.try_load_texture(sprite_path)
 	if tex == null:
 		var img: Image = Image.create(int(size_px.x), int(size_px.y), false, Image.FORMAT_RGBA8)
 		img.fill(Color(0, 0, 0, 0))
@@ -283,15 +327,18 @@ func _update_texture() -> void:
 					img.set_pixel(x, y, Color(0.7, 0.7, 0.9, 1.0))
 		tex = ImageTexture.create_from_image(img)
 	sprite.texture = tex
+	_texture_signature_cache = next_signature
 
 func _update_bars() -> void:
 	_ensure_bars()
-	var hp_max := 1
-	var hp_val := 1
-	var mana_max := 0
-	var mana_val := 0
-	var shield_max := 0
-	var shield_val := 0
+	if diagnostics_enabled:
+		diagnostic_update_bars_calls += 1
+	var hp_max: int = 1
+	var hp_val: int = 1
+	var mana_max: int = 0
+	var mana_val: int = 0
+	var shield_max: int = 0
+	var shield_val: int = 0
 	if unit:
 		hp_max = max(1, unit.max_hp)
 		hp_val = clamp(unit.hp, 0, unit.max_hp)
@@ -299,6 +346,22 @@ func _update_bars() -> void:
 		mana_val = clamp(unit.mana, 0, unit.mana_max)
 		shield_max = hp_max
 		shield_val = clamp(int(unit.ui_shield), 0, shield_max)
+	var unit_instance_id: int = int(unit.get_instance_id()) if unit != null else 0
+	var next_signature: String = "%d:%d:%d:%d:%d:%d:%d" % [
+		unit_instance_id,
+		hp_max,
+		hp_val,
+		mana_max,
+		mana_val,
+		shield_max,
+		shield_val
+	]
+	if _bars_initialized and next_signature == _bar_signature_cache:
+		if diagnostics_enabled:
+			diagnostic_bar_skip_calls += 1
+		return
+	if diagnostics_enabled:
+		diagnostic_bar_apply_calls += 1
 	if hp_bar:
 		hp_bar.max_value = hp_max
 		hp_bar.value = hp_val
@@ -318,6 +381,8 @@ func _update_bars() -> void:
 		shield_ticks.visible = (shield_val > 0)
 		if shield_val > 0:
 			shield_ticks.max_value = shield_max
+	_bar_signature_cache = next_signature
+	_bars_initialized = true
 
 func set_size_px(new_size: Vector2) -> void:
 	size_px = new_size

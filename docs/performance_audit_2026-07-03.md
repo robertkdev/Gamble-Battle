@@ -22,7 +22,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after movement/telemetry pass: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=9757`.
 - `tests/perf/PerfCombatUiSignals.tscn` before UI refresh gating: sampled combat had `team_stats_updated=6`, `stats_updated=8`, `unit_stat_changed=6`, `position_updated=155-157`, `UnitView.update_from_unit_calls=105`, `UnitView.bar_refresh_calls=114`, `UnitView.sprite_refresh_calls=9`, `UnitView.texture_load_attempts=9`, `TraitsPresenter.rebuild_calls=2`, `TraitsPresenter.rebuild_skips=5`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after UI refresh gating: same short combat shape with `team_stats_updated=6`, `stats_updated=8`, `unit_stat_changed=6`, `position_updated=155`, `UnitView.update_from_unit_calls=28`, `UnitView.bar_refresh_calls=37`, `UnitView.sprite_refresh_calls=9`, `UnitView.texture_load_attempts=9`, `TraitsPresenter.rebuild_calls=2`, `TraitsPresenter.rebuild_skips=5`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` before actor value caching: `UnitActor.update_bars_calls=678`, `UnitActor.bar_apply_calls=678`, `UnitActor.bar_skip_calls=0`, `UnitActor.texture_refresh_calls=21`, `UnitActor.texture_load_attempts=21`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` after actor value caching: similar short combat with `UnitActor.update_bars_calls=729`, `UnitActor.bar_apply_calls=29`, `UnitActor.bar_skip_calls=700`, `UnitActor.texture_refresh_calls=7`, `UnitActor.texture_skip_calls=14`, `UnitActor.texture_load_attempts=7`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after UI refresh pass: `time_ms=441`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
+- `tests/perf/Perf1v1.tscn` after actor value caching: `time_ms=408`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf6v6.tscn` after UI refresh pass: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`. The run was wall-time noisy (`total_ms=24740`) and should be interpreted as a determinism/regression check, not a new simulation-speed baseline.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after UI refresh pass: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=10781`.
 
@@ -63,6 +66,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/ui/combat/controller/combat_controller.gd`
   - Added a compact HUD team snapshot signature.
   - Broad `stats_updated` / `team_stats_updated` handlers now skip duplicate full-HUD refreshes when targeted `unit_stat_changed` handlers have already repainted the changed unit bars.
+- `scripts/ui/combat/unit_actor.gd`
+  - Added diagnostics for arena actor bar and texture refreshes.
+  - Caches actor bar value signatures so per-frame arena sync can keep moving actors while skipping unchanged ProgressBar/tick/visibility assignments.
+  - Caches actor texture signatures so `set_unit()` plus immediate `set_size_px()` no longer reloads the same sprite texture.
 - `tests/visual/combat_view_theme_playtest.gd`
   - Added explicit `CombatView` teardown/free on exit. The scene still reports renderer/resource cleanup errors under the MCP run, so it is not used as the clean validation source for this pass.
 
@@ -79,7 +86,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 3. Telemetry and UI signals are broad.
    - Combat emits position, target, hit, stat, and team-stat signals.
    - Headless base-only RGA now disables unused position/target telemetry.
-   - Player-facing HUD refreshes now skip duplicate broad stat/team-stat repaints, but `position_updated` still fires roughly 155 times in the short diagnostics combat.
+   - Player-facing HUD refreshes now skip duplicate broad stat/team-stat repaints, and arena actors skip unchanged bar/texture applications during per-frame movement sync.
+   - `position_updated` still fires roughly 155 times in the short diagnostics combat and remains the largest visible signal stream.
    - UI listeners should keep using diagnostics gates before further repaint or signal-throttling changes.
 
 4. Simulation cadence is sensitive.
@@ -88,12 +96,11 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 ## Recommended Next Optimizations
 
-1. Add actor-bar diagnostics to quantify remaining arena `UnitActor.update_bars()` churn and decide whether value-level bar caches are worthwhile.
-2. Evaluate player-facing `position_updated` coalescing/throttling. Keep motion smoothness checks in the loop; this is a visual optimization, not just a signal-count target.
-3. Add a small shared texture/fallback cache in `TextureUtils` if shop, stats panel, trait icon, or title/menu captures show repeated texture generation/load pressure.
-4. Profile `SlotStrategy.assign_for_target()` result dictionary churn under larger or forced same-target boards.
-5. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded but not deeply tuned.
-6. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
+1. Evaluate player-facing `position_updated` coalescing/throttling. Keep motion smoothness checks in the loop; this is a visual optimization, not just a signal-count target.
+2. Add a small shared texture/fallback cache in `TextureUtils` if shop, stats panel, trait icon, or title/menu captures show repeated texture generation/load pressure beyond combat actor/unit views.
+3. Profile `SlotStrategy.assign_for_target()` result dictionary churn under larger or forced same-target boards.
+4. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded but not deeply tuned.
+5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 
 ## Guardrails
 

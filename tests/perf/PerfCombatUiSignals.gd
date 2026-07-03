@@ -2,6 +2,7 @@ extends Node
 
 const COMBAT_VIEW_SCENE: PackedScene = preload("res://scenes/CombatView.tscn")
 const UnitViewScript: Script = preload("res://scripts/ui/combat/unit_view.gd")
+const UnitActorScript: Script = preload("res://scripts/ui/combat/unit_actor.gd")
 const TraitsPresenterScript: Script = preload("res://scripts/ui/traits/traits_presenter.gd")
 
 @export var run_seconds: float = 8.0
@@ -26,6 +27,8 @@ func _ready() -> void:
 func _run() -> void:
 	UnitViewScript.set_diagnostics_enabled(true)
 	UnitViewScript.reset_diagnostics()
+	UnitActorScript.set_diagnostics_enabled(true)
+	UnitActorScript.reset_diagnostics()
 	TraitsPresenterScript.set_diagnostics_enabled(true)
 	TraitsPresenterScript.reset_diagnostics()
 
@@ -75,6 +78,7 @@ func _run() -> void:
 		sim_s = float(engine.state.elapsed_time)
 		battle_active = bool(engine.state.battle_active)
 	var unit_diag: Dictionary = UnitViewScript.diagnostic_snapshot()
+	var actor_diag: Dictionary = UnitActorScript.diagnostic_snapshot()
 	var trait_diag: Dictionary = TraitsPresenterScript.diagnostic_snapshot()
 	print("PerfCombatUiSignals: elapsed_ms=", elapsed_ms,
 		" sampled_s=", _fmtn(sampled_seconds),
@@ -82,6 +86,7 @@ func _run() -> void:
 		" active=", battle_active,
 		" signals=", _counts,
 		" unit_view=", unit_diag,
+		" unit_actor=", actor_diag,
 		" traits=", trait_diag)
 	_finish(0)
 
@@ -202,6 +207,7 @@ func _finish(code: int) -> void:
 	_view = null
 	_manager = null
 	UnitViewScript.set_diagnostics_enabled(false)
+	UnitActorScript.set_diagnostics_enabled(false)
 	TraitsPresenterScript.set_diagnostics_enabled(false)
 	if get_tree() != null:
 		get_tree().quit(code)
