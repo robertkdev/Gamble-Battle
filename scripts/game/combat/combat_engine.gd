@@ -267,14 +267,11 @@ func _engine_select_closest_target(my_team: String, my_index: int, enemy_team: S
 		arena_state.tile_size())
 
 func _positions_for_team(team: String) -> Array[Vector2]:
-	var out: Array[Vector2] = []
 	if arena_state == null:
-		return out
-	var raw_positions: Array = arena_state.player_positions_copy() if team == "player" else arena_state.enemy_positions_copy()
-	for raw_position in raw_positions:
-		if raw_position is Vector2:
-			out.append(raw_position)
-	return out
+		return []
+	if team == "player":
+		return arena_state.player_positions_copy()
+	return arena_state.enemy_positions_copy()
 
 func _position_at(positions: Array[Vector2], index: int, fallback: Vector2) -> Vector2:
 	if index >= 0 and index < positions.size():
