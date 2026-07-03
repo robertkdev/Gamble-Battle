@@ -125,6 +125,7 @@ func show_team_metrics() -> void:
         scoreboard.visible = true
     if unit_panel:
         unit_panel.visible = false
+        unit_panel.set_process(false)
 
 func show_unit_metrics_ctx(team: String, index: int, u: Unit) -> void:
     _unit_team = String(team)
@@ -141,6 +142,7 @@ func show_unit_metrics(u: Unit) -> void:
     if unit_panel:
         unit_panel.set_unit(u)
         unit_panel.visible = true
+        unit_panel.set_process(true)
     if scoreboard:
         scoreboard.visible = false
 

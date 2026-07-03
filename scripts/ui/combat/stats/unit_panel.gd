@@ -35,12 +35,29 @@ var mana_bar: ProgressBar
 var attack_info_label: Label = null
 var ability_info_label: Label = null
 
+static var diagnostics_enabled: bool = false
+static var diagnostic_dynamic_refresh_calls: int = 0
+static var diagnostic_dynamic_refresh_skips: int = 0
+
+static func set_diagnostics_enabled(enabled: bool) -> void:
+    diagnostics_enabled = bool(enabled)
+
+static func reset_diagnostics() -> void:
+    diagnostic_dynamic_refresh_calls = 0
+    diagnostic_dynamic_refresh_skips = 0
+
+static func diagnostic_snapshot() -> Dictionary:
+    return {
+        "dynamic_refresh_calls": diagnostic_dynamic_refresh_calls,
+        "dynamic_refresh_skips": diagnostic_dynamic_refresh_skips
+    }
+
 func _ready() -> void:
     _ensure_bars()
     _ensure_combat_info()
     _ensure_identity_styles()
     _apply_static_styles()
-    set_process(true)
+    set_process(false)
 
 func _exit_tree() -> void:
     teardown()
@@ -72,6 +89,12 @@ func set_unit(u: Unit) -> void:
     _refresh_combat_info()
 
 func _process(_delta: float) -> void:
+    if not visible or tracker == null or index < 0:
+        if diagnostics_enabled:
+            diagnostic_dynamic_refresh_skips += 1
+        return
+    if diagnostics_enabled:
+        diagnostic_dynamic_refresh_calls += 1
     _refresh_dynamic()
 
 func _refresh_dynamic() -> void:

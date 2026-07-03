@@ -231,6 +231,19 @@ func _fail(message: String) -> void:
 
 func _finish() -> void:
 	UNIT_FACTORY.suppress_validation_warnings = _previous_suppress_validation_warnings
+	if _view != null and is_instance_valid(_view) and _view.has_method("_teardown"):
+		_view.call("_teardown")
+	if _main != null and is_instance_valid(_main):
+		var parent_node: Node = _main.get_parent()
+		if parent_node != null:
+			parent_node.remove_child(_main)
+		_main.free()
+	_main = null
+	_view = null
+	_stats_panel = null
+	_scoreboard = null
+	_unit_panel = null
+	_manager = null
 	if _failures.is_empty():
 		print("StatsPanelClickSmoke: OK")
 		get_tree().quit(0)

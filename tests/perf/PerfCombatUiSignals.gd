@@ -4,6 +4,7 @@ const COMBAT_VIEW_SCENE: PackedScene = preload("res://scenes/CombatView.tscn")
 const UnitViewScript: Script = preload("res://scripts/ui/combat/unit_view.gd")
 const UnitActorScript: Script = preload("res://scripts/ui/combat/unit_actor.gd")
 const TraitsPresenterScript: Script = preload("res://scripts/ui/traits/traits_presenter.gd")
+const UnitPanelScript: Script = preload("res://scripts/ui/combat/stats/unit_panel.gd")
 
 @export var run_seconds: float = 8.0
 @export var player_team_ids: PackedStringArray = PackedStringArray(["bonko", "korath", "sari", "pilfer", "cashmere", "axiom"])
@@ -31,6 +32,8 @@ func _run() -> void:
 	UnitActorScript.reset_diagnostics()
 	TraitsPresenterScript.set_diagnostics_enabled(true)
 	TraitsPresenterScript.reset_diagnostics()
+	UnitPanelScript.set_diagnostics_enabled(true)
+	UnitPanelScript.reset_diagnostics()
 
 	var started_ms: int = Time.get_ticks_msec()
 	_view = COMBAT_VIEW_SCENE.instantiate() as Control
@@ -80,6 +83,7 @@ func _run() -> void:
 	var unit_diag: Dictionary = UnitViewScript.diagnostic_snapshot()
 	var actor_diag: Dictionary = UnitActorScript.diagnostic_snapshot()
 	var trait_diag: Dictionary = TraitsPresenterScript.diagnostic_snapshot()
+	var unit_panel_diag: Dictionary = UnitPanelScript.diagnostic_snapshot()
 	print("PerfCombatUiSignals: elapsed_ms=", elapsed_ms,
 		" sampled_s=", _fmtn(sampled_seconds),
 		" sim_s=", _fmtn(sim_s),
@@ -87,7 +91,8 @@ func _run() -> void:
 		" signals=", _counts,
 		" unit_view=", unit_diag,
 		" unit_actor=", actor_diag,
-		" traits=", trait_diag)
+		" traits=", trait_diag,
+		" unit_panel=", unit_panel_diag)
 	_finish(0)
 
 func _team_ids_array() -> Array[String]:
@@ -209,6 +214,7 @@ func _finish(code: int) -> void:
 	UnitViewScript.set_diagnostics_enabled(false)
 	UnitActorScript.set_diagnostics_enabled(false)
 	TraitsPresenterScript.set_diagnostics_enabled(false)
+	UnitPanelScript.set_diagnostics_enabled(false)
 	if get_tree() != null:
 		get_tree().quit(code)
 

@@ -61,6 +61,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfCombatUiSignals.tscn` after bounds-only resync stayed clean with errors `[]`: `position_updated=159`, `UnitActor.position_update_calls=159`, `position_apply_calls=159`, `update_bars_calls=50`, `bar_apply_calls=28`, `bar_skip_calls=22`.
 - `tests/perf/Perf1v1.tscn` after bounds-only resync kept signature `-6199507685307107293:55`, `frames=901`, `time_ms=440`, errors `[]`.
 - `tests/visual/UIThemeSmoke.tscn` after the stage-progress icon loader and bounds-resync work passed with `UIThemeSmoke: OK`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` after hidden unit-panel processing was disabled stayed clean with errors `[]`: same short-combat shape with `position_updated=159`, `UnitActor.position_update_calls=159`, `UnitActor.update_bars_calls=50`, and hidden `UnitPanel` diagnostics `dynamic_refresh_calls=0`, `dynamic_refresh_skips=0`.
+- `tests/visual/StatsPanelClickSmoke.tscn` still prints `StatsPanelClickSmoke: OK` after unit-panel process gating. Explicit Main/CombatView teardown was added to the harness, but the scene still reports unchanged dummy-renderer cleanup diagnostics, so treat it as functional-only evidence rather than an empty-error gate.
 - `tests/perf/PerfLargeBoard.tscn` after slot and cache work:
   - 8v8: `samples_per_case=2`, `median_ms=3108`, `p95_ms=4001`, `frames=901`, `sim_s=45.050000`, result `team_a`, alive `8:4`, signature `7184874536639686372:300`, consistent `true`.
   - 12v12: `samples_per_case=2`, `median_ms=3492`, `p95_ms=3523`, `frames=258`, `sim_s=12.900000`, result `team_a`, alive `12:0`, signature `3567836549670627538:428`, consistent `true`.
@@ -125,6 +127,13 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Added a bounds-only arena update path so UI layout changes can update movement clamps without resetting positions, target state, or mentor-pairing inputs.
 - `tests/visual/combat_arena_bounds_smoke.gd`
   - Explicitly tears down and frees the Main scene before quitting. Dummy renderer cleanup diagnostics still remain under MCP, but the stale-bounds assertion now passes.
+- `scripts/ui/combat/stats/unit_panel.gd` and `scripts/ui/combat/stats/stats_panel.gd`
+  - Disabled hidden unit-detail panel `_process()` work by default; StatsPanel enables live unit refresh only while unit-detail mode is visible.
+  - Added unit-panel diagnostics for live refresh calls/skips.
+- `tests/perf/PerfCombatUiSignals.gd`
+  - Reports hidden unit-panel refresh diagnostics alongside existing unit view, actor, and traits diagnostics.
+- `tests/visual/stats_panel_click_smoke.gd`
+  - Adds explicit Main/CombatView teardown before quitting; dummy-renderer cleanup diagnostics still remain under MCP.
 - `scripts/util/texture_utils.gd`
   - Added shared caches for successfully loaded textures and generated circle fallback textures.
   - Added `clear_cache()` plus diagnostics counters/snapshot helpers.
