@@ -146,6 +146,8 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 					prev_cols[next_mask] = col
 					prev_masks[next_mask] = mask
 	var final_mask: int = mask_count - 1
+	if best_costs[final_mask] >= incumbent_cost:
+		return {"assignment": [], "cost": incumbent_cost}
 	var assignment: Array[int] = []
 	assignment.resize(n)
 	var walk_mask: int = final_mask
