@@ -156,6 +156,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Rejected ally peel squared-distance guard experiment: adding a distance-squared prefilter in support peel pressure preserved `PerfTargeting.tscn` signature `9036604269279486158`, but regressed the focused targeting median from a fresh `814ms` control to `937ms`, so it was reverted.
 - `SlotStrategy.assign_slots_for_team()` now fills the team slot map directly instead of allocating a per-target result dictionary and copying it into the team map. Validation stayed behavior-stable and clean: `PerfSlotStrategy.tscn` kept aggregate signature `5330865502362346199`, errors `[]`, with focused total `258ms`; `PerfMovementPhases.tscn` kept signatures `-3997862279252171970:232` and `3567836549670627538:428`, with accepted 12v12 slot assignment samples `2374385us`, `2148698us`, and `2303657us` versus a fresh control at `2428285us`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=16215`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `15137ms`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7909`.
 - Rejected reusable returned slot-map experiment: reusing separate returned team slot-map dictionaries preserved movement signatures, but regressed real 12v12 movement profiling to slot assignment `2844521us` / movement `3153289us`, so it was reverted.
+- `tests/perf/PerfSlotTeamAssignment.tscn` added focused coverage for the live `SlotStrategy.assign_slots_for_team()` API, not just the lower-level `assign_for_target()` helper. Baseline with current direct-fill slot strategy kept errors `[]`: `single_6` median `138ms`, signature `5029851521216537499`; `single_12` median `2499ms`, signature `8412301190233361959`; `split_12` median `72ms`, signature `8204555115196554351`; aggregate signature `2813605715628331077`. This benchmark exposes the exact same-target 12-attacker case as the expensive focused slot path, while split-target assignment is comparatively cheap.
+- Rejected dense slot-info array experiment: returning slot data to `MovementService2` in dense arrays preserved `PerfSlotTeamAssignment`/movement signatures, but real movement profiling was mixed and ultimately regressed to 12v12 slot assignment `3254368us` / movement `3622142us`, so it was reverted.
+- Rejected runtime angle-omission experiment: omitting the slot `angle` field from normal team assignment preserved signatures, but regressed 12v12 movement profiling to slot assignment `2790166us` / movement `3106710us`, so it was reverted.
 
 ## Changes Made
 
@@ -205,6 +208,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Lockstep jobs enable diagnostics only when `metadata.perf_movement_diagnostics` is true, and the new profiler scene prints per-case phase percentages plus target call/skip counts.
 - `tests/perf/PerfSlotStrategy.gd`
   - Upgraded the benchmark to repeated samples per case with median/p95/min/max reporting so solver changes are not judged from a single noisy timing sample.
+- `tests/perf/PerfSlotTeamAssignment.gd` / `tests/perf/PerfSlotTeamAssignment.tscn`
+  - Added focused coverage for `SlotStrategy.assign_slots_for_team()` across 6-attacker same-target, 12-attacker same-target, and 12-attacker split-target cases.
+  - Reports repeated-sample median/p95/min/max timings plus deterministic slot-map signatures, making it a better focused gate for movement-path slot assignment changes than `PerfSlotStrategy.tscn` alone.
 - `tests/perf/PerfTargeting.gd` / `tests/perf/PerfTargeting.tscn`
   - Added a focused deterministic target-priority benchmark over mixed 12v12 teams.
   - Reports repeated-sample median/p95/min/max timings plus a deterministic target-selection signature.
@@ -303,7 +309,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 1. Clean up remaining dummy-renderer teardown diagnostics in `CombatArenaBoundsSmoke.tscn` if that scene must become a strict empty-error gate; its stale-bounds assertion now passes.
 2. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 159 events are material; the UI no longer polls every actor every frame.
-3. Use `PerfMovementPhases.tscn` plus `PerfLargeBoard.tscn` as the regression/stress gates before future movement changes above 6v6.
+3. Use `PerfSlotTeamAssignment.tscn`, `PerfMovementPhases.tscn`, and `PerfLargeBoard.tscn` as the focused/regression/stress gates before future movement changes above 6v6.
 4. Use `PerfTargeting.tscn` before and after target-priority changes, then confirm with `Perf6v6.tscn` or `RoleMatrixProbe6v6.tscn`.
 5. Continue slot assignment work with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures.
 6. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
