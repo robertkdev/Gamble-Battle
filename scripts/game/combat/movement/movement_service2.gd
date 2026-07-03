@@ -293,7 +293,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var movement_blockers_active: bool = buff_adapter.has_movement_blockers()
 
 	# Player side
-	var forced_has_player_impulses: bool = forced.has_any()
+	var forced_has_player_impulses: bool = forced.has_any_for_team("player")
 	for i in range(state.player_team.size()):
 		var u: Unit = state.player_team[i]
 		var alive: bool = p_alive[i]
@@ -378,7 +378,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		diag_phase_start = _diag_mark_phase("player_steps", diag_phase_start)
 
 	# Enemy side
-	var forced_has_enemy_impulses: bool = forced.has_any()
+	var forced_has_enemy_impulses: bool = forced.has_any_for_team("enemy")
 	for j in range(state.enemy_team.size()):
 		var e: Unit = state.enemy_team[j]
 		var alive_e: bool = e_alive[j]

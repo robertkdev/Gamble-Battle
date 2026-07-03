@@ -25,6 +25,7 @@ class Impulse:
         return remaining <= 0.0
 
 var _map: Dictionary = {} # key -> Impulse
+var _team_counts: Dictionary[String, int] = {}
 
 static func _key(team: String, idx: int) -> String:
     return team + ":" + str(idx)
@@ -32,27 +33,44 @@ static func _key(team: String, idx: int) -> String:
 func add(team: String, idx: int, vec: Vector2, duration: float) -> void:
     if duration <= 0.0 or vec == Vector2.ZERO:
         return
-    _map[_key(team, idx)] = Impulse.new(vec, duration)
+    var key: String = _key(team, idx)
+    if not _map.has(key):
+        _team_counts[team] = int(_team_counts.get(team, 0)) + 1
+    _map[key] = Impulse.new(vec, duration)
 
 func has_any() -> bool:
     return not _map.is_empty()
 
+func has_any_for_team(team: String) -> bool:
+    return int(_team_counts.get(team, 0)) > 0
+
 func has_active(team: String, idx: int) -> bool:
-    var k := _key(team, idx)
+    var k: String = _key(team, idx)
     return _map.has(k) and not (_map[k] as Impulse).is_done()
 
 func consume_step(team: String, idx: int, dt: float) -> Vector2:
-    var k := _key(team, idx)
+    var k: String = _key(team, idx)
     if not _map.has(k):
         return Vector2.ZERO
     var imp: Impulse = _map[k]
     if imp.is_done():
-        _map.erase(k)
+        _erase_impulse(team, k)
         return Vector2.ZERO
     var step_vec: Vector2 = imp.step(dt)
     if imp.is_done():
-        _map.erase(k)
+        _erase_impulse(team, k)
     return step_vec
+
+func _erase_impulse(team: String, key: String) -> void:
+    if not _map.has(key):
+        return
+    _map.erase(key)
+    var current: int = int(_team_counts.get(team, 0))
+    if current <= 1:
+        _team_counts.erase(team)
+    else:
+        _team_counts[team] = current - 1
 
 func clear() -> void:
     _map.clear()
+    _team_counts.clear()

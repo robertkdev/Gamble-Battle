@@ -36,7 +36,7 @@ func _run() -> void:
 	direct_forced.add("player", 3, Vector2(96.0, 0.0), active_duration)
 	var direct_active_hits: int = 0
 	var direct_active_step_signature: int = 0
-	var direct_active_gate: bool = direct_forced.has_any()
+	var direct_active_gate: bool = direct_forced.has_any_for_team("player")
 	var started_direct_active_usec: int = Time.get_ticks_usec()
 	for direct_index in range(max(0, active_iterations)):
 		if direct_active_gate:
@@ -46,10 +46,36 @@ func _run() -> void:
 				direct_active_step_signature = _mix(direct_active_step_signature, int(round(direct_step.x * 100000.0)))
 	var direct_active_ms: int = int((Time.get_ticks_usec() - started_direct_active_usec) / 1000)
 
+	var global_enemy_forced: ForcedMovement = ForcedMovementScript.new()
+	global_enemy_forced.add("player", 3, Vector2(96.0, 0.0), active_duration)
+	var global_enemy_hits: int = 0
+	var global_enemy_gate: bool = global_enemy_forced.has_any()
+	var started_global_enemy_usec: int = Time.get_ticks_usec()
+	for global_enemy_index in range(max(0, active_iterations)):
+		if global_enemy_gate:
+			var global_enemy_step: Vector2 = global_enemy_forced.consume_step("enemy", global_enemy_index % 12, 1.0)
+			if global_enemy_step != Vector2.ZERO:
+				global_enemy_hits += 1
+	var global_enemy_ms: int = int((Time.get_ticks_usec() - started_global_enemy_usec) / 1000)
+
+	var team_enemy_forced: ForcedMovement = ForcedMovementScript.new()
+	team_enemy_forced.add("player", 3, Vector2(96.0, 0.0), active_duration)
+	var team_enemy_hits: int = 0
+	var team_enemy_gate: bool = team_enemy_forced.has_any_for_team("enemy")
+	var started_team_enemy_usec: int = Time.get_ticks_usec()
+	for team_enemy_index in range(max(0, active_iterations)):
+		if team_enemy_gate:
+			var team_enemy_step: Vector2 = team_enemy_forced.consume_step("enemy", team_enemy_index % 12, 1.0)
+			if team_enemy_step != Vector2.ZERO:
+				team_enemy_hits += 1
+	var team_enemy_ms: int = int((Time.get_ticks_usec() - started_team_enemy_usec) / 1000)
+
 	var signature: int = 23
 	signature = _mix(signature, empty_hits)
 	signature = _mix(signature, legacy_active_hits)
 	signature = _mix(signature, direct_active_hits)
+	signature = _mix(signature, global_enemy_hits)
+	signature = _mix(signature, team_enemy_hits)
 	signature = _mix(signature, legacy_active_step_signature)
 	signature = _mix(signature, direct_active_step_signature)
 	print("PerfForcedMovement: empty_iterations=", empty_iterations,
@@ -60,6 +86,10 @@ func _run() -> void:
 		" legacy_active_hits=", legacy_active_hits,
 		" direct_active_ms=", direct_active_ms,
 		" direct_active_hits=", direct_active_hits,
+		" global_enemy_ms=", global_enemy_ms,
+		" global_enemy_hits=", global_enemy_hits,
+		" team_enemy_ms=", team_enemy_ms,
+		" team_enemy_hits=", team_enemy_hits,
 		" signature=", signature)
 	get_tree().quit(0)
 

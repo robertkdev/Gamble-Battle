@@ -197,6 +197,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Rejected in the same pass: reusing a scratch cost matrix, unique-min assignment array, and used-column array inside `SlotStrategy._evaluate_assignment()` preserved `PerfSlotTeamAssignment.tscn` aggregate signature `2813605715628331077`, but regressed the fresh focused `single_12` case from `799ms` to `988ms` and median total from `1025ms` to `1187ms`, so it was reverted.
 - `MovementService2` now directly calls `ForcedMovement.consume_step()` when the forced map is non-empty, instead of checking `has_active()` and then consuming the same active impulse. `tests/perf/PerfForcedMovement.tscn` now compares the legacy double-check path with the movement-style direct-consume path in one run: legacy active checks took `874ms` across 120k active iterations, while direct active consumption took `442ms`; both hit `120000` active steps, signature `2335180735363998194`. Broad gates stayed clean: `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures, `Perf6v6.tscn` aggregate `4480953857527108889:18`, `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, `Perf1v1.tscn` signature `-6199507685307107293:55`, and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - Rejected in the same pass: reusing movement target-group arrays across frames preserved movement signatures but regressed fresh `PerfMovementPhases.tscn` timings (6v6 movement `584416us`, 12v12 movement `3332043us` versus fresh control `557650us`/`3256684us`), so it was reverted. Splitting `ForcedMovement` storage into per-team integer-key maps preserved the focused forced-movement signature but regressed active timing from `879ms` to `959ms`, so it was also reverted.
+- `ForcedMovement` now tracks active impulse counts by team, and `MovementService2` uses `has_any_for_team()` for the player and enemy forced-step gates. This avoids checking enemy forced movement when only player impulses are active, and vice versa. Updated `PerfForcedMovement.tscn` evidence preserved behavior and showed the old global enemy gate spent `234ms` across 120k player-only active iterations, while the per-team enemy gate took `2ms`; active direct player consumption still beat legacy active checks in the same run (`543ms` vs `925ms`), signature `3092491491923327610`. Broad gates stayed clean: `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures, `Perf6v6.tscn` aggregate `4480953857527108889:18`, `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, `Perf1v1.tscn` signature `-6199507685307107293:55`, and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 
 ## Changes Made
 
@@ -222,6 +223,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Trusts the same resized alive scratch arrays inside slot-step and avoidance helper loops, avoiding remaining per-neighbor alive-array bounds checks while preserving movement signatures.
   - Skips per-unit forced-movement key lookups for a team when the forced impulse map is empty.
   - Uses direct forced-step consumption when forced impulses are active, avoiding a duplicate `has_active()` lookup for the active unit.
+  - Uses per-team forced-impulse gates so one team's active impulse does not force the other team to probe every unit.
   - Skips per-unit buff/root/stun movement-block checks when the buff system has no active movement blockers.
   - `_compute_slot_step()` now derives both slot direction and slot distance from one `slot_pos - cur` vector, avoiding duplicate vector length work in player/enemy step phases while preserving movement signatures.
   - `_compute_slot_step()` also reuses measured separation and avoidance vector lengths for direction/strength calculations instead of recomputing each length after normalization.
@@ -246,6 +248,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Skips non-improving DP assignment backtracking when the final mask cost does not beat the current incumbent.
 - `scripts/game/combat/movement/forced_movement.gd`
   - Adds `has_any()` so movement can skip per-unit forced-impulse key construction on frames with no active forced movement.
+  - Tracks active impulse counts by team through `has_any_for_team()`, so one team's forced impulse does not trigger per-unit forced checks for the other team.
 - `scripts/game/abilities/buff_system.gd` and `scripts/game/combat/movement/adapters/buff_adapter.gd`
   - Add a movement-blocker presence gate so movement can avoid per-unit stun/root checks on frames with no active movement blockers.
   - Use one unit-buff scan for active stun/root/rooted movement blocking instead of separate stun and tag lookups.
@@ -333,6 +336,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfForcedMovement.gd` / `tests/perf/PerfForcedMovement.tscn`
   - Added focused coverage for empty forced-movement checks and active impulse consumption.
   - Compares the legacy `has_active()` plus `consume_step()` active path against direct active consumption, matching the movement loop's current active-impulse path.
+  - Compares the previous global forced-impulse gate against the per-team gate for player-only active impulses.
 - `tests/perf/PerfMovementBlockers.gd` / `tests/perf/PerfMovementBlockers.tscn`
   - Added focused coverage for empty movement-blocker checks and active root blocking through the movement buff adapter, including a legacy active-root comparison.
 - `tests/perf/PerfLargeBoard.gd` / `tests/perf/PerfLargeBoard.tscn`
