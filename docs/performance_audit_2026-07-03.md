@@ -49,6 +49,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - signature `3777858830557683578`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after shared texture cache: `time_ms=551`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after shared texture cache still completed and reported the expected optimized refresh shape, but current dirty/uncommitted stage-progress UI work emitted loader errors for `res://assets/ui/stage_icons/*`. Treat that as unrelated validation contamination until the stage icon resources/imports are fixed or that work is reverted.
+- `tests/perf/PerfLargeBoard.tscn` after slot and cache work:
+  - 8v8: `samples_per_case=2`, `median_ms=3108`, `p95_ms=4001`, `frames=901`, `sim_s=45.050000`, result `team_a`, alive `8:4`, signature `7184874536639686372:300`, consistent `true`.
+  - 12v12: `samples_per_case=2`, `median_ms=3492`, `p95_ms=3523`, `frames=258`, `sim_s=12.900000`, result `team_a`, alive `12:0`, signature `3567836549670627538:428`, consistent `true`.
+  - total: `total_ms=14136`, aggregate signature `7144113503220431359:12`, inconsistent cases `0`, errors `[]`.
 
 ## Changes Made
 
@@ -99,6 +103,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Does not cache missing paths, so newly created/imported files can still become available without clearing a stale miss.
 - `tests/perf/PerfTextureUtils.gd` / `tests/perf/PerfTextureUtils.tscn`
   - Added a focused cache benchmark covering repeated real texture loads and repeated generated fallback requests.
+- `tests/perf/PerfLargeBoard.gd` / `tests/perf/PerfLargeBoard.tscn`
+  - Added deterministic 8v8 and 12v12 stress coverage through the existing headless simulator.
+  - Uses base telemetry only, repeated samples, deterministic signatures, and aggregate consistency checks.
 - `tests/visual/combat_view_theme_playtest.gd`
   - Added explicit `CombatView` teardown/free on exit. The scene still reports renderer/resource cleanup errors under the MCP run, so it is not used as the clean validation source for this pass.
 
@@ -128,7 +135,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 1. Evaluate player-facing `position_updated` coalescing/throttling. Keep motion smoothness checks in the loop; this is a visual optimization, not just a signal-count target.
 2. Resolve the current dirty stage-progress icon loader errors before using `PerfCombatUiSignals.tscn` or Main-scene UI runs as clean validation evidence again.
-3. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded and the exact solver is faster, but not yet deeply tuned for game sizes above 12.
+3. Use `PerfLargeBoard.tscn` as the regression/stress gate before future movement changes above 6v6.
 4. Profile remaining `SlotStrategy.assign_for_target()` result dictionary churn only if larger-board stress shows slot payload construction is still material.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 
