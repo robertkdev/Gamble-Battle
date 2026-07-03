@@ -9,13 +9,13 @@ var arena_container: Control
 var arena_units: Control
 var player_grid_helper: BoardGrid
 var enemy_grid_helper: BoardGrid
-var unit_actor_class
+var unit_actor_class: Script
 var tile_size: int = 72
 
 var player_actors: Array[UnitActor] = []
 var enemy_actors: Array[UnitActor] = []
 
-func configure(_arena_container: Control, _arena_units: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class, _tile_size: int) -> void:
+func configure(_arena_container: Control, _arena_units: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class: Script, _tile_size: int) -> void:
     arena_container = _arena_container
     arena_units = _arena_units
     player_grid_helper = _player_grid_helper
@@ -23,12 +23,12 @@ func configure(_arena_container: Control, _arena_units: Control, _player_grid_he
     unit_actor_class = _unit_actor_class
     tile_size = _tile_size
 
-func enter_arena(player_views, enemy_views) -> void:
+func enter_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
     Trace.step("ArenaController.enter_arena: begin")
     _clear()
     var player_summary: Array[String] = []
     for i in range(player_views.size()):
-        var pv = player_views[i]
+        var pv: UnitSlotView = player_views[i]
         var idx: int = pv.tile_idx
         var pos: Vector2 = Vector2.ZERO
         if player_grid_helper and idx >= 0:
@@ -48,7 +48,7 @@ func enter_arena(player_views, enemy_views) -> void:
 
     var enemy_summary: Array[String] = []
     for i in range(enemy_views.size()):
-        var ev = enemy_views[i]
+        var ev: UnitSlotView = enemy_views[i]
         var idx2: int = ev.tile_idx
         var pos2: Vector2 = Vector2.ZERO
         if enemy_grid_helper and idx2 >= 0:
@@ -66,11 +66,11 @@ func enter_arena(player_views, enemy_views) -> void:
         Debug.log("Arena", "Enemy positions %s" % [Strings.join(enemy_summary, ", ")])
     Trace.step("ArenaController.enter_arena: done")
 
-func sync_arena(player_views, enemy_views) -> void:
+func sync_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
     var player_summary: Array[String] = []
     for i in range(min(player_actors.size(), player_views.size())):
         var actor: UnitActor = player_actors[i]
-        var pv = player_views[i]
+        var pv: UnitSlotView = player_views[i]
         var idx: int = pv.tile_idx
         var pos: Vector2 = Vector2.ZERO
         if player_grid_helper and idx >= 0:
@@ -87,7 +87,7 @@ func sync_arena(player_views, enemy_views) -> void:
     var enemy_summary: Array[String] = []
     for i in range(min(enemy_actors.size(), enemy_views.size())):
         var actor2: UnitActor = enemy_actors[i]
-        var ev = enemy_views[i]
+        var ev: UnitSlotView = enemy_views[i]
         var idx2: int = ev.tile_idx
         var pos2: Vector2 = Vector2.ZERO
         if enemy_grid_helper and idx2 >= 0:
@@ -101,12 +101,12 @@ func sync_arena(player_views, enemy_views) -> void:
     if not enemy_summary.is_empty():
         Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
 
-func sync_arena_with_positions(player_views, enemy_views, player_positions: Array, enemy_positions: Array) -> void:
+func sync_arena_with_positions(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView], player_positions: Array, enemy_positions: Array) -> void:
     # Prefer engine-provided positions when available; fall back to grid centers
     var player_summary: Array[String] = []
     for i in range(min(player_actors.size(), player_views.size())):
         var actor: UnitActor = player_actors[i]
-        var pv = player_views[i]
+        var pv: UnitSlotView = player_views[i]
         var pos: Vector2 = Vector2.ZERO
         if i < player_positions.size():
             pos = player_positions[i]
@@ -117,7 +117,7 @@ func sync_arena_with_positions(player_views, enemy_views, player_positions: Arra
         player_summary.append("%d:%s" % [i, pos])
         if actor and is_instance_valid(actor):
             actor.set_screen_position(pos)
-            actor.update_bars(pv.unit)
+            # Bars update through stat/team-stat signals; position sync only moves actors.
             actor.visible = (pv.unit != null and pv.unit.is_alive())
     if not player_summary.is_empty():
         Debug.log("ArenaSync", "Player %s" % [Strings.join(player_summary, ", ")])
@@ -125,7 +125,7 @@ func sync_arena_with_positions(player_views, enemy_views, player_positions: Arra
     var enemy_summary: Array[String] = []
     for i in range(min(enemy_actors.size(), enemy_views.size())):
         var actor2: UnitActor = enemy_actors[i]
-        var ev = enemy_views[i]
+        var ev: UnitSlotView = enemy_views[i]
         var pos2: Vector2 = Vector2.ZERO
         if i < enemy_positions.size():
             pos2 = enemy_positions[i]
@@ -136,7 +136,7 @@ func sync_arena_with_positions(player_views, enemy_views, player_positions: Arra
         enemy_summary.append("%d:%s" % [i, pos2])
         if actor2 and is_instance_valid(actor2):
             actor2.set_screen_position(pos2)
-            actor2.update_bars(ev.unit)
+            # Bars update through stat/team-stat signals; position sync only moves actors.
             actor2.visible = (ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
         Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])

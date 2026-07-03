@@ -24,6 +24,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfCombatUiSignals.tscn` after UI refresh gating: same short combat shape with `team_stats_updated=6`, `stats_updated=8`, `unit_stat_changed=6`, `position_updated=155`, `UnitView.update_from_unit_calls=28`, `UnitView.bar_refresh_calls=37`, `UnitView.sprite_refresh_calls=9`, `UnitView.texture_load_attempts=9`, `TraitsPresenter.rebuild_calls=2`, `TraitsPresenter.rebuild_skips=5`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` before actor value caching: `UnitActor.update_bars_calls=678`, `UnitActor.bar_apply_calls=678`, `UnitActor.bar_skip_calls=0`, `UnitActor.texture_refresh_calls=21`, `UnitActor.texture_load_attempts=21`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after actor value caching: similar short combat with `UnitActor.update_bars_calls=729`, `UnitActor.bar_apply_calls=29`, `UnitActor.bar_skip_calls=700`, `UnitActor.texture_refresh_calls=7`, `UnitActor.texture_skip_calls=14`, `UnitActor.texture_load_attempts=7`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` after removing actor bar refresh from position sync: same short combat shape with `position_updated=159`, `UnitActor.update_bars_calls=48`, `UnitActor.bar_apply_calls=26`, `UnitActor.bar_skip_calls=22`, `UnitActor.texture_refresh_calls=7`, `UnitActor.texture_skip_calls=14`, `UnitActor.texture_load_attempts=7`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after UI refresh pass: `time_ms=441`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after actor value caching: `time_ms=408`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf6v6.tscn` after UI refresh pass: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`. The run was wall-time noisy (`total_ms=24740`) and should be interpreted as a determinism/regression check, not a new simulation-speed baseline.
@@ -49,6 +50,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - signature `3777858830557683578`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after shared texture cache: `time_ms=551`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after shared texture cache still completed and reported the expected optimized refresh shape, but current dirty/uncommitted stage-progress UI work emitted loader errors for `res://assets/ui/stage_icons/*`. Treat that as unrelated validation contamination until the stage icon resources/imports are fixed or that work is reverted.
+- `tests/perf/Perf1v1.tscn` after position-sync bar refresh removal: `time_ms=421`, then `483` after typed-signature cleanup, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/PerfLargeBoard.tscn` after slot and cache work:
   - 8v8: `samples_per_case=2`, `median_ms=3108`, `p95_ms=4001`, `frames=901`, `sim_s=45.050000`, result `team_a`, alive `8:4`, signature `7184874536639686372:300`, consistent `true`.
   - 12v12: `samples_per_case=2`, `median_ms=3492`, `p95_ms=3523`, `frames=258`, `sim_s=12.900000`, result `team_a`, alive `12:0`, signature `3567836549670627538:428`, consistent `true`.
@@ -97,6 +99,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Added diagnostics for arena actor bar and texture refreshes.
   - Caches actor bar value signatures so per-frame arena sync can keep moving actors while skipping unchanged ProgressBar/tick/visibility assignments.
   - Caches actor texture signatures so `set_unit()` plus immediate `set_size_px()` no longer reloads the same sprite texture.
+- `scripts/ui/combat/arena_controller.gd`
+  - Per-position arena sync now moves actors and updates visibility only.
+  - Actor HP/mana/shield bars are updated by stat/team-stat signal handlers instead of every position sync.
+  - Typed the arena view inputs and actor script reference while preserving the existing `UnitSlotView`/`UnitActor` contract.
 - `scripts/util/texture_utils.gd`
   - Added shared caches for successfully loaded textures and generated circle fallback textures.
   - Added `clear_cache()` plus diagnostics counters/snapshot helpers.
