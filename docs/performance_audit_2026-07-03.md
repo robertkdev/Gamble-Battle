@@ -97,6 +97,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfTargeting.tscn` before mage target-role reuse on the current tree: median `663ms`, p95 `751ms`, signature `9036604269279486158`, errors `[]`.
 - `tests/perf/PerfTargeting.tscn` after mage target-role reuse kept signature `9036604269279486158`, errors `[]`, and produced repeated medians `565ms` and `628ms`. A broader tile-size normalization hoist preserved signatures but produced noisy/worse repeats (`573ms`, `708ms`, `765ms`) and was reverted.
 - Normal combat validation after mage target-role reuse stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=11304`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3061ms`, 12v12 median `3567ms`, total `14272ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=426`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7771`.
+- `tests/perf/PerfTargeting.tscn` before lazy target-threat scoring on the current tree: median `599ms`, p95 `637ms`, signature `9036604269279486158`, errors `[]`.
+- `tests/perf/PerfTargeting.tscn` after lazy target-threat scoring kept signature `9036604269279486158`, errors `[]`, and produced repeated medians `656ms`, `560ms`, and `511ms`; the first sample was noisy, while the later samples beat the fresh control.
+- Normal combat validation after lazy target-threat scoring stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=11199`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `2625ms`, 12v12 median `3032ms`, total `12457ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=543`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=8472`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -136,6 +139,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfSlotStrategy.tscn` after typed DP row-cost access kept aggregate signature `5330865502362346199`, errors `[]`, and improved the focused total to `388ms`.
 - `tests/perf/PerfMovementPhases.tscn` after typed DP row-cost access kept signatures and errors `[]`: accepted samples showed 6v6 movement `447356us` then `437044us`, with slot assignment `164738us` then `160584us`; 12v12 movement `2763956us` then `2814399us`, with slot assignment `2326137us` then `2467654us`.
 - Diagnostics-off validation after typed DP row-cost access stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=11404`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `2698ms`, 12v12 median `2971ms`, total `12479ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=437`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6621`.
+- Rejected typed DP mask-row experiment: converting cached DP mask rows to `Array[int]` initially produced runtime type errors because the cache stored untyped rows; after fixing the cache construction it preserved the focused signature, but real movement profiling regressed versus the current tree, so it was reverted.
 
 ## Changes Made
 
@@ -190,6 +194,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Replaces repeated per-candidate attacker approach string scans with zero-allocation bit checks while preserving target-selection signatures.
   - Precomputes support ally peel priorities once per target pick, so support scoring does not rescan ally role/approach metadata for every enemy candidate.
   - Reuses the already-computed target role when scoring mage candidates, avoiding duplicate role lookup/normalization while preserving target-selection signatures.
+  - Computes target threat only for attackers whose scoring path uses it: lockdown/debuff approaches, tanks, and supports.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.

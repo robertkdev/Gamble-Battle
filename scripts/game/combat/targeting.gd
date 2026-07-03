@@ -78,8 +78,12 @@ static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goa
 	var dist_tiles: float = source_position.distance_to(enemy_position) / max(1.0, tile_size)
 	var hp_pct: float = float(enemy.hp) / max(1.0, float(enemy.max_hp))
 	var low_hp: float = clampf(1.0 - hp_pct, 0.0, 1.0)
-	var threat: float = _threat_score(enemy)
-	var threat_norm: float = clampf(threat / 120.0, 0.0, 4.0)
+	var has_lockdown: bool = _has_mask(attacker_mask, APPROACH_LOCKDOWN)
+	var has_debuff: bool = _has_mask(attacker_mask, APPROACH_DEBUFF)
+	var threat_norm: float = 0.0
+	if has_lockdown or has_debuff or attacker_role == "tank" or attacker_role == "support":
+		var threat: float = _threat_score(enemy)
+		threat_norm = clampf(threat / 120.0, 0.0, 4.0)
 	var score: float = 0.0
 	score -= dist_tiles * 0.35
 	score += low_hp * 0.25
@@ -87,7 +91,7 @@ static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goa
 		score += CURRENT_TARGET_STICKINESS
 	if _has_mask(attacker_mask, APPROACH_EXECUTE):
 		score += low_hp * 2.25
-	if _has_mask(attacker_mask, APPROACH_LOCKDOWN) or _has_mask(attacker_mask, APPROACH_DEBUFF):
+	if has_lockdown or has_debuff:
 		score += threat_norm * 0.55
 
 	match attacker_role:
