@@ -39,12 +39,26 @@ func _run() -> void:
 		_expect_hover_preview()
 		_save_capture("02_hover_preview.png")
 
+		first_button.button_pressed = true
+		first_button.emit_signal("pressed")
+		await _settle_frames(4)
+		_expect_selected_preview()
+		_save_capture("03_selected_enabled.png")
+
+		_view.reset_selection()
+		await _settle_frames(4)
+		_expect_neutral_preview("post-selection reset")
+		first_button.button_pressed = false
+		first_button.emit_signal("mouse_entered")
+		await _settle_frames(4)
+		_expect_hover_preview()
+
 		var moved_by_scroll: bool = await _try_scroll_clear()
 		if not moved_by_scroll and _view.has_method("_clear_hover_for_scroll"):
 			_view.call("_clear_hover_for_scroll")
 			await _settle_frames(3)
 		_expect_neutral_preview("scroll-clear")
-		_save_capture("03_after_scroll_clear.png")
+		_save_capture("04_after_scroll_clear.png")
 
 	_finish()
 
@@ -73,6 +87,43 @@ func _expect_hover_preview() -> void:
 	_expect(preview_art != null and preview_art.texture != null, "hover preview should show unit art")
 	_expect(identity_panel != null and identity_panel.visible, "hover preview should show identity summary")
 	_expect(start_button != null and start_button.disabled, "hover preview should not enable Start Game")
+	_expect_generated_preview_surfaces()
+
+func _expect_selected_preview() -> void:
+	var selected_label: Label = _selected_label()
+	var details_label: Label = _details_label()
+	var preview_art: TextureRect = _preview_art()
+	var identity_panel: Control = _identity_panel()
+	var start_button: Button = _start_button()
+	_expect(_view != null and _view.selected_id != "", "selected preview should set selected_id")
+	_expect(selected_label != null and String(selected_label.text) != "No champion chosen", "selected preview should show chosen unit title")
+	_expect(selected_label != null and not String(selected_label.text).begins_with("Inspecting "), "selected preview should not use inspecting copy")
+	_expect(details_label != null and String(details_label.text).find("Attack:") >= 0, "selected preview should show attack details")
+	_expect(details_label != null and String(details_label.text).find("Ability:") >= 0, "selected preview should show ability details")
+	_expect(preview_art != null and preview_art.texture != null, "selected preview should show unit art")
+	_expect(identity_panel != null and identity_panel.visible, "selected preview should show identity summary")
+	_expect(start_button != null and not start_button.disabled, "selected preview should enable Start Game")
+	if start_button != null:
+		_expect_texture_style(start_button, "normal", "selected Start Game normal style should use generated texture")
+		_expect_texture_style(start_button, "hover", "selected Start Game hover style should use generated texture")
+		_expect_texture_style(start_button, "pressed", "selected Start Game pressed style should use generated texture")
+	_expect_generated_preview_surfaces()
+
+func _expect_generated_preview_surfaces() -> void:
+	var art_plate: Panel = _art_plate()
+	_expect(art_plate != null, "preview art generated plate should exist")
+	if art_plate != null:
+		_expect_texture_style(art_plate, "panel", "preview art plate should use generated texture")
+	var role_badge: Label = _role_badge()
+	_expect(role_badge != null and role_badge.visible, "role badge should be visible during populated preview")
+	if role_badge != null:
+		_expect_texture_style(role_badge, "normal", "role badge should use generated texture")
+	var approach_tags: FlowContainer = _approach_tags()
+	_expect(approach_tags != null and approach_tags.visible, "approach tags should be visible during populated preview")
+	var first_tag: Label = _first_label_child(approach_tags) if approach_tags != null else null
+	_expect(first_tag != null, "approach tags should contain a label")
+	if first_tag != null:
+		_expect_texture_style(first_tag, "normal", "approach tag should use generated texture")
 
 func _try_scroll_clear() -> bool:
 	var scroll: ScrollContainer = _view.get_node_or_null("Center/HBox/Left/Scroll") as ScrollContainer
@@ -107,8 +158,33 @@ func _preview_art() -> TextureRect:
 func _identity_panel() -> Control:
 	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel") as Control
 
+func _role_badge() -> Label:
+	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/RoleBadge") as Label
+
+func _approach_tags() -> FlowContainer:
+	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/ApproachTags") as FlowContainer
+
+func _art_plate() -> Panel:
+	return _view.get_node_or_null("GothicArtPlate") as Panel
+
 func _start_button() -> Button:
 	return _view.get_node_or_null("Center/HBox/Right/StartButton") as Button
+
+func _first_label_child(parent: Control) -> Label:
+	if parent == null:
+		return null
+	for child: Node in parent.get_children():
+		var label: Label = child as Label
+		if label != null:
+			return label
+	return null
+
+func _expect_texture_style(control: Control, style_name: String, message: String) -> void:
+	if control == null:
+		_failures.append(message)
+		return
+	var style: StyleBox = control.get_theme_stylebox(style_name)
+	_expect(style is StyleBoxTexture, message)
 
 func _settle_frames(count: int) -> void:
 	for _frame_index: int in range(count):

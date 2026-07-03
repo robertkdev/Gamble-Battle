@@ -33,8 +33,12 @@ func _run() -> void:
 	if start_button != null:
 		_expect(start_button.disabled, "StartButton should begin disabled", failures)
 		_expect(start_button.custom_minimum_size.x >= 500.0, "StartButton width is not visually prioritized", failures)
-		var start_style: StyleBox = start_button.get_theme_stylebox("normal")
-		_expect(start_style is StyleBoxTexture, "Unit Select StartButton should use the generated primary button asset", failures)
+		_expect_texture_style(start_button, "normal", "Unit Select StartButton normal state should use the generated primary button asset", failures)
+		_expect_texture_style(start_button, "disabled", "Unit Select StartButton disabled state should use the generated primary button asset", failures)
+	var art_plate: Panel = view.get_node_or_null("GothicArtPlate") as Panel
+	_expect(art_plate != null, "Preview art gothic plate missing", failures)
+	if art_plate != null:
+		_expect_texture_style(art_plate, "panel", "Preview art plate should use a generated texture frame", failures)
 	var selected_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/SelectedLabel") as Label
 	_expect(selected_label != null and selected_label.text == "No champion chosen", "Unit Select should begin with no inspected champion", failures)
 	var details_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/Details") as Label
@@ -52,6 +56,13 @@ func _run() -> void:
 		_expect(role_badge != null and role_badge.visible, "Sari preview role badge missing", failures)
 		if role_badge != null:
 			_expect(role_badge.size.x <= 220.0, "Sari role badge should not stretch across the preview panel", failures)
+			_expect_texture_style(role_badge, "normal", "Sari preview role badge should use a generated texture frame", failures)
+		var approach_tags: FlowContainer = view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/ApproachTags") as FlowContainer
+		_expect(approach_tags != null and approach_tags.visible, "Sari preview approach tags missing", failures)
+		var first_tag: Label = _first_label_child(approach_tags) if approach_tags != null else null
+		_expect(first_tag != null, "Sari preview should render at least one approach tag", failures)
+		if first_tag != null:
+			_expect_texture_style(first_tag, "normal", "Sari preview approach tag should use a generated texture frame", failures)
 		_expect(details_label != null and String(details_label.text).find("Identity summary above") < 0, "Sari preview should not show identity placeholder copy", failures)
 		_expect(details_label != null and String(details_label.text).find("Traits:") >= 0, "Sari preview should show readable traits/identity tags", failures)
 		_expect(details_label != null and String(details_label.text).find("Attack:") >= 0, "Starter preview should show attack details", failures)
@@ -62,8 +73,10 @@ func _run() -> void:
 	_expect(first_button != null, "No generated unit buttons found", failures)
 	if first_button != null:
 		_expect(first_button.custom_minimum_size.x >= 150.0, "Unit card button width too small", failures)
-		var first_button_style: StyleBox = first_button.get_theme_stylebox("normal")
-		_expect(first_button_style is StyleBoxTexture, "Starter card should use the generated 150x138 frame asset", failures)
+		_expect_texture_style(first_button, "normal", "Starter card normal state should use the generated 150x138 frame asset", failures)
+		_expect_texture_style(first_button, "hover", "Starter card hover state should use the generated 150x138 frame asset", failures)
+		_expect_texture_style(first_button, "pressed", "Starter card pressed state should use the generated 150x138 frame asset", failures)
+		_expect_texture_style(first_button, "focus", "Starter card focus state should use the generated 150x138 frame asset", failures)
 		first_button.emit_signal("pressed")
 		await get_tree().process_frame
 		_expect(not start_button.disabled, "StartButton did not enable after unit selection", failures)
@@ -109,6 +122,22 @@ func _run() -> void:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _expect_texture_style(control: Control, style_name: String, message: String, failures: Array[String]) -> void:
+	if control == null:
+		failures.append(message)
+		return
+	var style: StyleBox = control.get_theme_stylebox(style_name)
+	_expect(style is StyleBoxTexture, message, failures)
+
+func _first_label_child(parent: Control) -> Label:
+	if parent == null:
+		return null
+	for child: Node in parent.get_children():
+		var label: Label = child as Label
+		if label != null:
+			return label
+	return null
 
 func _verify_rendered_starter_surface(view: UnitSelect, failures: Array[String]) -> void:
 	var catalog: UnitCatalog = UnitCatalogScript.new()

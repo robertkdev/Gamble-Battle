@@ -209,7 +209,7 @@ func _ensure_identity_panel(preview: VBoxContainer) -> void:
 		identity_panel.visible = false
 		preview.add_child(identity_panel)
 	if selected_label:
-		var index := selected_label.get_index() + 1
+		var index: int = selected_label.get_index() + 1
 		preview.move_child(identity_panel, min(index, preview.get_child_count() - 1))
 	identity_role_label = identity_panel.get_node_or_null("RoleBadge") as Label
 	if identity_role_label == null:
@@ -217,11 +217,13 @@ func _ensure_identity_panel(preview: VBoxContainer) -> void:
 		identity_role_label.name = "RoleBadge"
 		identity_role_label.uppercase = true
 		identity_role_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		identity_role_label.add_theme_stylebox_override("normal", _make_badge_style())
 		identity_role_label.modulate = Color(1, 1, 1, 0.95)
 		identity_panel.add_child(identity_role_label)
 	identity_role_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	identity_role_label.custom_minimum_size = Vector2(132.0, 0.0)
+	identity_role_label.add_theme_stylebox_override("normal", _make_badge_style())
+	identity_role_label.add_theme_font_size_override("font_size", 13)
+	identity_role_label.add_theme_color_override("font_color", COLOR_TEXT)
 	identity_goal_label = identity_panel.get_node_or_null("GoalLabel") as Label
 	if identity_goal_label == null:
 		identity_goal_label = Label.new()
@@ -532,15 +534,15 @@ func _clear_preview() -> void:
 		details_label.text = "Hover a unit to preview"
 
 func _set_identity_summary(role_text: String, goal_text: String, approaches: Array) -> void:
-	var show_role := role_text.strip_edges() != ""
+	var show_role: bool = role_text.strip_edges() != ""
 	if identity_role_label:
 		identity_role_label.text = role_text
 		identity_role_label.visible = show_role
-	var show_goal := goal_text.strip_edges() != ""
+	var show_goal: bool = goal_text.strip_edges() != ""
 	if identity_goal_label:
 		identity_goal_label.text = goal_text
 		identity_goal_label.visible = show_goal
-	var show_tags := _set_identity_approach_tags(approaches)
+	var show_tags: bool = _set_identity_approach_tags(approaches)
 	if identity_panel:
 		identity_panel.visible = show_role or show_goal or show_tags
 
@@ -549,18 +551,21 @@ func _set_identity_approach_tags(approaches: Array) -> bool:
 		return false
 	for child in identity_approach_tags.get_children():
 		child.queue_free()
-	var seen: Dictionary = {}
-	var shown := 0
-	for approach in approaches:
-		var pretty := _format_token(String(approach))
+	var seen: Dictionary[String, bool] = {}
+	var shown: int = 0
+	for approach: Variant in approaches:
+		var pretty: String = _format_token(String(approach))
 		if pretty == "" or seen.has(pretty):
 			continue
 		seen[pretty] = true
-		var label := Label.new()
+		var label: Label = Label.new()
 		label.text = pretty
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.modulate = Color(1, 1, 1, 0.9)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		label.custom_minimum_size = Vector2(62.0, 22.0)
+		label.add_theme_font_size_override("font_size", 12)
+		label.add_theme_color_override("font_color", Color(0.88, 0.82, 0.70, 1.0))
 		label.add_theme_stylebox_override("normal", _make_tag_style())
 		identity_approach_tags.add_child(label)
 		shown += 1
@@ -666,21 +671,21 @@ func _duplicate_strings(values) -> Array:
 		out.append(String(values))
 	return out
 
-func _make_badge_style() -> StyleBoxFlat:
+func _make_badge_style() -> StyleBox:
 	var sb: StyleBoxFlat = _make_panel_style(Color(0.16, 0.075, 0.090, 0.94), Color(0.72, 0.42, 0.25, 0.88), 1, 5)
 	sb.content_margin_left = 10
 	sb.content_margin_right = 10
 	sb.content_margin_top = 4
 	sb.content_margin_bottom = 4
-	return sb
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.02, 0.86, 0.72, 1.0)), sb)
 
-func _make_tag_style() -> StyleBoxFlat:
+func _make_tag_style() -> StyleBox:
 	var sb: StyleBoxFlat = _make_panel_style(Color(0.046, 0.042, 0.050, 0.95), Color(0.36, 0.28, 0.22, 0.90), 1, 4)
 	sb.content_margin_left = 6
 	sb.content_margin_right = 6
 	sb.content_margin_top = 2
 	sb.content_margin_bottom = 2
-	return sb
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.item_slot_style(Color(0.86, 0.76, 0.66, 1.0)), sb)
 
 func _style_unit_cards() -> void:
 	for tile_node in grid.get_children():
