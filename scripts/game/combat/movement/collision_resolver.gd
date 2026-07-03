@@ -51,6 +51,7 @@ func resolve(
     var min_dist2: float = min_dist * min_dist
 
     var iters: int = max(1, int(iterations))
+    var collect_debug_stats: bool = bool(debug_log and Debug.enabled)
     var total_pairs: int = 0
     var resolved_pairs: int = 0
     var capped_pairs: int = 0
@@ -72,7 +73,7 @@ func resolve(
                     continue
                 var d: float = sqrt(d2)
                 var overlap: float = min_dist - d
-                if overlap > max_overlap_seen:
+                if collect_debug_stats and overlap > max_overlap_seen:
                     max_overlap_seen = overlap
                 var dir: Vector2 = diff / d if d > 0.0 else Vector2.RIGHT
                 var half: float = overlap * 0.5
@@ -87,22 +88,25 @@ func resolve(
                     # Friendly pairs separate fully, ignoring per-step caps for a smooth yield.
                     move_a = half
                     move_b = half
-                    friend_pairs += 1
+                    if collect_debug_stats:
+                        friend_pairs += 1
                 else:
                     move_a = min(half, cap_a)
                     move_b = min(half, cap_b)
-                    if same_team:
-                        friend_pairs += 1
-                    else:
-                        enemy_pairs += 1
-                    if move_a < half or move_b < half:
-                        capped_pairs += 1
+                    if collect_debug_stats:
+                        if same_team:
+                            friend_pairs += 1
+                        else:
+                            enemy_pairs += 1
+                        if move_a < half or move_b < half:
+                            capped_pairs += 1
 
                 _all_pos[a] = _all_pos[a] - dir * move_a
                 _all_pos[b] = _all_pos[b] + dir * move_b
-                total_pairs += 1
-                if move_a > 0.0 or move_b > 0.0:
-                    resolved_pairs += 1
+                if collect_debug_stats:
+                    total_pairs += 1
+                    if move_a > 0.0 or move_b > 0.0:
+                        resolved_pairs += 1
 
     # Write back and clamp
     for i2 in range(_all_pos.size()):
@@ -118,8 +122,7 @@ func resolve(
             if idx < enemy_positions.size():
                 enemy_positions[idx] = p
 
-    if debug_log:
-        if Debug.enabled:
-            print("[Coll] iters=", iters, " pairs=", total_pairs, " resolved=", resolved_pairs,
-                  " max_overlap=", max_overlap_seen, " friend_pairs=", friend_pairs, " enemy_pairs=", enemy_pairs,
-                  " capped_pairs=", capped_pairs, " soft=", friendly_soft)
+    if collect_debug_stats:
+        print("[Coll] iters=", iters, " pairs=", total_pairs, " resolved=", resolved_pairs,
+              " max_overlap=", max_overlap_seen, " friend_pairs=", friend_pairs, " enemy_pairs=", enemy_pairs,
+              " capped_pairs=", capped_pairs, " soft=", friendly_soft)
