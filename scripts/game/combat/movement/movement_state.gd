@@ -60,6 +60,33 @@ func player_positions_copy() -> Array[Vector2]:
 func enemy_positions_copy() -> Array[Vector2]:
 	return enemy_positions.duplicate()
 
+func copy_all_positions_to(out: Array[Vector2]) -> void:
+	var total: int = player_positions.size() + enemy_positions.size()
+	out.resize(total)
+	var write_index: int = 0
+	for player_position: Vector2 in player_positions:
+		out[write_index] = player_position
+		write_index += 1
+	for enemy_position: Vector2 in enemy_positions:
+		out[write_index] = enemy_position
+		write_index += 1
+
+func positions_changed_from(previous: Array[Vector2], threshold: float) -> bool:
+	var total: int = player_positions.size() + enemy_positions.size()
+	if previous.size() != total:
+		return true
+	var threshold_abs: float = max(0.0, threshold)
+	var read_index: int = 0
+	for player_position: Vector2 in player_positions:
+		if player_position.distance_to(previous[read_index]) > threshold_abs:
+			return true
+		read_index += 1
+	for enemy_position: Vector2 in enemy_positions:
+		if enemy_position.distance_to(previous[read_index]) > threshold_abs:
+			return true
+		read_index += 1
+	return false
+
 func get_player_position(idx: int) -> Vector2:
 	if idx < 0 or idx >= player_positions.size():
 		return _default_position()

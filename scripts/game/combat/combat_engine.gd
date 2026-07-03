@@ -596,18 +596,18 @@ func _update_combat_progress_watchdog() -> void:
 	if state == null or arena_state == null:
 		return
 	var total_damage: int = total_damage_player + total_damage_enemy
-	var positions: Array[Vector2] = _all_positions()
-	if total_damage > _last_progress_total_damage or _positions_changed(positions, _last_progress_positions):
+	if total_damage > _last_progress_total_damage or bool(arena_state.positions_changed_from(_last_progress_positions, 0.5)):
 		_last_progress_time = float(state.elapsed_time)
 		_last_progress_total_damage = total_damage
-		_last_progress_positions = positions
+		arena_state.copy_all_positions_to(_last_progress_positions)
 
 func _mark_combat_progress() -> void:
 	if state == null:
 		return
 	_last_progress_time = float(state.elapsed_time)
 	_last_progress_total_damage = total_damage_player + total_damage_enemy
-	_last_progress_positions = _all_positions()
+	if arena_state != null:
+		arena_state.copy_all_positions_to(_last_progress_positions)
 
 func _combat_timeout_outcome() -> String:
 	if state == null or not state.battle_active:

@@ -65,6 +65,12 @@ func player_positions_copy() -> Array:
 func enemy_positions_copy() -> Array:
 	return _impl.enemy_positions_copy()
 
+func copy_all_positions_to(out: Array[Vector2]) -> void:
+	_impl.copy_all_positions_to(out)
+
+func positions_changed_from(previous: Array[Vector2], threshold: float) -> bool:
+	return _impl.positions_changed_from(previous, threshold)
+
 func get_player_position(idx: int) -> Vector2:
 	return _impl.get_player_position(idx)
 
