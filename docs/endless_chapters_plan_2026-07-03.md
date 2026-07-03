@@ -22,9 +22,11 @@ Use a deterministic budgeted-board generator per run seed:
 - Normal and boss boards select a theme such as dive, siege, control, attrition, burst, or wide-value.
 - The assembler first guarantees a frontline unit and a damage unit, then fills utility/theme slots.
 - Unit difficulty is scored from live unit cost plus generated level. Creeps use the easiest-reference rating scale.
+- Active enemy trait tiers are now priced into generated normal/boss `difficulty_rating` through `trait_pressure_rating`.
 - The generator increments levels until the board lands near the target rating.
 - Recent board signatures are remembered during sequence generation to avoid repeated boards in a short window.
 - The result is still a normal `StageSpec`: `ids`, `kind`, and `rules`, with `levels`, `procedural`, `target_rating`, `difficulty_rating`, `theme`, and normal-stage `rga_challenge` metadata.
+- Use `tests/rga_testing/validation/DifficultyRatingAudit.tscn` to inspect per-unit, per-creep, item, active-trait, and generated-board rating breakdowns.
 
 This sits behind `RosterCatalog.get_spec()` starting at Chapter 1. `RosterCatalog` owns the runtime seed and generated StageSpec cache, so preview and combat agree.
 
@@ -42,7 +44,7 @@ Current formula:
   - boss: `2.65`
   - mirror: player-board driven, but tagged with the boss target for logging
 
-That gives the generator a smooth ramp without needing infinite authored pools. Deep scaling comes from generated levels and board size.
+That gives the generator a smooth ramp without needing infinite authored pools. Deep scaling comes from generated levels, board size, and active trait pressure. Generated enemy items are not assigned yet; item pressure is audit-visible but should not affect generated difficulty until item-bearing enemy boards are introduced.
 
 ## Simulation contract
 

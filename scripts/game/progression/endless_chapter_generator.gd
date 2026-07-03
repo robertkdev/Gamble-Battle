@@ -11,6 +11,11 @@ const MAX_BOARD_UNITS := 9
 const CHAPTER_RATING_STEP := 32.0
 const CHAPTER_BAND_SIZE := 5.0
 const CHAPTER_BAND_RATING_STEP := 55.0
+const DEFAULT_TRAIT_THRESHOLDS: Array[int] = [2, 4, 6, 8]
+const TRAIT_BASE_PRESSURE := 0.06
+const TRAIT_TIER_PRESSURE_STEP := 0.04
+const TRAIT_THRESHOLD_PRESSURE := 4.0
+const TRAIT_COUNT_PRESSURE := 2.0
 
 const DEFAULT_CREEP_REWARDS: Dictionary = {
 	"pool_path": "res://data/creeps/reward_pools/default.tres",
@@ -62,10 +67,12 @@ const THEMES: Array[Dictionary] = [
 
 static var _catalog_cache: Array[Dictionary] = []
 static var _catalog_by_id: Dictionary = {}
+static var _trait_threshold_cache: Dictionary = {}
 
 static func clear_cache() -> void:
 	_catalog_cache.clear()
 	_catalog_by_id.clear()
+	_trait_threshold_cache.clear()
 
 static func generate_sequence(start_chapter: int, chapter_count: int, seed: int = DEFAULT_SEED) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
@@ -126,14 +133,8 @@ static func score_spec(spec: Dictionary) -> int:
 	var levels: Dictionary = {}
 	if rules.has("levels") and typeof(rules["levels"]) == TYPE_DICTIONARY:
 		levels = rules["levels"]
-	var total: int = 0
-	for i: int in range(ids.size()):
-		var id: String = String(ids[i]).strip_edges()
-		if id == "":
-			continue
-		var level: int = _level_for_index_and_id(levels, i, id)
-		total += unit_rating(id, level)
-	return total
+	var breakdown: Dictionary = _score_ids_with_levels_breakdown(_strings_from_array(ids), levels)
+	return int(breakdown.get("total_rating", 0))
 
 static func unit_rating(unit_id: String, level: int) -> int:
 	var clean_id: String = String(unit_id).strip_edges()
@@ -176,6 +177,8 @@ static func _make_creep_spec(chapter: int, stage_index: int, seed: int) -> Dicti
 		"procedural": true,
 		"endless": true,
 		"target_rating": target,
+		"unit_rating": _score_ids_with_levels(ids, levels),
+		"trait_pressure_rating": 0,
 		"difficulty_rating": _score_ids_with_levels(ids, levels),
 		"generator_seed": int(seed),
 	}
@@ -203,20 +206,25 @@ static func _make_budgeted_board_spec(chapter: int, stage_index: int, kind: Stri
 	var ids: Array[String] = _select_unit_ids(catalog, theme, desired_size, chapter, stage_index, seed, kind, state)
 	var level_cap: int = _level_cap_for(chapter, kind)
 	var levels: Dictionary = _tune_levels(ids, target, level_cap)
-	var rating: int = _score_ids_with_levels(ids, levels)
+	var rating_breakdown: Dictionary = _score_ids_with_levels_breakdown(ids, levels)
+	var rating: int = int(rating_breakdown.get("total_rating", 0))
 	while ids.size() < MAX_BOARD_UNITS and rating < int(round(float(target) * 0.88)):
 		var extra: String = _pick_extra_unit(catalog, ids, theme, chapter, stage_index, seed, kind)
 		if extra == "":
 			break
 		ids.append(extra)
 		levels = _tune_levels(ids, target, level_cap)
-		rating = _score_ids_with_levels(ids, levels)
+		rating_breakdown = _score_ids_with_levels_breakdown(ids, levels)
+		rating = int(rating_breakdown.get("total_rating", 0))
 	var rules: Dictionary = {
 		"levels": levels,
 		"procedural": true,
 		"endless": true,
 		"theme": String(theme.get("id", "")),
 		"target_rating": int(target),
+		"unit_rating": int(rating_breakdown.get("unit_rating", 0)),
+		"trait_pressure_rating": int(rating_breakdown.get("trait_pressure_rating", 0)),
+		"active_traits": rating_breakdown.get("active_traits", []),
 		"difficulty_rating": int(rating),
 		"rating_error": int(rating) - int(target),
 		"generator_seed": int(seed),
@@ -431,11 +439,83 @@ static func _improve_levels(ids: Array[String], levels: Dictionary, target: int)
 			levels[id] = current_level
 
 static func _score_ids_with_levels(ids: Array[String], levels: Dictionary) -> int:
-	var total: int = 0
+	var breakdown: Dictionary = _score_ids_with_levels_breakdown(ids, levels)
+	return int(breakdown.get("total_rating", 0))
+
+static func _score_ids_with_levels_breakdown(ids: Array[String], levels: Dictionary) -> Dictionary:
+	var unit_total: int = 0
 	for i: int in range(ids.size()):
 		var id: String = ids[i]
-		total += unit_rating(id, _level_for_index_and_id(levels, i, id))
-	return total
+		unit_total += unit_rating(id, _level_for_index_and_id(levels, i, id))
+	var trait_rows: Array[Dictionary] = _active_trait_rows_for_ids(ids, unit_total)
+	var trait_pressure: int = 0
+	for row: Dictionary in trait_rows:
+		trait_pressure += int(row.get("pressure_rating", 0))
+	return {
+		"unit_rating": unit_total,
+		"trait_pressure_rating": trait_pressure,
+		"total_rating": unit_total + trait_pressure,
+		"active_traits": trait_rows,
+	}
+
+static func _active_trait_rows_for_ids(ids: Array[String], unit_total: int) -> Array[Dictionary]:
+	var counts: Dictionary[String, int] = {}
+	for id: String in ids:
+		var record: Dictionary = _record_for_id(id)
+		var traits_value: Variant = record.get("traits", [])
+		if not (traits_value is Array):
+			continue
+		var traits: Array = traits_value
+		for raw_trait: Variant in traits:
+			var trait_id: String = String(raw_trait).strip_edges()
+			if trait_id == "":
+				continue
+			counts[trait_id] = int(counts.get(trait_id, 0)) + 1
+	var rows: Array[Dictionary] = []
+	for trait_id: String in counts.keys():
+		var count: int = int(counts[trait_id])
+		var thresholds: Array[int] = _trait_thresholds_for(trait_id)
+		var tier: int = -1
+		for i: int in range(thresholds.size()):
+			if count >= int(thresholds[i]):
+				tier = i
+		if tier < 0:
+			continue
+		var threshold: int = int(thresholds[tier])
+		rows.append({
+			"id": trait_id,
+			"count": count,
+			"tier": tier,
+			"threshold": threshold,
+			"pressure_rating": _trait_pressure_rating(unit_total, count, tier, threshold),
+		})
+	rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a.get("id", "")) < String(b.get("id", "")))
+	return rows
+
+static func _trait_pressure_rating(unit_total: int, count: int, tier: int, threshold: int) -> int:
+	var board_pressure: float = float(unit_total) * (TRAIT_BASE_PRESSURE + float(tier) * TRAIT_TIER_PRESSURE_STEP)
+	var activation_pressure: float = float(max(1, threshold)) * TRAIT_THRESHOLD_PRESSURE + float(max(1, count)) * TRAIT_COUNT_PRESSURE
+	return max(1, int(round(board_pressure + activation_pressure)))
+
+static func _trait_thresholds_for(trait_id: String) -> Array[int]:
+	var clean_id: String = String(trait_id).strip_edges()
+	if clean_id == "":
+		return DEFAULT_TRAIT_THRESHOLDS.duplicate()
+	if _trait_threshold_cache.has(clean_id):
+		var cached: Array[int] = _trait_threshold_cache[clean_id]
+		return cached.duplicate()
+	var out: Array[int] = []
+	var path: String = "res://data/traits/%s.tres" % clean_id
+	if ResourceLoader.exists(path):
+		var resource: Resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+		if resource is TraitDef:
+			var trait_def: TraitDef = resource
+			for value: int in trait_def.thresholds:
+				out.append(int(value))
+	if out.is_empty():
+		out = DEFAULT_TRAIT_THRESHOLDS.duplicate()
+	_trait_threshold_cache[clean_id] = out
+	return out.duplicate()
 
 static func _level_for_index_and_id(levels: Dictionary, index: int, id: String) -> int:
 	if levels.has(index):
@@ -534,11 +614,13 @@ static func _load_unit_catalog() -> Array[Dictionary]:
 			continue
 		var role: String = _role_for_profile(profile)
 		var approaches: Array[String] = _approaches_for_profile(profile)
+		var traits: Array[String] = _traits_for_profile(profile)
 		out.append({
 			"id": id,
 			"cost": int(profile.cost),
 			"role": role,
 			"approaches": approaches,
+			"traits": traits,
 		})
 	dir.list_dir_end()
 	out.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a.get("id", "")) < String(b.get("id", "")))
@@ -569,6 +651,24 @@ static func _approaches_for_profile(profile: UnitProfile) -> Array[String]:
 		var clean2: String = String(approach2).strip_edges()
 		if clean2 != "":
 			out.append(clean2)
+	return out
+
+static func _traits_for_profile(profile: UnitProfile) -> Array[String]:
+	var out: Array[String] = []
+	if profile == null:
+		return out
+	for trait_id: String in profile.traits:
+		var clean: String = String(trait_id).strip_edges()
+		if clean != "":
+			out.append(clean)
+	return out
+
+static func _strings_from_array(values: Array) -> Array[String]:
+	var out: Array[String] = []
+	for value: Variant in values:
+		var clean: String = String(value).strip_edges()
+		if clean != "":
+			out.append(clean)
 	return out
 
 static func _signature_for(ids: Array[String]) -> String:
