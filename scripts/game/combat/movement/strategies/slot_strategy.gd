@@ -212,8 +212,12 @@ static func _best_assignment_greedy(costs: Array) -> Dictionary:
 # attacker_positions and attacker_ranges_world (Dictionary idx->float).
 static func assign_for_target(_team: String, _target_idx: int, target_pos: Vector2, attackers: Array, attacker_positions: Array[Vector2], attacker_ranges_world: Dictionary, tile_size: float, prev_slot_assignments: Dictionary, hysteresis_frames: int) -> Dictionary:
 	var res: Dictionary = {}
+	_assign_for_target_into(res, _team, _target_idx, target_pos, attackers, attacker_positions, attacker_ranges_world, tile_size, prev_slot_assignments, hysteresis_frames)
+	return res
+
+static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx: int, target_pos: Vector2, attackers: Array, attacker_positions: Array[Vector2], attacker_ranges_world: Dictionary, tile_size: float, prev_slot_assignments: Dictionary, hysteresis_frames: int) -> void:
 	if attackers == null or attackers.size() == 0:
-		return res
+		return
 
 	var min_spacing_world: float = max(0.0, tile_size) * 0.7
 	if attackers.size() == 1:
@@ -236,7 +240,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 			"corridor_radius": max(desired_single, tile_size * 0.9),
 			"corridor_eps": max(tile_size * SINGLE_CORRIDOR_EPS_FACTOR, 1.0)
 		}
-		return res
+		return
 
 	var pairs: Array = [] # [{"idx":int,"angle":float}]
 	for attacker_idx in attackers:
@@ -269,7 +273,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 			best_assignment = assignment_eval.get("assignment", []).duplicate()
 			best_base = base
 	if best_assignment.is_empty():
-		return res
+		return
 
 	var chord_factor: float = 2.0 * sin(PI / float(count))
 	var min_required_radius: float = 0.0
@@ -296,7 +300,6 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 			"corridor_radius": max(radius_world, tile_size),
 			"corridor_eps": max(tile_size * SINGLE_CORRIDOR_EPS_FACTOR, 1.0)
 		}
-	return res
 
 # Public: compute slot world positions for all attackers of a team.
 func assign_slots_for_team(team: String,
@@ -333,7 +336,7 @@ func assign_slots_for_team(team: String,
 		if t_idx < 0 or t_idx >= target_positions.size():
 			continue
 		var tgt_pos: Vector2 = target_positions[t_idx]
-		var m: Dictionary = assign_for_target(team, int(t_idx), tgt_pos, attackers, attacker_positions, ranges_world, tile_size, prev_slot_assignments, hysteresis_frames)
+		_assign_for_target_into(slot_map, team, int(t_idx), tgt_pos, attackers, attacker_positions, ranges_world, tile_size, prev_slot_assignments, hysteresis_frames)
 		# Debug: print assignment summary when enabled. If watch_indices is non-empty,
 		# only print for groups that include any watched attacker.
 		if Debug.enabled and debug_frames_left > 0:
@@ -357,11 +360,12 @@ func assign_slots_for_team(team: String,
 					idxs.append(int(pr[0]))
 					angs.append(float(pr[1]))
 				print("[Slots] team=", team, " target=", t_idx, " idxs=", idxs, " angles=", angs)
-				for k in m.keys():
-					var slot_data: Dictionary = m[k]
+				for k in attackers:
+					var slot_value: Variant = slot_map.get(k)
+					if not (slot_value is Dictionary):
+						continue
+					var slot_data: Dictionary = slot_value
 					var pos_k: Vector2 = slot_data.get("position", tgt_pos)
 					var ang_k: float = float(slot_data.get("angle", 0.0))
 					print("[Slots] team=", team, " target=", t_idx, " idx=", k, " -> slot_ang=", ang_k, " pos=", pos_k)
-		for k in m.keys():
-			slot_map[k] = m[k]
 	return slot_map
