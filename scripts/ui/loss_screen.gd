@@ -125,12 +125,13 @@ func _populate() -> void:
 		scoreboard_holder.add_child(sb)
 		if _tracker != null and sb.has_method("configure"):
 			sb.configure(_tracker)
+		var scoreboard_window: String = "RUN" if _tracker != null and _tracker.has_run_values("player") else "ALL"
 		if sb.has_method("set_title"):
-			sb.set_title("Final Battle Damage")
+			sb.set_title("Run Damage Leaders" if scoreboard_window == "RUN" else "Final Battle Damage")
 		if sb.has_method("set_metric"):
 			sb.set_metric("damage")
 		if sb.has_method("set_window"):
-			sb.set_window("ALL")
+			sb.set_window(scoreboard_window)
 		if sb.has_method("set_enemy_rows_enabled"):
 			sb.set_enemy_rows_enabled(false)
 		if sb.has_method("set_expand_enabled"):
@@ -218,12 +219,15 @@ func _apply_styles() -> void:
 	if scoreboard_holder != null:
 		scoreboard_holder.custom_minimum_size = Vector2(720.0, 220.0)
 	if new_game_button != null:
+		new_game_button.focus_mode = Control.FOCUS_ALL
 		new_game_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		new_game_button.add_theme_color_override("font_color", BONE_COLOR)
 		new_game_button.add_theme_color_override("font_hover_color", Color(1.0, 0.92, 0.76, 1.0))
+		new_game_button.add_theme_color_override("font_focus_color", Color(1.0, 0.92, 0.76, 1.0))
 		new_game_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _make_style(Color(0.14, 0.053, 0.045, 1.0), FRAME_BORDER, 2, 5)))
 		new_game_button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.16, 1.06, 0.92, 1.0)), _make_style(Color(0.20, 0.07, 0.055, 1.0), DULL_GOLD, 2, 5)))
 		new_game_button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_style(Color(0.09, 0.035, 0.035, 1.0), BLOOD_COLOR, 2, 5)))
+		new_game_button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_style(Color(0.18, 0.058, 0.050, 1.0), DULL_GOLD, 2, 5)))
 
 func _wire_new_game_hover() -> void:
 	if new_game_button == null:
@@ -251,9 +255,10 @@ func _apply_new_game_hover_motion(active: bool) -> void:
 		return
 	if _new_game_hover_tween != null and is_instance_valid(_new_game_hover_tween):
 		_new_game_hover_tween.kill()
+	new_game_button.modulate = Color(1.22, 1.12, 0.92, 1.0) if active else Color.WHITE
 	_new_game_hover_tween = create_tween()
 	_new_game_hover_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_new_game_hover_tween.tween_property(new_game_button, "scale", Vector2(1.025, 1.025) if active else Vector2.ONE, 0.10)
+	_new_game_hover_tween.tween_property(new_game_button, "scale", Vector2(1.04, 1.04) if active else Vector2.ONE, 0.10)
 
 func _sync_new_game_pivot() -> void:
 	if new_game_button != null:

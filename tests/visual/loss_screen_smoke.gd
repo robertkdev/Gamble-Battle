@@ -34,15 +34,17 @@ func _ready() -> void:
 	var new_game_button: Button = screen.get_node_or_null("Panel/Center/Frame/VBox/NewGameButton") as Button
 	_expect(new_game_button != null, "NewGameButton missing", failures)
 	if new_game_button != null:
-		var new_game_style: StyleBox = new_game_button.get_theme_stylebox("normal")
-		_expect(new_game_style is StyleBoxTexture, "NewGameButton should use the generated primary button asset", failures)
+		_expect_texture_style(new_game_button, "normal", "NewGameButton normal should use the generated primary button asset", failures)
+		_expect_texture_style(new_game_button, "hover", "NewGameButton hover should use the generated primary button asset", failures)
+		_expect_texture_style(new_game_button, "pressed", "NewGameButton pressed should use the generated primary button asset", failures)
+		_expect_texture_style(new_game_button, "focus", "NewGameButton focus should use the generated primary button asset", failures)
 	if stage_label != null:
 		_expect(stage_label.text == "Stage Reached: 3", "StageLabel did not use live GameState", failures)
 	var scoreboard: Node = screen.get_node_or_null("Panel/Center/Frame/VBox/ScoreboardHolder/Scoreboard")
 	_expect(scoreboard != null, "Loss scoreboard missing", failures)
 	if scoreboard != null:
 		var title_label: Label = scoreboard.get_node_or_null("Header/Title") as Label
-		_expect(title_label != null and title_label.text == "Final Battle Damage", "Loss scoreboard title should clarify final-battle rows", failures)
+		_expect(title_label != null and title_label.text == "Run Damage Leaders", "Loss scoreboard title should clarify run-total rows", failures)
 		var expand_button: Button = scoreboard.find_child("ExpandButton", true, false) as Button
 		_expect(expand_button != null, "Loss scoreboard expand button missing", failures)
 		if expand_button != null:
@@ -59,10 +61,26 @@ func _ready() -> void:
 		_expect(all_label_text.find("Run Damage: 143") >= 0, "Loss summary should preserve run damage across battle resets", failures)
 		_expect(all_label_text.find("Run Kills: 1") >= 0, "Loss summary should preserve run kills across battle resets", failures)
 		_expect(all_label_text.find("Top Run Damage: Axiom (143)") >= 0, "Loss summary should preserve top run damage", failures)
+		var value_label: Label = scoreboard.find_child("Value", true, false) as Label
+		_expect(value_label != null and String(value_label.text) == "143", "Loss scoreboard should render the run-total damage value", failures)
 		_expect(labels.has("Axiom"), "Loss scoreboard should show player row", failures)
 		_expect(not labels.has("Beegle"), "Loss scoreboard should not expose hidden enemy name", failures)
 		_expect(not labels.has("1.2k"), "Loss scoreboard should not expose hidden enemy damage", failures)
-	_save_capture("loss_overlay_modal_fixed.png")
+	_save_capture("01_loss_overlay_default.png")
+	if new_game_button != null:
+		_warp_mouse_to_control(new_game_button)
+		await _settle_frames(2)
+		new_game_button.emit_signal("mouse_entered")
+		await _settle_frames(4)
+		_expect(new_game_button.scale.x > 1.0, "NewGameButton hover motion did not activate", failures)
+		_save_capture("02_loss_overlay_button_hover.png")
+		new_game_button.emit_signal("mouse_exited")
+		_send_mouse_motion(Vector2(32.0, 32.0))
+		await _settle_frames(4)
+		new_game_button.grab_focus()
+		await _settle_frames(4)
+		_expect(new_game_button.has_focus(), "NewGameButton focus state did not activate", failures)
+		_save_capture("03_loss_overlay_button_focus.png")
 
 	screen.call("_on_new_game")
 	await get_tree().process_frame
@@ -132,6 +150,30 @@ func _label_texts(root: Node) -> Array[String]:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _expect_texture_style(control: Control, style_name: String, message: String, failures: Array[String]) -> void:
+	if control == null:
+		failures.append(message)
+		return
+	var style: StyleBox = control.get_theme_stylebox(style_name)
+	_expect(style is StyleBoxTexture, message, failures)
+
+func _settle_frames(count: int) -> void:
+	for _frame_index: int in range(count):
+		await get_tree().process_frame
+
+func _warp_mouse_to_control(control: Control) -> void:
+	if control == null:
+		return
+	var rect: Rect2 = control.get_global_rect()
+	_send_mouse_motion(rect.get_center())
+
+func _send_mouse_motion(position: Vector2) -> void:
+	get_viewport().warp_mouse(position)
+	var event: InputEventMouseMotion = InputEventMouseMotion.new()
+	event.position = position
+	event.global_position = position
+	Input.parse_input_event(event)
 
 func _save_capture(filename: String) -> void:
 	var display_name: String = DisplayServer.get_name().to_lower()

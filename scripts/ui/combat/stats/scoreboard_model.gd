@@ -25,10 +25,11 @@ func build(metric: String, window: String, norm_mode: int = NormMode.TEAM_SHARE)
     if tracker == null:
         return out
 
-    var p_rows: Array = tracker.get_rows("player", metric, window)
-    var e_rows: Array = tracker.get_rows("enemy", metric, window)
-    var p_total: float = tracker.get_team_total("player", metric, window)
-    var e_total: float = tracker.get_team_total("enemy", metric, window)
+    var use_run_rows: bool = String(window).to_upper() == "RUN"
+    var p_rows: Array = tracker.get_run_rows("player", metric) if use_run_rows else tracker.get_rows("player", metric, window)
+    var e_rows: Array = tracker.get_run_rows("enemy", metric) if use_run_rows else tracker.get_rows("enemy", metric, window)
+    var p_total: float = tracker.get_run_team_total("player", metric) if use_run_rows else tracker.get_team_total("player", metric, window)
+    var e_total: float = tracker.get_run_team_total("enemy", metric) if use_run_rows else tracker.get_team_total("enemy", metric, window)
 
     var cross_max: float = 0.0
     if norm_mode == NormMode.CROSS_TEAM_MAX:

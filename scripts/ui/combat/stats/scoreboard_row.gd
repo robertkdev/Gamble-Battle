@@ -235,6 +235,10 @@ func _ready() -> void:
 		resized.connect(_center_value_label)
 	if content_box and not content_box.is_connected("resized", Callable(self, "_center_value_label")):
 		content_box.resized.connect(_center_value_label)
+	if not is_connected("resized", Callable(self, "_update_bar")):
+		resized.connect(_update_bar)
+	if content_box and not content_box.is_connected("resized", Callable(self, "_update_bar")):
+		content_box.resized.connect(_update_bar)
 	if value_label:
 		value_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_center_value_label()
