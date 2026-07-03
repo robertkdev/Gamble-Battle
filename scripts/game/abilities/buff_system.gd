@@ -418,6 +418,22 @@ func is_stunned(u: Unit) -> bool:
 			return true
 	return false
 
+func is_movement_blocked(state: BattleState, team: String, index: int) -> bool:
+	var u: Unit = _unit_at(state, team, index)
+	if u == null or not _buffs.has(u):
+		return false
+	for b in _buffs[u]:
+		if float(b.get("remaining", 0.0)) <= 0.0:
+			continue
+		var kind: String = String(b.get("kind", ""))
+		if kind == "stun":
+			return true
+		if kind == "tag":
+			var tag_name: String = String(b.get("tag", ""))
+			if tag_name == "root" or tag_name == "rooted":
+				return true
+	return false
+
 func has_movement_blockers() -> bool:
 	if _buffs.is_empty():
 		return false

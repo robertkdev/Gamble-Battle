@@ -26,11 +26,13 @@ func _run() -> void:
 	var gated_empty: Dictionary = _run_gated_empty(adapter, state)
 
 	buffs.apply_tag(state, "player", 3, "root", 60.0, {})
+	var legacy_blocked: Dictionary = _run_legacy_blocked(buffs, state)
 	var gated_blocked: Dictionary = _run_gated_blocked(adapter, state)
 
 	var signature: int = 23
 	signature = _mix(signature, int(direct_empty.get("hits", 0)))
 	signature = _mix(signature, int(gated_empty.get("hits", 0)))
+	signature = _mix(signature, int(legacy_blocked.get("hits", 0)))
 	signature = _mix(signature, int(gated_blocked.get("hits", 0)))
 	signature = _mix(signature, 1 if buffs.has_movement_blockers() else 0)
 	print("PerfMovementBlockers: empty_iterations=", empty_iterations,
@@ -39,7 +41,9 @@ func _run() -> void:
 		" direct_empty_hits=", int(direct_empty.get("hits", 0)),
 		" gated_empty_hits=", int(gated_empty.get("hits", 0)),
 		" blocked_iterations=", blocked_iterations,
+		" legacy_blocked_ms=", int(legacy_blocked.get("ms", 0)),
 		" gated_blocked_ms=", int(gated_blocked.get("ms", 0)),
+		" legacy_blocked_hits=", int(legacy_blocked.get("hits", 0)),
 		" gated_blocked_hits=", int(gated_blocked.get("hits", 0)),
 		" signature=", signature)
 	get_tree().quit(0)
@@ -72,6 +76,31 @@ func _run_gated_blocked(adapter: MovementBuffAdapter, state: BattleState) -> Dic
 			hits += 1
 	var elapsed_ms: int = int((Time.get_ticks_usec() - started_usec) / 1000)
 	return {"ms": elapsed_ms, "hits": hits}
+
+func _run_legacy_blocked(buffs: BuffSystem, state: BattleState) -> Dictionary:
+	var hits: int = 0
+	var blockers_active: bool = buffs.has_movement_blockers()
+	var started_usec: int = Time.get_ticks_usec()
+	for index in range(max(0, blocked_iterations)):
+		if blockers_active and _legacy_is_blocked(buffs, state, "player", index % UNIT_IDS.size()):
+			hits += 1
+	var elapsed_ms: int = int((Time.get_ticks_usec() - started_usec) / 1000)
+	return {"ms": elapsed_ms, "hits": hits}
+
+func _legacy_is_blocked(buffs: BuffSystem, state: BattleState, team: String, idx: int) -> bool:
+	var arr: Array[Unit] = state.player_team if team == "player" else state.enemy_team
+	if idx < 0 or idx >= arr.size():
+		return false
+	var u: Unit = arr[idx]
+	if u == null:
+		return false
+	if buffs.is_stunned(u):
+		return true
+	if buffs.has_tag(state, team, idx, "root"):
+		return true
+	if buffs.has_tag(state, team, idx, "rooted"):
+		return true
+	return false
 
 func _make_state() -> BattleState:
 	var state: BattleState = BattleStateScript.new()
