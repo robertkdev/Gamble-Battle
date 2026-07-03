@@ -81,22 +81,13 @@ func _on_card_dropped(grid: Variant, tile_idx: int, card: Variant) -> void:
 	var items_node: Node = _items_singleton()
 	if items_node == null:
 		return
-	if iid == "remover":
-		var rr: Variant = null
-		if items_node.has_method("remove_all"):
-			rr = items_node.remove_all(unit)
-		else:
-			rr = items_node.call_deferred("remove_all", unit)
-		if rr is Dictionary and not bool(rr.get("ok", false)):
-			push_warning("Item remove failed: %s" % str(rr))
+	var res: Variant = null
+	if items_node.has_method("equip"):
+		res = items_node.equip(unit, iid)
 	else:
-		var res: Variant = null
-		if items_node.has_method("equip"):
-			res = items_node.equip(unit, iid)
-		else:
-			res = items_node.call_deferred("equip", unit, iid)
-		if res is Dictionary and not bool(res.get("ok", false)):
-			push_warning("Item equip failed: %s" % str(res))
+		res = items_node.call_deferred("equip", unit, iid)
+	if res is Dictionary and not bool(res.get("ok", false)):
+		push_warning("Item equip failed: %s" % str(res))
 
 func _resolve_unit(grid: Variant, tile_idx: int) -> Unit:
 	if grid == player_grid_helper:

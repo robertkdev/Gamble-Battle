@@ -11,6 +11,7 @@ const ItemCatalog := preload("res://scripts/game/items/item_catalog.gd")
 const CombineRules := preload("res://scripts/game/items/combine_rules.gd")
 const Combiner := preload("res://scripts/game/items/combiner.gd")
 const EquipService := preload("res://scripts/game/items/equip_service.gd")
+const PhaseRules := preload("res://scripts/game/items/phase_rules.gd")
 
 var _inventory: Dictionary = {}            # id -> count
 var _equipped: Dictionary = {}             # Unit -> Array[String]
@@ -103,7 +104,7 @@ func equip(unit, id: String) -> Dictionary:
 
 	# Special: remover clears all items outside combat
 	if key == "remover":
-		if Engine.has_singleton("GameState") and int(GameState.phase) == int(GameState.GamePhase.COMBAT):
+		if not PhaseRules.can_remove():
 			result.reason = "cannot_remove_in_combat"
 			action_log.emit("Cannot remove items during combat")
 			return result

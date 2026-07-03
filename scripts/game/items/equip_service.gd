@@ -123,9 +123,19 @@ func rebase_unit(unit) -> void:
 # -- Internals --
 
 func _is_combat_phase() -> bool:
-	if Engine.has_singleton("GameState"):
-		return int(GameState.phase) == int(GameState.GamePhase.COMBAT)
+	var game_state: Node = _autoload_node("/root/GameState")
+	if game_state != null:
+		return int(game_state.get("phase")) == int(GameState.GamePhase.COMBAT)
 	return false
+
+func _autoload_node(path: String) -> Node:
+	var loop: MainLoop = Engine.get_main_loop()
+	if loop == null or not loop.has_method("get_root"):
+		return null
+	var root: Window = loop.get_root()
+	if root == null:
+		return null
+	return root.get_node_or_null(path)
 
 func _snapshot_base_if_needed(unit) -> void:
 	if not _base.has(unit):

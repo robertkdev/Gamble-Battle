@@ -27,16 +27,18 @@ func configure(_manager: CombatManager) -> void:
     if _registry != null:
         _registry.configure(manager, engine, buff_system)
     # React when player equips/combines items mid-combat
-    if Engine.has_singleton("Items") and not Items.is_connected("equipped_changed", Callable(self, "_on_items_equipped_changed")):
-        Items.equipped_changed.connect(_on_items_equipped_changed)
+    var items: Node = _items_node()
+    if items != null and not items.is_connected("equipped_changed", Callable(self, "_on_items_equipped_changed")):
+        items.equipped_changed.connect(_on_items_equipped_changed)
 
 func _exit_tree() -> void:
     teardown()
 
 func unwire() -> void:
     # Disconnect from Items
-    if Engine.has_singleton("Items") and Items.is_connected("equipped_changed", Callable(self, "_on_items_equipped_changed")):
-        Items.equipped_changed.disconnect(_on_items_equipped_changed)
+    var items: Node = _items_node()
+    if items != null and items.is_connected("equipped_changed", Callable(self, "_on_items_equipped_changed")):
+        items.equipped_changed.disconnect(_on_items_equipped_changed)
     # Manager signals
     _unwire_manager_signals()
     # Engine/ability system signals
@@ -159,8 +161,9 @@ func _rebuild_effects_for_unit(u: Unit) -> void:
     if u == null:
         return
     var effects: Array[String] = []
-    if Engine.has_singleton("Items") and Items.has_method("get_equipped"):
-        var ids = Items.get_equipped(u)
+    var items: Node = _items_node()
+    if items != null and items.has_method("get_equipped"):
+        var ids = items.get_equipped(u)
         if ids is Array:
             for iid in ids:
                 var def = ItemCatalog.get_def(String(iid))
@@ -239,4 +242,16 @@ func _unit_at(team: String, index: int) -> Unit:
         if index >= 0 and index < manager.enemy_team.size():
             return manager.enemy_team[index]
         return null
+
+func _items_node() -> Node:
+    if is_inside_tree():
+        var tree: SceneTree = get_tree()
+        if tree != null and tree.root != null:
+            return tree.root.get_node_or_null("/root/Items")
+    var loop: MainLoop = Engine.get_main_loop()
+    if loop != null and loop.has_method("get_root"):
+        var root: Window = loop.get_root()
+        if root != null:
+            return root.get_node_or_null("/root/Items")
+    return null
 

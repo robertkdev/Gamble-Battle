@@ -35,14 +35,10 @@ func on_battle_end(ctx: TraitContext) -> void:
         ctx.engine._resolver_emit_log("[Catalyst] evolved %d item(s) across carriers" % total_combined)
 
 func _items_singleton(_ctx: TraitContext) -> Node:
-    if Engine.has_singleton("Items"):
-        return Items
-    if _ctx == null or _ctx.engine == null or not _ctx.engine.has_method("get_tree"):
+    var loop: MainLoop = Engine.get_main_loop()
+    if loop == null or not loop.has_method("get_root"):
         return null
-    var tree: SceneTree = _ctx.engine.get_tree()
-    if tree == null:
-        return null
-    var root: Node = tree.root
+    var root: Window = loop.get_root()
     if root != null:
         return root.get_node_or_null("/root/Items")
     return null
@@ -98,7 +94,7 @@ func _try_auto_combine_for_unit(items: Object, unit: Unit, max_combines: int) ->
 func _find_any_valid_pair(components: Array[String]) -> Array[String]:
     # Scan for any pair that has a valid recipe
     for i: int in range(components.size()):
-        for j: int in range(i, components.size()):
+        for j: int in range(i + 1, components.size()):
             var a: String = String(components[i])
             var b: String = String(components[j])
             if CombineRules.has_combo(a, b):
