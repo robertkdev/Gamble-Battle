@@ -117,6 +117,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - 8v8: `samples_per_case=2`, `median_ms=3108`, `p95_ms=4001`, `frames=901`, `sim_s=45.050000`, result `team_a`, alive `8:4`, signature `7184874536639686372:300`, consistent `true`.
   - 12v12: `samples_per_case=2`, `median_ms=3492`, `p95_ms=3523`, `frames=258`, `sim_s=12.900000`, result `team_a`, alive `12:0`, signature `3567836549670627538:428`, consistent `true`.
   - total: `total_ms=14136`, aggregate signature `7144113503220431359:12`, inconsistent cases `0`, errors `[]`.
+- Rejected follow-up movement/slot experiments: precomputing previous-slot row metadata preserved `PerfSlotStrategy.tscn` aggregate signature `5330865502362346199` but regressed the fresh focused total from `488ms` to `556ms`; a squared-distance avoidance prefilter changed 12v12 movement behavior from signature `3567836549670627538:428` to `1189363951486668268:430` and regressed movement profiling from `3742559us` to `5917926us`. Both were reverted.
+- `tests/perf/PerfMovementPhases.tscn` before allocation-free bounded-band fallback on the current tree kept signatures and errors `[]`: 6v6 movement `498410us` with player/enemy steps `121719us`/`83306us`; 12v12 movement `3444929us` with slot assignment `3023774us`, player/enemy steps `197720us`/`99097us`.
+- `tests/perf/PerfMovementPhases.tscn` after allocation-free bounded-band fallback kept signatures and errors `[]`: first sample was mixed at 6v6 movement `552314us` and 12v12 movement `3326348us`; second sample improved to 6v6 movement `477740us` with player/enemy steps `116121us`/`81071us`, and 12v12 movement `2879826us` with slot assignment `2582786us`, player/enemy steps `143064us`/`64795us`.
+- Diagnostics-off validation after allocation-free bounded-band fallback stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=11550`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3061ms`, 12v12 median `3452ms`, total `14456ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=473`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7727`.
 
 ## Changes Made
 
@@ -139,6 +143,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/movement/movement_service2.gd`
   - Reuses per-frame alive, target, step-cap, group, and previous-slot scratch buffers across movement updates.
   - `_compute_slot_step()` now derives both slot direction and slot distance from one `slot_pos - cur` vector, avoiding duplicate vector length work in player/enemy step phases while preserving movement signatures.
+  - `_bounded_band_step()` now checks the same four out-of-bounds fallback directions in order without allocating a temporary candidate array, preserving movement signatures while reducing in-band fallback overhead.
 - `scripts/game/combat/movement/strategies/slot_strategy.gd`
   - Bounded grouped slot assignment: groups up to 12 attackers use exact bitmask DP, oversized groups use deterministic greedy fallback.
   - Prevents factorial spikes as board sizes or same-target piles grow.

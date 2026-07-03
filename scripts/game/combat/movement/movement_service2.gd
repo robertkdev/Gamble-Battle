@@ -622,24 +622,40 @@ func _bounded_band_step(cur: Vector2, desired_step: Vector2, target_pos: Vector2
 	var radial_dir: Vector2 = to_target / dist
 	var side: float = -1.0 if side_bias < 0.0 else 1.0
 	var tangent: Vector2 = Vector2(-radial_dir.y, radial_dir.x) * side
-	var candidates: Array[Vector2] = [
-		tangent * step_len,
-		-tangent * step_len,
-		(desired_step * 0.35 + tangent * step_len).normalized() * step_len,
-		(desired_step * 0.35 - tangent * step_len).normalized() * step_len
-	]
-	for candidate_step in candidates:
-		var candidate_pos: Vector2 = cur + candidate_step
-		if not _inside_bounds(candidate_pos):
-			continue
-		var candidate_dist: float = candidate_pos.distance_to(target_pos)
-		if candidate_dist >= min_range * 0.70 and candidate_dist <= max_range + range_eps:
+	var tangent_step: Vector2 = tangent * step_len
+	var desired_bias: Vector2 = desired_step * 0.35
+	var min_allowed_dist: float = min_range * 0.70
+	var max_allowed_dist: float = max_range + range_eps
+	var candidate_step: Vector2 = tangent_step
+	var candidate_pos: Vector2 = cur + candidate_step
+	var candidate_dist: float = 0.0
+	if _inside_bounds(candidate_pos):
+		candidate_dist = candidate_pos.distance_to(target_pos)
+		if candidate_dist >= min_allowed_dist and candidate_dist <= max_allowed_dist:
+			return candidate_step
+	candidate_step = -tangent_step
+	candidate_pos = cur + candidate_step
+	if _inside_bounds(candidate_pos):
+		candidate_dist = candidate_pos.distance_to(target_pos)
+		if candidate_dist >= min_allowed_dist and candidate_dist <= max_allowed_dist:
+			return candidate_step
+	candidate_step = (desired_bias + tangent_step).normalized() * step_len
+	candidate_pos = cur + candidate_step
+	if _inside_bounds(candidate_pos):
+		candidate_dist = candidate_pos.distance_to(target_pos)
+		if candidate_dist >= min_allowed_dist and candidate_dist <= max_allowed_dist:
+			return candidate_step
+	candidate_step = (desired_bias - tangent_step).normalized() * step_len
+	candidate_pos = cur + candidate_step
+	if _inside_bounds(candidate_pos):
+		candidate_dist = candidate_pos.distance_to(target_pos)
+		if candidate_dist >= min_allowed_dist and candidate_dist <= max_allowed_dist:
 			return candidate_step
 	var clamped_pos: Vector2 = _clamp_to_inner_bounds(desired_pos)
 	var clamped_step: Vector2 = clamped_pos - cur
 	if clamped_step.length_squared() > 0.01:
 		var clamped_dist: float = clamped_pos.distance_to(target_pos)
-		if clamped_dist >= min_range * 0.70 and clamped_dist <= max_range + range_eps:
+		if clamped_dist >= min_allowed_dist and clamped_dist <= max_allowed_dist:
 			return clamped_step
 	return Vector2.ZERO
 
