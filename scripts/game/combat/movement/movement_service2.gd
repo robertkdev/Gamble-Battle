@@ -539,6 +539,8 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Vector2, unit: Unit, delta: float, radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, prof: MovementProfile) -> Vector2:
 	if unit == null or prof == null:
 		return Vector2.ZERO
+	if prof.kite_strength <= 0.0 and prof.strafe_strength <= 0.0:
+		return Vector2.ZERO
 	var to_target: Vector2 = target_pos - cur
 	var dist: float = to_target.length()
 	if dist <= ARRIVE_STOP_EPS:
@@ -562,8 +564,6 @@ func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Ve
 			var anchored_kite: Vector2 = _apply_anchor_step(cur, away_dir * kite_step, move_dist, prof, self_positions)
 			return _bounded_band_step(cur, anchored_kite, target_pos, min_range, max_range, range_eps, prof.side_bias)
 
-	if prof.strafe_strength <= 0.0:
-		return Vector2.ZERO
 	var radial_dir: Vector2 = to_target / dist
 	var side: float = -1.0 if prof.side_bias < 0.0 else 1.0
 	var tangent: Vector2 = Vector2(-radial_dir.y, radial_dir.x) * side
