@@ -127,10 +127,9 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 	best_costs[0] = 0.0
 	var masks_by_row: Array = _dp_masks_for_size(n)
 	for row in range(n):
-		var row_masks: Array = masks_by_row[row]
+		var row_masks: PackedInt32Array = masks_by_row[row]
 		var row_costs: Array[float] = costs[row]
-		for mask_value in row_masks:
-			var mask: int = int(mask_value)
+		for mask in row_masks:
 			var base_cost: float = best_costs[mask]
 			if base_cost >= 1e29 or base_cost >= incumbent_cost:
 				continue
@@ -163,13 +162,21 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 static func _dp_masks_for_size(n: int) -> Array:
 	if _dp_masks_by_size.has(n):
 		return _dp_masks_by_size[n]
-	var masks_by_row: Array = []
+	var mask_rows_work: Array = []
 	for _row in range(n + 1):
-		masks_by_row.append([])
+		mask_rows_work.append([])
 	var mask_count: int = 1 << n
 	for mask in range(mask_count):
 		var row: int = _bit_count(mask)
-		(masks_by_row[row] as Array).append(mask)
+		(mask_rows_work[row] as Array).append(mask)
+	var masks_by_row: Array = []
+	for row_values in mask_rows_work:
+		var values: Array = row_values
+		var packed: PackedInt32Array = PackedInt32Array()
+		packed.resize(values.size())
+		for index in range(values.size()):
+			packed[index] = int(values[index])
+		masks_by_row.append(packed)
 	_dp_masks_by_size[n] = masks_by_row
 	return masks_by_row
 
