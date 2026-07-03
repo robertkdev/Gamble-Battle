@@ -510,7 +510,7 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 		for k in range(self_positions.size()):
 			if k == idx:
 				continue
-			if k < self_alive.size() and not self_alive[k]:
+			if not self_alive[k]:
 				continue
 			var other: Vector2 = self_positions[k]
 			var diff: Vector2 = cur - other
@@ -696,11 +696,11 @@ func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vec
 	for s in range(self_positions.size()):
 		if s == idx:
 			continue
-		if s < self_alive.size() and not self_alive[s]:
+		if not self_alive[s]:
 			continue
 		accum += _avoid_from(cur, self_positions[s], avoid_radius)
 	for o in range(other_positions.size()):
-		if o < other_alive.size() and not other_alive[o]:
+		if not other_alive[o]:
 			continue
 		accum += _avoid_from(cur, other_positions[o], avoid_radius)
 	return accum * corridor_factor
