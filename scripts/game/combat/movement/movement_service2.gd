@@ -225,7 +225,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var enemy_groups: Dictionary = _enemy_groups_scratch
 	for i_g in range(p_targets.size()):
 		var t: int = p_targets[i_g]
-		if t >= 0 and t < data.enemy_positions.size() and (p_alive[i_g] if i_g < p_alive.size() else true):
+		if t >= 0 and t < data.enemy_positions.size() and p_alive[i_g]:
 			if not enemy_groups.has(t):
 				enemy_groups[t] = []
 			(enemy_groups[t] as Array).append(i_g)
@@ -233,7 +233,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var player_groups: Dictionary = _player_groups_scratch
 	for j_g in range(e_targets.size()):
 		var t2: int = e_targets[j_g]
-		if t2 >= 0 and t2 < data.player_positions.size() and (e_alive[j_g] if j_g < e_alive.size() else true):
+		if t2 >= 0 and t2 < data.player_positions.size() and e_alive[j_g]:
 			if not player_groups.has(t2):
 				player_groups[t2] = []
 			(player_groups[t2] as Array).append(j_g)
@@ -294,7 +294,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	# Player side
 	for i in range(state.player_team.size()):
 		var u: Unit = state.player_team[i]
-		var alive: bool = (p_alive[i] if i < p_alive.size() else (u != null and u.is_alive()))
+		var alive: bool = p_alive[i]
 		if not alive or i >= data.player_positions.size():
 			p_caps[i] = 0.0
 			data.set_slot_memory("player", i, -1, 0)
@@ -378,7 +378,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	# Enemy side
 	for j in range(state.enemy_team.size()):
 		var e: Unit = state.enemy_team[j]
-		var alive_e: bool = (e_alive[j] if j < e_alive.size() else (e != null and e.is_alive()))
+		var alive_e: bool = e_alive[j]
 		if not alive_e or j >= data.enemy_positions.size():
 			e_caps[j] = 0.0
 			data.set_slot_memory("enemy", j, -1, 0)
