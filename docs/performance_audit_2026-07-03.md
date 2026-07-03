@@ -146,6 +146,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Diagnostics-off validation after unique row-min shortcut stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=12429`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3132ms`, 12v12 median `3902ms`, total `14648ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=383`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7774`.
 - Rejected targeting mask-inline experiment: replacing hot `_has_mask()` calls with direct bit checks preserved `PerfTargeting.tscn` signature `9036604269279486158`, but repeated medians were mixed (`488ms`, `726ms`, `650ms`) against a fresh `655ms` control, so it was reverted as inconclusive.
 - Rejected slot unique-min preflight experiment: computing the unique-min shortcut before building the cost matrix preserved `PerfSlotStrategy.tscn` aggregate signature `5330865502362346199` and improved focused totals to `328ms` then `288ms`, but regressed real 12v12 movement profiling to slot assignment `3253520us` / movement `3612028us`, so it was reverted.
+- `tests/perf/PerfCollisionResolver.tscn` added focused collision coverage for dense 6v6, dense 12v12, and late-fight 12v12 cases. Baseline kept signatures and errors `[]`: dense 6v6 median `49ms`, dense 12v12 median `47ms`, late 12v12 median `54ms`, aggregate signature `1955603822268948610`.
+- Rejected range/collision experiments from the follow-up audit: squared-distance `MovementMath.within_range()` / `within_radius_tiles()` preserved signatures and helped some broad samples, but regressed a direct `Perf1v1.tscn` control from `346ms` to `957ms`; alive-only collision scratch compaction improved focused `PerfCollisionResolver.tscn` totals to `141ms` then `135ms`, but repeatedly regressed `PerfLargeBoard.tscn` versus a direct reverted control (`16592ms` / `16074ms` patched vs `13409ms` control), so both were reverted.
 
 ## Changes Made
 
@@ -254,6 +256,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfLargeBoard.gd` / `tests/perf/PerfLargeBoard.tscn`
   - Added deterministic 8v8 and 12v12 stress coverage through the existing headless simulator.
   - Uses base telemetry only, repeated samples, deterministic signatures, and aggregate consistency checks.
+- `tests/perf/PerfCollisionResolver.gd` / `tests/perf/PerfCollisionResolver.tscn`
+  - Added focused collision resolver benchmark coverage for dense all-alive boards and a dead-unit-heavy late-fight board.
+  - Reports repeated-sample median/p95/min/max timings plus deterministic position/alive signatures and an aggregate signature.
 - `tests/visual/combat_view_theme_playtest.gd`
   - Added explicit `CombatView` teardown/free on exit. The scene still reports renderer/resource cleanup errors under the MCP run, so it is not used as the clean validation source for this pass.
 
