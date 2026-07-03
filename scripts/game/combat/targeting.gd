@@ -5,6 +5,19 @@ class_name Targeting
 
 const CURRENT_TARGET_STICKINESS: float = 0.85
 const SWITCH_MARGIN: float = 0.20
+const APPROACH_EXECUTE: int = 1 << 0
+const APPROACH_LOCKDOWN: int = 1 << 1
+const APPROACH_DEBUFF: int = 1 << 2
+const APPROACH_ACCESS_BACKLINE: int = 1 << 3
+const APPROACH_ON_HIT_EFFECT: int = 1 << 4
+const APPROACH_REDIRECT: int = 1 << 5
+const APPROACH_REPOSITION: int = 1 << 6
+const APPROACH_BURST: int = 1 << 7
+const APPROACH_AOE: int = 1 << 8
+const APPROACH_ZONE: int = 1 << 9
+const APPROACH_LONG_RANGE: int = 1 << 10
+const APPROACH_PEEL: int = 1 << 11
+const APPROACH_ENGAGE: int = 1 << 12
 
 static func pick_first_alive(enemy_team: Array[Unit]) -> int:
 	for i in range(enemy_team.size()):
@@ -16,6 +29,9 @@ static func pick_first_alive(enemy_team: Array[Unit]) -> int:
 static func pick_by_priority(attacker: Unit, source_index: int, source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy_team: Array[Unit], enemy_positions: Array[Vector2], current_target: int, tile_size: float) -> int:
 	if attacker == null or not attacker.is_alive():
 		return -1
+	var attacker_role: String = _role(attacker)
+	var attacker_goal: String = _goal(attacker)
+	var attacker_mask: int = _approach_mask(attacker)
 	var best_idx: int = -1
 	var best_score: float = -INF
 	var current_score: float = -INF
@@ -26,6 +42,9 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 		var enemy_position: Vector2 = _position_at(enemy_positions, i, source_position)
 		var score: float = _score_candidate(
 			attacker,
+			attacker_role,
+			attacker_goal,
+			attacker_mask,
 			source_index,
 			source_team,
 			source_position,
@@ -50,9 +69,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 				return current_target
 	return best_idx
 
-static func _score_candidate(attacker: Unit, _source_index: int, _source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float) -> float:
-	var attacker_role: String = _role(attacker)
-	var attacker_goal: String = _goal(attacker)
+static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, _source_index: int, _source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float) -> float:
 	var enemy_role: String = _role(enemy)
 	var dist_tiles: float = source_position.distance_to(enemy_position) / max(1.0, tile_size)
 	var hp_pct: float = float(enemy.hp) / max(1.0, float(enemy.max_hp))
@@ -64,29 +81,29 @@ static func _score_candidate(attacker: Unit, _source_index: int, _source_team: S
 	score += low_hp * 0.25
 	if enemy_index == current_target:
 		score += CURRENT_TARGET_STICKINESS
-	if _has_approach(attacker, "execute"):
+	if _has_mask(attacker_mask, APPROACH_EXECUTE):
 		score += low_hp * 2.25
-	if _has_approach(attacker, "lockdown") or _has_approach(attacker, "debuff"):
+	if _has_mask(attacker_mask, APPROACH_LOCKDOWN) or _has_mask(attacker_mask, APPROACH_DEBUFF):
 		score += threat_norm * 0.55
 
 	match attacker_role:
 		"assassin":
-			score += _score_assassin(attacker, enemy, enemy_role, dist_tiles, low_hp)
+			score += _score_assassin(attacker_mask, enemy, enemy_role, dist_tiles, low_hp)
 		"marksman":
-			score += _score_marksman(attacker, attacker_goal, enemy, enemy_role, dist_tiles)
+			score += _score_marksman(attacker_mask, attacker_goal, enemy, enemy_role, dist_tiles)
 		"tank":
-			score += _score_tank(attacker, enemy_role, dist_tiles, threat_norm)
+			score += _score_tank(attacker_mask, enemy_role, dist_tiles, threat_norm)
 		"brawler":
-			score += _score_brawler(attacker, enemy_role, dist_tiles, low_hp)
+			score += _score_brawler(attacker_mask, enemy_role, dist_tiles, low_hp)
 		"mage":
-			score += _score_mage(attacker, enemy, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
+			score += _score_mage(attacker_mask, enemy, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
 		"support":
-			score += _score_support(attacker, ally_team, ally_positions, enemy, enemy_position, enemy_role, dist_tiles, threat_norm, tile_size)
+			score += _score_support(attacker, attacker_mask, ally_team, ally_positions, enemy, enemy_position, enemy_role, dist_tiles, threat_norm, tile_size)
 		_:
 			score += max(0.0, 5.0 - dist_tiles) * 0.25
 	return score
 
-static func _score_assassin(attacker: Unit, enemy: Unit, enemy_role: String, dist_tiles: float, low_hp: float) -> float:
+static func _score_assassin(attacker_mask: int, enemy: Unit, enemy_role: String, dist_tiles: float, low_hp: float) -> float:
 	var score: float = 0.0
 	if _is_carry_role(enemy_role):
 		score += 3.50
@@ -96,15 +113,15 @@ static func _score_assassin(attacker: Unit, enemy: Unit, enemy_role: String, dis
 		score -= 2.20
 	if float(enemy.attack_range) >= 3.0:
 		score += 0.80
-	if _has_approach(attacker, "access_backline"):
+	if _has_mask(attacker_mask, APPROACH_ACCESS_BACKLINE):
 		score += 1.40 if _is_carry_role(enemy_role) else -0.35
 	score += low_hp * 2.00
 	score += dist_tiles * 0.12
 	return score
 
-static func _score_marksman(attacker: Unit, attacker_goal: String, enemy: Unit, enemy_role: String, dist_tiles: float) -> float:
+static func _score_marksman(attacker_mask: int, attacker_goal: String, enemy: Unit, enemy_role: String, dist_tiles: float) -> float:
 	var score: float = max(0.0, 7.0 - dist_tiles) * 0.35
-	var tank_shredder: bool = attacker_goal == "marksman.tank_shredding" or _has_approach(attacker, "debuff") or _has_approach(attacker, "on_hit_effect")
+	var tank_shredder: bool = attacker_goal == "marksman.tank_shredding" or _has_mask(attacker_mask, APPROACH_DEBUFF) or _has_mask(attacker_mask, APPROACH_ON_HIT_EFFECT)
 	if tank_shredder:
 		if enemy_role == "tank" or enemy_role == "brawler":
 			score += 2.20
@@ -116,45 +133,45 @@ static func _score_marksman(attacker: Unit, attacker_goal: String, enemy: Unit, 
 			score += 0.35
 	return score
 
-static func _score_tank(attacker: Unit, enemy_role: String, dist_tiles: float, threat_norm: float) -> float:
+static func _score_tank(attacker_mask: int, enemy_role: String, dist_tiles: float, threat_norm: float) -> float:
 	var score: float = max(0.0, 5.0 - dist_tiles) * 0.55
 	if enemy_role == "assassin" or enemy_role == "brawler" or enemy_role == "tank":
 		score += 1.15
-	if _has_approach(attacker, "lockdown") or _has_approach(attacker, "redirect"):
+	if _has_mask(attacker_mask, APPROACH_LOCKDOWN) or _has_mask(attacker_mask, APPROACH_REDIRECT):
 		score += threat_norm * 0.55
 	return score
 
-static func _score_brawler(attacker: Unit, enemy_role: String, dist_tiles: float, low_hp: float) -> float:
+static func _score_brawler(attacker_mask: int, enemy_role: String, dist_tiles: float, low_hp: float) -> float:
 	var score: float = max(0.0, 5.0 - dist_tiles) * 0.45
 	if enemy_role == "tank" or enemy_role == "brawler":
 		score += 1.15
-	if _has_approach(attacker, "access_backline") and _is_carry_role(enemy_role):
+	if _has_mask(attacker_mask, APPROACH_ACCESS_BACKLINE) and _is_carry_role(enemy_role):
 		score += 1.70
-	if _has_approach(attacker, "reposition"):
+	if _has_mask(attacker_mask, APPROACH_REPOSITION):
 		score += low_hp * 0.75
 	return score
 
-static func _score_mage(attacker: Unit, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, tile_size: float, low_hp: float) -> float:
+static func _score_mage(attacker_mask: int, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, tile_size: float, low_hp: float) -> float:
 	var score: float = 0.0
-	if _has_approach(attacker, "burst") or _has_approach(attacker, "execute"):
+	if _has_mask(attacker_mask, APPROACH_BURST) or _has_mask(attacker_mask, APPROACH_EXECUTE):
 		if _is_carry_role(_role(enemy)):
 			score += 1.60
 		score += low_hp * 1.60
-	if _has_approach(attacker, "aoe") or _has_approach(attacker, "zone"):
+	if _has_mask(attacker_mask, APPROACH_AOE) or _has_mask(attacker_mask, APPROACH_ZONE):
 		score += float(_nearby_alive_count(enemy_index, enemy_team, enemy_positions, enemy_position, tile_size * 2.25)) * 0.90
-	if _has_approach(attacker, "long_range"):
+	if _has_mask(attacker_mask, APPROACH_LONG_RANGE):
 		score += clampf(float(enemy.attack_range) / 5.0, 0.0, 1.0)
 	return score
 
-static func _score_support(attacker: Unit, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy: Unit, enemy_position: Vector2, enemy_role: String, dist_tiles: float, threat_norm: float, tile_size: float) -> float:
+static func _score_support(attacker: Unit, attacker_mask: int, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy: Unit, enemy_position: Vector2, enemy_role: String, dist_tiles: float, threat_norm: float, tile_size: float) -> float:
 	var score: float = threat_norm * 0.75
-	if _has_approach(attacker, "peel") or _has_approach(attacker, "lockdown"):
+	if _has_mask(attacker_mask, APPROACH_PEEL) or _has_mask(attacker_mask, APPROACH_LOCKDOWN):
 		if enemy_role == "assassin" or enemy_role == "brawler":
 			score += 1.60
 		if _is_carry_role(enemy_role):
 			score += 0.80
 		score += _ally_peel_pressure(attacker, ally_team, ally_positions, enemy, enemy_position, tile_size)
-	if _has_approach(attacker, "engage"):
+	if _has_mask(attacker_mask, APPROACH_ENGAGE):
 		score += max(0.0, 6.0 - dist_tiles) * 0.25
 	return score
 
@@ -235,6 +252,46 @@ static func _has_approach(unit: Unit, approach_id: String) -> bool:
 		if String(approach).strip_edges().to_lower() == key:
 			return true
 	return false
+
+static func _approach_mask(unit: Unit) -> int:
+	var mask: int = 0
+	if unit == null:
+		return mask
+	for approach in unit.get_approaches():
+		var key: String = String(approach).strip_edges().to_lower()
+		match key:
+			"execute":
+				mask |= APPROACH_EXECUTE
+			"lockdown":
+				mask |= APPROACH_LOCKDOWN
+			"debuff":
+				mask |= APPROACH_DEBUFF
+			"access_backline":
+				mask |= APPROACH_ACCESS_BACKLINE
+			"on_hit_effect":
+				mask |= APPROACH_ON_HIT_EFFECT
+			"redirect":
+				mask |= APPROACH_REDIRECT
+			"reposition":
+				mask |= APPROACH_REPOSITION
+			"burst":
+				mask |= APPROACH_BURST
+			"aoe":
+				mask |= APPROACH_AOE
+			"zone":
+				mask |= APPROACH_ZONE
+			"long_range":
+				mask |= APPROACH_LONG_RANGE
+			"peel":
+				mask |= APPROACH_PEEL
+			"engage":
+				mask |= APPROACH_ENGAGE
+			_:
+				pass
+	return mask
+
+static func _has_mask(mask: int, bit: int) -> bool:
+	return (mask & bit) != 0
 
 static func _is_carry_role(role_id: String) -> bool:
 	return role_id == "marksman" or role_id == "mage"

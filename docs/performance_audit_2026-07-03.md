@@ -74,6 +74,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Same-load control after reverting the scratch dictionary was worse: signature `3567836549670627538:428`, slot assignment `3913733us`, movement `4313900us`. Final kept-diff confirmation was noisy but still below that control at slot assignment `3761431us`, movement `4122797us`.
 - Diagnostics-off validation after range-dictionary reuse stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=14331`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]` on two high-noise runs; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=458`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=9099`.
 - Rejected slot experiments from the range-dictionary pass: direct reusable slot-output buffers preserved signatures but regressed real 12v12 profiling; a no-allocation lower-bound prepass preserved signatures but regressed the focused slot benchmark; packed DP arrays preserved signatures but regressed the focused slot benchmark; precomputing previous-slot metadata in pair dictionaries improved focused totals but regressed real 12v12 movement profiling; previous-slot scratch write avoidance was too small/noisy and regressed the real profiler; greedy-bounded DP preserved signatures but regressed real movement profiling even when narrowed to the first unbounded DP pass.
+- `tests/perf/PerfTargeting.tscn` added focused target-priority scoring coverage over mixed 12v12 teams. Baseline with `iterations=180`, `samples=3`: median `1632ms`, p95 `1638ms`, signature `9036604269279486158`, errors `[]`.
+- `tests/perf/PerfTargeting.tscn` after target approach bitmask caching kept signature `9036604269279486158`, errors `[]`, and improved repeated samples to median `975ms` / p95 `1113ms`, then median `917ms` / p95 `997ms`.
+- Normal combat validation after target approach bitmask caching stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=13229`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=512`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=8887`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3315ms`, 12v12 median `4716ms`, total `16688ms`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -136,6 +139,12 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Lockstep jobs enable diagnostics only when `metadata.perf_movement_diagnostics` is true, and the new profiler scene prints per-case phase percentages plus target call/skip counts.
 - `tests/perf/PerfSlotStrategy.gd`
   - Upgraded the benchmark to repeated samples per case with median/p95/min/max reporting so solver changes are not judged from a single noisy timing sample.
+- `tests/perf/PerfTargeting.gd` / `tests/perf/PerfTargeting.tscn`
+  - Added a focused deterministic target-priority benchmark over mixed 12v12 teams.
+  - Reports repeated-sample median/p95/min/max timings plus a deterministic target-selection signature.
+- `scripts/game/combat/targeting.gd`
+  - Precomputes attacker role, goal, and approach bitmask once per `pick_by_priority()` call.
+  - Replaces repeated per-candidate attacker approach string scans with zero-allocation bit checks while preserving target-selection signatures.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.
@@ -201,6 +210,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 2. Targeting does meaningful per-candidate scoring.
    - `Targeting.pick_by_priority()` walks live enemies and may score ally peel pressure and nearby units.
    - The `target_recheck_interval_s=0.35` throttle is important. Do not move this to per-frame retargeting.
+   - `PerfTargeting.tscn` now isolates target-priority scoring and shows attacker approach metadata was a real focused hotspot. The current implementation caches attacker role/goal/approach mask once per pick; future targeting work should preserve signature `9036604269279486158` in that focused benchmark.
 
 3. Telemetry and UI signals are broad.
    - Combat emits position, target, hit, stat, and team-stat signals.
@@ -218,11 +228,13 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 1. Clean up remaining dummy-renderer teardown diagnostics in `CombatArenaBoundsSmoke.tscn` if that scene must become a strict empty-error gate; its stale-bounds assertion now passes.
 2. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 159 events are material; the UI no longer polls every actor every frame.
 3. Use `PerfMovementPhases.tscn` plus `PerfLargeBoard.tscn` as the regression/stress gates before future movement changes above 6v6.
-4. Continue slot assignment work with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures.
-5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
+4. Use `PerfTargeting.tscn` before and after target-priority changes, then confirm with `Perf6v6.tscn` or `RoleMatrixProbe6v6.tscn`.
+5. Continue slot assignment work with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures.
+6. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 
 ## Guardrails
 
 - Do not make `delta_s=0.25` or larger a default optimization without balance/RGA acceptance work.
 - Preserve deterministic signatures for headless perf scenes when changing allocation, targeting, movement, or telemetry paths.
+- Preserve `PerfTargeting.tscn` signature `9036604269279486158` when changing target priority heuristics or metadata caching.
 - Validate multi-unit behavior after combat hot-loop edits with `RoleMatrixProbe6v6.tscn` or a broader RGA smoke.
