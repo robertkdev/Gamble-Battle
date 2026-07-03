@@ -100,7 +100,7 @@ static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goa
 		"brawler":
 			score += _score_brawler(attacker_mask, enemy_role, dist_tiles, low_hp)
 		"mage":
-			score += _score_mage(attacker_mask, enemy, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
+			score += _score_mage(attacker_mask, enemy, enemy_role, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
 		"support":
 			score += _score_support(attacker, attacker_mask, ally_team, ally_positions, ally_peel_priorities, enemy, enemy_position, enemy_role, dist_tiles, threat_norm, tile_size)
 		_:
@@ -155,10 +155,10 @@ static func _score_brawler(attacker_mask: int, enemy_role: String, dist_tiles: f
 		score += low_hp * 0.75
 	return score
 
-static func _score_mage(attacker_mask: int, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, tile_size: float, low_hp: float) -> float:
+static func _score_mage(attacker_mask: int, enemy: Unit, enemy_role: String, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, tile_size: float, low_hp: float) -> float:
 	var score: float = 0.0
 	if _has_mask(attacker_mask, APPROACH_BURST) or _has_mask(attacker_mask, APPROACH_EXECUTE):
-		if _is_carry_role(_role(enemy)):
+		if _is_carry_role(enemy_role):
 			score += 1.60
 		score += low_hp * 1.60
 	if _has_mask(attacker_mask, APPROACH_AOE) or _has_mask(attacker_mask, APPROACH_ZONE):
