@@ -13,12 +13,13 @@ var planning_area: Control
 var arena_background: Control
 var player_grid_helper: BoardGrid
 var enemy_grid_helper: BoardGrid
-var unit_actor_class
+var unit_actor_class: Script
 var tile_size: int = 72
 
 var _hidden_nodes: Array[Dictionary] = []
+var _position_signal_manager: CombatManager = null
 
-func configure(_arena_container: Control, _arena_units: Control, _planning_area: Control, _arena_background: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class, _tile_size: int) -> void:
+func configure(_arena_container: Control, _arena_units: Control, _planning_area: Control, _arena_background: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class: Script, _tile_size: int) -> void:
     arena_container = _arena_container
     arena_units = _arena_units
     planning_area = _planning_area
@@ -75,7 +76,7 @@ func _sync_container_to_planning_rect() -> void:
 func _rect_close(a: Rect2, b: Rect2, tolerance: float) -> bool:
     return a.position.distance_to(b.position) <= tolerance and a.size.distance_to(b.size) <= tolerance
 
-func enter_arena(player_views, enemy_views) -> void:
+func enter_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
     if arena == null:
         return
     Trace.step("ArenaBridge.enter_arena: begin")
@@ -87,9 +88,9 @@ func enter_arena(player_views, enemy_views) -> void:
     # Fade planning board areas (TopArea/BottomArea) but keep bench/shop visible and interactive
     if planning_area:
         _hidden_nodes.clear()
-        var names := ["TopArea", "BottomArea"]
-        for nm in names:
-            var n = planning_area.get_node_or_null(nm)
+        var names: PackedStringArray = PackedStringArray(["TopArea", "BottomArea"])
+        for nm: String in names:
+            var n: Node = planning_area.get_node_or_null(nm)
             if n != null and n is Control:
                 var c: Control = n
                 _hidden_nodes.append({
@@ -97,16 +98,22 @@ func enter_arena(player_views, enemy_views) -> void:
                     "mouse_filter": int(c.mouse_filter)
                 })
                 c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-                var m = c.modulate
+                var m: Color = c.modulate
                 m.a = 0.0
                 c.modulate = m
     Trace.step("ArenaBridge.enter_arena: done")
 
-func sync(manager: CombatManager, player_views, enemy_views) -> void:
+func sync(manager: CombatManager, player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
     if arena == null or arena_container == null or not arena_container.visible:
         return
     _sync_container_to_planning_rect()
     if manager:
+        var engine: Variant = manager.get_engine()
+        var telemetry_enabled: bool = bool(engine.get("emit_position_telemetry")) if engine != null else false
+        if telemetry_enabled and _ensure_position_signal(manager):
+            _sync_actor_visibility(player_views, enemy_views)
+            return
+        _disconnect_position_signal()
         var ppos: Array = manager.get_player_positions()
         var epos: Array = manager.get_enemy_positions()
         if ppos.size() > 0 or epos.size() > 0:
@@ -115,6 +122,7 @@ func sync(manager: CombatManager, player_views, enemy_views) -> void:
     arena.sync_arena(player_views, enemy_views)
 
 func exit_arena() -> void:
+    _disconnect_position_signal()
     if arena:
         arena.exit_arena()
     if arena_container:
@@ -128,7 +136,7 @@ func exit_arena() -> void:
             var c: Control = node_ref.get_ref() as Control
             if c == null:
                 continue
-            var m = c.modulate
+            var m: Color = c.modulate
             m.a = 1.0
             c.modulate = m
             c.mouse_filter = int(record.get("mouse_filter", Control.MOUSE_FILTER_PASS)) as Control.MouseFilter
@@ -147,6 +155,7 @@ func teardown() -> void:
     enemy_grid_helper = null
     unit_actor_class = null
     _hidden_nodes.clear()
+    _position_signal_manager = null
 
 func get_player_actor(index: int) -> UnitActor:
     if arena:
@@ -163,19 +172,20 @@ func get_actor(team: String, index: int) -> UnitActor:
         return arena.get_actor(team, index)
     return null
 
-func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy_views: Array) -> void:
+func configure_engine_arena(manager: CombatManager, _player_views: Array[UnitSlotView], _enemy_views: Array[UnitSlotView]) -> void:
     if manager == null:
         return
+    _ensure_position_signal(manager)
     Trace.step("ArenaBridge.configure_engine_arena: begin")
     _sync_container_to_planning_rect()
-    var ts := float(tile_size)
+    var ts: float = float(tile_size)
     # Initial positions from current tile centers
     var ppos: Array[Vector2] = []
     var epos: Array[Vector2] = []
     var p_summary: Array[String] = []
     var e_summary: Array[String] = []
     for i in range(_player_views.size()):
-        var pv = _player_views[i]
+        var pv: UnitSlotView = _player_views[i]
         var idx: int = pv.tile_idx
         var pos: Vector2 = player_grid_helper.get_center(idx) if player_grid_helper and idx >= 0 else Vector2.ZERO
         ppos.append(pos)
@@ -184,7 +194,7 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
             var uname: String = (pv.unit.name if pv and pv.unit else "?")
             p_summary.append("%d#%d:%s(%s)" % [i, idx, str(pos), uname])
     for j in range(_enemy_views.size()):
-        var ev = _enemy_views[j]
+        var ev: UnitSlotView = _enemy_views[j]
         var idx2: int = ev.tile_idx
         var pos2: Vector2 = enemy_grid_helper.get_center(idx2) if enemy_grid_helper and idx2 >= 0 else Vector2.ZERO
         epos.append(pos2)
@@ -212,14 +222,14 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
                 min_y = min(min_y, p.y)
                 max_y = max(max_y, p.y)
             var margin: float = ts
-            var pos := Vector2(min_x - margin, min_y - margin)
-            var size := Vector2(max(1.0, (max_x - min_x) + margin * 2.0), max(1.0, (max_y - min_y) + margin * 2.0))
+            var pos: Vector2 = Vector2(min_x - margin, min_y - margin)
+            var size: Vector2 = Vector2(max(1.0, (max_x - min_x) + margin * 2.0), max(1.0, (max_y - min_y) + margin * 2.0))
             bounds = Rect2(pos, size)
             if Debug.enabled:
                 print("[ArenaFix] Fallback bounds from tiles -> ", bounds)
         else:
-            var vp := (arena_container.get_viewport() if arena_container else null)
-            var vs := (vp.get_visible_rect() if vp else Rect2(Vector2.ZERO, Vector2(1920, 1080)))
+            var vp: Viewport = arena_container.get_viewport() if arena_container else null
+            var vs: Rect2 = vp.get_visible_rect() if vp else Rect2(Vector2.ZERO, Vector2(1920, 1080))
             bounds = Rect2(vs.position, vs.size)
             if Debug.enabled:
                 print("[ArenaFix] Fallback bounds from viewport -> ", bounds)
@@ -250,6 +260,53 @@ func configure_engine_arena(manager: CombatManager, _player_views: Array, _enemy
     if Debug.enabled:
         print("[Arena] tile=", ts, " bounds=", bounds)
     _log_start_positions_and_targets(manager)
+
+func _ensure_position_signal(manager: CombatManager) -> bool:
+    if manager == null:
+        return false
+    if _position_signal_manager == manager:
+        return true
+    _disconnect_position_signal()
+    if manager.has_signal("position_updated"):
+        var callback: Callable = Callable(self, "_on_manager_position_updated")
+        if not manager.is_connected("position_updated", callback):
+            manager.position_updated.connect(_on_manager_position_updated)
+        _position_signal_manager = manager
+        return true
+    return false
+
+func _disconnect_position_signal() -> void:
+    if _position_signal_manager == null or not is_instance_valid(_position_signal_manager):
+        _position_signal_manager = null
+        return
+    var callback: Callable = Callable(self, "_on_manager_position_updated")
+    if _position_signal_manager.has_signal("position_updated") and _position_signal_manager.is_connected("position_updated", callback):
+        _position_signal_manager.position_updated.disconnect(_on_manager_position_updated)
+    _position_signal_manager = null
+
+func _on_manager_position_updated(team: String, index: int, x: float, y: float) -> void:
+    if arena == null:
+        return
+    var actor: UnitActor = arena.get_actor(team, index)
+    if actor == null or not is_instance_valid(actor):
+        return
+    actor.set_screen_position(Vector2(x, y))
+    actor.visible = (actor.unit != null and actor.unit.is_alive())
+
+func _sync_actor_visibility(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
+    if arena == null:
+        return
+    for i in range(min(player_views.size(), arena.player_actors.size())):
+        var player_actor: UnitActor = arena.get_player_actor(i)
+        if player_actor != null and is_instance_valid(player_actor):
+            var player_view: UnitSlotView = player_views[i]
+            player_actor.visible = (player_view.unit != null and player_view.unit.is_alive())
+    for j in range(min(enemy_views.size(), arena.enemy_actors.size())):
+        var enemy_actor: UnitActor = arena.get_enemy_actor(j)
+        if enemy_actor != null and is_instance_valid(enemy_actor):
+            var enemy_view: UnitSlotView = enemy_views[j]
+            enemy_actor.visible = (enemy_view.unit != null and enemy_view.unit.is_alive())
+
 func _log_start_positions_and_targets(manager: CombatManager) -> void:
     if manager == null:
         return

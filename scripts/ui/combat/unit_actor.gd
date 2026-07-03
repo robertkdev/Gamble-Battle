@@ -18,6 +18,7 @@ var size_px: Vector2 = Vector2(64, 64)
 var _effect_player: UnitEffectPlayer
 var _team_tint: Color = Color(0.40, 0.08, 0.10, 0.68)
 var _base_screen_pos: Vector2 = Vector2.ZERO
+var _screen_position_initialized: bool = false
 var _effect_offset: Vector2 = Vector2.ZERO
 var _texture_signature_cache: String = ""
 var _bar_signature_cache: String = ""
@@ -39,6 +40,9 @@ static var diagnostic_bar_skip_calls: int = 0
 static var diagnostic_texture_refresh_calls: int = 0
 static var diagnostic_texture_skip_calls: int = 0
 static var diagnostic_texture_load_attempts: int = 0
+static var diagnostic_position_update_calls: int = 0
+static var diagnostic_position_apply_calls: int = 0
+static var diagnostic_position_skip_calls: int = 0
 
 static func set_diagnostics_enabled(enabled: bool) -> void:
 	diagnostics_enabled = bool(enabled)
@@ -50,6 +54,9 @@ static func reset_diagnostics() -> void:
 	diagnostic_texture_refresh_calls = 0
 	diagnostic_texture_skip_calls = 0
 	diagnostic_texture_load_attempts = 0
+	diagnostic_position_update_calls = 0
+	diagnostic_position_apply_calls = 0
+	diagnostic_position_skip_calls = 0
 
 static func diagnostic_snapshot() -> Dictionary:
 	return {
@@ -58,7 +65,10 @@ static func diagnostic_snapshot() -> Dictionary:
 		"bar_skip_calls": diagnostic_bar_skip_calls,
 		"texture_refresh_calls": diagnostic_texture_refresh_calls,
 		"texture_skip_calls": diagnostic_texture_skip_calls,
-		"texture_load_attempts": diagnostic_texture_load_attempts
+		"texture_load_attempts": diagnostic_texture_load_attempts,
+		"position_update_calls": diagnostic_position_update_calls,
+		"position_apply_calls": diagnostic_position_apply_calls,
+		"position_skip_calls": diagnostic_position_skip_calls
 	}
 
 func _ready() -> void:
@@ -217,7 +227,7 @@ func _ensure_bars() -> void:
 			shield_bar.value = 0
 			# Style: thin white fill, same background
 			var sbg: StyleBox = load("res://themes/pb_bg.tres")
-			var sfill := StyleBoxFlat.new()
+			var sfill: StyleBoxFlat = StyleBoxFlat.new()
 			sfill.bg_color = Color(0.85, 0.95, 1.0, 0.95)
 			sfill.border_width_left = 1
 			sfill.border_width_top = 1
@@ -262,7 +272,7 @@ func set_unit(u: Unit) -> void:
 func play_hit_flash(opts: Dictionary = {}) -> void:
 	_ensure_effect_player()
 	_update_effect_player_sprite()
-	var payload := opts.duplicate(true)
+	var payload: Dictionary = opts.duplicate(true)
 	_effect_player.play(UnitEffectPlayer.EFFECT_HIT, payload)
 
 func update_bars(updated_unit: Unit = null) -> void:
@@ -272,7 +282,16 @@ func update_bars(updated_unit: Unit = null) -> void:
 
 # Avoid overriding Control.set_global_position(Vector2, bool)
 func set_screen_position(pos: Vector2) -> void:
+	if diagnostics_enabled:
+		diagnostic_position_update_calls += 1
+	if _screen_position_initialized and pos.is_equal_approx(_base_screen_pos):
+		if diagnostics_enabled:
+			diagnostic_position_skip_calls += 1
+		return
 	_base_screen_pos = pos
+	_screen_position_initialized = true
+	if diagnostics_enabled:
+		diagnostic_position_apply_calls += 1
 	_update_screen_position()
 
 func _ensure_effect_player() -> void:
@@ -388,6 +407,7 @@ func set_size_px(new_size: Vector2) -> void:
 	size_px = new_size
 	size = size_px
 	_update_visuals()
+	_update_screen_position()
 
 func set_team_tint(color: Color) -> void:
 	_team_tint = color

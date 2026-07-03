@@ -25,6 +25,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfCombatUiSignals.tscn` before actor value caching: `UnitActor.update_bars_calls=678`, `UnitActor.bar_apply_calls=678`, `UnitActor.bar_skip_calls=0`, `UnitActor.texture_refresh_calls=21`, `UnitActor.texture_load_attempts=21`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after actor value caching: similar short combat with `UnitActor.update_bars_calls=729`, `UnitActor.bar_apply_calls=29`, `UnitActor.bar_skip_calls=700`, `UnitActor.texture_refresh_calls=7`, `UnitActor.texture_skip_calls=14`, `UnitActor.texture_load_attempts=7`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after removing actor bar refresh from position sync: same short combat shape with `position_updated=159`, `UnitActor.update_bars_calls=48`, `UnitActor.bar_apply_calls=26`, `UnitActor.bar_skip_calls=22`, `UnitActor.texture_refresh_calls=7`, `UnitActor.texture_skip_calls=14`, `UnitActor.texture_load_attempts=7`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` after adding actor position diagnostics but before signal-driven arena movement: same short combat shape with `position_updated=159`, `UnitActor.position_update_calls=2058`, `position_apply_calls=1970`, `position_skip_calls=88`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` after signal-driven arena movement: same short combat shape with `position_updated=159`, `UnitActor.position_update_calls=159`, `position_apply_calls=159`, `position_skip_calls=0`, `UnitActor.update_bars_calls=48`, `bar_apply_calls=26`, `bar_skip_calls=22`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after UI refresh pass: `time_ms=441`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after actor value caching: `time_ms=408`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf6v6.tscn` after UI refresh pass: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`. The run was wall-time noisy (`total_ms=24740`) and should be interpreted as a determinism/regression check, not a new simulation-speed baseline.
@@ -51,6 +53,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/Perf1v1.tscn` after shared texture cache: `time_ms=551`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/PerfCombatUiSignals.tscn` after shared texture cache still completed and reported the expected optimized refresh shape, but current dirty/uncommitted stage-progress UI work emitted loader errors for `res://assets/ui/stage_icons/*`. Treat that as unrelated validation contamination until the stage icon resources/imports are fixed or that work is reverted.
 - `tests/perf/Perf1v1.tscn` after position-sync bar refresh removal: `time_ms=421`, then `483` after typed-signature cleanup, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
+- `tests/perf/Perf1v1.tscn` after signal-driven arena movement: `time_ms=382`, then `470` after typed cleanup, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
+- `tests/visual/CombatArenaBoundsSmoke.tscn` is not clean in the current dirty tree: it reports engine arena bounds wider than the planning board after the uncommitted stage-progress/layout changes, plus dummy renderer cleanup diagnostics. Do not use it as validation evidence for this pass until that layout work is resolved.
 - `tests/perf/PerfLargeBoard.tscn` after slot and cache work:
   - 8v8: `samples_per_case=2`, `median_ms=3108`, `p95_ms=4001`, `frames=901`, `sim_s=45.050000`, result `team_a`, alive `8:4`, signature `7184874536639686372:300`, consistent `true`.
   - 12v12: `samples_per_case=2`, `median_ms=3492`, `p95_ms=3523`, `frames=258`, `sim_s=12.900000`, result `team_a`, alive `12:0`, signature `3567836549670627538:428`, consistent `true`.
@@ -99,10 +103,15 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Added diagnostics for arena actor bar and texture refreshes.
   - Caches actor bar value signatures so per-frame arena sync can keep moving actors while skipping unchanged ProgressBar/tick/visibility assignments.
   - Caches actor texture signatures so `set_unit()` plus immediate `set_size_px()` no longer reloads the same sprite texture.
+  - Added actor position diagnostics and skips duplicate base screen-position applications.
 - `scripts/ui/combat/arena_controller.gd`
   - Per-position arena sync now moves actors and updates visibility only.
   - Actor HP/mana/shield bars are updated by stat/team-stat signal handlers instead of every position sync.
   - Typed the arena view inputs and actor script reference while preserving the existing `UnitSlotView`/`UnitActor` contract.
+- `scripts/ui/combat/arena_bridge.gd`
+  - Connects to `CombatManager.position_updated` and applies movement only to the changed actor.
+  - Keeps per-frame actor visibility refreshes and falls back to the old position-array polling path if engine position telemetry is unavailable.
+  - Typed touched bridge locals and view inputs while preserving the existing arena setup behavior.
 - `scripts/util/texture_utils.gd`
   - Added shared caches for successfully loaded textures and generated circle fallback textures.
   - Added `clear_cache()` plus diagnostics counters/snapshot helpers.
@@ -129,8 +138,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 3. Telemetry and UI signals are broad.
    - Combat emits position, target, hit, stat, and team-stat signals.
    - Headless base-only RGA now disables unused position/target telemetry.
-   - Player-facing HUD refreshes now skip duplicate broad stat/team-stat repaints, and arena actors skip unchanged bar/texture applications during per-frame movement sync.
-   - `position_updated` still fires roughly 155 times in the short diagnostics combat and remains the largest visible signal stream.
+   - Player-facing HUD refreshes now skip duplicate broad stat/team-stat repaints, arena actors skip unchanged bar/texture applications, and arena movement is applied from position signals instead of per-frame full-team polling.
+   - `position_updated` still fires roughly 155 times in the short diagnostics combat, but the UI now applies those 159 events directly instead of issuing roughly 2058 actor position setter calls.
    - UI listeners should keep using diagnostics gates before further repaint or signal-throttling changes.
 
 4. Simulation cadence is sensitive.
@@ -139,8 +148,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 ## Recommended Next Optimizations
 
-1. Evaluate player-facing `position_updated` coalescing/throttling. Keep motion smoothness checks in the loop; this is a visual optimization, not just a signal-count target.
-2. Resolve the current dirty stage-progress icon loader errors before using `PerfCombatUiSignals.tscn` or Main-scene UI runs as clean validation evidence again.
+1. Resolve the current dirty stage-progress/layout work before using Main-scene arena bounds or broad visual UI smokes as clean validation evidence again.
+2. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 159 events are material; the UI no longer polls every actor every frame.
 3. Use `PerfLargeBoard.tscn` as the regression/stress gate before future movement changes above 6v6.
 4. Profile remaining `SlotStrategy.assign_for_target()` result dictionary churn only if larger-board stress shows slot payload construction is still material.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
