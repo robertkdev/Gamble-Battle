@@ -7,6 +7,8 @@ const HYST_STICKINESS := 0.05
 const HYST_SWITCH_COST := 0.1
 const SINGLE_CORRIDOR_EPS_FACTOR := 0.12
 const DP_ASSIGNMENT_LIMIT: int = 12
+const HUNGARIAN_PRUNE_MIN_SIZE: int = 10
+const HUNGARIAN_PRUNE_EPS: float = 0.0001
 
 static var _dp_masks_by_size: Dictionary = {}
 
@@ -114,6 +116,10 @@ static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dict
 
 static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
+	if n >= HUNGARIAN_PRUNE_MIN_SIZE and incumbent_cost < 1e29:
+		var min_possible_cost: float = _assignment_min_cost_hungarian(costs)
+		if min_possible_cost > incumbent_cost + HUNGARIAN_PRUNE_EPS:
+			return {"assignment": [], "cost": incumbent_cost}
 	var mask_count: int = 1 << n
 	var best_costs: Array[float] = []
 	var prev_cols: Array[int] = []
@@ -160,6 +166,71 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 		walk_mask = prev_masks[walk_mask]
 		write_row -= 1
 	return {"assignment": assignment, "cost": best_costs[final_mask]}
+
+static func _assignment_min_cost_hungarian(costs: Array) -> float:
+	var n: int = costs.size()
+	if n == 0:
+		return 0.0
+	var u: Array[float] = []
+	var v: Array[float] = []
+	var p: Array[int] = []
+	var way: Array[int] = []
+	u.resize(n + 1)
+	v.resize(n + 1)
+	p.resize(n + 1)
+	way.resize(n + 1)
+	u.fill(0.0)
+	v.fill(0.0)
+	p.fill(0)
+	way.fill(0)
+	var minv: Array[float] = []
+	var used: Array[bool] = []
+	minv.resize(n + 1)
+	used.resize(n + 1)
+	for i in range(1, n + 1):
+		p[0] = i
+		var j0: int = 0
+		minv.fill(1e30)
+		used.fill(false)
+		while true:
+			used[j0] = true
+			var i0: int = p[j0]
+			var row_costs: Array[float] = costs[i0 - 1]
+			var delta: float = 1e30
+			var j1: int = 0
+			for j in range(1, n + 1):
+				if used[j]:
+					continue
+				var current_cost: float = row_costs[j - 1] - u[i0] - v[j]
+				if current_cost < minv[j]:
+					minv[j] = current_cost
+					way[j] = j0
+				if minv[j] < delta:
+					delta = minv[j]
+					j1 = j
+			for j in range(0, n + 1):
+				if used[j]:
+					u[p[j]] += delta
+					v[j] -= delta
+				else:
+					minv[j] -= delta
+			j0 = j1
+			if p[j0] == 0:
+				break
+		while true:
+			var previous_j: int = way[j0]
+			p[j0] = p[previous_j]
+			j0 = previous_j
+			if j0 == 0:
+				break
+	var total_cost: float = 0.0
+	for j in range(1, n + 1):
+		var row_index: int = p[j] - 1
+		if row_index < 0 or row_index >= n:
+			continue
+		var assigned_row: Array[float] = costs[row_index]
+		total_cost += assigned_row[j - 1]
+	return total_cost
 
 static func _dp_masks_for_size(n: int) -> Array:
 	if _dp_masks_by_size.has(n):
