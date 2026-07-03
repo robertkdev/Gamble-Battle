@@ -42,10 +42,11 @@ static func _wrap_angle(a: float) -> float:
 		r += TAU
 	return r
 
-static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_slot_assignments: Dictionary, hysteresis_frames: int) -> Dictionary:
+static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_slot_assignments: Dictionary, hysteresis_frames: int, incumbent_cost: float = 1e30) -> Dictionary:
 	var rows: int = pairs.size()
 	var cols: int = ring_angles.size()
 	var costs: Array = []
+	var lower_bound: float = 0.0
 	for i in range(rows):
 		var row_cost: Array[float] = []
 		var entry: Dictionary = pairs[i]
@@ -56,6 +57,7 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		var frame_factor: float = 1.0
 		if hysteresis_frames > 0:
 			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
+		var row_min: float = 1e30
 		for j in range(cols):
 			var base_cost: float = _circ_dist(float(entry["angle"]), ring_angles[j])
 			if prev_slot == j and prev_frames > 0:
@@ -63,18 +65,23 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 			elif prev_slot != -1 and prev_slot != j and prev_frames > 0:
 				base_cost += HYST_SWITCH_COST * frame_factor
 			row_cost.append(base_cost)
+			if base_cost < row_min:
+				row_min = base_cost
+		lower_bound += row_min
+		if lower_bound >= incumbent_cost:
+			return {"assignment": [], "cost": incumbent_cost}
 		costs.append(row_cost)
-	return _best_assignment(costs)
+	return _best_assignment(costs, incumbent_cost)
 
-static func _best_assignment(costs: Array) -> Dictionary:
+static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
 	if n == 0:
 		return {"assignment": [], "cost": 0.0}
 	if n <= DP_ASSIGNMENT_LIMIT:
-		return _best_assignment_dp(costs)
+		return _best_assignment_dp(costs, incumbent_cost)
 	return _best_assignment_greedy(costs)
 
-static func _best_assignment_dp(costs: Array) -> Dictionary:
+static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
 	var mask_count: int = 1 << n
 	var best_costs: Array[float] = []
@@ -94,7 +101,7 @@ static func _best_assignment_dp(costs: Array) -> Dictionary:
 		for mask_value in row_masks:
 			var mask: int = int(mask_value)
 			var base_cost: float = best_costs[mask]
-			if base_cost >= 1e29:
+			if base_cost >= 1e29 or base_cost >= incumbent_cost:
 				continue
 			for col in range(n):
 				var bit: int = 1 << col
@@ -102,6 +109,8 @@ static func _best_assignment_dp(costs: Array) -> Dictionary:
 					continue
 				var next_mask: int = mask | bit
 				var candidate_cost: float = base_cost + float(row_costs[col])
+				if candidate_cost >= incumbent_cost:
+					continue
 				if candidate_cost < best_costs[next_mask]:
 					best_costs[next_mask] = candidate_cost
 					prev_cols[next_mask] = col
@@ -114,7 +123,7 @@ static func _best_assignment_dp(costs: Array) -> Dictionary:
 	while write_row >= 0:
 		var picked_col: int = prev_cols[walk_mask]
 		if picked_col < 0:
-			return _best_assignment_greedy(costs)
+			return {"assignment": [], "cost": incumbent_cost}
 		assignment[write_row] = picked_col
 		walk_mask = prev_masks[walk_mask]
 		write_row -= 1
@@ -223,7 +232,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 		var ring_angles: Array[float] = []
 		for s in range(count):
 			ring_angles.append(_wrap_angle(base + step * float(s)))
-		var assignment_eval: Dictionary = _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames)
+		var assignment_eval: Dictionary = _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames, best_cost)
 		var current_cost: float = float(assignment_eval.get("cost", 1e30))
 		if current_cost < best_cost:
 			best_cost = current_cost

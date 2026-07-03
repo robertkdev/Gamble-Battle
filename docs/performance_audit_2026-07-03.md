@@ -45,7 +45,13 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - total: `total_ms=2566`, same aggregate signature `5330865502362346199`, errors `[]`.
 - `tests/perf/PerfSlotStrategy.tscn` now reports repeated samples per case with median/p95/min/max. Latest sampled run kept aggregate signature `5330865502362346199`, errors `[]`: count 6 median `321ms` p95 `351ms`; count 12 median `5008ms` p95 `5154ms`; count 18 median `185ms` p95 `200ms`; count 24 median `254ms` p95 `275ms`; median total `5768ms`.
 - Rejected slot-solver experiments: on-demand assignment-cost calculation preserved signatures but regressed total time to `27570ms`; DP-buffer reuse alone preserved signatures but did not beat the committed solver under the noisy current run. Keep the current cost-matrix + DP implementation until a stronger algorithmic change is proven by the repeated-sample benchmark.
+- `tests/perf/PerfSlotStrategy.tscn` after exact bounded-DP pruning kept aggregate signature `5330865502362346199`, errors `[]`: count 6 median `67ms` p95 `72ms`; count 12 median `264ms` p95 `339ms`; count 18 median `86ms` p95 `118ms`; count 24 median `158ms` p95 `166ms`; median total `575ms`.
+- A behavior-changing order-preserving matcher experiment was rejected: it cut median total to `371ms`, but changed the 18/24-attacker signatures and changed `Perf6v6` burst from signature `5578449822537178089:232` / aggregate `4480953857527108889:18` to burst `8234090816251820645:232` / aggregate `-7790542692891220099:18`.
 - `tests/perf/Perf6v6.tscn` after slot-strategy optimization: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=12507`.
+- `tests/perf/Perf6v6.tscn` after exact bounded-DP pruning stayed stable with aggregate signature `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=14567`.
+- `tests/perf/PerfLargeBoard.tscn` after exact bounded-DP pruning stayed stable with aggregate signature `7144113503220431359:12`, inconsistent cases `0`, errors `[]`: 8v8 median `3230ms`, p95 `4252ms`; 12v12 median `3744ms`, p95 `4997ms`; total `16236ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after exact bounded-DP pruning: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=12320`.
+- `tests/perf/Perf1v1.tscn` after exact bounded-DP pruning kept signature `-6199507685307107293:55`, `frames=901`, `time_ms=563`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -94,6 +100,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Prevents factorial spikes as board sizes or same-target piles grow.
   - Follow-up optimization removed the factorial exact solver and uses the exact bitmask DP path for all groups up to 12 attackers.
   - DP masks are cached by group size and DP working arrays are bulk-initialized to reduce repeated setup cost.
+  - Exact bounded-DP pruning now skips base rotations whose row-min lower bound cannot beat the current best cost, and prunes DP states that cannot beat the same incumbent. This preserves previous assignment semantics while cutting the expensive 12-attacker measured case sharply.
 - `tests/perf/PerfSlotStrategy.gd`
   - Upgraded the benchmark to repeated samples per case with median/p95/min/max reporting so solver changes are not judged from a single noisy timing sample.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
