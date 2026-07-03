@@ -43,6 +43,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - count 18: `iterations=18`, `time_ms=107`, same signature `7774132243377850894`.
   - count 24: `iterations=12`, `time_ms=169`, same signature `9108547909708289276`.
   - total: `total_ms=2566`, same aggregate signature `5330865502362346199`, errors `[]`.
+- `tests/perf/PerfSlotStrategy.tscn` now reports repeated samples per case with median/p95/min/max. Latest sampled run kept aggregate signature `5330865502362346199`, errors `[]`: count 6 median `321ms` p95 `351ms`; count 12 median `5008ms` p95 `5154ms`; count 18 median `185ms` p95 `200ms`; count 24 median `254ms` p95 `275ms`; median total `5768ms`.
+- Rejected slot-solver experiments: on-demand assignment-cost calculation preserved signatures but regressed total time to `27570ms`; DP-buffer reuse alone preserved signatures but did not beat the committed solver under the noisy current run. Keep the current cost-matrix + DP implementation until a stronger algorithmic change is proven by the repeated-sample benchmark.
 - `tests/perf/Perf6v6.tscn` after slot-strategy optimization: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=12507`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
@@ -88,6 +90,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Prevents factorial spikes as board sizes or same-target piles grow.
   - Follow-up optimization removed the factorial exact solver and uses the exact bitmask DP path for all groups up to 12 attackers.
   - DP masks are cached by group size and DP working arrays are bulk-initialized to reduce repeated setup cost.
+- `tests/perf/PerfSlotStrategy.gd`
+  - Upgraded the benchmark to repeated samples per case with median/p95/min/max reporting so solver changes are not judged from a single noisy timing sample.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.

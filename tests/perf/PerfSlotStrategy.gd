@@ -2,6 +2,8 @@ extends Node
 
 const SlotStrategyScript: Script = preload("res://scripts/game/combat/movement/strategies/slot_strategy.gd")
 
+@export var samples_per_case: int = 2
+
 func _ready() -> void:
 	call_deferred("_run")
 
@@ -14,21 +16,47 @@ func _run() -> void:
 	]
 	var aggregate_signature: int = 17
 	var total_ms: int = 0
+	var sample_count: int = max(1, int(samples_per_case))
 	for case_data in cases:
 		var count: int = int(case_data.get("count", 0))
 		var iterations: int = int(case_data.get("iterations", 0))
-		var result: Dictionary = _run_case(count, iterations)
-		total_ms += int(result.get("time_ms", 0))
+		var result: Dictionary = _run_case(count, iterations, sample_count)
+		total_ms += int(result.get("median_ms", 0))
 		aggregate_signature = _mix(aggregate_signature, int(result.get("signature", 0)))
 		print("PerfSlotStrategy case=count_", count,
 			" iterations=", iterations,
-			" time_ms=", int(result.get("time_ms", 0)),
+			" samples=", sample_count,
+			" median_ms=", int(result.get("median_ms", 0)),
+			" p95_ms=", int(result.get("p95_ms", 0)),
+			" min_ms=", int(result.get("min_ms", 0)),
+			" max_ms=", int(result.get("max_ms", 0)),
 			" map_size=", int(result.get("map_size", 0)),
 			" signature=", int(result.get("signature", 0)))
-	print("PerfSlotStrategy: total_ms=", total_ms, " aggregate_sig=", aggregate_signature)
+	print("PerfSlotStrategy: median_total_ms=", total_ms, " aggregate_sig=", aggregate_signature)
 	get_tree().quit(0)
 
-func _run_case(count: int, iterations: int) -> Dictionary:
+func _run_case(count: int, iterations: int, sample_count: int) -> Dictionary:
+	var ms_values: Array[int] = []
+	var first_signature: int = 0
+	var map_size: int = 0
+	for sample_index in range(max(1, sample_count)):
+		var sample: Dictionary = _run_case_once(count, iterations)
+		ms_values.append(int(sample.get("time_ms", 0)))
+		if sample_index == 0:
+			first_signature = int(sample.get("signature", 0))
+			map_size = int(sample.get("map_size", 0))
+		elif int(sample.get("signature", 0)) != first_signature:
+			push_error("PerfSlotStrategy: inconsistent signature for count %d sample %d" % [count, sample_index])
+	return {
+		"median_ms": _percentile_int(ms_values, 0.50),
+		"p95_ms": _percentile_int(ms_values, 0.95),
+		"min_ms": _min_int(ms_values),
+		"max_ms": _max_int(ms_values),
+		"map_size": map_size,
+		"signature": first_signature
+	}
+
+func _run_case_once(count: int, iterations: int) -> Dictionary:
 	var target_pos: Vector2 = Vector2(512.0, 384.0)
 	var attackers: Array[int] = []
 	var attacker_positions: Array[Vector2] = []
@@ -67,6 +95,33 @@ func _run_case(count: int, iterations: int) -> Dictionary:
 		"map_size": last_map.size(),
 		"signature": _map_signature(last_map, guard_sum)
 	}
+
+func _percentile_int(values: Array[int], pct: float) -> int:
+	if values.is_empty():
+		return 0
+	var sorted_values: Array[int] = []
+	for value in values:
+		sorted_values.append(int(value))
+	sorted_values.sort()
+	var index: int = int(ceil(float(sorted_values.size()) * clampf(float(pct), 0.0, 1.0))) - 1
+	index = clampi(index, 0, sorted_values.size() - 1)
+	return int(sorted_values[index])
+
+func _min_int(values: Array[int]) -> int:
+	if values.is_empty():
+		return 0
+	var best: int = int(values[0])
+	for value in values:
+		best = min(best, int(value))
+	return best
+
+func _max_int(values: Array[int]) -> int:
+	if values.is_empty():
+		return 0
+	var best: int = int(values[0])
+	for value in values:
+		best = max(best, int(value))
+	return best
 
 func _map_signature(slot_map: Dictionary, guard_sum: int) -> int:
 	var signature: int = _mix(29, guard_sum)
