@@ -102,6 +102,11 @@ Output locations
 - When UIDs break, re-open/save scenes in the editor or batch-resave; MCP `update_project_uids` is available.
 - Autoload checks: follow `_has_autoload(...)` before calling singletons in tools/headless.
 
+## Generated Gothic UI Assets
+- The future-agent workflow for exact-size generated UI assets is `docs/art/ui_gothic_asset_workflow.md`.
+- Treat ImageGen as a texture/style pass only. Do not promote raw generated output directly into `assets/ui/gothic/`; recover candidates with deterministic bbox crop, exact resize, original alpha/shape mask, and dimension/nine-slice audits.
+- Wire UI frames through `scripts/ui/gothic_ui_assets.gd` as `StyleBoxTexture` helpers with flat fallbacks. Validate state variants with MCP visual scenes and compare against fresh full-game captures.
+
 ## Where Things Go
 - New systems: `scripts/game/<area>/...`
 - Utilities: `scripts/util/`
@@ -157,6 +162,7 @@ Output locations
 
 ## Quick Links
 - Shop docs: `docs/shop/README.md`
+- Gothic UI asset workflow: `docs/art/ui_gothic_asset_workflow.md`
 - Shop config: `scripts/game/shop/shop_config.gd`
 - Unit factory: `scripts/unit_factory.gd`
 - Unit stat audit: `tests/rga_testing/validation/UnitStatAudit.tscn`

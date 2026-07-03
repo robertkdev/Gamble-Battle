@@ -1,0 +1,99 @@
+# Gothic UI Asset Workflow
+
+This is the future-agent recipe for making Gamble Battle UI assets in the current generated gothic style. Use this before creating or replacing bottom bars, buttons, cards, panels, tooltips, and other exact-size GUI surfaces.
+
+## Current Production Assets
+
+Live generated UI assets are under `assets/ui/gothic/`:
+
+| Asset | Current canvas | Runtime helper |
+| --- | ---: | --- |
+| `panel_plate_wide.png` | `1120x238` | `GothicUIAssets.wide_panel_style()` |
+| `panel_plate_grid.png` | `1120x178` | `GothicUIAssets.grid_panel_style()` |
+| `shop_card_frame.png` | `150x138` | `GothicUIAssets.shop_card_style()` |
+| `button_primary.png` | `240x54` | `GothicUIAssets.primary_button_style()` |
+| `button_small.png` | `100x44` | `GothicUIAssets.small_button_style()` / `item_slot_style()` |
+
+The implementation hook is `scripts/ui/gothic_ui_assets.gd`. Runtime callers should use `StyleBoxTexture` through that helper and keep a flat fallback with `GothicUIAssets.style_or_fallback(...)`.
+
+## Working Rule
+
+Image generation is a texture/style pass, not the sizing authority.
+
+The tested result is consistent: even when ImageGen receives an exact calculated source outline, it may change canvas size, asset bbox, aspect ratio, or matte pixels. Do not put raw ImageGen output directly into `assets/ui/gothic/`.
+
+Production candidates must be recovered deterministically:
+
+1. Measure the in-game slot from current UI code, current Control rects, or a fresh full-game capture.
+2. Generate an exact outline/mask at the target canvas size, including the intended corner radius and nine-slice-safe border region.
+3. Send that outline to ImageGen only to paint the gothic texture language inside the intended shape.
+4. Detect the generated non-matte/nontransparent asset bbox.
+5. Crop and resize the generated texture back to the exact target canvas.
+6. Reapply the original calculated alpha mask or shape mask.
+7. Audit final dimensions, alpha edge, corner shape, and nine-slice margins before replacing any live asset.
+8. Wire it through `GothicUIAssets` and validate in live UI states.
+
+## Prompt Direction
+
+Keep prompts restrained enough for dense game UI:
+
+```text
+Paint only inside the provided exact UI outline. Keep the silhouette, corners, bevel width, and empty matte/alpha outside unchanged. Dark gothic tactics-game UI, blackened iron, charcoal stone, blood-red enamel, dull ember-gold worn trim, dry vellum/stone grain, low-sheen hand-painted texture, crisp readable bevels. No text, symbols, logos, extra holes, extra tabs, glowing effects, background scene, or changed aspect ratio.
+```
+
+Expect the model to ignore some geometry instructions. The deterministic mask/crop audit is what makes the asset usable.
+
+## Implementation Pattern
+
+Use generated frames as nine-slice style boxes:
+
+- `wide_panel_style()` for large plates, title panels, preview panels, loss panels, and broad bottom-bar backplates.
+- `grid_panel_style()` for medium panel interiors, command-strip plates, tooltips, and stat panels.
+- `shop_card_style()` for shop cards and large card-like buttons.
+- `primary_button_style()` for Start Battle, Start Game, New Game, and other primary calls to action.
+- `small_button_style()` for compact command buttons, tabs, menu buttons, and search fields.
+- `item_slot_style()` for tiny slots/chips/checkbox-like controls where the small button margins are too heavy.
+
+For button states, prefer one recovered asset plus `modulate_color` variants for `normal`, `hover`, `pressed`, `focus`, `selected`, and `disabled`. Generate separate files only when tinting cannot produce a readable state.
+
+## Validation Gates
+
+At minimum, run a scoped MCP visual/style gate after UI asset or styling changes:
+
+- `tests/visual/UIThemeSmoke.tscn` for combat/shop/bottom-bar styling.
+- `tests/visual/TitleMenuSmoke.tscn` and `tests/visual/TitleMenuStateCapture.tscn` for title/menu/search/settings states.
+- `tests/visual/UnitSelectSmoke.tscn` and `tests/visual/UnitSelectPreviewVisualSmoke.tscn` for starter selection states.
+- `tests/visual/LossScreenSmoke.tscn` for loss overlay and New Game states.
+- `tests/visual/VisionCaptureSmoke.tscn` for broad title, unit-select, combat, system-menu, shop, and unit-detail coverage.
+
+Prefer `godot-ai project_run` from an open editor for real viewport/framebuffer captures. Use the legacy Godot MCP runner as fallback when the editor is unavailable. After each run, inspect game/debug output and do not count project launch as proof.
+
+Expected screenshot artifacts from the latest accepted pass:
+
+- `outputs/vision_snapshots/title_menu_states/title_menu_states_viewport_contact_sheet_latest.png`
+- `outputs/vision_snapshots/smoke/vision_capture_viewport_contact_sheet_latest.png`
+- `outputs/visual_iter/unit_select_preview_pass/unit_select_states_contact_sheet_latest.png`
+- `outputs/visual_iter/loss_screen_pass/loss_screen_states_contact_sheet_latest.png`
+
+## Visual Review Checklist
+
+Before accepting a UI asset pass, compare against a current full-game screenshot and check:
+
+- Bottom shop bar uses an external backplate and is not collapsed inside a container child.
+- No stale overlay appears in the top-left or above the board.
+- Shop cards remain `150x138` and text/icons fit at normal, hover, and pressed states.
+- Primary buttons keep their target aspect and do not visibly stretch.
+- Small buttons and slots keep readable borders at tiny sizes.
+- Text is not occluded by ornate borders or bevels.
+- Focus/hover/pressed/disabled states are visually distinct without changing layout.
+- Tooltips and stat/detail panels still read as UI, not decorative art cards.
+- The alpha edge is clean: no green matte, orange fringe, or dark halo from the generation source.
+
+## Evidence Notes
+
+The proof reports behind this workflow are:
+
+- `docs/art/ui_shape_outline_imagegen_test_2026-07-03.md`
+- `docs/art/ui_asset_outline_imagegen_experiment_2026-07-03.md`
+
+Those reports show why raw ImageGen is not pixel-perfect and why exact-mask postprocessing is required. The accepted implementation commits after that proof are the generated gothic UI checkpoints, including the title menu, unit select, broad combat/shop surfaces, and loss screen states.
