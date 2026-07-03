@@ -28,6 +28,21 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/Perf1v1.tscn` after actor value caching: `time_ms=408`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf6v6.tscn` after UI refresh pass: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`. The run was wall-time noisy (`total_ms=24740`) and should be interpreted as a determinism/regression check, not a new simulation-speed baseline.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after UI refresh pass: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=10781`.
+- `tests/perf/PerfSlotStrategy.tscn` baseline before exact-solver optimization:
+  - count 6: `iterations=180`, `time_ms=2160`, signature `8275061979637129334`.
+  - count 12: `iterations=24`, `time_ms=2925`, signature `3289842425429315166`.
+  - count 18: `iterations=18`, `time_ms=95`, signature `7774132243377850894`.
+  - count 24: `iterations=12`, `time_ms=180`, signature `9108547909708289276`.
+  - total: `total_ms=5360`, aggregate signature `5330865502362346199`, errors `[]`.
+- `tests/perf/PerfSlotStrategy.tscn` after exact-solver optimization:
+  - count 6: `iterations=180`, `time_ms=137`, same signature `8275061979637129334`.
+  - count 12: `iterations=24`, `time_ms=2153`, same signature `3289842425429315166`.
+  - count 18: `iterations=18`, `time_ms=107`, same signature `7774132243377850894`.
+  - count 24: `iterations=12`, `time_ms=169`, same signature `9108547909708289276`.
+  - total: `total_ms=2566`, same aggregate signature `5330865502362346199`, errors `[]`.
+- `tests/perf/Perf6v6.tscn` after slot-strategy optimization: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=12507`.
+- `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 
 ## Changes Made
 
@@ -49,8 +64,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/movement/movement_service2.gd`
   - Reuses per-frame alive, target, step-cap, group, and previous-slot scratch buffers across movement updates.
 - `scripts/game/combat/movement/strategies/slot_strategy.gd`
-  - Bounded grouped slot assignment: small groups keep exact permutation, medium groups use exact bitmask DP, oversized groups use deterministic greedy fallback.
+  - Bounded grouped slot assignment: groups up to 12 attackers use exact bitmask DP, oversized groups use deterministic greedy fallback.
   - Prevents factorial spikes as board sizes or same-target piles grow.
+  - Follow-up optimization removed the factorial exact solver and uses the exact bitmask DP path for all groups up to 12 attackers.
+  - DP masks are cached by group size and DP working arrays are bulk-initialized to reduce repeated setup cost.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.
@@ -77,7 +94,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 1. Combat movement is the primary optimization surface.
    - `MovementService2._update_impl()` computes alive flags, target groups, slot maps, steering, avoidance, and collision resolution every simulation step.
-   - The largest obvious per-frame buffer rebuilds are now handled, but `SlotStrategy.assign_for_target()` still creates per-target dictionaries and result payloads.
+   - The largest obvious per-frame buffer rebuilds are now handled, and the exact slot solver no longer uses factorial permutation search.
+   - `SlotStrategy.assign_for_target()` still creates per-target dictionaries and result payloads; this is now a lower-priority cleanup than higher-level movement/position signal behavior unless larger-board stress coverage shows it dominates again.
 
 2. Targeting does meaningful per-candidate scoring.
    - `Targeting.pick_by_priority()` walks live enemies and may score ally peel pressure and nearby units.
@@ -98,8 +116,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 1. Evaluate player-facing `position_updated` coalescing/throttling. Keep motion smoothness checks in the loop; this is a visual optimization, not just a signal-count target.
 2. Add a small shared texture/fallback cache in `TextureUtils` if shop, stats panel, trait icon, or title/menu captures show repeated texture generation/load pressure beyond combat actor/unit views.
-3. Profile `SlotStrategy.assign_for_target()` result dictionary churn under larger or forced same-target boards.
-4. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded but not deeply tuned.
+3. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded and the exact solver is faster, but not yet deeply tuned for game sizes above 12.
+4. Profile remaining `SlotStrategy.assign_for_target()` result dictionary churn only if larger-board stress shows slot payload construction is still material.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 
 ## Guardrails

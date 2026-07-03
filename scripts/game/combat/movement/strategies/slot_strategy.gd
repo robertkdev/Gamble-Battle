@@ -6,8 +6,9 @@ const TAU := PI * 2.0
 const HYST_STICKINESS := 0.05
 const HYST_SWITCH_COST := 0.1
 const SINGLE_CORRIDOR_EPS_FACTOR := 0.12
-const FACTORIAL_ASSIGNMENT_LIMIT: int = 7
 const DP_ASSIGNMENT_LIMIT: int = 12
+
+static var _dp_masks_by_size: Dictionary = {}
 
 # Computes per-attacker slot destinations around their chosen targets.
 # Five evenly spaced slots per target, order-preserving assignment to avoid
@@ -69,20 +70,9 @@ static func _best_assignment(costs: Array) -> Dictionary:
 	var n: int = costs.size()
 	if n == 0:
 		return {"assignment": [], "cost": 0.0}
-	if n <= FACTORIAL_ASSIGNMENT_LIMIT:
-		return _best_assignment_permuted(costs)
 	if n <= DP_ASSIGNMENT_LIMIT:
 		return _best_assignment_dp(costs)
 	return _best_assignment_greedy(costs)
-
-static func _best_assignment_permuted(costs: Array) -> Dictionary:
-	var n: int = costs.size()
-	var indices: Array[int] = []
-	for i in range(n):
-		indices.append(i)
-	var best: Array = [1e30, []]
-	_permute_assign(indices, 0, costs, best)
-	return {"assignment": (best[1] as Array).duplicate(), "cost": float(best[0])}
 
 static func _best_assignment_dp(costs: Array) -> Dictionary:
 	var n: int = costs.size()
@@ -90,29 +80,32 @@ static func _best_assignment_dp(costs: Array) -> Dictionary:
 	var best_costs: Array[float] = []
 	var prev_cols: Array[int] = []
 	var prev_masks: Array[int] = []
-	for _i in range(mask_count):
-		best_costs.append(1e30)
-		prev_cols.append(-1)
-		prev_masks.append(-1)
+	best_costs.resize(mask_count)
+	prev_cols.resize(mask_count)
+	prev_masks.resize(mask_count)
+	best_costs.fill(1e30)
+	prev_cols.fill(-1)
+	prev_masks.fill(-1)
 	best_costs[0] = 0.0
-	for mask in range(mask_count):
-		var row: int = _bit_count(mask)
-		if row >= n:
-			continue
-		var base_cost: float = best_costs[mask]
-		if base_cost >= 1e29:
-			continue
+	var masks_by_row: Array = _dp_masks_for_size(n)
+	for row in range(n):
+		var row_masks: Array = masks_by_row[row]
 		var row_costs: Array = costs[row]
-		for col in range(n):
-			var bit: int = 1 << col
-			if (mask & bit) != 0:
+		for mask_value in row_masks:
+			var mask: int = int(mask_value)
+			var base_cost: float = best_costs[mask]
+			if base_cost >= 1e29:
 				continue
-			var next_mask: int = mask | bit
-			var candidate_cost: float = base_cost + float(row_costs[col])
-			if candidate_cost < best_costs[next_mask]:
-				best_costs[next_mask] = candidate_cost
-				prev_cols[next_mask] = col
-				prev_masks[next_mask] = mask
+			for col in range(n):
+				var bit: int = 1 << col
+				if (mask & bit) != 0:
+					continue
+				var next_mask: int = mask | bit
+				var candidate_cost: float = base_cost + float(row_costs[col])
+				if candidate_cost < best_costs[next_mask]:
+					best_costs[next_mask] = candidate_cost
+					prev_cols[next_mask] = col
+					prev_masks[next_mask] = mask
 	var final_mask: int = mask_count - 1
 	var assignment: Array[int] = []
 	assignment.resize(n)
@@ -126,6 +119,27 @@ static func _best_assignment_dp(costs: Array) -> Dictionary:
 		walk_mask = prev_masks[walk_mask]
 		write_row -= 1
 	return {"assignment": assignment, "cost": best_costs[final_mask]}
+
+static func _dp_masks_for_size(n: int) -> Array:
+	if _dp_masks_by_size.has(n):
+		return _dp_masks_by_size[n]
+	var masks_by_row: Array = []
+	for _row in range(n + 1):
+		masks_by_row.append([])
+	var mask_count: int = 1 << n
+	for mask in range(mask_count):
+		var row: int = _bit_count(mask)
+		(masks_by_row[row] as Array).append(mask)
+	_dp_masks_by_size[n] = masks_by_row
+	return masks_by_row
+
+static func _bit_count(value: int) -> int:
+	var count: int = 0
+	var bits: int = value
+	while bits > 0:
+		bits = bits & (bits - 1)
+		count += 1
+	return count
 
 static func _best_assignment_greedy(costs: Array) -> Dictionary:
 	var n: int = costs.size()
@@ -153,35 +167,6 @@ static func _best_assignment_greedy(costs: Array) -> Dictionary:
 			used[best_col] = true
 		total_cost += best_cost
 	return {"assignment": assignment, "cost": total_cost}
-
-static func _bit_count(value: int) -> int:
-	var count: int = 0
-	var bits: int = value
-	while bits > 0:
-		bits = bits & (bits - 1)
-		count += 1
-	return count
-
-static func _permute_assign(indices: Array[int], start: int, costs: Array, best: Array) -> void:
-	var n: int = indices.size()
-	if start >= n:
-		var current_cost: float = 0.0
-		for r in range(n):
-			current_cost += float((costs[r] as Array)[indices[r]])
-			if current_cost >= float(best[0]):
-				break
-		if current_cost < float(best[0]):
-			best[0] = current_cost
-			best[1] = indices.duplicate()
-		return
-	for i in range(start, n):
-		var tmp: int = indices[start]
-		indices[start] = indices[i]
-		indices[i] = tmp
-		_permute_assign(indices, start + 1, costs, best)
-		tmp = indices[start]
-		indices[start] = indices[i]
-		indices[i] = tmp
 
 # Assigns slots for a single target; attackers is an Array[int] of indices into
 # attacker_positions and attacker_ranges_world (Dictionary idx->float).
