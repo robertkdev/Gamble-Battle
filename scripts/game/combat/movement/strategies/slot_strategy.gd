@@ -53,9 +53,13 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		var row_cost: Array[float] = []
 		var entry: Dictionary = pairs[i]
 		var idx: int = int(entry["idx"])
-		var prev: Dictionary = prev_slot_assignments.get(idx, {})
-		var prev_slot: int = int(prev.get("slot", -1))
-		var prev_frames: int = int(prev.get("frames", 0))
+		var prev_slot: int = -1
+		var prev_frames: int = 0
+		var prev_value: Variant = prev_slot_assignments.get(idx)
+		if prev_value is Dictionary:
+			var prev: Dictionary = prev_value
+			prev_slot = int(prev.get("slot", -1))
+			prev_frames = int(prev.get("frames", 0))
 		var frame_factor: float = 1.0
 		if hysteresis_frames > 0:
 			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
