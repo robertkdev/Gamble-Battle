@@ -52,6 +52,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfLargeBoard.tscn` after exact bounded-DP pruning stayed stable with aggregate signature `7144113503220431359:12`, inconsistent cases `0`, errors `[]`: 8v8 median `3230ms`, p95 `4252ms`; 12v12 median `3744ms`, p95 `4997ms`; total `16236ms`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after exact bounded-DP pruning: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=12320`.
 - `tests/perf/Perf1v1.tscn` after exact bounded-DP pruning kept signature `-6199507685307107293:55`, `frames=901`, `time_ms=563`, errors `[]`.
+- `tests/perf/Perf6v6.tscn` after arena target-resolver fast path stayed stable with aggregate signature `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=14374`.
+- `tests/perf/PerfLargeBoard.tscn` after arena target-resolver fast path stayed stable with aggregate signature `7144113503220431359:12`, inconsistent cases `0`, errors `[]`: 8v8 median `3157ms`, p95 `4110ms`; 12v12 median `3852ms`, p95 `4268ms`; total `15401ms`.
+- `tests/perf/Perf1v1.tscn` after arena target-resolver fast path kept signature `-6199507685307107293:55`, `frames=901`, `time_ms=425`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -101,6 +104,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Follow-up optimization removed the factorial exact solver and uses the exact bitmask DP path for all groups up to 12 attackers.
   - DP masks are cached by group size and DP working arrays are bulk-initialized to reduce repeated setup cost.
   - Exact bounded-DP pruning now skips base rotations whose row-min lower bound cannot beat the current best cost, and prunes DP states that cannot beat the same incumbent. This preserves previous assignment semantics while cutting the expensive 12-attacker measured case sharply.
+- `scripts/game/combat/systems/target_controller.gd`
+  - `resolver_for_arena()` now returns a live cached target directly when the stored target is still valid, falling back to the full `current_target()` path only for stale, missing, or dead targets.
+  - This avoids per-frame movement resolver overhead from repeated target-array sync/recursion-guard work in the common live-target case.
 - `tests/perf/PerfSlotStrategy.gd`
   - Upgraded the benchmark to repeated samples per case with median/p95/min/max reporting so solver changes are not judged from a single noisy timing sample.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`

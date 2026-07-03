@@ -94,6 +94,14 @@ func refresh_live_targets() -> void:
 			refresh_target("enemy", j)
 
 func _resolve_for_arena(team: String, shooter_index: int) -> int:
+	if not state or shooter_index < 0:
+		return -1
+	var targets: Array[int] = _targets_for(team)
+	if shooter_index >= targets.size():
+		return current_target(team, shooter_index)
+	var idx: int = int(targets[shooter_index])
+	if _is_target_alive(team, idx):
+		return idx
 	return current_target(team, shooter_index)
 
 func _sync_arrays() -> void:
@@ -125,7 +133,7 @@ func _select_target(team: String, shooter_index: int) -> int:
 	var enemy_team: Array[Unit] = _enemy_team_for(team)
 	var enemy_team_name: String = _enemy_team_name(team)
 	if selector.is_valid():
-		var result = selector.call(team, shooter_index, enemy_team_name)
+		var result: Variant = selector.call(team, shooter_index, enemy_team_name)
 		if typeof(result) == TYPE_INT:
 			var idx: int = int(result)
 			if BattleState.is_target_alive(enemy_team, idx):
