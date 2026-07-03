@@ -49,6 +49,12 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 	var cols: int = ring_angles.size()
 	var costs: Array = []
 	costs.resize(rows)
+	var unique_min_assignment: Array[int] = []
+	var used_min_cols: Array[bool] = []
+	unique_min_assignment.resize(rows)
+	used_min_cols.resize(cols)
+	used_min_cols.fill(false)
+	var unique_minima_usable: bool = true
 	var lower_bound: float = 0.0
 	for i in range(rows):
 		var row_cost: Array[float] = []
@@ -67,6 +73,8 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
 		var entry_angle: float = float(entry["angle"])
 		var row_min: float = 1e30
+		var row_min_col: int = -1
+		var row_min_ties: int = 0
 		for j in range(cols):
 			var base_cost: float = abs(entry_angle - ring_angles[j])
 			if base_cost > PI:
@@ -78,10 +86,22 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 			row_cost[j] = base_cost
 			if base_cost < row_min:
 				row_min = base_cost
+				row_min_col = j
+				row_min_ties = 1
+			elif base_cost == row_min:
+				row_min_ties += 1
+		if unique_minima_usable:
+			if row_min_col < 0 or row_min_ties != 1 or used_min_cols[row_min_col]:
+				unique_minima_usable = false
+			else:
+				used_min_cols[row_min_col] = true
+				unique_min_assignment[i] = row_min_col
 		lower_bound += row_min
 		if lower_bound >= incumbent_cost:
 			return {"assignment": [], "cost": incumbent_cost}
 		costs[i] = row_cost
+	if unique_minima_usable:
+		return {"assignment": unique_min_assignment, "cost": lower_bound}
 	return _best_assignment(costs, incumbent_cost)
 
 static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
