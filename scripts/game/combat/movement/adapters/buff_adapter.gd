@@ -11,6 +11,9 @@ var buff_system: BuffSystem = null
 func configure(_buff_system: BuffSystem) -> void:
     buff_system = _buff_system
 
+func has_movement_blockers() -> bool:
+    return buff_system != null and buff_system.has_movement_blockers()
+
 func is_blocked(state: BattleState, team: String, idx: int) -> bool:
     if buff_system == null or state == null:
         return false

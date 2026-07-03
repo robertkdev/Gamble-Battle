@@ -418,6 +418,23 @@ func is_stunned(u: Unit) -> bool:
 			return true
 	return false
 
+func has_movement_blockers() -> bool:
+	if _buffs.is_empty():
+		return false
+	for u in _buffs.keys():
+		var arr: Array = _buffs[u]
+		for b in arr:
+			if float(b.get("remaining", 0.0)) <= 0.0:
+				continue
+			var kind: String = String(b.get("kind", ""))
+			if kind == "stun":
+				return true
+			if kind == "tag":
+				var tag_name: String = String(b.get("tag", ""))
+				if tag_name == "root" or tag_name == "rooted":
+					return true
+	return false
+
 # === Stacks API ===
 
 func add_stack(state: BattleState, team: String, index: int, key: String, delta: int, per_stack_fields: Dictionary = {}) -> Dictionary:

@@ -290,6 +290,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		diag_phase_start = _diag_mark_phase("caps", diag_phase_start)
 
 	# (Potential fast path for 1v1 removed pending further validation)
+	var movement_blockers_active: bool = buff_adapter.has_movement_blockers()
 
 	# Player side
 	var forced_has_player_impulses: bool = forced.has_any()
@@ -327,7 +328,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		if forced_has_player_impulses and forced.has_active("player", i):
 			step = forced.consume_step("player", i, delta)
-		elif buff_adapter.is_blocked(state, "player", i):
+		elif movement_blockers_active and buff_adapter.is_blocked(state, "player", i):
 			step = Vector2.ZERO
 		else:
 			var prof: MovementProfile = _profile_for("player", i)
@@ -412,7 +413,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		if forced_has_enemy_impulses and forced.has_active("enemy", j):
 			step2 = forced.consume_step("enemy", j, delta)
-		elif buff_adapter.is_blocked(state, "enemy", j):
+		elif movement_blockers_active and buff_adapter.is_blocked(state, "enemy", j):
 			step2 = Vector2.ZERO
 		else:
 			var prof2: MovementProfile = _profile_for("enemy", j)
