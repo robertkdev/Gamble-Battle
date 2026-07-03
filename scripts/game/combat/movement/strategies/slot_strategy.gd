@@ -184,23 +184,12 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 	if attackers == null or attackers.size() == 0:
 		return res
 
-	var pairs: Array = [] # [{"idx":int,"angle":float,"pos":Vector2}]
-	for attacker_idx in attackers:
-		var pos: Vector2 = attacker_positions[attacker_idx]
-		var ang: float = _angle_to(target_pos, pos)
-		pairs.append({
-			"idx": int(attacker_idx),
-			"angle": ang,
-			"pos": pos
-		})
-	pairs.sort_custom(func(a, b): return a["angle"] < b["angle"])
-
 	var min_spacing_world: float = max(0.0, tile_size) * 0.7
-
-	if pairs.size() == 1:
-		var single: Dictionary = pairs[0]
-		var idx_single: int = int(single["idx"])
-		var dir_single: Vector2 = (single["pos"] - target_pos).normalized()
+	if attackers.size() == 1:
+		var idx_single: int = int(attackers[0])
+		var pos_single: Vector2 = attacker_positions[idx_single]
+		var angle_single: float = _angle_to(target_pos, pos_single)
+		var dir_single: Vector2 = (pos_single - target_pos).normalized()
 		if dir_single == Vector2.ZERO:
 			dir_single = Vector2.UP
 		var desired_single: float = float(attacker_ranges_world.get(idx_single, 0.0))
@@ -210,7 +199,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 		res[idx_single] = {
 			"position": slot_pos_single,
 			"slot_index": 0,
-			"angle": float(single["angle"]),
+			"angle": angle_single,
 			"mode": "los_arrive",
 			"slow_radius": max(desired_single * 1.5, tile_size),
 			"corridor_radius": max(desired_single, tile_size * 0.9),
@@ -218,26 +207,36 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 		}
 		return res
 
+	var pairs: Array = [] # [{"idx":int,"angle":float}]
+	for attacker_idx in attackers:
+		var pos: Vector2 = attacker_positions[attacker_idx]
+		var ang: float = _angle_to(target_pos, pos)
+		pairs.append({
+			"idx": int(attacker_idx),
+			"angle": ang
+		})
+	pairs.sort_custom(func(a, b): return a["angle"] < b["angle"])
+
 	var count: int = pairs.size()
 	var step: float = TAU / float(count)
-	var candidates: Array[float] = []
-	for entry in pairs:
-		candidates.append(float(entry["angle"]))
 
 	var best_assignment: Array[int] = []
-	var best_ring_angles: Array[float] = []
+	var best_base: float = 0.0
 	var best_cost: float = 1e30
+	var ring_angles: Array[float] = []
+	ring_angles.resize(count)
 
-	for base in candidates:
-		var ring_angles: Array[float] = []
+	for base_entry in pairs:
+		var base_dict: Dictionary = base_entry
+		var base: float = float(base_dict["angle"])
 		for s in range(count):
-			ring_angles.append(_wrap_angle(base + step * float(s)))
+			ring_angles[s] = _wrap_angle(base + step * float(s))
 		var assignment_eval: Dictionary = _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames, best_cost)
 		var current_cost: float = float(assignment_eval.get("cost", 1e30))
 		if current_cost < best_cost:
 			best_cost = current_cost
 			best_assignment = assignment_eval.get("assignment", []).duplicate()
-			best_ring_angles = ring_angles.duplicate()
+			best_base = base
 	if best_assignment.is_empty():
 		return res
 
@@ -250,7 +249,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 		var entry2: Dictionary = pairs[i]
 		var attacker_index: int = int(entry2["idx"])
 		var slot_index: int = int(best_assignment[i])
-		var slot_angle: float = best_ring_angles[slot_index]
+		var slot_angle: float = _wrap_angle(best_base + step * float(slot_index))
 		var desired_r: float = float(attacker_ranges_world.get(attacker_index, 0.0))
 		var radius_world: float = max(desired_r, min_required_radius)
 		var dir_slot: Vector2 = Vector2(cos(slot_angle), sin(slot_angle))

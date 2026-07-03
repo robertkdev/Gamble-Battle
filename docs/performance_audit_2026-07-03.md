@@ -63,6 +63,12 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - 12v12 large: signature `3567836549670627538:428`, movement frames `258`, target calls/skips `4806/1386`, movement `3390020us`, top phases slot assignment `3060889us` (`90.3%`), player steps `159847us` (`4.7%`), enemy steps `71479us` (`2.1%`).
 - Rejected exact-assignment experiments from the profiler pass: a direct Hungarian assignment path improved focused `PerfSlotStrategy` timing but changed real combat signatures; a Hungarian-bounded DP path restored signatures but regressed real 12v12 movement profiling (`slot_assign=3919580us`, `movement=4274289us`). Both were reverted; keep the current bounded-DP implementation until a tie-preserving algorithm proves faster in real movement profiling.
 - Normal diagnostics-off validation after adding the profiler stayed stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=13485`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `frames=901`, `time_ms=474`, errors `[]`.
+- `tests/perf/PerfSlotStrategy.tscn` after slot allocation cleanup kept aggregate signature `5330865502362346199`, errors `[]`: count 6 median `84ms`, count 12 median `290ms`, count 18 median `87ms`, count 24 median `172ms`, median total `633ms`. A second intermediate run with compact pair arrays also preserved signatures but was rejected because real movement profiling was worse than the simpler cleanup.
+- `tests/perf/PerfMovementPhases.tscn` after slot allocation cleanup kept signatures and errors `[]`:
+  - 6v6 neutral repeat: signature `-3997862279252171970:232`, movement `494663us`, slot assignment `193785us` (`39.2%`).
+  - 12v12 large repeat: signature `3567836549670627538:428`, movement `3312307us`, slot assignment `3007506us` (`90.8%`).
+- Diagnostics-off validation after slot allocation cleanup stayed stable and improved the current noisy samples: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=12090`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3107ms`, 12v12 median `3364ms`, total `13907ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=361`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7400`.
+- Rejected DP/pair experiments from the slot cleanup pass: remaining-row lower-bound DP pruning preserved signatures but regressed 12v12 movement profiling (`slot_assign=3841898us`, `movement=4227305us`), and compact `[index, angle]` pairs preserved signatures but regressed real profiling versus the simpler cleanup. Both were reverted.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -112,6 +118,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Follow-up optimization removed the factorial exact solver and uses the exact bitmask DP path for all groups up to 12 attackers.
   - DP masks are cached by group size and DP working arrays are bulk-initialized to reduce repeated setup cost.
   - Exact bounded-DP pruning now skips base rotations whose row-min lower bound cannot beat the current best cost, and prunes DP states that cannot beat the same incumbent. This preserves previous assignment semantics while cutting the expensive 12-attacker measured case sharply.
+  - Slot allocation cleanup now short-circuits the single-attacker case before building/sorting pairs, omits unused position data from multi-attacker pair dictionaries, reuses the per-base ring-angle array, and recomputes the winning slot angle from the winning base instead of duplicating the ring-angle array.
 - `scripts/game/combat/systems/target_controller.gd`
   - `resolver_for_arena()` now returns a live cached target directly when the stored target is still valid, falling back to the full `current_target()` path only for stale, missing, or dead targets.
   - This avoids per-frame movement resolver overhead from repeated target-array sync/recursion-guard work in the common live-target case.
@@ -183,7 +190,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 1. Combat movement is the primary optimization surface.
    - `MovementService2._update_impl()` computes alive flags, target groups, slot maps, steering, avoidance, and collision resolution every simulation step.
    - The largest obvious per-frame buffer rebuilds are now handled, and the exact slot solver no longer uses factorial permutation search.
-   - `PerfMovementPhases.tscn` now proves `SlotStrategy.assign_for_target()` / slot assignment dominates the 12v12 movement profile at roughly `90%` of measured movement time. Treat slot assignment as the next primary optimization surface, but preserve real-combat signatures; direct Hungarian assignment changed behavior, and Hungarian-bounded DP was slower in the real profiler.
+   - `PerfMovementPhases.tscn` now proves `SlotStrategy.assign_for_target()` / slot assignment dominates the 12v12 movement profile at roughly `90%` of measured movement time. Slot allocation cleanup helped broad diagnostics-off large-board timing, but slot assignment remains the next primary optimization surface. Preserve real-combat signatures; direct Hungarian assignment changed behavior, Hungarian-bounded DP was slower in the real profiler, and lower-bound DP pruning was also slower.
 
 2. Targeting does meaningful per-candidate scoring.
    - `Targeting.pick_by_priority()` walks live enemies and may score ally peel pressure and nearby units.
