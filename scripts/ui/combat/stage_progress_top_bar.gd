@@ -1,6 +1,8 @@
 extends PanelContainer
 class_name StageProgressTopBar
 
+const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
+
 const ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
 const BAR_MIN_SIZE: Vector2 = Vector2(560.0, 66.0)
 const SELECTED_TEXTURE_PATHS: PackedStringArray = [
@@ -38,7 +40,7 @@ func update_progress(chapter: int, stage_in_chapter: int, total_stages: int) -> 
 	var safe_chapter: int = max(1, int(chapter))
 	var safe_total: int = clampi(int(total_stages), 1, SELECTED_TEXTURE_PATHS.size())
 	var safe_stage: int = clampi(int(stage_in_chapter), 1, safe_total)
-	_chapter_label.text = "Chapter %d" % safe_chapter
+	_chapter_label.text = ChapterCatalog.display_name_for(safe_chapter)
 	for index: int in range(_icons.size()):
 		var icon: TextureRect = _icons[index]
 		var stage_number: int = index + 1

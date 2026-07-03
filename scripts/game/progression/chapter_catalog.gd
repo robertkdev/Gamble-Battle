@@ -29,7 +29,7 @@ static func get_meta_for(ch: int) -> Dictionary:
 		c = 1
 	var meta: Dictionary = _chapters.get(c, {})
 	var out: Dictionary = {}
-	out["name"] = String(meta.get("name", "Chapter %d" % c))
+	out["name"] = String(meta.get("name", display_name_for(c)))
 	if meta.has("stages"):
 		out["stages"] = int(meta["stages"])
 	if meta.has("default_rule_id"):
@@ -54,5 +54,20 @@ static func stages_in(ch: int) -> int:
 static func chapter_count() -> int:
 	return int(ProgressionConfig.CHAPTER_COUNT)
 
+static func authored_chapter_count() -> int:
+	return int(ProgressionConfig.AUTHORED_CHAPTER_COUNT)
+
 static func is_authored_chapter(ch: int) -> bool:
-	return int(ch) >= 1 and int(ch) <= chapter_count()
+	return int(ch) >= 1 and int(ch) <= authored_chapter_count()
+
+static func is_endless_chapter(ch: int) -> bool:
+	return int(ch) >= int(ProgressionConfig.ENDLESS_START_CHAPTER)
+
+static func endless_chapter_index(ch: int) -> int:
+	return max(1, int(ch) - authored_chapter_count())
+
+static func display_name_for(ch: int) -> String:
+	var c: int = max(1, int(ch))
+	if is_endless_chapter(c):
+		return "Endless %d" % endless_chapter_index(c)
+	return "Chapter %d" % c

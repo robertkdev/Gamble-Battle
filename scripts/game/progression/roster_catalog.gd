@@ -6,12 +6,19 @@ const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
 const ProgressionConfig := preload("res://scripts/game/progression/progression_config.gd")
 const RgaStageChallengeDirector := preload("res://scripts/game/progression/rga_stage_challenge_director.gd")
+const EndlessChapterGenerator := preload("res://scripts/game/progression/endless_chapter_generator.gd")
 
 # Single source of truth for enemy stage composition.
 # Current pattern for authored chapters:
 # 1 CREEPS, 2 NORMAL RGA puzzle, 3 NORMAL RGA puzzle, 4 BOSS, 5 MIRROR.
 # Chapters 1-10 are authored; normal rounds are selected from bounded RGA puzzle
-# pools at runtime and cached so preview and battle match.
+# pools at runtime and cached so preview and battle match. Chapters after the
+# authored campaign are generated and cached here so preview and battle use the
+# same procedural board.
+
+static var _endless_seed: int = 0
+static var _endless_state: Dictionary = {}
+static var _endless_spec_cache: Dictionary = {}
 
 static var _entries: Dictionary = {
 	1: {
@@ -77,10 +84,17 @@ const DEFAULT_CREEP_REWARDS: Dictionary = {
 
 static func clear_runtime() -> void:
 	RgaStageChallengeDirector.clear_runtime(true)
+	_reset_endless_runtime(true)
+
+static func set_endless_seed(seed: int) -> void:
+	_endless_seed = int(seed)
+	_reset_endless_runtime(false)
 
 static func get_spec(ch: int, sic: int) -> Dictionary:
 	var c: int = max(1, int(ch))
 	var s: int = clampi(max(1, int(sic)), 1, int(ChapterCatalog.stages_in(c)))
+	if ChapterCatalog.is_endless_chapter(c):
+		return _get_endless_spec(c, s)
 	var stage_map: Dictionary = _entries.get(c, {})
 	if stage_map.has(s):
 		var raw_value: Variant = stage_map[s]
@@ -160,3 +174,53 @@ static func _default_ids_for(_ch: int, _sic: int, kind: String) -> Array[String]
 	if normalized_kind == StageTypes.KIND_MIRROR:
 		return []
 	return ["bonko"]
+
+static func _get_endless_spec(chapter: int, stage_index: int) -> Dictionary:
+	_ensure_endless_seed()
+	_ensure_endless_generated_through(chapter)
+	var key: String = _endless_key(chapter, stage_index)
+	if _endless_spec_cache.has(key) and typeof(_endless_spec_cache[key]) == TYPE_DICTIONARY:
+		var cached: Dictionary = _endless_spec_cache[key]
+		return cached.duplicate(true)
+	var generated: Dictionary = EndlessChapterGenerator.get_spec(chapter, stage_index, _endless_seed, _endless_state)
+	_endless_spec_cache[key] = generated.duplicate(true)
+	return generated.duplicate(true)
+
+static func _ensure_endless_generated_through(target_chapter: int) -> void:
+	_ensure_endless_state()
+	var next_chapter: int = int(_endless_state.get("next_chapter", int(ProgressionConfig.ENDLESS_START_CHAPTER)))
+	var target: int = max(int(ProgressionConfig.ENDLESS_START_CHAPTER), int(target_chapter))
+	while next_chapter <= target:
+		for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
+			var spec: Dictionary = EndlessChapterGenerator.get_spec(next_chapter, stage_index, _endless_seed, _endless_state)
+			_endless_spec_cache[_endless_key(next_chapter, stage_index)] = spec.duplicate(true)
+		next_chapter += 1
+		_endless_state["next_chapter"] = next_chapter
+
+static func _reset_endless_runtime(randomize_seed: bool) -> void:
+	_endless_spec_cache.clear()
+	_endless_state = {
+		"recent_signatures": [],
+		"next_chapter": int(ProgressionConfig.ENDLESS_START_CHAPTER),
+	}
+	if randomize_seed or _endless_seed == 0:
+		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+		rng.randomize()
+		_endless_seed = int(rng.randi())
+	EndlessChapterGenerator.clear_cache()
+
+static func _ensure_endless_seed() -> void:
+	if _endless_seed != 0:
+		return
+	_endless_seed = int(ProgressionConfig.ENDLESS_DEFAULT_SEED)
+
+static func _ensure_endless_state() -> void:
+	if _endless_state.is_empty():
+		_reset_endless_runtime(false)
+	if not _endless_state.has("recent_signatures") or not (_endless_state["recent_signatures"] is Array):
+		_endless_state["recent_signatures"] = []
+	if not _endless_state.has("next_chapter"):
+		_endless_state["next_chapter"] = int(ProgressionConfig.ENDLESS_START_CHAPTER)
+
+static func _endless_key(chapter: int, stage_index: int) -> String:
+	return "%d:%d" % [int(chapter), int(stage_index)]
