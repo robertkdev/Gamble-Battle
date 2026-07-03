@@ -161,6 +161,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Rejected runtime angle-omission experiment: omitting the slot `angle` field from normal team assignment preserved signatures, but regressed 12v12 movement profiling to slot assignment `2790166us` / movement `3106710us`, so it was reverted.
 - Rejected exact DP hot-loop rewrite: replacing the cost-matrix and DP `range()` loops with ordered `while` loops preserved `PerfSlotTeamAssignment.tscn` aggregate signature `2813605715628331077`, but regressed the fresh `single_12` focused control from `3111ms` to `3574ms`, so it was reverted.
 - Rejected DP predecessor-mask cleanup: reconstructing previous masks from `walk_mask` and `picked_col` preserved `PerfSlotTeamAssignment.tscn` aggregate signature `2813605715628331077`, but regressed the `single_12` focused case to `3475ms`, so it was reverted.
+- `Targeting.pick_by_priority()` now clamps `tile_size` once per target pick and passes that safe value through scoring, avoiding repeated per-candidate and per-ally `max(1.0, tile_size)` work. Fresh `PerfTargeting.tscn` control was median `835ms`, signature `9036604269279486158`; patched repeats preserved the signature with medians `858ms`, `765ms`, and `733ms`. Broader gates stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`; `Perf1v1.tscn` signature `-6199507685307107293:55`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`; `RoleMatrixProbe6v6.tscn` PASS; `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures, though timing was noisy and not counted as a movement-level win.
+- Rejected movement group-array reuse experiment: clearing and reusing per-target group arrays in `MovementService2` preserved `PerfMovementPhases.tscn` signatures, but regressed 6v6 movement from a fresh `504034us` sample to `790154us` and 12v12 movement from `3343571us` to `4907951us`, so it was reverted.
 
 ## Changes Made
 
@@ -222,6 +224,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Precomputes support ally peel priorities once per target pick, so support scoring does not rescan ally role/approach metadata for every enemy candidate.
   - Reuses the already-computed target role when scoring mage candidates, avoiding duplicate role lookup/normalization while preserving target-selection signatures.
   - Computes target threat only for attackers whose scoring path uses it: lockdown/debuff approaches, tanks, and supports.
+  - Clamps tile size once per target pick and passes that safe value through candidate and peel scoring, avoiding repeated per-candidate/per-ally `max(1.0, tile_size)` work while preserving target-selection signatures.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.

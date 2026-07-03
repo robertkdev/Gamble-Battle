@@ -32,6 +32,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 	var attacker_role: String = _role(attacker)
 	var attacker_goal: String = _goal(attacker)
 	var attacker_mask: int = _approach_mask(attacker)
+	var safe_tile_size: float = max(1.0, tile_size)
 	var ally_peel_priorities: PackedFloat32Array = PackedFloat32Array()
 	if attacker_role == "support" and (_has_mask(attacker_mask, APPROACH_PEEL) or _has_mask(attacker_mask, APPROACH_LOCKDOWN)):
 		ally_peel_priorities = _build_ally_peel_priorities(attacker, ally_team)
@@ -60,7 +61,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 			enemy_positions,
 			enemy_position,
 			current_target,
-			max(1.0, tile_size))
+			safe_tile_size)
 		if i == current_target:
 			current_score = score
 		if score > best_score:
@@ -75,7 +76,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 
 static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, _source_index: int, _source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float) -> float:
 	var enemy_role: String = _role(enemy)
-	var dist_tiles: float = source_position.distance_to(enemy_position) / max(1.0, tile_size)
+	var dist_tiles: float = source_position.distance_to(enemy_position) / tile_size
 	var hp_pct: float = float(enemy.hp) / max(1.0, float(enemy.max_hp))
 	var low_hp: float = clampf(1.0 - hp_pct, 0.0, 1.0)
 	var has_lockdown: bool = _has_mask(attacker_mask, APPROACH_LOCKDOWN)
@@ -199,7 +200,7 @@ static func _ally_peel_pressure(attacker: Unit, ally_team: Array[Unit], ally_pos
 		if priority <= 0.0:
 			continue
 		var ally_position: Vector2 = _position_at(ally_positions, i, enemy_position)
-		var dist_tiles: float = enemy_position.distance_to(ally_position) / max(1.0, tile_size)
+		var dist_tiles: float = enemy_position.distance_to(ally_position) / tile_size
 		var proximity: float = clampf((4.0 - dist_tiles) / 4.0, 0.0, 1.0)
 		if proximity <= 0.0:
 			continue
