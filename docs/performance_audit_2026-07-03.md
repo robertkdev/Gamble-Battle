@@ -54,7 +54,11 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfCombatUiSignals.tscn` after shared texture cache still completed and reported the expected optimized refresh shape, but current dirty/uncommitted stage-progress UI work emitted loader errors for `res://assets/ui/stage_icons/*`. Treat that as unrelated validation contamination until the stage icon resources/imports are fixed or that work is reverted.
 - `tests/perf/Perf1v1.tscn` after position-sync bar refresh removal: `time_ms=421`, then `483` after typed-signature cleanup, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after signal-driven arena movement: `time_ms=382`, then `470` after typed cleanup, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
-- `tests/visual/CombatArenaBoundsSmoke.tscn` is not clean in the current dirty tree: it reports engine arena bounds wider than the planning board after the uncommitted stage-progress/layout changes, plus dummy renderer cleanup diagnostics. Do not use it as validation evidence for this pass until that layout work is resolved.
+- `tests/visual/CombatArenaBoundsSmoke.tscn` before bounds-only resync failed because engine arena bounds stayed at `[P: (360.0, 91.0), S: (754.0, 622.0)]` after the visible planning board settled to `[P: (360.0, 91.0), S: (420.0, 622.0)]`.
+- `tests/visual/CombatArenaBoundsSmoke.tscn` after bounds-only resync prints `CombatArenaBoundsSmoke: OK`; the stale-bounds assertion is fixed, but the scene still reports dummy-renderer resource cleanup diagnostics at exit, so it is not an empty-error validation gate yet.
+- `tests/perf/PerfCombatUiSignals.tscn` after bounds-only resync stayed clean with errors `[]`: `position_updated=159`, `UnitActor.position_update_calls=159`, `position_apply_calls=159`, `update_bars_calls=50`, `bar_apply_calls=28`, `bar_skip_calls=22`.
+- `tests/perf/Perf1v1.tscn` after bounds-only resync kept signature `-6199507685307107293:55`, `frames=901`, `time_ms=440`, errors `[]`.
+- `tests/visual/UIThemeSmoke.tscn` after the stage-progress icon loader and bounds-resync work passed with `UIThemeSmoke: OK`, errors `[]`.
 - `tests/perf/PerfLargeBoard.tscn` after slot and cache work:
   - 8v8: `samples_per_case=2`, `median_ms=3108`, `p95_ms=4001`, `frames=901`, `sim_s=45.050000`, result `team_a`, alive `8:4`, signature `7184874536639686372:300`, consistent `true`.
   - 12v12: `samples_per_case=2`, `median_ms=3492`, `p95_ms=3523`, `frames=258`, `sim_s=12.900000`, result `team_a`, alive `12:0`, signature `3567836549670627538:428`, consistent `true`.
@@ -112,6 +116,11 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Connects to `CombatManager.position_updated` and applies movement only to the changed actor.
   - Keeps per-frame actor visibility refreshes and falls back to the old position-array polling path if engine position telemetry is unavailable.
   - Typed touched bridge locals and view inputs while preserving the existing arena setup behavior.
+  - Resyncs engine movement bounds when the visible planning-board rect changes after UI layout settles, without rebuilding unit positions or reprime-targeting.
+- `scripts/game/combat/movement/movement_state.gd`, `movement_service2.gd`, `movement_service.gd`, `combat_engine.gd`, and `scripts/combat_manager.gd`
+  - Added a bounds-only arena update path so UI layout changes can update movement clamps without resetting positions, target state, or mentor-pairing inputs.
+- `tests/visual/combat_arena_bounds_smoke.gd`
+  - Explicitly tears down and frees the Main scene before quitting. Dummy renderer cleanup diagnostics still remain under MCP, but the stale-bounds assertion now passes.
 - `scripts/util/texture_utils.gd`
   - Added shared caches for successfully loaded textures and generated circle fallback textures.
   - Added `clear_cache()` plus diagnostics counters/snapshot helpers.
@@ -148,7 +157,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 ## Recommended Next Optimizations
 
-1. Resolve the current dirty stage-progress/layout work before using Main-scene arena bounds or broad visual UI smokes as clean validation evidence again.
+1. Clean up remaining dummy-renderer teardown diagnostics in `CombatArenaBoundsSmoke.tscn` if that scene must become a strict empty-error gate; its stale-bounds assertion now passes.
 2. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 159 events are material; the UI no longer polls every actor every frame.
 3. Use `PerfLargeBoard.tscn` as the regression/stress gate before future movement changes above 6v6.
 4. Profile remaining `SlotStrategy.assign_for_target()` result dictionary churn only if larger-board stress shows slot payload construction is still material.

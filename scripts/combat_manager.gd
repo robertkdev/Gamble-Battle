@@ -80,6 +80,12 @@ func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Re
 		_pending_enemy_pos = enemy_pos.duplicate(true)
 		_pending_bounds = bounds
 
+func set_arena_bounds(bounds: Rect2) -> void:
+	if _engine != null and _engine.has_method("set_arena_bounds"):
+		_engine.set_arena_bounds(bounds)
+	else:
+		_pending_bounds = bounds
+
 func _compute_mentor_pairs(player_pos: Array, enemy_pos: Array) -> void:
 	if _state == null:
 		return

@@ -52,6 +52,9 @@ func configure(config_tile_size: float, player_pos: Array, enemy_pos: Array, bou
 	data.configure(config_tile_size, p, e, bounds)
 	_ensure_profiles()
 
+func set_bounds(bounds: Rect2) -> void:
+	data.set_bounds(bounds)
+
 func set_buff_system(buff_system) -> void:
 	if buff_system != null:
 		buff_adapter.configure(buff_system)

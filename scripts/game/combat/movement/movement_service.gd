@@ -7,7 +7,7 @@ class_name MovementService
 const MovementService2 := preload("res://scripts/game/combat/movement/movement_service2.gd")
 const MovementProfile := preload("res://scripts/game/combat/movement/movement_profile.gd")
 
-var _impl := MovementService2.new()
+var _impl: MovementService2 = MovementService2.new()
 
 # Expose tuning/data via pass-throughs for callers that introspect
 var tuning: set = _set_tuning, get = _get_tuning
@@ -27,6 +27,9 @@ func _get_data():
 
 func configure(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	_impl.configure(tile_size, player_pos, enemy_pos, bounds)
+
+func set_bounds(bounds: Rect2) -> void:
+	_impl.set_bounds(bounds)
 
 func set_buff_system(buff_system) -> void:
 	_impl.set_buff_system(buff_system)

@@ -37,6 +37,9 @@ func configure(config_tile_size: float, player_pos: Array[Vector2], enemy_pos: A
 	player_slot_timer = _resize_int_array(player_slot_timer, player_positions.size(), true)
 	enemy_slot_timer = _resize_int_array(enemy_slot_timer, enemy_positions.size(), true)
 
+func set_bounds(bounds: Rect2) -> void:
+	arena_bounds = Rect2(bounds.position, bounds.size)
+
 func ensure_capacity(player_count: int, enemy_count: int) -> void:
 	var fill: Vector2 = _default_position()
 	_resize_vector_array(player_positions, player_count, fill)

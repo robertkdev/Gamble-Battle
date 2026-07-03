@@ -236,6 +236,10 @@ func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Re
 		target_controller.prime_targets()
 	_sync_movement_profiles()
 
+func set_arena_bounds(bounds: Rect2) -> void:
+	if arena_state != null and arena_state.has_method("set_bounds"):
+		arena_state.set_bounds(bounds)
+
 func _engine_select_closest_target(my_team: String, my_index: int, enemy_team: String) -> int:
 	if state == null:
 		return -1

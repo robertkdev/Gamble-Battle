@@ -28,7 +28,7 @@ func _run() -> void:
 	_view = _main.get_node_or_null("CombatView") as Control
 	if _view == null:
 		_fail("CombatView missing")
-		_finish()
+		await _finish()
 		return
 	if _view.has_method("set_player_team_ids"):
 		_view.call("set_player_team_ids", PLAYER_TEAM)
@@ -38,7 +38,7 @@ func _run() -> void:
 	_manager = _view.get("manager") as CombatManager
 	if _manager == null:
 		_fail("manager missing")
-		_finish()
+		await _finish()
 		return
 
 	if _view.has_method("_on_continue_pressed"):
@@ -51,7 +51,7 @@ func _run() -> void:
 	var stats_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea") as Control
 	if planning_area == null or arena_container == null or arena_units == null or stats_area == null:
 		_fail("arena layout refs missing")
-		_finish()
+		await _finish()
 		return
 	var planning_rect: Rect2 = planning_area.get_global_rect()
 	var arena_rect: Rect2 = arena_container.get_global_rect()
@@ -66,7 +66,7 @@ func _run() -> void:
 			continue
 		var center: Vector2 = control.get_global_rect().get_center()
 		_expect(planning_rect.grow(24.0).has_point(center), "arena actor center outside board rect: %s" % str(center))
-	_finish()
+	await _finish()
 
 func _rect_close(a: Rect2, b: Rect2, tolerance: float) -> bool:
 	return a.position.distance_to(b.position) <= tolerance and a.size.distance_to(b.size) <= tolerance
@@ -91,8 +91,11 @@ func _finish() -> void:
 		_view.call("_teardown")
 	if _main != null and is_instance_valid(_main):
 		remove_child(_main)
-		_main.queue_free()
+		_main.free()
 		_main = null
+	_view = null
+	_manager = null
+	await _settle_frames(2)
 	if _failures.is_empty():
 		print(SMOKE_NAME + ": OK")
 		get_tree().quit(0)

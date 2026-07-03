@@ -108,6 +108,7 @@ func sync(manager: CombatManager, player_views: Array[UnitSlotView], enemy_views
         return
     _sync_container_to_planning_rect()
     if manager:
+        _sync_engine_bounds(manager)
         var engine: Variant = manager.get_engine()
         var telemetry_enabled: bool = bool(engine.get("emit_position_telemetry")) if engine != null else false
         if telemetry_enabled and _ensure_position_signal(manager):
@@ -283,6 +284,18 @@ func _disconnect_position_signal() -> void:
     if _position_signal_manager.has_signal("position_updated") and _position_signal_manager.is_connected("position_updated", callback):
         _position_signal_manager.position_updated.disconnect(_on_manager_position_updated)
     _position_signal_manager = null
+
+func _sync_engine_bounds(manager: CombatManager) -> void:
+    if manager == null:
+        return
+    var current_bounds: Rect2 = get_arena_bounds()
+    if current_bounds.size.x <= 1.0 or current_bounds.size.y <= 1.0:
+        return
+    var engine_bounds: Rect2 = manager.get_arena_bounds()
+    if _rect_close(engine_bounds, current_bounds, 1.0):
+        return
+    if manager.has_method("set_arena_bounds"):
+        manager.set_arena_bounds(current_bounds)
 
 func _on_manager_position_updated(team: String, index: int, x: float, y: float) -> void:
     if arena == null:
