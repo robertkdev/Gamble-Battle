@@ -1,6 +1,8 @@
 extends Control
 class_name MetricTabs
 
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+
 signal metric_changed(metric: String)
 
 # Default metrics per category (minimal MVP mapping)
@@ -99,6 +101,7 @@ func _build_for(cat: String) -> void:
         b.custom_minimum_size = Vector2(58.0, 30.0)
         b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         b.toggle_mode = true
+        _apply_button_style(b)
         b.pressed.connect(func(): set_selected_metric(k))
         row.add_child(b)
         _buttons[k] = b
@@ -121,3 +124,26 @@ func _clear_children() -> void:
     for child: Node in get_children():
         remove_child(child)
         child.queue_free()
+
+func _apply_button_style(button: Button) -> void:
+    button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_fallback(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96))))
+    button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _make_button_fallback(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0))))
+    button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _make_button_fallback(Color(0.20, 0.026, 0.044, 1.0), Color(0.92, 0.68, 0.34, 1.0))))
+    button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_fallback(Color(0.12, 0.07, 0.08, 1.0), Color(0.92, 0.68, 0.34, 1.0))))
+    button.add_theme_color_override("font_color", Color(0.90, 0.82, 0.68, 1.0))
+    button.add_theme_color_override("font_pressed_color", Color(1.0, 0.74, 0.48, 1.0))
+    button.add_theme_font_size_override("font_size", 12)
+
+func _make_button_fallback(bg_color: Color, border_color: Color) -> StyleBoxFlat:
+    var style: StyleBoxFlat = StyleBoxFlat.new()
+    style.bg_color = bg_color
+    style.border_color = border_color
+    style.border_width_left = 1
+    style.border_width_top = 1
+    style.border_width_right = 1
+    style.border_width_bottom = 1
+    style.corner_radius_top_left = 5
+    style.corner_radius_top_right = 5
+    style.corner_radius_bottom_right = 5
+    style.corner_radius_bottom_left = 5
+    return style

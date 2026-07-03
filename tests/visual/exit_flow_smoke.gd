@@ -37,6 +37,9 @@ func _run() -> void:
 	_expect(get_tree().paused, "opening system menu should pause the game")
 	_expect(_overlay_visible(), "system menu overlay should be visible during unit select")
 	_expect(_system_backdrop_alpha_in_range(), "system menu backdrop should keep underlying context readable")
+	_expect(_control_uses_texture_style("SystemMenuButton", "normal"), "system menu button should use the generated small button asset")
+	_expect(_control_uses_texture_style("SystemMenuOverlay/Center/Panel", "panel"), "system menu overlay should use the generated wide panel asset")
+	_expect(_control_uses_texture_style("SystemMenuOverlay/Center/Panel/Margin/Stack/ResumeButton", "normal"), "resume button should use the generated primary button asset")
 	_expect(_button_exists("ResumeButton"), "resume button missing")
 	_expect(_button_exists("NewRunButton"), "new run button missing")
 	_expect(_button_exists("ReturnTitleButton"), "return to title button missing")
@@ -139,6 +142,16 @@ func _button_exists(button_name: String) -> bool:
 func _button_visible(button_name: String) -> bool:
 	var button: Button = _main.find_child(button_name, true, false) as Button
 	return button != null and button.visible
+
+func _control_uses_texture_style(path_or_name: String, style_name: String) -> bool:
+	if _main == null:
+		return false
+	var control: Control = _main.get_node_or_null("SystemMenuLayer/" + path_or_name) as Control
+	if control == null:
+		control = _main.find_child(path_or_name, true, false) as Control
+	if control == null:
+		return false
+	return control.get_theme_stylebox(style_name) is StyleBoxTexture
 
 func _overlay_visible() -> bool:
 	var overlay: Control = _main.get_node_or_null("SystemMenuLayer/SystemMenuOverlay") as Control

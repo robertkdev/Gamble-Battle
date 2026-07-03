@@ -305,10 +305,10 @@ static func _style_metric_button(button: Button) -> void:
 	var is_small_expand: bool = button.name == "ExpandButton"
 	button.custom_minimum_size = Vector2(42.0, 32.0) if is_small_expand else Vector2(64.0, 32.0)
 	button.add_theme_font_size_override("font_size", 13)
-	button.add_theme_stylebox_override("normal", _style(Color(0.044, 0.038, 0.048, 0.96), Color(0.28, 0.25, 0.28, 0.92), 1, 4))
-	button.add_theme_stylebox_override("hover", _hover_style(Color(0.12, 0.073, 0.085, 0.99), COLOR_GOLD_HOT, 1, 4))
-	button.add_theme_stylebox_override("pressed", _style(Color(0.17, 0.034, 0.050, 0.98), COLOR_BLOOD_HOT, 1, 4))
-	button.add_theme_stylebox_override("focus", _hover_style(Color(0.14, 0.083, 0.052, 0.98), COLOR_GOLD_HOT, 1, 4))
+	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(Color(0.044, 0.038, 0.048, 0.96), Color(0.28, 0.25, 0.28, 0.92), 1, 4)))
+	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.12, 0.073, 0.085, 0.99), COLOR_GOLD_HOT, 1, 4)))
+	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _style(Color(0.17, 0.034, 0.050, 0.98), COLOR_BLOOD_HOT, 1, 4)))
+	button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _hover_style(Color(0.14, 0.083, 0.052, 0.98), COLOR_GOLD_HOT, 1, 4)))
 
 static func _apply_metric_tabs(tabs: Control) -> void:
 	tabs.custom_minimum_size = Vector2(max(tabs.custom_minimum_size.x, 294.0), 44.0)
@@ -343,8 +343,9 @@ static func _style_button_node(button: Button, primary: bool) -> void:
 		button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.46, 0.44, 0.42, 0.80)), _style(Color(0.10, 0.07, 0.08, 0.76), Color(0.22, 0.18, 0.18, 0.82), 1, 5)))
 	else:
 		button.custom_minimum_size.y = max(button.custom_minimum_size.y, 34.0)
-		button.add_theme_stylebox_override("normal", _style(COLOR_PANEL_SOFT, COLOR_IRON_DIM, 1, 5))
-		button.add_theme_stylebox_override("hover", _hover_style(Color(0.115, 0.087, 0.098, 0.98), COLOR_GOLD_HOT, 1, 5))
+		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(COLOR_PANEL_SOFT, COLOR_IRON_DIM, 1, 5)))
+		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.115, 0.087, 0.098, 0.98), COLOR_GOLD_HOT, 1, 5)))
+		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 1, 5)))
 
 static func _style_label(root: Control, path: String, font_size: int, color: Color, outline: bool) -> void:
 	var label: Label = root.get_node_or_null(path) as Label

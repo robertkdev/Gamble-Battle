@@ -5,6 +5,7 @@ const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const ItemCatalog := preload("res://scripts/game/items/item_catalog.gd")
 const ItemDef := preload("res://scripts/game/items/item_def.gd")
 const ItemTooltipScene := preload("res://scenes/ui/items/ItemTooltip.tscn")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const HOVER_DELAY: float = 0.10
 
@@ -157,8 +158,15 @@ func _apply_card_style(filled: bool) -> void:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	var hover_filled: bool = _hovered and filled
 	var hover_empty: bool = _hovered and not filled
+	var modulate: Color = Color(0.62, 0.60, 0.58, 0.84)
 	style.bg_color = Color(0.082, 0.052, 0.058, 0.99) if hover_filled else Color(0.044, 0.036, 0.044, 0.93) if filled else Color(0.032, 0.026, 0.034, 0.88) if hover_empty else Color(0.022, 0.019, 0.026, 0.78)
 	style.border_color = Color(1.0, 0.76, 0.36, 1.0) if hover_filled else Color(0.50, 0.42, 0.38, 0.95) if hover_empty else Color(0.68, 0.47, 0.28, 0.92) if filled else Color(0.27, 0.24, 0.27, 0.78)
+	if hover_filled:
+		modulate = Color(1.18, 1.06, 0.86, 1.0)
+	elif hover_empty:
+		modulate = Color(0.90, 0.84, 0.74, 0.90)
+	elif filled:
+		modulate = Color(0.96, 0.88, 0.74, 0.96)
 	var border_width: int = 2 if _hovered else 1
 	style.border_width_left = border_width
 	style.border_width_top = border_width
@@ -171,7 +179,7 @@ func _apply_card_style(filled: bool) -> void:
 	style.shadow_size = 12 if _hovered else 5
 	style.shadow_color = Color(0.62, 0.19, 0.060, 0.36) if _hovered else Color(0.0, 0.0, 0.0, 0.40)
 	if background != null:
-		background.add_theme_stylebox_override("panel", style)
+		background.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.item_slot_style(modulate), style))
 	if icon != null:
 		icon.modulate = Color(1.0, 0.88, 0.66, 1.0) if hover_filled else Color(0.90, 0.78, 0.62, 0.98) if filled else Color(1.0, 1.0, 1.0, 0.0)
 	if patina != null:

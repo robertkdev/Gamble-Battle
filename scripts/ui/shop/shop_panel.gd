@@ -8,6 +8,7 @@ const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const ShopCardScene := preload("res://scenes/ui/shop/ShopCard.tscn")
 const ShopOffer := preload("res://scripts/game/shop/shop_offer.gd")
 const EmptySigilTexture: Texture2D = preload("res://assets/ui/gold icon.png")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const OPENING_FIGHT_MESSAGE: String = "Opening fight is fixed. Win it to unlock the shop."
 
 var _grid: GridContainer = null
@@ -199,17 +200,20 @@ func _on_first_fight_placeholder_gui_input(event: InputEvent) -> void:
         if key_event.pressed and not key_event.echo and (key_event.keycode == KEY_ENTER or key_event.keycode == KEY_SPACE):
             first_fight_placeholder_pressed.emit()
 
-func _make_placeholder_style(sold: bool) -> StyleBoxFlat:
+func _make_placeholder_style(sold: bool) -> StyleBox:
     var style: StyleBoxFlat = StyleBoxFlat.new()
     var first_fight_placeholder: bool = _single_empty_state and not sold
+    var modulate: Color = Color(0.62, 0.60, 0.58, 0.78)
     style.bg_color = Color(0.030, 0.026, 0.034, 0.88)
     style.border_color = Color(0.34, 0.29, 0.28, 0.86)
     if first_fight_placeholder:
         style.bg_color = Color(0.060, 0.041, 0.036, 0.94)
         style.border_color = Color(0.76, 0.45, 0.20, 0.92)
+        modulate = Color(1.08, 0.96, 0.78, 0.96)
     if sold:
         style.bg_color = Color(0.062, 0.026, 0.034, 0.90)
         style.border_color = Color(0.48, 0.090, 0.090, 0.86)
+        modulate = Color(0.78, 0.56, 0.56, 0.82)
     style.border_width_left = 2 if first_fight_placeholder else 1
     style.border_width_top = 2 if first_fight_placeholder else 1
     style.border_width_right = 2 if first_fight_placeholder else 1
@@ -220,7 +224,9 @@ func _make_placeholder_style(sold: bool) -> StyleBoxFlat:
     style.corner_radius_bottom_left = 5
     style.shadow_size = 12 if first_fight_placeholder else 8
     style.shadow_color = Color(0.66, 0.24, 0.08, 0.24) if first_fight_placeholder else Color(0.0, 0.0, 0.0, 0.44)
-    return style
+    if first_fight_placeholder:
+        return GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(modulate), style)
+    return GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(modulate), style)
 
 func _duplicate_strings(values) -> Array:
     var out: Array = []

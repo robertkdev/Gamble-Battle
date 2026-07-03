@@ -3,6 +3,7 @@ extends Control
 const Scoreboard := preload("res://scripts/ui/combat/stats/scoreboard.gd")
 const UnitPanel := preload("res://scripts/ui/combat/stats/unit_panel.gd")
 const MetricTabs := preload("res://scripts/ui/combat/stats/metric_tabs.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 enum Mode { TEAM, UNIT }
 
@@ -22,6 +23,7 @@ var _unit_index: int = -1
 
 func _ready() -> void:
     _configure_input_routing()
+    _apply_gothic_window_button_styles()
     set_process(false)
     # Wire header window buttons
     if btn_all and not btn_all.is_connected("pressed", Callable(self, "_on_window_all")):
@@ -183,6 +185,35 @@ func _configure_input_routing() -> void:
     for button: Button in clickable_nodes:
         if button != null:
             button.mouse_filter = Control.MOUSE_FILTER_STOP
+
+func _apply_gothic_window_button_styles() -> void:
+    var buttons: Array[Button] = [btn_all, btn_3s]
+    for button: Button in buttons:
+        if button == null:
+            continue
+        button.custom_minimum_size = Vector2(54.0, 30.0)
+        button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_fallback(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96))))
+        button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _make_button_fallback(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0))))
+        button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _make_button_fallback(Color(0.20, 0.026, 0.044, 1.0), Color(0.92, 0.68, 0.34, 1.0))))
+        button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_fallback(Color(0.12, 0.07, 0.08, 1.0), Color(0.92, 0.68, 0.34, 1.0))))
+        button.add_theme_color_override("font_color", Color(0.90, 0.82, 0.68, 1.0))
+        button.add_theme_color_override("font_pressed_color", Color(1.0, 0.74, 0.48, 1.0))
+        button.add_theme_font_size_override("font_size", 13)
+
+func _make_button_fallback(bg_color: Color, border_color: Color) -> StyleBoxFlat:
+    var style: StyleBoxFlat = StyleBoxFlat.new()
+    style.bg_color = bg_color
+    style.border_color = border_color
+    style.border_width_left = 1
+    style.border_width_top = 1
+    style.border_width_right = 1
+    style.border_width_bottom = 1
+    style.corner_radius_top_left = 5
+    style.corner_radius_top_right = 5
+    style.corner_radius_bottom_right = 5
+    style.corner_radius_bottom_left = 5
+    return style
 
 func _on_stats_updated(_player: Unit, _enemy: Unit) -> void:
     # No-op for now; UI pulls from tracker periodically

@@ -3,6 +3,7 @@ class_name UnitItemsView
 
 const ItemCatalog := preload("res://scripts/game/items/item_catalog.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 var unit: Unit = null
 var _container: HBoxContainer = null
@@ -87,7 +88,7 @@ func _render_ids(ids: Array[String]) -> void:
 		chip.add_child(icon_rect)
 		_container.add_child(chip)
 
-func _make_chip_style() -> StyleBoxFlat:
+func _make_chip_style() -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.030, 0.025, 0.032, 0.86)
 	style.border_color = Color(0.58, 0.38, 0.20, 0.82)
@@ -103,7 +104,7 @@ func _make_chip_style() -> StyleBoxFlat:
 	style.content_margin_top = 1
 	style.content_margin_right = 1
 	style.content_margin_bottom = 1
-	return style
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.item_slot_style(Color(0.82, 0.74, 0.62, 0.90)), style)
 
 func _icon_for(id: String) -> Texture2D:
 	var def: ItemDef = ItemCatalog.get_def(id)

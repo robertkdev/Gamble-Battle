@@ -8,6 +8,7 @@ extends Control
 
 const Debug := preload("res://scripts/util/debug.gd")
 const AuditPanelScene: GDScript = preload("res://scripts/ui/audit/audit_panel.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
@@ -257,37 +258,32 @@ func _make_menu_button(node_name: String, label: String) -> Button:
 
 func _apply_button_style(button: Button, compact: bool) -> void:
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	var normal: StyleBoxFlat = StyleBoxFlat.new()
-	normal.bg_color = Color(0.12, 0.035, 0.028, 0.94)
-	normal.border_color = Color(0.55, 0.34, 0.13, 0.95)
-	normal.border_width_left = 1
-	normal.border_width_top = 1
-	normal.border_width_right = 1
-	normal.border_width_bottom = 1
-	normal.corner_radius_top_left = 5
-	normal.corner_radius_top_right = 5
-	normal.corner_radius_bottom_right = 5
-	normal.corner_radius_bottom_left = 5
-
-	var hover: StyleBoxFlat = normal.duplicate() as StyleBoxFlat
-	hover.bg_color = Color(0.19, 0.055, 0.04, 0.98)
-	hover.border_color = Color(0.82, 0.58, 0.24, 1.0)
-
-	var pressed: StyleBoxFlat = normal.duplicate() as StyleBoxFlat
-	pressed.bg_color = Color(0.07, 0.018, 0.018, 0.98)
-	pressed.border_color = Color(0.68, 0.1, 0.08, 1.0)
-
-	button.add_theme_stylebox_override("normal", normal)
-	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
-	button.add_theme_stylebox_override("focus", hover)
+	button.add_theme_stylebox_override("normal", _make_system_button_style(compact, Color.WHITE))
+	button.add_theme_stylebox_override("hover", _make_system_button_style(compact, Color(1.18, 1.08, 0.90, 1.0)))
+	button.add_theme_stylebox_override("pressed", _make_system_button_style(compact, Color(0.86, 0.72, 0.68, 1.0)))
+	button.add_theme_stylebox_override("focus", _make_system_button_style(compact, Color(1.10, 1.02, 0.88, 1.0)))
 	button.add_theme_color_override("font_color", Color(0.9, 0.82, 0.68))
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.88, 0.58))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.72, 0.48))
 	button.add_theme_font_size_override("font_size", 15 if compact else 21)
 	_wire_system_button_hover(button, compact)
 
-func _make_panel_style() -> StyleBoxFlat:
+func _make_system_button_style(compact: bool, modulate: Color) -> StyleBox:
+	var fallback: StyleBoxFlat = StyleBoxFlat.new()
+	fallback.bg_color = Color(0.12, 0.035, 0.028, 0.94)
+	fallback.border_color = Color(0.55, 0.34, 0.13, 0.95)
+	fallback.border_width_left = 1
+	fallback.border_width_top = 1
+	fallback.border_width_right = 1
+	fallback.border_width_bottom = 1
+	fallback.corner_radius_top_left = 5
+	fallback.corner_radius_top_right = 5
+	fallback.corner_radius_bottom_right = 5
+	fallback.corner_radius_bottom_left = 5
+	var asset_style: StyleBoxTexture = GothicUIAssets.small_button_style(modulate) if compact else GothicUIAssets.primary_button_style(modulate)
+	return GothicUIAssets.style_or_fallback(asset_style, fallback)
+
+func _make_panel_style() -> StyleBox:
 	var panel: StyleBoxFlat = StyleBoxFlat.new()
 	panel.bg_color = Color(0.045, 0.032, 0.034, 0.98)
 	panel.border_color = Color(0.55, 0.36, 0.15, 0.9)
@@ -299,7 +295,7 @@ func _make_panel_style() -> StyleBoxFlat:
 	panel.corner_radius_top_right = 7
 	panel.corner_radius_bottom_right = 7
 	panel.corner_radius_bottom_left = 7
-	return panel
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), panel)
 
 func _open_system_menu() -> void:
 	if title_menu and title_menu.visible:

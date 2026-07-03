@@ -5,6 +5,7 @@ const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const TraitIconScene := preload("res://scenes/ui/traits/TraitIcon.tscn")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
 const COLOR_MUTED: Color = Color(0.66, 0.60, 0.52, 1.0)
@@ -346,19 +347,23 @@ func _apply_static_style() -> void:
 		_price_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_price_label.add_theme_constant_override("outline_size", 1)
 
-func _make_card_style(pressed_state: bool, highlighted: bool, disabled_state: bool = false) -> StyleBoxFlat:
+func _make_card_style(pressed_state: bool, highlighted: bool, disabled_state: bool = false) -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = COLOR_PANEL
 	style.border_color = COLOR_IRON
+	var modulate: Color = Color.WHITE
 	if highlighted:
 		style.bg_color = Color(0.092, 0.054, 0.062, 0.99)
 		style.border_color = COLOR_GOLD
+		modulate = Color(1.14, 1.05, 0.92, 1.0)
 	if pressed_state:
 		style.bg_color = Color(0.13, 0.026, 0.040, 0.98)
 		style.border_color = COLOR_BLOOD
+		modulate = Color(0.92, 0.82, 0.78, 1.0)
 	if disabled_state:
 		style.bg_color = Color(0.038, 0.032, 0.040, 0.96)
 		style.border_color = Color(0.33, 0.29, 0.29, 0.88)
+		modulate = Color(0.50, 0.48, 0.46, 0.82)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
@@ -369,7 +374,7 @@ func _make_card_style(pressed_state: bool, highlighted: bool, disabled_state: bo
 	style.corner_radius_bottom_left = 5
 	style.shadow_size = 12 if highlighted else 8
 	style.shadow_color = Color(0.58, 0.18, 0.060, 0.30) if highlighted else Color(0.0, 0.0, 0.0, 0.46)
-	return style
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(modulate), style)
 
 func _wire_hover() -> void:
 	if not is_connected("mouse_entered", Callable(self, "_on_hover_entered")):
@@ -505,7 +510,7 @@ func _clamped_tooltip_position(raw_position: Vector2) -> Vector2:
 		next_position.y = TOOLTIP_EDGE_PADDING
 	return next_position
 
-func _make_tooltip_style() -> StyleBoxFlat:
+func _make_tooltip_style() -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.024, 0.020, 0.028, 0.985)
 	style.border_color = Color(0.72, 0.46, 0.22, 0.95)
@@ -523,7 +528,7 @@ func _make_tooltip_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 10
 	style.shadow_size = 14
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
-	return style
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(), style)
 
 func _clear_tooltip() -> void:
 	if _tooltip != null and is_instance_valid(_tooltip):

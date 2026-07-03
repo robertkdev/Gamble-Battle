@@ -4,6 +4,7 @@ class_name Scoreboard
 const ScoreboardModelLib := preload("res://scripts/ui/combat/stats/scoreboard_model.gd")
 const ScoreboardRow := preload("res://scripts/ui/combat/stats/scoreboard_row.gd")
 const TooltipSvc := preload("res://scripts/ui/combat/stats/tooltip_service.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 @onready var expand_button: Button = $"Header/ExpandButton"
 @onready var body_box: HBoxContainer = $"Body"
@@ -222,7 +223,7 @@ func _layout_overlay() -> void:
 	overlay.position = Vector2(area_rect.position.x - w, area_rect.position.y)
 	overlay.size = Vector2(w, target_height)
 
-func _make_overlay_style() -> StyleBoxFlat:
+func _make_overlay_style() -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.018, 0.015, 0.022, 0.96)
 	style.border_color = Color(0.42, 0.050, 0.070, 0.88)
@@ -240,7 +241,7 @@ func _make_overlay_style() -> StyleBoxFlat:
 	style.content_margin_top = 8
 	style.content_margin_right = 8
 	style.content_margin_bottom = 8
-	return style
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(Color(0.86, 0.78, 0.76, 0.94)), style)
 
 func _sync_expand_button() -> void:
 	if expand_button == null:

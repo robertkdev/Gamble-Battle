@@ -24,6 +24,9 @@ static func small_button_style(modulate: Color = Color.WHITE) -> StyleBoxTexture
 static func primary_button_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(BUTTON_PRIMARY, Vector4(26.0, 16.0, 26.0, 16.0), Vector4(22.0, 8.0, 22.0, 8.0), modulate)
 
+static func item_slot_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(BUTTON_SMALL, Vector4(10.0, 10.0, 10.0, 10.0), Vector4(3.0, 3.0, 3.0, 3.0), modulate)
+
 static func texture_style(path: String, texture_margins: Vector4, content_margins: Vector4, modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	var texture: Texture2D = TextureUtils.try_load_texture(path)
 	if texture == null:

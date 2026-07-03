@@ -42,10 +42,22 @@ func _run() -> void:
 	_filled_item_cards = _count_filled_item_cards()
 	_visible_trait_icons = _count_visible_trait_icons()
 	_planning_visible_bars = _visible_progressbars(_player_grid()) + _visible_progressbars(_enemy_grid())
+	if not _first_item_card_uses_generated_frame():
+		push_error("BarItemsTraitsCapture: filled item card should use the generated item slot asset")
+		get_tree().quit(1)
+		return
 	_save_capture("01_planning_grid_bars_hidden_items_traits.png")
 	_show_item_tooltip()
 	_show_trait_tooltip()
 	await _settle(0.35)
+	if not _tooltip_uses_generated_frame("CaptureItemTooltip"):
+		push_error("BarItemsTraitsCapture: item tooltip should use the generated panel asset")
+		get_tree().quit(1)
+		return
+	if not _tooltip_uses_generated_frame("CaptureTraitTooltip"):
+		push_error("BarItemsTraitsCapture: trait tooltip should use the generated panel asset")
+		get_tree().quit(1)
+		return
 	_save_capture("02_trait_tooltip_and_item_cards.png")
 	_clear_tooltips()
 	var hover_mechanics_ok: bool = await _exercise_hover_mechanics()
@@ -271,6 +283,26 @@ func _first_trait_icon() -> Control:
 	if traits_vbox == null or traits_vbox.get_child_count() == 0:
 		return null
 	return traits_vbox.get_child(0) as Control
+
+func _first_item_card_uses_generated_frame() -> bool:
+	var card: Control = _first_filled_item_card()
+	if card == null:
+		return false
+	var background: Control = card.get_node_or_null("Background") as Control
+	if background == null:
+		return false
+	return background.get_theme_stylebox("panel") is StyleBoxTexture
+
+func _tooltip_uses_generated_frame(tooltip_name: String) -> bool:
+	var tooltip: Control = get_tree().root.get_node_or_null(tooltip_name) as Control
+	if tooltip == null:
+		for node: Node in get_tree().root.get_children():
+			if node.name == tooltip_name:
+				tooltip = node as Control
+				break
+	if tooltip == null:
+		return false
+	return tooltip.get_theme_stylebox("panel") is StyleBoxTexture
 
 func _clear_script_tooltips() -> void:
 	_clear_script_tooltips_recursive(get_tree().root)

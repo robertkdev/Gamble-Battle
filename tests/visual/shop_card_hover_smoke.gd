@@ -38,9 +38,12 @@ func _run() -> void:
 	await _settle_frames(3)
 	_expect(card.scale == Vector2.ONE, "shop hover should not scale cards inside the grid")
 	_expect(String(card.tooltip_text) == "", "shop card should not use native tooltip_text")
+	_expect(card.get_theme_stylebox("normal") is StyleBoxTexture, "shop card should use the generated card asset")
 	_expect(_tooltip_count() == 1, "shop hover should show one custom tooltip")
 	var tooltip: Control = _first_tooltip()
 	_expect(tooltip != null and _control_inside_viewport(tooltip), "shop tooltip should stay inside the viewport")
+	if tooltip != null:
+		_expect(tooltip.get_theme_stylebox("panel") is StyleBoxTexture, "shop tooltip should use the generated panel asset")
 	_move_hover(card)
 	await _settle_frames(2)
 	_expect(_tooltip_count() == 1, "shop hover motion should keep a single tooltip")

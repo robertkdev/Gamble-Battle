@@ -57,6 +57,7 @@ func _run() -> void:
 		_fail("Stats panel refs missing")
 		_finish()
 		return
+	_expect_generated_stats_styles("initial")
 
 	await _verify_team_tab_clicks("planning team")
 	await _verify_unit_mode_tab_clicks("planning unit")
@@ -199,6 +200,39 @@ func _expect_unit_info_labels(context: String) -> void:
 	var ability_label: Label = _unit_panel.find_child("AbilityInfo", true, false) as Label
 	if ability_label == null or not String(ability_label.text).begins_with("Ability:"):
 		_fail("%s: ability info label missing or empty" % context)
+	var stats_grid: GridContainer = _unit_panel.find_child("StatsGrid", true, false) as GridContainer
+	if stats_grid == null or stats_grid.get_child_count() == 0:
+		_fail("%s: unit stat cards missing" % context)
+	else:
+		var stat_card: PanelContainer = stats_grid.get_child(0) as PanelContainer
+		if stat_card == null or not (stat_card.get_theme_stylebox("panel") is StyleBoxTexture):
+			_fail("%s: unit stat cards should use the generated card asset" % context)
+
+func _expect_generated_stats_styles(context: String) -> void:
+	var all_button: Button = _stats_panel.find_child("WindowAll", true, false) as Button
+	var three_second_button: Button = _stats_panel.find_child("Window3s", true, false) as Button
+	if all_button == null or not (all_button.get_theme_stylebox("normal") is StyleBoxTexture):
+		_fail("%s: All window button should use the generated small button asset" % context)
+	if three_second_button == null or not (three_second_button.get_theme_stylebox("normal") is StyleBoxTexture):
+		_fail("%s: 3s window button should use the generated small button asset" % context)
+	var tabs: Control = _stats_panel.find_child("MetricTabs", true, false) as Control
+	if tabs == null:
+		_fail("%s: metric tabs missing for style check" % context)
+	else:
+		var found_metric_button: bool = false
+		for child: Node in tabs.find_children("*", "Button", true, false):
+			var button: Button = child as Button
+			if button == null:
+				continue
+			found_metric_button = true
+			if not (button.get_theme_stylebox("normal") is StyleBoxTexture):
+				_fail("%s: metric tab %s should use the generated small button asset" % [context, button.text])
+				break
+		if not found_metric_button:
+			_fail("%s: no metric buttons found for style check" % context)
+	var row_frame: Panel = _stats_panel.find_child("RowFrame", true, false) as Panel
+	if row_frame != null and not (row_frame.get_theme_stylebox("panel") is StyleBoxTexture):
+		_fail("%s: scoreboard row should use the generated row asset" % context)
 
 func _expect_metric(expected: String, context: String) -> void:
 	if _scoreboard == null:

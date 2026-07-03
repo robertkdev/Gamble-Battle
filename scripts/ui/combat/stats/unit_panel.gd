@@ -4,6 +4,7 @@ class_name UnitPanel
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const COLOR_PANEL: Color = Color(0.026, 0.022, 0.030, 0.92)
 const COLOR_PANEL_SOFT: Color = Color(0.046, 0.039, 0.048, 0.94)
@@ -550,7 +551,7 @@ func _make_tag_style() -> StyleBoxFlat:
     sb.content_margin_bottom = 2
     return sb
 
-func _make_stat_card_style() -> StyleBoxFlat:
+func _make_stat_card_style() -> StyleBox:
     var sb: StyleBoxFlat = StyleBoxFlat.new()
     sb.bg_color = COLOR_PANEL_SOFT
     sb.border_color = Color(0.24, 0.21, 0.22, 0.88)
@@ -566,9 +567,9 @@ func _make_stat_card_style() -> StyleBoxFlat:
     sb.content_margin_right = 4
     sb.content_margin_top = 4
     sb.content_margin_bottom = 4
-    return sb
+    return GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(0.90, 0.88, 0.82, 0.92)), sb)
 
-func _make_footer_chip_style() -> StyleBoxFlat:
+func _make_footer_chip_style() -> StyleBox:
     var sb: StyleBoxFlat = StyleBoxFlat.new()
     sb.bg_color = Color(0.030, 0.026, 0.034, 0.90)
     sb.border_color = Color(0.30, 0.24, 0.22, 0.78)
@@ -584,7 +585,7 @@ func _make_footer_chip_style() -> StyleBoxFlat:
     sb.content_margin_right = 6
     sb.content_margin_top = 2
     sb.content_margin_bottom = 2
-    return sb
+    return GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.82, 0.80, 0.76, 0.86)), sb)
 
 func _style_footer_labels() -> void:
     var footer: FlowContainer = $"VBox/Footer"

@@ -1,6 +1,8 @@
 extends Panel
 class_name TraitTooltip
 
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+
 @onready var _name_label: Label = $VBox/Name
 @onready var _state_label: Label = $VBox/State
 @onready var _threshold_label: Label = $VBox/Thresholds
@@ -49,10 +51,11 @@ func _apply_style() -> void:
 	style.corner_radius_bottom_left = 5
 	style.shadow_size = 14
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
-	add_theme_stylebox_override("panel", style)
+	var modulate: Color = Color(1.10, 1.02, 0.88, 1.0) if is_active else Color.WHITE
+	add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(modulate), style))
 	var background: ColorRect = get_node_or_null("ColorRect") as ColorRect
 	if background != null:
-		background.color = Color(0.050, 0.033, 0.040, 0.94)
+		background.color = Color(0.050, 0.033, 0.040, 0.0)
 	if _vbox != null:
 		_vbox.add_theme_constant_override("separation", 7)
 	if _name_label != null:

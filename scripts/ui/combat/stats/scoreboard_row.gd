@@ -2,6 +2,7 @@ extends Control
 class_name ScoreboardRow
 
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 var team: String = "player"
 var index: int = -1
@@ -137,7 +138,7 @@ func _ensure_layout() -> void:
 		value_label.offset_left = -76.0
 		value_label.offset_right = -10.0
 
-func _make_row_style(player_side: bool, hovered: bool = false) -> StyleBoxFlat:
+func _make_row_style(player_side: bool, hovered: bool = false) -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.050, 0.038, 0.044, 0.94) if hovered else Color(0.032, 0.028, 0.036, 0.88)
 	style.border_color = Color(0.96, 0.70, 0.34, 0.96) if hovered else Color(0.24, 0.34, 0.34, 0.74) if player_side else Color(0.48, 0.045, 0.070, 0.80)
@@ -151,7 +152,8 @@ func _make_row_style(player_side: bool, hovered: bool = false) -> StyleBoxFlat:
 	style.corner_radius_bottom_left = 5
 	style.shadow_size = 8 if hovered else 4
 	style.shadow_color = Color(0.60, 0.16, 0.040, 0.26) if hovered else Color(0.0, 0.0, 0.0, 0.38)
-	return style
+	var modulate: Color = Color(1.14, 1.05, 0.92, 1.0) if hovered else Color(0.86, 0.82, 0.78, 0.94)
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(modulate), style)
 
 func _ensure_value_well() -> void:
 	if content_box == null:
@@ -175,7 +177,7 @@ func _ensure_value_well() -> void:
 	if value_label != null:
 		content_box.move_child(value_label, content_box.get_child_count() - 1)
 
-func _make_value_well_style() -> StyleBoxFlat:
+func _make_value_well_style() -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.018, 0.015, 0.020, 0.82)
 	style.border_color = Color(0.30, 0.22, 0.18, 0.54)
@@ -186,7 +188,7 @@ func _make_value_well_style() -> StyleBoxFlat:
 	style.corner_radius_bottom_left = 4
 	style.content_margin_left = 6
 	style.content_margin_right = 8
-	return style
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.68, 0.64, 0.60, 0.70)), style)
 
 func _format_value(v: float) -> String:
 	if metric_key == "dps":

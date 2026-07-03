@@ -137,11 +137,8 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 	_expect(placeholder != null, "First fight placeholder panel missing", failures)
 	if placeholder != null:
 		_expect(placeholder.custom_minimum_size.x >= 790.0, "First fight placeholder should span the shop strip", failures)
-		var panel_style: StyleBoxFlat = placeholder.get_theme_stylebox("panel") as StyleBoxFlat
-		_expect(panel_style != null, "First fight placeholder style missing", failures)
-		if panel_style != null:
-			_expect(panel_style.border_width_top >= 2, "First fight placeholder border is too subtle", failures)
-			_expect(panel_style.border_color.r >= 0.70 and panel_style.border_color.g >= 0.40, "First fight placeholder border is not prominent enough", failures)
+		var panel_style: StyleBox = placeholder.get_theme_stylebox("panel")
+		_expect(panel_style is StyleBoxTexture, "First fight placeholder should use the generated wide panel asset", failures)
 		_expect(placeholder.mouse_filter == Control.MOUSE_FILTER_STOP, "First fight placeholder should accept clicks for explanatory feedback", failures)
 		_expect(placeholder.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "First fight placeholder should show an interactive cursor", failures)
 		_expect(placeholder.focus_mode == Control.FOCUS_ALL, "First fight placeholder should be keyboard focusable", failures)

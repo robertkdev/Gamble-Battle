@@ -4,6 +4,7 @@ class_name ItemTooltip
 const ItemCatalog := preload("res://scripts/game/items/item_catalog.gd")
 const ItemDef := preload("res://scripts/game/items/item_def.gd")
 const PhaseRules := preload("res://scripts/game/items/phase_rules.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const TOOLTIP_WIDTH: float = 318.0
 const PADDING: float = 12.0
@@ -73,9 +74,9 @@ func _apply_style() -> void:
 	style.corner_radius_bottom_left = 5
 	style.shadow_size = 14
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
-	add_theme_stylebox_override("panel", style)
+	add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(), style))
 	if _background != null:
-		_background.color = COLOR_PANEL_INNER
+		_background.color = Color(COLOR_PANEL_INNER.r, COLOR_PANEL_INNER.g, COLOR_PANEL_INNER.b, 0.0)
 	if _vbox != null:
 		_vbox.add_theme_constant_override("separation", 7)
 	var labels: Array[Variant] = [_name_label, _type_label, _stats_label, _effects_label, _components_label, _tags_label, _footer_label]
