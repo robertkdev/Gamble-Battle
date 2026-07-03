@@ -600,7 +600,7 @@ func _update_combat_progress_watchdog() -> void:
 	if total_damage > _last_progress_total_damage or _positions_changed(positions, _last_progress_positions):
 		_last_progress_time = float(state.elapsed_time)
 		_last_progress_total_damage = total_damage
-		_last_progress_positions = positions.duplicate()
+		_last_progress_positions = positions
 
 func _mark_combat_progress() -> void:
 	if state == null:

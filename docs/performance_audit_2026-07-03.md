@@ -148,6 +148,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Rejected slot unique-min preflight experiment: computing the unique-min shortcut before building the cost matrix preserved `PerfSlotStrategy.tscn` aggregate signature `5330865502362346199` and improved focused totals to `328ms` then `288ms`, but regressed real 12v12 movement profiling to slot assignment `3253520us` / movement `3612028us`, so it was reverted.
 - `tests/perf/PerfCollisionResolver.tscn` added focused collision coverage for dense 6v6, dense 12v12, and late-fight 12v12 cases. Baseline kept signatures and errors `[]`: dense 6v6 median `49ms`, dense 12v12 median `47ms`, late 12v12 median `54ms`, aggregate signature `1955603822268948610`.
 - Rejected range/collision experiments from the follow-up audit: squared-distance `MovementMath.within_range()` / `within_radius_tiles()` preserved signatures and helped some broad samples, but regressed a direct `Perf1v1.tscn` control from `346ms` to `957ms`; alive-only collision scratch compaction improved focused `PerfCollisionResolver.tscn` totals to `141ms` then `135ms`, but repeatedly regressed `PerfLargeBoard.tscn` versus a direct reverted control (`16592ms` / `16074ms` patched vs `13409ms` control), so both were reverted.
+- `CombatEngine._update_combat_progress_watchdog()` now keeps the fresh `_all_positions()` snapshot directly instead of duplicating that already-new array again after movement/progress is detected. Validation stayed behavior-stable and clean: `Perf1v1.tscn` kept signature `-6199507685307107293:55` with noisy samples `416ms` and `472ms`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=12048`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3093ms`, 12v12 median `3027ms`, total `12392ms`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=10069`.
+- Rejected slot unique-min column bitmask experiment: replacing the per-base `Array[bool]` used-column tracker with an `int` bitmask preserved `PerfSlotStrategy.tscn` aggregate signature `5330865502362346199`, but repeated focused totals `270ms` and `271ms` did not beat the fresh `260ms` control, so it was reverted.
 
 ## Changes Made
 
@@ -207,6 +209,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.
+- `scripts/game/combat/combat_engine.gd`
+  - Avoids duplicating the fresh progress-watchdog position snapshot when movement or damage already proves progress. The snapshot is already newly allocated by `_all_positions()`, so the extra duplicate was redundant.
 - `tests/perf/PerfCombatUiSignals.gd` / `tests/perf/PerfCombatUiSignals.tscn`
   - Added a player-facing combat diagnostics scene that counts core combat/UI signals and diagnostic refresh counts for unit views and trait presentation.
 - `scripts/ui/combat/unit_view.gd`
