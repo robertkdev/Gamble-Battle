@@ -77,6 +77,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfTargeting.tscn` added focused target-priority scoring coverage over mixed 12v12 teams. Baseline with `iterations=180`, `samples=3`: median `1632ms`, p95 `1638ms`, signature `9036604269279486158`, errors `[]`.
 - `tests/perf/PerfTargeting.tscn` after target approach bitmask caching kept signature `9036604269279486158`, errors `[]`, and improved repeated samples to median `975ms` / p95 `1113ms`, then median `917ms` / p95 `997ms`.
 - Normal combat validation after target approach bitmask caching stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=13229`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=512`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=8887`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3315ms`, 12v12 median `4716ms`, total `16688ms`.
+- `tests/perf/PerfTargeting.tscn` before ally peel priority caching on the current tree: median `972ms`, p95 `1100ms`, signature `9036604269279486158`, errors `[]`.
+- `tests/perf/PerfTargeting.tscn` after ally peel priority caching kept signature `9036604269279486158`, errors `[]`, and improved repeated medians to `930ms`, `869ms`, `855ms`, and `774ms`. The first two p95 samples were noisy (`1158ms`, `1202ms`), while the later two were `888ms` and `818ms`.
+- Normal combat validation after ally peel priority caching stayed behavior-stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=14893`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=449`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=9707`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `3650ms`, p95 `5143ms`, 12v12 median `4738ms`, p95 `4857ms`, total `18403ms`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -145,6 +148,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/targeting.gd`
   - Precomputes attacker role, goal, and approach bitmask once per `pick_by_priority()` call.
   - Replaces repeated per-candidate attacker approach string scans with zero-allocation bit checks while preserving target-selection signatures.
+  - Precomputes support ally peel priorities once per target pick, so support scoring does not rescan ally role/approach metadata for every enemy candidate.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.
@@ -210,7 +214,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 2. Targeting does meaningful per-candidate scoring.
    - `Targeting.pick_by_priority()` walks live enemies and may score ally peel pressure and nearby units.
    - The `target_recheck_interval_s=0.35` throttle is important. Do not move this to per-frame retargeting.
-   - `PerfTargeting.tscn` now isolates target-priority scoring and shows attacker approach metadata was a real focused hotspot. The current implementation caches attacker role/goal/approach mask once per pick; future targeting work should preserve signature `9036604269279486158` in that focused benchmark.
+   - `PerfTargeting.tscn` now isolates target-priority scoring and shows attacker approach metadata plus support ally peel metadata were real focused hotspots. The current implementation caches attacker role/goal/approach mask and ally peel priorities once per pick; future targeting work should preserve signature `9036604269279486158` in that focused benchmark.
 
 3. Telemetry and UI signals are broad.
    - Combat emits position, target, hit, stat, and team-stat signals.
