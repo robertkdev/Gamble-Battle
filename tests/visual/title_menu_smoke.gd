@@ -31,6 +31,9 @@ func _run() -> void:
 			_expect(content_style is StyleBoxTexture, "ContentPanel should use the generated wide panel asset", failures)
 		var search_field: LineEdit = title_menu.get_node_or_null("ContentPanel/Margin/Stack/Header/SearchField") as LineEdit
 		_expect(search_field != null, "SearchField missing", failures)
+		if search_field != null:
+			_expect_stylebox_texture(search_field, "normal", "SearchField normal should use generated texture styling", failures)
+			_expect_stylebox_texture(search_field, "focus", "SearchField focus should use generated texture styling", failures)
 		var how_to_play_button: Button = title_menu.get_node_or_null("Center/VBox/HowToPlayButton") as Button
 		var units_button: Button = title_menu.get_node_or_null("Center/VBox/UnitsButton") as Button
 		var rga_button: Button = title_menu.get_node_or_null("Center/VBox/RGAGlossaryButton") as Button
@@ -39,6 +42,10 @@ func _run() -> void:
 		_expect(units_button != null, "UnitsButton missing", failures)
 		_expect(rga_button != null, "RGAGlossaryButton missing", failures)
 		_expect(settings_button != null, "SettingsButton missing", failures)
+		_expect_button_states(how_to_play_button, "HowToPlayButton", failures)
+		_expect_button_states(units_button, "UnitsButton", failures)
+		_expect_button_states(rga_button, "RGAGlossaryButton", failures)
+		_expect_button_states(settings_button, "SettingsButton", failures)
 		if units_button != null and search_field != null:
 			units_button.emit_signal("pressed")
 			await get_tree().process_frame
@@ -47,6 +54,7 @@ func _run() -> void:
 			await get_tree().process_frame
 			_expect(_find_label_containing_text(title_menu, "Hexeon") != null, "Unit search did not find Hexeon", failures)
 			_expect(_find_label_containing_text(title_menu, "Prismatic Guillotine") != null, "Unit card did not show ability info", failures)
+			_expect_content_panels_generated(title_menu, "Units page cards should use generated texture styling", failures)
 		if rga_button != null and search_field != null:
 			rga_button.emit_signal("pressed")
 			await get_tree().process_frame
@@ -54,6 +62,7 @@ func _run() -> void:
 			search_field.emit_signal("text_changed", "PASS")
 			await get_tree().process_frame
 			_expect(_find_label_containing_text(title_menu, "PASS / LEAN / FAIL") != null, "RGA search did not expose verdict terminology", failures)
+			_expect_content_panels_generated(title_menu, "RGA cards should use generated texture styling", failures)
 		if how_to_play_button != null and search_field != null:
 			how_to_play_button.emit_signal("pressed")
 			await get_tree().process_frame
@@ -61,11 +70,21 @@ func _run() -> void:
 			search_field.emit_signal("text_changed", "combine")
 			await get_tree().process_frame
 			_expect(_find_label_containing_text(title_menu, "combine into a stronger copy") != null, "Tutorial search did not expose combine guidance", failures)
+			_expect_content_panels_generated(title_menu, "How To Play cards should use generated texture styling", failures)
 		if settings_button != null:
 			settings_button.emit_signal("pressed")
 			await get_tree().process_frame
 			var volume_slider: HSlider = title_menu.find_child("MasterVolumeSlider", true, false) as HSlider
 			_expect(volume_slider != null, "Settings did not expose master volume slider", failures)
+			if volume_slider != null:
+				_expect_stylebox_texture(volume_slider, "slider", "MasterVolumeSlider track should use generated texture styling", failures)
+				_expect_stylebox_texture(volume_slider, "grabber_area", "MasterVolumeSlider filled area should use generated texture styling", failures)
+			var fullscreen_check: CheckBox = title_menu.find_child("FullscreenCheck", true, false) as CheckBox
+			var motion_check: CheckBox = title_menu.find_child("ReducedMotionCheck", true, false) as CheckBox
+			_expect(fullscreen_check != null, "FullscreenCheck missing", failures)
+			_expect(motion_check != null, "ReducedMotionCheck missing", failures)
+			_expect_button_states(fullscreen_check, "FullscreenCheck", failures)
+			_expect_button_states(motion_check, "ReducedMotionCheck", failures)
 		var start_button: Button = title_menu.get_node_or_null("Center/VBox/StartButton") as Button
 		_expect(start_button != null, "StartButton missing", failures)
 		if start_button != null:
@@ -93,6 +112,37 @@ func _run() -> void:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _expect_content_panels_generated(title_menu: Control, message: String, failures: Array[String]) -> void:
+	var body: Control = null
+	if title_menu != null:
+		body = title_menu.get_node_or_null("ContentPanel/Margin/Stack/ContentScroll/ContentBody") as Control
+	_expect(body != null, "ContentBody missing", failures)
+	if body == null:
+		return
+	var panel_count: int = 0
+	for node: Node in body.find_children("*", "PanelContainer", true, false):
+		var panel: PanelContainer = node as PanelContainer
+		if panel == null:
+			continue
+		panel_count += 1
+		_expect_stylebox_texture(panel, "panel", "%s: %s" % [message, str(panel.name)], failures)
+	_expect(panel_count > 0, message, failures)
+
+func _expect_button_states(button: Button, label: String, failures: Array[String]) -> void:
+	_expect(button != null, "%s missing" % label, failures)
+	if button == null:
+		return
+	var states: Array[String] = ["normal", "hover", "pressed", "focus"]
+	for state: String in states:
+		_expect_stylebox_texture(button, state, "%s %s should use generated texture styling" % [label, state], failures)
+
+func _expect_stylebox_texture(control: Control, style_name: String, message: String, failures: Array[String]) -> void:
+	_expect(control != null, message, failures)
+	if control == null:
+		return
+	var style: StyleBox = control.get_theme_stylebox(style_name)
+	_expect(style is StyleBoxTexture, message, failures)
 
 func _find_label_containing_text(root: Node, needle: String) -> Label:
 	if root == null:

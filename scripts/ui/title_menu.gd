@@ -457,8 +457,7 @@ func _ensure_content_panel() -> void:
 	_search_field.add_theme_font_size_override("font_size", 17)
 	_search_field.add_theme_color_override("font_color", COLOR_TEXT)
 	_search_field.add_theme_color_override("font_placeholder_color", Color(0.62, 0.57, 0.50, 0.82))
-	_search_field.add_theme_stylebox_override("normal", _make_panel_style(Color(0.015, 0.013, 0.017, 0.96), Color(0.30, 0.23, 0.18, 0.94), 1, 5, 0))
-	_search_field.add_theme_stylebox_override("focus", _make_panel_style(Color(0.030, 0.022, 0.028, 0.98), COLOR_GOLD, 1, 5, 0))
+	_style_search_field(_search_field)
 	if not _search_field.is_connected("text_changed", Callable(self, "_on_search_changed")):
 		_search_field.text_changed.connect(_on_search_changed)
 
@@ -792,6 +791,7 @@ func _add_volume_setting() -> int:
 	slider.step = 1.0
 	slider.value = _current_master_volume_percent()
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_style_slider(slider)
 	slider.value_changed.connect(_on_master_volume_changed)
 	stack.add_child(slider)
 	stack.add_child(_make_label("Adjusts Godot's Master audio bus for this run.", 13, COLOR_MUTED, true))
@@ -824,6 +824,7 @@ func _add_checkbox_setting(title: String, node_name: String, enabled: bool, body
 	check.button_pressed = enabled
 	check.add_theme_font_size_override("font_size", 17)
 	check.add_theme_color_override("font_color", COLOR_TEXT)
+	_style_checkbox(check)
 	stack.add_child(check)
 	stack.add_child(_make_label(body, 13, COLOR_MUTED, true))
 	check.set_meta("search", search_blob)
@@ -833,7 +834,8 @@ func _make_card_container(node_name: String, bg: Color, border: Color, border_wi
 	var card: PanelContainer = PanelContainer.new()
 	card.name = node_name
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.add_theme_stylebox_override("panel", _make_panel_style(bg, border, border_width, 6, 6))
+	var generated_style: StyleBoxTexture = GothicUIAssets.grid_panel_style(_card_modulate_from_border(border))
+	card.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(generated_style, _make_panel_style(bg, border, border_width, 6, 6)))
 	var margin: MarginContainer = MarginContainer.new()
 	margin.name = "Margin"
 	margin.add_theme_constant_override("margin_left", 14)
@@ -855,7 +857,13 @@ func _make_label(text: String, font_size: int, color: Color, wrap: bool) -> Labe
 func _make_tag(text: String, color: Color) -> PanelContainer:
 	var tag: PanelContainer = PanelContainer.new()
 	tag.custom_minimum_size = Vector2(0.0, 24.0)
-	tag.add_theme_stylebox_override("panel", _make_panel_style(Color(color.r * 0.22, color.g * 0.18, color.b * 0.15, 0.82), Color(color.r, color.g, color.b, 0.70), 1, 4, 0))
+	var generated_style: StyleBoxTexture = GothicUIAssets.item_slot_style(Color(
+		clamp(color.r + 0.34, 0.0, 1.18),
+		clamp(color.g + 0.30, 0.0, 1.14),
+		clamp(color.b + 0.26, 0.0, 1.08),
+		1.0
+	))
+	tag.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(generated_style, _make_panel_style(Color(color.r * 0.22, color.g * 0.18, color.b * 0.15, 0.82), Color(color.r, color.g, color.b, 0.70), 1, 4, 0)))
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_right", 8)
@@ -869,7 +877,13 @@ func _make_tag(text: String, color: Color) -> PanelContainer:
 func _make_badge(text: String, color: Color) -> PanelContainer:
 	var badge: PanelContainer = PanelContainer.new()
 	badge.custom_minimum_size = Vector2(34.0, 34.0)
-	badge.add_theme_stylebox_override("panel", _make_panel_style(Color(color.r * 0.20, color.g * 0.16, color.b * 0.12, 0.92), Color(color.r, color.g, color.b, 0.82), 1, 17, 0))
+	var generated_style: StyleBoxTexture = GothicUIAssets.item_slot_style(Color(
+		clamp(color.r + 0.26, 0.0, 1.16),
+		clamp(color.g + 0.20, 0.0, 1.10),
+		clamp(color.b + 0.14, 0.0, 1.04),
+		1.0
+	))
+	badge.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(generated_style, _make_panel_style(Color(color.r * 0.20, color.g * 0.16, color.b * 0.12, 0.92), Color(color.r, color.g, color.b, 0.82), 1, 17, 0)))
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_right", 8)
@@ -906,11 +920,42 @@ func _update_nav_state() -> void:
 	for nav_button: Button in _nav_buttons:
 		var section: String = String(nav_button.get_meta("section", ""))
 		var is_active: bool = section == _active_section
+		nav_button.toggle_mode = true
+		nav_button.button_pressed = is_active
 		nav_button.add_theme_color_override("font_color", Color(1.0, 0.86, 0.58, 1.0) if is_active else COLOR_TEXT)
 		if is_active:
 			nav_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.04, 0.84, 1.0)), _make_button_style(Color(0.15, 0.060, 0.062, 0.98), COLOR_GOLD, 1)))
 		else:
 			nav_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1)))
+
+func _style_search_field(field: LineEdit) -> void:
+	if field == null:
+		return
+	field.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.74, 0.70, 0.66, 1.0)), _make_panel_style(Color(0.015, 0.013, 0.017, 0.96), Color(0.30, 0.23, 0.18, 0.94), 1, 5, 0)))
+	field.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.12, 1.02, 0.84, 1.0)), _make_panel_style(Color(0.030, 0.022, 0.028, 0.98), COLOR_GOLD, 1, 5, 0)))
+
+func _style_slider(slider: HSlider) -> void:
+	if slider == null:
+		return
+	slider.add_theme_stylebox_override("slider", GothicUIAssets.style_or_fallback(GothicUIAssets.item_slot_style(Color(0.72, 0.68, 0.62, 1.0)), _make_panel_style(Color(0.018, 0.015, 0.020, 0.96), Color(0.30, 0.23, 0.18, 0.94), 1, 4, 0)))
+	slider.add_theme_stylebox_override("grabber_area", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.92, 0.78, 0.56, 1.0)), _make_panel_style(Color(0.16, 0.070, 0.050, 0.96), COLOR_GOLD, 1, 4, 0)))
+	slider.add_theme_stylebox_override("grabber_area_highlight", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.18, 0.96, 0.68, 1.0)), _make_panel_style(Color(0.24, 0.090, 0.070, 0.98), COLOR_GOLD, 1, 4, 0)))
+
+func _style_checkbox(check: CheckBox) -> void:
+	if check == null:
+		return
+	check.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.78, 0.72, 0.66, 1.0)), _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1)))
+	check.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _make_button_style(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0), 1)))
+	check.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.92, 0.76, 0.68, 1.0)), _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2)))
+	check.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2)))
+
+func _card_modulate_from_border(border: Color) -> Color:
+	return Color(
+		clamp(0.74 + border.r * 0.28, 0.0, 1.14),
+		clamp(0.70 + border.g * 0.24, 0.0, 1.10),
+		clamp(0.66 + border.b * 0.22, 0.0, 1.06),
+		1.0
+	)
 
 func _make_panel_style(bg_color: Color, border_color: Color, border_width: int, radius: int, shadow_size: int) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
