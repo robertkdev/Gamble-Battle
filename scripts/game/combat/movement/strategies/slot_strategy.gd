@@ -327,15 +327,6 @@ func assign_slots_for_team(team: String,
 		hysteresis_frames: int = 0) -> Dictionary:
 	var ranges_world: Dictionary = _ranges_world_scratch # idx -> float
 	ranges_world.clear()
-	for i in range(attackers_units.size()):
-		var u: Unit = attackers_units[i]
-		var band: float = 1.0
-		if i < profiles.size() and profiles[i] != null:
-			band = max(0.0, float(profiles[i].band_max))
-		var desired: float = 0.0
-		if u != null:
-			desired = max(0.0, float(u.attack_range)) * max(0.0, tile_size) * band
-		ranges_world[i] = desired
 
 	var slot_map: Dictionary = {}
 	for t_idx in groups.keys():
@@ -344,6 +335,18 @@ func assign_slots_for_team(team: String,
 			continue
 		if t_idx < 0 or t_idx >= target_positions.size():
 			continue
+		for attacker_value in attackers:
+			var attacker_index: int = int(attacker_value)
+			if ranges_world.has(attacker_index):
+				continue
+			var u: Unit = attackers_units[attacker_index] if attacker_index >= 0 and attacker_index < attackers_units.size() else null
+			var band: float = 1.0
+			if attacker_index >= 0 and attacker_index < profiles.size() and profiles[attacker_index] != null:
+				band = max(0.0, float(profiles[attacker_index].band_max))
+			var desired: float = 0.0
+			if u != null:
+				desired = max(0.0, float(u.attack_range)) * max(0.0, tile_size) * band
+			ranges_world[attacker_index] = desired
 		var tgt_pos: Vector2 = target_positions[t_idx]
 		_assign_for_target_into(slot_map, team, int(t_idx), tgt_pos, attackers, attacker_positions, ranges_world, tile_size, prev_slot_assignments, hysteresis_frames)
 		# Debug: print assignment summary when enabled. If watch_indices is non-empty,
