@@ -40,6 +40,13 @@ var _prev_enemy_slots_scratch: Dictionary = {}
 var _debug_watch_players: Array = []
 var _debug_watch_enemies: Array = []
 
+var diagnostics_enabled: bool = false
+var _diag_phase_usec: Dictionary[String, int] = {}
+var _diag_frames: int = 0
+var _diag_total_usec: int = 0
+var _diag_target_calls: int = 0
+var _diag_target_skips: int = 0
+
 func configure(config_tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	var p: Array[Vector2] = []
 	for v in player_pos:
@@ -88,6 +95,30 @@ func set_debug_watch(team: String, indices: Array) -> void:
 	else:
 		_debug_watch_enemies = out
 
+func set_diagnostics_enabled(enabled: bool) -> void:
+	diagnostics_enabled = bool(enabled)
+	reset_diagnostics()
+
+func reset_diagnostics() -> void:
+	_diag_phase_usec.clear()
+	_diag_frames = 0
+	_diag_total_usec = 0
+	_diag_target_calls = 0
+	_diag_target_skips = 0
+
+func diagnostics_snapshot() -> Dictionary:
+	var phases: Dictionary[String, int] = {}
+	for key in _diag_phase_usec.keys():
+		var phase_key: String = String(key)
+		phases[phase_key] = int(_diag_phase_usec.get(phase_key, 0))
+	return {
+		"frames": int(_diag_frames),
+		"total_usec": int(_diag_total_usec),
+		"phases_usec": phases,
+		"target_calls": int(_diag_target_calls),
+		"target_skips": int(_diag_target_skips)
+	}
+
 func ensure_capacity(player_count: int, enemy_count: int) -> void:
 	data.ensure_capacity(player_count, enemy_count)
 	_ensure_profiles()
@@ -123,8 +154,16 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		return
 	if state == null:
 		return
+	var diag_enabled: bool = bool(diagnostics_enabled)
+	var diag_total_start: int = 0
+	var diag_phase_start: int = 0
+	if diag_enabled:
+		diag_total_start = Time.get_ticks_usec()
+		diag_phase_start = diag_total_start
 	ensure_capacity(state.player_team.size(), state.enemy_team.size())
 	data.tick_slot_memory()
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("setup", diag_phase_start)
 
 	# Snapshot remaining debug frames for this update; will decrement once per call
 	var _dbg_frames_left: int = int(data.debug_log_frames)
@@ -144,6 +183,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	for j_alive in range(state.enemy_team.size()):
 		var e_u_alive: bool = (state.enemy_team[j_alive] != null and state.enemy_team[j_alive].is_alive())
 		e_alive[j_alive] = e_u_alive
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("alive", diag_phase_start)
 
 	# Current targets via resolver
 	_resize_int_scratch(_p_targets_scratch, state.player_team.size(), -1)
@@ -153,15 +194,25 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	for i_t in range(state.player_team.size()):
 		if i_t < p_alive.size() and not p_alive[i_t]:
 			p_targets[i_t] = -1
+			if diag_enabled:
+				_diag_target_skips += 1
 			continue
+		if diag_enabled:
+			_diag_target_calls += 1
 		var v: Variant = target_resolver.call("player", i_t)
 		p_targets[i_t] = int(v) if typeof(v) == TYPE_INT else -1
 	for j_t in range(state.enemy_team.size()):
 		if j_t < e_alive.size() and not e_alive[j_t]:
 			e_targets[j_t] = -1
+			if diag_enabled:
+				_diag_target_skips += 1
 			continue
+		if diag_enabled:
+			_diag_target_calls += 1
 		var v2: Variant = target_resolver.call("enemy", j_t)
 		e_targets[j_t] = int(v2) if typeof(v2) == TYPE_INT else -1
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("targets", diag_phase_start)
 
 	# Group attackers per target
 	_enemy_groups_scratch.clear()
@@ -180,11 +231,15 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			if not player_groups.has(t2):
 				player_groups[t2] = []
 			(player_groups[t2] as Array).append(j_g)
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("groups", diag_phase_start)
 
 	var prev_player_slots: Dictionary = _prev_player_slots_scratch
 	var prev_enemy_slots: Dictionary = _prev_enemy_slots_scratch
 	_sync_prev_slots(prev_player_slots, "player", state.player_team.size())
 	_sync_prev_slots(prev_enemy_slots, "enemy", state.enemy_team.size())
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("prev_slots", diag_phase_start)
 
 	# Slot destinations
 	var p_slot_map: Dictionary = slots.assign_slots_for_team(
@@ -217,12 +272,16 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		_debug_watch_enemies,
 		prev_enemy_slots,
 		SLOT_HYSTERESIS_FRAMES)
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("slot_assign", diag_phase_start)
 
 	# Per-unit attempted step caps
 	_resize_float_scratch(_p_caps_scratch, state.player_team.size(), 0.0)
 	_resize_float_scratch(_e_caps_scratch, state.enemy_team.size(), 0.0)
 	var p_caps: Array[float] = _p_caps_scratch
 	var e_caps: Array[float] = _e_caps_scratch
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("caps", diag_phase_start)
 
 	# (Potential fast path for 1v1 removed pending further validation)
 
@@ -307,6 +366,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		data.player_positions[i] = new_pos
 		step = new_pos - cur
 		p_caps[i] = step.length()
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("player_steps", diag_phase_start)
 
 	# Enemy side
 	for j in range(state.enemy_team.size()):
@@ -389,6 +450,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		data.enemy_positions[j] = new_pos_e
 		step2 = new_pos_e - cur_e
 		e_caps[j] = step2.length()
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("enemy_steps", diag_phase_start)
 
 	# Resolve collisions (post-step)
 	collider.resolve(
@@ -399,6 +462,10 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		max(1, tuning.collision_iterations),
 		tuning.friendly_soft_separation,
 		Debug.enabled and data.debug_log_frames > 0)
+	if diag_enabled:
+		diag_phase_start = _diag_mark_phase("collision", diag_phase_start)
+		_diag_frames += 1
+		_diag_total_usec += max(0, Time.get_ticks_usec() - diag_total_start)
 
 	# Decrement debug frames to limit verbose logging to the requested window
 	if _dbg_frames_left > 0:
@@ -625,6 +692,12 @@ func _corridor_factor(dist_to_slot: float, corridor_radius: float) -> float:
 	if corridor_radius <= ARRIVE_STOP_EPS:
 		return 1.0
 	return clampf(dist_to_slot / corridor_radius, 0.0, 1.0)
+
+func _diag_mark_phase(phase_name: String, phase_start_usec: int) -> int:
+	var now_usec: int = Time.get_ticks_usec()
+	var elapsed_usec: int = max(0, now_usec - phase_start_usec)
+	_diag_phase_usec[phase_name] = int(_diag_phase_usec.get(phase_name, 0)) + elapsed_usec
+	return now_usec
 
 func _resize_bool_scratch(arr: Array[bool], length: int, fill: bool) -> void:
 	if length < 0:

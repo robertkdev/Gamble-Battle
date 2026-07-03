@@ -58,6 +58,11 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/Perf6v6.tscn` after dead-unit arena target lookup skip stayed stable with aggregate signature `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=14444`.
 - `tests/perf/PerfLargeBoard.tscn` after dead-unit arena target lookup skip stayed stable with aggregate signature `7144113503220431359:12`, inconsistent cases `0`, errors `[]`: 8v8 median `3645ms`, p95 `4505ms`; 12v12 median `4031ms`, p95 `4575ms`; total `16765ms`.
 - Rejected movement/slot experiments from this pass: a squared-distance separation/avoidance guard changed `Perf6v6` peel from signature `1121549412794869883:232` to `2017122493037976673:232`, and an indexed slot-range scratch cleanup preserved signatures but did not show a large-board timing win. Both were reverted.
+- `tests/perf/PerfMovementPhases.tscn` added a movement-phase profiler that is enabled only through `job.metadata.perf_movement_diagnostics`. Accepted profiler run with current slot strategy:
+  - 6v6 neutral: signature `-3997862279252171970:232`, movement frames `514`, target calls/skips `5383/785`, movement `475601us`, top phases slot assignment `189281us` (`39.8%`), player steps `112362us` (`23.6%`), enemy steps `75049us` (`15.8%`).
+  - 12v12 large: signature `3567836549670627538:428`, movement frames `258`, target calls/skips `4806/1386`, movement `3390020us`, top phases slot assignment `3060889us` (`90.3%`), player steps `159847us` (`4.7%`), enemy steps `71479us` (`2.1%`).
+- Rejected exact-assignment experiments from the profiler pass: a direct Hungarian assignment path improved focused `PerfSlotStrategy` timing but changed real combat signatures; a Hungarian-bounded DP path restored signatures but regressed real 12v12 movement profiling (`slot_assign=3919580us`, `movement=4274289us`). Both were reverted; keep the current bounded-DP implementation until a tie-preserving algorithm proves faster in real movement profiling.
+- Normal diagnostics-off validation after adding the profiler stayed stable: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=13485`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `frames=901`, `time_ms=474`, errors `[]`.
 - `tests/perf/Perf1v1.tscn` after slot-strategy optimization: `time_ms=459`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after slot-strategy optimization: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7358`.
 - `tests/perf/PerfTextureUtils.tscn` after shared texture cache:
@@ -113,6 +118,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/movement/movement_service2.gd`
   - Skips arena target resolver calls for dead units after the per-frame alive snapshot is built.
   - This avoids no-op target lookups without changing alive-unit movement, target groups, or combat signatures.
+- `scripts/game/combat/movement/movement_service2.gd`, `tests/rga_testing/core/lockstep_simulator.gd`, and `tests/perf/PerfMovementPhases.gd` / `.tscn`
+  - Added opt-in movement phase diagnostics for setup, alive snapshot, target resolution, grouping, previous-slot sync, slot assignment, step caps, player steps, enemy steps, and collision.
+  - Lockstep jobs enable diagnostics only when `metadata.perf_movement_diagnostics` is true, and the new profiler scene prints per-case phase percentages plus target call/skip counts.
 - `tests/perf/PerfSlotStrategy.gd`
   - Upgraded the benchmark to repeated samples per case with median/p95/min/max reporting so solver changes are not judged from a single noisy timing sample.
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
@@ -175,7 +183,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 1. Combat movement is the primary optimization surface.
    - `MovementService2._update_impl()` computes alive flags, target groups, slot maps, steering, avoidance, and collision resolution every simulation step.
    - The largest obvious per-frame buffer rebuilds are now handled, and the exact slot solver no longer uses factorial permutation search.
-   - `SlotStrategy.assign_for_target()` still creates per-target dictionaries and result payloads; this is now a lower-priority cleanup than higher-level movement/position signal behavior unless larger-board stress coverage shows it dominates again.
+   - `PerfMovementPhases.tscn` now proves `SlotStrategy.assign_for_target()` / slot assignment dominates the 12v12 movement profile at roughly `90%` of measured movement time. Treat slot assignment as the next primary optimization surface, but preserve real-combat signatures; direct Hungarian assignment changed behavior, and Hungarian-bounded DP was slower in the real profiler.
 
 2. Targeting does meaningful per-candidate scoring.
    - `Targeting.pick_by_priority()` walks live enemies and may score ally peel pressure and nearby units.
@@ -196,8 +204,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 1. Clean up remaining dummy-renderer teardown diagnostics in `CombatArenaBoundsSmoke.tscn` if that scene must become a strict empty-error gate; its stale-bounds assertion now passes.
 2. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 159 events are material; the UI no longer polls every actor every frame.
-3. Use `PerfLargeBoard.tscn` as the regression/stress gate before future movement changes above 6v6.
-4. Profile remaining `SlotStrategy.assign_for_target()` result dictionary churn only if larger-board stress shows slot payload construction is still material.
+3. Use `PerfMovementPhases.tscn` plus `PerfLargeBoard.tscn` as the regression/stress gates before future movement changes above 6v6.
+4. Continue slot assignment work with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 
 ## Guardrails

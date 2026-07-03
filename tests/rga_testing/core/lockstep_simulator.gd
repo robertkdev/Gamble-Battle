@@ -57,6 +57,8 @@ func run(job: DataModels.SimJob, collect_events: bool = false, collector: Varian
 				tune.friendly_soft_separation = bool(meta2.get("perf_friendly_soft", tune.friendly_soft_separation))
 			if meta2.has("perf_avoidance_weight"):
 				tune.avoidance_weight = float(meta2.get("perf_avoidance_weight", tune.avoidance_weight))
+		if bool(meta2.get("perf_movement_diagnostics", false)) and arena != null and arena.has_method("set_diagnostics_enabled"):
+			arena.set_diagnostics_enabled(true)
 
 	# Apply arena
 	var tile_size: float = float(info.get("tile_size", 1.0))
@@ -275,6 +277,8 @@ func run(job: DataModels.SimJob, collect_events: bool = false, collector: Varian
 	outcome.frames = int(round(sim_time / delta_s))
 	outcome.team_a_alive = _alive_count(state.player_team)
 	outcome.team_b_alive = _alive_count(state.enemy_team)
+	if bool(jmeta_root.get("perf_movement_diagnostics", false)) and engine.arena_state != null and engine.arena_state.has_method("diagnostics_snapshot"):
+		result["movement_diagnostics"] = engine.arena_state.diagnostics_snapshot()
 
 	# Derive capabilities actually present (from engine signals and attached kernels)
 	var caps_present: PackedStringArray = _derive_caps_present(engine, collector)
