@@ -10,10 +10,28 @@ var manager
 var _overlay: Control = null
 var _scroll: ScrollContainer = null
 var _vbox: VBoxContainer = null
+var _trait_signature: String = ""
 
 const WIDTH := 56
 const PADDING_X := 8
 const SPACING := 6
+
+static var diagnostics_enabled: bool = false
+static var diagnostic_rebuild_calls: int = 0
+static var diagnostic_rebuild_skips: int = 0
+
+static func set_diagnostics_enabled(enabled: bool) -> void:
+	diagnostics_enabled = bool(enabled)
+
+static func reset_diagnostics() -> void:
+	diagnostic_rebuild_calls = 0
+	diagnostic_rebuild_skips = 0
+
+static func diagnostic_snapshot() -> Dictionary:
+	return {
+		"rebuild_calls": diagnostic_rebuild_calls,
+		"rebuild_skips": diagnostic_rebuild_skips
+	}
 
 func configure(_view: Control, _manager) -> void:
 	view = _view
@@ -46,7 +64,7 @@ func _connect_signals() -> void:
 		manager.team_stats_updated.connect(_on_team_stats_updated)
 
 func _on_team_stats_updated(_pteam, _eteam) -> void:
-	rebuild()
+	rebuild(false)
 
 func _on_view_resized() -> void:
 	_update_layout()
@@ -82,11 +100,19 @@ func _ensure_overlay() -> void:
 	if _vbox:
 		_vbox.add_theme_constant_override("spacing", SPACING)
 
-func rebuild() -> void:
+func rebuild(force: bool = true) -> void:
 	if _overlay == null:
 		_ensure_overlay()
 	if _overlay == null:
 		return
+	var next_signature: String = _current_trait_signature()
+	if not force and next_signature == _trait_signature:
+		if diagnostics_enabled:
+			diagnostic_rebuild_skips += 1
+		return
+	_trait_signature = next_signature
+	if diagnostics_enabled:
+		diagnostic_rebuild_calls += 1
 	# Clear existing
 	if _vbox:
 		for c in _vbox.get_children():
@@ -145,6 +171,29 @@ func rebuild() -> void:
 		_vbox.add_child(icon)
 
 	_update_layout()
+
+func _current_trait_signature() -> String:
+	var board_team: Array = (manager.player_team if manager else [])
+	var counts: Dictionary = {}
+	for unit_value in board_team:
+		if not (unit_value is Unit):
+			continue
+		var current_unit: Unit = unit_value as Unit
+		for trait_value in current_unit.traits:
+			var trait_id: String = String(trait_value)
+			counts[trait_id] = int(counts.get(trait_id, 0)) + 1
+	var keys: Array = counts.keys()
+	keys.sort()
+	var parts: PackedStringArray = PackedStringArray()
+	for key_value in keys:
+		var key: String = String(key_value)
+		parts.append("%s=%d" % [key, int(counts.get(key, 0))])
+	var signature: String = ""
+	for index in range(parts.size()):
+		if index > 0:
+			signature += "|"
+		signature += String(parts[index])
+	return signature
 
 func _item_grid() -> Control:
 	if view == null:

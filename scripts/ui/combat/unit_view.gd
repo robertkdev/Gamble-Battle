@@ -14,8 +14,32 @@ var mana_ticks
 var _effect_player: UnitEffectPlayer
 var _bench_mode: bool = false
 var _bench_frame: Panel = null
+var _sprite_path_cache: String = ""
 
 const TILE_SIZE = UI.TILE_SIZE
+
+static var diagnostics_enabled: bool = false
+static var diagnostic_update_from_unit_calls: int = 0
+static var diagnostic_sprite_refresh_calls: int = 0
+static var diagnostic_bar_refresh_calls: int = 0
+static var diagnostic_texture_load_attempts: int = 0
+
+static func set_diagnostics_enabled(enabled: bool) -> void:
+	diagnostics_enabled = bool(enabled)
+
+static func reset_diagnostics() -> void:
+	diagnostic_update_from_unit_calls = 0
+	diagnostic_sprite_refresh_calls = 0
+	diagnostic_bar_refresh_calls = 0
+	diagnostic_texture_load_attempts = 0
+
+static func diagnostic_snapshot() -> Dictionary:
+	return {
+		"update_from_unit_calls": diagnostic_update_from_unit_calls,
+		"sprite_refresh_calls": diagnostic_sprite_refresh_calls,
+		"bar_refresh_calls": diagnostic_bar_refresh_calls,
+		"texture_load_attempts": diagnostic_texture_load_attempts
+	}
 
 func _ready() -> void:
 	super._ready()
@@ -192,14 +216,32 @@ func set_unit(u: Unit) -> void:
 func _refresh_visual() -> void:
 	if not unit:
 		return
-	# Sprite
+	_refresh_sprite(true)
+	_refresh_bars()
+
+func _refresh_sprite(force: bool = false) -> void:
+	if not unit:
+		return
+	var sprite_path: String = String(unit.sprite_path)
+	if not force and sprite_path == _sprite_path_cache and sprite != null and sprite.texture != null:
+		return
+	if diagnostics_enabled:
+		diagnostic_sprite_refresh_calls += 1
 	var tex: Texture2D = null
-	if unit.sprite_path != "":
-		tex = TextureUtils.try_load_texture(unit.sprite_path)
+	if sprite_path != "":
+		if diagnostics_enabled:
+			diagnostic_texture_load_attempts += 1
+		tex = TextureUtils.try_load_texture(sprite_path)
 	if tex == null:
 		tex = TextureUtils.make_circle_texture(Color(0.8, 0.8, 0.8), 96)
 	sprite.texture = tex
-	# Bars
+	_sprite_path_cache = sprite_path
+
+func _refresh_bars() -> void:
+	if not unit:
+		return
+	if diagnostics_enabled:
+		diagnostic_bar_refresh_calls += 1
 	if hp_bar:
 		hp_bar.max_value = max(1, unit.max_hp)
 		hp_bar.value = clamp(unit.hp, 0, unit.max_hp)
@@ -229,9 +271,15 @@ func play_hit_flash(opts: Dictionary = {}) -> void:
 	_effect_player.play(UnitEffectPlayer.EFFECT_HIT, payload)
 
 func update_from_unit(u: Unit) -> void:
+	if diagnostics_enabled:
+		diagnostic_update_from_unit_calls += 1
 	if unit != u:
 		unit = u
-	_refresh_visual()
+		_refresh_visual()
+		return
+	_ensure_children()
+	_refresh_sprite(false)
+	_refresh_bars()
 
 func attach_to(tile: Control) -> void:
 	if not tile:

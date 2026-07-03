@@ -20,11 +20,22 @@ func _run() -> void:
 	var engine: Variant = manager.get_engine() if manager != null else null
 	if engine == null:
 		push_error("CombatViewThemePlaytest: combat engine did not start")
-		get_tree().quit(1)
+		_finish(view, 1)
 		return
 	if engine.state == null or not bool(engine.state.battle_active):
 		push_error("CombatViewThemePlaytest: battle is not active")
-		get_tree().quit(1)
+		_finish(view, 1)
 		return
 	print("CombatViewThemePlaytest: OK elapsed=%.2f" % float(engine.state.elapsed_time))
-	get_tree().quit(0)
+	_finish(view, 0)
+
+func _finish(view: Control, code: int) -> void:
+	if view != null and is_instance_valid(view):
+		if view.has_method("_teardown"):
+			view.call("_teardown")
+		var parent_node: Node = view.get_parent()
+		if parent_node != null:
+			parent_node.remove_child(view)
+		view.free()
+	if get_tree() != null:
+		get_tree().quit(code)

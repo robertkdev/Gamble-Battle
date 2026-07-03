@@ -20,6 +20,11 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Partial `tests/perf/Perf1v1Sweep.tscn` showed `delta_s=0.05` variants preserved the baseline signature, while `delta_s=0.25` changed aggregate signatures. Coarser simulation steps are not safe as a default yet.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after changes: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=10079`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after movement/telemetry pass: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=9757`.
+- `tests/perf/PerfCombatUiSignals.tscn` before UI refresh gating: sampled combat had `team_stats_updated=6`, `stats_updated=8`, `unit_stat_changed=6`, `position_updated=155-157`, `UnitView.update_from_unit_calls=105`, `UnitView.bar_refresh_calls=114`, `UnitView.sprite_refresh_calls=9`, `UnitView.texture_load_attempts=9`, `TraitsPresenter.rebuild_calls=2`, `TraitsPresenter.rebuild_skips=5`, errors `[]`.
+- `tests/perf/PerfCombatUiSignals.tscn` after UI refresh gating: same short combat shape with `team_stats_updated=6`, `stats_updated=8`, `unit_stat_changed=6`, `position_updated=155`, `UnitView.update_from_unit_calls=28`, `UnitView.bar_refresh_calls=37`, `UnitView.sprite_refresh_calls=9`, `UnitView.texture_load_attempts=9`, `TraitsPresenter.rebuild_calls=2`, `TraitsPresenter.rebuild_skips=5`, errors `[]`.
+- `tests/perf/Perf1v1.tscn` after UI refresh pass: `time_ms=441`, `frames=901`, same signature `-6199507685307107293:55`, errors `[]`.
+- `tests/perf/Perf6v6.tscn` after UI refresh pass: aggregate signature stayed `4480953857527108889:18`, inconsistent cases `0`, errors `[]`. The run was wall-time noisy (`total_ms=24740`) and should be interpreted as a determinism/regression check, not a new simulation-speed baseline.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` after UI refresh pass: `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=10781`.
 
 ## Changes Made
 
@@ -46,6 +51,20 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/combat_engine.gd` and `tests/rga_testing/core/lockstep_simulator.gd`
   - Added explicit position/target telemetry toggles.
   - Base-only headless jobs disable unused movement/target telemetry; role/UI-capable paths keep telemetry enabled.
+- `tests/perf/PerfCombatUiSignals.gd` / `tests/perf/PerfCombatUiSignals.tscn`
+  - Added a player-facing combat diagnostics scene that counts core combat/UI signals and diagnostic refresh counts for unit views and trait presentation.
+- `scripts/ui/combat/unit_view.gd`
+  - Split sprite refresh from bar refresh and caches the sprite path.
+  - HP/mana updates no longer retry sprite texture loading when the unit identity and sprite path are unchanged.
+  - Added diagnostics-only counters for `update_from_unit`, sprite refresh, bar refresh, and texture-load attempts.
+- `scripts/ui/traits/traits_presenter.gd`
+  - Added a board-trait signature so combat stat updates skip trait rebuilds when the team's trait composition is unchanged.
+  - Added diagnostics-only counters for real rebuilds and skipped rebuilds.
+- `scripts/ui/combat/controller/combat_controller.gd`
+  - Added a compact HUD team snapshot signature.
+  - Broad `stats_updated` / `team_stats_updated` handlers now skip duplicate full-HUD refreshes when targeted `unit_stat_changed` handlers have already repainted the changed unit bars.
+- `tests/visual/combat_view_theme_playtest.gd`
+  - Added explicit `CombatView` teardown/free on exit. The scene still reports renderer/resource cleanup errors under the MCP run, so it is not used as the clean validation source for this pass.
 
 ## Current Hotspots
 
@@ -59,8 +78,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 3. Telemetry and UI signals are broad.
    - Combat emits position, target, hit, stat, and team-stat signals.
-   - Headless base-only RGA now disables unused position/target telemetry, but player-facing UI still needs a separate refresh audit.
-   - UI listeners such as HUD/stat refreshes update many unit views. Keep stat snapshots/event payloads throttled and avoid emitting unchanged data.
+   - Headless base-only RGA now disables unused position/target telemetry.
+   - Player-facing HUD refreshes now skip duplicate broad stat/team-stat repaints, but `position_updated` still fires roughly 155 times in the short diagnostics combat.
+   - UI listeners should keep using diagnostics gates before further repaint or signal-throttling changes.
 
 4. Simulation cadence is sensitive.
    - `delta_s=0.25` is much faster but changed signatures in the sweep.
@@ -68,11 +88,12 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 
 ## Recommended Next Optimizations
 
-1. Add per-signal counters in a diagnostics-only perf scene for `position_updated`, `target_start/end`, `team_stats_updated`, and UI refresh calls.
-2. Review combat UI refreshes so `update_from_unit()` and bar updates only run when visible values changed.
-3. Profile `SlotStrategy.assign_for_target()` result dictionary churn under larger or forced same-target boards.
-4. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded but not deeply tuned.
-5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
+1. Add actor-bar diagnostics to quantify remaining arena `UnitActor.update_bars()` churn and decide whether value-level bar caches are worthwhile.
+2. Evaluate player-facing `position_updated` coalescing/throttling. Keep motion smoothness checks in the loop; this is a visual optimization, not just a signal-count target.
+3. Add a small shared texture/fallback cache in `TextureUtils` if shop, stats panel, trait icon, or title/menu captures show repeated texture generation/load pressure.
+4. Profile `SlotStrategy.assign_for_target()` result dictionary churn under larger or forced same-target boards.
+5. Add larger-board stress coverage if the design will support more than 6v6, since worst-case movement/slot scaling is now bounded but not deeply tuned.
+6. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 
 ## Guardrails
 

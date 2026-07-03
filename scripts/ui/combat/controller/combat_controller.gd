@@ -133,6 +133,7 @@ var _combat_resolving_active: bool = false
 var _combat_resolving_elapsed: float = 0.0
 var _combat_resolving_last_second: int = -1
 var _combat_resolving_watchdog_seen: bool = false
+var _hud_snapshot_signature: String = ""
 
 const FIRST_DEPLOY_TIMER_EXTENSION: float = 60.0
 
@@ -785,6 +786,7 @@ func refresh_all_views() -> void:
 	# Rebuild traits tracker (board-only traits)
 	if traits_presenter:
 		traits_presenter.rebuild()
+	_hud_snapshot_signature = _current_hud_signature()
 
 func _on_attack_pressed() -> void:
 	pass
@@ -1287,7 +1289,7 @@ func _log_to_file(_text: String) -> void:
 	return
 
 func _on_stats_updated(_player: Unit, _enemy: Unit) -> void:
-	_refresh_hud()
+	_refresh_hud_if_changed()
 
 func _refresh_hud() -> void:
 	if not enemy_views.is_empty():
@@ -1307,6 +1309,39 @@ func _refresh_hud() -> void:
 			var enemy_actor: UnitActor = arena_bridge.get_enemy_actor(i) if arena_bridge else null
 			if enemy_actor and is_instance_valid(enemy_actor):
 				enemy_actor.update_bars(manager.enemy_team[i])
+	_hud_snapshot_signature = _current_hud_signature()
+
+func _refresh_hud_if_changed() -> void:
+	var next_signature: String = _current_hud_signature()
+	if next_signature == _hud_snapshot_signature:
+		return
+	_refresh_hud()
+
+func _current_hud_signature() -> String:
+	if manager == null:
+		return ""
+	return _team_hud_signature("p", manager.player_team) + "#" + _team_hud_signature("e", manager.enemy_team)
+
+func _team_hud_signature(prefix: String, team: Array) -> String:
+	var signature: String = prefix + ":" + str(team.size())
+	for index in range(team.size()):
+		var current_unit: Unit = team[index] as Unit
+		if current_unit == null:
+			signature += "|%d:null" % index
+			continue
+		signature += "|%d:%d:%s:%s:%d:%d:%d:%d:%d:%d" % [
+			index,
+			int(current_unit.get_instance_id()),
+			String(current_unit.id),
+			String(current_unit.sprite_path),
+			int(current_unit.level),
+			int(current_unit.hp),
+			int(current_unit.max_hp),
+			int(current_unit.mana),
+			int(current_unit.mana_max),
+			int(current_unit.ui_shield)
+		]
+	return signature
 
 func _refresh_stats() -> void:
 	var p: Unit = null
@@ -1632,7 +1667,7 @@ func _get_player_sprite_by_index(i: int) -> Control:
 	return null
 
 func _on_team_stats_updated(_pteam, _eteam) -> void:
-	_refresh_hud()
+	_refresh_hud_if_changed()
 
 func _on_unit_stat_changed(team: String, index: int, _fields: Dictionary) -> void:
 	var views: Array[UnitSlotView] = (player_views if team == "player" else enemy_views)
@@ -1650,6 +1685,7 @@ func _on_unit_stat_changed(team: String, index: int, _fields: Dictionary) -> voi
 		var eactor: UnitActor = arena_bridge.get_enemy_actor(index) if arena_bridge else null
 		if eactor and is_instance_valid(eactor):
 			eactor.update_bars(u)
+	_hud_snapshot_signature = _current_hud_signature()
 
 func _on_vfx_knockup(team: String, index: int, duration: float) -> void:
 	if arena_bridge == null:
