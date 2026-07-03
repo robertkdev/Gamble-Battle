@@ -5,13 +5,12 @@ const ProgressionConfig := preload("res://scripts/game/progression/progression_c
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
 const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 
-const SMOKE_TITLE: String = "EndlessEntryMainFlowSmoke"
+const SMOKE_TITLE: String = "ProceduralDefaultMainFlowSmoke"
 const TEST_SEED: int = 730711
 const STARTER_ID: String = "bonko"
-const ENDLESS_CHAPTER: int = ProgressionConfig.ENDLESS_START_CHAPTER
-const ENDLESS_ROUND: int = ProgressionConfig.CREEP_STAGE
+const FIRST_CHAPTER: int = ProgressionConfig.PROCEDURAL_START_CHAPTER
+const FIRST_ROUND: int = ProgressionConfig.CREEP_STAGE
 const WATCHDOG_SECONDS: float = 80.0
-const PLAYER_IDS: Array[String] = ["malachor", "meridian", "nullora", "quillith", "bastionne", "saffron"]
 
 func _run() -> void:
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
@@ -23,108 +22,85 @@ func _run() -> void:
 	_previous_suppress_validation_warnings = UnitFactory.suppress_validation_warnings
 	UnitFactory.suppress_validation_warnings = true
 	Engine.time_scale = 8.0
-	RosterCatalog.set_endless_seed(TEST_SEED)
 
 	_start_main_scene()
 	await _settle_frames(4)
 	await _ensure_unit_select()
+	RosterCatalog.set_procedural_seed(TEST_SEED)
 	await _select_starter(STARTER_ID)
 	await _settle_frames(4)
-	_force_endless_entry_state()
+	_prepare_default_entry_state()
 	await _settle_frames(6)
-	_validate_endless_preview()
+	_validate_default_preview()
 	if _technical_failures().is_empty():
-		await _play_first_endless_round()
-	_finish_endless_entry()
+		await _play_first_procedural_round()
+	_finish_procedural_entry()
 
-func _force_endless_entry_state() -> void:
-	GameState.set_chapter_and_stage(ENDLESS_CHAPTER, ENDLESS_ROUND)
+func _prepare_default_entry_state() -> void:
+	GameState.set_chapter_and_stage(FIRST_CHAPTER, FIRST_ROUND)
 	GameState.set_phase(GameState.GamePhase.PREVIEW)
-	if Economy != null:
-		Economy.reset_run()
-		Economy.gold = 60
-		Economy.current_bet = 1
-		Economy.preferred_bet = 1
-		Economy.combat_active = false
-		Economy.gold_changed.emit(Economy.gold)
-		Economy.bet_changed.emit(Economy.current_bet)
-	if Shop != null:
-		Shop.reset_run()
-	if Roster != null:
-		Roster.reset(true)
-		Roster.set_max_team_size(PLAYER_IDS.size())
 	var controller: Variant = _combat_controller()
-	_expect(controller != null, "endless entry combat controller missing")
+	_expect(controller != null, "procedural default combat controller missing")
 	if controller == null:
 		return
 	var manager: Variant = controller.get("manager")
-	_expect(manager != null, "endless entry combat manager missing")
+	_expect(manager != null, "procedural default combat manager missing")
 	if manager == null:
 		return
-	manager.player_team.clear()
-	for unit_id: String in PLAYER_IDS:
-		var unit: Unit = UnitFactory.spawn(unit_id)
-		_expect(unit != null, "endless entry failed to spawn player unit %s" % unit_id)
-		if unit != null:
-			_make_player_unit_durable(unit)
-			manager.player_team.append(unit)
 	if manager.has_method("setup_stage_preview"):
 		manager.setup_stage_preview()
 	if controller.has_method("refresh_all_views"):
 		controller.refresh_all_views()
 	var button: Button = _main.find_child("ContinueButton", true, false) as Button
 	if button != null:
-		button.text = "Start Battle"
 		button.disabled = false
 		button.visible = true
 
-func _make_player_unit_durable(unit: Unit) -> void:
-	unit.level = 8
-	unit.max_hp = max(int(unit.max_hp), 5000)
-	unit.hp = unit.max_hp
-	unit.attack_damage = max(float(unit.attack_damage), 500.0)
-	unit.spell_power = max(float(unit.spell_power), 200.0)
-	unit.armor = max(float(unit.armor), 80.0)
-	unit.magic_resist = max(float(unit.magic_resist), 80.0)
-
-func _validate_endless_preview() -> void:
-	_expect(ChapterCatalog.display_name_for(ENDLESS_CHAPTER) == "Endless 1", "chapter catalog should label first generated chapter Endless 1")
+func _validate_default_preview() -> void:
+	_expect(ChapterCatalog.display_name_for(FIRST_CHAPTER) == "Chapter 1", "chapter catalog should label the opening generated chapter Chapter 1")
 	var chapter_label: Label = _main.find_child("ChapterLabel", true, false) as Label
-	_expect(chapter_label != null, "endless entry chapter label missing")
+	_expect(chapter_label != null, "procedural default chapter label missing")
 	if chapter_label != null:
-		_expect(String(chapter_label.text) == "Endless 1", "endless entry chapter label expected Endless 1 got %s" % chapter_label.text)
-	var spec: Dictionary = RosterCatalog.get_spec(ENDLESS_CHAPTER, ENDLESS_ROUND)
+		_expect(String(chapter_label.text) == "Chapter 1", "procedural default chapter label expected Chapter 1 got %s" % chapter_label.text)
+	var spec: Dictionary = RosterCatalog.get_spec(FIRST_CHAPTER, FIRST_ROUND)
 	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {})
-	_expect(String(spec.get(StageTypes.KEY_KIND, "")) == StageTypes.KIND_CREEPS, "first endless round should be generated creeps")
-	_expect(bool(rules.get("endless", false)), "first endless preview spec should carry endless marker")
+	_expect(String(spec.get(StageTypes.KEY_KIND, "")) == StageTypes.KIND_CREEPS, "opening round should be generated creeps")
+	_expect(bool(rules.get("procedural", false)), "opening preview spec should carry procedural marker")
+	_expect(int(rules.get("target_rating", 0)) == int(ProgressionConfig.EASIEST_REFERENCE_RATING), "opening target rating should match easiest reference")
+	_expect(int(rules.get("difficulty_rating", 0)) == int(ProgressionConfig.EASIEST_REFERENCE_RATING), "opening difficulty rating should match easiest reference")
 	var controller: Variant = _combat_controller()
 	var manager: Variant = controller.get("manager") if controller != null else null
-	_expect(manager != null, "endless entry manager missing for preview validation")
+	_expect(manager != null, "procedural default manager missing for preview validation")
 	if manager != null:
 		var preview_enemy_ids: Array[String] = _enemy_ids(manager)
-		_expect(not preview_enemy_ids.is_empty(), "endless entry preview should show generated enemies")
-		print("%s: preview chapter=%d round=%d enemy=%s spec=%s" % [SMOKE_TITLE, ENDLESS_CHAPTER, ENDLESS_ROUND, JSON.stringify(preview_enemy_ids), JSON.stringify(_spec_summary(spec))])
+		_expect(not preview_enemy_ids.is_empty(), "opening preview should show generated enemies")
+		print("%s: preview chapter=%d round=%d enemy=%s spec=%s" % [SMOKE_TITLE, FIRST_CHAPTER, FIRST_ROUND, JSON.stringify(preview_enemy_ids), JSON.stringify(_spec_summary(spec))])
 
-func _play_first_endless_round() -> void:
+func _play_first_procedural_round() -> void:
 	_set_planning_timer_safe()
-	await _press_continue(false, "endless entry generated creep")
+	await _press_continue(true, "procedural default opening creep")
 	var combat_seen: bool = await _wait_for_combat_active(3.0)
-	if not combat_seen and int(GameState.chapter) == ENDLESS_CHAPTER and int(GameState.stage_in_chapter) >= ProgressionConfig.FIRST_RGA_STAGE:
-		print("%s: first endless combat resolved before combat-active poll" % SMOKE_TITLE)
+	if not combat_seen and int(GameState.chapter) == FIRST_CHAPTER and int(GameState.stage_in_chapter) >= ProgressionConfig.FIRST_RGA_STAGE:
+		print("%s: opening combat resolved before combat-active poll" % SMOKE_TITLE)
+		_validate_after_opening_round("pre-resolved")
 		return
-	_expect(combat_seen, "endless entry did not enter combat")
+	_expect(combat_seen, "procedural default did not enter combat")
 	if not combat_seen:
 		return
 	var resolved: bool = await _wait_for_preview_or_loss(WATCHDOG_SECONDS)
 	var fight_result: String = _second_fight_result(resolved)
-	_expect(resolved, "endless entry round did not resolve")
-	_expect(fight_result == "shop", "endless entry should return to shop after generated creep win, got %s" % fight_result)
-	_expect(int(GameState.chapter) == ENDLESS_CHAPTER, "endless entry should remain in first endless chapter after round 1")
-	_expect(int(GameState.stage_in_chapter) >= ProgressionConfig.FIRST_RGA_STAGE, "endless entry should advance to first RGA round, got round %d" % int(GameState.stage_in_chapter))
-	var next_spec: Dictionary = RosterCatalog.get_spec(ENDLESS_CHAPTER, ProgressionConfig.FIRST_RGA_STAGE)
+	_expect(resolved, "procedural default opening round did not resolve")
+	_validate_after_opening_round(fight_result)
+
+func _validate_after_opening_round(fight_result: String) -> void:
+	_expect(fight_result == "shop" or fight_result == "pre-resolved", "procedural default should return to shop after opening creep win, got %s" % fight_result)
+	_expect(int(GameState.chapter) == FIRST_CHAPTER, "procedural default should remain in Chapter 1 after round 1")
+	_expect(int(GameState.stage_in_chapter) >= ProgressionConfig.FIRST_RGA_STAGE, "procedural default should advance to first RGA round, got round %d" % int(GameState.stage_in_chapter))
+	var next_spec: Dictionary = RosterCatalog.get_spec(FIRST_CHAPTER, ProgressionConfig.FIRST_RGA_STAGE)
 	var next_rules: Dictionary = next_spec.get(StageTypes.KEY_RULES, {})
-	_expect(String(next_spec.get(StageTypes.KEY_KIND, "")) == StageTypes.KIND_NORMAL, "endless entry next round should be generated normal RGA")
-	_expect(next_rules.has("rga_challenge"), "endless entry next normal round should expose RGA metadata")
+	_expect(String(next_spec.get(StageTypes.KEY_KIND, "")) == StageTypes.KIND_NORMAL, "procedural default next round should be generated normal RGA")
+	_expect(bool(next_rules.get("procedural", false)), "procedural default next round should carry procedural marker")
+	_expect(next_rules.has("rga_challenge"), "procedural default next normal round should expose RGA metadata")
 	print("%s: first_round_result=%s chapter=%d round=%d next_spec=%s" % [SMOKE_TITLE, fight_result, int(GameState.chapter), int(GameState.stage_in_chapter), JSON.stringify(_spec_summary(next_spec))])
 
 func _spec_summary(spec: Dictionary) -> Dictionary:
@@ -132,7 +108,7 @@ func _spec_summary(spec: Dictionary) -> Dictionary:
 	return {
 		"ids": spec.get(StageTypes.KEY_IDS, []),
 		"kind": String(spec.get(StageTypes.KEY_KIND, "")),
-		"endless": bool(rules.get("endless", false)),
+		"procedural": bool(rules.get("procedural", false)),
 		"target_rating": int(rules.get("target_rating", 0)),
 		"difficulty_rating": int(rules.get("difficulty_rating", 0)),
 		"theme": String(rules.get("theme", "")),
@@ -149,7 +125,7 @@ func _enemy_ids(manager: Variant) -> Array[String]:
 			output.append(String(unit.id))
 	return output
 
-func _finish_endless_entry() -> void:
+func _finish_procedural_entry() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
 	_flush_synthetic_input()

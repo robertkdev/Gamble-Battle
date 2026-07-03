@@ -8,6 +8,9 @@ const PLAYABLE_UNIT_ROOT := "res://data/units"
 const DEFAULT_SEED := 730711
 const RECENT_SIGNATURE_LIMIT := 12
 const MAX_BOARD_UNITS := 9
+const CHAPTER_RATING_STEP := 32.0
+const CHAPTER_BAND_SIZE := 5.0
+const CHAPTER_BAND_RATING_STEP := 55.0
 
 const DEFAULT_CREEP_REWARDS: Dictionary = {
 	"pool_path": "res://data/creeps/reward_pools/default.tres",
@@ -94,23 +97,23 @@ static func get_spec(chapter: int, stage_index: int, seed: int = DEFAULT_SEED, s
 	return _make_budgeted_board_spec(c, s, kind, target_rating, seed, state)
 
 static func target_rating_for(chapter: int, stage_index: int) -> int:
-	var endless_index: int = max(1, int(chapter) - int(ProgressionConfig.CHAPTER_COUNT))
-	var base: float = 360.0 + float(endless_index - 1) * 32.0
-	base += float(int(floor(float(endless_index - 1) / 5.0))) * 55.0
-	var multiplier: float = 0.80
+	var procedural_index: int = _procedural_index_for(chapter)
+	var base: float = float(ProgressionConfig.EASIEST_REFERENCE_RATING) + float(procedural_index - 1) * CHAPTER_RATING_STEP
+	base += float(int(floor(float(procedural_index - 1) / CHAPTER_BAND_SIZE))) * CHAPTER_BAND_RATING_STEP
+	var multiplier: float = 1.90
 	match int(stage_index):
 		ProgressionConfig.CREEP_STAGE:
-			multiplier = 0.42
+			multiplier = 1.00
 		ProgressionConfig.FIRST_RGA_STAGE:
-			multiplier = 0.78
+			multiplier = 1.90
 		ProgressionConfig.SECOND_RGA_STAGE:
-			multiplier = 0.96
+			multiplier = 2.25
 		ProgressionConfig.BOSS_STAGE:
-			multiplier = 1.12
+			multiplier = 2.65
 		ProgressionConfig.MIRROR_STAGE:
-			multiplier = 1.12
+			multiplier = 2.65
 		_:
-			multiplier = 0.80
+			multiplier = 1.90
 	return max(1, int(round(base * multiplier)))
 
 static func score_spec(spec: Dictionary) -> int:
@@ -133,21 +136,23 @@ static func score_spec(spec: Dictionary) -> int:
 	return total
 
 static func unit_rating(unit_id: String, level: int) -> int:
+	var clean_id: String = String(unit_id).strip_edges()
 	var record: Dictionary = _record_for_id(unit_id)
 	if record.is_empty():
+		if CREEP_IDS.has(clean_id):
+			return _creep_rating(level)
 		return 0
 	var cost: int = max(0, int(record.get("cost", 1)))
 	if cost == 0:
-		var creep_level: int = max(1, int(level))
-		return int(round(8.0 * pow(1.35, float(creep_level - 1))))
+		return _creep_rating(level)
 	var base: float = 6.0 + float(cost) * 6.0
 	var value: float = base * pow(1.45, float(max(1, int(level)) - 1))
 	return max(1, int(round(value)))
 
 static func _make_creep_spec(chapter: int, stage_index: int, seed: int) -> Dictionary:
 	var target: int = target_rating_for(chapter, stage_index)
-	var endless_index: int = max(1, int(chapter) - int(ProgressionConfig.CHAPTER_COUNT))
-	var count: int = clampi(2 + int(floor(float(endless_index - 1) / 4.0)), 2, CREEP_IDS.size())
+	var procedural_index: int = _procedural_index_for(chapter)
+	var count: int = clampi(1 + int(floor(float(procedural_index - 1) / 4.0)), 1, CREEP_IDS.size())
 	var ids: Array[String] = []
 	for offset: int in range(count):
 		var idx: int = _positive_hash("%d:%d:%d:creep:%d" % [int(seed), int(chapter), int(stage_index), offset]) % CREEP_IDS.size()
@@ -160,14 +165,15 @@ static func _make_creep_spec(chapter: int, stage_index: int, seed: int) -> Dicti
 		if not ids.has(fallback):
 			ids.append(fallback)
 	var levels: Dictionary = {}
-	var base_level: int = max(1, 4 + int(floor(float(endless_index - 1) / 3.0)))
+	var base_level: int = max(1, 1 + int(floor(float(procedural_index - 1) / 3.0)))
 	for i: int in range(ids.size()):
-		var level: int = base_level + (1 if i == 0 and endless_index % 2 == 0 else 0)
+		var level: int = base_level + (1 if i == 0 and procedural_index % 2 == 0 else 0)
 		levels[i] = level
 		levels[ids[i]] = level
 	var rules: Dictionary = {
 		"levels": levels,
 		"rewards": DEFAULT_CREEP_REWARDS.duplicate(true),
+		"procedural": true,
 		"endless": true,
 		"target_rating": target,
 		"difficulty_rating": _score_ids_with_levels(ids, levels),
@@ -179,6 +185,7 @@ static func _make_creep_spec(chapter: int, stage_index: int, seed: int) -> Dicti
 static func _make_mirror_spec(chapter: int, stage_index: int, seed: int) -> Dictionary:
 	var target: int = target_rating_for(chapter, stage_index)
 	var rules: Dictionary = {
+		"procedural": true,
 		"endless": true,
 		"mirror_source_stage": int(ProgressionConfig.BOSS_STAGE),
 		"target_rating": target,
@@ -190,7 +197,7 @@ static func _make_mirror_spec(chapter: int, stage_index: int, seed: int) -> Dict
 static func _make_budgeted_board_spec(chapter: int, stage_index: int, kind: String, target: int, seed: int, state: Dictionary) -> Dictionary:
 	var catalog: Array[Dictionary] = _unit_catalog()
 	if catalog.is_empty():
-		return StageTypes.make_spec(["bonko"], kind, {"target_rating": target, "difficulty_rating": 0, "endless": true})
+		return StageTypes.make_spec(["bonko"], kind, {"target_rating": target, "difficulty_rating": 0, "procedural": true, "endless": true})
 	var theme: Dictionary = _pick_theme(chapter, stage_index, seed, kind)
 	var desired_size: int = _desired_size_for_target(target, kind)
 	var ids: Array[String] = _select_unit_ids(catalog, theme, desired_size, chapter, stage_index, seed, kind, state)
@@ -206,6 +213,7 @@ static func _make_budgeted_board_spec(chapter: int, stage_index: int, kind: Stri
 		rating = _score_ids_with_levels(ids, levels)
 	var rules: Dictionary = {
 		"levels": levels,
+		"procedural": true,
 		"endless": true,
 		"theme": String(theme.get("id", "")),
 		"target_rating": int(target),
@@ -215,10 +223,10 @@ static func _make_budgeted_board_spec(chapter: int, stage_index: int, kind: Stri
 	}
 	if kind == StageTypes.KIND_NORMAL:
 		rules["rga_challenge"] = {
-			"id": "endless_%s_%d_%d" % [String(theme.get("id", "board")), int(chapter), int(stage_index)],
-			"label": String(theme.get("label", "Endless Board")),
+			"id": "procedural_%s_%d_%d" % [String(theme.get("id", "board")), int(chapter), int(stage_index)],
+			"label": String(theme.get("label", "Generated Board")),
 			"puzzle": _puzzle_for_theme(theme),
-			"tier": _endless_tier_for(chapter),
+			"tier": _procedural_tier_for(chapter),
 			"target_rating": int(target),
 			"difficulty_rating": int(rating),
 		}
@@ -444,8 +452,8 @@ static func _desired_size_for_target(target: int, kind: String) -> int:
 	return clampi(size, minimum, MAX_BOARD_UNITS)
 
 static func _level_cap_for(chapter: int, kind: String) -> int:
-	var endless_index: int = max(1, int(chapter) - int(ProgressionConfig.CHAPTER_COUNT))
-	var cap: int = 5 + int(floor(float(endless_index - 1) / 5.0))
+	var procedural_index: int = _procedural_index_for(chapter)
+	var cap: int = 5 + int(floor(float(procedural_index - 1) / 5.0))
 	if kind == StageTypes.KIND_BOSS:
 		cap += 1
 	return clampi(cap, 5, 30)
@@ -472,9 +480,16 @@ static func _puzzle_for_theme(theme: Dictionary) -> String:
 		_:
 			return "Solve the generated board's main combat question."
 
-static func _endless_tier_for(chapter: int) -> int:
-	var endless_index: int = max(1, int(chapter) - int(ProgressionConfig.CHAPTER_COUNT))
-	return 5 + int(floor(float(endless_index - 1) / 5.0))
+static func _procedural_tier_for(chapter: int) -> int:
+	var procedural_index: int = _procedural_index_for(chapter)
+	return 1 + int(floor(float(procedural_index - 1) / 5.0))
+
+static func _creep_rating(level: int) -> int:
+	var creep_level: int = max(1, int(level))
+	return max(1, int(round(float(ProgressionConfig.EASIEST_REFERENCE_RATING) * pow(1.35, float(creep_level - 1)))))
+
+static func _procedural_index_for(chapter: int) -> int:
+	return max(1, int(chapter) - int(ProgressionConfig.PROCEDURAL_START_CHAPTER) + 1)
 
 static func _unit_catalog() -> Array[Dictionary]:
 	if not _catalog_cache.is_empty():

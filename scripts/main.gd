@@ -9,6 +9,7 @@ extends Control
 const Debug := preload("res://scripts/util/debug.gd")
 const AuditPanelScene: GDScript = preload("res://scripts/ui/audit/audit_panel.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
 
 const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
@@ -400,6 +401,8 @@ func _ensure_audit_panel() -> void:
 	add_child(_audit_panel)
 
 func _reset_run_state() -> void:
+	RosterCatalog.start_new_run()
+
 	var economy: Node = _get_autoload("Economy")
 	if economy != null and economy.has_method("reset_run"):
 		economy.call("reset_run")

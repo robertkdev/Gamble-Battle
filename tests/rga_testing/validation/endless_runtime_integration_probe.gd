@@ -13,7 +13,7 @@ const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 
 const TEST_SEED: int = 730711
-const FIRST_ENDLESS_CHAPTER: int = ProgressionConfig.ENDLESS_START_CHAPTER
+const FIRST_PROCEDURAL_CHAPTER: int = ProgressionConfig.PROCEDURAL_START_CHAPTER
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -24,65 +24,85 @@ func _run() -> void:
 	UnitFactory.suppress_validation_warnings = true
 	StageRuleRunner.clear_runtime()
 	MirrorBoardStore.clear_runtime()
-	RosterCatalog.set_endless_seed(TEST_SEED)
+	RosterCatalog.set_procedural_seed(TEST_SEED)
 
-	_validate_progression_rollover(failures)
+	_validate_progression_mapping(failures)
 	_validate_display_names(failures)
-	_validate_endless_top_bar(failures)
-	_validate_endless_catalog_specs(failures)
+	_validate_chapter_top_bar(failures)
+	_validate_procedural_catalog_specs(failures)
+	_validate_seed_variation(failures)
 	_validate_spawner_and_rules(failures)
 	_validate_mirror_runtime(failures)
 
 	UnitFactory.suppress_validation_warnings = previous_suppress_validation_warnings
 	if failures.is_empty():
-		print("EndlessRuntimeIntegrationProbe: PASS first_endless=%d seed=%d" % [FIRST_ENDLESS_CHAPTER, TEST_SEED])
+		print("EndlessRuntimeIntegrationProbe: PASS first_procedural=%d seed=%d" % [FIRST_PROCEDURAL_CHAPTER, TEST_SEED])
 		get_tree().quit(0)
 	else:
 		for failure: String in failures:
 			push_error("EndlessRuntimeIntegrationProbe: %s" % failure)
 		get_tree().quit(1)
 
-func _validate_progression_rollover(failures: Array[String]) -> void:
-	var advance: Dictionary = ProgressionService.advance(ProgressionConfig.AUTHORED_CHAPTER_COUNT, ProgressionConfig.MIRROR_STAGE, true)
-	_expect(int(advance.get("chapter", 0)) == FIRST_ENDLESS_CHAPTER, "chapter 10 mirror win should advance to first endless chapter, got %s" % JSON.stringify(advance), failures)
-	_expect(int(advance.get("stage_in_chapter", 0)) == ProgressionConfig.CREEP_STAGE, "chapter 10 mirror win should advance to endless round 1, got %s" % JSON.stringify(advance), failures)
-	var global_stage: int = ProgressionService.to_global_stage(FIRST_ENDLESS_CHAPTER, ProgressionConfig.CREEP_STAGE)
+func _validate_progression_mapping(failures: Array[String]) -> void:
+	var advance: Dictionary = ProgressionService.advance(FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.MIRROR_STAGE, true)
+	_expect(int(advance.get("chapter", 0)) == FIRST_PROCEDURAL_CHAPTER + 1, "chapter 1 mirror win should advance to chapter 2, got %s" % JSON.stringify(advance), failures)
+	_expect(int(advance.get("stage_in_chapter", 0)) == ProgressionConfig.CREEP_STAGE, "chapter 1 mirror win should advance to round 1, got %s" % JSON.stringify(advance), failures)
+	var global_stage: int = ProgressionService.to_global_stage(FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.CREEP_STAGE)
 	var mapping: Dictionary = ProgressionService.from_global_stage(global_stage)
-	_expect(int(mapping.get("chapter", 0)) == FIRST_ENDLESS_CHAPTER, "global stage should map back to first endless chapter, got %s" % JSON.stringify(mapping), failures)
-	_expect(int(mapping.get("stage_in_chapter", 0)) == ProgressionConfig.CREEP_STAGE, "global stage should map back to first endless round, got %s" % JSON.stringify(mapping), failures)
+	_expect(int(mapping.get("chapter", 0)) == FIRST_PROCEDURAL_CHAPTER, "global stage should map back to chapter 1, got %s" % JSON.stringify(mapping), failures)
+	_expect(int(mapping.get("stage_in_chapter", 0)) == ProgressionConfig.CREEP_STAGE, "global stage should map back to round 1, got %s" % JSON.stringify(mapping), failures)
 
 func _validate_display_names(failures: Array[String]) -> void:
-	_expect(ChapterCatalog.display_name_for(FIRST_ENDLESS_CHAPTER) == "Endless 1", "first endless display name mismatch", failures)
-	_expect(LogSchema.format_stage(FIRST_ENDLESS_CHAPTER, 1, 5).begins_with("Endless 1"), "log schema should display Endless 1 after authored chapters", failures)
+	_expect(ChapterCatalog.display_name_for(FIRST_PROCEDURAL_CHAPTER) == "Chapter 1", "first chapter display name mismatch", failures)
+	_expect(ChapterCatalog.display_name_for(11) == "Chapter 11", "later generated chapter should still display as Chapter 11", failures)
+	_expect(LogSchema.format_stage(FIRST_PROCEDURAL_CHAPTER, 1, 5).begins_with("Chapter 1"), "log schema should display Chapter 1", failures)
+	_expect(LogSchema.format_stage(11, 1, 5).begins_with("Chapter 11"), "log schema should display Chapter 11", failures)
 
-func _validate_endless_top_bar(failures: Array[String]) -> void:
+func _validate_chapter_top_bar(failures: Array[String]) -> void:
 	var top_bar: Control = StageProgressTopBar.new()
 	add_child(top_bar)
-	top_bar.call("update_progress", FIRST_ENDLESS_CHAPTER, ProgressionConfig.SECOND_RGA_STAGE, ProgressionConfig.STAGES_PER_CHAPTER)
+	top_bar.call("update_progress", FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.SECOND_RGA_STAGE, ProgressionConfig.STAGES_PER_CHAPTER)
 	var chapter_label: Label = top_bar.find_child("ChapterLabel", true, false) as Label
-	_expect(chapter_label != null, "endless top bar should create chapter label", failures)
+	_expect(chapter_label != null, "chapter top bar should create chapter label", failures)
 	if chapter_label != null:
-		_expect(String(chapter_label.text) == "Endless 1", "endless top bar label should read Endless 1, got %s" % chapter_label.text, failures)
+		_expect(String(chapter_label.text) == "Chapter 1", "chapter top bar label should read Chapter 1, got %s" % chapter_label.text, failures)
 	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
 		var icon: TextureRect = top_bar.find_child("StageIcon%d" % stage_index, true, false) as TextureRect
-		_expect(icon != null, "endless top bar missing stage icon %d" % stage_index, failures)
+		_expect(icon != null, "chapter top bar missing stage icon %d" % stage_index, failures)
 		if icon == null:
 			continue
-		_expect(icon.visible, "endless top bar stage icon %d should be visible" % stage_index, failures)
-		_expect(String(icon.tooltip_text) == _expected_tooltip_for(stage_index), "endless top bar stage %d tooltip mismatch: %s" % [stage_index, icon.tooltip_text], failures)
+		_expect(icon.visible, "chapter top bar stage icon %d should be visible" % stage_index, failures)
+		_expect(String(icon.tooltip_text) == _expected_tooltip_for(stage_index), "chapter top bar stage %d tooltip mismatch: %s" % [stage_index, icon.tooltip_text], failures)
 		if stage_index == int(ProgressionConfig.SECOND_RGA_STAGE):
-			_expect(icon.texture != null, "endless top bar selected stage icon should have a texture", failures)
+			_expect(icon.texture != null, "chapter top bar selected stage icon should have a texture", failures)
 			if icon.texture != null:
-				_expect(String(icon.texture.resource_path).ends_with("stage_3_challenge_selected.png"), "endless top bar should select the second RGA challenge icon, got %s" % String(icon.texture.resource_path), failures)
+				_expect(String(icon.texture.resource_path).ends_with("stage_3_challenge_selected.png"), "chapter top bar should select the second RGA challenge icon, got %s" % String(icon.texture.resource_path), failures)
 	top_bar.queue_free()
 
-func _validate_endless_catalog_specs(failures: Array[String]) -> void:
+func _validate_procedural_catalog_specs(failures: Array[String]) -> void:
 	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
-		var first_spec: Dictionary = RosterCatalog.get_spec(FIRST_ENDLESS_CHAPTER, stage_index)
-		var second_spec: Dictionary = RosterCatalog.get_spec(FIRST_ENDLESS_CHAPTER, stage_index)
-		_expect(_specs_equivalent(first_spec, second_spec), "endless spec should be stable for repeated catalog calls chapter=%d stage=%d" % [FIRST_ENDLESS_CHAPTER, stage_index], failures)
-		_validate_generated_spec(FIRST_ENDLESS_CHAPTER, stage_index, first_spec, failures)
-	_validate_generated_spec(FIRST_ENDLESS_CHAPTER + 1, ProgressionConfig.SECOND_RGA_STAGE, RosterCatalog.get_spec(FIRST_ENDLESS_CHAPTER + 1, ProgressionConfig.SECOND_RGA_STAGE), failures)
+		var first_spec: Dictionary = RosterCatalog.get_spec(FIRST_PROCEDURAL_CHAPTER, stage_index)
+		var second_spec: Dictionary = RosterCatalog.get_spec(FIRST_PROCEDURAL_CHAPTER, stage_index)
+		_expect(_specs_equivalent(first_spec, second_spec), "procedural spec should be stable for repeated catalog calls chapter=%d stage=%d" % [FIRST_PROCEDURAL_CHAPTER, stage_index], failures)
+		_validate_generated_spec(FIRST_PROCEDURAL_CHAPTER, stage_index, first_spec, failures)
+	var opener: Dictionary = RosterCatalog.get_spec(FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.CREEP_STAGE)
+	var opener_rules: Dictionary = opener.get(StageTypes.KEY_RULES, {})
+	_expect(int(opener_rules.get("target_rating", 0)) == int(ProgressionConfig.EASIEST_REFERENCE_RATING), "chapter 1 round 1 target rating should use easiest reference", failures)
+	_expect(int(opener_rules.get("difficulty_rating", 0)) == int(ProgressionConfig.EASIEST_REFERENCE_RATING), "chapter 1 round 1 difficulty rating should match easiest reference", failures)
+	_validate_generated_spec(FIRST_PROCEDURAL_CHAPTER + 1, ProgressionConfig.SECOND_RGA_STAGE, RosterCatalog.get_spec(FIRST_PROCEDURAL_CHAPTER + 1, ProgressionConfig.SECOND_RGA_STAGE), failures)
+
+func _validate_seed_variation(failures: Array[String]) -> void:
+	RosterCatalog.set_procedural_seed(TEST_SEED)
+	var baseline: String = _chapter_signature(FIRST_PROCEDURAL_CHAPTER)
+	var varied: bool = false
+	for seed: int in [730712, 830711, 930711]:
+		RosterCatalog.set_procedural_seed(seed)
+		var candidate: String = _chapter_signature(FIRST_PROCEDURAL_CHAPTER)
+		if candidate != baseline:
+			varied = true
+			break
+	_expect(varied, "chapter 1 generated boards should vary across run seeds", failures)
+	RosterCatalog.set_procedural_seed(TEST_SEED)
 
 func _validate_generated_spec(chapter: int, stage_index: int, spec: Dictionary, failures: Array[String]) -> void:
 	_expect(StageTypes.validate_spec(spec), "generated spec invalid chapter=%d stage=%d" % [chapter, stage_index], failures)
@@ -90,7 +110,7 @@ func _validate_generated_spec(chapter: int, stage_index: int, spec: Dictionary, 
 	var kind: String = String(spec.get(StageTypes.KEY_KIND, ""))
 	_expect(kind == expected_kind, "generated spec kind mismatch chapter=%d stage=%d expected=%s got=%s" % [chapter, stage_index, expected_kind, kind], failures)
 	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {})
-	_expect(bool(rules.get("endless", false)), "generated spec missing endless marker chapter=%d stage=%d" % [chapter, stage_index], failures)
+	_expect(bool(rules.get("procedural", false)), "generated spec missing procedural marker chapter=%d stage=%d" % [chapter, stage_index], failures)
 	_expect(rules.has("target_rating"), "generated spec missing target rating chapter=%d stage=%d" % [chapter, stage_index], failures)
 	_expect(rules.has("difficulty_rating"), "generated spec missing difficulty rating chapter=%d stage=%d" % [chapter, stage_index], failures)
 	if kind == StageTypes.KIND_NORMAL:
@@ -106,20 +126,20 @@ func _validate_generated_spec(chapter: int, stage_index: int, spec: Dictionary, 
 func _validate_spawner_and_rules(failures: Array[String]) -> void:
 	var spawner: EnemySpawner = EnemySpawner.new()
 	for stage_index: int in [ProgressionConfig.CREEP_STAGE, ProgressionConfig.FIRST_RGA_STAGE, ProgressionConfig.SECOND_RGA_STAGE, ProgressionConfig.BOSS_STAGE]:
-		var spec: Dictionary = RosterCatalog.get_spec(FIRST_ENDLESS_CHAPTER, stage_index)
-		StageRuleRunner.pre_spawn(spec, FIRST_ENDLESS_CHAPTER, stage_index)
-		var units: Array[Unit] = spawner.build_for_spec(spec, FIRST_ENDLESS_CHAPTER, stage_index)
-		StageRuleRunner.post_spawn(units, spec, FIRST_ENDLESS_CHAPTER, stage_index)
-		_expect(not units.is_empty(), "spawner should build generated units for endless stage %d" % stage_index, failures)
+		var spec: Dictionary = RosterCatalog.get_spec(FIRST_PROCEDURAL_CHAPTER, stage_index)
+		StageRuleRunner.pre_spawn(spec, FIRST_PROCEDURAL_CHAPTER, stage_index)
+		var units: Array[Unit] = spawner.build_for_spec(spec, FIRST_PROCEDURAL_CHAPTER, stage_index)
+		StageRuleRunner.post_spawn(units, spec, FIRST_PROCEDURAL_CHAPTER, stage_index)
+		_expect(not units.is_empty(), "spawner should build generated units for procedural stage %d" % stage_index, failures)
 		for unit: Unit in units:
-			_expect(unit != null, "spawner returned null unit for endless stage %d" % stage_index, failures)
+			_expect(unit != null, "spawner returned null unit for procedural stage %d" % stage_index, failures)
 
 func _validate_mirror_runtime(failures: Array[String]) -> void:
 	var source_units: Array[Unit] = []
 	var first: Unit = UnitFactory.spawn("sari")
 	var second: Unit = UnitFactory.spawn("paisley")
-	_expect(first != null, "failed to spawn source sari for endless mirror", failures)
-	_expect(second != null, "failed to spawn source paisley for endless mirror", failures)
+	_expect(first != null, "failed to spawn source sari for procedural mirror", failures)
+	_expect(second != null, "failed to spawn source paisley for procedural mirror", failures)
 	if first != null:
 		first.level = 4
 		first.max_hp = 777
@@ -130,17 +150,17 @@ func _validate_mirror_runtime(failures: Array[String]) -> void:
 		second.max_hp = 555
 		second.hp = second.max_hp
 		source_units.append(second)
-	MirrorBoardStore.capture_boss_board(FIRST_ENDLESS_CHAPTER, source_units)
-	var mirror_spec: Dictionary = RosterCatalog.get_spec(FIRST_ENDLESS_CHAPTER, ProgressionConfig.MIRROR_STAGE)
-	StageRuleRunner.pre_spawn(mirror_spec, FIRST_ENDLESS_CHAPTER, ProgressionConfig.MIRROR_STAGE)
-	_expect(_same_strings(_spec_ids(mirror_spec), ["sari", "paisley"]), "endless mirror pre-spawn should use boss-entry snapshot ids", failures)
+	MirrorBoardStore.capture_boss_board(FIRST_PROCEDURAL_CHAPTER, source_units)
+	var mirror_spec: Dictionary = RosterCatalog.get_spec(FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.MIRROR_STAGE)
+	StageRuleRunner.pre_spawn(mirror_spec, FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.MIRROR_STAGE)
+	_expect(_same_strings(_spec_ids(mirror_spec), ["sari", "paisley"]), "procedural mirror pre-spawn should use boss-entry snapshot ids", failures)
 	var spawner: EnemySpawner = EnemySpawner.new()
-	var enemies: Array[Unit] = spawner.build_for_spec(mirror_spec, FIRST_ENDLESS_CHAPTER, ProgressionConfig.MIRROR_STAGE)
-	StageRuleRunner.post_spawn(enemies, mirror_spec, FIRST_ENDLESS_CHAPTER, ProgressionConfig.MIRROR_STAGE)
-	_expect(enemies.size() == 2, "endless mirror should spawn snapshot enemy count", failures)
+	var enemies: Array[Unit] = spawner.build_for_spec(mirror_spec, FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.MIRROR_STAGE)
+	StageRuleRunner.post_spawn(enemies, mirror_spec, FIRST_PROCEDURAL_CHAPTER, ProgressionConfig.MIRROR_STAGE)
+	_expect(enemies.size() == 2, "procedural mirror should spawn snapshot enemy count", failures)
 	if enemies.size() >= 2:
-		_expect(String(enemies[0].id) == "sari" and int(enemies[0].level) == 4 and int(enemies[0].max_hp) == 777, "endless mirror first unit did not copy snapshot stats", failures)
-		_expect(String(enemies[1].id) == "paisley" and int(enemies[1].level) == 3 and int(enemies[1].max_hp) == 555, "endless mirror second unit did not copy snapshot stats", failures)
+		_expect(String(enemies[0].id) == "sari" and int(enemies[0].level) == 4 and int(enemies[0].max_hp) == 777, "procedural mirror first unit did not copy snapshot stats", failures)
+		_expect(String(enemies[1].id) == "paisley" and int(enemies[1].level) == 3 and int(enemies[1].max_hp) == 555, "procedural mirror second unit did not copy snapshot stats", failures)
 
 func _expected_kind_for(stage_index: int) -> String:
 	if stage_index == int(ProgressionConfig.CREEP_STAGE):
@@ -164,6 +184,13 @@ func _expected_tooltip_for(stage_index: int) -> String:
 		return "Stage 5: Mirror"
 	return ""
 
+func _chapter_signature(chapter: int) -> String:
+	var parts: Array[String] = []
+	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
+		var spec: Dictionary = RosterCatalog.get_spec(chapter, stage_index)
+		parts.append(_rules_signature(spec) + ":" + "|".join(_spec_ids(spec)))
+	return ";".join(parts)
+
 func _specs_equivalent(left: Dictionary, right: Dictionary) -> bool:
 	var same_kind: bool = String(left.get(StageTypes.KEY_KIND, "")) == String(right.get(StageTypes.KEY_KIND, ""))
 	var same_ids: bool = _same_strings(_spec_ids(left), _spec_ids(right))
@@ -174,7 +201,7 @@ func _rules_signature(spec: Dictionary) -> String:
 	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {})
 	var challenge: Dictionary = rules.get("rga_challenge", {}) if typeof(rules.get("rga_challenge", {})) == TYPE_DICTIONARY else {}
 	return "%s:%s:%s:%s:%s" % [
-		str(bool(rules.get("endless", false))),
+		str(bool(rules.get("procedural", false))),
 		String(rules.get("theme", "")),
 		String(challenge.get("id", "")),
 		str(int(rules.get("target_rating", -1))),

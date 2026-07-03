@@ -61,13 +61,17 @@ static func is_authored_chapter(ch: int) -> bool:
 	return int(ch) >= 1 and int(ch) <= authored_chapter_count()
 
 static func is_endless_chapter(ch: int) -> bool:
-	return int(ch) >= int(ProgressionConfig.ENDLESS_START_CHAPTER)
+	return is_procedural_chapter(ch)
 
 static func endless_chapter_index(ch: int) -> int:
-	return max(1, int(ch) - authored_chapter_count())
+	return procedural_chapter_index(ch)
+
+static func is_procedural_chapter(ch: int) -> bool:
+	return int(ch) >= int(ProgressionConfig.PROCEDURAL_START_CHAPTER)
+
+static func procedural_chapter_index(ch: int) -> int:
+	return max(1, int(ch) - int(ProgressionConfig.PROCEDURAL_START_CHAPTER) + 1)
 
 static func display_name_for(ch: int) -> String:
 	var c: int = max(1, int(ch))
-	if is_endless_chapter(c):
-		return "Endless %d" % endless_chapter_index(c)
 	return "Chapter %d" % c

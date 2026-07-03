@@ -1,6 +1,6 @@
 # Stage Progression
 
-Gamble Battle uses 10 authored chapters, then procedural endless chapters. Every chapter keeps the same 5-stage cadence:
+Gamble Battle uses procedural chapters as the default campaign path from Chapter 1 onward. Every chapter keeps the same 5-stage cadence:
 
 1. Creep reward round
 2. Normal RGA challenge/puzzle
@@ -8,10 +8,12 @@ Gamble Battle uses 10 authored chapters, then procedural endless chapters. Every
 4. Boss
 5. Mirror fight against the board the player took into the boss fight
 
-Core constants live in `scripts/game/progression/progression_config.gd`. `AUTHORED_CHAPTER_COUNT` is `10`, and `ENDLESS_START_CHAPTER` is the first generated chapter after that authored campaign.
+Core constants live in `scripts/game/progression/progression_config.gd`. `PROCEDURAL_START_CHAPTER` is `1`, and `EASIEST_REFERENCE_RATING` anchors Chapter 1 Round 1 to the old easiest creep-fight reference.
 
-Enemy composition lives in `scripts/game/progression/roster_catalog.gd`. For authored chapters, creep, boss, and mirror slots are authored per chapter. Normal slots are selected by `scripts/game/progression/rga_stage_challenge_director.gd` from bounded chapter-tier puzzle pools and cached so planning preview and combat use the same pick.
+Enemy composition lives in `scripts/game/progression/roster_catalog.gd`. The old authored chapter map remains in the catalog as a reference source, but default gameplay routes Chapter 1 and later through generated specs.
 
-For endless chapters, `scripts/game/progression/endless_chapter_generator.gd` builds generated StageSpecs by difficulty rating. `RosterCatalog` caches those specs in chapter/stage order so planning preview and combat receive identical generated boards. Normal endless stages include `rga_challenge` metadata, boss stages are generated from the same difficulty budget system, and mirror stages still use the boss-entry board snapshot.
+`scripts/game/progression/endless_chapter_generator.gd` builds generated StageSpecs by difficulty rating. `RosterCatalog` caches those specs in chapter/stage order so planning preview and combat receive identical generated boards. Normal stages include `rga_challenge` metadata, boss stages are generated from the same difficulty budget system, and mirror stages still use the boss-entry board snapshot.
+
+Player-facing naming remains the original chapter pattern. `ChapterCatalog.display_name_for()` returns `Chapter N` for Chapter 1 and all later generated chapters; the top bar and logs should not show an endless-mode label.
 
 Mirror fights use `scripts/game/progression/mirror_board_store.gd`. The combat manager snapshots the player's board when the boss fight starts, then the mirror rule applies that snapshot to the next stage's enemy team, including unit order, levels, combat stats, and equipped item IDs.

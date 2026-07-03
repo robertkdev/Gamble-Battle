@@ -5,7 +5,7 @@ const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 const ProgressionConfig := preload("res://scripts/game/progression/progression_config.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 
-const START_CHAPTER := 11
+const START_CHAPTER := 1
 const CHAPTERS_PER_SEED := 40
 const SEEDS: Array[int] = [730711, 730712, 730713, 730714, 830711, 930711]
 const MAX_RECENT_REPEAT_WINDOW := 12

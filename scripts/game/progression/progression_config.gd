@@ -5,8 +5,13 @@ class_name ProgressionConfig
 
 const CHAPTER_COUNT := 10
 const AUTHORED_CHAPTER_COUNT := CHAPTER_COUNT
-const ENDLESS_START_CHAPTER := AUTHORED_CHAPTER_COUNT + 1
-const ENDLESS_DEFAULT_SEED := 730711
+const PROCEDURAL_START_CHAPTER := 1
+const PROCEDURAL_DEFAULT_SEED := 730711
+const EASIEST_REFERENCE_RATING := 100
+# Legacy names retained for older probes; generated chapters are now the default
+# campaign path and start at Chapter 1.
+const ENDLESS_START_CHAPTER := PROCEDURAL_START_CHAPTER
+const ENDLESS_DEFAULT_SEED := PROCEDURAL_DEFAULT_SEED
 const STAGES_PER_CHAPTER := 5
 const CREEP_STAGE := 1
 const FIRST_RGA_STAGE := 2
