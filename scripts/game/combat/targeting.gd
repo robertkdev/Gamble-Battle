@@ -275,7 +275,7 @@ static func _has_approach(unit: Unit, approach_id: String) -> bool:
 	if unit == null:
 		return false
 	var key: String = String(approach_id).strip_edges().to_lower()
-	for approach in unit.get_approaches():
+	for approach in unit.approaches:
 		if String(approach).strip_edges().to_lower() == key:
 			return true
 	return false
@@ -284,7 +284,7 @@ static func _approach_mask(unit: Unit) -> int:
 	var mask: int = 0
 	if unit == null:
 		return mask
-	for approach in unit.get_approaches():
+	for approach in unit.approaches:
 		var key: String = String(approach).strip_edges().to_lower()
 		match key:
 			"execute":
