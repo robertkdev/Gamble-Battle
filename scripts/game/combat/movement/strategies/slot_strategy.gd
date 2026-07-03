@@ -11,6 +11,7 @@ const HUNGARIAN_PRUNE_MIN_SIZE: int = 10
 const HUNGARIAN_PRUNE_EPS: float = 0.0001
 
 static var _dp_masks_by_size: Dictionary = {}
+static var _hungarian_scratch_by_size: Dictionary = {}
 
 var _ranges_world_scratch: Dictionary = {}
 
@@ -171,22 +172,17 @@ static func _assignment_min_cost_hungarian(costs: Array) -> float:
 	var n: int = costs.size()
 	if n == 0:
 		return 0.0
-	var u: Array[float] = []
-	var v: Array[float] = []
-	var p: Array[int] = []
-	var way: Array[int] = []
-	u.resize(n + 1)
-	v.resize(n + 1)
-	p.resize(n + 1)
-	way.resize(n + 1)
+	var scratch: Dictionary = _hungarian_scratch_for_size(n)
+	var u: Array[float] = scratch["u"]
+	var v: Array[float] = scratch["v"]
+	var p: Array[int] = scratch["p"]
+	var way: Array[int] = scratch["way"]
 	u.fill(0.0)
 	v.fill(0.0)
 	p.fill(0)
 	way.fill(0)
-	var minv: Array[float] = []
-	var used: Array[bool] = []
-	minv.resize(n + 1)
-	used.resize(n + 1)
+	var minv: Array[float] = scratch["minv"]
+	var used: Array[bool] = scratch["used"]
 	for i in range(1, n + 1):
 		p[0] = i
 		var j0: int = 0
@@ -231,6 +227,33 @@ static func _assignment_min_cost_hungarian(costs: Array) -> float:
 		var assigned_row: Array[float] = costs[row_index]
 		total_cost += assigned_row[j - 1]
 	return total_cost
+
+static func _hungarian_scratch_for_size(n: int) -> Dictionary:
+	if _hungarian_scratch_by_size.has(n):
+		return _hungarian_scratch_by_size[n]
+	var u: Array[float] = []
+	var v: Array[float] = []
+	var p: Array[int] = []
+	var way: Array[int] = []
+	var minv: Array[float] = []
+	var used: Array[bool] = []
+	var length: int = max(0, n) + 1
+	u.resize(length)
+	v.resize(length)
+	p.resize(length)
+	way.resize(length)
+	minv.resize(length)
+	used.resize(length)
+	var scratch: Dictionary = {
+		"u": u,
+		"v": v,
+		"p": p,
+		"way": way,
+		"minv": minv,
+		"used": used
+	}
+	_hungarian_scratch_by_size[n] = scratch
+	return scratch
 
 static func _dp_masks_for_size(n: int) -> Array:
 	if _dp_masks_by_size.has(n):
