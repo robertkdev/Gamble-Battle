@@ -120,24 +120,26 @@ func _compute_cooldown(unit: Unit) -> float:
 func _sync_cooldowns() -> void:
 	if not state:
 		return
-	state.player_cds = _resize_float_array(state.player_cds, state.player_team.size())
-	state.enemy_cds = _resize_float_array(state.enemy_cds, state.enemy_team.size())
+	state.player_cds = _resize_float_array_in_place(state.player_cds, state.player_team.size())
+	state.enemy_cds = _resize_float_array_in_place(state.enemy_cds, state.enemy_team.size())
 	_ensure_order_sizes()
 
-func _resize_float_array(existing: Array, desired: int) -> Array[float]:
-	var out: Array[float] = []
+func _resize_float_array_in_place(existing: Array[float], desired: int) -> Array[float]:
 	if desired < 0:
 		desired = 0
-	var count: int = min(existing.size(), desired)
-	for i in range(count):
-		out.append(float(existing[i]))
-	while out.size() < desired:
-		out.append(0.0)
-	return out
+	if existing.size() > desired:
+		existing.resize(desired)
+	while existing.size() < desired:
+		existing.append(0.0)
+	return existing
 
 func _order_for(team: String, count: int) -> Array[int]:
 	if team == "player":
+		if _player_order.size() == count:
+			return _player_order
 		return _player_order.slice(0, count)
+	if _enemy_order.size() == count:
+		return _enemy_order
 	return _enemy_order.slice(0, count)
 
 func _refresh_orders() -> void:

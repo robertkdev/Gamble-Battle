@@ -99,8 +99,8 @@ func _resolve_for_arena(team: String, shooter_index: int) -> int:
 func _sync_arrays() -> void:
 	if not state:
 		return
-	state.player_targets = _resized(state.player_targets, state.player_team.size())
-	state.enemy_targets = _resized(state.enemy_targets, state.enemy_team.size())
+	state.player_targets = _resize_targets_in_place(state.player_targets, state.player_team.size())
+	state.enemy_targets = _resize_targets_in_place(state.enemy_targets, state.enemy_team.size())
 
 func _targets_for(team: String) -> Array[int]:
 	return state.player_targets if team == "player" else state.enemy_targets
@@ -140,13 +140,11 @@ func _prime_targets() -> void:
 	for j in range(state.enemy_team.size()):
 		refresh_target("enemy", j)
 
-func _resized(existing: Array, desired: int) -> Array[int]:
-	var out: Array[int] = []
+func _resize_targets_in_place(existing: Array[int], desired: int) -> Array[int]:
 	if desired < 0:
 		desired = 0
-	var count: int = min(existing.size(), desired)
-	for i in range(count):
-		out.append(int(existing[i]))
-	while out.size() < desired:
-		out.append(-1)
-	return out
+	if existing.size() > desired:
+		existing.resize(desired)
+	while existing.size() < desired:
+		existing.append(-1)
+	return existing
