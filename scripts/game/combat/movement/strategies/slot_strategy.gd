@@ -48,9 +48,11 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 	var rows: int = pairs.size()
 	var cols: int = ring_angles.size()
 	var costs: Array = []
+	costs.resize(rows)
 	var lower_bound: float = 0.0
 	for i in range(rows):
 		var row_cost: Array[float] = []
+		row_cost.resize(cols)
 		var entry: Dictionary = pairs[i]
 		var idx: int = int(entry["idx"])
 		var prev_slot: int = -1
@@ -73,13 +75,13 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 				base_cost = max(0.0, base_cost - HYST_STICKINESS * frame_factor)
 			elif prev_slot != -1 and prev_slot != j and prev_frames > 0:
 				base_cost += HYST_SWITCH_COST * frame_factor
-			row_cost.append(base_cost)
+			row_cost[j] = base_cost
 			if base_cost < row_min:
 				row_min = base_cost
 		lower_bound += row_min
 		if lower_bound >= incumbent_cost:
 			return {"assignment": [], "cost": incumbent_cost}
-		costs.append(row_cost)
+		costs[i] = row_cost
 	return _best_assignment(costs, incumbent_cost)
 
 static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
