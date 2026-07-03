@@ -59,9 +59,12 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		var frame_factor: float = 1.0
 		if hysteresis_frames > 0:
 			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
+		var entry_angle: float = float(entry["angle"])
 		var row_min: float = 1e30
 		for j in range(cols):
-			var base_cost: float = _circ_dist(float(entry["angle"]), ring_angles[j])
+			var base_cost: float = abs(entry_angle - ring_angles[j])
+			if base_cost > PI:
+				base_cost = TAU - base_cost
 			if prev_slot == j and prev_frames > 0:
 				base_cost = max(0.0, base_cost - HYST_STICKINESS * frame_factor)
 			elif prev_slot != -1 and prev_slot != j and prev_frames > 0:
