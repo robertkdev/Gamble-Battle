@@ -515,11 +515,13 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 			if d > 0.0 and d < sep_r:
 				var w: float = 1.0 - (d / sep_r)
 				sep += (diff / d) * w
-	var sep_dir: Vector2 = sep.normalized() if sep != Vector2.ZERO else Vector2.ZERO
-	var sep_strength: float = clampf(sep.length(), 0.0, 1.0) * corridor_factor
+	var sep_len: float = sep.length()
+	var sep_dir: Vector2 = sep / sep_len if sep_len > 0.0 else Vector2.ZERO
+	var sep_strength: float = clampf(sep_len, 0.0, 1.0) * corridor_factor
 	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, radius, corridor_factor)
-	var avoidance_dir: Vector2 = avoidance_vec.normalized() if avoidance_vec != Vector2.ZERO else Vector2.ZERO
-	var avoidance_strength: float = clampf(avoidance_vec.length(), 0.0, 1.0)
+	var avoidance_len: float = avoidance_vec.length()
+	var avoidance_dir: Vector2 = avoidance_vec / avoidance_len if avoidance_len > 0.0 else Vector2.ZERO
+	var avoidance_strength: float = clampf(avoidance_len, 0.0, 1.0)
 	var w_seek: float = max(0.0, tuning.seek_weight)
 	var w_sep: float = max(0.0, tuning.separation_weight)
 	var w_avoid: float = max(0.0, tuning.avoidance_weight) * avoidance_strength
