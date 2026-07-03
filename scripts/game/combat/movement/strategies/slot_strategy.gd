@@ -10,6 +10,8 @@ const DP_ASSIGNMENT_LIMIT: int = 12
 
 static var _dp_masks_by_size: Dictionary = {}
 
+var _ranges_world_scratch: Dictionary = {}
+
 # Computes per-attacker slot destinations around their chosen targets.
 # Five evenly spaced slots per target, order-preserving assignment to avoid
 # crossing. Attackers map to consecutive slots chosen to minimize total
@@ -282,7 +284,8 @@ func assign_slots_for_team(team: String,
 		watch_indices: Array = [],
 		prev_slot_assignments: Dictionary = {},
 		hysteresis_frames: int = 0) -> Dictionary:
-	var ranges_world: Dictionary = {} # idx -> float
+	var ranges_world: Dictionary = _ranges_world_scratch # idx -> float
+	ranges_world.clear()
 	for i in range(attackers_units.size()):
 		var u: Unit = attackers_units[i]
 		var band: float = 1.0
