@@ -83,16 +83,17 @@ func _resize_vector_array(arr: Array[Vector2], length: int, fill: Vector2) -> vo
 	elif current > length:
 		arr.resize(length)
 
-func _resize_int_array(existing: Array, desired: int, zero_fill: bool = false) -> Array[int]:
-	var out: Array[int] = []
+func _resize_int_array(existing: Array[int], desired: int, zero_fill: bool = false) -> Array[int]:
 	if desired < 0:
 		desired = 0
-	var count: int = min(existing.size(), desired)
-	for i in range(count):
-		out.append(int(existing[i]))
-	while out.size() < desired:
-		out.append(0 if zero_fill else -1)
-	return out
+	var fill_value: int = 0 if zero_fill else -1
+	var current: int = existing.size()
+	if current < desired:
+		for _i in range(desired - current):
+			existing.append(fill_value)
+	elif current > desired:
+		existing.resize(desired)
+	return existing
 
 func _default_position() -> Vector2:
 	return arena_bounds.position + arena_bounds.size * 0.5

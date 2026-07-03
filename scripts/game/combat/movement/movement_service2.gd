@@ -25,6 +25,16 @@ var slots: SlotStrategy = SlotStrategy.new()
 
 var _profiles_player: Array = []
 var _profiles_enemy: Array = []
+var _p_alive_scratch: Array[bool] = []
+var _e_alive_scratch: Array[bool] = []
+var _p_targets_scratch: Array[int] = []
+var _e_targets_scratch: Array[int] = []
+var _p_caps_scratch: Array[float] = []
+var _e_caps_scratch: Array[float] = []
+var _enemy_groups_scratch: Dictionary = {}
+var _player_groups_scratch: Dictionary = {}
+var _prev_player_slots_scratch: Dictionary = {}
+var _prev_enemy_slots_scratch: Dictionary = {}
 
 # Debug helpers (optional)
 var _debug_watch_players: Array = []
@@ -121,34 +131,40 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var radius: float = ts * max(0.0, tuning.unit_radius_factor)
 
 	# Alive flags
-	var p_alive: Array[bool] = []
-	var e_alive: Array[bool] = []
+	_resize_bool_scratch(_p_alive_scratch, state.player_team.size(), false)
+	_resize_bool_scratch(_e_alive_scratch, state.enemy_team.size(), false)
+	var p_alive: Array[bool] = _p_alive_scratch
+	var e_alive: Array[bool] = _e_alive_scratch
 	for i_alive in range(state.player_team.size()):
 		var u_alive: bool = (state.player_team[i_alive] != null and state.player_team[i_alive].is_alive())
-		p_alive.append(u_alive)
+		p_alive[i_alive] = u_alive
 	for j_alive in range(state.enemy_team.size()):
 		var e_u_alive: bool = (state.enemy_team[j_alive] != null and state.enemy_team[j_alive].is_alive())
-		e_alive.append(e_u_alive)
+		e_alive[j_alive] = e_u_alive
 
 	# Current targets via resolver
-	var p_targets: Array[int] = []
-	var e_targets: Array[int] = []
+	_resize_int_scratch(_p_targets_scratch, state.player_team.size(), -1)
+	_resize_int_scratch(_e_targets_scratch, state.enemy_team.size(), -1)
+	var p_targets: Array[int] = _p_targets_scratch
+	var e_targets: Array[int] = _e_targets_scratch
 	for i_t in range(state.player_team.size()):
 		var v: Variant = target_resolver.call("player", i_t)
-		p_targets.append(int(v) if typeof(v) == TYPE_INT else -1)
+		p_targets[i_t] = int(v) if typeof(v) == TYPE_INT else -1
 	for j_t in range(state.enemy_team.size()):
 		var v2: Variant = target_resolver.call("enemy", j_t)
-		e_targets.append(int(v2) if typeof(v2) == TYPE_INT else -1)
+		e_targets[j_t] = int(v2) if typeof(v2) == TYPE_INT else -1
 
 	# Group attackers per target
-	var enemy_groups: Dictionary = {}
+	_enemy_groups_scratch.clear()
+	var enemy_groups: Dictionary = _enemy_groups_scratch
 	for i_g in range(p_targets.size()):
 		var t: int = p_targets[i_g]
 		if t >= 0 and t < data.enemy_positions.size() and (p_alive[i_g] if i_g < p_alive.size() else true):
 			if not enemy_groups.has(t):
 				enemy_groups[t] = []
 			(enemy_groups[t] as Array).append(i_g)
-	var player_groups: Dictionary = {}
+	_player_groups_scratch.clear()
+	var player_groups: Dictionary = _player_groups_scratch
 	for j_g in range(e_targets.size()):
 		var t2: int = e_targets[j_g]
 		if t2 >= 0 and t2 < data.player_positions.size() and (e_alive[j_g] if j_g < e_alive.size() else true):
@@ -156,18 +172,10 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 				player_groups[t2] = []
 			(player_groups[t2] as Array).append(j_g)
 
-	var prev_player_slots: Dictionary = {}
-	for pi in range(state.player_team.size()):
-		prev_player_slots[pi] = {
-			"slot": data.get_slot_id("player", pi),
-			"frames": data.get_slot_timer("player", pi)
-		}
-	var prev_enemy_slots: Dictionary = {}
-	for ei in range(state.enemy_team.size()):
-		prev_enemy_slots[ei] = {
-			"slot": data.get_slot_id("enemy", ei),
-			"frames": data.get_slot_timer("enemy", ei)
-		}
+	var prev_player_slots: Dictionary = _prev_player_slots_scratch
+	var prev_enemy_slots: Dictionary = _prev_enemy_slots_scratch
+	_sync_prev_slots(prev_player_slots, "player", state.player_team.size())
+	_sync_prev_slots(prev_enemy_slots, "enemy", state.enemy_team.size())
 
 	# Slot destinations
 	var p_slot_map: Dictionary = slots.assign_slots_for_team(
@@ -202,8 +210,10 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		SLOT_HYSTERESIS_FRAMES)
 
 	# Per-unit attempted step caps
-	var p_caps: Array[float] = []
-	var e_caps: Array[float] = []
+	_resize_float_scratch(_p_caps_scratch, state.player_team.size(), 0.0)
+	_resize_float_scratch(_e_caps_scratch, state.enemy_team.size(), 0.0)
+	var p_caps: Array[float] = _p_caps_scratch
+	var e_caps: Array[float] = _e_caps_scratch
 
 	# (Potential fast path for 1v1 removed pending further validation)
 
@@ -212,7 +222,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		var u: Unit = state.player_team[i]
 		var alive: bool = (p_alive[i] if i < p_alive.size() else (u != null and u.is_alive()))
 		if not alive or i >= data.player_positions.size():
-			p_caps.append(0.0)
+			p_caps[i] = 0.0
 			data.set_slot_memory("player", i, -1, 0)
 			continue
 		var cur: Vector2 = data.player_positions[i]
@@ -287,14 +297,14 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		new_pos = MovementMath.clamp_to_rect(new_pos, data.arena_bounds)
 		data.player_positions[i] = new_pos
 		step = new_pos - cur
-		p_caps.append(step.length())
+		p_caps[i] = step.length()
 
 	# Enemy side
 	for j in range(state.enemy_team.size()):
 		var e: Unit = state.enemy_team[j]
 		var alive_e: bool = (e_alive[j] if j < e_alive.size() else (e != null and e.is_alive()))
 		if not alive_e or j >= data.enemy_positions.size():
-			e_caps.append(0.0)
+			e_caps[j] = 0.0
 			data.set_slot_memory("enemy", j, -1, 0)
 			continue
 		var cur_e: Vector2 = data.enemy_positions[j]
@@ -369,7 +379,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		new_pos_e = MovementMath.clamp_to_rect(new_pos_e, data.arena_bounds)
 		data.enemy_positions[j] = new_pos_e
 		step2 = new_pos_e - cur_e
-		e_caps.append(step2.length())
+		e_caps[j] = step2.length()
 
 	# Resolve collisions (post-step)
 	collider.resolve(
@@ -606,6 +616,44 @@ func _corridor_factor(dist_to_slot: float, corridor_radius: float) -> float:
 	if corridor_radius <= ARRIVE_STOP_EPS:
 		return 1.0
 	return clampf(dist_to_slot / corridor_radius, 0.0, 1.0)
+
+func _resize_bool_scratch(arr: Array[bool], length: int, fill: bool) -> void:
+	if length < 0:
+		length = 0
+	var current: int = arr.size()
+	if current < length:
+		for _i in range(length - current):
+			arr.append(fill)
+	elif current > length:
+		arr.resize(length)
+
+func _resize_int_scratch(arr: Array[int], length: int, fill: int) -> void:
+	if length < 0:
+		length = 0
+	var current: int = arr.size()
+	if current < length:
+		for _i in range(length - current):
+			arr.append(fill)
+	elif current > length:
+		arr.resize(length)
+
+func _resize_float_scratch(arr: Array[float], length: int, fill: float) -> void:
+	if length < 0:
+		length = 0
+	var current: int = arr.size()
+	if current < length:
+		for _i in range(length - current):
+			arr.append(fill)
+	elif current > length:
+		arr.resize(length)
+
+func _sync_prev_slots(out: Dictionary, team: String, count: int) -> void:
+	for i in range(max(0, count)):
+		var entry_value: Variant = out.get(i, null)
+		var entry: Dictionary = entry_value if entry_value is Dictionary else {}
+		entry["slot"] = data.get_slot_id(team, i)
+		entry["frames"] = data.get_slot_timer(team, i)
+		out[i] = entry
 
 func _ensure_profiles() -> void:
 	if _profiles_player.size() < data.player_positions.size():

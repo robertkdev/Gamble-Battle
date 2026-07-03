@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/perf/Perf6v6.gd" id="1"]
+
+[node name="Perf6v6" type="Node"]
+script = ExtResource("1")
+samples_per_case = 3
+seed = 525600
+delta_s_override = 0.05
+timeout_s = 90.0
+use_roles_aggregator = false

@@ -35,6 +35,10 @@ func run(job: DataModels.SimJob, collect_events: bool = false, collector: Varian
 	engine.alternate_order = bool(job.alternate_order)
 	engine.emit_auto_attack_logs = false
 	engine.emit_ability_logs = false
+	var requested_caps: PackedStringArray = TelemetryCapabilities.normalize(job.capabilities)
+	if requested_caps.size() > 0:
+		engine.emit_position_telemetry = requested_caps.has(TelemetryCapabilities.CAP_MOBILITY) or requested_caps.has(TelemetryCapabilities.CAP_ZONES)
+		engine.emit_target_telemetry = requested_caps.has(TelemetryCapabilities.CAP_TARGETS)
 	engine.configure(state, BattleState.first_alive(state.player_team), 1, Callable())
 	# Perf: allow overriding position emit interval (reduces per-second event churn when headless)
 	var meta2: Dictionary = meta_root

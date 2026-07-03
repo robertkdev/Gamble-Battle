@@ -1,6 +1,14 @@
 extends RefCounted
 class_name CollisionResolver
 
+const Debug = preload("res://scripts/util/debug.gd")
+
+var _all_pos: Array[Vector2] = []
+var _all_alive: Array[bool] = []
+var _caps: Array[float] = []
+var _tag_is_player: Array[bool] = []
+var _tag_indices: Array[int] = []
+
 # CollisionResolver
 # Simple O(n^2) circle separation working across both teams. Performs a single
 # separation pass after positions have been advanced for the frame. The amount
@@ -21,21 +29,23 @@ func resolve(
         debug_log: bool = false) -> void:
     if radius <= 0.0:
         return
-    var all_pos: Array[Vector2] = []
-    var all_alive: Array[bool] = []
-    var caps: Array[float] = []
-    var tags: Array = [] # [team, index]
+    _all_pos.clear()
+    _all_alive.clear()
+    _caps.clear()
+    _tag_is_player.clear()
+    _tag_indices.clear()
     for i in range(player_positions.size()):
-        all_pos.append(player_positions[i])
-        all_alive.append((player_alive[i] if i < player_alive.size() else true))
-        caps.append((player_step_caps[i] if i < player_step_caps.size() else 0.0))
-        tags.append(["player", i])
-    var _offset_enemy: int = all_pos.size()
+        _all_pos.append(player_positions[i])
+        _all_alive.append((player_alive[i] if i < player_alive.size() else true))
+        _caps.append((player_step_caps[i] if i < player_step_caps.size() else 0.0))
+        _tag_is_player.append(true)
+        _tag_indices.append(i)
     for j in range(enemy_positions.size()):
-        all_pos.append(enemy_positions[j])
-        all_alive.append((enemy_alive[j] if j < enemy_alive.size() else true))
-        caps.append((enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0))
-        tags.append(["enemy", j])
+        _all_pos.append(enemy_positions[j])
+        _all_alive.append((enemy_alive[j] if j < enemy_alive.size() else true))
+        _caps.append((enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0))
+        _tag_is_player.append(false)
+        _tag_indices.append(j)
 
     var min_dist: float = radius * 2.0
     var min_dist2: float = min_dist * min_dist
@@ -48,14 +58,14 @@ func resolve(
     var enemy_pairs: int = 0
     var max_overlap_seen: float = 0.0
     for _iter in range(iters):
-        for a in range(all_pos.size()):
-            if not all_alive[a]:
+        for a in range(_all_pos.size()):
+            if not _all_alive[a]:
                 continue
-            for b in range(a + 1, all_pos.size()):
-                if not all_alive[b]:
+            for b in range(a + 1, _all_pos.size()):
+                if not _all_alive[b]:
                     continue
-                var pa: Vector2 = all_pos[a]
-                var pb: Vector2 = all_pos[b]
+                var pa: Vector2 = _all_pos[a]
+                var pb: Vector2 = _all_pos[b]
                 var diff: Vector2 = pb - pa
                 var d2: float = diff.length_squared()
                 if d2 >= min_dist2 or d2 == 0.0:
@@ -67,9 +77,9 @@ func resolve(
                 var dir: Vector2 = diff / d if d > 0.0 else Vector2.RIGHT
                 var half: float = overlap * 0.5
 
-                var same_team: bool = (tags[a][0] == tags[b][0])
-                var cap_a: float = max(0.0, caps[a])
-                var cap_b: float = max(0.0, caps[b])
+                var same_team: bool = (_tag_is_player[a] == _tag_is_player[b])
+                var cap_a: float = max(0.0, _caps[a])
+                var cap_b: float = max(0.0, _caps[b])
 
                 var move_a: float
                 var move_b: float
@@ -88,21 +98,20 @@ func resolve(
                     if move_a < half or move_b < half:
                         capped_pairs += 1
 
-                all_pos[a] = all_pos[a] - dir * move_a
-                all_pos[b] = all_pos[b] + dir * move_b
+                _all_pos[a] = _all_pos[a] - dir * move_a
+                _all_pos[b] = _all_pos[b] + dir * move_b
                 total_pairs += 1
                 if move_a > 0.0 or move_b > 0.0:
                     resolved_pairs += 1
 
     # Write back and clamp
-    for i2 in range(all_pos.size()):
-        var t: String = tags[i2][0]
-        var idx: int = int(tags[i2][1])
-        var p: Vector2 = all_pos[i2]
+    for i2 in range(_all_pos.size()):
+        var idx: int = _tag_indices[i2]
+        var p: Vector2 = _all_pos[i2]
         if bounds != Rect2():
             p.x = clampf(p.x, bounds.position.x, bounds.position.x + bounds.size.x)
             p.y = clampf(p.y, bounds.position.y, bounds.position.y + bounds.size.y)
-        if t == "player":
+        if _tag_is_player[i2]:
             if idx < player_positions.size():
                 player_positions[idx] = p
         else:
@@ -110,8 +119,7 @@ func resolve(
                 enemy_positions[idx] = p
 
     if debug_log:
-        var dbg := preload("res://scripts/util/debug.gd")
-        if dbg.enabled:
+        if Debug.enabled:
             print("[Coll] iters=", iters, " pairs=", total_pairs, " resolved=", resolved_pairs,
                   " max_overlap=", max_overlap_seen, " friend_pairs=", friend_pairs, " enemy_pairs=", enemy_pairs,
                   " capped_pairs=", capped_pairs, " soft=", friendly_soft)

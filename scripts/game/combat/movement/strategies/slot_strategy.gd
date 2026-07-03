@@ -6,6 +6,8 @@ const TAU := PI * 2.0
 const HYST_STICKINESS := 0.05
 const HYST_SWITCH_COST := 0.1
 const SINGLE_CORRIDOR_EPS_FACTOR := 0.12
+const FACTORIAL_ASSIGNMENT_LIMIT: int = 7
+const DP_ASSIGNMENT_LIMIT: int = 12
 
 # Computes per-attacker slot destinations around their chosen targets.
 # Five evenly spaced slots per target, order-preserving assignment to avoid
@@ -45,9 +47,9 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 	var costs: Array = []
 	for i in range(rows):
 		var row_cost: Array[float] = []
-		var entry = pairs[i]
+		var entry: Dictionary = pairs[i]
 		var idx: int = int(entry["idx"])
-		var prev = prev_slot_assignments.get(idx, {})
+		var prev: Dictionary = prev_slot_assignments.get(idx, {})
 		var prev_slot: int = int(prev.get("slot", -1))
 		var prev_frames: int = int(prev.get("frames", 0))
 		var frame_factor: float = 1.0
@@ -67,12 +69,98 @@ static func _best_assignment(costs: Array) -> Dictionary:
 	var n: int = costs.size()
 	if n == 0:
 		return {"assignment": [], "cost": 0.0}
+	if n <= FACTORIAL_ASSIGNMENT_LIMIT:
+		return _best_assignment_permuted(costs)
+	if n <= DP_ASSIGNMENT_LIMIT:
+		return _best_assignment_dp(costs)
+	return _best_assignment_greedy(costs)
+
+static func _best_assignment_permuted(costs: Array) -> Dictionary:
+	var n: int = costs.size()
 	var indices: Array[int] = []
 	for i in range(n):
 		indices.append(i)
-	var best := [1e30, []]
+	var best: Array = [1e30, []]
 	_permute_assign(indices, 0, costs, best)
 	return {"assignment": (best[1] as Array).duplicate(), "cost": float(best[0])}
+
+static func _best_assignment_dp(costs: Array) -> Dictionary:
+	var n: int = costs.size()
+	var mask_count: int = 1 << n
+	var best_costs: Array[float] = []
+	var prev_cols: Array[int] = []
+	var prev_masks: Array[int] = []
+	for _i in range(mask_count):
+		best_costs.append(1e30)
+		prev_cols.append(-1)
+		prev_masks.append(-1)
+	best_costs[0] = 0.0
+	for mask in range(mask_count):
+		var row: int = _bit_count(mask)
+		if row >= n:
+			continue
+		var base_cost: float = best_costs[mask]
+		if base_cost >= 1e29:
+			continue
+		var row_costs: Array = costs[row]
+		for col in range(n):
+			var bit: int = 1 << col
+			if (mask & bit) != 0:
+				continue
+			var next_mask: int = mask | bit
+			var candidate_cost: float = base_cost + float(row_costs[col])
+			if candidate_cost < best_costs[next_mask]:
+				best_costs[next_mask] = candidate_cost
+				prev_cols[next_mask] = col
+				prev_masks[next_mask] = mask
+	var final_mask: int = mask_count - 1
+	var assignment: Array[int] = []
+	assignment.resize(n)
+	var walk_mask: int = final_mask
+	var write_row: int = n - 1
+	while write_row >= 0:
+		var picked_col: int = prev_cols[walk_mask]
+		if picked_col < 0:
+			return _best_assignment_greedy(costs)
+		assignment[write_row] = picked_col
+		walk_mask = prev_masks[walk_mask]
+		write_row -= 1
+	return {"assignment": assignment, "cost": best_costs[final_mask]}
+
+static func _best_assignment_greedy(costs: Array) -> Dictionary:
+	var n: int = costs.size()
+	var used: Array[bool] = []
+	var assignment: Array[int] = []
+	for _i in range(n):
+		used.append(false)
+	var total_cost: float = 0.0
+	for row in range(n):
+		var row_costs: Array = costs[row]
+		var best_col: int = -1
+		var best_cost: float = 1e30
+		for col in range(n):
+			if used[col]:
+				continue
+			var candidate_cost: float = float(row_costs[col])
+			if candidate_cost < best_cost:
+				best_cost = candidate_cost
+				best_col = col
+		if best_col < 0:
+			best_col = 0
+			best_cost = 0.0
+		assignment.append(best_col)
+		if best_col >= 0 and best_col < used.size():
+			used[best_col] = true
+		total_cost += best_cost
+	return {"assignment": assignment, "cost": total_cost}
+
+static func _bit_count(value: int) -> int:
+	var count: int = 0
+	var bits: int = value
+	while bits > 0:
+		bits = bits & (bits - 1)
+		count += 1
+	return count
 
 static func _permute_assign(indices: Array[int], start: int, costs: Array, best: Array) -> void:
 	var n: int = indices.size()
@@ -87,7 +175,7 @@ static func _permute_assign(indices: Array[int], start: int, costs: Array, best:
 			best[1] = indices.duplicate()
 		return
 	for i in range(start, n):
-		var tmp := indices[start]
+		var tmp: int = indices[start]
 		indices[start] = indices[i]
 		indices[i] = tmp
 		_permute_assign(indices, start + 1, costs, best)
@@ -116,7 +204,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 	var min_spacing_world: float = max(0.0, tile_size) * 0.7
 
 	if pairs.size() == 1:
-		var single = pairs[0]
+		var single: Dictionary = pairs[0]
 		var idx_single: int = int(single["idx"])
 		var dir_single: Vector2 = (single["pos"] - target_pos).normalized()
 		if dir_single == Vector2.ZERO:
@@ -150,11 +238,11 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 		var ring_angles: Array[float] = []
 		for s in range(count):
 			ring_angles.append(_wrap_angle(base + step * float(s)))
-		var eval := _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames)
-		var current_cost: float = float(eval.get("cost", 1e30))
+		var assignment_eval: Dictionary = _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames)
+		var current_cost: float = float(assignment_eval.get("cost", 1e30))
 		if current_cost < best_cost:
 			best_cost = current_cost
-			best_assignment = eval.get("assignment", []).duplicate()
+			best_assignment = assignment_eval.get("assignment", []).duplicate()
 			best_ring_angles = ring_angles.duplicate()
 	if best_assignment.is_empty():
 		return res
@@ -165,7 +253,7 @@ static func assign_for_target(_team: String, _target_idx: int, target_pos: Vecto
 		min_required_radius = min_spacing_world / chord_factor
 
 	for i in range(count):
-		var entry2 = pairs[i]
+		var entry2: Dictionary = pairs[i]
 		var attacker_index: int = int(entry2["idx"])
 		var slot_index: int = int(best_assignment[i])
 		var slot_angle: float = best_ring_angles[slot_index]
@@ -203,7 +291,7 @@ func assign_slots_for_team(team: String,
 		hysteresis_frames: int = 0) -> Dictionary:
 	var ranges_world: Dictionary = {} # idx -> float
 	for i in range(attackers_units.size()):
-		var u = attackers_units[i]
+		var u: Unit = attackers_units[i]
 		var band: float = 1.0
 		if i < profiles.size() and profiles[i] != null:
 			band = max(0.0, float(profiles[i].band_max))

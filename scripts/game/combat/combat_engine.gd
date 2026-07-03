@@ -25,6 +25,8 @@ signal ability_committed(source_team: String, source_index: int, ability_id: Str
 
 const POSITION_EMIT_INTERVAL: float = 0.1
 var position_emit_interval_override: float = -1.0
+var emit_position_telemetry: bool = true
+var emit_target_telemetry: bool = true
 var target_recheck_interval_s: float = 0.35
 var _target_recheck_accum: float = 0.0
 
@@ -720,6 +722,8 @@ func _reset_target_tracking() -> void:
 func _emit_position_updates(force: bool = false) -> void:
 	if state == null or arena_state == null:
 		return
+	if not emit_position_telemetry:
+		return
 	var player_count: int = state.player_team.size()
 	if player_count > 0:
 		_last_player_positions.resize(player_count)
@@ -765,6 +769,8 @@ func _emit_position_updates(force: bool = false) -> void:
 
 func _emit_target_events(force: bool = false) -> void:
 	if target_controller == null or state == null:
+		return
+	if not emit_target_telemetry:
 		return
 	var player_targets: Array = target_controller.target_array("player")
 	var enemy_targets: Array = target_controller.target_array("enemy")
