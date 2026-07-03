@@ -8,6 +8,7 @@ const ProgressionConfig := preload("res://scripts/game/progression/progression_c
 const ProgressionService := preload("res://scripts/game/progression/progression_service.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
 const StageRuleRunner := preload("res://scripts/game/progression/stage_rule_runner.gd")
+const StageProgressTopBar := preload("res://scripts/ui/combat/stage_progress_top_bar.gd")
 const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 
@@ -27,6 +28,7 @@ func _run() -> void:
 
 	_validate_progression_rollover(failures)
 	_validate_display_names(failures)
+	_validate_endless_top_bar(failures)
 	_validate_endless_catalog_specs(failures)
 	_validate_spawner_and_rules(failures)
 	_validate_mirror_runtime(failures)
@@ -52,6 +54,27 @@ func _validate_progression_rollover(failures: Array[String]) -> void:
 func _validate_display_names(failures: Array[String]) -> void:
 	_expect(ChapterCatalog.display_name_for(FIRST_ENDLESS_CHAPTER) == "Endless 1", "first endless display name mismatch", failures)
 	_expect(LogSchema.format_stage(FIRST_ENDLESS_CHAPTER, 1, 5).begins_with("Endless 1"), "log schema should display Endless 1 after authored chapters", failures)
+
+func _validate_endless_top_bar(failures: Array[String]) -> void:
+	var top_bar: Control = StageProgressTopBar.new()
+	add_child(top_bar)
+	top_bar.call("update_progress", FIRST_ENDLESS_CHAPTER, ProgressionConfig.SECOND_RGA_STAGE, ProgressionConfig.STAGES_PER_CHAPTER)
+	var chapter_label: Label = top_bar.find_child("ChapterLabel", true, false) as Label
+	_expect(chapter_label != null, "endless top bar should create chapter label", failures)
+	if chapter_label != null:
+		_expect(String(chapter_label.text) == "Endless 1", "endless top bar label should read Endless 1, got %s" % chapter_label.text, failures)
+	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
+		var icon: TextureRect = top_bar.find_child("StageIcon%d" % stage_index, true, false) as TextureRect
+		_expect(icon != null, "endless top bar missing stage icon %d" % stage_index, failures)
+		if icon == null:
+			continue
+		_expect(icon.visible, "endless top bar stage icon %d should be visible" % stage_index, failures)
+		_expect(String(icon.tooltip_text) == _expected_tooltip_for(stage_index), "endless top bar stage %d tooltip mismatch: %s" % [stage_index, icon.tooltip_text], failures)
+		if stage_index == int(ProgressionConfig.SECOND_RGA_STAGE):
+			_expect(icon.texture != null, "endless top bar selected stage icon should have a texture", failures)
+			if icon.texture != null:
+				_expect(String(icon.texture.resource_path).ends_with("stage_3_challenge_selected.png"), "endless top bar should select the second RGA challenge icon, got %s" % String(icon.texture.resource_path), failures)
+	top_bar.queue_free()
 
 func _validate_endless_catalog_specs(failures: Array[String]) -> void:
 	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
@@ -127,6 +150,19 @@ func _expected_kind_for(stage_index: int) -> String:
 	if stage_index == int(ProgressionConfig.MIRROR_STAGE):
 		return StageTypes.KIND_MIRROR
 	return StageTypes.KIND_NORMAL
+
+func _expected_tooltip_for(stage_index: int) -> String:
+	if stage_index == int(ProgressionConfig.CREEP_STAGE):
+		return "Stage 1: Creeps"
+	if stage_index == int(ProgressionConfig.FIRST_RGA_STAGE):
+		return "Stage 2: Challenge"
+	if stage_index == int(ProgressionConfig.SECOND_RGA_STAGE):
+		return "Stage 3: Challenge"
+	if stage_index == int(ProgressionConfig.BOSS_STAGE):
+		return "Stage 4: Boss"
+	if stage_index == int(ProgressionConfig.MIRROR_STAGE):
+		return "Stage 5: Mirror"
+	return ""
 
 func _specs_equivalent(left: Dictionary, right: Dictionary) -> bool:
 	var same_kind: bool = String(left.get(StageTypes.KEY_KIND, "")) == String(right.get(StageTypes.KEY_KIND, ""))
