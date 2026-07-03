@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dy7gbs4d3lhh2"
-path="res://.godot/imported/exocutioner_symbol.png-4caab439ec04d4e8c08dc5928475bc5c.ctex"
+uid="uid://yaq13a2vx0il"
+path="res://.godot/imported/sari.png-510266094ae19dc45f5bb03c863484e4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/traits/exocutioner_symbol.png"
-dest_files=["res://.godot/imported/exocutioner_symbol.png-4caab439ec04d4e8c08dc5928475bc5c.ctex"]
+source_file="res://assets/units/sari.png"
+dest_files=["res://.godot/imported/sari.png-510266094ae19dc45f5bb03c863484e4.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dy7gbs4d3lhh2"
-path="res://.godot/imported/exocutioner_symbol.png-4caab439ec04d4e8c08dc5928475bc5c.ctex"
+uid="uid://157ohknk6at8"
+path="res://.godot/imported/korath.png-29db447334e1a1f828616e48d949238c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/traits/exocutioner_symbol.png"
-dest_files=["res://.godot/imported/exocutioner_symbol.png-4caab439ec04d4e8c08dc5928475bc5c.ctex"]
+source_file="res://assets/units/korath.png"
+dest_files=["res://.godot/imported/korath.png-29db447334e1a1f828616e48d949238c.ctex"]
 
 [params]
 

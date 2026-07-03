@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 id = "korath"
 name = "Korath"
-sprite_path = "res://assets/units/korath (1).png"
+sprite_path = "res://assets/units/korath.png"
 ability_id = "korath_absorb_release"
 traits = ["Titan", "Blessed"]
 roles = ["tank"]

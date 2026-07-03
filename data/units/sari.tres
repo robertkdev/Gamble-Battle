@@ -7,7 +7,7 @@
 script = ExtResource( 1 )
 id = "sari"
 name = "Sari"
-sprite_path = "res://assets/units/sari (3).png"
+sprite_path = "res://assets/units/sari.png"
 ability_id = "sari_default"
 traits = ["Exile", "Scholar"]
 roles = ["marksman"]
