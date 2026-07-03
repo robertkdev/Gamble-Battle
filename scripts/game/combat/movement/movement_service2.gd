@@ -292,6 +292,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	# (Potential fast path for 1v1 removed pending further validation)
 
 	# Player side
+	var forced_has_player_impulses: bool = forced.has_any()
 	for i in range(state.player_team.size()):
 		var u: Unit = state.player_team[i]
 		var alive: bool = p_alive[i]
@@ -324,7 +325,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		var step: Vector2 = Vector2.ZERO
 
-		if forced.has_active("player", i):
+		if forced_has_player_impulses and forced.has_active("player", i):
 			step = forced.consume_step("player", i, delta)
 		elif buff_adapter.is_blocked(state, "player", i):
 			step = Vector2.ZERO
@@ -376,6 +377,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		diag_phase_start = _diag_mark_phase("player_steps", diag_phase_start)
 
 	# Enemy side
+	var forced_has_enemy_impulses: bool = forced.has_any()
 	for j in range(state.enemy_team.size()):
 		var e: Unit = state.enemy_team[j]
 		var alive_e: bool = e_alive[j]
@@ -408,7 +410,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		var step2: Vector2 = Vector2.ZERO
 
-		if forced.has_active("enemy", j):
+		if forced_has_enemy_impulses and forced.has_active("enemy", j):
 			step2 = forced.consume_step("enemy", j, delta)
 		elif buff_adapter.is_blocked(state, "enemy", j):
 			step2 = Vector2.ZERO

@@ -34,6 +34,9 @@ func add(team: String, idx: int, vec: Vector2, duration: float) -> void:
         return
     _map[_key(team, idx)] = Impulse.new(vec, duration)
 
+func has_any() -> bool:
+    return not _map.is_empty()
+
 func has_active(team: String, idx: int) -> bool:
     var k := _key(team, idx)
     return _map.has(k) and not (_map[k] as Impulse).is_done()
