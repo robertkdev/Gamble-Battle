@@ -108,7 +108,7 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 	var masks_by_row: Array = _dp_masks_for_size(n)
 	for row in range(n):
 		var row_masks: Array = masks_by_row[row]
-		var row_costs: Array = costs[row]
+		var row_costs: Array[float] = costs[row]
 		for mask_value in row_masks:
 			var mask: int = int(mask_value)
 			var base_cost: float = best_costs[mask]
@@ -119,7 +119,7 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 				if (mask & bit) != 0:
 					continue
 				var next_mask: int = mask | bit
-				var candidate_cost: float = base_cost + float(row_costs[col])
+				var candidate_cost: float = base_cost + row_costs[col]
 				if candidate_cost >= incumbent_cost:
 					continue
 				if candidate_cost < best_costs[next_mask]:
@@ -169,13 +169,13 @@ static func _best_assignment_greedy(costs: Array) -> Dictionary:
 		used.append(false)
 	var total_cost: float = 0.0
 	for row in range(n):
-		var row_costs: Array = costs[row]
+		var row_costs: Array[float] = costs[row]
 		var best_col: int = -1
 		var best_cost: float = 1e30
 		for col in range(n):
 			if used[col]:
 				continue
-			var candidate_cost: float = float(row_costs[col])
+			var candidate_cost: float = row_costs[col]
 			if candidate_cost < best_cost:
 				best_cost = candidate_cost
 				best_col = col

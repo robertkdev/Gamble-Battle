@@ -132,6 +132,10 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfSlotStrategy.tscn` after cost-matrix pre-sizing kept aggregate signature `5330865502362346199`, errors `[]`, and improved the focused total to `391ms`.
 - `tests/perf/PerfMovementPhases.tscn` after cost-matrix pre-sizing kept signatures and errors `[]`: first sample showed 6v6 movement `484716us` / 12v12 movement `2946260us`; accepted repeat improved to 6v6 movement `435009us` with slot assignment `163441us`, and 12v12 movement `2621887us` with slot assignment `2335925us`.
 - Diagnostics-off validation after cost-matrix pre-sizing stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=10233`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `2459ms`, 12v12 median `3109ms`, total `12611ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=386`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6449`.
+- `tests/perf/PerfSlotStrategy.tscn` before typed DP row-cost access on the current tree kept aggregate signature `5330865502362346199`, errors `[]`: count 6 median `46ms`, count 12 median `266ms`, count 18 median `59ms`, count 24 median `71ms`, median total `442ms`.
+- `tests/perf/PerfSlotStrategy.tscn` after typed DP row-cost access kept aggregate signature `5330865502362346199`, errors `[]`, and improved the focused total to `388ms`.
+- `tests/perf/PerfMovementPhases.tscn` after typed DP row-cost access kept signatures and errors `[]`: accepted samples showed 6v6 movement `447356us` then `437044us`, with slot assignment `164738us` then `160584us`; 12v12 movement `2763956us` then `2814399us`, with slot assignment `2326137us` then `2467654us`.
+- Diagnostics-off validation after typed DP row-cost access stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=11404`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, 8v8 median `2698ms`, 12v12 median `2971ms`, total `12479ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=437`, errors `[]`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6621`.
 
 ## Changes Made
 
@@ -166,6 +170,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Inlines circular distance inside the cost-matrix hot loop and reads each attacker angle once per row, preserving solver order and signatures while avoiding repeated function calls/dictionary angle reads.
   - Avoids allocating a default previous-slot dictionary in `_evaluate_assignment()` for every attacker row/base rotation; missing or invalid previous-slot records still resolve to slot `-1` and `0` frames.
   - Pre-sizes the per-base cost matrix and each row before filling costs, avoiding repeated `append()` growth in the exact assignment hot loop while preserving row/column order and signatures.
+  - Keeps DP/greedy row costs as typed `Array[float]` values inside the assignment hot loop, avoiding repeated dynamic `float(...)` conversion while preserving assignment order and signatures.
 - `scripts/game/combat/systems/target_controller.gd`
   - `resolver_for_arena()` now returns a live cached target directly when the stored target is still valid, falling back to the full `current_target()` path only for stale, missing, or dead targets.
   - This avoids per-frame movement resolver overhead from repeated target-array sync/recursion-guard work in the common live-target case.
