@@ -15,6 +15,12 @@ Live generated UI assets are under `assets/ui/gothic/`:
 | `shop_card_frame.png` | `150x138` | `GothicUIAssets.shop_card_style()` |
 | `button_primary.png` | `240x54` | `GothicUIAssets.primary_button_style()` |
 | `button_small.png` | `100x44` | `GothicUIAssets.small_button_style()` / `item_slot_style()` |
+| `screen_backdrop.png` | `1920x1080` | `GothicUIAssets.screen_backdrop_texture()` |
+| `battlefield_surface.png` | `1536x768` | `GothicUIAssets.battlefield_texture()` |
+| `battlefield_surface_top.png` | `1536x384` | `GothicUIAssets.battlefield_top_texture()` |
+| `battlefield_surface_bottom.png` | `1536x384` | `GothicUIAssets.battlefield_bottom_texture()` |
+| `board_tile_player.png` | `96x96` | `GothicUIAssets.board_tile_style(true)` |
+| `board_tile_enemy.png` | `96x96` | `GothicUIAssets.board_tile_style(false)` |
 
 The implementation hook is `scripts/ui/gothic_ui_assets.gd`. Runtime callers should use `StyleBoxTexture` through that helper and keep a flat fallback with `GothicUIAssets.style_or_fallback(...)`.
 
@@ -47,7 +53,7 @@ Expect the model to ignore some geometry instructions. The deterministic mask/cr
 
 ## Implementation Pattern
 
-Use generated frames as nine-slice style boxes:
+Use generated frames as nine-slice style boxes and generated surfaces as texture backdrops:
 
 - `wide_panel_style()` for large plates, title panels, preview panels, loss panels, and broad bottom-bar backplates.
 - `grid_panel_style()` for medium panel interiors, command-strip plates, tooltips, and stat panels.
@@ -55,6 +61,9 @@ Use generated frames as nine-slice style boxes:
 - `primary_button_style()` for Start Battle, Start Game, New Game, and other primary calls to action.
 - `small_button_style()` for compact command buttons, tabs, menu buttons, and search fields.
 - `item_slot_style()` for tiny slots/chips/checkbox-like controls where the small button margins are too heavy.
+- `screen_backdrop_texture()` for the root combat backdrop; do not re-enable the procedural battlefield shader behind the board.
+- `battlefield_texture()` for combat arena mode, and the top/bottom battlefield split textures for planning board halves.
+- `board_tile_style(true/false)` for player/enemy grid tiles; the generated tile center is translucent so the board surface still reads through.
 
 For button states, prefer one recovered asset plus `modulate_color` variants for `normal`, `hover`, `pressed`, `focus`, `selected`, and `disabled`. Generate separate files only when tinting cannot produce a readable state.
 
@@ -82,6 +91,9 @@ Expected screenshot artifacts from the latest accepted pass:
 Before accepting a UI asset pass, compare against a current full-game screenshot and check:
 
 - Bottom shop bar uses an external backplate and is not collapsed inside a container child.
+- The combat root background is the generated `screen_backdrop.png`, not the old procedural ring/sigil shader.
+- Planning grid halves show generated battlefield surfaces and generated tile frames, not flat red/teal Godot boxes.
+- Combat arena mode shows `battlefield_surface.png` behind actors, and the old `ArenaBackground` shader/ColorRect is transparent.
 - No stale overlay appears in the top-left or above the board.
 - Shop cards remain `150x138` and text/icons fit at normal, hover, and pressed states.
 - Primary buttons keep their target aspect and do not visibly stretch.

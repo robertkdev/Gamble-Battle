@@ -88,6 +88,12 @@ func _run() -> void:
 	_expect(player_tile != null, "Player tile missing", failures)
 	if player_tile != null:
 		_expect(player_tile.has_theme_stylebox_override("disabled"), "Player tile disabled style missing", failures)
+		_expect(player_tile.get_theme_stylebox("disabled") is StyleBoxTexture, "Player tiles should use the generated gothic board asset", failures)
+	var enemy_tile: Button = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/EnemyGrid/TileE_00") as Button
+	_expect(enemy_tile != null, "Enemy tile missing", failures)
+	if enemy_tile != null:
+		_expect(enemy_tile.get_theme_stylebox("disabled") is StyleBoxTexture, "Enemy tiles should use the generated gothic board asset", failures)
+	_verify_board_surfaces(view, failures)
 	var stats_plate: Panel = view.get_node_or_null("GothicStatsAreaPlate") as Panel
 	_expect(stats_plate != null, "Stats backplate missing", failures)
 	if stats_plate != null:
@@ -120,6 +126,25 @@ func _run() -> void:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _verify_board_surfaces(view: Control, failures: Array[String]) -> void:
+	var screen_backdrop: TextureRect = view.get_node_or_null("GothicScreenBackdrop") as TextureRect
+	_expect(screen_backdrop != null and screen_backdrop.texture != null, "Root screen should use the generated gothic backdrop asset", failures)
+	var screen_background: ColorRect = view.get_node_or_null("ColorRect") as ColorRect
+	_expect(screen_background != null, "Root ColorRect background missing", failures)
+	if screen_background != null:
+		_expect(screen_background.material == null, "Obsolete root background shader material should be disabled under the generated backdrop", failures)
+	var top_surface: TextureRect = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea/GothicPlanningTopSurface") as TextureRect
+	_expect(top_surface != null and top_surface.texture != null, "Planning enemy board should use the generated battlefield surface", failures)
+	var bottom_surface: TextureRect = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/GothicPlanningBottomSurface") as TextureRect
+	_expect(bottom_surface != null and bottom_surface.texture != null, "Planning player board should use the generated battlefield surface", failures)
+	var arena_surface: TextureRect = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer/GothicArenaSurface") as TextureRect
+	_expect(arena_surface != null and arena_surface.texture != null, "Combat arena should use the generated battlefield surface", failures)
+	var arena_background: ColorRect = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground") as ColorRect
+	_expect(arena_background != null, "ArenaBackground missing", failures)
+	if arena_background != null:
+		_expect(arena_background.material == null, "Obsolete arena shader material should be disabled under the generated surface", failures)
+		_expect(arena_background.color.a <= 0.01, "Obsolete arena ColorRect should not cover the generated surface", failures)
 
 func _verify_trait_activation_checkpoint_sort(failures: Array[String]) -> void:
 	var presenter: TraitsPresenter = TraitsPresenterLib.new() as TraitsPresenter

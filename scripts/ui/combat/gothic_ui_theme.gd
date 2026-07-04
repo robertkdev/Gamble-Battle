@@ -2,7 +2,6 @@ extends Object
 class_name GothicUITheme
 
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
-const BATTLEFIELD_SHADER: Shader = preload("res://shaders/gothic_battlefield.gdshader")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
 const COLOR_PANEL: Color = Color(0.050, 0.044, 0.056, 0.97)
@@ -22,8 +21,6 @@ const COLOR_TILE_PLAYER: Color = Color(0.030, 0.040, 0.043, 0.90)
 const COLOR_TILE_ENEMY: Color = Color(0.080, 0.025, 0.034, 0.90)
 
 static var _theme: Theme = null
-static var _screen_material: ShaderMaterial = null
-static var _arena_material: ShaderMaterial = null
 
 static func apply(root: Control) -> void:
 	if root == null:
@@ -35,8 +32,6 @@ static func apply(root: Control) -> void:
 
 static func clear_runtime() -> void:
 	_theme = null
-	_screen_material = null
-	_arena_material = null
 
 static func _get_theme() -> Theme:
 	if _theme != null:
@@ -82,9 +77,11 @@ static func _apply_root(root: Control) -> void:
 		margin.add_theme_constant_override("margin_bottom", 18)
 
 static func _apply_named_nodes(root: Control) -> void:
-	_set_color_rect(root, "ColorRect", COLOR_VOID)
-	_apply_battlefield_material(root, "ColorRect", false)
-	_apply_battlefield_material(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground", true)
+	_apply_screen_backdrop(root)
+	_clear_battlefield_rect(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground")
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(0.92, 0.88, 0.84, 0.96))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(0.90, 0.94, 0.92, 0.96))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaSurface", GothicUIAssets.battlefield_texture(), -8, Color(0.94, 0.91, 0.86, 0.98))
 	_style_label(root, "MarginContainer/VBoxContainer/StageLabel", 34, COLOR_TEXT, true)
 	_style_label(root, "MarginContainer/VBoxContainer/PlanningTimerLabel", 18, COLOR_GOLD, true)
 	_style_label(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", 22, COLOR_GOLD, true)
@@ -119,8 +116,8 @@ static func _apply_named_nodes(root: Control) -> void:
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/BottomStorageArea", 10)
 	_style_shop_command_bar(root)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea", "GothicBattlePlate", _style(Color(0.016, 0.013, 0.018, 0.58), Color(0.28, 0.22, 0.20, 0.62), 1, 6), -20)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicEnemyPlate", _style(Color(0.115, 0.022, 0.034, 0.46), Color(0.47, 0.045, 0.070, 0.84), 2, 4), -5)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlayerPlate", _style(Color(0.025, 0.044, 0.046, 0.46), Color(0.27, 0.38, 0.38, 0.84), 2, 4), -5)
+	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicEnemyPlate", _style(Color(0.070, 0.012, 0.018, 0.16), Color(0.46, 0.050, 0.072, 0.48), 1, 4), -5)
+	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlayerPlate", _style(Color(0.014, 0.044, 0.046, 0.16), Color(0.23, 0.38, 0.38, 0.48), 1, 4), -5)
 	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", "GothicStatsAreaPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(Color(0.86, 0.80, 0.76, 0.94)), _style(Color(0.034, 0.029, 0.038, 0.94), Color(0.34, 0.27, 0.27, 0.90), 1, 6)), 0, 8.0)
 	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", "GothicItemsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.item_storage_panel_style(Color(0.94, 0.86, 0.78, 0.94)), _style(Color(0.030, 0.026, 0.034, 0.88), Color(0.20, 0.18, 0.20, 0.84), 1, 6)), 0, 8.0)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", "GothicTraitsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.traits_panel_style(Color(0.90, 0.82, 0.76, 0.94)), _style(Color(0.026, 0.023, 0.031, 0.94), Color(0.38, 0.28, 0.26, 0.86), 1, 6)), -2)
@@ -282,15 +279,18 @@ static func _apply_tile(button: Button, is_player: bool) -> void:
 	var normal_style: StyleBoxFlat = _style(bg_color, border_color, 2, 3)
 	var hover_style: StyleBoxFlat = _hover_style(hover_color, COLOR_GOLD_HOT, 2, 3)
 	hover_style.shadow_size = 12
+	var normal_asset: StyleBoxTexture = GothicUIAssets.board_tile_style(is_player)
+	var hover_asset: StyleBoxTexture = GothicUIAssets.board_tile_style(is_player, Color(1.16, 1.08, 0.92, 1.0))
+	var pressed_asset: StyleBoxTexture = GothicUIAssets.board_tile_style(is_player, Color(0.84, 0.76, 0.70, 1.0))
 	var tile_size: float = maxf(button.custom_minimum_size.x, button.custom_minimum_size.y)
 	if tile_size <= 0.0:
 		tile_size = 72.0
 	button.custom_minimum_size = Vector2(tile_size, tile_size)
-	button.add_theme_stylebox_override("normal", normal_style)
-	button.add_theme_stylebox_override("disabled", normal_style)
-	button.add_theme_stylebox_override("hover", hover_style)
-	button.add_theme_stylebox_override("pressed", hover_style)
-	button.add_theme_stylebox_override("focus", hover_style)
+	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(normal_asset, normal_style))
+	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(normal_asset, normal_style))
+	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
+	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(pressed_asset, hover_style))
+	button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
 
 static func _style_shop_card(button: Button) -> void:
 	button.custom_minimum_size = Vector2(144.0, 124.0)
@@ -372,10 +372,66 @@ static func _style_label_node(label: Label, font_size: int, color: Color, outlin
 		label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
 		label.add_theme_constant_override("outline_size", 2)
 
-static func _set_color_rect(root: Control, path: String, color: Color) -> void:
+static func _apply_screen_backdrop(root: Control) -> void:
+	var base_rect: ColorRect = root.get_node_or_null("ColorRect") as ColorRect
+	if base_rect != null:
+		base_rect.color = COLOR_VOID
+		base_rect.material = null
+		base_rect.z_index = -40
+	var texture: Texture2D = GothicUIAssets.screen_backdrop_texture()
+	if texture == null:
+		return
+	var backdrop: TextureRect = root.get_node_or_null("GothicScreenBackdrop") as TextureRect
+	if backdrop == null:
+		backdrop = TextureRect.new()
+		backdrop.name = "GothicScreenBackdrop"
+		backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		root.add_child(backdrop)
+		if base_rect != null:
+			root.move_child(backdrop, min(base_rect.get_index() + 1, root.get_child_count() - 1))
+		else:
+			root.move_child(backdrop, 0)
+		backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop.offset_left = 0.0
+		backdrop.offset_top = 0.0
+		backdrop.offset_right = 0.0
+		backdrop.offset_bottom = 0.0
+	backdrop.show_behind_parent = false
+	backdrop.z_index = -39
+	backdrop.texture = texture
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_SCALE
+	backdrop.modulate = Color(0.82, 0.80, 0.78, 1.0)
+
+static func _clear_battlefield_rect(root: Control, path: String) -> void:
 	var rect: ColorRect = root.get_node_or_null(path) as ColorRect
-	if rect != null:
-		rect.color = color
+	if rect == null:
+		return
+	rect.color = Color(0.0, 0.0, 0.0, 0.0)
+	rect.material = null
+
+static func _ensure_texture_backdrop(root: Control, path: String, backdrop_name: String, texture: Texture2D, z_value: int, modulate: Color) -> void:
+	var control: Control = root.get_node_or_null(path) as Control
+	if control == null or texture == null:
+		return
+	var backdrop: TextureRect = control.get_node_or_null(backdrop_name) as TextureRect
+	if backdrop == null:
+		backdrop = TextureRect.new()
+		backdrop.name = backdrop_name
+		backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		control.add_child(backdrop)
+		control.move_child(backdrop, 0)
+		backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+		backdrop.offset_left = 0.0
+		backdrop.offset_top = 0.0
+		backdrop.offset_right = 0.0
+		backdrop.offset_bottom = 0.0
+	backdrop.show_behind_parent = false
+	backdrop.z_index = z_value
+	backdrop.texture = texture
+	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backdrop.stretch_mode = TextureRect.STRETCH_SCALE
+	backdrop.modulate = modulate
 
 static func _set_min_size(root: Control, path: String, size: Vector2) -> void:
 	var control: Control = root.get_node_or_null(path) as Control
@@ -514,39 +570,6 @@ static func _hover_style(bg_color: Color, border_color: Color, border_width: int
 
 static func _mark_interactive(button: Button) -> void:
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-
-static func _apply_battlefield_material(root: Control, path: String, arena: bool) -> void:
-	var rect: ColorRect = root.get_node_or_null(path) as ColorRect
-	if rect == null:
-		return
-	rect.color = Color(1.0, 1.0, 1.0, 1.0)
-	rect.material = _get_battlefield_material(arena)
-
-static func _get_battlefield_material(arena: bool) -> ShaderMaterial:
-	if arena and _arena_material != null:
-		return _arena_material
-	if not arena and _screen_material != null:
-		return _screen_material
-	var material: ShaderMaterial = ShaderMaterial.new()
-	material.shader = BATTLEFIELD_SHADER
-	if arena:
-		material.set_shader_parameter("stone_color", Color(0.034, 0.030, 0.036, 1.0))
-		material.set_shader_parameter("blood_haze", Color(0.28, 0.016, 0.030, 1.0))
-		material.set_shader_parameter("blue_iron", Color(0.10, 0.17, 0.18, 1.0))
-		material.set_shader_parameter("sigil_strength", 0.34)
-		material.set_shader_parameter("grain_strength", 0.026)
-		material.set_shader_parameter("vignette_strength", 0.74)
-		material.set_shader_parameter("opacity", 0.84)
-		_arena_material = material
-	else:
-		material.set_shader_parameter("stone_color", Color(0.030, 0.026, 0.034, 1.0))
-		material.set_shader_parameter("blood_haze", Color(0.22, 0.012, 0.028, 1.0))
-		material.set_shader_parameter("sigil_strength", 0.18)
-		material.set_shader_parameter("grain_strength", 0.020)
-		material.set_shader_parameter("vignette_strength", 0.92)
-		material.set_shader_parameter("opacity", 1.0)
-		_screen_material = material
-	return material
 
 static func _circle_texture(color: Color, size: int) -> ImageTexture:
 	var image: Image = Image.create(size, size, false, Image.FORMAT_RGBA8)

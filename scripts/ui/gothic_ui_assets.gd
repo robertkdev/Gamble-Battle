@@ -10,6 +10,12 @@ const PANEL_PLATE_TRAITS: String = "res://assets/ui/gothic/panel_plate_traits.pn
 const SHOP_CARD_FRAME: String = "res://assets/ui/gothic/shop_card_frame.png"
 const BUTTON_SMALL: String = "res://assets/ui/gothic/button_small.png"
 const BUTTON_PRIMARY: String = "res://assets/ui/gothic/button_primary.png"
+const SCREEN_BACKDROP: String = "res://assets/ui/gothic/screen_backdrop.png"
+const BATTLEFIELD_SURFACE: String = "res://assets/ui/gothic/battlefield_surface.png"
+const BATTLEFIELD_SURFACE_TOP: String = "res://assets/ui/gothic/battlefield_surface_top.png"
+const BATTLEFIELD_SURFACE_BOTTOM: String = "res://assets/ui/gothic/battlefield_surface_bottom.png"
+const BOARD_TILE_PLAYER: String = "res://assets/ui/gothic/board_tile_player.png"
+const BOARD_TILE_ENEMY: String = "res://assets/ui/gothic/board_tile_enemy.png"
 
 static func wide_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(PANEL_PLATE_WIDE, Vector4(42.0, 42.0, 42.0, 42.0), Vector4(22.0, 18.0, 22.0, 18.0), modulate)
@@ -34,6 +40,22 @@ static func primary_button_style(modulate: Color = Color.WHITE) -> StyleBoxTextu
 
 static func item_slot_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(BUTTON_SMALL, Vector4(10.0, 10.0, 10.0, 10.0), Vector4(3.0, 3.0, 3.0, 3.0), modulate)
+
+static func screen_backdrop_texture() -> Texture2D:
+	return TextureUtils.try_load_texture(SCREEN_BACKDROP)
+
+static func battlefield_texture() -> Texture2D:
+	return TextureUtils.try_load_texture(BATTLEFIELD_SURFACE)
+
+static func battlefield_top_texture() -> Texture2D:
+	return TextureUtils.try_load_texture(BATTLEFIELD_SURFACE_TOP)
+
+static func battlefield_bottom_texture() -> Texture2D:
+	return TextureUtils.try_load_texture(BATTLEFIELD_SURFACE_BOTTOM)
+
+static func board_tile_style(is_player: bool, modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	var path: String = BOARD_TILE_PLAYER if is_player else BOARD_TILE_ENEMY
+	return texture_style(path, Vector4(22.0, 22.0, 22.0, 22.0), Vector4(0.0, 0.0, 0.0, 0.0), modulate)
 
 static func texture_style(path: String, texture_margins: Vector4, content_margins: Vector4, modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	var texture: Texture2D = TextureUtils.try_load_texture(path)
