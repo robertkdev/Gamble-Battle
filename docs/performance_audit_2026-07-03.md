@@ -972,6 +972,10 @@ No source optimization was retained from this frame-loop pass. Fresh real moveme
 - Rejected alive-loop unit locals: reading each alive-check unit into a local before calling `is_alive()` preserved signatures and initially looked neutral (`252976us`/`487011us`/`597787us`), but the repeat failed 8v8 and 12v12 badly (`627030us` and `881968us`), so source was reverted.
 - Takeaway: local-variable reshaping around `state.player_team` / `state.enemy_team` is not a safe quick win in this GDScript hot loop. Keep the current direct property/index reads unless a future profiler shows a different access pattern and passes repeated `PerfMovementPhases.tscn`.
 
+## Continuation - 2026-07-04 Rejected In-Band Epsilon Handoff
+
+No source optimization was retained. Passing the update-level `eps_safe` value into `_compute_in_band_step()` instead of recomputing `max(0.0, tuning.range_epsilon)` inside the helper preserved deterministic signatures, but failed the real movement gate. `PerfMovementPhases.tscn` regressed 6v6 movement to `296689us` and 8v8 movement to `532008us` before the run was stopped; source was reverted. Keep the helper-local range-epsilon clamp unless a broader in-band rewrite proves a real movement win.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
