@@ -1462,6 +1462,15 @@ No gameplay source optimization was retained. A conservative ring-distance lower
 - Real movement rejected the candidate early. Candidate `PerfMovementPhases.tscn` preserved the first two signatures and errors `[]`, but 6v6 movement regressed to `325601us` with slot assignment `160222us`, and 8v8 regressed sharply to `972688us` with slot assignment `383179us`. The run was stopped after 8v8 and source was reverted.
 - Takeaway: do not add per-rotation lower-bound prechecks that look good in isolated slot benchmarks unless they also beat the real movement frame gate. The extra bound work can perturb the real GDScript frame profile enough to erase focused wins.
 
+## Continuation - 2026-07-04 Reconfirmed Rejected Array Range Scratch Path
+
+No gameplay source optimization was retained. This fresh pass reconfirmed an older rejected shape: changing the real movement array slot API to use a reusable `Array[float]` for per-attacker range lookup instead of the existing scratch `Dictionary`. It preserved slot signatures but failed the focused public slot-assignment gate and was reverted before real movement validation.
+
+- Fresh `PerfMovementPhases.tscn` control stayed clean with errors `[]`; movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `472429us`, `662674us`, `688534us`, `350109us`, `680098us`, and `696116us`, with slot assignment still `69.3%`, `80.7%`, and `82.0%` of 10v10/11v11/12v12 movement.
+- Same-window `PerfSlotTeamAssignment.tscn` control preserved aggregate `773148128031759898`, total `3154ms`; the array single-target rows were still the focused public API hotspot.
+- Candidate `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898`, but total regressed to `3947ms`. Array rows were mixed-to-worse: `array_single_7` moved `139ms -> 201ms`, `array_single_8` `205ms -> 304ms`, `array_single_9` `300ms -> 452ms`, `array_pair_12` `107ms -> 167ms`, and `array_quad_12` `29ms -> 76ms`.
+- Takeaway: keep the current scratch `Dictionary` range lookup in the array slot API. In this GDScript loop, replacing it with a reusable typed float array remains slower across enough public array-path rows to reject before broad movement validation.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
