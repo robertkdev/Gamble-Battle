@@ -529,6 +529,16 @@ Rejected follow-up: lowering `HUNGARIAN_PRUNE_MIN_SIZE` from `10` to `8` made th
 - Candidate focused gates kept signatures and errors `[]`: `PerfSlotSolverBreakdown.tscn` total improved to `375ms`, with `rotation_8=93ms`; `PerfSlotDpSearch.tscn` stayed roughly neutral at `169ms`; `PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, total `276ms`.
 - Candidate real movement was a tradeoff: first `PerfMovementPhases.tscn` run preserved signatures with 12v12 movement improved to `663924us`, but 6v6/8v8 moved to `318718us` and `646303us`. Repeat preserved signatures with 12v12 better again at `611381us`, but 6v6/8v8 stayed worse at `316842us` and `653116us`. `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, total `7932ms`, with 8v8 `2581ms` and 12v12 `1164ms`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, total `9623ms`. Because the 8v8 regression repeated, the threshold was not accepted.
 
+## Continuation - 2026-07-04 Broad Hotspot Refresh
+
+Fresh answer to "is that all that needs optimizing?": no. The latest clean phase profile still shows multiple meaningful surfaces, but slot assignment remains the largest single 12v12 hotspot and the best-proven optimization target. Step loops matter especially in 8v8, while targeting and collision are secondary monitored surfaces.
+
+- `tests/perf/PerfMovementPhases.tscn` fresh run, errors `[]`:
+  - 6v6 neutral: signature `-3997862279252171970:232`, median elapsed `1021ms`, movement `325961us`; slot assignment `135881us` (`41.7%`), player steps `73142us` (`22.4%`), enemy steps `38684us` (`11.9%`), targets `25847us` (`7.9%`), collision `20386us` (`6.3%`), groups `8023us` (`2.5%`).
+  - 8v8 large: signature `7184874536639686372:300`, median elapsed `2391ms`, movement `627325us`; slot assignment `207300us` (`33.0%`), player steps `154871us` (`24.7%`), enemy steps `92086us` (`14.7%`), targets `56119us` (`8.9%`), collision `53259us` (`8.5%`), groups `17480us` (`2.8%`).
+  - 12v12 large: signature `3567836549670627538:428`, median elapsed `1209ms`, movement `690460us`; slot assignment `480841us` (`69.6%`), player steps `103563us` (`15.0%`), enemy steps `32953us` (`4.8%`), targets `25882us` (`3.7%`), collision `23293us` (`3.4%`), previous slots `6180us` (`0.9%`).
+- Rejected follow-up: removing the `.duplicate()` call when storing a newly best slot assignment preserved signatures but regressed the same-turn focused controls. `PerfSlotSolverBreakdown.tscn` worsened from control total `420ms` to `445ms`, and `PerfSlotTeamAssignment.tscn` worsened from control total `245ms` to `300ms`. Source was reverted.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
