@@ -1543,6 +1543,14 @@ Added benchmark-only slot assignment timing by group size. `SlotStrategy` now re
 - New timing evidence: frequent tiny groups are not the primary slot-assignment cost. In the latest diagnostic run, 10v10 spent `122397us` in player-side 10-attacker groups, 11v11 spent `253827us` in player-side 9-attacker groups plus `142844us` in 11-attacker groups, and 12v12 spent `144391us` in player-side 10-attacker groups plus `148768us` in 12-attacker groups.
 - Takeaway: the next source optimization should focus on high-count exact assignment/rotation work that preserves tie order. Small-group count-1/count-2 branches are still worth monitoring, but the new timing buckets say they are not the main 10v10-12v12 assignment frontier.
 
+## Continuation - 2026-07-04 Rejected Previous-Slot Incumbent Bound
+
+No gameplay source optimization was retained. A high-count solver candidate used the current previous-slot assignment as a padded incumbent bound for 9+ row `_evaluate_precomputed_assignment()` calls. It did not accept the previous assignment directly, so signatures stayed stable, but the extra bound work regressed the integrated movement profiler and was reverted.
+
+- Focused behavior stayed stable: `PerfSlotSolverBreakdown.tscn` preserved aggregate `3460608454349089621`, errors `[]`, with total `1525ms`; `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898`, errors `[]`, with total `4588ms`.
+- Real `PerfMovementPhases.tscn` rejected the candidate despite preserving all six deterministic signatures and errors `[]`. Candidate movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `313880us`, `716908us`, `865618us`, `539566us`, `740544us`, and `774995us`, regressing every important row versus the current diagnostic frontier. High-count buckets were also worse: 10v10 `player_10=242328us`, 11v11 `player_11=289423us`, and 12v12 `player_12=302997us`.
+- Takeaway: do not add previous-slot incumbent-bound work inside `_evaluate_precomputed_assignment()` without new evidence. The added per-rotation bookkeeping costs more than it saves in real movement, even though it is behavior-stable.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
