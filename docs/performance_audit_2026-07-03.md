@@ -624,6 +624,17 @@ Accepted change: `MovementService2._update_impl()` now computes separation and a
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6391`.
 - This is a small step-loop cleanup, not a completion point. 8v8 step loops remain a meaningful monitored surface, and 12v12 is still slot-assignment dominated.
 
+## Continuation - 2026-07-04 Movement Speed Scale Precompute
+
+Accepted change: `MovementService2._update_impl()` now computes the clamped speed scale once per movement update and passes it into private movement helpers. The rejected private `delta` clamp removal was not repeated; helper-local `max(0.0, delta)` behavior is unchanged.
+
+- Fresh control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `326066us`, `584337us`, and `716417us`.
+- Patched `tests/perf/PerfMovementPhases.tscn` preserved the same signatures and errors `[]` in three repeats. First run movement was `308412us`, `579638us`, and `639902us`; second was mixed at `308812us`, `601010us`, and `699420us`; third was `289517us`, `594688us`, and `645269us`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7405ms`.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`; repeat total `9159ms` after a noisier stable-signature `9452ms` run.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6314`.
+- This is retained as a small helper cleanup with favorable 6v6/12v12 phase samples and favorable broad aggregate checks, while the 8v8 phase remains noisy and should continue to be monitored before accepting larger step-loop changes.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

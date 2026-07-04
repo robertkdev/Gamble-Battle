@@ -188,6 +188,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var radius: float = ts * max(0.0, tuning.unit_radius_factor)
 	var separation_radius: float = radius * max(0.0, tuning.separation_radius_factor)
 	var avoidance_radius: float = radius * max(1.0, tuning.avoidance_radius_factor)
+	var speed_scale_safe: float = max(0.0, tuning.speed_scale)
 
 	# Alive flags
 	_resize_bool_scratch(_p_alive_scratch, player_count, false)
@@ -353,6 +354,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 					tpos,
 					u,
 					delta,
+					speed_scale_safe,
 					avoidance_radius,
 					data.player_positions,
 					data.enemy_positions,
@@ -361,7 +363,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 					prof)
 			else:
 				if slot_mode == "los_arrive":
-					step = _compute_arrive_step(cur, slot_pos, tpos, u, delta, slow_radius, corridor_radius, corridor_eps)
+					step = _compute_arrive_step(cur, slot_pos, tpos, u, delta, speed_scale_safe, slow_radius, corridor_radius, corridor_eps)
 				else:
 					step = _compute_slot_step(
 						"player",
@@ -372,6 +374,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						u,
 						prof,
 						delta,
+						speed_scale_safe,
 						slow_radius,
 						corridor_radius,
 						separation_radius,
@@ -439,6 +442,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 					tpos2,
 					e,
 					delta,
+					speed_scale_safe,
 					avoidance_radius,
 					data.enemy_positions,
 					data.player_positions,
@@ -447,7 +451,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 					prof2)
 			else:
 				if slot_mode2 == "los_arrive":
-					step2 = _compute_arrive_step(cur_e, slot_pos2, tpos2, e, delta, slow_radius2, corridor_radius2, corridor_eps2)
+					step2 = _compute_arrive_step(cur_e, slot_pos2, tpos2, e, delta, speed_scale_safe, slow_radius2, corridor_radius2, corridor_eps2)
 				else:
 					step2 = _compute_slot_step(
 						"enemy",
@@ -458,6 +462,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						e,
 						prof2,
 						delta,
+						speed_scale_safe,
 						slow_radius2,
 						corridor_radius2,
 						separation_radius,
@@ -493,20 +498,20 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	if _dbg_frames_left > 0:
 		data.debug_log_frames = max(0, _dbg_frames_left - 1)
 
-func _compute_arrive_step(cur: Vector2, slot_pos: Vector2, _target_pos: Vector2, unit: Unit, delta: float, _slow_radius: float, _corridor_radius: float, _corridor_eps: float) -> Vector2:
+func _compute_arrive_step(cur: Vector2, slot_pos: Vector2, _target_pos: Vector2, unit: Unit, delta: float, speed_scale_safe: float, _slow_radius: float, _corridor_radius: float, _corridor_eps: float) -> Vector2:
 	# Constant-speed LOS approach: move along the ray to the slot at move_speed, clamped by remaining distance.
 	var to_slot: Vector2 = slot_pos - cur
 	var dist: float = to_slot.length()
 	if dist <= ARRIVE_STOP_EPS:
 		return Vector2.ZERO
 	var dir_los: Vector2 = to_slot / dist
-	var max_speed: float = max(0.0, unit.move_speed) * max(0.0, tuning.speed_scale)
+	var max_speed: float = max(0.0, unit.move_speed) * speed_scale_safe
 	var move_dist: float = max_speed * max(0.0, delta)
 	if move_dist > dist:
 		move_dist = dist
 	return dir_los * move_dist
 
-func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, _slow_radius: float, corridor_radius: float, separation_radius: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
+func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, speed_scale_safe: float, _slow_radius: float, corridor_radius: float, separation_radius: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
 	var to_slot: Vector2 = slot_pos - cur
 	var dist_to_slot: float = to_slot.length()
 	if dist_to_slot <= ARRIVE_STOP_EPS:
@@ -515,7 +520,7 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	if debug_frames_left > 0:
 		print("[Vec] ", team, " ", idx, " cur=", cur, " tgt=", target_pos, " slot=", slot_pos, " raw=", to_slot)
 	var corridor_factor: float = _corridor_factor(dist_to_slot, corridor_radius)
-	var max_speed: float = max(0.0, unit.move_speed) * max(0.0, tuning.speed_scale)
+	var max_speed: float = max(0.0, unit.move_speed) * speed_scale_safe
 	var move_dist: float = max_speed * max(0.0, delta)
 	var sep: Vector2 = Vector2.ZERO
 	var sep_r: float = separation_radius
@@ -552,7 +557,7 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var step: Vector2 = blended * step_cap
 	return _apply_anchor_step(cur, step, move_dist, prof, self_positions)
 
-func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Vector2, unit: Unit, delta: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, prof: MovementProfile) -> Vector2:
+func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Vector2, unit: Unit, delta: float, speed_scale_safe: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, prof: MovementProfile) -> Vector2:
 	if unit == null or prof == null:
 		return Vector2.ZERO
 	if prof.kite_strength <= 0.0 and prof.strafe_strength <= 0.0:
@@ -564,7 +569,7 @@ func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Ve
 	var desired_range: float = max(0.0, float(unit.attack_range)) * max(0.0, data.tile_size_px)
 	if desired_range <= ARRIVE_STOP_EPS:
 		return Vector2.ZERO
-	var max_speed: float = max(0.0, unit.move_speed) * max(0.0, tuning.speed_scale)
+	var max_speed: float = max(0.0, unit.move_speed) * speed_scale_safe
 	var move_dist: float = max_speed * max(0.0, delta)
 	if move_dist <= 0.0:
 		return Vector2.ZERO
