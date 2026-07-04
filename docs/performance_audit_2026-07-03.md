@@ -976,6 +976,14 @@ No source optimization was retained from this frame-loop pass. Fresh real moveme
 
 No source optimization was retained. Passing the update-level `eps_safe` value into `_compute_in_band_step()` instead of recomputing `max(0.0, tuning.range_epsilon)` inside the helper preserved deterministic signatures, but failed the real movement gate. `PerfMovementPhases.tscn` regressed 6v6 movement to `296689us` and 8v8 movement to `532008us` before the run was stopped; source was reverted. Keep the helper-local range-epsilon clamp unless a broader in-band rewrite proves a real movement win.
 
+## Continuation - 2026-07-04 Count-5 Assignment Coverage
+
+No source optimization was retained from the direct answer follow-up. The answer remains no: optimization is not exhausted, but 12v12 slot assignment remains the current primary measured surface while 8v8 step loops/collision stay secondary.
+
+- `tests/perf/PerfSlotSmallAssignment.tscn` now includes count-5 `fast_5` and direct `dp_5` cases so future tiny exact-assignment work can check the next size above the retained 2/3/4-row fast paths.
+- Clean expanded-benchmark run after reverting the source candidate preserved errors `[]` and aggregate signature `4367829170111879031`: `fast_5` median `497ms`, `dp_5` median `607ms`, both signature `6095637763049574696`.
+- Rejected 5-row specialized DP dispatcher: it preserved the count-5 signature and won one noisy pass (`fast_5=466ms` versus direct `dp_5=503ms`), but lost on repeat (`fast_5=574ms` versus direct `dp_5=518ms`). Source was reverted because the candidate was not a reliable focused win and is not the main 12v12 slot path.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
