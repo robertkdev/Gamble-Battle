@@ -770,6 +770,15 @@ Accepted change: `MovementService2._compute_avoidance_vector()` now performs the
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8676ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7042ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `327ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5680`.
 - This improves the monitored 8v8 step-loop surface and lowers 12v12 movement, but the latest profile still shows 12v12 slot assignment as the dominant remaining cost (`458926us`, `75.5%` of movement in the accepted repeat). Continue treating slot assignment as the primary surface while watching 8v8 step loops and collision.
 
+## Continuation - 2026-07-04 Rejected Avoidance Microguards
+
+Rejected follow-up candidates after `f020bb3`: precomputing `1.0 / avoid_radius` plus returning early for zero corridor factor, and inlining `_corridor_factor()` into `_compute_slot_step()`. Both preserved deterministic signatures but failed the real movement acceptance bar. Source was reverted.
+
+- Fresh current control after `f020bb3`: `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `274739us`, `525359us`, and `602719us`; 8v8 player/enemy steps were `99674us`/`70583us`, and 12v12 player/enemy steps were `52352us`/`27080us`.
+- Inverse-radius/zero-corridor candidate preserved signatures but was mixed: 6v6 improved to `263397us`, while 8v8 regressed to `527059us` and 12v12 regressed to `605646us`, so source was reverted.
+- Inline corridor-factor candidate preserved signatures and had a favorable first 12v12 sample (`590898us`), but the repeat regressed 8v8 to `548666us` and 12v12 to `610474us`; source was reverted.
+- Restored-source sanity `PerfMovementPhases.tscn` preserved all signatures with errors `[]`; movement was `284934us`, `534210us`, and `670302us` in that noisy check. Keep the accepted `_avoid_from()` inlining, but do not retry these smaller avoidance microguards without a stronger profiler signal.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
