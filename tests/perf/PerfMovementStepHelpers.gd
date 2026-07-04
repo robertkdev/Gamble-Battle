@@ -17,6 +17,7 @@ func _ready() -> void:
 func _run() -> void:
 	var cases: Array[Dictionary] = [
 		{"label": "slot_step_8v8", "kind": "slot", "count": 8, "other_count": 8, "iterations": 2400},
+		{"label": "slot_step_10v10", "kind": "slot", "count": 10, "other_count": 10, "iterations": 1800},
 		{"label": "slot_step_12v12", "kind": "slot", "count": 12, "other_count": 12, "iterations": 1400},
 		{"label": "in_band_8v8", "kind": "in_band", "count": 8, "other_count": 8, "iterations": 2400}
 	]
