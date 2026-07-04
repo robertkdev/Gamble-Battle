@@ -48,6 +48,19 @@ static func _wrap_angle(a: float) -> float:
 		r += TAU
 	return r
 
+static func _sort_pairs_by_angle(pairs: Array) -> void:
+	for i in range(1, pairs.size()):
+		var current: Array = pairs[i]
+		var current_angle: float = float(current[1])
+		var j: int = i - 1
+		while j >= 0:
+			var previous: Array = pairs[j]
+			if float(previous[1]) <= current_angle:
+				break
+			pairs[j + 1] = previous
+			j -= 1
+		pairs[j + 1] = current
+
 static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_slot_assignments: Dictionary, hysteresis_frames: int, incumbent_cost: float = 1e30) -> Dictionary:
 	var rows: int = pairs.size()
 	var cols: int = ring_angles.size()
@@ -795,7 +808,7 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 		if hysteresis_frames > 0:
 			prev_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
 		pairs.append([attacker_index, ang, prev_slot, prev_factor, prev_frames > 0])
-	pairs.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
+	_sort_pairs_by_angle(pairs)
 
 	var count: int = pairs.size()
 	var step: float = TAU / float(count)
