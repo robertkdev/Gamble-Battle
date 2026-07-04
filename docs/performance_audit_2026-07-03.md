@@ -1164,6 +1164,17 @@ No gameplay source optimization was retained. `PerfMovementPhases.tscn` now incl
 - New odd-size findings: 9v9 ran the full `45.05s` shape and was `50.7%` slot assignment (`301339us`), while 11v11 ended at `13.30s` and was `81.0%` slot assignment (`470322us`). 11v11 is therefore now part of the primary large-fight slot frontier alongside 10v10 and 12v12.
 - Takeaway: future slot source candidates should keep validating 6v6/8v8/9v9/10v10/11v11/12v12 in `PerfMovementPhases.tscn`, especially if they touch odd-count DP, Hungarian pruning, or target-group slot output.
 
+## Continuation - 2026-07-04 Pair Split And Rotation Gate Expansion
+
+No gameplay source optimization was retained from this pass. The direct answer to "is that all that needs optimizing?" remains no: the current profiles still show large-fight slot assignment as the primary frontier, but two source cleanup candidates failed the professional real-movement gate.
+
+- Fresh controls before source probing stayed clean with errors `[]`: `PerfSlotTeamAssignment.tscn` aggregate `6126179979591804452`, total `3932ms`; `PerfMovementPhases.tscn` kept 6v6/8v8/9v9/10v10/11v11/12v12 signatures with movement `353092us`, `591007us`, `720038us`, `394314us`, `720501us`, and `857445us`. Slot assignment remained the major 10v10/11v11/12v12 slice at `278706us` (`70.7%`), `590662us` (`82.0%`), and `693327us` (`80.9%`).
+- Rejected dead ring-vector guard removal: removing the impossible `Vector2(cos(slot_angle), sin(slot_angle)) == Vector2.ZERO` fallback preserved `PerfSlotTeamAssignment.tscn` aggregate `6126179979591804452`, but regressed the focused total from `3932ms` to `4527ms`, so source was reverted before broad movement validation.
+- Rejected fixed corridor-epsilon hoist: computing slot `corridor_eps` once per target group preserved focused signatures and improved `PerfSlotTeamAssignment.tscn` from `3932ms` to `3364ms`, but failed the real movement gate. Patched movement stayed signature-stable but measured `251554us`, `579662us`, `713401us`, `492579us`, `733828us`, and `935451us`; the 10v10/11v11/12v12 regressions outweighed the 6v6/8v8/9v9 wins, so source was reverted.
+- `PerfSlotTeamAssignment.tscn` now includes pair-split 10- and 11-attacker cases for both dictionary and real array APIs. Clean expanded validation preserved errors `[]` and produced aggregate `773148128031759898`, total `4186ms`; new rows were `dict_pair_10=78ms`, `dict_pair_11=125ms`, `array_pair_10=68ms`, and `array_pair_11=108ms`.
+- `PerfSlotSolverBreakdown.tscn` now includes `rotation_9` to match the real 9v9 movement case. Clean validation preserved errors `[]`, aggregate `3460608454349089621`, total `1171ms`, and `rotation_9=180ms` with signature `8587046574868356591`.
+- Takeaway: future slot source work should treat focused output-loop wins as filters only. Candidates that touch 9/10/11/12-slot behavior should beat the expanded pair-split and rotation gates, then pass same-window `PerfMovementPhases.tscn` across all six movement sizes before being retained.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
