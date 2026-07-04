@@ -1104,6 +1104,16 @@ Accepted source optimization: support peel targeting now builds compact positive
 - Targeted behavior and broad gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` PASS; `PerfMovementPhases.tscn` preserved 6v6/8v8/10v10/12v12 signatures with errors `[]`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`; `Perf1v1.tscn` signature `-6199507685307107293:55`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - This improves a monitored secondary path, not the main remaining bottleneck. 10v10/12v12 slot assignment remains the primary frontier for the broader optimization goal.
 
+## Continuation - 2026-07-04 Rejected Post-Targeting Slot And Group Probes
+
+No source optimization was retained from this direct follow-up to "is that all that needs optimizing?" The answer remains no: current evidence still points to large-fight slot assignment as the primary remaining surface, with 8v8 step/collision work as secondary, but the obvious local allocation/hash-check rewrites failed real movement gates.
+
+- Fresh current-tree `PerfMovementPhases.tscn` control after `715513d` preserved 6v6/8v8/10v10/12v12 signatures with errors `[]`: movement `281038us`, `559568us`, `381433us`, and `716588us`; slot assignment was still the largest 12v12 slice at `576298us` (`80.4%`) and the largest 10v10 slice at `254543us` (`66.7%`).
+- Rejected inline support-peel data construction: moving the compact peel arrays directly into `Targeting.pick_by_priority()` preserved `PerfTargeting.tscn` signature `9036604269279486158`, but repeats were not a reliable win (`406ms`, `578ms`, restored control `466ms`, reapplied `560ms`). Source was restored to the retained helper-based compact peel implementation.
+- Rejected reusable movement group arrays: reusing per-target attacker arrays in `MovementService2._update_impl()` preserved movement signatures, but regressed the important real movement cases. Candidate movement was `301662us`, `541082us`, `427132us`, and `812063us`; 8v8 was slightly favorable, but 6v6, 10v10, and 12v12 all lost versus the fresh control.
+- Rejected slot range duplicate-check removal: removing `ranges_world.has(attacker_index)` from the legacy and real array slot output paths preserved `PerfSlotTeamAssignment.tscn` aggregate `8298910219877174874` and looked promising in one focused pass (`2727ms` control to `1950ms`, repeat `2502ms`), but failed the real movement gate badly: `331614us`, `583160us`, `489605us`, and `1035856us` for 6v6/8v8/10v10/12v12. Source was reverted.
+- Takeaway: the slot frontier is not exhausted, but focused slot wrapper improvements must be treated as filters only. Same-window `PerfMovementPhases.tscn` across 6v6, 8v8, 10v10, and 12v12 remains the decisive gate before retaining further slot or movement-loop micro-optimizations.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
