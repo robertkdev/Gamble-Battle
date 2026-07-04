@@ -955,6 +955,15 @@ Accepted change: `MovementService2._update_impl()` now loops target-group constr
 - Broad gates stayed clean through Godot MCP: `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `348ms`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8745ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7503ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5898`.
 - This is a narrow frame-loop cleanup. It answers the active question the same way as the prior breadth checks: no, optimization is not exhausted, but the remaining high-value work is concentrated in 12v12 slot assignment while 8v8 step loops/collision remain monitored secondary surfaces.
 
+## Continuation - 2026-07-04 Rejected DP Budget And Group Iteration Probes
+
+No source optimization was retained from this follow-up slot-frontier pass. Fresh focused controls after `71c292d`: `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, errors `[]`, total `369ms`; `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, errors `[]`, total `143ms`; `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, errors `[]`, total `249ms`.
+
+- Rejected unconditional DP remaining-budget guard: skipping columns whose cost could not beat the current incumbent preserved `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, and improved `dp_12_pruned` from `63ms` to `57ms`, but regressed the full focused total to `151ms` because initial DP cases slowed.
+- Rejected external-incumbent-only budget guard: limiting the same skip to calls that entered `_best_assignment_dp()` with a finite incumbent still preserved signatures but regressed `PerfSlotDpSearch.tscn` total further to `175ms`, with `dp_12_pruned=91ms`.
+- Rejected isolated direct group iteration: changing `SlotStrategy.assign_slots_for_team()` from `groups.keys()` to direct dictionary iteration preserved `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, but regressed the focused total from `249ms` to `253ms` and the same-target 12 case from `117ms` to `125ms`.
+- Takeaway: the current slot frontier remains sensitive to seemingly reasonable local shortcuts. Keep the current DP incumbent check order and `groups.keys()` iteration unless a future candidate beats the focused gates first, then proves itself in `PerfMovementPhases.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
