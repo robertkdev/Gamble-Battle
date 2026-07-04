@@ -766,6 +766,10 @@ func _init_game() -> void:
 		traits_presenter = TraitsPresenter.new()
 		traits_presenter.configure(parent, manager)
 		traits_presenter.initialize()
+	if arena_bridge != null:
+		arena_bridge.exit_arena()
+	elif arena_container != null:
+		arena_container.visible = false
 	_sync_bottom_combat_visibility()
 
 func _on_items_action_log(t: String) -> void:

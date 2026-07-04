@@ -339,19 +339,22 @@ func _apply_responsive_layout() -> void:
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, 408.0 if compact else 604.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(270.0 if compact else 340.0, 372.0 if compact else 500.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(160.0 if compact else 296.0, 372.0 if compact else 500.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(150.0 if compact else 296.0, 320.0 if compact else 480.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(150.0 if compact else 296.0, 118.0 if compact else 164.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(150.0 if compact else 296.0, 228.0 if compact else 304.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, 60.0 if compact else 88.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 118.0 if compact else 190.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(900.0 if compact else 1120.0, 96.0 if compact else 124.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow", Vector2(900.0 if compact else 1120.0, 42.0 if compact else 56.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow/BetRow", Vector2(190.0 if compact else 226.0, 36.0 if compact else 46.0))
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow", 10 if compact else 20)
+	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", 8 if compact else 10)
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn", 6 if compact else 8)
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea", 8 if compact else 14)
 	_set_box_separation("MarginContainer/VBoxContainer/BottomStorageArea", 6 if compact else 10)
 	_set_box_separation("MarginContainer/VBoxContainer/ActionsRow", 10 if compact else 18)
 	_apply_shop_compact_layout(compact)
 	_update_external_backplates()
+	call_deferred("_update_external_backplates")
 
 func _set_minimum_size(path: String, minimum_size: Vector2) -> void:
 	var control: Control = get_node_or_null(path) as Control
@@ -403,7 +406,7 @@ func _apply_shop_compact_layout(compact: bool) -> void:
 						label.add_theme_font_size_override("font_size", 13 if compact else 15)
 
 func _update_external_backplates() -> void:
-	for plate_name: String in ["GothicShopPlate", "GothicShopCommandPlate"]:
+	for plate_name: String in ["GothicShopPlate", "GothicShopCommandPlate", "GothicItemsPlate", "GothicStatsAreaPlate"]:
 		var plate: Panel = get_node_or_null(plate_name) as Panel
 		if plate == null or not plate.has_meta("target_path"):
 			continue
@@ -475,7 +478,7 @@ func _print_control_rect(label: String, target) -> void:
 	if control == null:
 		print("[Layout] %s: <missing>" % label)
 		return
-	var rect := control.get_global_rect()
+	var rect: Rect2 = control.get_global_rect()
 	print("[Layout] %s origin=%s size=%s" % [label, rect.position, rect.size])
 
 

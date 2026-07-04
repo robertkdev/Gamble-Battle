@@ -4,6 +4,7 @@ const COMBAT_VIEW_SCENE: PackedScene = preload("res://scenes/CombatView.tscn")
 const SCOREBOARD_ROW_SCENE: PackedScene = preload("res://scenes/ui/stats/ScoreboardRow.tscn")
 const ShopPanelLib: Script = preload("res://scripts/ui/shop/shop_panel.gd")
 const ShopPresenterLib: Script = preload("res://scripts/ui/shop/shop_presenter.gd")
+const TraitsPresenterLib: Script = preload("res://scripts/ui/traits/traits_presenter.gd")
 
 const START_OPENING_FIGHT_TEXT: String = "Start Opening Fight"
 const OPENING_FIGHT_LABEL: String = "OPENING FIGHT"
@@ -87,8 +88,21 @@ func _run() -> void:
 	_expect(player_tile != null, "Player tile missing", failures)
 	if player_tile != null:
 		_expect(player_tile.has_theme_stylebox_override("disabled"), "Player tile disabled style missing", failures)
-	var stats_plate: Panel = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/GothicStatsAreaPlate") as Panel
+	var stats_plate: Panel = view.get_node_or_null("GothicStatsAreaPlate") as Panel
 	_expect(stats_plate != null, "Stats backplate missing", failures)
+	if stats_plate != null:
+		_expect(stats_plate.size.y > 100.0, "Stats backplate collapsed", failures)
+	var items_plate: Panel = view.get_node_or_null("GothicItemsPlate") as Panel
+	_expect(items_plate != null, "Item storage backplate missing", failures)
+	if items_plate != null:
+		var item_style: StyleBox = items_plate.get_theme_stylebox("panel")
+		_expect(item_style is StyleBoxTexture, "Item storage should use a generated gothic panel asset", failures)
+		_expect(items_plate.size.y > 100.0, "Item storage backplate collapsed", failures)
+	var traits_panel: Control = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel") as Control
+	_expect(traits_panel != null, "Traits panel should live inside the left storage dock", failures)
+	if traits_panel != null:
+		_expect(traits_panel.custom_minimum_size.x >= 280.0, "Traits panel is too narrow for readable rows", failures)
+	_verify_trait_activation_checkpoint_sort(failures)
 	var scoreboard_row: ScoreboardRow = SCOREBOARD_ROW_SCENE.instantiate() as ScoreboardRow
 	add_child(scoreboard_row)
 	await get_tree().process_frame
@@ -106,6 +120,26 @@ func _run() -> void:
 func _expect(condition: bool, message: String, failures: Array[String]) -> void:
 	if not condition:
 		failures.append(message)
+
+func _verify_trait_activation_checkpoint_sort(failures: Array[String]) -> void:
+	var presenter: TraitsPresenter = TraitsPresenterLib.new() as TraitsPresenter
+	var counts: Dictionary = {
+		"Aegis": 6,
+		"Sanguine": 2,
+		"Striker": 2,
+		"Vindicator": 2,
+	}
+	var thresholds_by_id: Dictionary = {
+		"Aegis": [2, 4, 6],
+		"Sanguine": [2, 4, 6],
+		"Striker": [2, 4, 6],
+		"Vindicator": [2, 4, 6],
+	}
+	var ordered: Array[String] = ["Sanguine", "Striker", "Vindicator", "Aegis"]
+	ordered.sort_custom(func(a: String, b: String) -> bool:
+		return presenter._compare_traits(a, b, counts, thresholds_by_id, true)
+	)
+	_expect(ordered.size() > 0 and ordered[0] == "Aegis", "Active traits should sort by highest activation checkpoint before count/name", failures)
 
 func _verify_forced_first_fight_bet_controls(view: Control, failures: Array[String]) -> void:
 	var continue_button: Button = view.find_child("ContinueButton", true, false) as Button

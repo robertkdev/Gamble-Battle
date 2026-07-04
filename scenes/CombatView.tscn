@@ -81,9 +81,10 @@ custom_minimum_size = Vector2(320, 480)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 6
+theme_override_constants/separation = 10
 
 [node name="ItemStorageGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea"]
-custom_minimum_size = Vector2(320, 480)
+custom_minimum_size = Vector2(320, 164)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
@@ -93,7 +94,7 @@ columns = 6
 
 [node name="LeftSpacer" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea"]
 layout_mode = 2
-size_flags_vertical = 6
+size_flags_vertical = 0
 
 [node name="BoardColumn" type="VBoxContainer" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow"]
 layout_mode = 2
@@ -489,14 +490,11 @@ grow_vertical = 2
 mouse_filter = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="TraitsPanel" parent="MarginContainer/VBoxContainer/BattleArea" instance=ExtResource("3")]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.16875
-anchor_top = 0.123438
-anchor_right = 0.197917
-anchor_bottom = 0.99375
-metadata/_edit_use_anchors_ = true
+[node name="TraitsPanel" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea" instance=ExtResource("3")]
+custom_minimum_size = Vector2(320, 308)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="BenchArea" type="HBoxContainer" parent="MarginContainer/VBoxContainer"]
 z_index = 20

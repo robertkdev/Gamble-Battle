@@ -10,6 +10,8 @@ Live generated UI assets are under `assets/ui/gothic/`:
 | --- | ---: | --- |
 | `panel_plate_wide.png` | `1120x238` | `GothicUIAssets.wide_panel_style()` |
 | `panel_plate_grid.png` | `1120x178` | `GothicUIAssets.grid_panel_style()` |
+| `panel_plate_item_storage.png` | `320x180` | `GothicUIAssets.item_storage_panel_style()` |
+| `panel_plate_traits.png` | `320x320` | `GothicUIAssets.traits_panel_style()` |
 | `shop_card_frame.png` | `150x138` | `GothicUIAssets.shop_card_style()` |
 | `button_primary.png` | `240x54` | `GothicUIAssets.primary_button_style()` |
 | `button_small.png` | `100x44` | `GothicUIAssets.small_button_style()` / `item_slot_style()` |

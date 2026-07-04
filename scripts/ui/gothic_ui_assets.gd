@@ -5,6 +5,8 @@ const TextureUtils: GDScript = preload("res://scripts/util/texture_utils.gd")
 
 const PANEL_PLATE_WIDE: String = "res://assets/ui/gothic/panel_plate_wide.png"
 const PANEL_PLATE_GRID: String = "res://assets/ui/gothic/panel_plate_grid.png"
+const PANEL_PLATE_ITEM_STORAGE: String = "res://assets/ui/gothic/panel_plate_item_storage.png"
+const PANEL_PLATE_TRAITS: String = "res://assets/ui/gothic/panel_plate_traits.png"
 const SHOP_CARD_FRAME: String = "res://assets/ui/gothic/shop_card_frame.png"
 const BUTTON_SMALL: String = "res://assets/ui/gothic/button_small.png"
 const BUTTON_PRIMARY: String = "res://assets/ui/gothic/button_primary.png"
@@ -14,6 +16,12 @@ static func wide_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 
 static func grid_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(PANEL_PLATE_GRID, Vector4(40.0, 36.0, 40.0, 36.0), Vector4(18.0, 14.0, 18.0, 14.0), modulate)
+
+static func item_storage_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(PANEL_PLATE_ITEM_STORAGE, Vector4(40.0, 36.0, 40.0, 36.0), Vector4(18.0, 14.0, 18.0, 14.0), modulate)
+
+static func traits_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(PANEL_PLATE_TRAITS, Vector4(40.0, 40.0, 40.0, 40.0), Vector4(18.0, 18.0, 18.0, 18.0), modulate)
 
 static func shop_card_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(SHOP_CARD_FRAME, Vector4(22.0, 22.0, 22.0, 22.0), Vector4(8.0, 8.0, 8.0, 8.0), modulate)

@@ -130,21 +130,13 @@ func _count_filled_item_cards() -> int:
 	return filled_cards
 
 func _count_visible_trait_icons() -> int:
-	var traits_vbox: VBoxContainer = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/TraitsPanel/TraitsScroll/TraitsVBox") as VBoxContainer
+	var traits_vbox: VBoxContainer = _traits_vbox()
 	if traits_vbox == null:
 		return 0
-	var total: int = 0
-	for icon_node: Node in traits_vbox.get_children():
-		var control: Control = icon_node as Control
-		if control != null and control.visible and control.is_visible_in_tree():
-			total += 1
-	return total
+	return _count_trait_icons_recursive(traits_vbox)
 
 func _show_trait_tooltip() -> void:
-	var traits_vbox: VBoxContainer = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/TraitsPanel/TraitsScroll/TraitsVBox") as VBoxContainer
-	if traits_vbox == null or traits_vbox.get_child_count() == 0:
-		return
-	var icon: Control = traits_vbox.get_child(0) as Control
+	var icon: Control = _first_trait_icon()
 	var trait_id: String = "Sanguine"
 	if icon != null:
 		trait_id = String(icon.get("trait_id"))
@@ -279,10 +271,42 @@ func _first_filled_item_card() -> Control:
 	return null
 
 func _first_trait_icon() -> Control:
-	var traits_vbox: VBoxContainer = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/TraitsPanel/TraitsScroll/TraitsVBox") as VBoxContainer
-	if traits_vbox == null or traits_vbox.get_child_count() == 0:
+	var traits_vbox: VBoxContainer = _traits_vbox()
+	if traits_vbox == null:
 		return null
-	return traits_vbox.get_child(0) as Control
+	return _find_trait_icon_recursive(traits_vbox)
+
+func _traits_vbox() -> VBoxContainer:
+	var paths: Array[String] = [
+		"MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel/TraitsScroll/TraitsVBox",
+		"MarginContainer/VBoxContainer/BattleArea/TraitsPanel/TraitsScroll/TraitsVBox",
+	]
+	for path: String in paths:
+		var traits_vbox: VBoxContainer = _view.get_node_or_null(path) as VBoxContainer
+		if traits_vbox != null:
+			return traits_vbox
+	return null
+
+func _find_trait_icon_recursive(root: Node) -> Control:
+	var script_ref: Script = root.get_script() as Script
+	if script_ref != null and script_ref.resource_path == "res://scripts/ui/traits/trait_icon.gd":
+		return root as Control
+	for child: Node in root.get_children():
+		var found: Control = _find_trait_icon_recursive(child)
+		if found != null:
+			return found
+	return null
+
+func _count_trait_icons_recursive(root: Node) -> int:
+	var total: int = 0
+	var script_ref: Script = root.get_script() as Script
+	if script_ref != null and script_ref.resource_path == "res://scripts/ui/traits/trait_icon.gd":
+		var control: Control = root as Control
+		if control != null and control.visible and control.is_visible_in_tree():
+			total += 1
+	for child: Node in root.get_children():
+		total += _count_trait_icons_recursive(child)
+	return total
 
 func _first_item_card_uses_generated_frame() -> bool:
 	var card: Control = _first_filled_item_card()
