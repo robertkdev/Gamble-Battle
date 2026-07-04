@@ -1527,6 +1527,14 @@ Added benchmark-only movement diagnostics for slot assignment group shapes and s
 - Diagnostics-off validation stayed behavior-stable through Godot MCP: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - Takeaway: the next serious source optimization should not assume only all-on-one 12-unit clumps matter. The profiler now points to player-side slot assignment across a mix of many small groups plus intermittent high-count 7-12 clumps; candidate algorithms should improve that real distribution, not only a single all-on-one microbenchmark.
 
+## Continuation - 2026-07-04 Rejected 2-Attacker Array Fast Path
+
+No gameplay source optimization was retained. A source candidate added a count-2 fast path inside the preallocated array-output slot assignment path. It preserved focused signatures and improved the isolated slot benchmark total, but it regressed the worst real large-board movement rows and was reverted.
+
+- Candidate `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898` with errors `[]` and improved total time from the earlier focused control `3652ms` to `3555ms`. The targeted rows were mixed-to-positive: `array_pair_10` was effectively flat (`77ms -> 78ms`), `array_pair_11` improved (`203ms -> 113ms`), and `array_pair_12` was nearly flat (`151ms -> 147ms`).
+- Real `PerfMovementPhases.tscn` preserved all six deterministic signatures and errors `[]`, but rejected the candidate on integrated timing. The candidate improved the 10v10 side slice versus the slot-shape diagnostic baseline (`player=203531us -> 193282us`, `enemy=28082us -> 17237us`), but 11v11 regressed (`player=429426us -> 443755us`) and 12v12 regressed badly (`player=429411us -> 543385us`, `slot_assign=593962us`). Source was restored.
+- Takeaway: do not reintroduce a separate count-2 array-output branch without a same-window `PerfMovementPhases.tscn` win in 10v10, 11v11, and 12v12. In this path, reducing generic solver setup for small groups can still lose once the full mixed group distribution and GDScript call overhead are included.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
