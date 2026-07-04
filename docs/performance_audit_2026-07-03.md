@@ -846,6 +846,16 @@ Fresh answer to "is that all that needs optimizing?": no. A clean control still 
 - Rejected tiny-group unique-minimum guard: skipping the unique-minimum shortcut for 2/3/4-row assignments kept `PerfSlotSmallAssignment.tscn` fast/DP signatures aligned and improved `PerfSlotTeamAssignment.tscn` to `274ms`, but failed the 12v12 movement gate with movement `586305us` and slot assignment `466078us`, so source was reverted.
 - Takeaway: allocation micro-optimizations around `_evaluate_precomputed_assignment()` can make focused team-slot timings look better while still hurting the single-target 12v12 stress case. Future slot work should target the 5+ row exact path itself and keep `PerfMovementPhases.tscn` 12v12 as a hard acceptance gate.
 
+## Continuation - 2026-07-04 Rejected DP Predecessor State Trims
+
+Rejected solver-state follow-up after the allocation shortcut pass. Both candidates preserved exact DP signatures and improved focused solver totals, but neither held the real 12v12 movement gate, so source was reverted.
+
+- Fresh focused controls before the edits: `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, errors `[]`, total `154ms`; `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, errors `[]`, total `409ms`.
+- Rejected predecessor-mask removal: computing the previous mask from the picked column instead of storing `prev_masks` improved focused totals to `152ms` in `PerfSlotDpSearch.tscn` and `385ms` in `PerfSlotSolverBreakdown.tscn`, but repeated real movement regressed 12v12 from the latest `538207us` control to `548626us`, then `596871us`. Source was reverted.
+- Rejected predecessor-array clear skip: keeping the stored predecessor arrays but skipping `prev_cols.fill(-1)` and `prev_masks.fill(-1)` improved focused totals to `144ms` in `PerfSlotDpSearch.tscn` and `381ms` in `PerfSlotSolverBreakdown.tscn`, but real 12v12 movement regressed again to `594957us`, with slot assignment at `466629us`. Source was reverted.
+- Restored-source sanity: `PerfSlotDpSearch.tscn` preserved aggregate `6007460045863670620`, errors `[]`, total `153ms`.
+- Takeaway: direct DP predecessor-state trims are not safe to retain from focused solver wins alone. The acceptance bar remains the real `PerfMovementPhases.tscn` 12v12 case, and future exact-solver work should avoid changing backtrace storage unless it also proves lower real slot-assignment time.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
