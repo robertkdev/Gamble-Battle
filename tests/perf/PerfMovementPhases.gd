@@ -7,7 +7,7 @@ const LockstepSimulator = preload("res://tests/rga_testing/core/lockstep_simulat
 @export var seed: int = 525600
 @export var delta_s_override: float = 0.05
 @export var timeout_s: float = 75.0
-@export var samples_per_case: int = 2
+@export var samples_per_case: int = 3
 
 const TEAM_A_POOL: Array[String] = [
 	"bonko", "korath", "sari", "pilfer", "cashmere", "axiom",
