@@ -713,6 +713,14 @@ Fresh breadth pass answering whether optimization is exhausted: no, but remainin
 - Focused slot checks stayed clean: `tests/perf/PerfSlotSolverBreakdown.tscn` preserved aggregate `4738803460811644685`, errors `[]`, median total `392ms`; `tests/perf/PerfSlotTeamAssignment.tscn` preserved aggregate `2813605715628331077`, errors `[]`, median total `264ms` (`single_6=111ms`, `single_12=129ms`, `split_12=24ms`).
 - A plausible step-loop idea, merging the same-team separation and avoidance scans, was not repeated because this document already records that self-loop merge as rejected: it preserved signatures but failed the 8v8 movement gate and regressed `PerfLargeBoard.tscn`. Continue using this rejected-history check before retrying movement micro-edits.
 
+## Continuation - 2026-07-04 Rejected Slot Direction Zero Branch Removal
+
+Rejected follow-up: removing the defensive `Vector2.ZERO` branch after `Vector2(cos(slot_angle), sin(slot_angle))` preserved deterministic signatures but did not hold the real 12v12 movement gate. Source was reverted.
+
+- Focused candidate `tests/perf/PerfSlotTeamAssignment.tscn` preserved aggregate `2813605715628331077`, errors `[]`, and was effectively neutral: total `263ms` versus the fresh breadth control `264ms`.
+- Candidate `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`. First run improved 8v8/12v12 movement to `552303us` and `589056us` but regressed 6v6 to `297395us`; repeat held 8v8 at `544752us` but regressed 12v12 to `671975us` versus the `634891us` breadth control.
+- Keep the defensive branch unless a larger slot-output representation change proves a repeatable real movement win. The result reinforces that slot-output construction is not the main remaining slot bottleneck.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
