@@ -1442,6 +1442,15 @@ No gameplay source optimization was retained from this pass. The answer to "is t
 - Fresh `PerfTargetGroupShapes.tscn` stayed clean with aggregate `-234389136367210299:36`, inconsistent cases `0`. The live shape evidence shows high-count same-target clumps still occur in larger fights: 10v10 produced group sizes up to `10`, 11v11 up to `11`, and 12v12 up to `12`, even though most group events are smaller 1/2/3-attacker groups.
 - Takeaway: optimization is not done, but the easy wins are mostly exhausted. Future retained source work should either change the exact slot-assignment architecture in a tie-preserving way, or beat both the focused helper/slot benchmarks and the full `PerfMovementPhases.tscn` gate. Do not repeat previous branch-shape, previous-slot array, reciprocal-radius, dispatcher-bypass, or threshold-lowering probes without new evidence.
 
+## Continuation - 2026-07-04 Rejected Support Scorer Specialization
+
+No gameplay source optimization was retained. A support-only candidate scorer removed the generic role `match` path for support attackers, but it did not produce a reliable focused targeting win and was reverted before broader combat validation.
+
+- Fresh focused control before the edit: `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `357ms`.
+- Candidate change: `Targeting.pick_by_priority()` routed support attackers into a support-specific scorer that kept the same distance, low-HP, stickiness, execute, threat, peel, and engage formulas, while removing unused non-support branches and arguments.
+- Candidate `PerfTargeting.tscn` preserved signature `9036604269279486158` and errors `[]`, but measured median `503ms`, failing the focused keep bar against the clean same-window control. Restored-source confirmation after revert preserved the expected signature with a noisy median `518ms`.
+- Takeaway: keep the current retained non-support fast path and generic support scorer. Support-targeting branch-shape edits need repeated focused wins before broader gates; preserving the target-selection signature is not enough.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
