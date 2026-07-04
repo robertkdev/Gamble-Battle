@@ -11,6 +11,7 @@ const HUNGARIAN_PRUNE_MIN_SIZE: int = 10
 const HUNGARIAN_PRUNE_EPS: float = 0.0001
 
 static var _dp_masks_by_size: Dictionary = {}
+static var _dp_scratch_by_size: Dictionary = {}
 static var _hungarian_scratch_by_size: Dictionary = {}
 
 var _ranges_world_scratch: Dictionary = {}
@@ -62,8 +63,8 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 	for i in range(rows):
 		var row_cost: Array[float] = []
 		row_cost.resize(cols)
-		var entry: Dictionary = pairs[i]
-		var idx: int = int(entry["idx"])
+		var entry: Array = pairs[i]
+		var idx: int = int(entry[0])
 		var prev_slot: int = -1
 		var prev_frames: int = 0
 		var prev_value: Variant = prev_slot_assignments.get(idx)
@@ -74,7 +75,7 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		var frame_factor: float = 1.0
 		if hysteresis_frames > 0:
 			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
-		var entry_angle: float = float(entry["angle"])
+		var entry_angle: float = float(entry[1])
 		var row_min: float = 1e30
 		var row_min_col: int = -1
 		var row_min_ties: int = 0
@@ -136,12 +137,10 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 		reduced_v = scratch_initial["v"]
 		reduced_slack_limit = max(0.0, incumbent_cost - _hungarian_dual_lower_bound(reduced_u, reduced_v, first_min_possible_cost, n)) + HUNGARIAN_PRUNE_EPS
 	var mask_count: int = 1 << n
-	var best_costs: Array[float] = []
-	var prev_cols: Array[int] = []
-	var prev_masks: Array[int] = []
-	best_costs.resize(mask_count)
-	prev_cols.resize(mask_count)
-	prev_masks.resize(mask_count)
+	var dp_scratch: Dictionary = _dp_scratch_for_size(n)
+	var best_costs: Array[float] = dp_scratch["best_costs"]
+	var prev_cols: Array[int] = dp_scratch["prev_cols"]
+	var prev_masks: Array[int] = dp_scratch["prev_masks"]
 	best_costs.fill(1e30)
 	prev_cols.fill(-1)
 	prev_masks.fill(-1)
@@ -302,6 +301,24 @@ static func _dp_masks_for_size(n: int) -> Array:
 	_dp_masks_by_size[n] = masks_by_row
 	return masks_by_row
 
+static func _dp_scratch_for_size(n: int) -> Dictionary:
+	if _dp_scratch_by_size.has(n):
+		return _dp_scratch_by_size[n]
+	var mask_count: int = 1 << n
+	var best_costs: Array[float] = []
+	var prev_cols: Array[int] = []
+	var prev_masks: Array[int] = []
+	best_costs.resize(mask_count)
+	prev_cols.resize(mask_count)
+	prev_masks.resize(mask_count)
+	var scratch: Dictionary = {
+		"best_costs": best_costs,
+		"prev_cols": prev_cols,
+		"prev_masks": prev_masks
+	}
+	_dp_scratch_by_size[n] = scratch
+	return scratch
+
 static func _bit_count(value: int) -> int:
 	var count: int = 0
 	var bits: int = value
@@ -371,15 +388,12 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 		}
 		return
 
-	var pairs: Array = [] # [{"idx":int,"angle":float}]
+	var pairs: Array = [] # [attacker_idx, angle]
 	for attacker_idx in attackers:
 		var pos: Vector2 = attacker_positions[attacker_idx]
 		var ang: float = _angle_to(target_pos, pos)
-		pairs.append({
-			"idx": int(attacker_idx),
-			"angle": ang
-		})
-	pairs.sort_custom(func(a, b): return a["angle"] < b["angle"])
+		pairs.append([int(attacker_idx), ang])
+	pairs.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
 
 	var count: int = pairs.size()
 	var step: float = TAU / float(count)
@@ -391,8 +405,8 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 	ring_angles.resize(count)
 
 	for base_entry in pairs:
-		var base_dict: Dictionary = base_entry
-		var base: float = float(base_dict["angle"])
+		var base_dict: Array = base_entry
+		var base: float = float(base_dict[1])
 		for s in range(count):
 			ring_angles[s] = _wrap_angle(base + step * float(s))
 		var assignment_eval: Dictionary = _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames, best_cost)
@@ -410,8 +424,8 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 		min_required_radius = min_spacing_world / chord_factor
 
 	for i in range(count):
-		var entry2: Dictionary = pairs[i]
-		var attacker_index: int = int(entry2["idx"])
+		var entry2: Array = pairs[i]
+		var attacker_index: int = int(entry2[0])
 		var slot_index: int = int(best_assignment[i])
 		var slot_angle: float = _wrap_angle(best_base + step * float(slot_index))
 		var desired_r: float = float(attacker_ranges_world.get(attacker_index, 0.0))
