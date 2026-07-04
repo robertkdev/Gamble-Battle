@@ -121,6 +121,8 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 		var min_possible_cost: float = _assignment_min_cost_hungarian(costs)
 		if min_possible_cost > incumbent_cost + HUNGARIAN_PRUNE_EPS:
 			return {"assignment": [], "cost": incumbent_cost}
+	elif n >= HUNGARIAN_PRUNE_MIN_SIZE:
+		incumbent_cost = _assignment_min_cost_hungarian(costs) + HUNGARIAN_PRUNE_EPS
 	var mask_count: int = 1 << n
 	var best_costs: Array[float] = []
 	var prev_cols: Array[int] = []
