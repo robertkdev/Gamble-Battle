@@ -1354,6 +1354,15 @@ No gameplay source optimization was retained from this pass. The direct answer t
 - The real movement gate rejected it. Patched `PerfMovementPhases.tscn` preserved signatures, but 11v11 regressed to `639043us` movement with `516684us` slot assignment, and 12v12 was not a movement win at `567283us` movement despite a small slot-assignment slice improvement (`443385us`). Source was reverted.
 - Takeaway: even a tie-safe-looking Hungarian shortcut needs same-window 10v10/11v11/12v12 movement proof before retention. The next slot candidate should keep the current DP tie behavior unless it can beat the broad phase gate, not just `PerfSlotTeamAssignment.tscn`.
 
+## Continuation - 2026-07-04 Rejected Targeting Role Split Probes
+
+No gameplay source optimization was retained from this pass. Two narrow `Targeting.pick_by_priority()` branch-shape probes preserved target-selection signatures but did not beat the focused keep bar, so both were reverted before broader movement validation.
+
+- Fresh focused control: `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `363ms`.
+- Rejected non-mage scorer split: routing mages through the retained non-support scorer and all other non-support roles through a smaller scorer preserved signature `9036604269279486158`, but measured `363ms` and then `389ms`, so it was flat-to-worse against the same-window control.
+- Rejected support/non-support loop branch hoist: moving the support/non-support branch outside the enemy loop preserved signature `9036604269279486158`, but regressed `PerfTargeting.tscn` to `463ms`.
+- Restored source after reverting stayed clean with signature `9036604269279486158`, median `417ms`. Takeaway: the current retained non-support fast path should keep its existing loop shape unless a future targeting change shows a clear repeated focused win before broad combat gates.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
