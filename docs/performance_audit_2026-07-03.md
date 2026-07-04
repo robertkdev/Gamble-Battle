@@ -677,6 +677,14 @@ Rejected follow-up: reading known slot-map fields directly and only computing de
 - Candidate preserved signatures and errors `[]`, and improved 8v8 to `580413us`, but regressed 6v6 to `323280us` and 12v12 to `654659us`.
 - Keep the current fallback `Dictionary.get(...)` slot-info reads unless a larger slot-data shape change proves faster across 6v6, 8v8, and 12v12 together.
 
+## Continuation - 2026-07-04 Rejected Ally Peel Priority Fallback Removal
+
+Rejected follow-up: removing the defensive support-peel priority fallback branch preserved `PerfTargeting.tscn` signatures, but the timing signal was mixed and real movement did not hold. Source was reverted.
+
+- Fresh `tests/perf/PerfTargeting.tscn` control preserved signature `9036604269279486158`, errors `[]`, median `416ms`.
+- Candidate `PerfTargeting.tscn` repeats preserved the same signature and errors `[]`, with medians `398ms` then `429ms`.
+- Candidate `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`; 8v8 improved to `587278us`, but 12v12 regressed to `653206us`, so the focused targeting micro-win was not retained.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
