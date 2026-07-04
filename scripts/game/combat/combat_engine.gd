@@ -190,7 +190,8 @@ func teardown() -> void:
 	if target_controller != null:
 		target_controller.state = null
 		target_controller.selector = Callable()
-		target_controller._resolving.clear()
+		target_controller._resolving_player.clear()
+		target_controller._resolving_enemy.clear()
 	if cooldown_scheduler != null:
 		cooldown_scheduler.state = null
 		cooldown_scheduler.target_controller = null

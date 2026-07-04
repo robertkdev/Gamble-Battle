@@ -209,6 +209,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `PerfTextureUtils.tscn` now hashes texture/circle dimensions plus cache diagnostics instead of run-specific object instance IDs, making its benchmark signature deterministic. Repeated validation stayed clean with one real texture load, one circle generation, `599` cache hits for each repeated path, and stable signature `3546666616613787855`.
 - Current continuation accepted a small target-resolution cleanup: `MovementService2._update_impl()` now trusts the alive scratch arrays in the target resolver loops immediately after resizing them to the exact team sizes, removing redundant bounds checks before dead-unit skips. `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures and errors `[]`; accepted repeats showed 12v12 movement `2967009us` then `3073323us`, with target slices `34518us` then `34969us`, versus the fresh control target slice `36208us`. Broad gates stayed clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, `Perf1v1.tscn` signature `-6199507685307107293:55`, and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - Rejected in the same continuation: changing internal slot-assignment result objects from dictionaries to arrays preserved `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077` and produced one faster focused run (`single_12` `691ms`), but the repeat was noisy (`783ms`) and real `PerfMovementPhases.tscn` regressed 12v12 slot assignment to `3095590us` / movement `3412905us`, so it was reverted.
+- `TargetController.current_target()` now uses per-team boolean recursion-guard arrays instead of allocating a formatted `"team:index"` string and probing a dictionary on every current-target lookup. `_sync_arrays()` also skips target/guard resize helpers when sizes already match. Validation stayed behavior-stable and clean: `Perf1v1.tscn` signature `-6199507685307107293:55`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, total `12592ms`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, total `13758ms`; `MovementTargetPriorityProbe.tscn` PASS; `RoleMatrixProbe6v6.tscn` PASS; and `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures with target slices `33006us` and `31914us`.
 
 ## Changes Made
 
@@ -218,6 +219,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `scripts/game/combat/systems/target_controller.gd`
   - Changed target-array synchronization from per-call rebuilds to in-place resizing.
   - This removes repeated hot-loop allocation from `current_target()`, which movement calls for every unit.
+  - Uses per-team boolean recursion-guard arrays for `current_target()` instead of per-call formatted string keys and dictionary probes.
 - `scripts/game/combat/systems/cooldown_scheduler.gd`
   - Changed cooldown-array synchronization from per-frame rebuilds to in-place resizing.
   - Avoids per-frame `Array[float]` allocation during `advance()`.
