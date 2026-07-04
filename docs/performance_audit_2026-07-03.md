@@ -587,6 +587,18 @@ Accepted change: `_best_assignment_3()` now tracks the best 3-row assignment in 
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6320`.
 - Rejected follow-up during this pass: caching normalized target role/goal strings on `Unit` preserved `PerfTargeting.tscn` signature `9036604269279486158`, but regressed the same-turn focused control from `399ms` to `409ms` and `415ms`. Source was reverted.
 
+## Continuation - 2026-07-04 2-Row Assignment Branch Trim
+
+Accepted change: `_best_assignment_2()` now compares the two possible 2-row assignments directly instead of carrying a mutable `best_cost` plus a `use_first` flag through the hot path. Strict `<` tie behavior, incumbent behavior, returned assignments, and signatures are unchanged.
+
+- Focused A/B in `tests/perf/PerfSlotSmallAssignment.tscn`: same-turn control had `fast_2=220ms`, aggregate `7950943139573947519`; patched repeats preserved the aggregate and errors `[]` with `fast_2=183ms` and `193ms`.
+- `tests/perf/PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, errors `[]`, median total `345ms`.
+- `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: `-3997862279252171970:232`, `7184874536639686372:300`, and `3567836549670627538:428`; 12v12 slot assignment was `470008us`.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9332ms`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7840ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6085`.
+- This is retained as another tiny exact-assignment cleanup, not as the end of the optimization pass. Latest phase evidence still has slot assignment as the largest 12v12 movement slice, with player/enemy step loops and target/collision phases still worth monitoring.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

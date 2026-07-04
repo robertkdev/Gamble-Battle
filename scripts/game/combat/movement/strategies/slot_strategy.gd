@@ -184,17 +184,12 @@ static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dict
 static func _best_assignment_2(costs: Array, incumbent_cost: float) -> Dictionary:
 	var row0: Array[float] = costs[0]
 	var row1: Array[float] = costs[1]
-	var best_cost: float = incumbent_cost
 	var first_cost: float = row0[0] + row1[1]
-	var use_first: bool = false
-	if first_cost < best_cost:
-		best_cost = first_cost
-		use_first = true
 	var second_cost: float = row0[1] + row1[0]
-	if second_cost < best_cost:
+	if second_cost < first_cost and second_cost < incumbent_cost:
 		return {"assignment": _assignment_2(1, 0), "cost": second_cost}
-	if use_first:
-		return {"assignment": _assignment_2(0, 1), "cost": best_cost}
+	if first_cost < incumbent_cost:
+		return {"assignment": _assignment_2(0, 1), "cost": first_cost}
 	return {"assignment": [], "cost": incumbent_cost}
 
 static func _best_assignment_3(costs: Array, incumbent_cost: float) -> Dictionary:
