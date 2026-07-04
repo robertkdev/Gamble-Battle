@@ -233,6 +233,8 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - Rejected follow-up: a branch-free specialized `_evaluate_assignment_precomputed()` improved `PerfSlotTeamAssignment.tscn` focused totals from the fresh `351ms` control to `286ms` and `278ms` while preserving aggregate `2813605715628331077`, but two real `PerfMovementPhases.tscn` repeats did not beat the current-head 12v12 slot slice (`569592us` and `567645us` versus `527795us` control), so it was reverted.
 - Rejected follow-up: skipping `best_assignment` duplication improved focused `PerfSlotTeamAssignment.tscn` totals from fresh `300ms` control to `267ms` and `277ms`, with aggregate `2813605715628331077`, but real `PerfMovementPhases.tscn` repeats did not beat the 12v12 slot-assignment control (`685766us` and `548509us` versus `531198us`), so it was reverted.
 - `CollisionResolver.resolve()` now resizes and fills its combined position/alive/cap/tag scratch arrays directly instead of clearing and appending each element. Focused `PerfCollisionResolver.tscn` preserved aggregate `1955603822268948610` and errors `[]`, with median total `94ms` then `105ms` versus fresh `106ms`, and dense 12v12 improved from `46ms` to `34ms`/`33ms`. `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures and errors `[]`, with collision slices `19898us` and `29142us` versus fresh `24341us` and `30954us`; broad gates stayed clean: `Perf1v1.tscn` signature `-6199507685307107293:55`, `Perf6v6.tscn` aggregate `4480953857527108889:18`, `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
+- Current breadth refresh answers that optimization is not exhausted, but the remaining high-value work is concentrated. `PerfCombatUiSignals.tscn` stayed clean with `position_updated=153`, `UnitActor.position_apply_calls=153`, hidden `UnitPanel` dynamic refreshes `0`, and errors `[]`; `PerfTargeting.tscn` preserved signature `9036604269279486158` with median `479ms`; and `PerfTextureUtils.tscn` preserved stable cache signature `3546666616613787855` with one real texture load and one circle generation across 600 repeat requests each.
+- `CollisionResolver.resolve()` now builds a reusable active-index list once per resolve call and iterates only live units during pair separation, preserving pair order while skipping repeated dead-unit checks. Same-turn focused control was `PerfCollisionResolver.tscn` aggregate `1955603822268948610` with median total `298ms`; patched repeats preserved the same aggregate signature and errors `[]` with median totals `141ms` and `103ms`. Real movement profiling preserved 6v6/12v12 signatures and errors `[]`, with collision slices `27765us` in 6v6 and `36025us` in 12v12. Broad gates stayed clean: `Perf1v1.tscn` signature `-6199507685307107293:55`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent `0`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 
 ## Changes Made
 
@@ -255,6 +257,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
   - Collision debug counters are now collected only when debug logging is enabled, avoiding non-behavioral pair-stat bookkeeping during normal combat frames.
   - Computes arena clamp bounds once per resolve call and reuses them while writing positions back.
   - Resizes and fills combined scratch arrays directly instead of clearing and appending per unit every resolve call.
+  - Builds a reusable active-index list once per resolve call and iterates live-unit pairs only during separation.
 - `scripts/game/combat/movement/movement_service2.gd`
   - Reuses per-frame alive, target, step-cap, group, and previous-slot scratch buffers across movement updates.
   - Trusts resized alive scratch arrays in grouping and per-team step loops, avoiding redundant fallback bounds/alive checks.
@@ -428,7 +431,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
    - Headless base-only RGA now disables unused position/target telemetry.
    - Player-facing HUD refreshes now skip duplicate broad stat/team-stat repaints, arena actors skip unchanged bar/texture applications, and arena movement is applied from position signals instead of per-frame full-team polling.
    - `position_updated` still fires roughly 155-170 times in the short diagnostics combat, but the UI now applies those events directly instead of issuing roughly 2058 actor position setter calls.
-   - Collision and texture caching are not current large hotspots in focused checks: collision samples are tens of milliseconds and texture/circle requests hit cache after one real load/generation.
+   - Collision and texture caching are not current large hotspots in focused checks: collision now iterates live-unit pairs only and stayed at `103-141ms` focused median total in latest repeats, while texture/circle requests hit cache after one real load/generation.
    - UI listeners should keep using diagnostics gates before further repaint or signal-throttling changes.
 
 4. Simulation cadence is sensitive.
@@ -443,6 +446,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 4. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 155-170 events are material; the UI no longer polls every actor every frame.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
 6. Clean up remaining dummy-renderer teardown diagnostics in `CombatArenaBoundsSmoke.tscn` only if that scene must become a strict empty-error gate; its stale-bounds assertion now passes.
+7. Treat collision as monitored rather than primary until a new profile shows it above the latest `3-6%` real movement slice.
 
 ## Guardrails
 

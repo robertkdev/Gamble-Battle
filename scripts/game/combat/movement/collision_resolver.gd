@@ -8,6 +8,7 @@ var _all_alive: Array[bool] = []
 var _caps: Array[float] = []
 var _tag_is_player: Array[bool] = []
 var _tag_indices: Array[int] = []
+var _active_indices: Array[int] = []
 
 # CollisionResolver
 # Simple O(n^2) circle separation working across both teams. Performs a single
@@ -37,12 +38,15 @@ func resolve(
     _caps.resize(total_count)
     _tag_is_player.resize(total_count)
     _tag_indices.resize(total_count)
+    _active_indices.clear()
     for i in range(player_count):
         _all_pos[i] = player_positions[i]
         _all_alive[i] = (player_alive[i] if i < player_alive.size() else true)
         _caps[i] = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
         _tag_is_player[i] = true
         _tag_indices[i] = i
+        if _all_alive[i]:
+            _active_indices.append(i)
     for j in range(enemy_count):
         var write_index: int = player_count + j
         _all_pos[write_index] = enemy_positions[j]
@@ -50,6 +54,8 @@ func resolve(
         _caps[write_index] = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
         _tag_is_player[write_index] = false
         _tag_indices[write_index] = j
+        if _all_alive[write_index]:
+            _active_indices.append(write_index)
 
     var min_dist: float = radius * 2.0
     var min_dist2: float = min_dist * min_dist
@@ -62,13 +68,12 @@ func resolve(
     var friend_pairs: int = 0
     var enemy_pairs: int = 0
     var max_overlap_seen: float = 0.0
+    var active_count: int = _active_indices.size()
     for _iter in range(iters):
-        for a in range(_all_pos.size()):
-            if not _all_alive[a]:
-                continue
-            for b in range(a + 1, _all_pos.size()):
-                if not _all_alive[b]:
-                    continue
+        for active_a in range(active_count):
+            var a: int = _active_indices[active_a]
+            for active_b in range(active_a + 1, active_count):
+                var b: int = _active_indices[active_b]
                 var pa: Vector2 = _all_pos[a]
                 var pb: Vector2 = _all_pos[b]
                 var diff: Vector2 = pb - pa
