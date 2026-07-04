@@ -1471,6 +1471,16 @@ No gameplay source optimization was retained. This fresh pass reconfirmed an old
 - Candidate `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898`, but total regressed to `3947ms`. Array rows were mixed-to-worse: `array_single_7` moved `139ms -> 201ms`, `array_single_8` `205ms -> 304ms`, `array_single_9` `300ms -> 452ms`, `array_pair_12` `107ms -> 167ms`, and `array_quad_12` `29ms -> 76ms`.
 - Takeaway: keep the current scratch `Dictionary` range lookup in the array slot API. In this GDScript loop, replacing it with a reusable typed float array remains slower across enough public array-path rows to reject before broad movement validation.
 
+## Continuation - 2026-07-04 Reconfirmed Rejected Ring Offset Cache
+
+No gameplay source optimization was retained. A fresh retest reconfirmed the older rejected ring-offset cache shape: precomputing `step * slot_index` offsets for each attacker count inside the real slot assignment helpers preserved deterministic slot output, but slowed the decisive focused public API benchmark and was reverted before broader movement validation.
+
+- Same-window `PerfSlotTeamAssignment.tscn` control preserved aggregate `773148128031759898`, total `3154ms`.
+- Candidate change: `_assign_for_target_into()` and `_assign_for_target_into_arrays()` used a cached `Array[float]` of ring angle offsets per count, then filled `ring_angles` and final slot angles with `base + ring_offsets[index]` instead of `base + step * float(index)`.
+- The valid post-fix candidate run preserved aggregate `773148128031759898` and errors `[]`, but regressed total to `4864ms`. Expensive rows were not improved enough to justify retention: `dict_single_12=259ms`, `array_single_9=613ms`, `array_single_10=273ms`, `array_single_11=256ms`, and `array_single_12=252ms`.
+- Restored-source confirmation after revert preserved aggregate `773148128031759898` and errors `[]`. The noisy total was `6646ms`, so this confirmation is behavior validation rather than a new performance baseline.
+- Takeaway: keep inline `step * float(index)` math in the slot rotation loops. In this GDScript path, the cached array lookup is slower than the repeated multiply and adds another static cache that does not pay for itself.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
