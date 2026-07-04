@@ -827,6 +827,14 @@ Accepted change: `CombatEngine` now asks `TargetController` to copy the current 
 - Target behavior and broad gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` passed; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8709ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6975ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `355ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5906`.
 - This reduces a secondary movement phase and improves 6v6/8v8 frame-loop movement, but it does not complete the broader audit: 12v12 slot assignment is still the dominant remaining cost.
 
+## Continuation - 2026-07-04 Rejected Direct Target Validity Inline
+
+Rejected follow-up after `226bded`: inlining target validity checks inside `TargetController.copy_arena_targets()` preserved deterministic signatures but did not hold the stress gate, so source was reverted.
+
+- Fresh direct-target-array control in `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `267588us`, `481433us`, and `595175us`.
+- Candidate `PerfMovementPhases.tscn` repeats preserved signatures and errors `[]`, but were mixed: first run `245121us`, `498363us`, and `599543us`; second run `259063us`, `485928us`, and `551350us`; third run `232974us`, `476790us`, and `588303us`.
+- `MovementTargetPriorityProbe.tscn` passed and `Perf6v6.tscn` stayed clean with aggregate `4480953857527108889:18`, total `8550ms`, but `PerfLargeBoard.tscn` repeated slightly worse than the retained direct-target-array gate: `7015ms` and `7022ms` versus the `6975ms` retained gate. Source was reverted because this was too small to keep against a repeated stress regression.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
