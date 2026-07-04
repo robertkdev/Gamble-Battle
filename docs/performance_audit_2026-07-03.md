@@ -721,6 +721,14 @@ Rejected follow-up: removing the defensive `Vector2.ZERO` branch after `Vector2(
 - Candidate `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`. First run improved 8v8/12v12 movement to `552303us` and `589056us` but regressed 6v6 to `297395us`; repeat held 8v8 at `544752us` but regressed 12v12 to `671975us` versus the `634891us` breadth control.
 - Keep the defensive branch unless a larger slot-output representation change proves a repeatable real movement win. The result reinforces that slot-output construction is not the main remaining slot bottleneck.
 
+## Continuation - 2026-07-04 Rejected One-Pass Support Peel Setup
+
+Rejected follow-up: building support peel priorities and positive-priority ally indices in one loop preserved targeting signatures and improved the focused targeting benchmark, but regressed the real movement gate. Source was reverted.
+
+- Fresh `tests/perf/PerfTargeting.tscn` control preserved signature `9036604269279486158`, errors `[]`, median `465ms`.
+- Candidate `PerfTargeting.tscn` repeats preserved the same signature and errors `[]`, with medians `423ms` and `432ms`.
+- Candidate `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`, but regressed 8v8 movement to `583931us` and 12v12 movement to `698482us` versus the `559528us` / `634891us` breadth control. Keep the two-helper setup until a targeting change improves the real phase gate, not only the focused targeting median.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
