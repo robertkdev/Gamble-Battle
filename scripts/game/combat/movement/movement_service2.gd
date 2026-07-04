@@ -808,11 +808,11 @@ func _resize_float_scratch(arr: Array[float], length: int, fill: float) -> void:
 		arr.resize(length)
 
 func _sync_prev_slots(out: Dictionary, slot_ids: Array[int], slot_timers: Array[int], count: int) -> void:
-	for i in range(max(0, count)):
+	for i in range(count):
 		var entry_value: Variant = out.get(i, null)
 		var entry: Dictionary = entry_value if entry_value is Dictionary else {}
-		entry["slot"] = slot_ids[i] if i < slot_ids.size() else -1
-		entry["frames"] = slot_timers[i] if i < slot_timers.size() else 0
+		entry["slot"] = slot_ids[i]
+		entry["frames"] = slot_timers[i]
 		out[i] = entry
 
 func _ensure_profiles() -> void:

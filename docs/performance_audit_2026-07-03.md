@@ -866,6 +866,15 @@ Accepted change: `MovementService2._update_impl()` now uses the already-known `p
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8517ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6898ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `381ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5912`.
 - This is a narrow frame-loop cleanup and does not complete the broader goal. Slot assignment remains the dominant 12v12 surface.
 
+## Continuation - 2026-07-04 Previous Slot Size Trust
+
+Accepted change: `_sync_prev_slots()` now trusts that `MovementState.ensure_capacity()` has resized slot-id and slot-timer arrays to the requested team count. This keeps the existing previous-slot dictionary shape but removes redundant per-unit size fallbacks in the movement frame loop.
+
+- Fresh real movement control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `262727us`, `495400us`, and `629249us`; 12v12 `prev_slots` was `6378us`.
+- Patched repeats preserved the same signatures and errors `[]`. First run movement was `240107us`, `462697us`, and `543109us`, with 12v12 `prev_slots=5023us`; repeat movement was `257918us`, `491352us`, and `577866us`, with 12v12 `prev_slots=5693us`.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8620ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6919ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `333ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5704`.
+- This is another narrow movement bookkeeping cleanup. It improves repeat movement samples but does not change the remaining conclusion: 12v12 slot assignment is still the largest open surface.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
