@@ -339,7 +339,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		if step == Vector2.ZERO and movement_blockers_active and buff_adapter.is_blocked(state, "player", i):
 			step = Vector2.ZERO
 		elif step == Vector2.ZERO:
-			var prof: MovementProfile = _profile_for("player", i)
+			var prof: MovementProfile = _profiles_player[i]
 			var within_enemy: bool = MovementMath.within_range(u, cur, tpos, ts, eps, prof.band_max)
 			if within_enemy:
 				step = _compute_in_band_step(
@@ -423,7 +423,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		if step2 == Vector2.ZERO and movement_blockers_active and buff_adapter.is_blocked(state, "enemy", j):
 			step2 = Vector2.ZERO
 		elif step2 == Vector2.ZERO:
-			var prof2: MovementProfile = _profile_for("enemy", j)
+			var prof2: MovementProfile = _profiles_enemy[j]
 			var within_enemy2: bool = MovementMath.within_range(e, cur_e, tpos2, ts, eps, prof2.band_max)
 			if within_enemy2:
 				step2 = _compute_in_band_step(
