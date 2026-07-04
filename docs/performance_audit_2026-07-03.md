@@ -809,6 +809,15 @@ Accepted change: `MovementService2._update_impl()` now trusts the resized target
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8739ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6892ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `328ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5758`.
 - This is another narrow branch cleanup in the step loop. It improves the professional polish of the movement hot path but does not close the broader goal; slot assignment remains the largest 12v12 surface.
 
+## Continuation - 2026-07-04 Rejected Slot Index and Collision Cap Trust
+
+Fresh answer to "is that all that needs optimizing?": no. Current clean controls still show slot assignment as the largest 12v12 movement cost, with collision and targeting kept as monitored secondary surfaces.
+
+- Fresh clean controls before the rejected slot index-trust candidate: `PerfSlotTeamAssignment.tscn` preserved aggregate `2813605715628331077`, errors `[]`, total `300ms`; `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`, with movement `265331us`, `527380us`, and `574532us`, and slot assignment `116993us`, `190638us`, and `443611us`.
+- Rejected slot range setup candidate: directly reading `attackers_units[attacker_index]` and `profiles[attacker_index]` inside `SlotStrategy.assign_slots_for_team()` improved focused slot totals to `267ms` and `273ms`, but did not hold the real movement gate. Patched movement repeats were mixed: `256696us`/`520708us`/`602195us`, `306204us`/`522633us`/`563677us`, and `261945us`/`529669us`/`585439us`. The repeated 12v12 regressions against the clean `574532us` control were not acceptable, so source was reverted.
+- Rejected collision cap-trust candidate: directly copying `player_step_caps[i]` / `enemy_step_caps[j]` in `CollisionResolver.resolve()` improved focused collision totals from clean `106ms` to `82ms` and `71ms`, preserving aggregate `1955603822268948610`, but real movement repeats regressed to `274492us`/`538457us`/`674944us` and `292971us`/`552085us`/`654384us`. Source was reverted despite the focused win.
+- No source optimization was retained from this pass. The takeaway is unchanged: focused microbenchmarks are useful filters, but real `PerfMovementPhases.tscn` remains the acceptance gate for frame-loop work.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
