@@ -102,7 +102,7 @@ func _rotation_eval(count: int, offset: float) -> Dictionary:
 		var base_angle: float = float(base_pair[1])
 		for slot_index in range(max(0, count)):
 			ring_angles[slot_index] = _wrap_angle(base_angle + step * float(slot_index))
-		var assignment_eval: Dictionary = SlotStrategyScript._evaluate_assignment(pairs, ring_angles, {}, 6, best_cost)
+		var assignment_eval: Dictionary = SlotStrategyScript._evaluate_precomputed_assignment(pairs, ring_angles, best_cost)
 		var current_cost: float = float(assignment_eval.get("cost", INF_COST))
 		if current_cost < best_cost:
 			best_cost = current_cost

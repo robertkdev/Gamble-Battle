@@ -115,6 +115,58 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		return {"assignment": unique_min_assignment, "cost": lower_bound}
 	return _best_assignment(costs, incumbent_cost)
 
+static func _evaluate_precomputed_assignment(pairs: Array, ring_angles: Array[float], incumbent_cost: float = 1e30) -> Dictionary:
+	var rows: int = pairs.size()
+	var cols: int = ring_angles.size()
+	var costs: Array = []
+	costs.resize(rows)
+	var unique_min_assignment: Array[int] = []
+	var used_min_cols: Array[bool] = []
+	unique_min_assignment.resize(rows)
+	used_min_cols.resize(cols)
+	used_min_cols.fill(false)
+	var unique_minima_usable: bool = true
+	var lower_bound: float = 0.0
+	for i in range(rows):
+		var row_cost: Array[float] = []
+		row_cost.resize(cols)
+		var entry: Array = pairs[i]
+		var prev_slot: int = int(entry[2])
+		var frame_factor: float = float(entry[3])
+		var prev_active: bool = bool(entry[4])
+		var entry_angle: float = float(entry[1])
+		var row_min: float = 1e30
+		var row_min_col: int = -1
+		var row_min_ties: int = 0
+		for j in range(cols):
+			var base_cost: float = abs(entry_angle - ring_angles[j])
+			if base_cost > PI:
+				base_cost = TAU - base_cost
+			if prev_active and prev_slot == j:
+				base_cost = max(0.0, base_cost - HYST_STICKINESS * frame_factor)
+			elif prev_active and prev_slot != -1 and prev_slot != j:
+				base_cost += HYST_SWITCH_COST * frame_factor
+			row_cost[j] = base_cost
+			if base_cost < row_min:
+				row_min = base_cost
+				row_min_col = j
+				row_min_ties = 1
+			elif base_cost == row_min:
+				row_min_ties += 1
+		if unique_minima_usable:
+			if row_min_col < 0 or row_min_ties != 1 or used_min_cols[row_min_col]:
+				unique_minima_usable = false
+			else:
+				used_min_cols[row_min_col] = true
+				unique_min_assignment[i] = row_min_col
+		lower_bound += row_min
+		if lower_bound >= incumbent_cost:
+			return {"assignment": [], "cost": incumbent_cost}
+		costs[i] = row_cost
+	if unique_minima_usable:
+		return {"assignment": unique_min_assignment, "cost": lower_bound}
+	return _best_assignment(costs, incumbent_cost)
+
 static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
 	if n == 0:
@@ -432,7 +484,7 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 		var base: float = float(base_dict[1])
 		for s in range(count):
 			ring_angles[s] = _wrap_angle(base + step * float(s))
-		var assignment_eval: Dictionary = _evaluate_assignment(pairs, ring_angles, prev_slot_assignments, hysteresis_frames, best_cost)
+		var assignment_eval: Dictionary = _evaluate_precomputed_assignment(pairs, ring_angles, best_cost)
 		var current_cost: float = float(assignment_eval.get("cost", 1e30))
 		if current_cost < best_cost:
 			best_cost = current_cost
