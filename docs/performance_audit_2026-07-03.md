@@ -1015,6 +1015,18 @@ Accepted change: `Unit` now caches normalized targeting role and goal strings wh
 - Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `11145ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `8202ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `349ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7150`.
 - This is a retained targeting hot-path cleanup. It does not complete the broader audit: after the cache, the main measured surface is still 12v12 exact slot assignment, while targeting remains covered by `PerfTargeting.tscn`.
 
+## Continuation - 2026-07-04 Post-Cache Frontier Refresh
+
+No source optimization was retained from this follow-up. The direct answer to "is that all that needs optimizing?" remains no, but the easy/safe local rewrites are largely exhausted and must keep proving themselves in full movement gates, not just focused benchmarks.
+
+- Fresh targeting control after the retained role/goal cache preserved `PerfTargeting.tscn` signature `9036604269279486158`, errors `[]`, median `428ms`; restored-source verification after a rejected candidate was `434ms`.
+- Rejected targeting role-kind cache: caching numeric role IDs and switching hot role comparisons from strings to ints preserved the targeting signature, but regressed `PerfTargeting.tscn` to `1127ms`, so source was reverted.
+- Fresh real movement control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `230574us`, `452992us`, and `667211us`. Slot assignment remained the top slice at `111531us` (`48.4%`), `186273us` (`41.1%`), and `549230us` (`82.3%`); 12v12 previous-slot sync was only `5857us` (`0.9%`).
+- Rejected direct previous-slot array handoff: passing `MovementState` slot-id/timer arrays directly to the real slot-array path passed `SlotArrayAssignmentParityProbe.tscn`, but regressed `PerfMovementPhases.tscn` to 6v6 `242369us` and 8v8 `609863us`, so the run was stopped and source reverted.
+- Rejected ring direction guard cleanup: removing an impossible-looking `Vector2.ZERO` fallback after `Vector2(cos(angle), sin(angle))` improved focused `PerfSlotTeamAssignment.tscn` from fresh total `511ms` to `303ms` and `284ms`, preserving aggregate `2813605715628331077`, and parity still passed. The real movement gate failed: 6v6 regressed to `260821us` and 8v8 to `728435us`, so source was reverted.
+- Current secondary checks stayed behavior-stable and are monitored rather than primary: `PerfCollisionResolver.tscn` aggregate `1955603822268948610`, errors `[]`, median total `131ms`; `PerfCombatUiSignals.tscn` reported `position_updated=111`, matching `UnitActor.position_apply_calls=111`, hidden `UnitPanel` dynamic refreshes `0`, errors `[]`; `PerfTextureUtils.tscn` stayed cache-effective at `25ms`, one real texture load and one circle generation, signature `3546666616613787855`; `PerfForcedMovement.tscn` kept signature `3092491491923327610`; and `PerfMovementBlockers.tscn` kept signature `8928121065208191259` with empty blocker gating at `8ms` versus `787ms` direct.
+- Takeaway: continue treating 12v12 slot assignment as the main frontier, but do not trust focused slot wins unless `PerfMovementPhases.tscn` also improves 6v6/8v8/12v12. Targeting, collision, UI signals, texture caching, forced movement, and movement-blocker gates are currently healthy enough to monitor.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
