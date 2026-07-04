@@ -1175,6 +1175,15 @@ No gameplay source optimization was retained from this pass. The direct answer t
 - `PerfSlotSolverBreakdown.tscn` now includes `rotation_9` to match the real 9v9 movement case. Clean validation preserved errors `[]`, aggregate `3460608454349089621`, total `1171ms`, and `rotation_9=180ms` with signature `8587046574868356591`.
 - Takeaway: future slot source work should treat focused output-loop wins as filters only. Candidates that touch 9/10/11/12-slot behavior should beat the expanded pair-split and rotation gates, then pass same-window `PerfMovementPhases.tscn` across all six movement sizes before being retained.
 
+## Continuation - 2026-07-04 Expanded No-Anchor Step Helper Gates
+
+No gameplay source optimization was retained. The next step-loop probe focused on avoiding the `_apply_anchor_step()` helper call when a movement profile has no anchor behavior, but the focused benchmark rejected it.
+
+- Fresh `PerfMovementStepHelpers.tscn` control preserved errors `[]`, aggregate `2737480079043224455`, total `1029ms`; row medians were `slot_step_8v8=252ms`, `slot_step_8v8_no_anchor=200ms`, `slot_step_10v10=219ms`, `slot_step_12v12=197ms`, `arrive_step_8v8=73ms`, and `in_band_8v8=88ms`.
+- Rejected no-anchor fast-return source probe: skipping `_apply_anchor_step()` at call sites when `anchor_strength <= 0.0` preserved focused signatures, but regressed the helper total to `1136ms` (`slot_step_8v8=266ms`, `slot_step_8v8_no_anchor=226ms`, `slot_step_10v10=260ms`, `slot_step_12v12=211ms`, `arrive_step_8v8=81ms`, `in_band_8v8=92ms`). Source was reverted before any real movement validation.
+- `PerfMovementStepHelpers.tscn` now includes `slot_step_10v10_no_anchor`, `slot_step_12v12_no_anchor`, and `in_band_8v8_no_anchor` so future step-loop edits can distinguish anchor overhead from base steering cost at larger team sizes. Clean expanded validation preserved errors `[]`, aggregate `4713848927282072330`, total `1790ms`; new rows were `slot_step_10v10_no_anchor=368ms`, `slot_step_12v12_no_anchor=250ms`, and `in_band_8v8_no_anchor=88ms`.
+- Takeaway: no-anchor rows are not automatically cheaper once team size rises, so call-site branch shortcuts should not be assumed to help. Future movement-step source candidates should first beat the expanded helper gate, then pass `PerfMovementPhases.tscn` on 6v6/8v8/9v9/10v10/11v11/12v12.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

@@ -19,9 +19,12 @@ func _run() -> void:
 		{"label": "slot_step_8v8", "kind": "slot", "count": 8, "other_count": 8, "iterations": 2400},
 		{"label": "slot_step_8v8_no_anchor", "kind": "slot", "count": 8, "other_count": 8, "iterations": 2400, "anchors": false},
 		{"label": "slot_step_10v10", "kind": "slot", "count": 10, "other_count": 10, "iterations": 1800},
+		{"label": "slot_step_10v10_no_anchor", "kind": "slot", "count": 10, "other_count": 10, "iterations": 1800, "anchors": false},
 		{"label": "slot_step_12v12", "kind": "slot", "count": 12, "other_count": 12, "iterations": 1400},
+		{"label": "slot_step_12v12_no_anchor", "kind": "slot", "count": 12, "other_count": 12, "iterations": 1400, "anchors": false},
 		{"label": "arrive_step_8v8", "kind": "arrive", "count": 8, "other_count": 8, "iterations": 3200, "anchors": false},
-		{"label": "in_band_8v8", "kind": "in_band", "count": 8, "other_count": 8, "iterations": 2400}
+		{"label": "in_band_8v8", "kind": "in_band", "count": 8, "other_count": 8, "iterations": 2400},
+		{"label": "in_band_8v8_no_anchor", "kind": "in_band", "count": 8, "other_count": 8, "iterations": 2400, "anchors": false}
 	]
 	var sample_count: int = max(1, int(samples_per_case))
 	var aggregate_signature: int = 53
