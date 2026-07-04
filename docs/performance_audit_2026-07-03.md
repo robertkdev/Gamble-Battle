@@ -924,6 +924,17 @@ No source optimization was retained from this pass. Two candidates preserved det
 - Rejected mage nearby-count cache: prebuilding nearby-live counts for mage AOE/zone picks improved focused targeting to `413ms` and `439ms` with the same signature, and `MovementTargetPriorityProbe.tscn` passed. The real movement gate did not hold: first run slowed every case to `317456us`, `632887us`, and `610934us`; repeat normalized 6v6 but still regressed 8v8 and 12v12 to `476755us` and `593986us`. Source was reverted.
 - Takeaway: direct previous-slot arrays and mage AOE count precomputation are not safe retained wins under the current gate. Slot assignment remains the primary open surface; targeting work needs focused wins that also avoid repeated `PerfMovementPhases.tscn` regressions.
 
+## Continuation - 2026-07-04 Packed DP Cost Scratch
+
+Accepted change: `_best_assignment_dp()` now stores its reusable DP `best_costs` scratch in a `PackedFloat64Array` instead of `Array[float]`, while keeping predecessor arrays, traversal order, tie behavior, and 64-bit cost precision intact. This targets the hot fill/read/write cost table in the exact slot solver without changing the backtrace storage that previously failed real movement gates.
+
+- Fresh focused controls before the retained change: `PerfSlotDpSearch.tscn` preserved aggregate `6007460045863670620`, errors `[]`, total `164ms`; `PerfSlotSolverBreakdown.tscn` preserved aggregate `4738803460811644685`, errors `[]`, total `404ms`.
+- Rejected same-pass predecessor storage variant: changing `prev_cols` and `prev_masks` to `PackedInt32Array` preserved aggregate `6007460045863670620`, but regressed `PerfSlotDpSearch.tscn` from `164ms` to `176ms`, so it was reverted before broader gates.
+- Packed-cost scratch preserved signatures and improved focused gates: `PerfSlotDpSearch.tscn` total `139ms`, aggregate `6007460045863670620`; `PerfSlotSolverBreakdown.tscn` total `386ms`, aggregate `4738803460811644685`. `PerfSlotTeamAssignment.tscn` was noisy but held signatures, with totals `335ms` then `295ms`, aggregate `2813605715628331077`.
+- Real movement A/B evidence: patched `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `256838us`/`506836us`/`536615us`, then `253943us`/`482146us`/`535105us`, then `234498us`/`483623us`/`537027us`. A source-clean A/B control in the same runtime window was worse in the primary 12v12 case at `586575us` movement and `468475us` slot assignment, while the patched 12v12 slot assignment held around `422849us` to `426505us`.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8738ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7176ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `336ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6197`.
+- This is a retained solver-storage optimization, not completion of the broader audit. 12v12 slot assignment remains the primary surface, but the exact DP cost table now has lower focused and real 12v12 cost.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

@@ -455,7 +455,7 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 		reduced_slack_limit = max(0.0, incumbent_cost - _hungarian_dual_lower_bound(reduced_u, reduced_v, first_min_possible_cost, n)) + HUNGARIAN_PRUNE_EPS
 	var mask_count: int = 1 << n
 	var dp_scratch: Dictionary = _dp_scratch_for_size(n)
-	var best_costs: Array[float] = dp_scratch["best_costs"]
+	var best_costs: PackedFloat64Array = dp_scratch["best_costs"]
 	var prev_cols: Array[int] = dp_scratch["prev_cols"]
 	var prev_masks: Array[int] = dp_scratch["prev_masks"]
 	best_costs.fill(1e30)
@@ -627,7 +627,7 @@ static func _dp_scratch_for_size(n: int) -> Dictionary:
 	if _dp_scratch_by_size.has(n):
 		return _dp_scratch_by_size[n]
 	var mask_count: int = 1 << n
-	var best_costs: Array[float] = []
+	var best_costs: PackedFloat64Array = PackedFloat64Array()
 	var prev_cols: Array[int] = []
 	var prev_masks: Array[int] = []
 	best_costs.resize(mask_count)
