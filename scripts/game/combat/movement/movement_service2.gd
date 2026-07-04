@@ -35,6 +35,9 @@ var _enemy_groups_scratch: Dictionary = {}
 var _player_groups_scratch: Dictionary = {}
 var _prev_player_slots_scratch: Dictionary = {}
 var _prev_enemy_slots_scratch: Dictionary = {}
+var _inner_bounds_valid: bool = false
+var _inner_bounds_min: Vector2 = Vector2.ZERO
+var _inner_bounds_max: Vector2 = Vector2.ZERO
 
 # Debug helpers (optional)
 var _debug_watch_players: Array = []
@@ -160,6 +163,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		return
 	if state == null:
 		return
+	_refresh_inner_bounds()
 	var diag_enabled: bool = bool(diagnostics_enabled)
 	var diag_total_start: int = 0
 	var diag_phase_start: int = 0
@@ -672,22 +676,29 @@ func _bounded_band_step(cur: Vector2, desired_step: Vector2, target_pos: Vector2
 	return Vector2.ZERO
 
 func _inside_bounds(pos: Vector2) -> bool:
-	if data.arena_bounds == Rect2():
+	if not _inner_bounds_valid:
 		return true
-	var min_x: float = data.arena_bounds.position.x + IN_BAND_BOUNDS_BUFFER
-	var min_y: float = data.arena_bounds.position.y + IN_BAND_BOUNDS_BUFFER
-	var max_x: float = data.arena_bounds.position.x + data.arena_bounds.size.x - IN_BAND_BOUNDS_BUFFER
-	var max_y: float = data.arena_bounds.position.y + data.arena_bounds.size.y - IN_BAND_BOUNDS_BUFFER
-	return pos.x >= min_x and pos.x <= max_x and pos.y >= min_y and pos.y <= max_y
+	return pos.x >= _inner_bounds_min.x and pos.x <= _inner_bounds_max.x and pos.y >= _inner_bounds_min.y and pos.y <= _inner_bounds_max.y
 
 func _clamp_to_inner_bounds(pos: Vector2) -> Vector2:
-	if data.arena_bounds == Rect2():
+	if not _inner_bounds_valid:
 		return pos
-	var min_x: float = data.arena_bounds.position.x + IN_BAND_BOUNDS_BUFFER
-	var min_y: float = data.arena_bounds.position.y + IN_BAND_BOUNDS_BUFFER
-	var max_x: float = data.arena_bounds.position.x + data.arena_bounds.size.x - IN_BAND_BOUNDS_BUFFER
-	var max_y: float = data.arena_bounds.position.y + data.arena_bounds.size.y - IN_BAND_BOUNDS_BUFFER
-	return Vector2(clampf(pos.x, min_x, max_x), clampf(pos.y, min_y, max_y))
+	return Vector2(
+		clampf(pos.x, _inner_bounds_min.x, _inner_bounds_max.x),
+		clampf(pos.y, _inner_bounds_min.y, _inner_bounds_max.y))
+
+func _refresh_inner_bounds() -> void:
+	var bounds: Rect2 = data.arena_bounds
+	if bounds == Rect2():
+		_inner_bounds_valid = false
+		return
+	_inner_bounds_valid = true
+	_inner_bounds_min = Vector2(
+		bounds.position.x + IN_BAND_BOUNDS_BUFFER,
+		bounds.position.y + IN_BAND_BOUNDS_BUFFER)
+	_inner_bounds_max = Vector2(
+		bounds.position.x + bounds.size.x - IN_BAND_BOUNDS_BUFFER,
+		bounds.position.y + bounds.size.y - IN_BAND_BOUNDS_BUFFER)
 
 func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, radius: float, corridor_factor: float) -> Vector2:
 	var avoid_radius: float = radius * max(1.0, tuning.avoidance_radius_factor)
