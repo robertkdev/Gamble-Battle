@@ -29,23 +29,27 @@ func resolve(
         debug_log: bool = false) -> void:
     if radius <= 0.0:
         return
-    _all_pos.clear()
-    _all_alive.clear()
-    _caps.clear()
-    _tag_is_player.clear()
-    _tag_indices.clear()
-    for i in range(player_positions.size()):
-        _all_pos.append(player_positions[i])
-        _all_alive.append((player_alive[i] if i < player_alive.size() else true))
-        _caps.append((player_step_caps[i] if i < player_step_caps.size() else 0.0))
-        _tag_is_player.append(true)
-        _tag_indices.append(i)
-    for j in range(enemy_positions.size()):
-        _all_pos.append(enemy_positions[j])
-        _all_alive.append((enemy_alive[j] if j < enemy_alive.size() else true))
-        _caps.append((enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0))
-        _tag_is_player.append(false)
-        _tag_indices.append(j)
+    var player_count: int = player_positions.size()
+    var enemy_count: int = enemy_positions.size()
+    var total_count: int = player_count + enemy_count
+    _all_pos.resize(total_count)
+    _all_alive.resize(total_count)
+    _caps.resize(total_count)
+    _tag_is_player.resize(total_count)
+    _tag_indices.resize(total_count)
+    for i in range(player_count):
+        _all_pos[i] = player_positions[i]
+        _all_alive[i] = (player_alive[i] if i < player_alive.size() else true)
+        _caps[i] = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
+        _tag_is_player[i] = true
+        _tag_indices[i] = i
+    for j in range(enemy_count):
+        var write_index: int = player_count + j
+        _all_pos[write_index] = enemy_positions[j]
+        _all_alive[write_index] = (enemy_alive[j] if j < enemy_alive.size() else true)
+        _caps[write_index] = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
+        _tag_is_player[write_index] = false
+        _tag_indices[write_index] = j
 
     var min_dist: float = radius * 2.0
     var min_dist2: float = min_dist * min_dist
