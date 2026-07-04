@@ -779,6 +779,16 @@ Rejected follow-up candidates after `f020bb3`: precomputing `1.0 / avoid_radius`
 - Inline corridor-factor candidate preserved signatures and had a favorable first 12v12 sample (`590898us`), but the repeat regressed 8v8 to `548666us` and 12v12 to `610474us`; source was reverted.
 - Restored-source sanity `PerfMovementPhases.tscn` preserved all signatures with errors `[]`; movement was `284934us`, `534210us`, and `670302us` in that noisy check. Keep the accepted `_avoid_from()` inlining, but do not retry these smaller avoidance microguards without a stronger profiler signal.
 
+## Continuation - 2026-07-04 Rejected Slot Pair Pre-Size
+
+Fresh answer to "is that all that needs optimizing?": no. The latest clean controls still show slot assignment as the largest 12v12 movement surface, with 8v8 step loops, targeting, and collision remaining secondary monitored surfaces.
+
+- Fresh focused control in `tests/perf/PerfSlotTeamAssignment.tscn` preserved aggregate `2813605715628331077`, errors `[]`, total `265ms`.
+- Fresh real movement control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `270597us`, `523525us`, and `582785us`; slot assignment was `118283us`, `190215us`, and `445641us`.
+- Rejected follow-up: pre-sizing the per-target `pairs` array in `_assign_for_target_into()` before filling it preserved focused slot signatures and improved `PerfSlotTeamAssignment.tscn` totals to `248ms` and `240ms`.
+- The same candidate failed the real movement gate: first phase run moved to `274993us`, `518056us`, and `586307us`; repeat moved to `265340us`, `512527us`, and `589745us`. The 8v8 improvement was not enough to keep a repeated 12v12 regression, so source was reverted.
+- Keep using real `PerfMovementPhases.tscn` as the acceptance gate for slot-wrapper allocation changes; focused slot wins alone are not sufficient.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
