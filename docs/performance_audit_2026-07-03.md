@@ -1315,6 +1315,16 @@ No gameplay source optimization was retained from this pass. The direct answer i
 - Fresh restored-source movement validation preserved all six `PerfMovementPhases.tscn` signatures with errors `[]`. Movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `256413us`, `548711us`, `579381us`, `326215us`, `795973us`, and `626534us`.
 - Slot assignment remains the decisive large-team frontier in that movement run: `49.8%`, `40.4%`, `50.4%`, `69.5%`, `73.9%`, and `81.1%` of measured movement respectively. The next retained source change should still come from a tie-preserving 10/11/12-slot assignment win or a secondary movement slice that beats the six-case real movement gate.
 
+## Continuation - 2026-07-04 Rejected Hungarian Final-Sum Guard Cleanup
+
+No gameplay source optimization was retained from this pass. The candidate removed the defensive invalid-row branch while re-summing the completed Hungarian assignment cost in `_assignment_min_cost_hungarian()`. That branch should be unreachable after a valid square assignment, and signatures stayed stable, but the focused solver gate rejected the change.
+
+- Fresh focused slot controls before the probe stayed clean with errors `[]`: `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `4059ms`; `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1210ms`.
+- Rejected Hungarian final-sum guard cleanup: `PerfSlotSolverBreakdown.tscn` preserved aggregate `3460608454349089621`, but regressed total to `1415ms`. It improved `hungarian_10` (`122ms -> 64ms`) but worsened the decisive mixed rows, including `dp_12_pruned` (`194ms -> 222ms`), `rotation_8` (`174ms -> 196ms`), `rotation_11` (`95ms -> 203ms`), and `rotation_12` (`31ms -> 49ms`). Source was reverted.
+- Fresh secondary helper control after reverting stayed behavior-stable: `PerfMovementStepHelpers.tscn` aggregate `4713848927282072330`, total `2170ms`. The expensive helper rows were still slot-step rows, especially 8v8/10v10/12v12, while arrive and in-band rows remained much smaller.
+- Fresh restored-source movement validation preserved all six `PerfMovementPhases.tscn` signatures with errors `[]`. Movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `322169us`, `829693us`, `688504us`, `436590us`, `965854us`, and `773597us`.
+- Current movement slices keep the same frontier: slot assignment was `50.4%`, `39.0%`, `51.2%`, `69.9%`, `79.9%`, and `83.4%` respectively. In 8v8, player/enemy steps plus collision were still material at `47.7%`, so secondary step-loop work remains worth measuring, but the next retained source change should still clear same-window `PerfMovementPhases.tscn`, not just a focused helper or solver row.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
