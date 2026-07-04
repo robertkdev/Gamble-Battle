@@ -1067,6 +1067,15 @@ No gameplay source optimization was retained. `tests/perf/PerfSlotTeamAssignment
 - Clean expanded run preserved errors `[]`, aggregate signature `7518035012375708751`, and deterministic per-case signatures. Dictionary medians: `dict_single_6=134ms`, `dict_single_12=145ms`, `dict_pair_12=127ms`, `dict_split_12=27ms`, `dict_quad_12=34ms`, `dict_spread_12=13ms`. Real array medians: `array_single_6=99ms`, `array_single_12=140ms`, `array_pair_12=128ms`, `array_split_12=31ms`, `array_quad_12=46ms`, `array_spread_12=12ms`.
 - Takeaway: the meaningful focused slot frontier is large single-target and pair-split groups; once groups break into 3/4/spread shapes, assignment cost is much lower. Future source candidates should prioritize count-12 and paired count-6 workloads before optimizing broad slot-output mechanics.
 
+## Continuation - 2026-07-04 Count-6 Assignment Coverage
+
+No gameplay source optimization was retained. The answer to "is that all that needs optimizing?" remains no: current controls still show meaningful 8v8/12v12 movement cost, but prior rejected slot candidates make the next source change higher-risk and require sharper same-window evidence.
+
+- Fresh controls preserved errors `[]`: `PerfSlotTeamAssignment.tscn` aggregate `7518035012375708751`, total `815ms`; `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, total `144ms`; `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, total `402ms`; and `PerfMovementPhases.tscn` kept 6v6/8v8/12v12 signatures with movement `233072us`, `495627us`, and `627543us`. Slot assignment remained the dominant 12v12 slice at `513542us` (`81.8%`) and a large 8v8 slice at `200224us` (`40.4%`).
+- Rechecked candidate history before editing source: unique-min preflight, no-duplicate best assignment storage, scratch-row reuse, lower Hungarian prune thresholds, packed predecessor scratch, and several helper/branch rewrites have already been rejected because focused wins did not survive the real movement gate.
+- `tests/perf/PerfSlotSmallAssignment.tscn` now includes count-6 dispatcher and direct-DP cases to match the newly exposed pair-split frontier. Clean expanded run preserved errors `[]`; count-6 dispatcher and direct-DP signatures both measured `1077033215214316036`, with `fast_6=689ms` and `dp_6=934ms` over 8,000 iterations, aggregate `7023677399820711247`.
+- Takeaway: the remaining slot frontier is not exhausted, but the next retained source optimization should now beat count-12 and count-6 gates before any real-movement validation. Benchmark-only expansion was retained because it closes a coverage gap without changing gameplay behavior.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
@@ -1094,7 +1103,7 @@ No gameplay source optimization was retained. `tests/perf/PerfSlotTeamAssignment
 
 ## Recommended Next Optimizations
 
-1. Continue slot assignment work above the tiny 2/3/4-row fast paths with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures.
+1. Continue slot assignment work above the tiny 2/3/4-row fast paths with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures. Check both count-12 and the new count-6 assignment coverage before broader movement gates.
 2. Use `PerfSlotSolverBreakdown.tscn` and `PerfSlotDpSearch.tscn` for `_best_assignment_dp()` and base-rotation solver changes, then `PerfSlotTeamAssignment.tscn`, `PerfMovementPhases.tscn`, and `PerfLargeBoard.tscn` as the focused/regression/stress gates before future movement changes above 6v6.
 3. Use `PerfTargeting.tscn` before and after target-priority changes, then confirm with `Perf6v6.tscn` or `RoleMatrixProbe6v6.tscn`.
 4. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 155-170 events are material; the UI no longer polls every actor every frame.
