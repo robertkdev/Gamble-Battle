@@ -685,6 +685,16 @@ Rejected follow-up: removing the defensive support-peel priority fallback branch
 - Candidate `PerfTargeting.tscn` repeats preserved the same signature and errors `[]`, with medians `398ms` then `429ms`.
 - Candidate `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`; 8v8 improved to `587278us`, but 12v12 regressed to `653206us`, so the focused targeting micro-win was not retained.
 
+## Continuation - 2026-07-04 Support Peel Candidate Index Cache
+
+Accepted change: support targeting now builds a packed list of positive-priority peel ally indices once per support target pick. `_ally_peel_pressure()` loops those candidates instead of rescanning every ally for every enemy candidate. The zero-priority fallback path is retained for direct helper calls without a prebuilt priority array.
+
+- Fresh `tests/perf/PerfTargeting.tscn` control preserved signature `9036604269279486158`, errors `[]`, median `407ms`.
+- Candidate `PerfTargeting.tscn` preserved the same signature and errors `[]`, but focused timing was mixed: medians `385ms`, `423ms`, and `416ms`.
+- Real movement held better than the focused noise: `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`. 6v6 movement regressed slightly to `287318us` versus the `283409us` control, but 8v8 improved to `567079us` from `586791us`, and 12v12 improved to `625046us` from `662897us`.
+- Broad gates stayed clean through Godot MCP: `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8826ms`; `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7108ms`; `tests/perf/Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `327ms`; and `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5826`.
+- Rejected same-pass candidates: reusing slot evaluator cost/unique-minimum scratch preserved `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077` but regressed the focused total from `264ms` to `295ms`; skipping inactive previous-slot dictionary entries preserved movement signatures and improved one 8v8 sample, but repeated 12v12 movement regressed to `681170us` versus the `662897us` control. Both source changes were reverted.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
