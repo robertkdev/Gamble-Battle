@@ -76,13 +76,14 @@ func positions_changed_from(previous: Array[Vector2], threshold: float) -> bool:
 	if previous.size() != total:
 		return true
 	var threshold_abs: float = max(0.0, threshold)
+	var threshold_sq: float = threshold_abs * threshold_abs
 	var read_index: int = 0
 	for player_position: Vector2 in player_positions:
-		if player_position.distance_to(previous[read_index]) > threshold_abs:
+		if player_position.distance_squared_to(previous[read_index]) > threshold_sq:
 			return true
 		read_index += 1
 	for enemy_position: Vector2 in enemy_positions:
-		if enemy_position.distance_to(previous[read_index]) > threshold_abs:
+		if enemy_position.distance_squared_to(previous[read_index]) > threshold_sq:
 			return true
 		read_index += 1
 	return false
