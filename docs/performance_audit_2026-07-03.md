@@ -704,6 +704,15 @@ Rejected follow-up candidates: avoiding the duplicate of each new best slot assi
 - Direct slot-memory writes preserved movement signatures and improved initial 6v6/8v8 samples (`279468us`, `540354us`) with near-neutral 12v12 (`599674us`), but repeats were mixed: 8v8 regressed to `568327us`, 12v12 to `621767us`, and final 12v12 to `639724us`. `Perf6v6.tscn` stayed stable but slower than the previous accepted broad total (`8942ms` vs `8826ms`), while `PerfLargeBoard.tscn` improved to `7030ms`. The phase-gate 12v12 regression was enough to reject the change.
 - Do not accept focused slot-wrapper wins unless `PerfMovementPhases.tscn` holds 8v8 and 12v12 in repeat runs. These probes reinforce that slot-assignment and movement-loop micro-edits can improve isolated totals while worsening the real large-fight gate.
 
+## Continuation - 2026-07-04 Breadth Refresh
+
+Fresh breadth pass answering whether optimization is exhausted: no, but remaining high-value work is concentrated. Movement remains the primary surface; targeting, collision, UI signal churn, and texture caching are currently healthy enough to monitor instead of churn without a stronger profile.
+
+- `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`: 6v6 movement `278907us` with slot assignment `118598us` (`42.5%`), 8v8 movement `559528us` with slot assignment `192892us` (`34.5%`), and 12v12 movement `634891us` with slot assignment `465355us` (`73.3%`). 8v8 still has meaningful player/enemy step-loop and collision cost, but 12v12 remains slot-assignment dominated.
+- Focused non-slot checks stayed clean: `tests/perf/PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `433ms`; `tests/perf/PerfCollisionResolver.tscn` preserved aggregate `1955603822268948610`, errors `[]`, median total `73ms`; `tests/perf/PerfCombatUiSignals.tscn` had `position_updated=111`, matching `UnitActor.position_apply_calls=111`, hidden `UnitPanel` dynamic refreshes `0`, and errors `[]`; `tests/perf/PerfTextureUtils.tscn` preserved signature `3546666616613787855`, errors `[]`, with one real texture load and one circle generation across 600 repeat requests each.
+- Focused slot checks stayed clean: `tests/perf/PerfSlotSolverBreakdown.tscn` preserved aggregate `4738803460811644685`, errors `[]`, median total `392ms`; `tests/perf/PerfSlotTeamAssignment.tscn` preserved aggregate `2813605715628331077`, errors `[]`, median total `264ms` (`single_6=111ms`, `single_12=129ms`, `split_12=24ms`).
+- A plausible step-loop idea, merging the same-team separation and avoidance scans, was not repeated because this document already records that self-loop merge as rejected: it preserved signatures but failed the 8v8 movement gate and regressed `PerfLargeBoard.tscn`. Continue using this rejected-history check before retrying movement micro-edits.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
