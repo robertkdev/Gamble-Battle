@@ -109,12 +109,22 @@ func resolve(
                         resolved_pairs += 1
 
     # Write back and clamp
+    var clamp_to_bounds: bool = bounds != Rect2()
+    var min_x: float = 0.0
+    var min_y: float = 0.0
+    var max_x: float = 0.0
+    var max_y: float = 0.0
+    if clamp_to_bounds:
+        min_x = bounds.position.x
+        min_y = bounds.position.y
+        max_x = bounds.position.x + bounds.size.x
+        max_y = bounds.position.y + bounds.size.y
     for i2 in range(_all_pos.size()):
         var idx: int = _tag_indices[i2]
         var p: Vector2 = _all_pos[i2]
-        if bounds != Rect2():
-            p.x = clampf(p.x, bounds.position.x, bounds.position.x + bounds.size.x)
-            p.y = clampf(p.y, bounds.position.y, bounds.position.y + bounds.size.y)
+        if clamp_to_bounds:
+            p.x = clampf(p.x, min_x, max_x)
+            p.y = clampf(p.y, min_y, max_y)
         if _tag_is_player[i2]:
             if idx < player_positions.size():
                 player_positions[idx] = p
