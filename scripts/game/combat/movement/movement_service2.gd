@@ -250,7 +250,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 	var enemy_groups: Dictionary = _enemy_groups_scratch
 	for i_g in range(p_targets.size()):
 		var t: int = p_targets[i_g]
-		if t >= 0 and t < data.enemy_positions.size() and p_alive[i_g]:
+		if t >= 0 and t < enemy_count and p_alive[i_g]:
 			if not enemy_groups.has(t):
 				enemy_groups[t] = []
 			(enemy_groups[t] as Array).append(i_g)
@@ -258,7 +258,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 	var player_groups: Dictionary = _player_groups_scratch
 	for j_g in range(e_targets.size()):
 		var t2: int = e_targets[j_g]
-		if t2 >= 0 and t2 < data.player_positions.size() and e_alive[j_g]:
+		if t2 >= 0 and t2 < player_count and e_alive[j_g]:
 			if not player_groups.has(t2):
 				player_groups[t2] = []
 			(player_groups[t2] as Array).append(j_g)
@@ -328,7 +328,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 			continue
 		var cur: Vector2 = data.player_positions[i]
 		var tgt_idx: int = p_targets[i]
-		var tpos: Vector2 = (data.enemy_positions[tgt_idx] if tgt_idx >= 0 and tgt_idx < data.enemy_positions.size() else cur)
+		var tpos: Vector2 = (data.enemy_positions[tgt_idx] if tgt_idx >= 0 and tgt_idx < enemy_count else cur)
 
 		var slot_info: Variant = p_slot_map.get(i)
 		var slot_pos: Vector2 = tpos
@@ -419,7 +419,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 			continue
 		var cur_e: Vector2 = data.enemy_positions[j]
 		var tgt_idx2: int = e_targets[j]
-		var tpos2: Vector2 = (data.player_positions[tgt_idx2] if tgt_idx2 >= 0 and tgt_idx2 < data.player_positions.size() else cur_e)
+		var tpos2: Vector2 = (data.player_positions[tgt_idx2] if tgt_idx2 >= 0 and tgt_idx2 < player_count else cur_e)
 
 		var slot_info2: Variant = e_slot_map.get(j)
 		var slot_pos2: Vector2 = tpos2

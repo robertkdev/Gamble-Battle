@@ -856,6 +856,16 @@ Rejected solver-state follow-up after the allocation shortcut pass. Both candida
 - Restored-source sanity: `PerfSlotDpSearch.tscn` preserved aggregate `6007460045863670620`, errors `[]`, total `153ms`.
 - Takeaway: direct DP predecessor-state trims are not safe to retain from focused solver wins alone. The acceptance bar remains the real `PerfMovementPhases.tscn` 12v12 case, and future exact-solver work should avoid changing backtrace storage unless it also proves lower real slot-assignment time.
 
+## Continuation - 2026-07-04 Movement Target Count Trust
+
+Accepted change: `MovementService2._update_impl()` now uses the already-known `player_count` / `enemy_count` values for target-index bounds checks in grouping and per-unit target-position lookup. `ensure_capacity()` has already resized movement position arrays to those counts, so this removes repeated position-array size calls in the movement frame loop without changing behavior.
+
+- Fresh real movement control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `267694us`, `476262us`, and `580565us`; groups were visible at `7684us` for 6v6 and `15477us` for 8v8.
+- Rejected reusable group-array variants: a dictionary-backed group array pool worsened the groups phase and 12v12 movement (`593700us`), while a fixed-index group array pool still worsened 8v8 movement (`499737us`) and made the groups phase heavier despite one better 12v12 sample. Source was reverted before the retained count-trust cleanup.
+- Retained count-trust repeats preserved signatures and errors `[]`. First run movement was `252258us`, `503925us`, and `577756us`; repeat was `248378us`, `482291us`, and `555927us`; third run was `257712us`, `477200us`, and `575635us`. 6v6 and 12v12 held below the control; 8v8 settled near-neutral after one noisy regression.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8517ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6898ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `381ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5912`.
+- This is a narrow frame-loop cleanup and does not complete the broader goal. Slot assignment remains the dominant 12v12 surface.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
