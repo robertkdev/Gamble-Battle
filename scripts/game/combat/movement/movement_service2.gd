@@ -581,8 +581,9 @@ func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Ve
 	if candidate_dist < min_range * 0.80 and prof.kite_strength > 0.0:
 		return Vector2.ZERO
 	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, radius, 0.35)
-	if avoidance_vec != Vector2.ZERO:
-		var avoid_dir: Vector2 = avoidance_vec.normalized()
+	var avoidance_len: float = avoidance_vec.length()
+	if avoidance_len > 0.0:
+		var avoid_dir: Vector2 = avoidance_vec / avoidance_len
 		var blended: Vector2 = (tangent + avoid_dir * 0.35).normalized()
 		var anchored_blend: Vector2 = _apply_anchor_step(cur, blended * strafe_step, move_dist, prof, self_positions)
 		return _bounded_band_step(cur, anchored_blend, target_pos, min_range, max_range, range_eps, prof.side_bias)
