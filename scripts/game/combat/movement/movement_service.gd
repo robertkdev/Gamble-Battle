@@ -86,5 +86,8 @@ func tile_size() -> float:
 func update_movement(state, delta: float, target_resolver: Callable) -> void:
 	_impl.update_movement(state, delta, target_resolver)
 
+func update_movement_with_targets(state, delta: float, player_targets: Array[int], enemy_targets: Array[int]) -> void:
+	_impl.update_movement_with_targets(state, delta, player_targets, enemy_targets)
+
 func update(delta: float, state, target_resolver: Callable) -> void:
 	_impl.update(delta, state, target_resolver)

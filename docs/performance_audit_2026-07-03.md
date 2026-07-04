@@ -818,6 +818,15 @@ Fresh answer to "is that all that needs optimizing?": no. Current clean controls
 - Rejected collision cap-trust candidate: directly copying `player_step_caps[i]` / `enemy_step_caps[j]` in `CollisionResolver.resolve()` improved focused collision totals from clean `106ms` to `82ms` and `71ms`, preserving aggregate `1955603822268948610`, but real movement repeats regressed to `274492us`/`538457us`/`674944us` and `292971us`/`552085us`/`654384us`. Source was reverted despite the focused win.
 - No source optimization was retained from this pass. The takeaway is unchanged: focused microbenchmarks are useful filters, but real `PerfMovementPhases.tscn` remains the acceptance gate for frame-loop work.
 
+## Continuation - 2026-07-04 Direct Movement Target Arrays
+
+Accepted change: `CombatEngine` now asks `TargetController` to copy the current arena targets into reusable player/enemy target arrays and calls `MovementService2.update_movement_with_targets()`. `MovementService2` still keeps the existing Callable resolver path for probes and fallback callers, but real combat movement now avoids a per-live-unit `Callable.call()` when cached targets are already valid. `TargetController.copy_arena_targets()` preserves the previous stale/dead-target fallback by calling `current_target()` only when an alive unit's stored target is no longer valid.
+
+- Fresh real movement control before the edit preserved 6v6/8v8/12v12 signatures and errors `[]`: movement `260929us`, `533730us`, and `593095us`; target phases were `23482us`, `54504us`, and `22575us`.
+- Candidate repeats preserved the same signatures and errors `[]`. First run movement was `242816us`, `484100us`, and `591504us`; repeat movement was `247496us`, `494947us`, and `589712us`. The `targets` phase dropped out of the top phase list in both patched repeats, while 12v12 remained dominated by slot assignment.
+- Target behavior and broad gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` passed; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8709ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6975ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `355ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5906`.
+- This reduces a secondary movement phase and improves 6v6/8v8 frame-loop movement, but it does not complete the broader audit: 12v12 slot assignment is still the dominant remaining cost.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

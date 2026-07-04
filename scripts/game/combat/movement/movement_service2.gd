@@ -154,10 +154,13 @@ func tile_size() -> float:
 func update_movement(state, delta: float, target_resolver: Callable) -> void:
 	_update_impl(state, delta, target_resolver)
 
+func update_movement_with_targets(state, delta: float, player_targets: Array[int], enemy_targets: Array[int]) -> void:
+	_update_impl(state, delta, Callable(), player_targets, enemy_targets)
+
 func update(delta: float, state, target_resolver: Callable) -> void:
 	_update_impl(state, delta, target_resolver)
 
-func _update_impl(state, delta: float, target_resolver: Callable) -> void:
+func _update_impl(state, delta: float, target_resolver: Callable, direct_player_targets: Array[int] = [], direct_enemy_targets: Array[int] = []) -> void:
 	if delta <= 0.0:
 		return
 	if data.arena_bounds == Rect2():
@@ -211,6 +214,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	_resize_int_scratch(_e_targets_scratch, enemy_count, -1)
 	var p_targets: Array[int] = _p_targets_scratch
 	var e_targets: Array[int] = _e_targets_scratch
+	var use_direct_player_targets: bool = direct_player_targets.size() >= player_count
+	var use_direct_enemy_targets: bool = direct_enemy_targets.size() >= enemy_count
 	for i_t in range(player_count):
 		if not p_alive[i_t]:
 			p_targets[i_t] = -1
@@ -219,8 +224,11 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			continue
 		if diag_enabled:
 			_diag_target_calls += 1
-		var v: Variant = target_resolver.call("player", i_t)
-		p_targets[i_t] = int(v) if typeof(v) == TYPE_INT else -1
+		if use_direct_player_targets:
+			p_targets[i_t] = direct_player_targets[i_t]
+		else:
+			var v: Variant = target_resolver.call("player", i_t)
+			p_targets[i_t] = int(v) if typeof(v) == TYPE_INT else -1
 	for j_t in range(enemy_count):
 		if not e_alive[j_t]:
 			e_targets[j_t] = -1
@@ -229,8 +237,11 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			continue
 		if diag_enabled:
 			_diag_target_calls += 1
-		var v2: Variant = target_resolver.call("enemy", j_t)
-		e_targets[j_t] = int(v2) if typeof(v2) == TYPE_INT else -1
+		if use_direct_enemy_targets:
+			e_targets[j_t] = direct_enemy_targets[j_t]
+		else:
+			var v2: Variant = target_resolver.call("enemy", j_t)
+			e_targets[j_t] = int(v2) if typeof(v2) == TYPE_INT else -1
 	if diag_enabled:
 		diag_phase_start = _diag_mark_phase("targets", diag_phase_start)
 

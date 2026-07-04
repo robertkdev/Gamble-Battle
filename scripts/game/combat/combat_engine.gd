@@ -82,6 +82,8 @@ var _last_player_positions: Array = []
 var _last_enemy_positions: Array = []
 var _last_targets_player: Array = []
 var _last_targets_enemy: Array = []
+var _movement_player_targets_scratch: Array[int] = []
+var _movement_enemy_targets_scratch: Array[int] = []
 
 var arena_state: Variant = MovementServiceLib.new()
 var target_controller: TargetController = TargetController.new()
@@ -217,6 +219,8 @@ func teardown() -> void:
 	_last_enemy_positions.clear()
 	_last_targets_player.clear()
 	_last_targets_enemy.clear()
+	_movement_player_targets_scratch.clear()
+	_movement_enemy_targets_scratch.clear()
 	_first_attack_windup_done.clear()
 	_target_recheck_accum = 0.0
 
@@ -480,7 +484,8 @@ func process(delta: float) -> void:
 		return
 	state.elapsed_time += delta
 	_retarget_if_due(delta)
-	arena_state.update_movement(state, delta, target_controller.resolver_for_arena())
+	target_controller.copy_arena_targets(_movement_player_targets_scratch, _movement_enemy_targets_scratch)
+	arena_state.update_movement_with_targets(state, delta, _movement_player_targets_scratch, _movement_enemy_targets_scratch)
 	_update_combat_progress_watchdog()
 	var timeout_outcome: String = _combat_timeout_outcome()
 	if timeout_outcome != "":

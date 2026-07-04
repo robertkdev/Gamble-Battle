@@ -74,6 +74,37 @@ func target_array(team: String) -> Array[int]:
 	_sync_arrays()
 	return _targets_for(team)
 
+func copy_arena_targets(player_out: Array[int], enemy_out: Array[int]) -> void:
+	if not state:
+		player_out.clear()
+		enemy_out.clear()
+		return
+	_sync_arrays()
+	var player_count: int = state.player_team.size()
+	var enemy_count: int = state.enemy_team.size()
+	player_out.resize(player_count)
+	enemy_out.resize(enemy_count)
+	for i in range(player_count):
+		var player_unit: Unit = state.player_team[i]
+		if player_unit == null or not player_unit.is_alive():
+			player_out[i] = -1
+			continue
+		var player_target: int = int(state.player_targets[i])
+		if BattleState.is_target_alive(state.enemy_team, player_target):
+			player_out[i] = player_target
+		else:
+			player_out[i] = current_target("player", i)
+	for j in range(enemy_count):
+		var enemy_unit: Unit = state.enemy_team[j]
+		if enemy_unit == null or not enemy_unit.is_alive():
+			enemy_out[j] = -1
+			continue
+		var enemy_target: int = int(state.enemy_targets[j])
+		if BattleState.is_target_alive(state.player_team, enemy_target):
+			enemy_out[j] = enemy_target
+		else:
+			enemy_out[j] = current_target("enemy", j)
+
 # Public: re-select targets for all units on both teams.
 # Useful to reprime after arena positions become available.
 func prime_targets() -> void:
