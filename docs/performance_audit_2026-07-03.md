@@ -1027,6 +1027,15 @@ No source optimization was retained from this follow-up. The direct answer to "i
 - Current secondary checks stayed behavior-stable and are monitored rather than primary: `PerfCollisionResolver.tscn` aggregate `1955603822268948610`, errors `[]`, median total `131ms`; `PerfCombatUiSignals.tscn` reported `position_updated=111`, matching `UnitActor.position_apply_calls=111`, hidden `UnitPanel` dynamic refreshes `0`, errors `[]`; `PerfTextureUtils.tscn` stayed cache-effective at `25ms`, one real texture load and one circle generation, signature `3546666616613787855`; `PerfForcedMovement.tscn` kept signature `3092491491923327610`; and `PerfMovementBlockers.tscn` kept signature `8928121065208191259` with empty blocker gating at `8ms` versus `787ms` direct.
 - Takeaway: continue treating 12v12 slot assignment as the main frontier, but do not trust focused slot wins unless `PerfMovementPhases.tscn` also improves 6v6/8v8/12v12. Targeting, collision, UI signals, texture caching, forced movement, and movement-blocker gates are currently healthy enough to monitor.
 
+## Continuation - 2026-07-04 Rejected Movement Clamp And Slot Tie Probes
+
+No source optimization was retained from this pass. Fresh `PerfMovementPhases.tscn` control preserved 6v6/8v8/12v12 signatures with movement `296905us`, `575272us`, and `979775us`; a same-window restored-source A/B control measured `264367us`, `509184us`, and `819356us`. Both controls still show 12v12 slot assignment as the main surface (`793431us` then `684731us`).
+
+- Rejected movement arena-clamp inline: replacing `_clamp_to_arena_bounds(cur + step)` with direct cached-min/max clamping preserved signatures and improved the first 12v12 sample to `667250us`, then `739654us` on repeat. It was not retained because same-window restored source was faster on 6v6 and 8v8 (`264367us`/`509184us` restored versus patched `315364us`/`544599us` on repeat).
+- Rejected movement-blocker branch reorder: changing the short-circuit order to check `movement_blockers_active` before `step == Vector2.ZERO` immediately regressed 6v6 movement to `403409us`, so the run was stopped and source reverted.
+- Rejected slot unique-minimum bookkeeping trim: avoiding row-min tie bookkeeping after the unique-minimum shortcut was already impossible preserved focused slot signatures (`PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`) and improved 12v12 movement versus restored control (`767273us` versus `819356us`), but it regressed both 6v6 and 8v8 real movement (`289985us` and `560365us` versus restored `264367us` and `509184us`), so source was reverted.
+- Takeaway: GDScript hot-loop branch and helper-call shape remains counterintuitive under real workloads. Continue requiring same-window `PerfMovementPhases.tscn` A/B evidence across 6v6, 8v8, and 12v12 before retaining even tiny movement or slot-evaluator changes.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
