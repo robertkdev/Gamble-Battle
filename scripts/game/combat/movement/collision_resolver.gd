@@ -38,7 +38,8 @@ func resolve(
     for i in range(player_count):
         _all_pos[i] = player_positions[i]
         var player_is_alive: bool = (player_alive[i] if i < player_alive.size() else true)
-        _caps[i] = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
+        var player_step_cap: float = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
+        _caps[i] = max(0.0, player_step_cap)
         _tag_is_player[i] = true
         if player_is_alive:
             _active_indices.append(i)
@@ -46,7 +47,8 @@ func resolve(
         var write_index: int = player_count + j
         _all_pos[write_index] = enemy_positions[j]
         var enemy_is_alive: bool = (enemy_alive[j] if j < enemy_alive.size() else true)
-        _caps[write_index] = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
+        var enemy_step_cap: float = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
+        _caps[write_index] = max(0.0, enemy_step_cap)
         _tag_is_player[write_index] = false
         if enemy_is_alive:
             _active_indices.append(write_index)
@@ -82,8 +84,8 @@ func resolve(
                 var half: float = overlap * 0.5
 
                 var same_team: bool = (_tag_is_player[a] == _tag_is_player[b])
-                var cap_a: float = max(0.0, _caps[a])
-                var cap_b: float = max(0.0, _caps[b])
+                var cap_a: float = _caps[a]
+                var cap_b: float = _caps[b]
 
                 var move_a: float
                 var move_b: float
