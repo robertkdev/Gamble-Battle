@@ -3,7 +3,7 @@ extends Node
 const SlotStrategyScript: Script = preload("res://scripts/game/combat/movement/strategies/slot_strategy.gd")
 const UnitFactoryScript: Script = preload("res://scripts/unit_factory.gd")
 
-@export var samples_per_case: int = 2
+@export var samples_per_case: int = 3
 
 const UNIT_IDS: Array[String] = [
 	"bonko", "korath", "sari", "pilfer", "cashmere", "axiom",
