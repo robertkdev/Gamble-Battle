@@ -248,8 +248,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 	var prev_player_slots: Dictionary = _prev_player_slots_scratch
 	var prev_enemy_slots: Dictionary = _prev_enemy_slots_scratch
-	_sync_prev_slots(prev_player_slots, "player", player_count)
-	_sync_prev_slots(prev_enemy_slots, "enemy", enemy_count)
+	_sync_prev_slots(prev_player_slots, data.player_slot_id, data.player_slot_timer, player_count)
+	_sync_prev_slots(prev_enemy_slots, data.enemy_slot_id, data.enemy_slot_timer, enemy_count)
 	if diag_enabled:
 		diag_phase_start = _diag_mark_phase("prev_slots", diag_phase_start)
 
@@ -768,12 +768,12 @@ func _resize_float_scratch(arr: Array[float], length: int, fill: float) -> void:
 	elif current > length:
 		arr.resize(length)
 
-func _sync_prev_slots(out: Dictionary, team: String, count: int) -> void:
+func _sync_prev_slots(out: Dictionary, slot_ids: Array[int], slot_timers: Array[int], count: int) -> void:
 	for i in range(max(0, count)):
 		var entry_value: Variant = out.get(i, null)
 		var entry: Dictionary = entry_value if entry_value is Dictionary else {}
-		entry["slot"] = data.get_slot_id(team, i)
-		entry["frames"] = data.get_slot_timer(team, i)
+		entry["slot"] = slot_ids[i] if i < slot_ids.size() else -1
+		entry["frames"] = slot_timers[i] if i < slot_timers.size() else 0
 		out[i] = entry
 
 func _ensure_profiles() -> void:
