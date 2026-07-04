@@ -479,7 +479,7 @@ Fresh broad audit answer: no, slot assignment is not the only code worth monitor
 
 ## Continuation - 2026-07-04 Slot Evaluator Hot Path
 
-Accepted change: `SlotStrategy._assign_for_target_into()` now calls `_evaluate_precomputed_assignment()` for the production five-field pair rows, skipping the legacy previous-slot fallback branch inside the row loop. The legacy `_evaluate_assignment()` remains for callers that do not precompute previous-slot metadata, and `PerfSlotSolverBreakdown.tscn` now measures the same precomputed rotation path.
+Accepted change: `SlotStrategy._assign_for_target_into()` now calls `_evaluate_precomputed_assignment()` for the production five-field pair rows, skipping the legacy previous-slot fallback branch inside the row loop. A later 2026-07-04 cleanup removed the now-unused legacy `_evaluate_assignment()` after no code or test callers remained, and `PerfSlotSolverBreakdown.tscn` now measures the same precomputed rotation path.
 
 - `tests/perf/PerfSlotSolverBreakdown.tscn` kept aggregate `4738803460811644685`, errors `[]`: median total `525ms`, with rotation_8 `161ms` and rotation_12 `32ms`.
 - `tests/perf/PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, errors `[]`: median total `307ms`; `single_6=114ms`, `single_12=155ms`, `split_12=38ms`.
@@ -748,6 +748,17 @@ Accepted change: `CollisionResolver.resolve()` now trusts the already-sized aliv
 - Patched `PerfMovementPhases.tscn` repeats preserved the same 6v6/8v8/12v12 signatures and errors `[]`. First run movement was `309031us`, `596259us`, and `644432us`; repeat movement was `300069us`, `612362us`, and `644712us`. The 8v8 and 12v12 gates improved versus the fresh control in both runs.
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9343ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7559ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `356ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6300`.
 - This is a secondary-surface cleanup. The 12v12 movement profile is still dominated by slot assignment, so the broader performance goal remains active.
+
+## Continuation - 2026-07-04 Slot Legacy Cleanup And Rejected Guards
+
+Accepted cleanup: removed the unused `MovementService2` `MovementMath` preload plus unused `SlotStrategy._circ_dist()`, `_slot_angles()`, and legacy `_evaluate_assignment()`. Production slot assignment and the solver breakdown already use `_evaluate_precomputed_assignment()`, so this trims dead hot-file code without changing slot choices.
+
+- Fresh same-turn controls before cleanup kept `tests/perf/PerfMovementPhases.tscn` signatures stable with 6v6/8v8/12v12 movement `309253us`, `615216us`, and `705206us`; `tests/perf/PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, errors `[]`, total `297ms`.
+- Rejected before cleanup: removing the duplicate `ranges_world.has(attacker_index)` guard in `SlotStrategy.assign_slots_for_team()` preserved the focused slot aggregate but regressed `PerfSlotTeamAssignment.tscn` to `317ms`, so source was reverted.
+- Cleanup validation stayed signature-stable and error-free. `PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077` with totals `314ms`, `282ms`, then `325ms` after reverting the wrap experiment. `PerfSlotSolverBreakdown.tscn` kept aggregate `4738803460811644685`, total `471ms`.
+- Real movement stayed stable: `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`, with movement `312014us`, `630481us`, and `682823us`. Slot assignment remained dominant in 12v12 at `504896us` (`73.9%`).
+- Broad gates stayed clean through Godot MCP: `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6301`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9493ms`; and `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7779ms`.
+- Rejected after cleanup: replacing `_wrap_angle()` calls in the bounded slot-angle loops with a single subtract branch preserved signatures but regressed focused slot totals to `346ms` and `352ms`, so source was reverted. The remaining high-value work is still not exhausted, but it is concentrated in slot assignment and must continue to pass real movement gates, not only focused microbenchmarks.
 
 ## Current Hotspots
 

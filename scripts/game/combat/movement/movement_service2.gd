@@ -3,7 +3,6 @@ class_name MovementService2
 
 const MovementState := preload("res://scripts/game/combat/movement/movement_state.gd")
 const MovementTuning := preload("res://scripts/game/combat/movement/tuning.gd")
-const MovementMath := preload("res://scripts/game/combat/movement/math.gd")
 const ForcedMovement := preload("res://scripts/game/combat/movement/forced_movement.gd")
 const CollisionResolver := preload("res://scripts/game/combat/movement/collision_resolver.gd")
 const MovementBuffAdapter := preload("res://scripts/game/combat/movement/adapters/buff_adapter.gd")

@@ -27,21 +27,6 @@ static func _angle_to(from: Vector2, to: Vector2) -> float:
 		ang += TAU
 	return ang
 
-static func _circ_dist(a: float, b: float) -> float:
-	var d: float = abs(a - b)
-	if d > PI:
-		d = TAU - d
-	return d
-
-static func _slot_angles(count: int) -> Array[float]:
-	var out: Array[float] = []
-	if count <= 0:
-		return out
-	var step: float = TAU / float(count)
-	for i in range(count):
-		out.append(step * float(i))
-	return out
-
 static func _wrap_angle(a: float) -> float:
 	var r: float = fmod(a, TAU)
 	if r < 0.0:
@@ -60,73 +45,6 @@ static func _sort_pairs_by_angle(pairs: Array) -> void:
 			pairs[j + 1] = previous
 			j -= 1
 		pairs[j + 1] = current
-
-static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_slot_assignments: Dictionary, hysteresis_frames: int, incumbent_cost: float = 1e30) -> Dictionary:
-	var rows: int = pairs.size()
-	var cols: int = ring_angles.size()
-	var costs: Array = []
-	costs.resize(rows)
-	var unique_min_assignment: Array[int] = []
-	var used_min_cols: Array[bool] = []
-	unique_min_assignment.resize(rows)
-	used_min_cols.resize(cols)
-	used_min_cols.fill(false)
-	var unique_minima_usable: bool = true
-	var lower_bound: float = 0.0
-	for i in range(rows):
-		var row_cost: Array[float] = []
-		row_cost.resize(cols)
-		var entry: Array = pairs[i]
-		var prev_slot: int = -1
-		var prev_frames: int = 0
-		var frame_factor: float = 1.0
-		var prev_active: bool = false
-		if entry.size() >= 5:
-			prev_slot = int(entry[2])
-			frame_factor = float(entry[3])
-			prev_active = bool(entry[4])
-		else:
-			var idx: int = int(entry[0])
-			var prev_value: Variant = prev_slot_assignments.get(idx)
-			if prev_value is Dictionary:
-				var prev: Dictionary = prev_value
-				prev_slot = int(prev.get("slot", -1))
-				prev_frames = int(prev.get("frames", 0))
-			if hysteresis_frames > 0:
-				frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
-			prev_active = prev_frames > 0
-		var entry_angle: float = float(entry[1])
-		var row_min: float = 1e30
-		var row_min_col: int = -1
-		var row_min_ties: int = 0
-		for j in range(cols):
-			var base_cost: float = abs(entry_angle - ring_angles[j])
-			if base_cost > PI:
-				base_cost = TAU - base_cost
-			if prev_active and prev_slot == j:
-				base_cost = max(0.0, base_cost - HYST_STICKINESS * frame_factor)
-			elif prev_active and prev_slot != -1 and prev_slot != j:
-				base_cost += HYST_SWITCH_COST * frame_factor
-			row_cost[j] = base_cost
-			if base_cost < row_min:
-				row_min = base_cost
-				row_min_col = j
-				row_min_ties = 1
-			elif base_cost == row_min:
-				row_min_ties += 1
-		if unique_minima_usable:
-			if row_min_col < 0 or row_min_ties != 1 or used_min_cols[row_min_col]:
-				unique_minima_usable = false
-			else:
-				used_min_cols[row_min_col] = true
-				unique_min_assignment[i] = row_min_col
-		lower_bound += row_min
-		if lower_bound >= incumbent_cost:
-			return {"assignment": [], "cost": incumbent_cost}
-		costs[i] = row_cost
-	if unique_minima_usable:
-		return {"assignment": unique_min_assignment, "cost": lower_bound}
-	return _best_assignment(costs, incumbent_cost)
 
 static func _evaluate_precomputed_assignment(pairs: Array, ring_angles: Array[float], incumbent_cost: float = 1e30) -> Dictionary:
 	var rows: int = pairs.size()
