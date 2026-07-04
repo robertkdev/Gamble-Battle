@@ -17,6 +17,7 @@ static var _hungarian_scratch_by_size: Dictionary = {}
 var _ranges_world_scratch: Dictionary = {}
 var diagnostics_enabled: bool = false
 var _diag_slot_group_usec: Dictionary[String, int] = {}
+var _diag_slot_phase_usec: Dictionary[String, int] = {}
 
 func set_diagnostics_enabled(enabled: bool) -> void:
 	diagnostics_enabled = bool(enabled)
@@ -24,14 +25,20 @@ func set_diagnostics_enabled(enabled: bool) -> void:
 
 func reset_diagnostics() -> void:
 	_diag_slot_group_usec.clear()
+	_diag_slot_phase_usec.clear()
 
 func diagnostics_snapshot() -> Dictionary:
 	var slot_group_usec: Dictionary[String, int] = {}
 	for group_key in _diag_slot_group_usec.keys():
 		var group_time_key: String = String(group_key)
 		slot_group_usec[group_time_key] = int(_diag_slot_group_usec.get(group_time_key, 0))
+	var slot_phase_usec: Dictionary[String, int] = {}
+	for phase_key in _diag_slot_phase_usec.keys():
+		var phase_time_key: String = String(phase_key)
+		slot_phase_usec[phase_time_key] = int(_diag_slot_phase_usec.get(phase_time_key, 0))
 	return {
-		"slot_group_usec": slot_group_usec
+		"slot_group_usec": slot_group_usec,
+		"slot_phase_usec": slot_phase_usec
 	}
 
 func _diag_record_slot_group_usec(side: String, group_size: int, elapsed_usec: int) -> void:
@@ -40,6 +47,13 @@ func _diag_record_slot_group_usec(side: String, group_size: int, elapsed_usec: i
 	var combined_key: String = "combined_%d" % group_size
 	_diag_slot_group_usec[side_key] = int(_diag_slot_group_usec.get(side_key, 0)) + elapsed_safe
 	_diag_slot_group_usec[combined_key] = int(_diag_slot_group_usec.get(combined_key, 0)) + elapsed_safe
+
+func _diag_record_slot_phase_usec(side: String, group_size: int, phase: String, elapsed_usec: int) -> void:
+	var elapsed_safe: int = max(0, elapsed_usec)
+	var side_key: String = "%s_%d_%s" % [side, group_size, phase]
+	var combined_key: String = "combined_%d_%s" % [group_size, phase]
+	_diag_slot_phase_usec[side_key] = int(_diag_slot_phase_usec.get(side_key, 0)) + elapsed_safe
+	_diag_slot_phase_usec[combined_key] = int(_diag_slot_phase_usec.get(combined_key, 0)) + elapsed_safe
 
 # Computes per-attacker slot destinations around their chosen targets.
 # Five evenly spaced slots per target, order-preserving assignment to avoid
@@ -946,10 +960,12 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 
 # Variant used by the real movement frame loop. It avoids allocating one nested
 # Dictionary per slotted unit while preserving the legacy Dictionary API above.
-static func _assign_for_target_into_arrays(_team: String, _target_idx: int, target_pos: Vector2, attackers: Array, attacker_positions: Array[Vector2], attacker_ranges_world: Dictionary, tile_size: float, prev_slot_assignments: Dictionary, hysteresis_frames: int, out_positions: Array[Vector2], out_slot_indices: Array[int], out_los_arrive: Array[bool], out_slow_radii: Array[float], out_corridor_radii: Array[float], out_corridor_eps: Array[float]) -> void:
+func _assign_for_target_into_arrays(_team: String, _target_idx: int, target_pos: Vector2, attackers: Array, attacker_positions: Array[Vector2], attacker_ranges_world: Dictionary, tile_size: float, prev_slot_assignments: Dictionary, hysteresis_frames: int, out_positions: Array[Vector2], out_slot_indices: Array[int], out_los_arrive: Array[bool], out_slow_radii: Array[float], out_corridor_radii: Array[float], out_corridor_eps: Array[float]) -> void:
 	if attackers == null or attackers.size() == 0:
 		return
 
+	var diag_group_size: int = attackers.size()
+	var diag_phase_start: int = 0
 	var min_spacing_world: float = max(0.0, tile_size) * 0.7
 	if attackers.size() == 1:
 		var idx_single: int = int(attackers[0])
@@ -971,6 +987,8 @@ static func _assign_for_target_into_arrays(_team: String, _target_idx: int, targ
 		return
 
 	var pairs: Array = [] # [attacker_idx, angle, prev_slot, prev_factor, prev_active]
+	if diagnostics_enabled:
+		diag_phase_start = Time.get_ticks_usec()
 	for attacker_idx in attackers:
 		var attacker_index: int = int(attacker_idx)
 		var pos: Vector2 = attacker_positions[attacker_index]
@@ -987,6 +1005,8 @@ static func _assign_for_target_into_arrays(_team: String, _target_idx: int, targ
 			prev_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
 		pairs.append([attacker_index, ang, prev_slot, prev_factor, prev_frames > 0])
 	_sort_pairs_by_angle(pairs)
+	if diagnostics_enabled:
+		_diag_record_slot_phase_usec(_team, diag_group_size, "pairs", Time.get_ticks_usec() - diag_phase_start)
 
 	var count: int = pairs.size()
 	var step: float = TAU / float(count)
@@ -997,6 +1017,8 @@ static func _assign_for_target_into_arrays(_team: String, _target_idx: int, targ
 	var ring_angles: Array[float] = []
 	ring_angles.resize(count)
 
+	if diagnostics_enabled:
+		diag_phase_start = Time.get_ticks_usec()
 	for base_entry in pairs:
 		var base_dict: Array = base_entry
 		var base: float = float(base_dict[1])
@@ -1008,9 +1030,13 @@ static func _assign_for_target_into_arrays(_team: String, _target_idx: int, targ
 			best_cost = current_cost
 			best_assignment = assignment_eval.get("assignment", [])
 			best_base = base
+	if diagnostics_enabled:
+		_diag_record_slot_phase_usec(_team, diag_group_size, "rotate", Time.get_ticks_usec() - diag_phase_start)
 	if best_assignment.is_empty():
 		return
 
+	if diagnostics_enabled:
+		diag_phase_start = Time.get_ticks_usec()
 	var chord_factor: float = 2.0 * sin(PI / float(count))
 	var min_required_radius: float = 0.0
 	if chord_factor > 0.0:
@@ -1034,6 +1060,8 @@ static func _assign_for_target_into_arrays(_team: String, _target_idx: int, targ
 		out_slow_radii[attacker_index] = max(radius_world * 1.5, tile_size)
 		out_corridor_radii[attacker_index] = max(radius_world, tile_size)
 		out_corridor_eps[attacker_index] = max(tile_size * SINGLE_CORRIDOR_EPS_FACTOR, 1.0)
+	if diagnostics_enabled:
+		_diag_record_slot_phase_usec(_team, diag_group_size, "output", Time.get_ticks_usec() - diag_phase_start)
 
 # Public: compute slot world positions for all attackers of a team.
 func assign_slots_for_team(team: String,

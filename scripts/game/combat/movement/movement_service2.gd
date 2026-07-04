@@ -149,6 +149,13 @@ func diagnostics_snapshot() -> Dictionary:
 		for group_time_key in slot_group_usec_dictionary.keys():
 			var slot_group_time_key: String = String(group_time_key)
 			slot_group_usec[slot_group_time_key] = int(slot_group_usec_dictionary.get(slot_group_time_key, 0))
+	var slot_phase_usec: Dictionary[String, int] = {}
+	var slot_phase_usec_value: Variant = slot_diagnostics.get("slot_phase_usec", {})
+	if slot_phase_usec_value is Dictionary:
+		var slot_phase_usec_dictionary: Dictionary = slot_phase_usec_value
+		for phase_time_key in slot_phase_usec_dictionary.keys():
+			var slot_phase_time_key: String = String(phase_time_key)
+			slot_phase_usec[slot_phase_time_key] = int(slot_phase_usec_dictionary.get(slot_phase_time_key, 0))
 	return {
 		"frames": int(_diag_frames),
 		"total_usec": int(_diag_total_usec),
@@ -157,7 +164,8 @@ func diagnostics_snapshot() -> Dictionary:
 		"target_skips": int(_diag_target_skips),
 		"slot_group_sizes": slot_group_sizes,
 		"slot_side_usec": slot_side_usec,
-		"slot_group_usec": slot_group_usec
+		"slot_group_usec": slot_group_usec,
+		"slot_phase_usec": slot_phase_usec
 	}
 
 func ensure_capacity(player_count: int, enemy_count: int) -> void:
