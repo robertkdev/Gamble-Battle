@@ -984,6 +984,15 @@ No source optimization was retained from the direct answer follow-up. The answer
 - Clean expanded-benchmark run after reverting the source candidate preserved errors `[]` and aggregate signature `4367829170111879031`: `fast_5` median `497ms`, `dp_5` median `607ms`, both signature `6095637763049574696`.
 - Rejected 5-row specialized DP dispatcher: it preserved the count-5 signature and won one noisy pass (`fast_5=466ms` versus direct `dp_5=503ms`), but lost on repeat (`fast_5=574ms` versus direct `dp_5=518ms`). Source was reverted because the candidate was not a reliable focused win and is not the main 12v12 slot path.
 
+## Continuation - 2026-07-04 Movement Step Helper Benchmark
+
+No gameplay source optimization was retained from this pass. Fresh controls still show slot assignment as the largest 12v12 surface, but the 8v8 case also has a large combined player/enemy step and collision slice worth filtering with a focused benchmark before future movement-helper edits.
+
+- Fresh controls: `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, errors `[]`, total `179ms`; `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, errors `[]`, total `806ms`; `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, errors `[]`, total `268ms`; `PerfTargeting.tscn` signature `9036604269279486158`, errors `[]`, median `510ms`.
+- Fresh `PerfMovementPhases.tscn` control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `254336us`, `690939us`, and `889251us`. Phase slices were 6v6 slot `123122us` (`48.4%`), 8v8 slot `279947us` (`40.5%`) with player/enemy steps `136674us`/`108275us` and collision `73596us`, and 12v12 slot `675267us` (`75.9%`).
+- Added `tests/perf/PerfMovementStepHelpers.tscn` / `.gd` to isolate the non-slot step-helper cost. Clean rerun preserved errors `[]`, aggregate signature `4095235582607810427`: `slot_step_8v8` median `179ms`, signature `8517957193674428854`; `slot_step_12v12` median `189ms`, signature `9171504211272572178`; `in_band_8v8` median `75ms`, signature `2023130859922751419`.
+- Skipped repeating already documented rejected candidates: precomputed slow/corridor defaults, clamped `min_forward_dot` hoisting, squared in-band/bounded range comparisons, support-peel positive-index one-pass construction, and several slot DP/local shortcut families. Future step-helper work should first beat `PerfMovementStepHelpers.tscn`, then prove itself in `PerfMovementPhases.tscn` 8v8 and 12v12.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
