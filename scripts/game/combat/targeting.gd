@@ -36,10 +36,12 @@ static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team
 	var safe_tile_size: float = max(1.0, tile_size)
 	var inv_tile_size: float = 1.0 / safe_tile_size
 	var ally_peel_priorities: PackedFloat32Array = PackedFloat32Array()
+	var ally_peel_wounded_bonuses: PackedFloat32Array = PackedFloat32Array()
 	var ally_peel_indices: PackedInt32Array = PackedInt32Array()
 	if attacker_role == "support" and ((attacker_mask & APPROACH_PEEL) != 0 or (attacker_mask & APPROACH_LOCKDOWN) != 0):
 		ally_peel_priorities = _build_ally_peel_priorities(attacker, ally_team)
 		ally_peel_indices = _build_positive_priority_indices(ally_peel_priorities)
+		ally_peel_wounded_bonuses = _build_positive_priority_wounded_bonuses(ally_team, ally_peel_indices)
 	var best_idx: int = -1
 	var best_score: float = -INF
 	var current_score: float = -INF
@@ -57,6 +59,7 @@ static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team
 			ally_team,
 			ally_positions,
 			ally_peel_priorities,
+			ally_peel_wounded_bonuses,
 			ally_peel_indices,
 			enemy,
 			i,
@@ -78,7 +81,7 @@ static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team
 				return current_target
 	return best_idx
 
-static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, ally_peel_indices: PackedInt32Array, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float, inv_tile_size: float) -> float:
+static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, ally_peel_wounded_bonuses: PackedFloat32Array, ally_peel_indices: PackedInt32Array, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float, inv_tile_size: float) -> float:
 	var enemy_role: String = _role(enemy)
 	var enemy_is_carry: bool = enemy_role == "marksman" or enemy_role == "mage"
 	var dist_tiles: float = source_position.distance_to(enemy_position) * inv_tile_size
@@ -112,7 +115,7 @@ static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goa
 		"mage":
 			score += _score_mage(attacker_mask, enemy, enemy_is_carry, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
 		"support":
-			score += _score_support(attacker, attacker_mask, ally_team, ally_positions, ally_peel_priorities, ally_peel_indices, enemy, enemy_position, enemy_role, enemy_is_carry, dist_tiles, threat_norm, inv_tile_size)
+			score += _score_support(attacker, attacker_mask, ally_team, ally_positions, ally_peel_priorities, ally_peel_wounded_bonuses, ally_peel_indices, enemy, enemy_position, enemy_role, enemy_is_carry, dist_tiles, threat_norm, inv_tile_size)
 		_:
 			score += max(0.0, 5.0 - dist_tiles) * 0.25
 	return score
@@ -177,19 +180,19 @@ static func _score_mage(attacker_mask: int, enemy: Unit, enemy_is_carry: bool, e
 		score += clampf(float(enemy.attack_range) / 5.0, 0.0, 1.0)
 	return score
 
-static func _score_support(attacker: Unit, attacker_mask: int, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, ally_peel_indices: PackedInt32Array, enemy: Unit, enemy_position: Vector2, enemy_role: String, enemy_is_carry: bool, dist_tiles: float, threat_norm: float, inv_tile_size: float) -> float:
+static func _score_support(attacker: Unit, attacker_mask: int, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, ally_peel_wounded_bonuses: PackedFloat32Array, ally_peel_indices: PackedInt32Array, enemy: Unit, enemy_position: Vector2, enemy_role: String, enemy_is_carry: bool, dist_tiles: float, threat_norm: float, inv_tile_size: float) -> float:
 	var score: float = threat_norm * 0.75
 	if (attacker_mask & APPROACH_PEEL) != 0 or (attacker_mask & APPROACH_LOCKDOWN) != 0:
 		if enemy_role == "assassin" or enemy_role == "brawler":
 			score += 1.60
 		if enemy_is_carry:
 			score += 0.80
-		score += _ally_peel_pressure(attacker, ally_team, ally_positions, ally_peel_priorities, ally_peel_indices, enemy, enemy_position, inv_tile_size)
+		score += _ally_peel_pressure(attacker, ally_team, ally_positions, ally_peel_priorities, ally_peel_wounded_bonuses, ally_peel_indices, enemy, enemy_position, inv_tile_size)
 	if (attacker_mask & APPROACH_ENGAGE) != 0:
 		score += max(0.0, 6.0 - dist_tiles) * 0.25
 	return score
 
-static func _ally_peel_pressure(attacker: Unit, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, ally_peel_indices: PackedInt32Array, enemy: Unit, enemy_position: Vector2, inv_tile_size: float) -> float:
+static func _ally_peel_pressure(attacker: Unit, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, ally_peel_wounded_bonuses: PackedFloat32Array, ally_peel_indices: PackedInt32Array, enemy: Unit, enemy_position: Vector2, inv_tile_size: float) -> float:
 	if attacker == null or enemy == null:
 		return 0.0
 	var best_pressure: float = 0.0
@@ -213,20 +216,28 @@ static func _ally_peel_pressure(attacker: Unit, ally_team: Array[Unit], ally_pos
 		var priority: float = float(ally_peel_priorities[i]) if i < ally_peel_priorities.size() else _ally_peel_priority(attacker, ally)
 		if priority <= 0.0:
 			continue
-		var pressure: float = _ally_peel_pressure_for_ally(ally, ally_positions, i, enemy_position, inv_tile_size, priority)
+		var wounded_bonus: float = float(ally_peel_wounded_bonuses[packed_index]) if packed_index < ally_peel_wounded_bonuses.size() else _ally_wounded_bonus(ally)
+		var pressure: float = _ally_peel_pressure_for_ally_cached(ally_positions, i, enemy_position, inv_tile_size, priority, wounded_bonus)
 		if pressure > best_pressure:
 			best_pressure = pressure
 	return best_pressure * 2.40
 
 static func _ally_peel_pressure_for_ally(ally: Unit, ally_positions: Array[Vector2], ally_index: int, enemy_position: Vector2, inv_tile_size: float, priority: float) -> float:
+	return _ally_peel_pressure_for_ally_cached(ally_positions, ally_index, enemy_position, inv_tile_size, priority, _ally_wounded_bonus(ally))
+
+static func _ally_peel_pressure_for_ally_cached(ally_positions: Array[Vector2], ally_index: int, enemy_position: Vector2, inv_tile_size: float, priority: float, wounded_bonus: float) -> float:
 	var ally_position: Vector2 = _position_at(ally_positions, ally_index, enemy_position)
 	var dist_tiles: float = enemy_position.distance_to(ally_position) * inv_tile_size
 	var proximity: float = clampf((4.0 - dist_tiles) / 4.0, 0.0, 1.0)
 	if proximity <= 0.0:
 		return 0.0
-	var hp_pct: float = float(ally.hp) / max(1.0, float(ally.max_hp))
-	var wounded_bonus: float = clampf((0.75 - hp_pct) / 0.75, 0.0, 1.0) * 0.45
 	return (proximity + wounded_bonus) * priority
+
+static func _ally_wounded_bonus(ally: Unit) -> float:
+	if ally == null:
+		return 0.0
+	var hp_pct: float = float(ally.hp) / max(1.0, float(ally.max_hp))
+	return clampf((0.75 - hp_pct) / 0.75, 0.0, 1.0) * 0.45
 
 static func _build_ally_peel_priorities(attacker: Unit, ally_team: Array[Unit]) -> PackedFloat32Array:
 	var priorities: PackedFloat32Array = PackedFloat32Array()
@@ -238,6 +249,14 @@ static func _build_ally_peel_priorities(attacker: Unit, ally_team: Array[Unit]) 
 		else:
 			priorities[i] = _ally_peel_priority(attacker, ally)
 	return priorities
+
+static func _build_positive_priority_wounded_bonuses(ally_team: Array[Unit], ally_peel_indices: PackedInt32Array) -> PackedFloat32Array:
+	var bonuses: PackedFloat32Array = PackedFloat32Array()
+	bonuses.resize(ally_peel_indices.size())
+	for packed_index in range(ally_peel_indices.size()):
+		var ally_index: int = int(ally_peel_indices[packed_index])
+		bonuses[packed_index] = _ally_wounded_bonus(ally_team[ally_index]) if ally_index >= 0 and ally_index < ally_team.size() else 0.0
+	return bonuses
 
 static func _build_positive_priority_indices(priorities: PackedFloat32Array) -> PackedInt32Array:
 	var indices: PackedInt32Array = PackedInt32Array()

@@ -894,6 +894,17 @@ Rejected two source candidates after they preserved deterministic signatures but
 - Rejected Hungarian slack candidate: using the exact Hungarian minimum directly for reduced-cost slack instead of the summed dual lower-bound helper preserved focused signatures and improved `PerfSlotDpSearch.tscn` to `159ms`, `PerfSlotSolverBreakdown.tscn` to `395ms`, and `PerfSlotTeamAssignment.tscn` to `276ms`. It still failed repeated real movement because 12v12 regressed to `575837us` and `572205us` versus the fresh `548196us` control. Source was reverted; keep the current dual lower-bound calculation unless a future change proves the real 12v12 phase.
 - Takeaway: focused slot wins remain useful filters, but they are still insufficient for retention. The real `PerfMovementPhases.tscn` 12v12 case remains the decisive gate for slot-assignment changes.
 
+## Continuation - 2026-07-04 Support Peel Wounded Bonus Cache
+
+Accepted change: support targeting now caches wounded-bonus values only for positive-priority peel ally indices once per support pick. `_ally_peel_pressure()` reuses those values while scoring each enemy candidate, while the fallback helper path still computes the bonus on demand. This keeps the accepted two-pass priority/index setup and avoids the previously rejected one-pass setup merge.
+
+- Fresh `PerfTargeting.tscn` control preserved signature `9036604269279486158`, errors `[]`, median `434ms`.
+- First candidate version cached wounded bonuses for every ally. Focused targeting improved with medians `418ms` and `406ms`, but real movement stayed mixed and repeated 12v12 movement regressed to `556369us` then `579561us` versus the latest source-clean `548196us` control, so it was narrowed instead of retained.
+- Retained narrower candidate caches wounded bonuses only for the positive-priority peel indices. `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `408ms`.
+- Real movement signatures stayed stable. The first narrowed `PerfMovementPhases.tscn` sample was still mixed at `238507us`, `472903us`, and `562188us`, but the accepted repeat improved all three cases versus the latest source-clean movement control: `250215us`, `466492us`, and `535974us` for 6v6/8v8/12v12.
+- Target behavior and broad gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` PASS; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8454ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7058ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `335ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5867`.
+- This is a scoped targeting cleanup. It does not change the larger conclusion: 12v12 slot assignment remains the main open performance surface.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
