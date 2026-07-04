@@ -1,4 +1,4 @@
-extends "res://tests/visual/natural_bonko_multi_stage_main_flow_smoke.gd"
+extends "res://tests/visual/natural_bonko_two_stage_main_flow_smoke.gd"
 
 const REPRESENTATIVE_SMOKE_NAME: String = "NaturalRepresentativeMultiStageMainFlowSmoke"
 const REPRESENTATIVE_STARTERS: Array[String] = ["axiom", "brute", "cashmere", "repo", "sari", "bonko"]

@@ -89,9 +89,42 @@ func set_arena_bounds(bounds: Rect2) -> void:
 func _compute_mentor_pairs(player_pos: Array, enemy_pos: Array) -> void:
 	if _state == null:
 		return
-	# Trait-driven Mentor pairing via MentorLink
-	_state.player_pupil_map = MentorLink.compute_for_team(_state.player_team, player_pos)
-	_state.enemy_pupil_map = MentorLink.compute_for_team(_state.enemy_team, enemy_pos)
+	# Trait-driven Mentor pairing via MentorLink (fallback to deterministic index positions
+	# when arena coordinates are unavailable/misaligned to avoid silent pair breakage).
+	var player_positions: Array[Vector2] = _coerce_mentor_positions(_state.player_team, player_pos)
+	var enemy_positions: Array[Vector2] = _coerce_mentor_positions(_state.enemy_team, enemy_pos)
+	_state.player_pupil_map = MentorLink.compute_for_team(_state.player_team, player_positions)
+	_state.enemy_pupil_map = MentorLink.compute_for_team(_state.enemy_team, enemy_positions)
+
+func _coerce_mentor_positions(team: Array[Unit], raw_positions: Array) -> Array[Vector2]:
+	var count: int = team.size()
+	if raw_positions.size() != count:
+		return _default_index_positions(count)
+	for i in range(count):
+		if i >= raw_positions.size() or typeof(raw_positions[i]) != TYPE_VECTOR2:
+			return _default_index_positions(count)
+	var out: Array[Vector2] = []
+	out.resize(count)
+	for i in range(count):
+		out[i] = raw_positions[i]
+	if not _mentor_positions_are_distinct(out):
+		return _default_index_positions(count)
+	return out
+
+func _default_index_positions(count: int) -> Array[Vector2]:
+	var out: Array[Vector2] = []
+	for i: int in range(max(0, count)):
+		out.append(Vector2(float(i % 4), floor(float(i) / 4.0)))
+	return out
+
+func _mentor_positions_are_distinct(positions: Array[Vector2]) -> bool:
+	if positions.size() <= 1:
+		return true
+	for i: int in range(positions.size()):
+		for j: int in range(i + 1, positions.size()):
+			if (positions[i] - positions[j]).length_squared() <= 0.000001:
+				return false
+	return true
 
 # Allow UI to pre-provide arena config before engine exists
 func cache_arena_config(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
@@ -407,6 +440,8 @@ func start_stage() -> void:
 		_pending_tile_size = -1.0
 		_pending_player_pos = []
 		_pending_enemy_pos = []
+	else:
+		_compute_mentor_pairs(_engine.get_player_positions_copy(), _engine.get_enemy_positions_copy())
 	Trace.step("CM.start_stage: wire engine signals")
 	_wire_engine_signals()
 	# Create trait runtime after engine is configured (ability/buff systems ready)
@@ -485,6 +520,8 @@ func start_custom_battle(player_ids: Array[String], enemy_ids: Array[String], op
 		_pending_tile_size = -1.0
 		_pending_player_pos = []
 		_pending_enemy_pos = []
+	else:
+		_compute_mentor_pairs(_engine.get_player_positions_copy(), _engine.get_enemy_positions_copy())
 	_wire_engine_signals()
 	_trait_runtime = TraitRuntimeLib.new()
 	_trait_runtime.configure(_engine, _state, _engine.buff_system, _engine.ability_system)

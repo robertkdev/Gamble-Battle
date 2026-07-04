@@ -1,4 +1,4 @@
-extends "res://tests/visual/natural_bonko_multi_stage_main_flow_smoke.gd"
+extends "res://tests/visual/natural_bonko_two_stage_main_flow_smoke.gd"
 
 @export var campaign_smoke_name: String = "NaturalSingleCampaignMainFlowSmoke"
 @export var campaign_starter_id: String = "bonko"

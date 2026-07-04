@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/visual/natural_single_campaign_main_flow_smoke.gd" id="1"]
+
+[node name="NaturalAxiomCampaignQuietSmoke" type="Node"]
+script = ExtResource("1")
+campaign_smoke_name = "NaturalAxiomCampaignQuietSmoke"
+campaign_starter_id = "axiom"
+campaign_shop_seed = 4101
+campaign_target_chapter = 6
+campaign_target_round = 1
+campaign_max_battles = 44
+campaign_round_timeout = 240.0
+campaign_verbose_round_logs = false

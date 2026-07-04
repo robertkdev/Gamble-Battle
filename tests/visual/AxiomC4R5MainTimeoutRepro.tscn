@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/visual/axiom_c4r5_main_timeout_repro.gd" id="1"]
+
+[node name="AxiomC4R5MainTimeoutRepro" type="Node"]
+script = ExtResource("1")

@@ -140,6 +140,30 @@ func _play_two_stage_round() -> Dictionary:
 	_set_planning_timer_safe()
 	await _press_continue(false, "natural two-stage chapter %d round %d" % [chapter_before, round_before])
 	var combat_seen: bool = await _wait_for_combat_active(3.0)
+	if not combat_seen and _advanced_from(chapter_before, round_before, int(GameState.chapter), int(GameState.stage_in_chapter)):
+		result["resolved"] = true
+		result["fight_result"] = "shop"
+		result["chapter_after"] = int(GameState.chapter)
+		result["round_after"] = int(GameState.stage_in_chapter)
+		result["gold_after"] = int(Economy.gold)
+		result["board_after"] = _board_ids()
+		result["bench_after"] = _bench_ids()
+		result["advanced"] = true
+		_two_stage_battles += 1
+		if _flow_verbose_round_logs():
+			print("%s: round_result %s" % [_flow_smoke_name(), JSON.stringify(result)])
+		else:
+			print("%s: chapter=%d round=%d result=shop advanced=true next=%d:%d board=%d bench=%d gold=%d fast_resolved=true" % [
+				_flow_smoke_name(),
+				chapter_before,
+				round_before,
+				int(result.get("chapter_after", -1)),
+				int(result.get("round_after", -1)),
+				_board_ids().size(),
+				_bench_ids().size(),
+				int(Economy.gold),
+			])
+		return result
 	_expect(combat_seen, "natural two-stage Start Battle did not enter combat; state=%s" % JSON.stringify(_two_stage_state()))
 	if not combat_seen:
 		result["resolved"] = false

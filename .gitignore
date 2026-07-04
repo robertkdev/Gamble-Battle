@@ -22,6 +22,8 @@ Godot/app_userdata/
 /outputs/
 /artifacts/
 *.tmp
+__pycache__/
+*.py[cod]
 
 # OS junk
 .DS_Store

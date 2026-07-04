@@ -1,4 +1,4 @@
-extends "res://tests/visual/natural_bonko_multi_stage_main_flow_smoke.gd"
+extends "res://tests/visual/natural_bonko_two_stage_main_flow_smoke.gd"
 
 const REPO_CHAPTER_FOUR_SMOKE_NAME: String = "NaturalRepoChapterFourMainFlowSmoke"
 const REPO_CHAPTER_FOUR_STARTER_ID: String = "repo"

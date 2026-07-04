@@ -46,6 +46,19 @@ The important correction from the last Vellum loop is that more detail is not th
 
 The 2026-06-30 style-drift audit added the opposite guardrail: less shine is not the same as less detail. Do not simplify the unit into smooth low-detail shapes just to remove gloss. The target is high-detail dry gothic illustration: Vellum and Paisley have layered fabric, parchment, dry edge wear, small occult material details, and hand-painted surface breakup without looking wet. Future candidates must match that richness, not only the darker palette.
 
+## World Lore And Psychology Gate
+
+The 2026-07-01 lore update added a second veto gate beside Vellum's material/detail veto. The game uses units from an evil folklore world; the world does not know about the game. It is a place of endless suffering, famine, tragedy, occult bargains, demons, corruption, and collapsed sacred order. There is no good magic; every supernatural mark has a price.
+
+Every unit candidate must show a survival psychology, not just a costume or palette:
+
+- Faces, eyes, posture, body damage, material wear, and markings should show what it takes to survive this world.
+- Occult marks should feel like price, corruption, compulsion, bargain, habit, or scar tissue, not clean fantasy decoration.
+- Clean heroism, untouched bodies, shiny power eyes, pretty good magic, and ordinary fantasy skins are style failures even if the material is matte.
+- Preserve source identity and board readability while making the unit feel marked by the same tragic world as Vellum, Paisley, and Creep.
+
+Use `docs/art/unit_art_lore_style_gate_2026-07-01.md` as the current lore prompt block. Totem v26 is the first useful test: `outputs/art_pipeline/style_validation/totem_lore_alignment_2026_07_01/totem_lore_alignment_v26_raw_candidate.png`. It is not accepted or live, but it shows that adding survival psychology can fix the old clean-tree / shiny-blue-eye Totem problem better than material-only prompting.
+
 ## Hard Matte Gothic Gate
 
 The Grint tank/weapon proof exposed a stricter failure mode: a raw can preserve the unit identity but still fail because it drifts into clean fantasy/cartoon rendering. This is a style failure even when the cutout works.

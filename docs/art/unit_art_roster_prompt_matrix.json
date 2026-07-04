@@ -76,10 +76,10 @@
       "traits": ["Arcanist", "Mogul"],
       "source_image": "assets/units/cashmere.png",
       "coverage_group": ["humanoid_mage", "small_narrow"],
-      "visual_identity": "pale bald suited mogul/arcanist, long black coat, formal occult businessman silhouette",
-      "preserve": ["pale bald head", "black suit and long coat", "upright mogul posture", "occult businessman read"],
-      "avoid_drift": ["generic vampire", "superhero", "anime butler", "shiny tuxedo"],
-      "prompt_addendum": "Preserve Cashmere as a pale occult mogul in a matte black suit and long coat, formal and severe, with dry cloth rather than glossy tuxedo shine."
+      "visual_identity": "pale platinum-blond formal occult businesswoman/arcanist, glasses, black suit, white shirt, black tie, long black coat, severe mogul posture",
+      "preserve": ["pale platinum-blond bob", "glasses", "black suit and long coat", "white shirt and black tie", "upright mogul posture", "formal occult businesswoman read"],
+      "avoid_drift": ["bald head", "generic vampire", "superhero", "anime butler", "shiny tuxedo", "gender change", "plastic salon hair"],
+      "prompt_addendum": "Preserve Cashmere from the live source as a pale platinum-blond occult businesswoman in glasses, a matte black suit, white shirt, black tie, and long coat, formal and severe, with dry cloth rather than glossy tuxedo shine."
     },
     {
       "id": "grint",
