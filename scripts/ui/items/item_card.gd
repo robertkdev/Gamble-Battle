@@ -8,10 +8,12 @@ const ItemTooltipScene := preload("res://scenes/ui/items/ItemTooltip.tscn")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const HOVER_DELAY: float = 0.10
+const TOOLTIP_GROUP: String = "gothic_hover_tooltip"
 
 var icon: TextureRect
 var count_label: Label
 var background: Panel
+var frame: Panel
 var patina: ColorRect
 
 var slot_index: int = -1
@@ -31,6 +33,7 @@ func _ready() -> void:
 	drag_size = Vector2(48, 48)
 	# Ensure the card occupies space in containers (e.g., GridContainer)
 	custom_minimum_size = Vector2(48, 48)
+	clip_contents = true
 	mouse_default_cursor_shape = Control.CURSOR_ARROW
 	pivot_offset = custom_minimum_size * 0.5
 	allowed_phases = [GameState.GamePhase.PREVIEW, GameState.GamePhase.COMBAT, GameState.GamePhase.POST_COMBAT]
@@ -94,11 +97,22 @@ func _ensure_children() -> void:
 		patina.visible = false
 		patina.color = Color(0.060, 0.026, 0.018, 0.30)
 		add_child(patina)
+	if frame == null:
+		frame = Panel.new()
+		frame.name = "Frame"
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+		frame.offset_left = 0.0
+		frame.offset_top = 0.0
+		frame.offset_right = 0.0
+		frame.offset_bottom = 0.0
+		frame.z_index = 3
+		add_child(frame)
 	if count_label == null:
 		count_label = Label.new()
 		count_label.name = "Count"
 		add_child(count_label)
-		count_label.z_index = 3
+		count_label.z_index = 4
 		count_label.anchor_left = 1.0
 		count_label.anchor_top = 1.0
 		count_label.anchor_right = 1.0
@@ -179,12 +193,23 @@ func _apply_card_style(filled: bool) -> void:
 	style.shadow_size = 12 if _hovered else 5
 	style.shadow_color = Color(0.62, 0.19, 0.060, 0.36) if _hovered else Color(0.0, 0.0, 0.0, 0.40)
 	if background != null:
-		background.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.item_slot_style(modulate), style))
+		background.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.item_icon_frame_style(modulate), style))
 	if icon != null:
-		icon.modulate = Color(1.0, 0.88, 0.66, 1.0) if hover_filled else Color(0.90, 0.78, 0.62, 0.98) if filled else Color(1.0, 1.0, 1.0, 0.0)
+		icon.offset_left = 8.0 if filled else 6.0
+		icon.offset_top = 8.0 if filled else 6.0
+		icon.offset_right = -8.0 if filled else -6.0
+		icon.offset_bottom = -8.0 if filled else -6.0
+		icon.modulate = Color(0.95, 0.82, 0.60, 0.98) if hover_filled else Color(0.76, 0.66, 0.52, 0.90) if filled else Color(1.0, 1.0, 1.0, 0.0)
 	if patina != null:
 		patina.visible = filled
-		patina.color = Color(0.12, 0.04, 0.024, 0.20) if hover_filled else Color(0.060, 0.026, 0.018, 0.30)
+		patina.offset_left = 7.0
+		patina.offset_top = 7.0
+		patina.offset_right = -7.0
+		patina.offset_bottom = -7.0
+		patina.color = Color(0.10, 0.036, 0.022, 0.28) if hover_filled else Color(0.030, 0.020, 0.018, 0.42)
+	if frame != null:
+		frame.visible = true
+		frame.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.item_icon_frame_style(Color(0.98, 0.88, 0.70, 0.92) if filled else Color(0.58, 0.54, 0.50, 0.72)), style))
 	if count_label != null:
 		count_label.modulate = Color(1.0, 0.84, 0.42, 1.0) if _hovered else Color(0.96, 0.74, 0.38, 0.98)
 
@@ -225,10 +250,12 @@ func _on_ended_drag() -> void:
 
 func _show_tooltip() -> void:
 	_clear_tooltip()
+	_clear_global_tooltips()
 	var tooltip: Control = ItemTooltipScene.instantiate() as Control
 	if tooltip == null:
 		return
 	tooltip.top_level = true
+	tooltip.add_to_group(TOOLTIP_GROUP)
 	get_tree().root.add_child(tooltip)
 	if tooltip.has_method("set_item_id"):
 		tooltip.call("set_item_id", item_id)
@@ -242,6 +269,14 @@ func _clear_tooltip() -> void:
 	if _tooltip != null and is_instance_valid(_tooltip):
 		_tooltip.queue_free()
 	_tooltip = null
+
+func _clear_global_tooltips() -> void:
+	if get_tree() == null:
+		return
+	var nodes: Array[Node] = get_tree().get_nodes_in_group(TOOLTIP_GROUP)
+	for node: Node in nodes:
+		if node != null and node != _tooltip and is_instance_valid(node):
+			node.queue_free()
 
 func _apply_hover_motion(active: bool, filled: bool) -> void:
 	if _hover_tween != null and is_instance_valid(_hover_tween):

@@ -25,7 +25,7 @@ func configure(grid: GridContainer, slot_count: int = ShopConfig.SLOT_COUNT) -> 
     _slot_count = max(1, int(slot_count))
     if _grid and _grid.has_method("set"):
         _grid.columns = _slot_count
-        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, 790.0), 138.0)
+        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, 790.0), 124.0)
 
 func get_host_container() -> Container:
     return _host_container
@@ -137,7 +137,7 @@ func _make_sold() -> Control:
 func _make_placeholder(sold: bool) -> Control:
     var first_fight_placeholder: bool = _single_empty_state and not sold
     var wrap: PanelContainer = PanelContainer.new()
-    wrap.custom_minimum_size = Vector2(790.0, 138.0) if first_fight_placeholder else Vector2(150.0, 138.0)
+    wrap.custom_minimum_size = Vector2(790.0, 124.0) if first_fight_placeholder else Vector2(144.0, 124.0)
     wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder or sold else Control.MOUSE_FILTER_IGNORE
     if first_fight_placeholder:
         wrap.tooltip_text = OPENING_FIGHT_MESSAGE
@@ -151,16 +151,16 @@ func _make_placeholder(sold: bool) -> Control:
 
     var stack: VBoxContainer = VBoxContainer.new()
     stack.alignment = BoxContainer.ALIGNMENT_CENTER
-    stack.add_theme_constant_override("separation", 8 if first_fight_placeholder else 5)
+    stack.add_theme_constant_override("separation", 5 if first_fight_placeholder else 4)
     stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_child(stack)
 
     var icon: TextureRect = TextureRect.new()
     icon.texture = EmptySigilTexture
-    icon.custom_minimum_size = Vector2(62.0, 62.0) if first_fight_placeholder else Vector2(50.0, 50.0)
+    icon.custom_minimum_size = Vector2(52.0, 52.0) if first_fight_placeholder else Vector2(44.0, 44.0)
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-    icon.modulate = Color(0.95, 0.68, 0.36, 0.52) if first_fight_placeholder else (Color(0.82, 0.58, 0.34, 0.30) if not sold else Color(0.82, 0.14, 0.14, 0.34))
+    icon.modulate = Color(0.95, 0.68, 0.36, 0.46) if first_fight_placeholder else (Color(0.72, 0.58, 0.42, 0.26) if not sold else Color(0.62, 0.38, 0.32, 0.30))
     icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
     stack.add_child(icon)
 
@@ -168,7 +168,7 @@ func _make_placeholder(sold: bool) -> Control:
     label.text = "SOLD" if sold else _empty_label_text
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
     label.add_theme_font_size_override("font_size", 16 if first_fight_placeholder else 11)
-    label.add_theme_color_override("font_color", Color(0.95, 0.73, 0.40, 0.98) if first_fight_placeholder else (Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.74, 0.48, 0.44, 0.88)))
+    label.add_theme_color_override("font_color", Color(0.95, 0.73, 0.40, 0.98) if first_fight_placeholder else (Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.68, 0.52, 0.46, 0.88)))
     label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.80))
     label.add_theme_constant_override("outline_size", 2 if first_fight_placeholder else 1)
     label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -182,7 +182,7 @@ func _make_placeholder(sold: bool) -> Control:
         hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         hint.custom_minimum_size = Vector2(360.0, 0.0) if first_fight_placeholder else Vector2(126.0, 0.0)
         hint.add_theme_font_size_override("font_size", 13 if first_fight_placeholder else 10)
-        hint.add_theme_color_override("font_color", Color(0.84, 0.76, 0.62, 0.96) if first_fight_placeholder else (Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.58, 0.38, 0.36, 0.86)))
+        hint.add_theme_color_override("font_color", Color(0.84, 0.76, 0.62, 0.96) if first_fight_placeholder else (Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.54, 0.43, 0.40, 0.86)))
         hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
         hint.add_theme_constant_override("outline_size", 2 if first_fight_placeholder else 1)
         hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -205,15 +205,15 @@ func _make_placeholder_style(sold: bool) -> StyleBox:
     var first_fight_placeholder: bool = _single_empty_state and not sold
     var modulate: Color = Color(0.62, 0.60, 0.58, 0.78)
     style.bg_color = Color(0.030, 0.026, 0.034, 0.88)
-    style.border_color = Color(0.34, 0.29, 0.28, 0.86)
+    style.border_color = Color(0.34, 0.29, 0.28, 0.72)
     if first_fight_placeholder:
         style.bg_color = Color(0.060, 0.041, 0.036, 0.94)
         style.border_color = Color(0.76, 0.45, 0.20, 0.92)
         modulate = Color(1.08, 0.96, 0.78, 0.96)
     if sold:
-        style.bg_color = Color(0.062, 0.026, 0.034, 0.90)
-        style.border_color = Color(0.48, 0.090, 0.090, 0.86)
-        modulate = Color(0.78, 0.56, 0.56, 0.82)
+        style.bg_color = Color(0.042, 0.030, 0.034, 0.82)
+        style.border_color = Color(0.34, 0.24, 0.22, 0.72)
+        modulate = Color(0.62, 0.56, 0.50, 0.74)
     style.border_width_left = 2 if first_fight_placeholder else 1
     style.border_width_top = 2 if first_fight_placeholder else 1
     style.border_width_right = 2 if first_fight_placeholder else 1

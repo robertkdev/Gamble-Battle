@@ -18,6 +18,7 @@ const COLOR_ICON_ACTIVE: Color = Color(1.0, 0.86, 0.58, 1.0)
 const COLOR_ICON_INACTIVE: Color = Color(0.62, 0.56, 0.50, 0.82)
 const COLOR_ICON_HOVER: Color = Color(1.0, 0.91, 0.70, 1.0)
 const HOVER_DELAY: float = 0.08
+const TOOLTIP_GROUP: String = "gothic_hover_tooltip"
 
 @onready var _icon: TextureRect = $Texture
 
@@ -104,10 +105,12 @@ func _on_mouse_entered() -> void:
 
 func _show_tooltip() -> void:
 	_clear_tooltip()
+	_clear_global_tooltips()
 	var tooltip: Control = TraitTooltipScene.instantiate() as Control
 	if tooltip == null:
 		return
 	tooltip.top_level = true
+	tooltip.add_to_group(TOOLTIP_GROUP)
 	var root: Window = get_tree().root
 	if root:
 		root.add_child(tooltip)
@@ -142,6 +145,14 @@ func _clear_tooltip() -> void:
 	if _tooltip and is_instance_valid(_tooltip):
 		_tooltip.queue_free()
 	_tooltip = null
+
+func _clear_global_tooltips() -> void:
+	if get_tree() == null:
+		return
+	var nodes: Array[Node] = get_tree().get_nodes_in_group(TOOLTIP_GROUP)
+	for node: Node in nodes:
+		if node != null and node != _tooltip and is_instance_valid(node):
+			node.queue_free()
 
 func _apply_hover_motion(active: bool) -> void:
 	if _hover_tween != null and is_instance_valid(_hover_tween):

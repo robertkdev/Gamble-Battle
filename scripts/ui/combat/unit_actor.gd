@@ -4,6 +4,7 @@ class_name UnitActor
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const UnitEffectPlayer := preload("res://scripts/ui/vfx/unit_effect_player.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 var unit: Unit
 var focus_plate: Panel
@@ -104,10 +105,10 @@ func _ensure_focus_plate() -> void:
 	focus_plate.anchor_top = 0.0
 	focus_plate.anchor_right = 1.0
 	focus_plate.anchor_bottom = 1.0
-	focus_plate.offset_left = -9.0
-	focus_plate.offset_top = -9.0
-	focus_plate.offset_right = 9.0
-	focus_plate.offset_bottom = 9.0
+	focus_plate.offset_left = -14.0
+	focus_plate.offset_top = -8.0
+	focus_plate.offset_right = 14.0
+	focus_plate.offset_bottom = 14.0
 	add_child(focus_plate)
 	_apply_focus_plate_style()
 
@@ -115,19 +116,21 @@ func _apply_focus_plate_style() -> void:
 	if focus_plate == null:
 		return
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, min(_team_tint.a, 0.46))
-	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.96)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	style.shadow_size = 14
-	style.shadow_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.30)
-	focus_plate.add_theme_stylebox_override("panel", style)
+	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, min(_team_tint.a, 0.080))
+	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.48)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 18
+	style.corner_radius_top_right = 18
+	style.corner_radius_bottom_right = 18
+	style.corner_radius_bottom_left = 18
+	style.shadow_size = 10
+	style.shadow_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.14)
+	var is_player: bool = _team_tint.b >= _team_tint.r
+	var asset: StyleBoxTexture = GothicUIAssets.unit_base_style(is_player, Color(0.94, 0.88, 0.72, 0.88))
+	focus_plate.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(asset, style))
 
 func _ensure_sprite() -> void:
 	if sprite and is_instance_valid(sprite):
@@ -158,9 +161,9 @@ func _ensure_bars() -> void:
 		hp_bar.anchor_right = 1.0
 		hp_bar.anchor_bottom = 0.0
 		hp_bar.offset_left = 0.0
-		hp_bar.offset_top = -22.0
+		hp_bar.offset_top = -24.0
 		hp_bar.offset_right = 0.0
-		hp_bar.offset_bottom = -14.0
+		hp_bar.offset_bottom = -15.0
 		hp_bar.z_index = 8
 		# HP tick marks
 		if not (hp_ticks and is_instance_valid(hp_ticks)):
@@ -171,9 +174,9 @@ func _ensure_bars() -> void:
 			hp_ticks.anchor_right = 1.0
 			hp_ticks.anchor_bottom = 0.0
 			hp_ticks.offset_left = 0.0
-			hp_ticks.offset_top = -22.0
+			hp_ticks.offset_top = -24.0
 			hp_ticks.offset_right = 0.0
-			hp_ticks.offset_bottom = -14.0
+			hp_ticks.offset_bottom = -15.0
 			hp_ticks.z_index = 9
 			hp_ticks.minor_step = 200
 			hp_ticks.major_step = 1000
@@ -187,9 +190,9 @@ func _ensure_bars() -> void:
 		mana_bar.anchor_right = 1.0
 		mana_bar.anchor_bottom = 0.0
 		mana_bar.offset_left = 0.0
-		mana_bar.offset_top = -12.0
+		mana_bar.offset_top = -14.0
 		mana_bar.offset_right = 0.0
-		mana_bar.offset_bottom = -6.0
+		mana_bar.offset_bottom = -8.0
 		mana_bar.z_index = 8
 		# Mana tick marks
 		if not (mana_ticks and is_instance_valid(mana_ticks)):
@@ -200,9 +203,9 @@ func _ensure_bars() -> void:
 			mana_ticks.anchor_right = 1.0
 			mana_ticks.anchor_bottom = 0.0
 			mana_ticks.offset_left = 0.0
-			mana_ticks.offset_top = -12.0
+			mana_ticks.offset_top = -14.0
 			mana_ticks.offset_right = 0.0
-			mana_ticks.offset_bottom = -6.0
+			mana_ticks.offset_bottom = -8.0
 			mana_ticks.z_index = 9
 			mana_ticks.minor_step = 10
 			mana_ticks.major_step = 50

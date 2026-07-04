@@ -48,12 +48,14 @@ func _run() -> void:
 		return
 	_save_capture("01_planning_grid_bars_hidden_items_traits.png")
 	_show_item_tooltip()
-	_show_trait_tooltip()
-	await _settle(0.35)
+	await _settle(0.18)
 	if not _tooltip_uses_generated_frame("CaptureItemTooltip"):
 		push_error("BarItemsTraitsCapture: item tooltip should use the generated panel asset")
 		get_tree().quit(1)
 		return
+	_clear_tooltips()
+	_show_trait_tooltip()
+	await _settle(0.25)
 	if not _tooltip_uses_generated_frame("CaptureTraitTooltip"):
 		push_error("BarItemsTraitsCapture: trait tooltip should use the generated panel asset")
 		get_tree().quit(1)

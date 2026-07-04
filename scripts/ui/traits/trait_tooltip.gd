@@ -11,10 +11,12 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 @onready var _vbox: VBoxContainer = $VBox
 var _threshold_row: HBoxContainer = null
 
-const TOOLTIP_WIDTH: float = 336.0
+const TOOLTIP_WIDTH: float = 360.0
 const PADDING: float = 12.0
 const EDGE_PADDING: float = 12.0
 const BOTTOM_UI_RESERVE: float = 236.0
+const LEFT_PANEL_RESERVE: float = 340.0
+const TOOLTIP_GROUP: String = "gothic_hover_tooltip"
 const CURSOR_OFFSET: Vector2 = Vector2(18.0, -14.0)
 const COLOR_PANEL: Color = Color(0.024, 0.020, 0.030, 0.985)
 const COLOR_BORDER: Color = Color(0.64, 0.42, 0.22, 0.94)
@@ -22,7 +24,7 @@ const COLOR_BORDER_ACTIVE: Color = Color(0.95, 0.69, 0.31, 1.0)
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
 const COLOR_MUTED: Color = Color(0.68, 0.61, 0.53, 1.0)
 const COLOR_GOLD: Color = Color(0.94, 0.70, 0.36, 1.0)
-const COLOR_BLOOD: Color = Color(0.80, 0.085, 0.12, 1.0)
+const COLOR_BLOOD: Color = Color(0.82, 0.36, 0.24, 1.0)
 const COLOR_GREEN: Color = Color(0.50, 0.72, 0.58, 1.0)
 
 var trait_id: String = ""
@@ -35,6 +37,7 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	z_index = 900
+	add_to_group(TOOLTIP_GROUP)
 	custom_minimum_size.x = TOOLTIP_WIDTH
 	_ensure_threshold_row()
 	_apply_style()
@@ -68,7 +71,7 @@ func _apply_style() -> void:
 		_name_label.add_theme_constant_override("outline_size", 1)
 	if _state_label != null:
 		_state_label.add_theme_font_size_override("font_size", 12)
-		_state_label.add_theme_color_override("font_color", COLOR_GREEN if is_active else COLOR_BLOOD)
+		_state_label.add_theme_color_override("font_color", COLOR_GREEN if is_active else COLOR_MUTED)
 	if _threshold_label != null:
 		_threshold_label.visible = false
 		_threshold_label.add_theme_color_override("font_color", COLOR_MUTED)
@@ -186,7 +189,7 @@ func _ensure_threshold_row() -> void:
 	_threshold_row = HBoxContainer.new()
 	_threshold_row.name = "ThresholdRow"
 	_threshold_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_threshold_row.add_theme_constant_override("separation", 6)
+	_threshold_row.add_theme_constant_override("separation", 8)
 	var insert_index: int = _vbox.get_child_count()
 	if _threshold_label != null:
 		insert_index = _threshold_label.get_index() + 1
@@ -212,7 +215,7 @@ func _update_threshold_row(def: TraitDef) -> void:
 		chip.text = str(value)
 		chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		chip.custom_minimum_size = Vector2(46.0, 28.0)
+		chip.custom_minimum_size = Vector2(52.0, 28.0)
 		chip.add_theme_font_size_override("font_size", 14)
 		chip.add_theme_color_override("font_color", Color(1.0, 0.98, 0.82, 1.0) if active_chip else (COLOR_TEXT if reached else COLOR_MUTED))
 		chip.add_theme_stylebox_override("normal", _make_threshold_chip_style(active_chip, reached))
@@ -230,8 +233,8 @@ func _threshold_values(def: TraitDef) -> Array[int]:
 func _make_threshold_chip_style(active_chip: bool, reached: bool) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	if active_chip:
-		style.bg_color = Color(0.52, 0.36, 0.12, 1.0)
-		style.border_color = Color(1.0, 0.86, 0.48, 1.0)
+		style.bg_color = Color(0.38, 0.27, 0.12, 1.0)
+		style.border_color = Color(0.94, 0.72, 0.38, 1.0)
 	elif reached:
 		style.bg_color = Color(0.18, 0.12, 0.070, 0.96)
 		style.border_color = Color(0.74, 0.50, 0.26, 0.92)
@@ -295,6 +298,8 @@ func _clamped_position(raw_position: Vector2) -> Vector2:
 		return raw_position
 	var viewport_size: Vector2 = viewport.get_visible_rect().size
 	var new_position: Vector2 = raw_position
+	if viewport_size.x >= 1200.0 and new_position.x < LEFT_PANEL_RESERVE:
+		new_position.x = LEFT_PANEL_RESERVE
 	if new_position.x + size.x + EDGE_PADDING > viewport_size.x:
 		new_position.x = raw_position.x - size.x - CURSOR_OFFSET.x * 1.5
 	var bottom_reserve: float = min(BOTTOM_UI_RESERVE, viewport_size.y * 0.30)

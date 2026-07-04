@@ -7,6 +7,7 @@ const G := preload("res://scripts/constants/gameplay_constants.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const Debug := preload("res://scripts/util/debug.gd")
 const BenchConstants := preload("res://scripts/constants/bench_constants.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const ArenaBridge := preload("res://scripts/ui/combat/arena_bridge.gd")
 const GridPlacement := preload("res://scripts/ui/combat/grid_placement.gd")
@@ -575,6 +576,7 @@ func _ensure_board_status_row() -> void:
 	var host: Control = player_grid.get_parent() as Control
 	if host == null:
 		return
+	_ensure_board_status_backplate(host)
 	var existing: HBoxContainer = host.get_node_or_null("BoardStatusRow") as HBoxContainer
 	if existing != null:
 		board_status_row = existing
@@ -582,16 +584,18 @@ func _ensure_board_status_row() -> void:
 		board_status_row = HBoxContainer.new()
 		board_status_row.name = "BoardStatusRow"
 		board_status_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		board_status_row.add_theme_constant_override("separation", 18)
+		board_status_row.add_theme_constant_override("separation", 10)
 		board_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		board_status_row.custom_minimum_size = Vector2(336.0, 32.0)
+		board_status_row.z_index = 24
 		board_status_row.anchor_left = 0.5
 		board_status_row.anchor_right = 0.5
 		board_status_row.anchor_top = 0.0
 		board_status_row.anchor_bottom = 0.0
-		board_status_row.offset_left = -210.0
-		board_status_row.offset_right = 210.0
-		board_status_row.offset_top = 4.0
-		board_status_row.offset_bottom = 32.0
+		board_status_row.offset_left = -180.0
+		board_status_row.offset_right = 180.0
+		board_status_row.offset_top = 2.0
+		board_status_row.offset_bottom = 34.0
 		host.add_child(board_status_row)
 	board_capacity_label = board_status_row.get_node_or_null("BoardCapacityLabel") as Label
 	if board_capacity_label == null:
@@ -603,13 +607,42 @@ func _ensure_board_status_row() -> void:
 		board_status_row.add_child(win_odds_label)
 	_update_board_status()
 
+func _ensure_board_status_backplate(host: Control) -> void:
+	var plate: Panel = host.get_node_or_null("BoardStatusBackplate") as Panel
+	if plate == null:
+		plate = Panel.new()
+		plate.name = "BoardStatusBackplate"
+		plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		plate.z_index = 23
+		plate.anchor_left = 0.5
+		plate.anchor_right = 0.5
+		plate.anchor_top = 0.0
+		plate.anchor_bottom = 0.0
+		plate.offset_left = -190.0
+		plate.offset_right = 190.0
+		plate.offset_top = -2.0
+		plate.offset_bottom = 40.0
+		host.add_child(plate)
+	var fallback: StyleBoxFlat = StyleBoxFlat.new()
+	fallback.bg_color = Color(0.034, 0.026, 0.028, 0.86)
+	fallback.border_color = Color(0.54, 0.35, 0.18, 0.72)
+	fallback.border_width_left = 1
+	fallback.border_width_top = 1
+	fallback.border_width_right = 1
+	fallback.border_width_bottom = 1
+	fallback.corner_radius_top_left = 6
+	fallback.corner_radius_top_right = 6
+	fallback.corner_radius_bottom_right = 6
+	fallback.corner_radius_bottom_left = 6
+	plate.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.status_strip_style(Color(0.92, 0.82, 0.66, 0.94)), fallback))
+
 func _make_board_status_label(node_name: String) -> Label:
 	var label: Label = Label.new()
 	label.name = node_name
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.custom_minimum_size = Vector2(150.0, 26.0)
-	label.add_theme_font_size_override("font_size", 17)
+	label.custom_minimum_size = Vector2(142.0, 30.0)
+	label.add_theme_font_size_override("font_size", 16)
 	label.add_theme_color_override("font_color", Color(0.94, 0.82, 0.58, 1.0))
 	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.75))
 	label.add_theme_constant_override("shadow_offset_x", 1)

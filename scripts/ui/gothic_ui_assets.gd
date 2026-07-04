@@ -16,6 +16,12 @@ const BATTLEFIELD_SURFACE_TOP: String = "res://assets/ui/gothic/battlefield_surf
 const BATTLEFIELD_SURFACE_BOTTOM: String = "res://assets/ui/gothic/battlefield_surface_bottom.png"
 const BOARD_TILE_PLAYER: String = "res://assets/ui/gothic/board_tile_player.png"
 const BOARD_TILE_ENEMY: String = "res://assets/ui/gothic/board_tile_enemy.png"
+const BENCH_SLOT_FRAME: String = "res://assets/ui/gothic/bench_slot_frame.png"
+const ITEM_ICON_FRAME: String = "res://assets/ui/gothic/item_icon_frame.png"
+const UNIT_BASE_PLAYER: String = "res://assets/ui/gothic/unit_base_player.png"
+const UNIT_BASE_ENEMY: String = "res://assets/ui/gothic/unit_base_enemy.png"
+const ARENA_FRAME: String = "res://assets/ui/gothic/arena_frame.png"
+const STATUS_STRIP: String = "res://assets/ui/gothic/status_strip.png"
 
 static func wide_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(PANEL_PLATE_WIDE, Vector4(42.0, 42.0, 42.0, 42.0), Vector4(22.0, 18.0, 22.0, 18.0), modulate)
@@ -41,6 +47,22 @@ static func primary_button_style(modulate: Color = Color.WHITE) -> StyleBoxTextu
 static func item_slot_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(BUTTON_SMALL, Vector4(10.0, 10.0, 10.0, 10.0), Vector4(3.0, 3.0, 3.0, 3.0), modulate)
 
+static func bench_slot_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(BENCH_SLOT_FRAME, Vector4(22.0, 22.0, 22.0, 22.0), Vector4(0.0, 0.0, 0.0, 0.0), modulate)
+
+static func item_icon_frame_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(ITEM_ICON_FRAME, Vector4(22.0, 22.0, 22.0, 22.0), Vector4(4.0, 4.0, 4.0, 4.0), modulate)
+
+static func unit_base_style(is_player: bool, modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	var path: String = UNIT_BASE_PLAYER if is_player else UNIT_BASE_ENEMY
+	return texture_style(path, Vector4(36.0, 24.0, 36.0, 24.0), Vector4(0.0, 0.0, 0.0, 0.0), modulate)
+
+static func arena_frame_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(ARENA_FRAME, Vector4(58.0, 58.0, 58.0, 58.0), Vector4(0.0, 0.0, 0.0, 0.0), modulate, false)
+
+static func status_strip_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
+	return texture_style(STATUS_STRIP, Vector4(54.0, 24.0, 54.0, 24.0), Vector4(16.0, 6.0, 16.0, 6.0), modulate)
+
 static func screen_backdrop_texture() -> Texture2D:
 	return TextureUtils.try_load_texture(SCREEN_BACKDROP)
 
@@ -57,7 +79,7 @@ static func board_tile_style(is_player: bool, modulate: Color = Color.WHITE) -> 
 	var path: String = BOARD_TILE_PLAYER if is_player else BOARD_TILE_ENEMY
 	return texture_style(path, Vector4(22.0, 22.0, 22.0, 22.0), Vector4(0.0, 0.0, 0.0, 0.0), modulate)
 
-static func texture_style(path: String, texture_margins: Vector4, content_margins: Vector4, modulate: Color = Color.WHITE) -> StyleBoxTexture:
+static func texture_style(path: String, texture_margins: Vector4, content_margins: Vector4, modulate: Color = Color.WHITE, draw_center: bool = true) -> StyleBoxTexture:
 	var texture: Texture2D = TextureUtils.try_load_texture(path)
 	if texture == null:
 		push_warning("Gothic UI asset missing: %s" % path)
@@ -72,7 +94,7 @@ static func texture_style(path: String, texture_margins: Vector4, content_margin
 	style.content_margin_top = content_margins.y
 	style.content_margin_right = content_margins.z
 	style.content_margin_bottom = content_margins.w
-	style.draw_center = true
+	style.draw_center = draw_center
 	style.modulate_color = modulate
 	return style
 
