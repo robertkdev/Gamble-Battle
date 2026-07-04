@@ -4,7 +4,6 @@ class_name CollisionResolver
 const Debug = preload("res://scripts/util/debug.gd")
 
 var _all_pos: Array[Vector2] = []
-var _all_alive: Array[bool] = []
 var _caps: Array[float] = []
 var _tag_is_player: Array[bool] = []
 var _tag_indices: Array[int] = []
@@ -34,27 +33,26 @@ func resolve(
     var enemy_count: int = enemy_positions.size()
     var total_count: int = player_count + enemy_count
     _all_pos.resize(total_count)
-    _all_alive.resize(total_count)
     _caps.resize(total_count)
     _tag_is_player.resize(total_count)
     _tag_indices.resize(total_count)
     _active_indices.clear()
     for i in range(player_count):
         _all_pos[i] = player_positions[i]
-        _all_alive[i] = (player_alive[i] if i < player_alive.size() else true)
+        var player_is_alive: bool = (player_alive[i] if i < player_alive.size() else true)
         _caps[i] = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
         _tag_is_player[i] = true
         _tag_indices[i] = i
-        if _all_alive[i]:
+        if player_is_alive:
             _active_indices.append(i)
     for j in range(enemy_count):
         var write_index: int = player_count + j
         _all_pos[write_index] = enemy_positions[j]
-        _all_alive[write_index] = (enemy_alive[j] if j < enemy_alive.size() else true)
+        var enemy_is_alive: bool = (enemy_alive[j] if j < enemy_alive.size() else true)
         _caps[write_index] = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
         _tag_is_player[write_index] = false
         _tag_indices[write_index] = j
-        if _all_alive[write_index]:
+        if enemy_is_alive:
             _active_indices.append(write_index)
 
     var min_dist: float = radius * 2.0
