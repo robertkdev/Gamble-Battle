@@ -20,6 +20,10 @@ const APPROACH_PEEL: int = 1 << 11
 const APPROACH_ENGAGE: int = 1 << 12
 const APPROACH_RAMP: int = 1 << 13
 
+static var _empty_peel_priorities: PackedFloat32Array = PackedFloat32Array()
+static var _empty_peel_wounded_bonuses: PackedFloat32Array = PackedFloat32Array()
+static var _empty_peel_indices: PackedInt32Array = PackedInt32Array()
+
 static func pick_first_alive(enemy_team: Array[Unit]) -> int:
 	for i in range(enemy_team.size()):
 		var u: Unit = enemy_team[i]
@@ -35,9 +39,9 @@ static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team
 	var attacker_mask: int = _approach_mask(attacker)
 	var safe_tile_size: float = max(1.0, tile_size)
 	var inv_tile_size: float = 1.0 / safe_tile_size
-	var ally_peel_priorities: PackedFloat32Array = PackedFloat32Array()
-	var ally_peel_wounded_bonuses: PackedFloat32Array = PackedFloat32Array()
-	var ally_peel_indices: PackedInt32Array = PackedInt32Array()
+	var ally_peel_priorities: PackedFloat32Array = _empty_peel_priorities
+	var ally_peel_wounded_bonuses: PackedFloat32Array = _empty_peel_wounded_bonuses
+	var ally_peel_indices: PackedInt32Array = _empty_peel_indices
 	if attacker_role == "support" and ((attacker_mask & APPROACH_PEEL) != 0 or (attacker_mask & APPROACH_LOCKDOWN) != 0):
 		var ally_peel_data: Dictionary = _build_positive_ally_peel_data(attacker, ally_team)
 		ally_peel_priorities = ally_peel_data.get("priorities", PackedFloat32Array())

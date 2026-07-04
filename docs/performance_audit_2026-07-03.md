@@ -1202,6 +1202,15 @@ No gameplay source optimization was retained. The direct answer to "is that all 
 - Secondary but not finished surfaces remain visible in smaller and longer fights: 8v8 measured `20.3%` player steps, `14.4%` enemy steps, and `10.9%` collision, while 6v6 measured `17.2%` player steps, `11.4%` enemy steps, and `10.2%` collision.
 - Takeaway: the audit is past easy edits, not past optimization. Future retained work should first target the tie-preserving large-team slot path, but step-loop and collision candidates should stay in the queue when a fresh profile shows them above noise.
 
+## Continuation - 2026-07-04 Reuse Empty Targeting Peel Arrays
+
+Accepted secondary-path source cleanup: `Targeting.pick_by_priority()` now reuses static empty packed arrays for non-peel calls instead of constructing three empty peel arrays for every target pick. Real support peel picks still replace those empties with freshly built positive-priority peel data, preserving target scores and signatures.
+
+- Fresh focused controls before the edit stayed clean: `PerfTargeting.tscn` signature `9036604269279486158`, median `450ms`; slot-focused controls also stayed clean with `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, and `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`.
+- Patched `PerfTargeting.tscn` preserved signature `9036604269279486158` and improved repeated medians to `423ms` and `422ms`.
+- Behavior and broader gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` PASS; `PerfMovementPhases.tscn` preserved 6v6/8v8/9v9/10v10/11v11/12v12 signatures with errors `[]`; `Perf6v6.tscn` aggregate `4480953857527108889:18`; `Perf1v1.tscn` signature `-6199507685307107293:55`; `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`; and `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`.
+- Latest movement phase evidence still points to slot assignment as the main unresolved surface: 10v10/11v11/12v12 slot slices were `69.8%`, `77.7%`, and `81.6%`. This targeting cleanup improves a monitored secondary path; it does not close the competitive optimization goal.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
