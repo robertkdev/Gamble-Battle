@@ -62,6 +62,8 @@ var _diag_frames: int = 0
 var _diag_total_usec: int = 0
 var _diag_target_calls: int = 0
 var _diag_target_skips: int = 0
+var _diag_slot_group_sizes: Dictionary[String, int] = {}
+var _diag_slot_side_usec: Dictionary[String, int] = {}
 
 func configure(config_tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	var p: Array[Vector2] = []
@@ -121,18 +123,30 @@ func reset_diagnostics() -> void:
 	_diag_total_usec = 0
 	_diag_target_calls = 0
 	_diag_target_skips = 0
+	_diag_slot_group_sizes.clear()
+	_diag_slot_side_usec.clear()
 
 func diagnostics_snapshot() -> Dictionary:
 	var phases: Dictionary[String, int] = {}
 	for key in _diag_phase_usec.keys():
 		var phase_key: String = String(key)
 		phases[phase_key] = int(_diag_phase_usec.get(phase_key, 0))
+	var slot_group_sizes: Dictionary[String, int] = {}
+	for group_key in _diag_slot_group_sizes.keys():
+		var slot_group_key: String = String(group_key)
+		slot_group_sizes[slot_group_key] = int(_diag_slot_group_sizes.get(slot_group_key, 0))
+	var slot_side_usec: Dictionary[String, int] = {}
+	for side_key in _diag_slot_side_usec.keys():
+		var slot_side_key: String = String(side_key)
+		slot_side_usec[slot_side_key] = int(_diag_slot_side_usec.get(slot_side_key, 0))
 	return {
 		"frames": int(_diag_frames),
 		"total_usec": int(_diag_total_usec),
 		"phases_usec": phases,
 		"target_calls": int(_diag_target_calls),
-		"target_skips": int(_diag_target_skips)
+		"target_skips": int(_diag_target_skips),
+		"slot_group_sizes": slot_group_sizes,
+		"slot_side_usec": slot_side_usec
 	}
 
 func ensure_capacity(player_count: int, enemy_count: int) -> void:
@@ -319,6 +333,10 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 	var e_slot_corridor_radii: Array[float] = _e_slot_corridor_radii_scratch
 	var p_slot_corridor_eps: Array[float] = _p_slot_corridor_eps_scratch
 	var e_slot_corridor_eps: Array[float] = _e_slot_corridor_eps_scratch
+	var diag_slot_start: int = 0
+	if diag_enabled:
+		_diag_record_slot_groups("player", enemy_groups)
+		diag_slot_start = Time.get_ticks_usec()
 	slots.assign_slots_for_team_into_arrays(
 		"player",
 		state.player_team,
@@ -340,6 +358,10 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		_debug_watch_players,
 		prev_player_slots,
 		SLOT_HYSTERESIS_FRAMES)
+	if diag_enabled:
+		_diag_record_slot_side_usec("player", Time.get_ticks_usec() - diag_slot_start)
+		_diag_record_slot_groups("enemy", player_groups)
+		diag_slot_start = Time.get_ticks_usec()
 	slots.assign_slots_for_team_into_arrays(
 		"enemy",
 		state.enemy_team,
@@ -361,6 +383,8 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		_debug_watch_enemies,
 		prev_enemy_slots,
 		SLOT_HYSTERESIS_FRAMES)
+	if diag_enabled:
+		_diag_record_slot_side_usec("enemy", Time.get_ticks_usec() - diag_slot_start)
 	if diag_enabled:
 		diag_phase_start = _diag_mark_phase("slot_assign", diag_phase_start)
 
@@ -847,6 +871,23 @@ func _diag_mark_phase(phase_name: String, phase_start_usec: int) -> int:
 	var elapsed_usec: int = max(0, now_usec - phase_start_usec)
 	_diag_phase_usec[phase_name] = int(_diag_phase_usec.get(phase_name, 0)) + elapsed_usec
 	return now_usec
+
+func _diag_record_slot_groups(side: String, groups: Dictionary) -> void:
+	for target_key in groups.keys():
+		var attackers_value: Variant = groups.get(target_key)
+		if not (attackers_value is Array):
+			continue
+		var group_size: int = (attackers_value as Array).size()
+		if group_size <= 0:
+			continue
+		var side_key: String = "%s_%d" % [side, group_size]
+		var combined_key: String = "combined_%d" % group_size
+		_diag_slot_group_sizes[side_key] = int(_diag_slot_group_sizes.get(side_key, 0)) + 1
+		_diag_slot_group_sizes[combined_key] = int(_diag_slot_group_sizes.get(combined_key, 0)) + 1
+
+func _diag_record_slot_side_usec(side: String, elapsed_usec: int) -> void:
+	var side_key: String = String(side)
+	_diag_slot_side_usec[side_key] = int(_diag_slot_side_usec.get(side_key, 0)) + max(0, elapsed_usec)
 
 func _resize_bool_scratch(arr: Array[bool], length: int, fill: bool) -> void:
 	if length < 0:

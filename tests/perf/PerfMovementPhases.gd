@@ -82,7 +82,9 @@ func _run_case(case_def: Dictionary, sample_count: int) -> Dictionary:
 		" p95_movement_usec=", _percentile_int(movement_values, 0.95),
 		" min_movement_usec=", _min_int(movement_values),
 		" max_movement_usec=", _max_int(movement_values),
-		" phases=", _phase_summary(representative))
+		" phases=", _phase_summary(representative),
+		" slot_groups=", _hist_summary(representative.get("slot_group_sizes", {})),
+		" slot_sides=", _hist_summary(representative.get("slot_side_usec", {})))
 	return {"ok": ok, "signature": first_signature}
 
 func _run_case_once(case_def: Dictionary) -> Dictionary:
@@ -142,7 +144,9 @@ func _run_case_once(case_def: Dictionary) -> Dictionary:
 		"target_calls": target_calls,
 		"target_skips": target_skips,
 		"movement_usec": total_usec,
-		"phases_usec": diagnostics.get("phases_usec", {})
+		"phases_usec": diagnostics.get("phases_usec", {}),
+		"slot_group_sizes": diagnostics.get("slot_group_sizes", {}),
+		"slot_side_usec": diagnostics.get("slot_side_usec", {})
 	}
 
 func _make_job(label: String, team_size: int, map_params: Dictionary) -> DataModels.SimJob:
@@ -226,6 +230,17 @@ func _phase_summary(sample: Dictionary) -> String:
 	for index in range(max_rows):
 		var row: Dictionary = rows[index]
 		parts.append("%s:%dus:%0.1f%%" % [String(row.get("name", "")), int(row.get("usec", 0)), float(row.get("pct", 0.0))])
+	return ",".join(parts)
+
+func _hist_summary(value: Variant) -> String:
+	if not (value is Dictionary):
+		return ""
+	var hist: Dictionary = value
+	var keys: Array = hist.keys()
+	keys.sort()
+	var parts: Array[String] = []
+	for raw_key in keys:
+		parts.append("%s:%d" % [String(raw_key), int(hist.get(raw_key, 0))])
 	return ",".join(parts)
 
 func _sample_closest_to_median(samples: Array[Dictionary], median_movement_usec: int) -> Dictionary:
