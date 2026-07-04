@@ -1220,6 +1220,15 @@ No gameplay source optimization was retained from this answer pass. The direct a
 - Focused slot controls stayed clean: `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3621ms`; `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1097ms`; and `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `1631ms`.
 - Takeaway: optimization is past easy local rewrites, not finished. The next retained source change should still target tie-preserving 10/11/12-unit slot assignment or a measured secondary movement slice, then prove itself in the real `PerfMovementPhases.tscn` gate.
 
+## Continuation - 2026-07-04 Rejected Targeting Array Return And Hungarian Way Reset
+
+No gameplay source optimization was retained from this pass. Both source probes preserved signatures, but neither met the professional keep bar once compared against focused or restored real controls.
+
+- Rejected support-peel array return: replacing the private support-peel `Dictionary` return with a positional `Array[Variant]` preserved `PerfTargeting.tscn` signature `9036604269279486158`, but regressed the focused targeting median from `422ms` control to `507ms`. Source was reverted before broader validation.
+- Rejected Hungarian `way` scratch reset removal: removing `way.fill(0)` from `_assignment_min_cost_hungarian()` preserved focused slot signatures and looked slightly favorable in `PerfSlotDpSearch.tscn` (`1469ms` control to `1458ms`) and `PerfSlotTeamAssignment.tscn` (`3621ms` control to `3419ms`), but it did not hold in the decisive movement comparison.
+- Candidate `PerfMovementPhases.tscn` preserved all six signatures. First candidate run improved 6v6/9v9/10v10/12v12 versus the fresh frontier control, but the repeat regressed 11v11/12v12 to `741989us` / `684751us` movement.
+- Restored-source control after reverting was better on the primary large-fight frontier: 10v10 `329095us`, 11v11 `585770us`, and 12v12 `619848us`, with slot assignment `68.4%`, `80.3%`, and `79.4%`. Keep the `way.fill(0)` reset unless a future same-window candidate beats restored real movement, not only focused solver gates.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
