@@ -1004,6 +1004,17 @@ Accepted change: real combat movement now asks `SlotStrategy` to fill reusable p
 - Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0` on two runs (`12790ms`, `12311ms`, noisy totals); `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0` on two runs (`7932ms`, `8423ms`, 12v12 medians `1184ms` and `1147ms`); `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `363ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7143`.
 - This removes a real allocation/unpack surface in the movement frame loop and lowers repeated 8v8/12v12 phase-profiler slot-assignment samples, but it does not finish the audit. The exact slot solver remains the dominant 12v12 slice after the output-shape cleanup.
 
+## Continuation - 2026-07-04 Target Role Goal Cache
+
+Accepted change: `Unit` now caches normalized targeting role and goal strings when identity data is set, and `Targeting._role()` / `_goal()` use those caches with the previous normalization path as fallback. This mirrors the existing approach-mask cache and removes repeated `strip_edges().to_lower()` work from target-priority scoring without changing target rules.
+
+- Fresh current-tree controls after the slot-array commit: `PerfMovementPhases.tscn` preserved signatures with 6v6/8v8/12v12 movement `271161us`, `492379us`, and `630013us`; slot assignment was still dominant at `133772us`, `197999us`, and `501795us`. Focused `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `757ms`.
+- Rejected same-pass solver/frame candidates were reverted before the retained targeting cache: reusable `_evaluate_precomputed_assignment()` cost-row scratch preserved signatures but regressed `PerfSlotSolverBreakdown.tscn` from `423ms` control to `657ms`; removing redundant-looking slot LOS boolean fills preserved signatures but regressed 12v12 movement to `779253us`; and array-path-only no-duplicate best-assignment storage passed parity but regressed 12v12 movement to `1078446us`.
+- Retained targeting cache preserved `PerfTargeting.tscn` signature `9036604269279486158` and improved focused medians to `417ms`, then `430ms` on repeat. `MovementTargetPriorityProbe.tscn` passed with errors `[]`.
+- Real movement signatures stayed stable. `PerfMovementPhases.tscn` with the cache measured 6v6/8v8/12v12 movement `259329us`, `491257us`, and `622534us`, all slightly below the fresh current-tree control despite noisy p95 on 12v12.
+- Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `11145ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `8202ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `349ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7150`.
+- This is a retained targeting hot-path cleanup. It does not complete the broader audit: after the cache, the main measured surface is still 12v12 exact slot assignment, while targeting remains covered by `PerfTargeting.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

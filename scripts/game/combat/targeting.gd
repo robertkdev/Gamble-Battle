@@ -305,11 +305,15 @@ static func _threat_score(unit: Unit) -> float:
 static func _role(unit: Unit) -> String:
 	if unit == null:
 		return ""
+	if unit.targeting_role_cache != "":
+		return unit.targeting_role_cache
 	return String(unit.get_primary_role()).strip_edges().to_lower()
 
 static func _goal(unit: Unit) -> String:
 	if unit == null:
 		return ""
+	if unit.targeting_goal_cache != "":
+		return unit.targeting_goal_cache
 	return String(unit.get_primary_goal()).strip_edges().to_lower()
 
 static func _approach_mask(unit: Unit) -> int:

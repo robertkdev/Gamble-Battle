@@ -20,6 +20,8 @@ var approaches: Array[String] = []
 var alt_goals: Array[String] = []
 var identity: UnitIdentity = null
 var targeting_approach_mask_cache: int = -1
+var targeting_role_cache: String = ""
+var targeting_goal_cache: String = ""
 
 # Health
 var max_hp: int = int(UnitDefaults.BASELINE_STATS["max_hp"])
@@ -101,6 +103,8 @@ func set_identity_data(primary_role_value: String, primary_goal_value: String, a
 	alt_goals = _to_string_array(alt_goals_value)
 	identity = identity_resource
 	targeting_approach_mask_cache = -1
+	targeting_role_cache = String(primary_role).strip_edges().to_lower()
+	targeting_goal_cache = String(primary_goal).strip_edges().to_lower()
 
 func get_primary_role() -> String:
 	return primary_role
