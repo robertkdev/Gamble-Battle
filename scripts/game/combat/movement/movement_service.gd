@@ -65,6 +65,12 @@ func player_positions_copy() -> Array:
 func enemy_positions_copy() -> Array:
 	return _impl.enemy_positions_copy()
 
+func player_positions_current() -> Array[Vector2]:
+	return _impl.player_positions_current()
+
+func enemy_positions_current() -> Array[Vector2]:
+	return _impl.enemy_positions_current()
+
 func copy_all_positions_to(out: Array[Vector2]) -> void:
 	_impl.copy_all_positions_to(out)
 

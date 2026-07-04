@@ -60,6 +60,12 @@ func player_positions_copy() -> Array[Vector2]:
 func enemy_positions_copy() -> Array[Vector2]:
 	return enemy_positions.duplicate()
 
+func player_positions_current() -> Array[Vector2]:
+	return player_positions
+
+func enemy_positions_current() -> Array[Vector2]:
+	return enemy_positions
+
 func copy_all_positions_to(out: Array[Vector2]) -> void:
 	var total: int = player_positions.size() + enemy_positions.size()
 	out.resize(total)

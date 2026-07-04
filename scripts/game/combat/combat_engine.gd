@@ -274,7 +274,11 @@ func _positions_for_team(team: String) -> Array[Vector2]:
 	if arena_state == null:
 		return []
 	if team == "player":
+		if arena_state.has_method("player_positions_current"):
+			return arena_state.player_positions_current()
 		return arena_state.player_positions_copy()
+	if arena_state.has_method("enemy_positions_current"):
+		return arena_state.enemy_positions_current()
 	return arena_state.enemy_positions_copy()
 
 func _position_at(positions: Array[Vector2], index: int, fallback: Vector2) -> Vector2:
