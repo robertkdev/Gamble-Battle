@@ -64,7 +64,6 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		var row_cost: Array[float] = []
 		row_cost.resize(cols)
 		var entry: Array = pairs[i]
-		var idx: int = int(entry[0])
 		var prev_slot: int = -1
 		var prev_frames: int = 0
 		var frame_factor: float = 1.0
@@ -74,6 +73,7 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 			frame_factor = float(entry[3])
 			prev_active = bool(entry[4])
 		else:
+			var idx: int = int(entry[0])
 			var prev_value: Variant = prev_slot_assignments.get(idx)
 			if prev_value is Dictionary:
 				var prev: Dictionary = prev_value
