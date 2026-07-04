@@ -66,6 +66,8 @@ func _ready() -> void:
 		controller = _controller_script.new()
 	else:
 		controller = null
+	if not resized.is_connected(Callable(self, "_apply_responsive_layout")):
+		resized.connect(_apply_responsive_layout)
 	_ensure_stage_progress_top_bar()
 	controller.configure(self, manager, _collect_nodes())
 	controller.initialize()
@@ -317,10 +319,100 @@ func set_player_team_ids(ids: Array) -> void:
 
 func _apply_visual_theme() -> void:
 	GothicUITheme.apply(self)
+	_apply_responsive_layout()
 	call_deferred("_apply_visual_theme_deferred")
 
 func _apply_visual_theme_deferred() -> void:
 	GothicUITheme.apply(self)
+	_apply_responsive_layout()
+
+func _apply_responsive_layout() -> void:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var compact: bool = viewport_size.y <= 760.0 or viewport_size.x <= 1400.0
+	var margin: MarginContainer = get_node_or_null("MarginContainer") as MarginContainer
+	if margin != null:
+		margin.add_theme_constant_override("margin_left", 10 if compact else 20)
+		margin.add_theme_constant_override("margin_top", 8 if compact else 14)
+		margin.add_theme_constant_override("margin_right", 10 if compact else 20)
+		margin.add_theme_constant_override("margin_bottom", 8 if compact else 18)
+	_set_minimum_size("MarginContainer/VBoxContainer/PlanningTimerLabel", Vector2(0.0, 22.0 if compact else 28.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, 408.0 if compact else 604.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(270.0 if compact else 340.0, 372.0 if compact else 500.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(160.0 if compact else 296.0, 372.0 if compact else 500.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(150.0 if compact else 296.0, 320.0 if compact else 480.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, 60.0 if compact else 88.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 118.0 if compact else 190.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(900.0 if compact else 1120.0, 96.0 if compact else 124.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow", Vector2(900.0 if compact else 1120.0, 42.0 if compact else 56.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow/BetRow", Vector2(190.0 if compact else 226.0, 36.0 if compact else 46.0))
+	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow", 10 if compact else 20)
+	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn", 6 if compact else 8)
+	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea", 8 if compact else 14)
+	_set_box_separation("MarginContainer/VBoxContainer/BottomStorageArea", 6 if compact else 10)
+	_set_box_separation("MarginContainer/VBoxContainer/ActionsRow", 10 if compact else 18)
+	_apply_shop_compact_layout(compact)
+	_update_external_backplates()
+
+func _set_minimum_size(path: String, minimum_size: Vector2) -> void:
+	var control: Control = get_node_or_null(path) as Control
+	if control != null:
+		control.custom_minimum_size = minimum_size
+
+func _set_box_separation(path: String, separation: int) -> void:
+	var box: BoxContainer = get_node_or_null(path) as BoxContainer
+	if box != null:
+		box.add_theme_constant_override("separation", separation)
+
+func _apply_shop_compact_layout(compact: bool) -> void:
+	var card_size: Vector2 = Vector2(120.0, 94.0) if compact else Vector2(144.0, 124.0)
+	if shop_grid != null:
+		shop_grid.add_theme_constant_override("h_separation", 10 if compact else 16)
+		shop_grid.add_theme_constant_override("v_separation", 6 if compact else 10)
+		for child: Node in shop_grid.get_children():
+			var control: Control = child as Control
+			if control != null:
+				control.custom_minimum_size = card_size
+	var storage: Node = get_node_or_null("MarginContainer/VBoxContainer/BottomStorageArea")
+	if storage != null:
+		for child: Node in storage.get_children():
+			var bar: HBoxContainer = child as HBoxContainer
+			if bar == null:
+				continue
+			bar.custom_minimum_size = Vector2(900.0 if compact else 1120.0, 40.0 if compact else 54.0)
+			bar.add_theme_constant_override("separation", 8 if compact else 16)
+			for grandchild: Node in bar.get_children():
+				var button: Button = grandchild as Button
+				if button != null:
+					if button.name == "ContinueButton":
+						button.custom_minimum_size = Vector2(142.0 if compact else 224.0, 34.0 if compact else 48.0)
+						button.add_theme_font_size_override("font_size", 15 if compact else 20)
+					else:
+						button.custom_minimum_size = Vector2(78.0 if compact else 96.0, 34.0 if compact else 40.0)
+						button.add_theme_font_size_override("font_size", 13 if compact else 15)
+					continue
+				var slider: HSlider = grandchild as HSlider
+				if slider != null:
+					slider.custom_minimum_size = Vector2(124.0 if compact else 166.0, 28.0)
+					continue
+				var label: Label = grandchild as Label
+				if label != null:
+					if label.name == "GoldLabel":
+						label.custom_minimum_size = Vector2(78.0 if compact else 112.0, 34.0 if compact else 44.0)
+						label.add_theme_font_size_override("font_size", 16 if compact else 22)
+					else:
+						label.add_theme_font_size_override("font_size", 13 if compact else 15)
+
+func _update_external_backplates() -> void:
+	for plate_name: String in ["GothicShopPlate", "GothicShopCommandPlate"]:
+		var plate: Panel = get_node_or_null(plate_name) as Panel
+		if plate == null or not plate.has_meta("target_path"):
+			continue
+		var target: Control = get_node_or_null(plate.get_meta("target_path")) as Control
+		if target == null:
+			continue
+		var pad: float = float(plate.get_meta("pad", 0.0))
+		plate.global_position = target.global_position - Vector2(pad, pad)
+		plate.size = target.size + Vector2(pad * 2.0, pad * 2.0)
 
 func _ensure_stage_progress_top_bar() -> void:
 	if stage_progress_top_bar != null and is_instance_valid(stage_progress_top_bar):

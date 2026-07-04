@@ -336,6 +336,7 @@ func _ensure_sigil() -> void:
 		add_child(_sigil)
 	_sigil.texture = SIGIL_TEXTURE
 	_sigil.z_index = 2
+	_sigil.visible = false
 	_sigil.anchor_left = 0.00
 	_sigil.anchor_top = 0.035
 	_sigil.anchor_right = 0.285

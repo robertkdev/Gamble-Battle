@@ -601,8 +601,11 @@ func _drag_control_to(control: Control, target_pos: Vector2, label: String) -> b
 				print("ActualRunLoopSmoke: MCP synthetic gui input did not start drag; using direct drag lifecycle fallback")
 			_reported_drag_fallback = true
 		control.call("_begin_drag_internal")
-		control.set("_last_mouse_pos", target_pos)
-		control.call("_end_drag_internal")
+		if control.has_method("finish_drag_at_global"):
+			control.call("finish_drag_at_global", target_pos)
+		else:
+			await _move_mouse(target_pos, true)
+			await _mouse_button(target_pos, false)
 		drag_started = true
 		drag_ended = true
 		await _settle_frames(4)

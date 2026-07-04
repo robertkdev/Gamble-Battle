@@ -11,9 +11,10 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 @onready var _vbox: VBoxContainer = $VBox
 var _threshold_row: HBoxContainer = null
 
-const TOOLTIP_WIDTH: float = 304.0
-const PADDING: float = 10.0
+const TOOLTIP_WIDTH: float = 336.0
+const PADDING: float = 12.0
 const EDGE_PADDING: float = 12.0
+const BOTTOM_UI_RESERVE: float = 236.0
 const CURSOR_OFFSET: Vector2 = Vector2(18.0, -14.0)
 const COLOR_PANEL: Color = Color(0.024, 0.020, 0.030, 0.985)
 const COLOR_BORDER: Color = Color(0.64, 0.42, 0.22, 0.94)
@@ -53,15 +54,15 @@ func _apply_style() -> void:
 	style.corner_radius_bottom_left = 5
 	style.shadow_size = 14
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
-	var modulate: Color = Color(1.10, 1.02, 0.88, 1.0) if is_active else Color.WHITE
-	add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(modulate), style))
+	var style_modulate: Color = Color(1.10, 1.02, 0.88, 1.0) if is_active else Color.WHITE
+	add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(style_modulate), style))
 	var background: ColorRect = get_node_or_null("ColorRect") as ColorRect
 	if background != null:
 		background.color = Color(0.050, 0.033, 0.040, 0.0)
 	if _vbox != null:
-		_vbox.add_theme_constant_override("separation", 7)
+		_vbox.add_theme_constant_override("separation", 9)
 	if _name_label != null:
-		_name_label.add_theme_font_size_override("font_size", 18)
+		_name_label.add_theme_font_size_override("font_size", 20)
 		_name_label.add_theme_color_override("font_color", COLOR_GOLD)
 		_name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.74))
 		_name_label.add_theme_constant_override("outline_size", 1)
@@ -72,9 +73,11 @@ func _apply_style() -> void:
 		_threshold_label.visible = false
 		_threshold_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _description_label != null:
+		_description_label.add_theme_font_size_override("font_size", 15)
 		_description_label.add_theme_color_override("font_color", COLOR_TEXT)
 		_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if _footer_label != null:
+		_footer_label.add_theme_font_size_override("font_size", 14)
 		_footer_label.add_theme_color_override("font_color", COLOR_MUTED)
 		_footer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -101,9 +104,25 @@ func show_at(viewport_pos: Vector2) -> void:
 	tween.tween_property(self, "modulate:a", 1.0, 0.08)
 	tween.parallel().tween_property(self, "scale", Vector2.ONE, 0.08)
 
+func show_near(icon_position: Vector2, icon_size: Vector2) -> void:
+	visible = true
+	modulate.a = 0.0
+	scale = Vector2(0.985, 0.985)
+	await get_tree().process_frame
+	_sync_size()
+	move_to_raw(icon_position + Vector2(icon_size.x + 14.0, -8.0))
+	var tween: Tween = create_tween()
+	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "modulate:a", 1.0, 0.08)
+	tween.parallel().tween_property(self, "scale", Vector2.ONE, 0.08)
+
 func move_to(viewport_pos: Vector2) -> void:
 	_sync_size()
 	global_position = _clamped_position(viewport_pos + CURSOR_OFFSET)
+
+func move_to_raw(raw_position: Vector2) -> void:
+	_sync_size()
+	global_position = _clamped_position(raw_position)
 
 func _update_labels() -> void:
 	var def: TraitDef = _load_trait_def(trait_id)
@@ -193,9 +212,9 @@ func _update_threshold_row(def: TraitDef) -> void:
 		chip.text = str(value)
 		chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		chip.custom_minimum_size = Vector2(42.0, 26.0)
+		chip.custom_minimum_size = Vector2(46.0, 28.0)
 		chip.add_theme_font_size_override("font_size", 14)
-		chip.add_theme_color_override("font_color", Color(1.0, 0.92, 0.66, 1.0) if active_chip else (COLOR_TEXT if reached else COLOR_MUTED))
+		chip.add_theme_color_override("font_color", Color(1.0, 0.98, 0.82, 1.0) if active_chip else (COLOR_TEXT if reached else COLOR_MUTED))
 		chip.add_theme_stylebox_override("normal", _make_threshold_chip_style(active_chip, reached))
 		_threshold_row.add_child(chip)
 
@@ -211,11 +230,11 @@ func _threshold_values(def: TraitDef) -> Array[int]:
 func _make_threshold_chip_style(active_chip: bool, reached: bool) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	if active_chip:
-		style.bg_color = Color(0.34, 0.22, 0.070, 0.98)
-		style.border_color = Color(1.0, 0.80, 0.42, 1.0)
+		style.bg_color = Color(0.52, 0.36, 0.12, 1.0)
+		style.border_color = Color(1.0, 0.86, 0.48, 1.0)
 	elif reached:
-		style.bg_color = Color(0.10, 0.080, 0.070, 0.94)
-		style.border_color = Color(0.62, 0.42, 0.22, 0.86)
+		style.bg_color = Color(0.18, 0.12, 0.070, 0.96)
+		style.border_color = Color(0.74, 0.50, 0.26, 0.92)
 	else:
 		style.bg_color = Color(0.035, 0.030, 0.038, 0.88)
 		style.border_color = Color(0.28, 0.24, 0.24, 0.78)
@@ -278,8 +297,10 @@ func _clamped_position(raw_position: Vector2) -> Vector2:
 	var new_position: Vector2 = raw_position
 	if new_position.x + size.x + EDGE_PADDING > viewport_size.x:
 		new_position.x = raw_position.x - size.x - CURSOR_OFFSET.x * 1.5
-	if new_position.y + size.y + EDGE_PADDING > viewport_size.y:
-		new_position.y = viewport_size.y - size.y - EDGE_PADDING
+	var bottom_reserve: float = min(BOTTOM_UI_RESERVE, viewport_size.y * 0.30)
+	var bottom_limit: float = viewport_size.y - EDGE_PADDING - bottom_reserve
+	if new_position.y + size.y > bottom_limit:
+		new_position.y = bottom_limit - size.y
 	if new_position.x < EDGE_PADDING:
 		new_position.x = EDGE_PADDING
 	if new_position.y < EDGE_PADDING:

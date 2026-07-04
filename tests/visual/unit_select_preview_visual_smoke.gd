@@ -120,7 +120,9 @@ func _expect_generated_preview_surfaces() -> void:
 		_expect_texture_style(role_badge, "normal", "role badge should use generated texture")
 	var approach_tags: FlowContainer = _approach_tags()
 	_expect(approach_tags != null and approach_tags.visible, "approach tags should be visible during populated preview")
-	var first_tag: Label = _first_label_child(approach_tags) if approach_tags != null else null
+	var first_tag: Label = null
+	if approach_tags != null:
+		first_tag = _first_label_child(approach_tags)
 	_expect(first_tag != null, "approach tags should contain a label")
 	if first_tag != null:
 		_expect_texture_style(first_tag, "normal", "approach tag should use generated texture")
@@ -150,7 +152,7 @@ func _selected_label() -> Label:
 	return _view.get_node_or_null("Center/HBox/Right/Preview/SelectedLabel") as Label
 
 func _details_label() -> Label:
-	return _view.get_node_or_null("Center/HBox/Right/Preview/Details") as Label
+	return _view.get_node_or_null("Center/HBox/Right/Preview/DetailsScroll/Details") as Label
 
 func _preview_art() -> TextureRect:
 	return _view.get_node_or_null("Center/HBox/Right/Preview/ArtWrap/Art") as TextureRect
@@ -212,7 +214,9 @@ func _save_capture(filename: String) -> void:
 	print("%s: saved %s" % [SMOKE_NAME, ProjectSettings.globalize_path(path)])
 
 func _save_vision_capture(filename: String) -> void:
-	var root_node: Node = _view if _view != null else self
+	var root_node: Node = self
+	if _view != null:
+		root_node = _view
 	var result: Dictionary[String, Variant] = VisionSnapshot.capture(root_node, filename.get_basename(), OUTPUT_DIR)
 	if not bool(result.get("ok", false)):
 		push_error("%s: vision fallback failed for %s reason=%s" % [SMOKE_NAME, filename, str(result.get("reason", ""))])

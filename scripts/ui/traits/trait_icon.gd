@@ -115,9 +115,10 @@ func _show_tooltip() -> void:
 		tooltip.call("set_trait", trait_id)
 	if tooltip.has_method("set_context"):
 		tooltip.call("set_context", _active, _count, _tier)
-	var pos: Vector2 = get_viewport().get_mouse_position()
-	if tooltip.has_method("show_at"):
-		tooltip.call("show_at", pos)
+	if tooltip.has_method("show_near"):
+		tooltip.call("show_near", global_position, size)
+	elif tooltip.has_method("show_at"):
+		tooltip.call("show_at", _tooltip_anchor_position())
 	_tooltip = tooltip
 
 func _on_mouse_exited() -> void:
@@ -132,9 +133,10 @@ func _on_mouse_exited() -> void:
 
 func _on_hover_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and _tooltip != null and is_instance_valid(_tooltip):
-		var viewport: Viewport = get_viewport()
-		if viewport != null and _tooltip.has_method("move_to"):
-			_tooltip.call("move_to", viewport.get_mouse_position())
+		if _tooltip.has_method("move_to_raw"):
+			_tooltip.call("move_to_raw", _tooltip_anchor_position())
+		elif _tooltip.has_method("move_to"):
+			_tooltip.call("move_to", _tooltip_anchor_position())
 
 func _clear_tooltip() -> void:
 	if _tooltip and is_instance_valid(_tooltip):
@@ -147,6 +149,9 @@ func _apply_hover_motion(active: bool) -> void:
 	_hover_tween = create_tween()
 	_hover_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	_hover_tween.tween_property(self, "scale", Vector2(1.09, 1.09) if active else Vector2.ONE, 0.09)
+
+func _tooltip_anchor_position() -> Vector2:
+	return global_position + Vector2(size.x + 14.0, -8.0)
 
 func set_active(v: bool) -> void:
 	_active = bool(v)

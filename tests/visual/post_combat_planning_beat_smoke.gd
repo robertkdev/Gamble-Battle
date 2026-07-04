@@ -34,13 +34,12 @@ func _run() -> void:
 		return
 	await _settle_frames(4)
 	_expect(_node_visible("CombatView"), "combat view did not open for Bonko")
-	var repositioned: bool = await _reposition_first_board_unit("post-combat beat board reposition")
-	_expect(repositioned, "Bonko board unit did not reposition through mouse drag")
+	var opener_started: bool = await _wait_for_combat_active(5.0)
+	_expect(opener_started, "opening fight did not start immediately after starter select")
+	_expect(not _bottom_planning_visible(), "bottom planning/shop area stayed visible during the opening fight")
 	if _finish_if_failed():
 		return
 
-	_set_planning_timer_safe()
-	await _press_continue(true, "Bonko forced first fight")
 	var intermission_seen: bool = await _wait_for_intermission_bar(24.0)
 	_expect(intermission_seen, "post-combat intermission bar did not appear before planning returned")
 	if _finish_if_failed():
@@ -93,6 +92,14 @@ func _intermission_bar_visible() -> bool:
 	var bar: ProgressBar = _main.find_child("GothicIntermissionBar", true, false) as ProgressBar
 	return bar != null and bar.visible
 
+func _bottom_planning_visible() -> bool:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return false
+	var bench: Control = combat.get_node_or_null("MarginContainer/VBoxContainer/BenchArea") as Control
+	var bottom: Control = combat.get_node_or_null("MarginContainer/VBoxContainer/BottomStorageArea") as Control
+	return (bench != null and bench.visible) or (bottom != null and bottom.visible)
+
 func _continue_button_text() -> String:
 	var button: Button = _continue_button()
 	return String(button.text) if button != null else "<missing>"
@@ -138,7 +145,9 @@ func _save_capture(filename: String) -> void:
 	print("%s: saved %s" % [SMOKE_NAME, ProjectSettings.globalize_path(path)])
 
 func _save_vision_capture(filename: String) -> void:
-	var root_node: Node = _main if _main != null else self
+	var root_node: Node = self
+	if _main != null:
+		root_node = _main
 	var result: Dictionary[String, Variant] = VisionSnapshot.capture(root_node, filename.get_basename(), OUTPUT_DIR)
 	if not bool(result.get("ok", false)):
 		push_error("%s: vision fallback failed for %s reason=%s" % [SMOKE_NAME, filename, str(result.get("reason", ""))])

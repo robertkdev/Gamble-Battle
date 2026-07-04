@@ -41,7 +41,9 @@ func _run() -> void:
 		_expect_texture_style(art_plate, "panel", "Preview art plate should use a generated texture frame", failures)
 	var selected_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/SelectedLabel") as Label
 	_expect(selected_label != null and selected_label.text == "No champion chosen", "Unit Select should begin with no inspected champion", failures)
-	var details_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/Details") as Label
+	var details_scroll: ScrollContainer = view.get_node_or_null("Center/HBox/Right/Preview/DetailsScroll") as ScrollContainer
+	_expect(details_scroll != null, "Unit Select preview details should use a scrollable container", failures)
+	var details_label: Label = view.get_node_or_null("Center/HBox/Right/Preview/DetailsScroll/Details") as Label
 	_expect(details_label != null and details_label.text == "Hover a unit to preview", "Unit Select should begin with neutral preview help", failures)
 	var initial_art: TextureRect = view.get_node_or_null("Center/HBox/Right/Preview/ArtWrap/Art") as TextureRect
 	_expect(initial_art != null and initial_art.texture == null, "Unit Select should begin without default preview art", failures)

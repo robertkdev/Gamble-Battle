@@ -55,12 +55,14 @@ text = "Stage 1"
 horizontal_alignment = 1
 
 [node name="PlanningTimerLabel" type="Label" parent="MarginContainer/VBoxContainer"]
+z_index = 60
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 text = ""
 horizontal_alignment = 1
 
 [node name="BattleArea" type="Control" parent="MarginContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 640)
+custom_minimum_size = Vector2(0, 604)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -105,7 +107,7 @@ theme_override_constants/separation = 16
 metadata/_edit_use_anchors_ = true
 
 [node name="TopArea" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea"]
-custom_minimum_size = Vector2(0, 288)
+custom_minimum_size = Vector2(0, 264)
 layout_mode = 2
 
 [node name="EnemyGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea"]
@@ -114,8 +116,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -316.0
+offset_top = 28.0
 offset_right = 316.0
-offset_bottom = 232.0
+offset_bottom = 260.0
 grow_horizontal = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
@@ -280,19 +283,18 @@ layout_mode = 0
 expand_mode = 1
 
 [node name="BottomArea" type="Control" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea"]
-custom_minimum_size = Vector2(0, 288)
+custom_minimum_size = Vector2(0, 264)
 layout_mode = 2
 
 [node name="PlayerGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea"]
 layout_mode = 1
-anchors_preset = 7
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
 offset_left = -316.0
-offset_top = -232.0
+offset_top = 36.0
 offset_right = 316.0
+offset_bottom = 268.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_constants/h_separation = 8
@@ -504,7 +506,7 @@ size_flags_vertical = 2
 alignment = 1
 
 [node name="BenchGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BenchArea"]
-custom_minimum_size = Vector2(0, 72)
+custom_minimum_size = Vector2(0, 68)
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
@@ -557,7 +559,7 @@ size_flags_vertical = 2
 theme_override_constants/separation = 10
 
 [node name="ShopGrid" type="GridContainer" parent="MarginContainer/VBoxContainer/BottomStorageArea"]
-custom_minimum_size = Vector2(1000, 72)
+custom_minimum_size = Vector2(1000, 124)
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8

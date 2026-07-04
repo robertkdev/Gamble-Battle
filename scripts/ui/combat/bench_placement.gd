@@ -97,6 +97,7 @@ func rebuild_bench_views(units: Array, allow_drag: bool) -> void:
             continue
         var uv: UnitView = UnitViewClass.new()
         uv.set_unit(u)
+        uv.drag_size = Vector2(float(tile_size), float(tile_size))
         if uv.has_method("set_bench_mode"):
             uv.set_bench_mode(true)
         if allow_drag:

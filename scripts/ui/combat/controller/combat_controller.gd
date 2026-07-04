@@ -141,6 +141,7 @@ var _combat_resolving_watchdog_seen: bool = false
 var _hud_snapshot_signature: String = ""
 var _result_banner: PanelContainer = null
 var _bottom_combat_visibility_state: int = -1
+var _layout_tile_size: int = UI.TILE_SIZE
 
 const FIRST_DEPLOY_TIMER_EXTENSION: float = 60.0
 
@@ -427,17 +428,18 @@ func initialize() -> void:
 
 	# Build grids
 	view_rng.randomize()
+	_layout_tile_size = _responsive_tile_size()
 	grid_placement = GridPlacement.new()
-	grid_placement.configure(player_grid, enemy_grid, UI.TILE_SIZE, 8, 3)
+	grid_placement.configure(player_grid, enemy_grid, _layout_tile_size, 8, 3)
 	# Ensure grid containers match the configured tile size so the
 	# runtime layout looks the same as the editor preview.
-	_apply_grid_dimensions(UI.TILE_SIZE)
+	_apply_grid_dimensions(_layout_tile_size)
 	player_grid_helper = grid_placement.get_player_grid()
 	enemy_grid_helper = grid_placement.get_enemy_grid()
 
 	# Bench setup
 	bench_placement = BenchPlacement.new()
-	bench_placement.configure(bench_grid, UI.TILE_SIZE, BenchConstants.BENCH_CAPACITY)
+	bench_placement.configure(bench_grid, _layout_tile_size, BenchConstants.BENCH_CAPACITY)
 	bench_grid_helper = bench_placement.get_bench_grid()
 
 	# Items: drag router for item cards (route drops to units on board or bench)
@@ -470,7 +472,7 @@ func initialize() -> void:
 
 	# Arena + projectiles
 	arena_bridge = ArenaBridge.new()
-	arena_bridge.configure(arena_container, arena_units, planning_area, arena_background, player_grid_helper, enemy_grid_helper, preload("res://scripts/ui/combat/unit_actor.gd"), UI.TILE_SIZE)
+	arena_bridge.configure(arena_container, arena_units, planning_area, arena_background, player_grid_helper, enemy_grid_helper, preload("res://scripts/ui/combat/unit_actor.gd"), _layout_tile_size)
 
 	projectile_bridge = ProjectileBridge.new()
 	projectile_bridge.configure(parent, arena_bridge, player_grid_helper, enemy_grid_helper, manager, view_rng)
@@ -562,6 +564,8 @@ func _on_shop_grid_updated() -> void:
 		return
 	sell_grid_helper = shop_presenter.get_drop_grid()
 	_rebuild_bench_views(true)
+	if parent != null and parent.has_method("_apply_visual_theme_deferred"):
+		parent.call_deferred("_apply_visual_theme_deferred")
 
 func _ensure_board_status_row() -> void:
 	if board_status_row != null and is_instance_valid(board_status_row):
@@ -643,40 +647,55 @@ func _current_board_cap() -> int:
 		return 0
 	return cap
 
+func _responsive_tile_size() -> int:
+	if parent == null:
+		return int(UI.TILE_SIZE)
+	var viewport_size: Vector2 = parent.get_viewport_rect().size
+	if viewport_size.y <= 760.0:
+		return 56
+	if viewport_size.y <= 900.0 or viewport_size.x <= 1440.0:
+		return 68
+	return int(UI.TILE_SIZE)
+
 func _apply_grid_dimensions(tile: int) -> void:
 	# Compute desired grid size from constants and theme separations
 	if enemy_grid == null or player_grid == null:
 		return
-	var cols := 8
-	var rows := 3
-	var hsep := enemy_grid.get_theme_constant("h_separation", "GridContainer")
-	var vsep := enemy_grid.get_theme_constant("v_separation", "GridContainer")
-	var grid_w := tile * cols + hsep * (cols - 1)
-	var grid_h := tile * rows + vsep * (rows - 1)
+	var cols: int = 8
+	var rows: int = 3
+	var hsep: int = enemy_grid.get_theme_constant("h_separation", "GridContainer")
+	var vsep: int = enemy_grid.get_theme_constant("v_separation", "GridContainer")
+	var grid_w: int = tile * cols + hsep * (cols - 1)
+	var grid_h: int = tile * rows + vsep * (rows - 1)
+	var enemy_top_pad: float = 28.0
+	var player_top_pad: float = 36.0
+	var player_bottom_pad: float = 8.0
 
 	# Center enemy grid at top of its area
 	enemy_grid.anchor_left = 0.5
 	enemy_grid.anchor_right = 0.5
 	enemy_grid.offset_left = -float(grid_w) * 0.5
 	enemy_grid.offset_right = float(grid_w) * 0.5
-	enemy_grid.offset_bottom = grid_h
+	enemy_grid.offset_top = enemy_top_pad
+	enemy_grid.offset_bottom = enemy_top_pad + float(grid_h)
 
 	# Center player grid at bottom of its area
 	player_grid.anchor_left = 0.5
 	player_grid.anchor_right = 0.5
-	player_grid.anchor_top = 1.0
-	player_grid.anchor_bottom = 1.0
+	player_grid.anchor_top = 0.0
+	player_grid.anchor_bottom = 0.0
 	player_grid.offset_left = -float(grid_w) * 0.5
 	player_grid.offset_right = float(grid_w) * 0.5
-	player_grid.offset_top = -grid_h
+	player_grid.offset_top = player_top_pad
+	player_grid.offset_bottom = player_top_pad + float(grid_h)
 
 	# Make sure the containers holding the grids are tall enough
-	var top_area := enemy_grid.get_parent() as Control
+	var top_area: Control = enemy_grid.get_parent() as Control
 	if top_area:
-		top_area.custom_minimum_size.y = grid_h
-	var bottom_area := player_grid.get_parent() as Control
+		top_area.custom_minimum_size.y = float(grid_h) + enemy_top_pad
+	var bottom_area: Control = player_grid.get_parent() as Control
 	if bottom_area:
-		bottom_area.custom_minimum_size.y = grid_h + 38
+		bottom_area.custom_minimum_size.y = player_top_pad + float(grid_h) + player_bottom_pad
 
 func process(_delta: float) -> void:
 	if arena_container and arena_container.visible:
@@ -944,7 +963,7 @@ func _on_continue_pressed() -> void:
 			player_grid.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		# Precompute arena positions from current planning layout so engine starts at chosen tiles
 		if grid_placement and arena_bridge and manager:
-			var ts: float = float(UI.TILE_SIZE)
+			var ts: float = float(_layout_tile_size)
 			var ppos: Array[Vector2] = []
 			var epos: Array[Vector2] = []
 			for pv in player_views:
@@ -1229,6 +1248,8 @@ func _on_bet_changed(val: float) -> void:
 func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 	Trace.step("CombatView._on_battle_started: begin")
 	_on_log_line("Prepare to fight.")
+	if projectile_bridge and projectile_bridge.has_method("set_visuals_enabled"):
+		projectile_bridge.set_visuals_enabled(true)
 	_refresh_hud()
 	_update_stage_label()
 	# Set COMBAT phase before starting Economy escrow so UI refresh sees correct phase
@@ -1513,6 +1534,11 @@ func clear_log() -> void:
 		log_label.clear()
 
 func _start_intermission(seconds: float = 5.0) -> void:
+	if projectile_bridge:
+		if projectile_bridge.has_method("set_visuals_enabled"):
+			projectile_bridge.set_visuals_enabled(false)
+		else:
+			projectile_bridge.clear()
 	if intermission == null:
 		intermission = IntermissionController.new()
 		intermission.configure(parent)
