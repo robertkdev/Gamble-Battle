@@ -6,7 +6,6 @@ const Debug = preload("res://scripts/util/debug.gd")
 var _all_pos: Array[Vector2] = []
 var _caps: Array[float] = []
 var _tag_is_player: Array[bool] = []
-var _tag_indices: Array[int] = []
 var _active_indices: Array[int] = []
 
 # CollisionResolver
@@ -35,14 +34,12 @@ func resolve(
     _all_pos.resize(total_count)
     _caps.resize(total_count)
     _tag_is_player.resize(total_count)
-    _tag_indices.resize(total_count)
     _active_indices.clear()
     for i in range(player_count):
         _all_pos[i] = player_positions[i]
         var player_is_alive: bool = (player_alive[i] if i < player_alive.size() else true)
         _caps[i] = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
         _tag_is_player[i] = true
-        _tag_indices[i] = i
         if player_is_alive:
             _active_indices.append(i)
     for j in range(enemy_count):
@@ -51,7 +48,6 @@ func resolve(
         var enemy_is_alive: bool = (enemy_alive[j] if j < enemy_alive.size() else true)
         _caps[write_index] = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
         _tag_is_player[write_index] = false
-        _tag_indices[write_index] = j
         if enemy_is_alive:
             _active_indices.append(write_index)
 
@@ -126,18 +122,19 @@ func resolve(
         min_y = bounds.position.y
         max_x = bounds.position.x + bounds.size.x
         max_y = bounds.position.y + bounds.size.y
-    for i2 in range(_all_pos.size()):
-        var idx: int = _tag_indices[i2]
+    for i2 in range(player_count):
         var p: Vector2 = _all_pos[i2]
         if clamp_to_bounds:
             p.x = clampf(p.x, min_x, max_x)
             p.y = clampf(p.y, min_y, max_y)
-        if _tag_is_player[i2]:
-            if idx < player_positions.size():
-                player_positions[idx] = p
-        else:
-            if idx < enemy_positions.size():
-                enemy_positions[idx] = p
+        player_positions[i2] = p
+    for j2 in range(enemy_count):
+        var enemy_write_index: int = player_count + j2
+        var enemy_p: Vector2 = _all_pos[enemy_write_index]
+        if clamp_to_bounds:
+            enemy_p.x = clampf(enemy_p.x, min_x, max_x)
+            enemy_p.y = clampf(enemy_p.y, min_y, max_y)
+        enemy_positions[j2] = enemy_p
 
     if collect_debug_stats:
         print("[Coll] iters=", iters, " pairs=", total_pairs, " resolved=", resolved_pairs,
