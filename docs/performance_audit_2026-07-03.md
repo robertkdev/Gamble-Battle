@@ -1414,6 +1414,16 @@ Accepted targeting optimization: support scoring now uses a direct positive-arra
 - Rejected same-pass slot experiment: three 5-row exact-assignment fast path attempts were reverted. Two changed focused assignment signatures, and the tie-preserving DP specialization preserved behavior but measured `fast_5=443ms` versus existing `dp_5=427ms`.
 - Takeaway: support targeting still had one measured secondary win, but the main frontier is unchanged. Large-team slot assignment remains the dominant 10v10/11v11/12v12 movement cost, and future source work should keep using same-window movement gates before retaining solver changes.
 
+## Continuation - 2026-07-04 Rejected In-Band Movement Distance Probe
+
+No gameplay source optimization was retained from this pass. The in-band movement helper candidate improved focused helper rows but changed real combat behavior, so source was reverted.
+
+- Fresh controls before the edit: `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1078ms`; `PerfMovementPhases.tscn` preserved all six deterministic signatures with errors `[]` and movement totals `257421us`, `506593us`, `574390us`, `495358us`, `592654us`, and `730620us` for 6v6/8v8/9v9/10v10/11v11/12v12; `PerfMovementStepHelpers.tscn` aggregate `4713848927282072330`, total `1306ms`.
+- Rejected candidate: replacing several in-band `distance_to()` range checks with squared-distance comparisons and removing the final scalar from `_compute_avoidance_vector()` preserved `PerfMovementStepHelpers.tscn` signatures. The affected in-band rows improved from `120ms` / `88ms` to `76ms` / `75ms` on the first candidate run, and a repeat stayed favorable at `76ms` / `82ms`.
+- Candidate `PerfMovementPhases.tscn` preserved all movement signatures and improved some totals, including 12v12 `686723us` then `583021us`, but broader combat rejected the change. `Perf6v6.tscn` changed peel from expected signature `1121549412794869883:232`, `frames=544`, aggregate `4480953857527108889:18` to peel signature `2017122493037976673:232`, `frames=529`, aggregate `-8708148576181535883:18`.
+- Restored-source confirmation after revert returned `Perf6v6.tscn` to expected signatures with errors `[]`: neutral `-3997862279252171970:232`, burst `5578449822537178089:232`, peel `1121549412794869883:232`, aggregate `4480953857527108889:18`.
+- Takeaway: do not replace in-band range checks with squared-distance comparisons or remove the avoidance-vector scalar without matchup-level acceptance work. The helper benchmark and movement phase profiler were too weak to prove gameplay equivalence here.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
