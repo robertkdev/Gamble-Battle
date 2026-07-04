@@ -6,7 +6,7 @@ const ItemDef := preload("res://scripts/game/items/item_def.gd")
 const PhaseRules := preload("res://scripts/game/items/phase_rules.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
-const TOOLTIP_WIDTH: float = 380.0
+const TOOLTIP_WIDTH: float = 320.0
 const PADDING: float = 18.0
 const EDGE_PADDING: float = 12.0
 const BOTTOM_UI_RESERVE: float = 236.0

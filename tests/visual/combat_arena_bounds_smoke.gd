@@ -41,21 +41,28 @@ func _run() -> void:
 		await _finish()
 		return
 
+	var planning_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea") as Control
+	var stats_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea") as Control
+	if planning_area == null or stats_area == null:
+		_fail("planning layout refs missing")
+		await _finish()
+		return
+	var planning_rect: Rect2 = planning_area.get_global_rect()
+	var stats_rect: Rect2 = stats_area.get_global_rect()
+	_expect(planning_rect.size.x > 0.0 and planning_rect.size.y > 0.0, "planning board rect should be measurable before combat")
+	_expect(stats_rect.size.x > 0.0 and stats_rect.size.y > 0.0, "team metrics rect should be measurable before combat")
+
 	if _view.has_method("_on_continue_pressed"):
 		_view.call("_on_continue_pressed")
 	await _settle_frames(40)
 
-	var planning_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea") as Control
 	var arena_container: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer") as Control
 	var arena_units: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaUnits") as Control
-	var stats_area: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea") as Control
-	if planning_area == null or arena_container == null or arena_units == null or stats_area == null:
+	if arena_container == null or arena_units == null:
 		_fail("arena layout refs missing")
 		await _finish()
 		return
-	var planning_rect: Rect2 = planning_area.get_global_rect()
 	var arena_rect: Rect2 = arena_container.get_global_rect()
-	var stats_rect: Rect2 = stats_area.get_global_rect()
 	var engine_bounds: Rect2 = _manager.get_arena_bounds()
 	_expect(_rect_close(arena_rect, planning_rect, 3.0), "arena container should match planning board rect")
 	_expect(_rect_inside(engine_bounds, planning_rect.grow(3.0)), "engine arena bounds should stay inside planning board rect engine=%s planning=%s arena=%s" % [str(engine_bounds), str(planning_rect), str(arena_rect)])

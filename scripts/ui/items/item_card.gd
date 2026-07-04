@@ -303,12 +303,11 @@ func _clear_global_tooltips() -> void:
 		if node != null and node != _tooltip and is_instance_valid(node):
 			node.queue_free()
 
-func _apply_hover_motion(active: bool, filled: bool) -> void:
+func _apply_hover_motion(active: bool, _filled: bool) -> void:
 	if _hover_tween != null and is_instance_valid(_hover_tween):
 		_hover_tween.kill()
 	var target_scale: Vector2 = Vector2.ONE
 	if active:
-		target_scale = Vector2(1.075, 1.075) if filled else Vector2(1.025, 1.025)
 		z_index = 60
 	else:
 		z_index = 0

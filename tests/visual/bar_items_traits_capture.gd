@@ -10,6 +10,7 @@ var _combat_visible_bars: int = 0
 var _filled_item_cards: int = 0
 var _visible_trait_icons: int = 0
 var _tooltip_edge_skips: int = 0
+var _static_hover_failure: String = ""
 
 func _ready() -> void:
 	call_deferred("_run")
@@ -47,10 +48,19 @@ func _run() -> void:
 		get_tree().quit(1)
 		return
 	_save_capture("01_planning_grid_bars_hidden_items_traits.png")
+	var static_hover_ok: bool = await _exercise_static_hover_targets()
+	if not static_hover_ok:
+		push_error("BarItemsTraitsCapture: fixed hover target shifted or was missing: %s" % _static_hover_failure)
+		get_tree().quit(1)
+		return
 	_show_item_tooltip()
 	await _settle(0.18)
 	if not _tooltip_uses_generated_frame("CaptureItemTooltip"):
 		push_error("BarItemsTraitsCapture: item tooltip should use the generated panel asset")
+		get_tree().quit(1)
+		return
+	if not _tooltip_respects_board_gap("CaptureItemTooltip"):
+		push_error("BarItemsTraitsCapture: item tooltip bleeds into the board column")
 		get_tree().quit(1)
 		return
 	_clear_tooltips()
@@ -58,6 +68,10 @@ func _run() -> void:
 	await _settle(0.25)
 	if not _tooltip_uses_generated_frame("CaptureTraitTooltip"):
 		push_error("BarItemsTraitsCapture: trait tooltip should use the generated panel asset")
+		get_tree().quit(1)
+		return
+	if not _tooltip_respects_board_gap("CaptureTraitTooltip"):
+		push_error("BarItemsTraitsCapture: trait tooltip bleeds into the board column")
 		get_tree().quit(1)
 		return
 	_save_capture("02_trait_tooltip_and_item_cards.png")
@@ -191,6 +205,47 @@ func _exercise_tooltip_edge_cases() -> bool:
 	_clear_tooltips()
 	return item_ok and trait_ok
 
+func _exercise_static_hover_targets() -> bool:
+	_static_hover_failure = ""
+	var targets: Array[Control] = []
+	var required_paths: Array[String] = [
+		"MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea/PlayerGrid/TileP_00",
+		"MarginContainer/VBoxContainer/BenchArea/BenchGrid/BenchSlot_00",
+		"MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Header/WindowAll",
+		"MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Header/Window3s",
+		"MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard/Header/ExpandButton",
+	]
+	for path: String in required_paths:
+		var control: Control = _view.get_node_or_null(path) as Control
+		if control == null:
+			_static_hover_failure = "missing path %s" % path
+			return false
+		targets.append(control)
+	var required_button_texts: Array[String] = ["Damage", "DPS", "Casts", "Reroll", "Lock", "Buy XP", "Start Opening Fight", "Menu"]
+	for text: String in required_button_texts:
+		var search_root: Node = _main if text == "Menu" else _view
+		var button: Button = _find_button_by_text(search_root, text)
+		if button == null:
+			_static_hover_failure = "missing button text %s" % text
+			return false
+		targets.append(button)
+	for target: Control in targets:
+		if not target.visible or not target.is_visible_in_tree():
+			_static_hover_failure = "hidden target %s" % target.name
+			return false
+		var before_rect: Rect2 = target.get_global_rect()
+		if before_rect.size.x <= 0.0 or before_rect.size.y <= 0.0:
+			_static_hover_failure = "zero rect target %s rect=%s" % [target.name, str(before_rect)]
+			return false
+		Input.warp_mouse(before_rect.get_center())
+		await _settle(0.04)
+		if not _rect_is_stable(before_rect, target.get_global_rect()):
+			_static_hover_failure = "shifted target %s before=%s after=%s" % [target.name, str(before_rect), str(target.get_global_rect())]
+			return false
+	Input.warp_mouse(Vector2(4.0, 4.0))
+	await _settle(0.04)
+	return true
+
 func _exercise_item_tooltip_edges() -> bool:
 	var item_tooltip: Control = load("res://scenes/ui/items/ItemTooltip.tscn").instantiate() as Control
 	if item_tooltip == null:
@@ -238,27 +293,33 @@ func _exercise_item_hover() -> bool:
 	var card: Control = _first_filled_item_card()
 	if card == null:
 		return false
+	var before_rect: Rect2 = card.get_global_rect()
 	Input.warp_mouse(card.get_global_rect().get_center())
 	card.call("_on_mouse_entered")
 	await _settle(0.18)
 	var shown: bool = _count_script_instances(get_tree().root, "res://scripts/ui/items/item_tooltip.gd") > 0
+	var stable_rect: bool = _rect_is_stable(before_rect, card.get_global_rect())
+	_save_capture("04_item_hover_tooltip.png")
 	card.call("_on_mouse_exited")
 	await _settle(0.06)
 	var cleared: bool = _count_script_instances(get_tree().root, "res://scripts/ui/items/item_tooltip.gd") == 0
-	return shown and cleared
+	return shown and cleared and stable_rect
 
 func _exercise_trait_hover() -> bool:
 	var icon: Control = _first_trait_icon()
 	if icon == null:
 		return false
+	var before_rect: Rect2 = icon.get_global_rect()
 	Input.warp_mouse(icon.get_global_rect().get_center())
 	icon.call("_on_mouse_entered")
 	await _settle(0.14)
 	var shown: bool = _count_script_instances(get_tree().root, "res://scripts/ui/traits/trait_tooltip.gd") > 0
+	var stable_rect: bool = _rect_is_stable(before_rect, icon.get_global_rect())
+	_save_capture("05_trait_hover_tooltip.png")
 	icon.call("_on_mouse_exited")
 	await _settle(0.06)
 	var cleared: bool = _count_script_instances(get_tree().root, "res://scripts/ui/traits/trait_tooltip.gd") == 0
-	return shown and cleared
+	return shown and cleared and stable_rect
 
 func _first_filled_item_card() -> Control:
 	var item_grid: GridContainer = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid") as GridContainer
@@ -277,6 +338,16 @@ func _first_trait_icon() -> Control:
 	if traits_vbox == null:
 		return null
 	return _find_trait_icon_recursive(traits_vbox)
+
+func _find_button_by_text(root: Node, text: String) -> Button:
+	var button: Button = root as Button
+	if button != null and String(button.text) == text and button.visible and button.is_visible_in_tree():
+		return button
+	for child: Node in root.get_children():
+		var found: Button = _find_button_by_text(child, text)
+		if found != null:
+			return found
+	return null
 
 func _traits_vbox() -> VBoxContainer:
 	var paths: Array[String] = [
@@ -329,6 +400,18 @@ func _tooltip_uses_generated_frame(tooltip_name: String) -> bool:
 	if tooltip == null:
 		return false
 	return tooltip.get_theme_stylebox("panel") is StyleBoxTexture
+
+func _tooltip_respects_board_gap(tooltip_name: String) -> bool:
+	var tooltip: Control = get_tree().root.get_node_or_null(tooltip_name) as Control
+	if tooltip == null:
+		return false
+	var board_surface: Control = _view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea") as Control
+	if board_surface == null:
+		return true
+	return tooltip.get_global_rect().end.x <= board_surface.get_global_rect().position.x - 2.0
+
+func _rect_is_stable(before_rect: Rect2, after_rect: Rect2) -> bool:
+	return before_rect.position.distance_to(after_rect.position) <= 0.5 and before_rect.size.distance_to(after_rect.size) <= 0.5
 
 func _clear_script_tooltips() -> void:
 	_clear_script_tooltips_recursive(get_tree().root)

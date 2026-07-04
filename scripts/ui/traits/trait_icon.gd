@@ -183,12 +183,12 @@ func _clear_global_tooltips() -> void:
 		if node != null and node != _tooltip and is_instance_valid(node):
 			node.queue_free()
 
-func _apply_hover_motion(active: bool) -> void:
+func _apply_hover_motion(_active: bool) -> void:
 	if _hover_tween != null and is_instance_valid(_hover_tween):
 		_hover_tween.kill()
 	_hover_tween = create_tween()
 	_hover_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_hover_tween.tween_property(self, "scale", Vector2(1.09, 1.09) if active else Vector2.ONE, 0.09)
+	_hover_tween.tween_property(self, "scale", Vector2.ONE, 0.09)
 
 func _tooltip_anchor_position() -> Vector2:
 	return global_position + Vector2(size.x + 14.0, -8.0)
