@@ -739,6 +739,16 @@ Accepted cleanup: removed unused `Targeting._has_approach()` and `_has_mask()` h
 - Real movement and broad gates stayed clean through Godot MCP: `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `272431us`, `562923us`, and `604853us`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8638ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7068ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5832`.
 - This is retained as code cleanup and no-regression evidence, not as a primary hotspot fix. Slot assignment remains the main 12v12 target, and 8v8 step loops plus collision remain meaningful secondary surfaces.
 
+## Continuation - 2026-07-04 Collision Sized-Array Trust
+
+Accepted change: `CollisionResolver.resolve()` now trusts the already-sized alive and step-cap arrays passed by `MovementService2` and the focused collision benchmark, removing fallback size checks during collision setup. This avoids per-unit bounds checks before building the active-index list while preserving active pair order and pair math.
+
+- Fresh same-turn movement control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `309253us`, `615216us`, and `705206us`; collision slices were `20925us`, `56785us`, and `27075us`.
+- Focused `tests/perf/PerfCollisionResolver.tscn` preserved aggregate `1955603822268948610`, errors `[]`, median total `89ms`: dense 6v6 `21ms`, dense 12v12 `33ms`, late 12v12 `35ms`.
+- Patched `PerfMovementPhases.tscn` repeats preserved the same 6v6/8v8/12v12 signatures and errors `[]`. First run movement was `309031us`, `596259us`, and `644432us`; repeat movement was `300069us`, `612362us`, and `644712us`. The 8v8 and 12v12 gates improved versus the fresh control in both runs.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9343ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7559ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `356ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6300`.
+- This is a secondary-surface cleanup. The 12v12 movement profile is still dominated by slot assignment, so the broader performance goal remains active.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

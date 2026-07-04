@@ -37,8 +37,8 @@ func resolve(
     _active_indices.clear()
     for i in range(player_count):
         _all_pos[i] = player_positions[i]
-        var player_is_alive: bool = (player_alive[i] if i < player_alive.size() else true)
-        var player_step_cap: float = (player_step_caps[i] if i < player_step_caps.size() else 0.0)
+        var player_is_alive: bool = player_alive[i]
+        var player_step_cap: float = player_step_caps[i]
         _caps[i] = max(0.0, player_step_cap)
         _tag_is_player[i] = true
         if player_is_alive:
@@ -46,8 +46,8 @@ func resolve(
     for j in range(enemy_count):
         var write_index: int = player_count + j
         _all_pos[write_index] = enemy_positions[j]
-        var enemy_is_alive: bool = (enemy_alive[j] if j < enemy_alive.size() else true)
-        var enemy_step_cap: float = (enemy_step_caps[j] if j < enemy_step_caps.size() else 0.0)
+        var enemy_is_alive: bool = enemy_alive[j]
+        var enemy_step_cap: float = enemy_step_caps[j]
         _caps[write_index] = max(0.0, enemy_step_cap)
         _tag_is_player[write_index] = false
         if enemy_is_alive:
