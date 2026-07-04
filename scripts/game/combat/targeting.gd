@@ -293,15 +293,6 @@ static func _goal(unit: Unit) -> String:
 		return ""
 	return String(unit.get_primary_goal()).strip_edges().to_lower()
 
-static func _has_approach(unit: Unit, approach_id: String) -> bool:
-	if unit == null:
-		return false
-	var key: String = String(approach_id).strip_edges().to_lower()
-	for approach in unit.approaches:
-		if String(approach).strip_edges().to_lower() == key:
-			return true
-	return false
-
 static func _approach_mask(unit: Unit) -> int:
 	if unit == null:
 		return 0
@@ -343,9 +334,6 @@ static func _approach_mask(unit: Unit) -> int:
 				pass
 	unit.targeting_approach_mask_cache = mask
 	return mask
-
-static func _has_mask(mask: int, bit: int) -> bool:
-	return (mask & bit) != 0
 
 static func _position_at(positions: Array[Vector2], index: int, fallback: Vector2) -> Vector2:
 	if index >= 0 and index < positions.size():

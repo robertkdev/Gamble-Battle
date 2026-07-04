@@ -729,6 +729,16 @@ Rejected follow-up: building support peel priorities and positive-priority ally 
 - Candidate `PerfTargeting.tscn` repeats preserved the same signature and errors `[]`, with medians `423ms` and `432ms`.
 - Candidate `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures and errors `[]`, but regressed 8v8 movement to `583931us` and 12v12 movement to `698482us` versus the `559528us` / `634891us` breadth control. Keep the two-helper setup until a targeting change improves the real phase gate, not only the focused targeting median.
 
+## Continuation - 2026-07-04 Targeting Dead Helper Cleanup
+
+Accepted cleanup: removed unused `Targeting._has_approach()` and `_has_mask()` helpers. Hot targeting paths already use cached approach masks and direct bit checks, so this trims dead code without changing target selection.
+
+- Fresh controls before this cleanup kept `tests/perf/PerfSlotTeamAssignment.tscn` clean with aggregate `2813605715628331077`, total `309ms`; `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `293147us`, `579780us`, and `622839us`.
+- Rejected same-pass movement typed-alive-buffer experiment: tightening helper parameters to `Array[bool]` preserved the same movement signatures and improved 6v6/8v8 movement to `284418us` and `565778us`, but regressed 12v12 movement to `647025us`; source was reverted.
+- Targeting cleanup validation: `tests/perf/PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `383ms`.
+- Real movement and broad gates stayed clean through Godot MCP: `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `272431us`, `562923us`, and `604853us`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8638ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7068ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5832`.
+- This is retained as code cleanup and no-regression evidence, not as a primary hotspot fix. Slot assignment remains the main 12v12 target, and 8v8 step loops plus collision remain meaningful secondary surfaces.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
