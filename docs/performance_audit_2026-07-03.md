@@ -1184,6 +1184,13 @@ No gameplay source optimization was retained. The next step-loop probe focused o
 - `PerfMovementStepHelpers.tscn` now includes `slot_step_10v10_no_anchor`, `slot_step_12v12_no_anchor`, and `in_band_8v8_no_anchor` so future step-loop edits can distinguish anchor overhead from base steering cost at larger team sizes. Clean expanded validation preserved errors `[]`, aggregate `4713848927282072330`, total `1790ms`; new rows were `slot_step_10v10_no_anchor=368ms`, `slot_step_12v12_no_anchor=250ms`, and `in_band_8v8_no_anchor=88ms`.
 - Takeaway: no-anchor rows are not automatically cheaper once team size rises, so call-site branch shortcuts should not be assumed to help. Future movement-step source candidates should first beat the expanded helper gate, then pass `PerfMovementPhases.tscn` on 6v6/8v8/9v9/10v10/11v11/12v12.
 
+## Continuation - 2026-07-04 Rejected Movement Radius Reciprocal Probe
+
+No source optimization was retained. The expanded movement-helper gate rejected replacing repeated separation/avoidance `distance / radius` divisions with precomputed reciprocal multiplication.
+
+- Rejected movement radius reciprocal probe: precomputing `1.0 / separation_radius` and `1.0 / avoidance_radius` preserved `PerfMovementStepHelpers.tscn` signatures, but regressed the expanded helper total from the latest clean `1790ms` control to `2355ms`. The largest regressions were `slot_step_8v8_no_anchor=367ms`, `slot_step_12v12=502ms`, and `slot_step_12v12_no_anchor=367ms`. Source was reverted before real movement validation.
+- Takeaway: in GDScript, this hot-loop reciprocal rewrite is slower than direct division in the current helper shapes. Keep the direct `distance / radius` form unless a future same-window focused gate proves otherwise.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
