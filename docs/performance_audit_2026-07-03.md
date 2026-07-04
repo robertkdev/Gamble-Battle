@@ -1507,6 +1507,16 @@ No gameplay source optimization was retained. Two fresh candidates preserved det
 - The real movement gate rejected the lazy-normalization candidate despite preserving all six `PerfMovementPhases.tscn` signatures and errors `[]`. Candidate movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `319343us`, `535424us`, `698864us`, `518970us`, `836376us`, and `683401us`, which did not beat the current integrated movement frontier, especially 10v10 through 12v12. Source was restored.
 - Takeaway: focused helper wins still are not enough. Continue to require same-window `PerfMovementPhases.tscn` wins before retaining movement-step cleanups, and require `PerfLargeBoard.tscn` scale proof before keeping controller/targeting control-flow cleanups that look positive only in 6v6.
 
+## Continuation - 2026-07-04 Rejected Arrival Radius Lazy Defaults
+
+No gameplay source optimization was retained. A small movement-loop candidate delayed default arrival/corridor radius calculations until a unit had no assigned slot, but it failed the broader combat gate despite improving some local player/enemy step slices.
+
+- Fresh focused controls before the edit stayed clean with errors `[]`: `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3361ms`; `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `929ms`; and `PerfMovementPhases.tscn` preserved all six deterministic signatures with movement totals `298095us`, `530851us`, `560162us`, `371778us`, `558554us`, and `593558us` for 6v6/8v8/9v9/10v10/11v11/12v12.
+- Candidate `PerfMovementPhases.tscn` preserved all signatures and errors `[]`. Repeats were mixed but showed the intended local step effect: movement totals included `259667us`, `469810us`, `539941us`, `336435us`, `594238us`, and `576916us`, then `242575us`, `490416us`, `522149us`, `330382us`, `511994us`, and `608141us`.
+- Broad candidate gates stayed behavior-stable but did not prove a real win: `Perf6v6.tscn` preserved aggregate `4480953857527108889:18` with total `15201ms`, and `PerfLargeBoard.tscn` preserved aggregate `7144113503220431359:12` with total `10143ms`.
+- Same-window restored-source `Perf6v6.tscn` was clearly faster while preserving expected signatures: neutral/burst/peel medians `937ms`, `1027ms`, and `1075ms`, total `9643ms`, aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`. Source was restored.
+- Takeaway: do not retain lazy default arrival/corridor radius initialization in `MovementService2._update_impl()` unless a future profile shows a clean same-window broad win. Small player/enemy step savings are too easy to lose in the integrated combat loop.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
