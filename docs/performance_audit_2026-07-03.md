@@ -695,6 +695,15 @@ Accepted change: support targeting now builds a packed list of positive-priority
 - Broad gates stayed clean through Godot MCP: `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8826ms`; `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7108ms`; `tests/perf/Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `327ms`; and `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5826`.
 - Rejected same-pass candidates: reusing slot evaluator cost/unique-minimum scratch preserved `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077` but regressed the focused total from `264ms` to `295ms`; skipping inactive previous-slot dictionary entries preserved movement signatures and improved one 8v8 sample, but repeated 12v12 movement regressed to `681170us` versus the `662897us` control. Both source changes were reverted.
 
+## Continuation - 2026-07-04 Rejected Slot Assignment Copy And Slot Memory Writes
+
+Rejected follow-up candidates: avoiding the duplicate of each new best slot assignment, and writing slot memory arrays directly instead of calling `MovementState.set_slot_memory(...)`, both preserved deterministic signatures but failed the real movement bar. Source was reverted.
+
+- Fresh same-turn controls after `6a60060`: `tests/perf/PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, total `392ms`; `tests/perf/PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, total `294ms`; `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `290716us`, `553775us`, and `600618us`.
+- Assignment-copy removal preserved focused slot signatures and improved `PerfSlotTeamAssignment.tscn` to `249ms`, but real movement regressed 8v8 to `582295us` and 12v12 to `650928us`. Source was reverted.
+- Direct slot-memory writes preserved movement signatures and improved initial 6v6/8v8 samples (`279468us`, `540354us`) with near-neutral 12v12 (`599674us`), but repeats were mixed: 8v8 regressed to `568327us`, 12v12 to `621767us`, and final 12v12 to `639724us`. `Perf6v6.tscn` stayed stable but slower than the previous accepted broad total (`8942ms` vs `8826ms`), while `PerfLargeBoard.tscn` improved to `7030ms`. The phase-gate 12v12 regression was enough to reject the change.
+- Do not accept focused slot-wrapper wins unless `PerfMovementPhases.tscn` holds 8v8 and 12v12 in repeat runs. These probes reinforce that slot-assignment and movement-loop micro-edits can improve isolated totals while worsening the real large-fight gate.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
