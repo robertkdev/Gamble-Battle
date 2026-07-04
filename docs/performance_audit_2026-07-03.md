@@ -1247,6 +1247,16 @@ No gameplay source optimization was retained from this pass. Both candidates pre
 - Rejected collision non-debug loop split: splitting `CollisionResolver.resolve()` into separate diagnostics-off and diagnostics-on pair loops preserved `PerfCollisionResolver.tscn` aggregate `1955603822268948610` and improved the same-window focused total from `144ms` control to `95ms`, but broader `PerfMovementPhases.tscn` runs were mixed or worse despite preserving all six movement signatures. Repeats included 12v12 movement `639421us` and `625114us`, compared with the previous accepted collision-cleanup range of roughly `604959-620028us`. The source was reverted.
 - Takeaway: optimization is not exhausted, but the next professional-grade retained change should still come from the large same-target slot-assignment frontier or a secondary slice that wins in `PerfMovementPhases.tscn`, not only a focused microbenchmark.
 
+## Continuation - 2026-07-04 Avoid Slot Assignment Duplicates
+
+Accepted a narrow slot-assignment allocation cleanup: the dictionary and array target-slot loops now keep the assignment array returned by `_evaluate_precomputed_assignment()` directly instead of duplicating it when a new best base rotation is found. The returned assignment is not mutated after selection, so tie order and slot indices are unchanged.
+
+- Fresh focused controls before the edit stayed clean: `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `1429ms`; `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1103ms`; `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `5104ms`.
+- Patched `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898` and improved focused totals to `4665ms` and then `3771ms`. The strongest repeated row improvements were in the expensive single-target and pair-target slot assignment cases.
+- Real `PerfMovementPhases.tscn` preserved all six deterministic signatures on every candidate and restored-control run. Evidence was noisy but favored retention on the main large-team frontier: candidate repeats included 10v10/11v11/12v12 movement `305118us` / `563852us` / `603913us`, while restored-source same-window control measured `472763us` / `701583us` / `625617us`. One retained-diff run was load-contaminated at 11v11/12v12, and a later retained-diff run measured `373319us` / `556146us` / `624659us`.
+- Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`; `Perf1v1.tscn` signature `-6199507685307107293:55`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
+- This is an allocation cleanup in the primary slot frontier, not completion. Future slot work should still target the 9/10/11/12 same-target rotation/DP path and require real movement evidence because focused slot wins can still be misleading.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

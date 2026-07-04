@@ -888,7 +888,7 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 		var current_cost: float = float(assignment_eval.get("cost", 1e30))
 		if current_cost < best_cost:
 			best_cost = current_cost
-			best_assignment = assignment_eval.get("assignment", []).duplicate()
+			best_assignment = assignment_eval.get("assignment", [])
 			best_base = base
 	if best_assignment.is_empty():
 		return
@@ -981,7 +981,7 @@ static func _assign_for_target_into_arrays(_team: String, _target_idx: int, targ
 		var current_cost: float = float(assignment_eval.get("cost", 1e30))
 		if current_cost < best_cost:
 			best_cost = current_cost
-			best_assignment = assignment_eval.get("assignment", []).duplicate()
+			best_assignment = assignment_eval.get("assignment", [])
 			best_base = base
 	if best_assignment.is_empty():
 		return
