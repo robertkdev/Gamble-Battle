@@ -115,6 +115,7 @@ func set_debug_watch(team: String, indices: Array) -> void:
 
 func set_diagnostics_enabled(enabled: bool) -> void:
 	diagnostics_enabled = bool(enabled)
+	slots.set_diagnostics_enabled(diagnostics_enabled)
 	reset_diagnostics()
 
 func reset_diagnostics() -> void:
@@ -125,6 +126,7 @@ func reset_diagnostics() -> void:
 	_diag_target_skips = 0
 	_diag_slot_group_sizes.clear()
 	_diag_slot_side_usec.clear()
+	slots.reset_diagnostics()
 
 func diagnostics_snapshot() -> Dictionary:
 	var phases: Dictionary[String, int] = {}
@@ -139,6 +141,14 @@ func diagnostics_snapshot() -> Dictionary:
 	for side_key in _diag_slot_side_usec.keys():
 		var slot_side_key: String = String(side_key)
 		slot_side_usec[slot_side_key] = int(_diag_slot_side_usec.get(slot_side_key, 0))
+	var slot_group_usec: Dictionary[String, int] = {}
+	var slot_diagnostics: Dictionary = slots.diagnostics_snapshot()
+	var slot_group_usec_value: Variant = slot_diagnostics.get("slot_group_usec", {})
+	if slot_group_usec_value is Dictionary:
+		var slot_group_usec_dictionary: Dictionary = slot_group_usec_value
+		for group_time_key in slot_group_usec_dictionary.keys():
+			var slot_group_time_key: String = String(group_time_key)
+			slot_group_usec[slot_group_time_key] = int(slot_group_usec_dictionary.get(slot_group_time_key, 0))
 	return {
 		"frames": int(_diag_frames),
 		"total_usec": int(_diag_total_usec),
@@ -146,7 +156,8 @@ func diagnostics_snapshot() -> Dictionary:
 		"target_calls": int(_diag_target_calls),
 		"target_skips": int(_diag_target_skips),
 		"slot_group_sizes": slot_group_sizes,
-		"slot_side_usec": slot_side_usec
+		"slot_side_usec": slot_side_usec,
+		"slot_group_usec": slot_group_usec
 	}
 
 func ensure_capacity(player_count: int, enemy_count: int) -> void:

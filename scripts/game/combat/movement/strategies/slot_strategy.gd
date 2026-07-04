@@ -15,6 +15,31 @@ static var _dp_scratch_by_size: Dictionary = {}
 static var _hungarian_scratch_by_size: Dictionary = {}
 
 var _ranges_world_scratch: Dictionary = {}
+var diagnostics_enabled: bool = false
+var _diag_slot_group_usec: Dictionary[String, int] = {}
+
+func set_diagnostics_enabled(enabled: bool) -> void:
+	diagnostics_enabled = bool(enabled)
+	reset_diagnostics()
+
+func reset_diagnostics() -> void:
+	_diag_slot_group_usec.clear()
+
+func diagnostics_snapshot() -> Dictionary:
+	var slot_group_usec: Dictionary[String, int] = {}
+	for group_key in _diag_slot_group_usec.keys():
+		var group_time_key: String = String(group_key)
+		slot_group_usec[group_time_key] = int(_diag_slot_group_usec.get(group_time_key, 0))
+	return {
+		"slot_group_usec": slot_group_usec
+	}
+
+func _diag_record_slot_group_usec(side: String, group_size: int, elapsed_usec: int) -> void:
+	var elapsed_safe: int = max(0, elapsed_usec)
+	var side_key: String = "%s_%d" % [side, group_size]
+	var combined_key: String = "combined_%d" % group_size
+	_diag_slot_group_usec[side_key] = int(_diag_slot_group_usec.get(side_key, 0)) + elapsed_safe
+	_diag_slot_group_usec[combined_key] = int(_diag_slot_group_usec.get(combined_key, 0)) + elapsed_safe
 
 # Computes per-attacker slot destinations around their chosen targets.
 # Five evenly spaced slots per target, order-preserving assignment to avoid
@@ -1124,7 +1149,12 @@ func assign_slots_for_team_into_arrays(team: String,
 				desired = max(0.0, float(u.attack_range)) * max(0.0, tile_size) * band
 			ranges_world[attacker_index] = desired
 		var tgt_pos: Vector2 = target_positions[t_idx]
+		var diag_group_start: int = 0
+		if diagnostics_enabled:
+			diag_group_start = Time.get_ticks_usec()
 		_assign_for_target_into_arrays(team, int(t_idx), tgt_pos, attackers, attacker_positions, ranges_world, tile_size, prev_slot_assignments, hysteresis_frames, out_positions, out_slot_indices, out_los_arrive, out_slow_radii, out_corridor_radii, out_corridor_eps)
+		if diagnostics_enabled:
+			_diag_record_slot_group_usec(team, attackers.size(), Time.get_ticks_usec() - diag_group_start)
 		if Debug.enabled and debug_frames_left > 0:
 			var should_print: bool = true
 			if watch_indices != null and watch_indices.size() > 0:

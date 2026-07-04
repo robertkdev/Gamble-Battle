@@ -84,7 +84,8 @@ func _run_case(case_def: Dictionary, sample_count: int) -> Dictionary:
 		" max_movement_usec=", _max_int(movement_values),
 		" phases=", _phase_summary(representative),
 		" slot_groups=", _hist_summary(representative.get("slot_group_sizes", {})),
-		" slot_sides=", _hist_summary(representative.get("slot_side_usec", {})))
+		" slot_sides=", _hist_summary(representative.get("slot_side_usec", {})),
+		" slot_group_usec=", _hist_summary(representative.get("slot_group_usec", {})))
 	return {"ok": ok, "signature": first_signature}
 
 func _run_case_once(case_def: Dictionary) -> Dictionary:
@@ -146,7 +147,8 @@ func _run_case_once(case_def: Dictionary) -> Dictionary:
 		"movement_usec": total_usec,
 		"phases_usec": diagnostics.get("phases_usec", {}),
 		"slot_group_sizes": diagnostics.get("slot_group_sizes", {}),
-		"slot_side_usec": diagnostics.get("slot_side_usec", {})
+		"slot_side_usec": diagnostics.get("slot_side_usec", {}),
+		"slot_group_usec": diagnostics.get("slot_group_usec", {})
 	}
 
 func _make_job(label: String, team_size: int, map_params: Dictionary) -> DataModels.SimJob:
