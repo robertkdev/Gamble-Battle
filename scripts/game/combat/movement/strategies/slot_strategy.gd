@@ -435,6 +435,8 @@ static func _assignment_4(first: int, second: int, third: int, fourth: int) -> A
 
 static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
+	if n == 6:
+		return _best_assignment_dp_6(costs, incumbent_cost)
 	var reduced_u: Array[float] = []
 	var reduced_v: Array[float] = []
 	var reduced_slack_limit: float = -1.0
@@ -506,6 +508,50 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 		walk_mask = prev_masks[walk_mask]
 		write_row -= 1
 	return {"assignment": assignment, "cost": best_costs[final_mask]}
+
+static func _best_assignment_dp_6(costs: Array, incumbent_cost: float) -> Dictionary:
+	var dp_scratch: Dictionary = _dp_scratch_for_size(6)
+	var best_costs: PackedFloat64Array = dp_scratch["best_costs"]
+	var prev_cols: Array[int] = dp_scratch["prev_cols"]
+	var prev_masks: Array[int] = dp_scratch["prev_masks"]
+	best_costs.fill(1e30)
+	prev_cols.fill(-1)
+	prev_masks.fill(-1)
+	best_costs[0] = 0.0
+	var masks_by_row: Array = _dp_masks_for_size(6)
+	for row in range(6):
+		var row_masks: PackedInt32Array = masks_by_row[row]
+		var row_costs: Array[float] = costs[row]
+		for mask in row_masks:
+			var base_cost: float = best_costs[mask]
+			if base_cost >= 1e29 or base_cost >= incumbent_cost:
+				continue
+			for col in range(6):
+				var bit: int = 1 << col
+				if (mask & bit) != 0:
+					continue
+				var candidate_cost: float = base_cost + row_costs[col]
+				if candidate_cost >= incumbent_cost:
+					continue
+				var next_mask: int = mask | bit
+				if candidate_cost < best_costs[next_mask]:
+					best_costs[next_mask] = candidate_cost
+					prev_cols[next_mask] = col
+					prev_masks[next_mask] = mask
+	if best_costs[63] >= incumbent_cost:
+		return {"assignment": [], "cost": incumbent_cost}
+	var assignment: Array[int] = []
+	assignment.resize(6)
+	var walk_mask: int = 63
+	var write_row: int = 5
+	while write_row >= 0:
+		var picked_col: int = prev_cols[walk_mask]
+		if picked_col < 0:
+			return {"assignment": [], "cost": incumbent_cost}
+		assignment[write_row] = picked_col
+		walk_mask = prev_masks[walk_mask]
+		write_row -= 1
+	return {"assignment": assignment, "cost": best_costs[63]}
 
 static func _hungarian_dual_lower_bound(u: Array[float], v: Array[float], min_possible_cost: float, n: int) -> float:
 	var dual_cost: float = 0.0
