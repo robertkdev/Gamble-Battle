@@ -575,6 +575,18 @@ Accepted change: `Unit` now carries a lazy targeting approach-mask cache that re
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6182`.
 - This is retained as a focused targeting cleanup. It does not change the ranking rules and does not close the broader optimization goal; slot assignment and 8v8 step loops remain the largest measured open surfaces.
 
+## Continuation - 2026-07-04 3-Row Assignment Allocation Trim
+
+Accepted change: `_best_assignment_3()` now tracks the best 3-row assignment in local integer slots and allocates the returned `Array[int]` only once, after the winning candidate is known. Candidate order, strict `<` updates, incumbent behavior, and signatures are unchanged.
+
+- Focused A/B in `tests/perf/PerfSlotSmallAssignment.tscn`: same-turn control had `fast_3=203ms`, aggregate `7950943139573947519`; patched repeats preserved the aggregate and errors `[]` with `fast_3=168ms` and `173ms`.
+- `tests/perf/PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, errors `[]`, median total `316ms`.
+- `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: 6v6 movement `296216us`, 8v8 movement `606801us`, 12v12 movement `655840us`; 12v12 slot assignment `488861us`.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9533ms`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7543ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6320`.
+- Rejected follow-up during this pass: caching normalized target role/goal strings on `Unit` preserved `PerfTargeting.tscn` signature `9036604269279486158`, but regressed the same-turn focused control from `399ms` to `409ms` and `415ms`. Source was reverted.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

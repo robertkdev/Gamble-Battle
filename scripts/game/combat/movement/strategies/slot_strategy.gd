@@ -202,34 +202,48 @@ static func _best_assignment_3(costs: Array, incumbent_cost: float) -> Dictionar
 	var row1: Array[float] = costs[1]
 	var row2: Array[float] = costs[2]
 	var best_cost: float = incumbent_cost
-	var best_assignment: Array[int] = []
+	var best0: int = -1
+	var best1: int = -1
+	var best2: int = -1
 	var candidate_cost: float = row0[0] + row1[1] + row2[2]
 	if candidate_cost < best_cost:
 		best_cost = candidate_cost
-		best_assignment = _assignment_3(0, 1, 2)
+		best0 = 0
+		best1 = 1
+		best2 = 2
 	candidate_cost = row0[1] + row1[0] + row2[2]
 	if candidate_cost < best_cost:
 		best_cost = candidate_cost
-		best_assignment = _assignment_3(1, 0, 2)
+		best0 = 1
+		best1 = 0
+		best2 = 2
 	candidate_cost = row0[0] + row1[2] + row2[1]
 	if candidate_cost < best_cost:
 		best_cost = candidate_cost
-		best_assignment = _assignment_3(0, 2, 1)
+		best0 = 0
+		best1 = 2
+		best2 = 1
 	candidate_cost = row0[2] + row1[0] + row2[1]
 	if candidate_cost < best_cost:
 		best_cost = candidate_cost
-		best_assignment = _assignment_3(2, 0, 1)
+		best0 = 2
+		best1 = 0
+		best2 = 1
 	candidate_cost = row0[1] + row1[2] + row2[0]
 	if candidate_cost < best_cost:
 		best_cost = candidate_cost
-		best_assignment = _assignment_3(1, 2, 0)
+		best0 = 1
+		best1 = 2
+		best2 = 0
 	candidate_cost = row0[2] + row1[1] + row2[0]
 	if candidate_cost < best_cost:
 		best_cost = candidate_cost
-		best_assignment = _assignment_3(2, 1, 0)
-	if best_assignment.is_empty():
+		best0 = 2
+		best1 = 1
+		best2 = 0
+	if best0 < 0:
 		return {"assignment": [], "cost": incumbent_cost}
-	return {"assignment": best_assignment, "cost": best_cost}
+	return {"assignment": _assignment_3(best0, best1, best2), "cost": best_cost}
 
 static func _best_assignment_4(costs: Array, incumbent_cost: float) -> Dictionary:
 	var row0: Array[float] = costs[0]
