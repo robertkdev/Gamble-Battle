@@ -146,9 +146,13 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 	prev_masks.fill(-1)
 	best_costs[0] = 0.0
 	var masks_by_row: Array = _dp_masks_for_size(n)
+	var use_reduced_prune: bool = reduced_slack_limit >= 0.0
 	for row in range(n):
 		var row_masks: PackedInt32Array = masks_by_row[row]
 		var row_costs: Array[float] = costs[row]
+		var reduced_u_row: float = 0.0
+		if use_reduced_prune:
+			reduced_u_row = reduced_u[row + 1]
 		for mask in row_masks:
 			var base_cost: float = best_costs[mask]
 			if base_cost >= 1e29 or base_cost >= incumbent_cost:
@@ -157,14 +161,15 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 				var bit: int = 1 << col
 				if (mask & bit) != 0:
 					continue
-				if reduced_slack_limit >= 0.0:
-					var reduced_cost: float = row_costs[col] - reduced_u[row + 1] - reduced_v[col + 1]
+				var column_cost: float = row_costs[col]
+				if use_reduced_prune:
+					var reduced_cost: float = column_cost - reduced_u_row - reduced_v[col + 1]
 					if reduced_cost > reduced_slack_limit:
 						continue
-				var next_mask: int = mask | bit
-				var candidate_cost: float = base_cost + row_costs[col]
+				var candidate_cost: float = base_cost + column_cost
 				if candidate_cost >= incumbent_cost:
 					continue
+				var next_mask: int = mask | bit
 				if candidate_cost < best_costs[next_mask]:
 					best_costs[next_mask] = candidate_cost
 					prev_cols[next_mask] = col
