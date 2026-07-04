@@ -1559,6 +1559,14 @@ Added benchmark-only slot subphase timing. `SlotStrategy` now records `slot_phas
 - New evidence: high-count cost is overwhelmingly rotation/evaluation, not setup or output. Latest 10v10 had `player_10_rotate=156327us` versus `player_10_pairs=2189us` and `player_10_output=1165us`. 11v11 had `player_9_rotate=223640us` and `player_11_rotate=165182us`, while their pair/output work stayed under `1500us` each. 12v12 had `player_10_rotate=150382us` and `player_12_rotate=150164us`, again with pair/output work below `1500us`.
 - Takeaway: future source work should attack the rotation/evaluator architecture itself. Pair construction, sorting, and final slot-output writes are now proven secondary for the worst current large-team rows.
 
+## Continuation - 2026-07-04 Rejected Cost-Only Rotation Selection
+
+No gameplay source optimization was retained. A source candidate changed only the real array-output slot assignment path for groups of 9+ attackers: it evaluated each base rotation by exact cost only, then rebuilt the full assignment once for the winning rotation. The candidate preserved signatures but regressed the focused array assignment gate and was reverted.
+
+- Fresh controls before the edit stayed clean through Godot MCP: `PerfSlotSolverBreakdown.tscn` preserved aggregate `3460608454349089621`, errors `[]`, total `1465ms`; `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898`, errors `[]`, total `4780ms`.
+- Candidate `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898` and errors `[]`, but total rose to `5209ms`. The changed array rows regressed sharply: `array_single_9` `417ms -> 549ms`, `array_single_10` `174ms -> 268ms`, `array_single_11` `199ms -> 298ms`, `array_single_12` `193ms -> 278ms`, `array_pair_10` `75ms -> 140ms`, `array_pair_11` `81ms -> 188ms`, and `array_pair_12` `122ms -> 230ms`.
+- Takeaway: do not retry "cost-only rotation selection plus final assignment rebuild" without a new algorithmic reason. Avoiding assignment retention does not save enough; the extra exact cost pass duplicates the expensive rotation/evaluator work. The next slot candidate must reduce exact DP/search work itself or prove a real cache across repeated combat frames.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
