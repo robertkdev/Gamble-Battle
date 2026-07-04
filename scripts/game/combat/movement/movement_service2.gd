@@ -597,22 +597,39 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var move_dist: float = max_speed * max(0.0, delta)
 	var sep: Vector2 = Vector2.ZERO
 	var sep_r: float = separation_radius
-	if sep_r > 0.0:
+	var avoid_r: float = avoidance_radius
+	var avoid_accum: Vector2 = Vector2.ZERO
+	if sep_r > 0.0 or avoid_r > 0.0:
 		for k in range(self_positions.size()):
 			if k == idx:
 				continue
 			if not self_alive[k]:
 				continue
-			var other: Vector2 = self_positions[k]
-			var diff: Vector2 = cur - other
-			var d: float = diff.length()
-			if d > 0.0 and d < sep_r:
+			var self_diff: Vector2 = cur - self_positions[k]
+			var d: float = self_diff.length()
+			if d <= 0.0:
+				continue
+			var self_dir: Vector2 = self_diff / d
+			if sep_r > 0.0 and d < sep_r:
 				var w: float = 1.0 - (d / sep_r)
-				sep += (diff / d) * w
+				sep += self_dir * w
+			if avoid_r > 0.0 and d > 0.0001 and d < avoid_r:
+				var self_avoid_weight: float = 1.0 - (d / avoid_r)
+				avoid_accum += self_dir * self_avoid_weight
+	if avoid_r > 0.0:
+		for o in range(other_positions.size()):
+			if not other_alive[o]:
+				continue
+			var diff: Vector2 = cur - other_positions[o]
+			var d: float = diff.length()
+			if d <= 0.0001 or d >= avoid_r:
+				continue
+			var other_weight: float = 1.0 - (d / avoid_r)
+			avoid_accum += (diff / d) * other_weight
 	var sep_len: float = sep.length()
 	var sep_dir: Vector2 = sep / sep_len if sep_len > 0.0 else Vector2.ZERO
 	var sep_strength: float = clampf(sep_len, 0.0, 1.0) * corridor_factor
-	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, avoidance_radius, corridor_factor)
+	var avoidance_vec: Vector2 = avoid_accum * corridor_factor
 	var avoidance_len: float = avoidance_vec.length()
 	var avoidance_dir: Vector2 = avoidance_vec / avoidance_len if avoidance_len > 0.0 else Vector2.ZERO
 	var avoidance_strength: float = clampf(avoidance_len, 0.0, 1.0)
