@@ -551,6 +551,17 @@ Accepted change: `BuffSystem.has_movement_blockers()` now uses a cached active m
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` had already passed after this source change with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6219`.
 - This is a real hot-loop cleanup for buff-heavy fights, not proof that the whole movement surface is done. The latest phase evidence still points to slot assignment first, then movement step loops, target refresh, and collision checks.
 
+## Continuation - 2026-07-04 Forced Movement Integer Keys
+
+Accepted change: `ForcedMovement` now stores impulses in per-team dictionaries keyed by integer unit index instead of building `"team:index"` string keys for every active lookup. The public behavior is unchanged: team counts still gate whole-team checks, expired impulses are removed during consumption, and `has_any()` remains true while any team has a tracked impulse.
+
+- Focused A/B in `tests/perf/PerfForcedMovement.tscn`: same-turn control had `direct_active_ms=404`, `global_enemy_ms=168`, signature `3092491491923327610`; patched repeats preserved the signature and errors `[]` with `direct_active_ms=281` / `298` and `global_enemy_ms=60` / `67`.
+- `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: 6v6 movement `310093us`, 8v8 movement `592194us`, 12v12 movement `675811us`.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9835ms`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7631ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6545`.
+- This mainly helps frames with active knockback/forced impulses or global active-impulse misses. It is retained as a focused movement-adapter cleanup, while slot assignment and 8v8 step loops remain higher-value measured surfaces.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
