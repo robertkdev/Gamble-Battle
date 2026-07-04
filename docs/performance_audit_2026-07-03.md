@@ -1424,6 +1424,15 @@ No gameplay source optimization was retained from this pass. The in-band movemen
 - Restored-source confirmation after revert returned `Perf6v6.tscn` to expected signatures with errors `[]`: neutral `-3997862279252171970:232`, burst `5578449822537178089:232`, peel `1121549412794869883:232`, aggregate `4480953857527108889:18`.
 - Takeaway: do not replace in-band range checks with squared-distance comparisons or remove the avoidance-vector scalar without matchup-level acceptance work. The helper benchmark and movement phase profiler were too weak to prove gameplay equivalence here.
 
+## Continuation - 2026-07-04 Rejected Slot Dispatcher Bypass
+
+No gameplay source optimization was retained. A narrow `_evaluate_precomputed_assignment()` dispatcher bypass for 5-12 row groups preserved focused signatures but failed the real movement gate, so source was reverted.
+
+- Fresh focused controls on the restored source were clean: `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3651ms`; `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `2026ms`; `PerfSlotSmallAssignment.tscn` aggregate `7023677399820711247`, total `5328ms`.
+- Candidate change: after row costs were built and the unique-minimum shortcut failed, `_evaluate_precomputed_assignment()` called `_best_assignment_dp()` directly for 5-12 row groups instead of routing through `_best_assignment()`'s size dispatcher. This preserved behavior in focused gates and improved `PerfSlotSolverBreakdown.tscn` from total `1078ms` to `1037ms`; `PerfSlotTeamAssignment.tscn` stayed signature-stable and improved total to `3460ms`.
+- Real `PerfMovementPhases.tscn` rejected the candidate despite preserving all six signatures. The candidate regressed 6v6/8v8 and especially 12v12: movement totals were `417464us`, `657341us`, `564869us`, `335977us`, `675974us`, and `1176865us`, with 12v12 slot assignment `978395us`.
+- Takeaway: even semantically identical dispatcher-shape changes can perturb the real GDScript frame profile. Keep the current `_best_assignment()` dispatch from `_evaluate_precomputed_assignment()` unless a future same-window candidate beats the full six-case movement gate, not only focused slot totals.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
