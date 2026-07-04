@@ -51,8 +51,6 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 			attacker_role,
 			attacker_goal,
 			attacker_mask,
-			source_index,
-			source_team,
 			source_position,
 			ally_team,
 			ally_positions,
@@ -77,7 +75,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 				return current_target
 	return best_idx
 
-static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, _source_index: int, _source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float, inv_tile_size: float) -> float:
+static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float, inv_tile_size: float) -> float:
 	var enemy_role: String = _role(enemy)
 	var enemy_is_carry: bool = enemy_role == "marksman" or enemy_role == "mage"
 	var dist_tiles: float = source_position.distance_to(enemy_position) * inv_tile_size
