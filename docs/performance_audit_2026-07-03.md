@@ -1045,6 +1045,14 @@ No gameplay source optimization was retained from this pass. The answer to "is t
 - Rejected array-path typed range scratch: replacing the real array-output path's index-keyed range dictionary with a typed float array preserved signatures and improved one split-target sample (`array_split_12=23ms` versus `46ms` in the immediate pre-candidate run), but regressed the single-target array cases that map closest to the 12v12 hotspot (`array_single_6=126ms`, `array_single_12=152ms` versus immediate control `117ms` and `135ms`). Source was reverted; the expanded benchmark coverage was retained.
 - Takeaway: future slot-output changes should now prove both dictionary compatibility and real array-path timing in `PerfSlotTeamAssignment.tscn`, then still pass `PerfMovementPhases.tscn`. The slot frontier is not exhausted, but source changes need same-window wins on single-target 12v12-style cases before broader validation.
 
+## Continuation - 2026-07-04 Rejected Movement Helper Arg Cleanup
+
+No source optimization was retained. Fresh controls stayed behavior-stable with errors `[]`: expanded `PerfSlotTeamAssignment.tscn` aggregate `7341365920787360302`, total `670ms`; `PerfMovementStepHelpers.tscn` aggregate `4095235582607810427`, total `825ms`; and `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `311750us`, `559328us`, and `589449us`.
+
+- Rejected movement helper unused-argument cleanup: removing unused team/target/debug parameters from `_compute_slot_step()`, `_compute_in_band_step()`, and `_compute_arrive_step()` while hoisting the rare slot debug print to callers preserved focused helper signatures and improved `PerfMovementStepHelpers.tscn` from `825ms` to `550ms`.
+- The real movement gate failed despite the focused win. First patched `PerfMovementPhases.tscn` preserved signatures and improved 6v6/8v8 (`245866us`, `538022us`) but regressed 12v12 to `757234us`; repeat preserved signatures and 6v6 stayed favorable (`255880us`) while 8v8 was near-neutral (`552576us`) and 12v12 regressed further to `807325us`. Source was reverted. Post-revert `PerfMovementStepHelpers.tscn` stayed clean and measured total `475ms`, so the focused helper result was not a durable win either.
+- Takeaway: helper-call shape can look strongly favorable in `PerfMovementStepHelpers.tscn` and still disturb the real 12v12 frame profile. Keep the current helper signatures unless a future candidate wins the focused helper gate and repeated `PerfMovementPhases.tscn` 12v12.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
