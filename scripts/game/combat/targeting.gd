@@ -78,7 +78,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 
 static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goal: String, attacker_mask: int, _source_index: int, _source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], ally_peel_priorities: PackedFloat32Array, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float, inv_tile_size: float) -> float:
 	var enemy_role: String = _role(enemy)
-	var enemy_is_carry: bool = _is_carry_role(enemy_role)
+	var enemy_is_carry: bool = enemy_role == "marksman" or enemy_role == "mage"
 	var dist_tiles: float = source_position.distance_to(enemy_position) * inv_tile_size
 	var hp_pct: float = float(enemy.hp) / max(1.0, float(enemy.max_hp))
 	var low_hp: float = clampf(1.0 - hp_pct, 0.0, 1.0)
@@ -319,9 +319,6 @@ static func _approach_mask(unit: Unit) -> int:
 
 static func _has_mask(mask: int, bit: int) -> bool:
 	return (mask & bit) != 0
-
-static func _is_carry_role(role_id: String) -> bool:
-	return role_id == "marksman" or role_id == "mage"
 
 static func _position_at(positions: Array[Vector2], index: int, fallback: Vector2) -> Vector2:
 	if index >= 0 and index < positions.size():
