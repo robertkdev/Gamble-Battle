@@ -613,6 +613,17 @@ Accepted change: `_assign_for_target_into()` now sorts the small per-target `[at
 - Rejected same-pass follow-ups: iterating `groups` directly instead of `groups.keys()` preserved signatures but stayed in the same focused timing spread (`288ms`, `291ms`) and was reverted; caching range setup sizes and clamped tile size regressed `PerfSlotTeamAssignment.tscn` to `306ms` and was reverted; removing private helper `max(0.0, delta)` clamps preserved movement signatures but slightly worsened the accepted phase control across 6v6/8v8/12v12 (`302155us`, `590481us`, `658685us`) and was reverted.
 - This removes callback sort overhead from a per-target movement hot path. It still does not close the larger performance audit; slot assignment remains the top 12v12 surface, while 8v8 step loops, targeting, and collision remain monitored.
 
+## Continuation - 2026-07-04 Movement Radius Precompute
+
+Accepted change: `MovementService2._update_impl()` now computes separation and avoidance radii once per movement update and passes those values into private step helpers. The previous behavior is preserved because `radius` was already clamped nonnegative before the helper calls.
+
+- Fresh control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `347707us`, `591088us`, and `691927us`.
+- Patched `tests/perf/PerfMovementPhases.tscn` repeats preserved the same signatures and errors `[]`. First run movement was `290295us`, `585015us`, and `659099us`; repeat movement was `302246us`, `594192us`, and `667637us`.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9196ms`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7554ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6391`.
+- This is a small step-loop cleanup, not a completion point. 8v8 step loops remain a meaningful monitored surface, and 12v12 is still slot-assignment dominated.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

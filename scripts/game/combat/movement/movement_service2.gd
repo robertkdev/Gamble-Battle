@@ -186,6 +186,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var eps: float = tuning.range_epsilon
 	var eps_safe: float = max(0.0, eps)
 	var radius: float = ts * max(0.0, tuning.unit_radius_factor)
+	var separation_radius: float = radius * max(0.0, tuning.separation_radius_factor)
+	var avoidance_radius: float = radius * max(1.0, tuning.avoidance_radius_factor)
 
 	# Alive flags
 	_resize_bool_scratch(_p_alive_scratch, player_count, false)
@@ -351,7 +353,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 					tpos,
 					u,
 					delta,
-					radius,
+					avoidance_radius,
 					data.player_positions,
 					data.enemy_positions,
 					p_alive,
@@ -372,7 +374,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						delta,
 						slow_radius,
 						corridor_radius,
-						radius,
+						separation_radius,
+						avoidance_radius,
 						data.player_positions,
 						data.enemy_positions,
 						p_alive,
@@ -436,7 +439,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 					tpos2,
 					e,
 					delta,
-					radius,
+					avoidance_radius,
 					data.enemy_positions,
 					data.player_positions,
 					e_alive,
@@ -457,7 +460,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						delta,
 						slow_radius2,
 						corridor_radius2,
-						radius,
+						separation_radius,
+						avoidance_radius,
 						data.enemy_positions,
 						data.player_positions,
 						e_alive,
@@ -502,7 +506,7 @@ func _compute_arrive_step(cur: Vector2, slot_pos: Vector2, _target_pos: Vector2,
 		move_dist = dist
 	return dir_los * move_dist
 
-func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, _slow_radius: float, corridor_radius: float, radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
+func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, _slow_radius: float, corridor_radius: float, separation_radius: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
 	var to_slot: Vector2 = slot_pos - cur
 	var dist_to_slot: float = to_slot.length()
 	if dist_to_slot <= ARRIVE_STOP_EPS:
@@ -514,7 +518,7 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var max_speed: float = max(0.0, unit.move_speed) * max(0.0, tuning.speed_scale)
 	var move_dist: float = max_speed * max(0.0, delta)
 	var sep: Vector2 = Vector2.ZERO
-	var sep_r: float = max(0.0, radius) * max(0.0, tuning.separation_radius_factor)
+	var sep_r: float = separation_radius
 	if sep_r > 0.0:
 		for k in range(self_positions.size()):
 			if k == idx:
@@ -530,7 +534,7 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var sep_len: float = sep.length()
 	var sep_dir: Vector2 = sep / sep_len if sep_len > 0.0 else Vector2.ZERO
 	var sep_strength: float = clampf(sep_len, 0.0, 1.0) * corridor_factor
-	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, radius, corridor_factor)
+	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, avoidance_radius, corridor_factor)
 	var avoidance_len: float = avoidance_vec.length()
 	var avoidance_dir: Vector2 = avoidance_vec / avoidance_len if avoidance_len > 0.0 else Vector2.ZERO
 	var avoidance_strength: float = clampf(avoidance_len, 0.0, 1.0)
@@ -548,7 +552,7 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var step: Vector2 = blended * step_cap
 	return _apply_anchor_step(cur, step, move_dist, prof, self_positions)
 
-func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Vector2, unit: Unit, delta: float, radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, prof: MovementProfile) -> Vector2:
+func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Vector2, unit: Unit, delta: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, prof: MovementProfile) -> Vector2:
 	if unit == null or prof == null:
 		return Vector2.ZERO
 	if prof.kite_strength <= 0.0 and prof.strafe_strength <= 0.0:
@@ -589,7 +593,7 @@ func _compute_in_band_step(_team: String, idx: int, cur: Vector2, target_pos: Ve
 		return Vector2.ZERO
 	if candidate_dist < min_range * 0.80 and prof.kite_strength > 0.0:
 		return Vector2.ZERO
-	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, radius, 0.35)
+	var avoidance_vec: Vector2 = _compute_avoidance_vector(cur, idx, self_positions, other_positions, self_alive, other_alive, avoidance_radius, 0.35)
 	var avoidance_len: float = avoidance_vec.length()
 	if avoidance_len > 0.0:
 		var avoid_dir: Vector2 = avoidance_vec / avoidance_len
@@ -712,8 +716,7 @@ func _refresh_inner_bounds() -> void:
 		bounds.position.x + bounds.size.x - IN_BAND_BOUNDS_BUFFER,
 		bounds.position.y + bounds.size.y - IN_BAND_BOUNDS_BUFFER)
 
-func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, radius: float, corridor_factor: float) -> Vector2:
-	var avoid_radius: float = radius * max(1.0, tuning.avoidance_radius_factor)
+func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, avoid_radius: float, corridor_factor: float) -> Vector2:
 	if avoid_radius <= 0.0:
 		return Vector2.ZERO
 	var accum: Vector2 = Vector2.ZERO
