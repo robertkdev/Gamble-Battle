@@ -18,6 +18,7 @@ const APPROACH_ZONE: int = 1 << 9
 const APPROACH_LONG_RANGE: int = 1 << 10
 const APPROACH_PEEL: int = 1 << 11
 const APPROACH_ENGAGE: int = 1 << 12
+const APPROACH_RAMP: int = 1 << 13
 
 static func pick_first_alive(enemy_team: Array[Unit]) -> int:
 	for i in range(enemy_team.size()):
@@ -235,7 +236,8 @@ static func _ally_peel_priority(attacker: Unit, ally: Unit) -> float:
 		return 1.15
 	if role_id == "support":
 		return 0.65
-	if _has_approach(ally, "long_range") or _has_approach(ally, "ramp"):
+	var ally_mask: int = _approach_mask(ally)
+	if (ally_mask & APPROACH_LONG_RANGE) != 0 or (ally_mask & APPROACH_RAMP) != 0:
 		return 0.95
 	return 0.0
 
@@ -313,6 +315,8 @@ static func _approach_mask(unit: Unit) -> int:
 				mask |= APPROACH_PEEL
 			"engage":
 				mask |= APPROACH_ENGAGE
+			"ramp":
+				mask |= APPROACH_RAMP
 			_:
 				pass
 	return mask
