@@ -30,7 +30,7 @@ static func pick_by_priority(attacker: Unit, source_index: int, source_team: Str
 	if attacker == null or not attacker.is_alive():
 		return -1
 	var attacker_role: String = _role(attacker)
-	var attacker_goal: String = _goal(attacker)
+	var attacker_goal: String = _goal(attacker) if attacker_role == "marksman" else ""
 	var attacker_mask: int = _approach_mask(attacker)
 	var safe_tile_size: float = max(1.0, tile_size)
 	var inv_tile_size: float = 1.0 / safe_tile_size
