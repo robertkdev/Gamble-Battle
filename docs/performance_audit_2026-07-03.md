@@ -539,6 +539,18 @@ Fresh answer to "is that all that needs optimizing?": no. The latest clean phase
   - 12v12 large: signature `3567836549670627538:428`, median elapsed `1209ms`, movement `690460us`; slot assignment `480841us` (`69.6%`), player steps `103563us` (`15.0%`), enemy steps `32953us` (`4.8%`), targets `25882us` (`3.7%`), collision `23293us` (`3.4%`), previous slots `6180us` (`0.9%`).
 - Rejected follow-up: removing the `.duplicate()` call when storing a newly best slot assignment preserved signatures but regressed the same-turn focused controls. `PerfSlotSolverBreakdown.tscn` worsened from control total `420ms` to `445ms`, and `PerfSlotTeamAssignment.tscn` worsened from control total `245ms` to `300ms`. Source was reverted.
 
+## Continuation - 2026-07-04 Movement Blocker Count
+
+Accepted change: `BuffSystem.has_movement_blockers()` now uses a cached active movement-blocker count instead of scanning every active buff on each movement update. The count is updated when stun/root/rooted buffs are created, expired, cleansed, or when the buff system is cleared. This preserves the previous blocker definition while making active non-blocking buff states cheap.
+
+- Focused A/B result in `tests/perf/PerfMovementBlockers.tscn`: a temporary old-scan control took `5303ms` for `240000` active non-blocking checks; the retained count-based path took `127ms` on the final run with the same signature `8928121065208191259` and errors `[]`.
+- `tests/rga_testing/validation/BuffMovementBlockerCountSmoke.tscn` passed with errors `[]`: fresh systems report no blockers, shields and cleanseable mark tags do not count, refreshed roots still count once, tick expiry clears the count, and cleanse removes stun/rooted blockers.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`: neutral `958ms`, burst `980ms`, peel `1062ms`, total `9490ms`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`: 8v8 median `2412ms`, 12v12 median `1133ms`, total `7654ms`.
+- `tests/perf/Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `345ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` had already passed after this source change with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6219`.
+- This is a real hot-loop cleanup for buff-heavy fights, not proof that the whole movement surface is done. The latest phase evidence still points to slot assignment first, then movement step loops, target refresh, and collision checks.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
