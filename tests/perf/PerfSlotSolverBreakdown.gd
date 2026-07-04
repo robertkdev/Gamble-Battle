@@ -15,6 +15,7 @@ func _run() -> void:
 		{"label": "hungarian_12", "kind": "hungarian", "count": 12, "iterations": 240, "offset": 0.41},
 		{"label": "dp_12_initial", "kind": "dp_initial", "count": 12, "iterations": 90, "offset": 0.29},
 		{"label": "dp_12_pruned", "kind": "dp_pruned", "count": 12, "iterations": 160, "offset": 0.41},
+		{"label": "rotation_6", "kind": "rotation_eval", "count": 6, "iterations": 160, "offset": 0.17},
 		{"label": "rotation_8", "kind": "rotation_eval", "count": 8, "iterations": 80, "offset": 0.23},
 		{"label": "rotation_12", "kind": "rotation_eval", "count": 12, "iterations": 30, "offset": 0.29}
 	]

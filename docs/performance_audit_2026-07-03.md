@@ -1076,6 +1076,15 @@ No gameplay source optimization was retained. The answer to "is that all that ne
 - `tests/perf/PerfSlotSmallAssignment.tscn` now includes count-6 dispatcher and direct-DP cases to match the newly exposed pair-split frontier. Clean expanded run preserved errors `[]`; count-6 dispatcher and direct-DP signatures both measured `1077033215214316036`, with `fast_6=689ms` and `dp_6=934ms` over 8,000 iterations, aggregate `7023677399820711247`.
 - Takeaway: the remaining slot frontier is not exhausted, but the next retained source optimization should now beat count-12 and count-6 gates before any real-movement validation. Benchmark-only expansion was retained because it closes a coverage gap without changing gameplay behavior.
 
+## Continuation - 2026-07-04 Count-6 Solver Breakdown Coverage
+
+No gameplay source optimization was retained. This pass sharpened the count-6 gate that maps to the pair-split 12-unit slot frontier.
+
+- Same-window controls before the benchmark expansion preserved errors `[]`: `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, total `225ms`; `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, total `456ms`.
+- `tests/perf/PerfSlotDpSearch.tscn` now includes count-6 initial and pruned DP-search cases. Clean run preserved errors `[]`: `dp_6_initial=214ms`, signature `1168711661898648443`; `dp_6_pruned=175ms`, signature `1791660261227535585`; existing 10/12-row signatures stayed unchanged; new aggregate `5528722778184086582`.
+- `tests/perf/PerfSlotSolverBreakdown.tscn` now includes a count-6 `rotation_eval` case. Clean run preserved errors `[]`: `rotation_6=147ms`, signature `2967004710389803135`; existing 12-row Hungarian/DP and 8/12-row rotation signatures stayed unchanged; new aggregate `4927161410404863131`.
+- Takeaway: future count-6 source work should beat the new direct DP and rotation breakdown gates, not only `PerfSlotSmallAssignment.tscn`, before moving to `PerfSlotTeamAssignment.tscn` pair-split and real `PerfMovementPhases.tscn` validation.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
@@ -1104,7 +1113,7 @@ No gameplay source optimization was retained. The answer to "is that all that ne
 ## Recommended Next Optimizations
 
 1. Continue slot assignment work above the tiny 2/3/4-row fast paths with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures. Check both count-12 and the new count-6 assignment coverage before broader movement gates.
-2. Use `PerfSlotSolverBreakdown.tscn` and `PerfSlotDpSearch.tscn` for `_best_assignment_dp()` and base-rotation solver changes, then `PerfSlotTeamAssignment.tscn`, `PerfMovementPhases.tscn`, and `PerfLargeBoard.tscn` as the focused/regression/stress gates before future movement changes above 6v6.
+2. Use `PerfSlotSolverBreakdown.tscn` and `PerfSlotDpSearch.tscn` for `_best_assignment_dp()` and base-rotation solver changes, including the count-6 gates for pair-split work, then `PerfSlotTeamAssignment.tscn`, `PerfMovementPhases.tscn`, and `PerfLargeBoard.tscn` as the focused/regression/stress gates before future movement changes above 6v6.
 3. Use `PerfTargeting.tscn` before and after target-priority changes, then confirm with `Perf6v6.tscn` or `RoleMatrixProbe6v6.tscn`.
 4. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 155-170 events are material; the UI no longer polls every actor every frame.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
