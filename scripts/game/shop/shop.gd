@@ -193,11 +193,9 @@ func buy_xp() -> Dictionary:
 func _sync_roster_max_team_size() -> void:
 	if not _has_autoload("Roster"):
 		return
-	var target_size: int = get_level()
-	if _is_past_opening_fight():
-		target_size += int(ShopConfig.POST_OPENING_TEAM_SIZE_BONUS)
-		target_size = max(target_size, int(ShopConfig.POST_OPENING_MIN_TEAM_SIZE))
-	elif _is_opening_retry_team_bonus_active():
+	var level_delta: int = max(0, get_level() - int(ShopConfig.STARTING_LEVEL))
+	var target_size: int = int(ShopConfig.DEFAULT_BOARD_CAPACITY) + level_delta
+	if _is_opening_retry_team_bonus_active():
 		target_size = max(target_size, int(ShopConfig.POST_OPENING_MIN_TEAM_SIZE))
 	if _is_past_early_run_cap_floor_stage():
 		target_size = max(target_size, int(ShopConfig.EARLY_RUN_CAP_FLOOR_TEAM_SIZE))

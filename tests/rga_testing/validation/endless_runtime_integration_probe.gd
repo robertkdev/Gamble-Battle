@@ -10,6 +10,8 @@ const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd
 const StageRuleRunner := preload("res://scripts/game/progression/stage_rule_runner.gd")
 const StageProgressTopBar := preload("res://scripts/ui/combat/stage_progress_top_bar.gd")
 const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
+const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
+const TeamOddsEstimator := preload("res://scripts/game/combat/team_odds_estimator.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 
 const TEST_SEED: int = 730711
@@ -29,6 +31,7 @@ func _run() -> void:
 	_validate_progression_mapping(failures)
 	_validate_display_names(failures)
 	_validate_chapter_top_bar(failures)
+	_validate_board_capacity_and_odds(failures)
 	_validate_procedural_catalog_specs(failures)
 	_validate_seed_variation(failures)
 	_validate_spawner_and_rules(failures)
@@ -66,18 +69,65 @@ func _validate_chapter_top_bar(failures: Array[String]) -> void:
 	_expect(chapter_label != null, "chapter top bar should create chapter label", failures)
 	if chapter_label != null:
 		_expect(String(chapter_label.text) == "Chapter 1", "chapter top bar label should read Chapter 1, got %s" % chapter_label.text, failures)
+		_expect(String(chapter_label.tooltip_text).contains("RGA:"), "chapter summary hover should expose upcoming RGA challenge details", failures)
+		_expect(String(chapter_label.tooltip_text).contains("Stage 4"), "chapter summary hover should expose later boss stage details", failures)
 	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):
 		var icon: TextureRect = top_bar.find_child("StageIcon%d" % stage_index, true, false) as TextureRect
 		_expect(icon != null, "chapter top bar missing stage icon %d" % stage_index, failures)
 		if icon == null:
 			continue
 		_expect(icon.visible, "chapter top bar stage icon %d should be visible" % stage_index, failures)
-		_expect(String(icon.tooltip_text) == _expected_tooltip_for(stage_index), "chapter top bar stage %d tooltip mismatch: %s" % [stage_index, icon.tooltip_text], failures)
+		_expect(String(icon.tooltip_text).begins_with(_expected_tooltip_for(stage_index)), "chapter top bar stage %d tooltip mismatch: %s" % [stage_index, icon.tooltip_text], failures)
+		_expect(String(icon.tooltip_text).contains("Enemy:"), "chapter top bar stage %d tooltip should preview enemies: %s" % [stage_index, icon.tooltip_text], failures)
+		if stage_index == int(ProgressionConfig.FIRST_RGA_STAGE) or stage_index == int(ProgressionConfig.SECOND_RGA_STAGE):
+			_expect(String(icon.tooltip_text).contains("RGA:"), "RGA stage %d tooltip should include RGA challenge label: %s" % [stage_index, icon.tooltip_text], failures)
+			_expect(String(icon.tooltip_text).contains("Plan:"), "RGA stage %d tooltip should include planning puzzle text: %s" % [stage_index, icon.tooltip_text], failures)
 		if stage_index == int(ProgressionConfig.SECOND_RGA_STAGE):
 			_expect(icon.texture != null, "chapter top bar selected stage icon should have a texture", failures)
 			if icon.texture != null:
 				_expect(String(icon.texture.resource_path).ends_with("stage_3_challenge_selected.png"), "chapter top bar should select the second RGA challenge icon, got %s" % String(icon.texture.resource_path), failures)
 	top_bar.queue_free()
+
+func _validate_board_capacity_and_odds(failures: Array[String]) -> void:
+	var game_state_node: Node = _autoload_node("GameState")
+	var roster_node: Node = _autoload_node("Roster")
+	var shop_node: Node = _autoload_node("Shop")
+	_expect(game_state_node != null, "GameState autoload missing for board capacity probe", failures)
+	_expect(roster_node != null, "Roster autoload missing for board capacity probe", failures)
+	_expect(shop_node != null, "Shop autoload missing for board capacity probe", failures)
+	if game_state_node != null and game_state_node.has_method("set_chapter_and_stage"):
+		game_state_node.call("set_chapter_and_stage", 1, 1)
+	if roster_node != null and roster_node.has_method("reset"):
+		roster_node.call("reset")
+	if shop_node != null and shop_node.has_method("reset_run"):
+		shop_node.call("reset_run")
+	if roster_node != null:
+		_expect(int(roster_node.get("max_team_size")) == int(ShopConfig.DEFAULT_BOARD_CAPACITY), "new run board cap should start at %d, got %d" % [int(ShopConfig.DEFAULT_BOARD_CAPACITY), int(roster_node.get("max_team_size"))], failures)
+	if shop_node != null and shop_node.has_method("set_level"):
+		shop_node.call("set_level", int(ShopConfig.STARTING_LEVEL) + 1)
+	if roster_node != null:
+		_expect(int(roster_node.get("max_team_size")) == int(ShopConfig.DEFAULT_BOARD_CAPACITY) + 1, "leveling should add one board slot, got cap %d" % int(roster_node.get("max_team_size")), failures)
+	var player: Unit = UnitFactory.spawn("bonko")
+	var enemy: Unit = UnitFactory.spawn("beegle")
+	_expect(player != null and enemy != null, "odds probe should spawn bonko and beegle", failures)
+	if player != null and enemy != null:
+		var player_team: Array[Unit] = [player]
+		var enemy_team: Array[Unit] = [enemy]
+		var evenish_odds: int = TeamOddsEstimator.estimate_win_percent(player_team, enemy_team)
+		_expect(evenish_odds > 0 and evenish_odds < 100, "odds should be bounded 1..99, got %d" % evenish_odds, failures)
+		player.level = 4
+		var stronger_odds: int = TeamOddsEstimator.estimate_win_percent(player_team, enemy_team)
+		_expect(stronger_odds > evenish_odds, "unit level should improve displayed odds, before=%d after=%d" % [evenish_odds, stronger_odds], failures)
+	if shop_node != null and shop_node.has_method("reset_run"):
+		shop_node.call("reset_run")
+	if roster_node != null and roster_node.has_method("reset"):
+		roster_node.call("reset")
+
+func _autoload_node(autoload_name: String) -> Node:
+	var root: Window = get_tree().root
+	if root == null:
+		return null
+	return root.get_node_or_null("/root/%s" % String(autoload_name))
 
 func _validate_procedural_catalog_specs(failures: Array[String]) -> void:
 	for stage_index: int in range(1, int(ProgressionConfig.STAGES_PER_CHAPTER) + 1):

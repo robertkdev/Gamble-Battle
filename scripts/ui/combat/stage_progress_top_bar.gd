@@ -2,6 +2,8 @@ extends PanelContainer
 class_name StageProgressTopBar
 
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
+const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
+const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
 
 const ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
 const BAR_MIN_SIZE: Vector2 = Vector2(560.0, 66.0)
@@ -41,6 +43,7 @@ func update_progress(chapter: int, stage_in_chapter: int, total_stages: int) -> 
 	var safe_total: int = clampi(int(total_stages), 1, SELECTED_TEXTURE_PATHS.size())
 	var safe_stage: int = clampi(int(stage_in_chapter), 1, safe_total)
 	_chapter_label.text = ChapterCatalog.display_name_for(safe_chapter)
+	_chapter_label.tooltip_text = _chapter_tooltip_for(safe_chapter, safe_total)
 	for index: int in range(_icons.size()):
 		var icon: TextureRect = _icons[index]
 		var stage_number: int = index + 1
@@ -50,7 +53,7 @@ func update_progress(chapter: int, stage_in_chapter: int, total_stages: int) -> 
 		var selected: bool = stage_number == safe_stage
 		var texture_path: String = SELECTED_TEXTURE_PATHS[index] if selected else UNSELECTED_TEXTURE_PATHS[index]
 		icon.texture = _load_icon_texture(texture_path)
-		icon.tooltip_text = STAGE_TOOLTIPS[index]
+		icon.tooltip_text = _stage_tooltip_for(safe_chapter, stage_number)
 		icon.modulate = Color(1.0, 1.0, 1.0, 1.0) if selected else Color(0.78, 0.78, 0.78, 1.0)
 
 func _ensure_built() -> void:
@@ -83,6 +86,7 @@ func _ensure_built() -> void:
 	_chapter_label.text = "Chapter 1"
 	_chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_chapter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_chapter_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	_chapter_label.add_theme_font_size_override("font_size", 24)
 	_chapter_label.add_theme_color_override("font_color", Color(0.96, 0.84, 0.60, 1.0))
 	_chapter_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.72))
@@ -105,6 +109,72 @@ func _make_icon(index: int) -> TextureRect:
 	icon.texture = _load_icon_texture(UNSELECTED_TEXTURE_PATHS[index])
 	icon.tooltip_text = STAGE_TOOLTIPS[index]
 	return icon
+
+func _chapter_tooltip_for(chapter: int, total_stages: int) -> String:
+	var lines: Array[String] = [ChapterCatalog.display_name_for(chapter)]
+	for stage_number: int in range(1, int(total_stages) + 1):
+		lines.append(_stage_tooltip_for(chapter, stage_number).replace("\n", " | "))
+	return "\n".join(lines)
+
+func _stage_tooltip_for(chapter: int, stage_number: int) -> String:
+	var fallback: String = STAGE_TOOLTIPS[clampi(stage_number - 1, 0, STAGE_TOOLTIPS.size() - 1)]
+	var spec: Dictionary = RosterCatalog.get_spec(chapter, stage_number)
+	if not StageTypes.validate_spec(spec):
+		return fallback
+	var kind: String = String(spec.get(StageTypes.KEY_KIND, ""))
+	var rules: Dictionary = spec.get(StageTypes.KEY_RULES, {}) if typeof(spec.get(StageTypes.KEY_RULES, {})) == TYPE_DICTIONARY else {}
+	var ids: Array[String] = _spec_ids(spec)
+	var title: String = "%s: %s" % [fallback, _kind_label(kind)]
+	var lines: Array[String] = [title]
+	if kind == StageTypes.KIND_MIRROR:
+		lines.append("Enemy: your boss-entry board")
+	else:
+		lines.append("Enemy: %s" % _ids_label(ids))
+	var challenge: Dictionary = rules.get("rga_challenge", {}) if typeof(rules.get("rga_challenge", {})) == TYPE_DICTIONARY else {}
+	if not challenge.is_empty():
+		var challenge_label: String = String(challenge.get("label", "")).strip_edges()
+		if challenge_label != "":
+			lines.append("RGA: %s" % challenge_label)
+		var puzzle: String = String(challenge.get("puzzle", "")).strip_edges()
+		if puzzle != "":
+			lines.append("Plan: %s" % puzzle)
+	var theme: String = String(rules.get("theme", "")).strip_edges()
+	if theme != "" and challenge.is_empty():
+		lines.append("Theme: %s" % theme.replace("_", " ").capitalize())
+	if rules.has("difficulty_rating") or rules.has("target_rating"):
+		lines.append("Rating: %d/%d" % [int(rules.get("difficulty_rating", 0)), int(rules.get("target_rating", 0))])
+	return "\n".join(lines)
+
+func _spec_ids(spec: Dictionary) -> Array[String]:
+	var out: Array[String] = []
+	var value: Variant = spec.get(StageTypes.KEY_IDS, [])
+	if value is Array:
+		for id_value: Variant in value:
+			var unit_id: String = String(id_value).strip_edges()
+			if unit_id != "":
+				out.append(unit_id)
+	return out
+
+func _ids_label(ids: Array[String]) -> String:
+	if ids.is_empty():
+		return "unknown"
+	var names: Array[String] = []
+	for unit_id: String in ids:
+		names.append(unit_id.replace("_", " ").capitalize())
+	return ", ".join(names)
+
+func _kind_label(kind: String) -> String:
+	match String(kind):
+		StageTypes.KIND_CREEPS:
+			return "Creep reward"
+		StageTypes.KIND_NORMAL:
+			return "RGA challenge"
+		StageTypes.KIND_BOSS:
+			return "Boss"
+		StageTypes.KIND_MIRROR:
+			return "Mirror"
+		_:
+			return String(kind).capitalize()
 
 func _load_icon_texture(path: String) -> Texture2D:
 	if _texture_cache.has(path):

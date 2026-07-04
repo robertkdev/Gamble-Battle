@@ -12,6 +12,8 @@ The campaign now starts with procedural generation. Chapter 1 and every later ch
 
 Player-facing naming stays on the original chapter pattern: `Chapter 1`, `Chapter 2`, and so on. The top bar and logs should not switch to an endless-mode label.
 
+The player-facing default board is now three slots. The combat HUD shows `Board x/3` on a fresh run and increases the denominator as player level adds board slots. The same HUD also exposes a lightweight `Win Odds NN%` preview derived from visible player/enemy board ratings so players can reason about whether their current RGA answer is likely to work.
+
 ## Fast board assembly theory
 
 Use a deterministic budgeted-board generator per run seed:
@@ -31,6 +33,8 @@ Use a deterministic budgeted-board generator per run seed:
 - Use `tests/rga_testing/validation/DifficultyRatingAudit.tscn` to inspect per-unit, per-creep, item, active-trait, and generated-board rating breakdowns.
 
 This sits behind `RosterCatalog.get_spec()` starting at Chapter 1. `RosterCatalog` owns the runtime seed and generated StageSpec cache, so preview and combat agree.
+
+Top-bar previews use that same `RosterCatalog.get_spec()` path. Hovering the chapter label summarizes the chapter's stages, and hovering a stage icon previews the stage kind, enemy board, RGA label, planning prompt, and rating metadata where available. That keeps scouting and counter-planning tied to the board the player will actually fight.
 
 ## Difficulty ramp
 
@@ -72,8 +76,11 @@ Runtime hook:
 - `RosterCatalog` caches generated specs in chapter/round order to preserve short-window variety and keep repeated preview/combat calls stable.
 - `ChapterCatalog.display_name_for()` labels generated chapters as `Chapter N` for UI/log use.
 - `scripts/ui/combat/stage_progress_top_bar.gd` and `scripts/util/log_schema.gd` use the catalog display name.
+- `scripts/ui/combat/controller/combat_controller.gd` now adds the visible board-capacity and win-odds row above the player board.
+- `scripts/game/combat/team_odds_estimator.gd` is the shared odds helper for bounded 1-99% board previews.
 
 Validation surfaces:
 
 - `tests/rga_testing/validation/EndlessRuntimeIntegrationProbe.tscn` checks Chapter 1 generated specs, catalog stability, generated metadata, seed variation, spawner/rule compatibility, top-bar wiring, and mirror snapshot compatibility.
-- `tests/visual/EndlessEntryMainFlowSmoke.tscn` is a Main-flow smoke that selects a starter through the real entrypoint, validates the Chapter 1 procedural preview UI/enemies, starts the opening combat, and expects progression into Chapter 1 Round 2 with generated RGA metadata.
+- `tests/rga_testing/validation/EndlessRuntimeIntegrationProbe.tscn` also checks that a fresh run starts at board cap 3, leveling adds a board slot, and stronger unit levels improve estimated odds.
+- `tests/visual/EndlessEntryMainFlowSmoke.tscn` is a Main-flow smoke that selects a starter through the real entrypoint, validates the Chapter 1 procedural preview UI/enemies, checks the `Board x/3` and `Win Odds` labels, starts the opening combat, and expects progression into Chapter 1 Round 2 with generated RGA metadata.

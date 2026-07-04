@@ -1,7 +1,8 @@
 extends Node
 
 const BenchConstants := preload("res://scripts/constants/bench_constants.gd")
-const STARTING_TEAM_SIZE: int = 1
+const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
+const STARTING_TEAM_SIZE: int = ShopConfig.DEFAULT_BOARD_CAPACITY
 
 signal bench_changed()
 signal max_team_size_changed(old_value: int, new_value: int)

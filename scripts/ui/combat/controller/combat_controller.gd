@@ -28,6 +28,7 @@ const LogSchema := preload("res://scripts/util/log_schema.gd")
 const ProgressionService := preload("res://scripts/game/progression/progression_service.gd")
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
 const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
+const TeamOddsEstimator := preload("res://scripts/game/combat/team_odds_estimator.gd")
 
 const START_BATTLE_TEXT: String = "Start Battle"
 const START_FORCED_FIGHT_TEXT: String = "Start Opening Fight"
@@ -82,6 +83,9 @@ var gold_label: Label
 var bet_slider: HSlider
 var bet_value: Label
 var stats_panel: Control
+var board_status_row: HBoxContainer
+var board_capacity_label: Label
+var win_odds_label: Label
 
 # External engine manager
 var manager: CombatManager
@@ -292,6 +296,8 @@ func _disconnect_controller_signals() -> void:
 			GameState.chapter_changed.disconnect(_on_gs_chapter_changed)
 		if GameState.is_connected("stage_changed", Callable(self, "_on_gs_stage_changed")):
 			GameState.stage_changed.disconnect(_on_gs_stage_changed)
+	if Engine.has_singleton("Roster") and Roster.is_connected("max_team_size_changed", Callable(self, "_on_roster_max_team_size_changed")):
+		Roster.max_team_size_changed.disconnect(_on_roster_max_team_size_changed)
 	if attack_button != null and is_instance_valid(attack_button) and attack_button.is_connected("pressed", Callable(self, "_on_attack_pressed")):
 		attack_button.pressed.disconnect(_on_attack_pressed)
 	if continue_button != null and is_instance_valid(continue_button) and continue_button.is_connected("pressed", Callable(self, "_on_continue_pressed")):
@@ -438,6 +444,10 @@ func initialize() -> void:
 	# React to bench changes
 	if Roster and not Roster.is_connected("bench_changed", Callable(self, "_on_bench_changed")):
 		Roster.bench_changed.connect(_on_bench_changed)
+	if Roster and not Roster.is_connected("max_team_size_changed", Callable(self, "_on_roster_max_team_size_changed")):
+		Roster.max_team_size_changed.connect(_on_roster_max_team_size_changed)
+
+	_ensure_board_status_row()
 
 	_prepare_sprites()
 
@@ -544,6 +554,86 @@ func _on_shop_grid_updated() -> void:
 	sell_grid_helper = shop_presenter.get_drop_grid()
 	_rebuild_bench_views(true)
 
+func _ensure_board_status_row() -> void:
+	if board_status_row != null and is_instance_valid(board_status_row):
+		return
+	if player_grid == null:
+		return
+	var host: Control = player_grid.get_parent() as Control
+	if host == null:
+		return
+	var existing: HBoxContainer = host.get_node_or_null("BoardStatusRow") as HBoxContainer
+	if existing != null:
+		board_status_row = existing
+	else:
+		board_status_row = HBoxContainer.new()
+		board_status_row.name = "BoardStatusRow"
+		board_status_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		board_status_row.add_theme_constant_override("separation", 18)
+		board_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		board_status_row.anchor_left = 0.5
+		board_status_row.anchor_right = 0.5
+		board_status_row.anchor_top = 0.0
+		board_status_row.anchor_bottom = 0.0
+		board_status_row.offset_left = -210.0
+		board_status_row.offset_right = 210.0
+		board_status_row.offset_top = 4.0
+		board_status_row.offset_bottom = 32.0
+		host.add_child(board_status_row)
+	board_capacity_label = board_status_row.get_node_or_null("BoardCapacityLabel") as Label
+	if board_capacity_label == null:
+		board_capacity_label = _make_board_status_label("BoardCapacityLabel")
+		board_status_row.add_child(board_capacity_label)
+	win_odds_label = board_status_row.get_node_or_null("WinOddsLabel") as Label
+	if win_odds_label == null:
+		win_odds_label = _make_board_status_label("WinOddsLabel")
+		board_status_row.add_child(win_odds_label)
+	_update_board_status()
+
+func _make_board_status_label(node_name: String) -> Label:
+	var label: Label = Label.new()
+	label.name = node_name
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.custom_minimum_size = Vector2(150.0, 26.0)
+	label.add_theme_font_size_override("font_size", 17)
+	label.add_theme_color_override("font_color", Color(0.94, 0.82, 0.58, 1.0))
+	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.75))
+	label.add_theme_constant_override("shadow_offset_x", 1)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	label.mouse_filter = Control.MOUSE_FILTER_PASS
+	return label
+
+func _update_board_status() -> void:
+	_ensure_board_status_row()
+	if board_capacity_label != null:
+		var board_count: int = manager.player_team.size() if manager != null else 0
+		var board_cap: int = _current_board_cap()
+		board_capacity_label.text = "Board %d/%d" % [board_count, board_cap]
+		board_capacity_label.tooltip_text = "Deployed units / board slots. Buy XP to add slots."
+	if win_odds_label != null:
+		if manager == null or manager.player_team.is_empty() or manager.enemy_team.is_empty():
+			win_odds_label.text = "Win Odds --"
+			win_odds_label.tooltip_text = "Preview odds appear when both teams are visible."
+		else:
+			var player_rating: float = TeamOddsEstimator.team_rating(manager.player_team)
+			var enemy_rating: float = TeamOddsEstimator.team_rating(manager.enemy_team)
+			var odds: int = TeamOddsEstimator.estimate_from_ratings(player_rating, enemy_rating)
+			win_odds_label.text = "Win Odds %d%%" % odds
+			win_odds_label.tooltip_text = "Your board rating %.0f vs enemy %.0f." % [player_rating, enemy_rating]
+
+func _current_board_cap() -> int:
+	var cap: int = 0
+	if Engine.has_singleton("Roster"):
+		cap = int(Roster.max_team_size)
+	elif parent != null and parent.get_tree() != null:
+		var roster_node: Node = parent.get_tree().root.get_node_or_null("/root/Roster")
+		if roster_node != null:
+			cap = int(roster_node.get("max_team_size"))
+	if cap <= 0:
+		return 0
+	return cap
+
 func _apply_grid_dimensions(tile: int) -> void:
 	# Compute desired grid size from constants and theme separations
 	if enemy_grid == null or player_grid == null:
@@ -577,7 +667,7 @@ func _apply_grid_dimensions(tile: int) -> void:
 		top_area.custom_minimum_size.y = grid_h
 	var bottom_area := player_grid.get_parent() as Control
 	if bottom_area:
-		bottom_area.custom_minimum_size.y = grid_h
+		bottom_area.custom_minimum_size.y = grid_h + 38
 
 func process(_delta: float) -> void:
 	if arena_container and arena_container.visible:
@@ -785,6 +875,7 @@ func refresh_all_views() -> void:
 	if bench_grid:
 		_attach_clear_to_grid_tiles(bench_grid)
 	_update_first_deploy_assist()
+	_update_board_status()
 	# Rebuild traits tracker (board-only traits)
 	if traits_presenter:
 		traits_presenter.rebuild()
@@ -916,6 +1007,7 @@ func _on_bench_changed() -> void:
 			# Play level-up effects for promoted units
 			_play_promotions(promos)
 	_update_first_deploy_assist()
+	_update_board_status()
 
 func _update_first_deploy_assist() -> void:
 	if not _first_deploy_assist_active:
@@ -1076,6 +1168,7 @@ func _rebuild_bench_views(allow_drag: bool) -> void:
 							var __prov2 := func(): return _uv.unit
 							selection.attach_to_unit_view(_uv, "player", -1, __prov2)
 	_apply_first_deploy_bench_highlight()
+	_update_board_status()
 
 func _on_unit_dropped_any(target_grid, _tile_idx: int, uv: UnitView) -> void:
 	# Handle sell-zone drops
@@ -1118,6 +1211,7 @@ func _auto_start_battle() -> void:
 func _on_bet_changed(val: float) -> void:
 	if economy_ui:
 		economy_ui.on_bet_changed(val)
+	_update_board_status()
 
 func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 	Trace.step("CombatView._on_battle_started: begin")
@@ -1263,6 +1357,9 @@ func _on_gs_chapter_changed(_prev: int, _next: int) -> void:
 func _on_gs_stage_changed(_prev: int, _next: int) -> void:
 	_update_stage_label()
 
+func _on_roster_max_team_size_changed(_old_value: int, _new_value: int) -> void:
+	_update_board_status()
+
 func _update_stage_label() -> void:
 	if stage_label == null and stage_progress_top_bar == null:
 		return
@@ -1289,6 +1386,7 @@ func _update_stage_label() -> void:
 		stage_label.text = label
 	if stage_progress_top_bar != null and stage_progress_top_bar.has_method("update_progress"):
 		stage_progress_top_bar.call("update_progress", ch, sic, total)
+	_update_board_status()
 
 func _log_to_file(_text: String) -> void:
 	return
@@ -1314,6 +1412,7 @@ func _refresh_hud() -> void:
 			var enemy_actor: UnitActor = arena_bridge.get_enemy_actor(i) if arena_bridge else null
 			if enemy_actor and is_instance_valid(enemy_actor):
 				enemy_actor.update_bars(manager.enemy_team[i])
+	_update_board_status()
 	_hud_snapshot_signature = _current_hud_signature()
 
 func _refresh_hud_if_changed() -> void:
@@ -1753,6 +1852,7 @@ func set_player_team_ids(ids: Array) -> void:
 		var u: Unit = uf.spawn(String(id))
 		if u:
 			manager.player_team.append(u)
+	_update_board_status()
 
 func _is_continue_start_text() -> bool:
 	if continue_button == null:
