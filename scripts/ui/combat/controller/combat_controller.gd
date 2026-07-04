@@ -85,6 +85,7 @@ var bet_slider: HSlider
 var bet_value: Label
 var stats_panel: Control
 var board_status_row: HBoxContainer
+var board_timer_label: Label
 var board_capacity_label: Label
 var win_odds_label: Label
 
@@ -584,19 +585,25 @@ func _ensure_board_status_row() -> void:
 		board_status_row = HBoxContainer.new()
 		board_status_row.name = "BoardStatusRow"
 		board_status_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		board_status_row.add_theme_constant_override("separation", 10)
+		board_status_row.add_theme_constant_override("separation", 8)
 		board_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		board_status_row.custom_minimum_size = Vector2(336.0, 32.0)
+		board_status_row.custom_minimum_size = Vector2(414.0, 28.0)
 		board_status_row.z_index = 24
 		board_status_row.anchor_left = 0.5
 		board_status_row.anchor_right = 0.5
 		board_status_row.anchor_top = 0.0
 		board_status_row.anchor_bottom = 0.0
-		board_status_row.offset_left = -180.0
-		board_status_row.offset_right = 180.0
+		board_status_row.offset_left = -214.0
+		board_status_row.offset_right = 214.0
 		board_status_row.offset_top = 2.0
-		board_status_row.offset_bottom = 34.0
+		board_status_row.offset_bottom = 30.0
 		host.add_child(board_status_row)
+	board_timer_label = board_status_row.get_node_or_null("BoardTimerLabel") as Label
+	if board_timer_label == null:
+		board_timer_label = _make_board_status_label("BoardTimerLabel")
+		board_timer_label.text = "Plan --"
+		board_status_row.add_child(board_timer_label)
+	board_status_row.move_child(board_timer_label, 0)
 	board_capacity_label = board_status_row.get_node_or_null("BoardCapacityLabel") as Label
 	if board_capacity_label == null:
 		board_capacity_label = _make_board_status_label("BoardCapacityLabel")
@@ -618,10 +625,10 @@ func _ensure_board_status_backplate(host: Control) -> void:
 		plate.anchor_right = 0.5
 		plate.anchor_top = 0.0
 		plate.anchor_bottom = 0.0
-		plate.offset_left = -190.0
-		plate.offset_right = 190.0
-		plate.offset_top = -2.0
-		plate.offset_bottom = 40.0
+		plate.offset_left = -226.0
+		plate.offset_right = 226.0
+		plate.offset_top = 0.0
+		plate.offset_bottom = 32.0
 		host.add_child(plate)
 	var fallback: StyleBoxFlat = StyleBoxFlat.new()
 	fallback.bg_color = Color(0.034, 0.026, 0.028, 0.86)
@@ -641,8 +648,9 @@ func _make_board_status_label(node_name: String) -> Label:
 	label.name = node_name
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.custom_minimum_size = Vector2(142.0, 30.0)
-	label.add_theme_font_size_override("font_size", 16)
+	var min_width: float = 116.0 if node_name == "BoardTimerLabel" or node_name == "BoardCapacityLabel" else 142.0
+	label.custom_minimum_size = Vector2(min_width, 26.0)
+	label.add_theme_font_size_override("font_size", 15)
 	label.add_theme_color_override("font_color", Color(0.94, 0.82, 0.58, 1.0))
 	label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.75))
 	label.add_theme_constant_override("shadow_offset_x", 1)
@@ -652,6 +660,9 @@ func _make_board_status_label(node_name: String) -> Label:
 
 func _update_board_status() -> void:
 	_ensure_board_status_row()
+	if board_timer_label != null and String(board_timer_label.text).strip_edges() == "":
+		board_timer_label.text = "Plan --"
+		board_timer_label.tooltip_text = "Planning countdown before auto-start."
 	if board_capacity_label != null:
 		var board_count: int = manager.player_team.size() if manager != null else 0
 		var board_cap: int = _current_board_cap()
@@ -667,6 +678,17 @@ func _update_board_status() -> void:
 			var odds: int = TeamOddsEstimator.estimate_from_ratings(player_rating, enemy_rating)
 			win_odds_label.text = "Win Odds %d%%" % odds
 			win_odds_label.tooltip_text = "Your board rating %.0f vs enemy %.0f." % [player_rating, enemy_rating]
+
+func set_board_timer_text(text: String, active: bool = true) -> void:
+	_ensure_board_status_row()
+	if board_timer_label == null:
+		return
+	var cleaned: String = String(text).strip_edges().replace("Plan:", "Plan")
+	if cleaned == "":
+		cleaned = "Plan --"
+	board_timer_label.visible = bool(active)
+	board_timer_label.text = cleaned
+	board_timer_label.tooltip_text = "Planning countdown before auto-start." if cleaned.begins_with("Plan") else "Current combat phase."
 
 func _current_board_cap() -> int:
 	var cap: int = 0

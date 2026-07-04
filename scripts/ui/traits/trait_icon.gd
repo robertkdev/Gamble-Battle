@@ -40,6 +40,10 @@ func _ready() -> void:
 		mouse_entered.connect(_on_mouse_entered)
 	if not is_connected("mouse_exited", Callable(self, "_on_mouse_exited")):
 		mouse_exited.connect(_on_mouse_exited)
+	if not is_connected("focus_entered", Callable(self, "_on_focus_entered")):
+		focus_entered.connect(_on_focus_entered)
+	if not is_connected("focus_exited", Callable(self, "_on_focus_exited")):
+		focus_exited.connect(_on_focus_exited)
 	if not is_connected("gui_input", Callable(self, "_on_hover_gui_input")):
 		gui_input.connect(_on_hover_gui_input)
 	_update_visuals()
@@ -68,6 +72,7 @@ func _update_visuals() -> void:
 		_icon.modulate = COLOR_ICON_HOVER if _hovered else COLOR_ICON_ACTIVE if _active else COLOR_ICON_INACTIVE
 	var has_trait: bool = trait_id.strip_edges() != ""
 	visible = has_trait
+	focus_mode = Control.FOCUS_ALL if has_trait else Control.FOCUS_NONE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if has_trait else Control.CURSOR_ARROW
 	if not has_trait:
 		_clear_tooltip()
@@ -125,6 +130,30 @@ func _show_tooltip() -> void:
 	_tooltip = tooltip
 
 func _on_mouse_exited() -> void:
+	_hovered = false
+	_hover_token += 1
+	z_index = 0
+	_apply_hover_motion(false)
+	if _icon:
+		_icon.modulate = COLOR_ICON_ACTIVE if _active else COLOR_ICON_INACTIVE
+	_apply_active_bg()
+	_clear_tooltip()
+
+func _on_focus_entered() -> void:
+	if trait_id.strip_edges() == "":
+		return
+	if not TraitTooltipScene:
+		return
+	_hovered = true
+	_hover_token += 1
+	z_index = 80
+	_apply_active_bg()
+	if _icon:
+		_icon.modulate = COLOR_ICON_HOVER
+	_apply_hover_motion(true)
+	_show_tooltip()
+
+func _on_focus_exited() -> void:
 	_hovered = false
 	_hover_token += 1
 	z_index = 0

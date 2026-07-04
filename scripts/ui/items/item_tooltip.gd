@@ -6,11 +6,12 @@ const ItemDef := preload("res://scripts/game/items/item_def.gd")
 const PhaseRules := preload("res://scripts/game/items/phase_rules.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
-const TOOLTIP_WIDTH: float = 360.0
-const PADDING: float = 12.0
+const TOOLTIP_WIDTH: float = 380.0
+const PADDING: float = 18.0
 const EDGE_PADDING: float = 12.0
 const BOTTOM_UI_RESERVE: float = 236.0
 const LEFT_PANEL_RESERVE: float = 340.0
+const LEFT_PANEL_TOOLTIP_TOP: float = 164.0
 const TOOLTIP_GROUP: String = "gothic_hover_tooltip"
 const CURSOR_OFFSET: Vector2 = Vector2(18.0, -16.0)
 const COLOR_PANEL: Color = Color(0.023, 0.019, 0.027, 0.985)
@@ -282,7 +283,8 @@ func _clamped_position(raw_position: Vector2) -> Vector2:
 	var viewport_size: Vector2 = viewport.get_visible_rect().size
 	var new_position: Vector2 = raw_position
 	if viewport_size.x >= 1200.0 and new_position.x < LEFT_PANEL_RESERVE:
-		new_position.x = LEFT_PANEL_RESERVE
+		new_position.x = EDGE_PADDING
+		new_position.y = min(new_position.y, LEFT_PANEL_TOOLTIP_TOP)
 	if new_position.x + size.x + EDGE_PADDING > viewport_size.x:
 		new_position.x = raw_position.x - size.x - CURSOR_OFFSET.x * 1.5
 	var bottom_reserve: float = min(BOTTOM_UI_RESERVE, viewport_size.y * 0.30)

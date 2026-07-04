@@ -83,6 +83,8 @@ func _ready() -> void:
 	# Initialize timer state for current phase
 	if gs:
 		_on_phase_changed(gs.phase, gs.phase)
+	else:
+		_set_planning_timer_status("Plan --", true)
 
 func _exit_tree() -> void:
 	_teardown()
@@ -225,6 +227,7 @@ func _on_phase_changed(_prev: int, next: int) -> void:
 	else:
 		if planning_timer_label:
 			planning_timer_label.visible = false
+		_set_planning_timer_status(_phase_status_text(gp, next), true)
 	_apply_visual_theme_deferred()
 
 func reset_planning_timer(seconds: float = -1.0) -> void:
@@ -233,13 +236,12 @@ func reset_planning_timer(seconds: float = -1.0) -> void:
 	_planning_warn_played = false
 	_planning_autostart_done = false
 	if planning_timer_label:
-		planning_timer_label.visible = true
+		planning_timer_label.visible = false
 		planning_timer_label.text = _format_time(planning_time_left)
+	_set_planning_timer_status(_format_time(planning_time_left), true)
 
 
 func _update_planning_timer(delta: float) -> void:
-	if not planning_timer_label:
-		return
 	var gp: Variant = _get_gs()
 	if gp == null:
 		return
@@ -247,7 +249,11 @@ func _update_planning_timer(delta: float) -> void:
 		return
 	var prev_time: float = planning_time_left
 	planning_time_left = max(0.0, float(planning_time_left) - float(delta))
-	planning_timer_label.text = _format_time(planning_time_left)
+	var timer_text: String = _format_time(planning_time_left)
+	if planning_timer_label:
+		planning_timer_label.visible = false
+		planning_timer_label.text = timer_text
+	_set_planning_timer_status(timer_text, true)
 	# Warning sound at T-11s
 	if not _planning_warn_played and planning_time_left <= float(planning_warn_at):
 		var s: Variant = _get_sound()
@@ -259,6 +265,7 @@ func _update_planning_timer(delta: float) -> void:
 		_planning_autostart_done = true
 		if planning_timer_label:
 			planning_timer_label.visible = false
+		_set_planning_timer_status("Combat", true)
 		# Use controller hook which handles bet bump and start
 		if controller and controller.has_method("_auto_start_battle"):
 			controller._auto_start_battle()
@@ -267,7 +274,22 @@ func _format_time(seconds_left: float) -> String:
 	var s: int = int(ceil(max(0.0, seconds_left)))
 	var m: int = int(float(s) / 60.0)
 	var ss: int = int(s % 60)
-	return "Plan: %d:%02d" % [m, ss]
+	return "Plan %d:%02d" % [m, ss]
+
+func _set_planning_timer_status(text: String, active: bool) -> void:
+	if controller != null and controller.has_method("set_board_timer_text"):
+		controller.call("set_board_timer_text", text, active)
+
+func _phase_status_text(game_state: Variant, phase_value: int) -> String:
+	if game_state == null:
+		return "Plan --"
+	if int(phase_value) == int(game_state.GamePhase.COMBAT):
+		return "Combat"
+	if int(phase_value) == int(game_state.GamePhase.POST_COMBAT):
+		return "Review"
+	if int(phase_value) == int(game_state.GamePhase.MENU):
+		return "Menu"
+	return "Plan --"
 
 ## Ally sprite direct drag removed
 
@@ -335,15 +357,18 @@ func _apply_responsive_layout() -> void:
 		margin.add_theme_constant_override("margin_top", 8 if compact else 14)
 		margin.add_theme_constant_override("margin_right", 10 if compact else 20)
 		margin.add_theme_constant_override("margin_bottom", 8 if compact else 18)
-	_set_minimum_size("MarginContainer/VBoxContainer/PlanningTimerLabel", Vector2(0.0, 22.0 if compact else 28.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/PlanningTimerLabel", Vector2(0.0, 0.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, 408.0 if compact else 604.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(270.0 if compact else 340.0, 372.0 if compact else 500.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(160.0 if compact else 296.0, 372.0 if compact else 500.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(288.0 if compact else 340.0, 408.0 if compact else 596.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(170.0 if compact else 296.0, 408.0 if compact else 596.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(150.0 if compact else 296.0, 118.0 if compact else 164.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(150.0 if compact else 296.0, 228.0 if compact else 304.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(150.0 if compact else 296.0, 254.0 if compact else 398.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, 60.0 if compact else 88.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 112.0 if compact else 176.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(900.0 if compact else 1120.0, 96.0 if compact else 124.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 104.0 if compact else 152.0))
+	var opening_shop: bool = shop_grid != null and bool(shop_grid.get_meta("opening_fight_empty", false))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, 108.0) if opening_shop else Vector2(900.0 if compact else 1120.0, 88.0 if compact else 108.0))
+	if shop_grid != null:
+		shop_grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if opening_shop else Control.SIZE_EXPAND_FILL
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow", Vector2(900.0 if compact else 1120.0, 42.0 if compact else 56.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow/BetRow", Vector2(190.0 if compact else 226.0, 36.0 if compact else 46.0))
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow", 10 if compact else 20)
@@ -374,7 +399,11 @@ func _apply_shop_compact_layout(compact: bool) -> void:
 		for child: Node in shop_grid.get_children():
 			var control: Control = child as Control
 			if control != null:
-				control.custom_minimum_size = card_size
+				if bool(control.get_meta("opening_fight_placeholder", false)):
+					control.custom_minimum_size = Vector2(560.0, 104.0)
+					control.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+				else:
+					control.custom_minimum_size = card_size
 	var storage: Node = get_node_or_null("MarginContainer/VBoxContainer/BottomStorageArea")
 	if storage != null:
 		for child: Node in storage.get_children():
@@ -406,7 +435,7 @@ func _apply_shop_compact_layout(compact: bool) -> void:
 						label.add_theme_font_size_override("font_size", 13 if compact else 15)
 
 func _update_external_backplates() -> void:
-	for plate_name: String in ["GothicShopPlate", "GothicShopCommandPlate", "GothicItemsPlate", "GothicStatsAreaPlate"]:
+	for plate_name: String in ["GothicShopPlate", "GothicItemsPlate", "GothicStatsAreaPlate", "GothicBenchPlate"]:
 		var plate: Panel = get_node_or_null(plate_name) as Panel
 		if plate == null or not plate.has_meta("target_path"):
 			continue

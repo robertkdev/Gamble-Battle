@@ -4,9 +4,10 @@ class_name StageProgressTopBar
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
 const StageTypes := preload("res://scripts/game/progression/stage_types.gd")
+const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
-const ICON_SIZE: Vector2 = Vector2(52.0, 52.0)
-const BAR_MIN_SIZE: Vector2 = Vector2(560.0, 66.0)
+const ICON_SIZE: Vector2 = Vector2(44.0, 44.0)
+const BAR_MIN_SIZE: Vector2 = Vector2(560.0, 56.0)
 const SELECTED_TEXTURE_PATHS: PackedStringArray = [
 	"res://assets/ui/stage_icons/stage_1_creep_selected.png",
 	"res://assets/ui/stage_icons/stage_2_challenge_selected.png",
@@ -68,16 +69,16 @@ func _ensure_built() -> void:
 	margin.name = "Margin"
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 7)
+	margin.add_theme_constant_override("margin_top", 6)
 	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 7)
+	margin.add_theme_constant_override("margin_bottom", 5)
 	add_child(margin)
 
 	_row = HBoxContainer.new()
 	_row.name = "Row"
 	_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_row.add_theme_constant_override("separation", 12)
+	_row.add_theme_constant_override("separation", 10)
 	margin.add_child(_row)
 
 	_chapter_label = Label.new()
@@ -87,7 +88,7 @@ func _ensure_built() -> void:
 	_chapter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_chapter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_chapter_label.mouse_filter = Control.MOUSE_FILTER_PASS
-	_chapter_label.add_theme_font_size_override("font_size", 24)
+	_chapter_label.add_theme_font_size_override("font_size", 22)
 	_chapter_label.add_theme_color_override("font_color", Color(0.96, 0.84, 0.60, 1.0))
 	_chapter_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.72))
 	_chapter_label.add_theme_constant_override("shadow_offset_x", 1)
@@ -198,10 +199,10 @@ func _load_icon_texture(path: String) -> Texture2D:
 	_texture_cache[path] = texture
 	return texture
 
-func _make_panel_style() -> StyleBoxFlat:
+func _make_panel_style() -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.030, 0.024, 0.030, 0.86)
-	style.border_color = Color(0.54, 0.38, 0.18, 0.74)
+	style.bg_color = Color(0.030, 0.024, 0.030, 0.78)
+	style.border_color = Color(0.46, 0.34, 0.20, 0.62)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -210,4 +211,4 @@ func _make_panel_style() -> StyleBoxFlat:
 	style.corner_radius_top_right = 5
 	style.corner_radius_bottom_right = 5
 	style.corner_radius_bottom_left = 5
-	return style
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.status_strip_style(Color(0.74, 0.68, 0.58, 0.76)), style)

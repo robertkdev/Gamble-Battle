@@ -42,6 +42,10 @@ func _ready() -> void:
 		mouse_entered.connect(_on_mouse_entered)
 	if not is_connected("mouse_exited", Callable(self, "_on_mouse_exited")):
 		mouse_exited.connect(_on_mouse_exited)
+	if not is_connected("focus_entered", Callable(self, "_on_focus_entered")):
+		focus_entered.connect(_on_focus_entered)
+	if not is_connected("focus_exited", Callable(self, "_on_focus_exited")):
+		focus_exited.connect(_on_focus_exited)
 	if not is_connected("gui_input", Callable(self, "_on_hover_gui_input")):
 		gui_input.connect(_on_hover_gui_input)
 	if not is_connected("began_drag", Callable(self, "_on_began_drag")):
@@ -151,9 +155,11 @@ func _refresh() -> void:
 		icon.visible = false
 		tooltip_text = ""
 		mouse_default_cursor_shape = Control.CURSOR_ARROW
+		focus_mode = Control.FOCUS_NONE
 		_apply_card_style(false)
 		return
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	focus_mode = Control.FOCUS_ALL
 	if def != null:
 		var tex: Texture2D = null
 		if String(def.icon_path) != "":
@@ -173,14 +179,14 @@ func _apply_card_style(filled: bool) -> void:
 	var hover_filled: bool = _hovered and filled
 	var hover_empty: bool = _hovered and not filled
 	var modulate: Color = Color(0.62, 0.60, 0.58, 0.84)
-	style.bg_color = Color(0.082, 0.052, 0.058, 0.99) if hover_filled else Color(0.044, 0.036, 0.044, 0.93) if filled else Color(0.032, 0.026, 0.034, 0.88) if hover_empty else Color(0.022, 0.019, 0.026, 0.78)
-	style.border_color = Color(1.0, 0.76, 0.36, 1.0) if hover_filled else Color(0.50, 0.42, 0.38, 0.95) if hover_empty else Color(0.68, 0.47, 0.28, 0.92) if filled else Color(0.27, 0.24, 0.27, 0.78)
+	style.bg_color = Color(0.070, 0.048, 0.052, 0.97) if hover_filled else Color(0.038, 0.033, 0.040, 0.91) if filled else Color(0.032, 0.026, 0.034, 0.88) if hover_empty else Color(0.022, 0.019, 0.026, 0.78)
+	style.border_color = Color(0.86, 0.66, 0.38, 0.96) if hover_filled else Color(0.50, 0.42, 0.38, 0.95) if hover_empty else Color(0.44, 0.36, 0.30, 0.84) if filled else Color(0.27, 0.24, 0.27, 0.78)
 	if hover_filled:
-		modulate = Color(1.18, 1.06, 0.86, 1.0)
+		modulate = Color(0.98, 0.90, 0.72, 0.96)
 	elif hover_empty:
 		modulate = Color(0.90, 0.84, 0.74, 0.90)
 	elif filled:
-		modulate = Color(0.96, 0.88, 0.74, 0.96)
+		modulate = Color(0.64, 0.58, 0.50, 0.78)
 	var border_width: int = 2 if _hovered else 1
 	style.border_width_left = border_width
 	style.border_width_top = border_width
@@ -199,17 +205,17 @@ func _apply_card_style(filled: bool) -> void:
 		icon.offset_top = 8.0 if filled else 6.0
 		icon.offset_right = -8.0 if filled else -6.0
 		icon.offset_bottom = -8.0 if filled else -6.0
-		icon.modulate = Color(0.95, 0.82, 0.60, 0.98) if hover_filled else Color(0.76, 0.66, 0.52, 0.90) if filled else Color(1.0, 1.0, 1.0, 0.0)
+		icon.modulate = Color(0.74, 0.66, 0.52, 0.86) if hover_filled else Color(0.42, 0.38, 0.32, 0.62) if filled else Color(1.0, 1.0, 1.0, 0.0)
 	if patina != null:
 		patina.visible = filled
 		patina.offset_left = 7.0
 		patina.offset_top = 7.0
 		patina.offset_right = -7.0
 		patina.offset_bottom = -7.0
-		patina.color = Color(0.10, 0.036, 0.022, 0.28) if hover_filled else Color(0.030, 0.020, 0.018, 0.42)
+		patina.color = Color(0.10, 0.040, 0.026, 0.36) if hover_filled else Color(0.026, 0.020, 0.018, 0.56)
 	if frame != null:
 		frame.visible = true
-		frame.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.item_icon_frame_style(Color(0.98, 0.88, 0.70, 0.92) if filled else Color(0.58, 0.54, 0.50, 0.72)), style))
+		frame.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(GothicUIAssets.item_icon_frame_style(Color(0.70, 0.64, 0.54, 0.78) if filled else Color(0.58, 0.54, 0.50, 0.72)), style))
 	if count_label != null:
 		count_label.modulate = Color(1.0, 0.84, 0.42, 1.0) if _hovered else Color(0.96, 0.74, 0.38, 0.98)
 
@@ -225,6 +231,22 @@ func _on_mouse_entered() -> void:
 	_show_tooltip()
 
 func _on_mouse_exited() -> void:
+	_hovered = false
+	_hover_token += 1
+	_clear_tooltip()
+	_apply_card_style(item_id.strip_edges() != "")
+	_apply_hover_motion(false, item_id.strip_edges() != "")
+
+func _on_focus_entered() -> void:
+	if item_id.strip_edges() == "":
+		return
+	_hovered = true
+	_hover_token += 1
+	_apply_card_style(true)
+	_apply_hover_motion(true, true)
+	_show_tooltip_at(get_global_rect().end + Vector2(10.0, -size.y * 0.5))
+
+func _on_focus_exited() -> void:
 	_hovered = false
 	_hover_token += 1
 	_clear_tooltip()
@@ -249,6 +271,11 @@ func _on_ended_drag() -> void:
 	_apply_hover_motion(_hovered, item_id.strip_edges() != "")
 
 func _show_tooltip() -> void:
+	var viewport: Viewport = get_viewport()
+	var viewport_position: Vector2 = viewport.get_mouse_position() if viewport != null else get_global_rect().end
+	_show_tooltip_at(viewport_position)
+
+func _show_tooltip_at(viewport_position: Vector2) -> void:
 	_clear_tooltip()
 	_clear_global_tooltips()
 	var tooltip: Control = ItemTooltipScene.instantiate() as Control
@@ -259,8 +286,6 @@ func _show_tooltip() -> void:
 	get_tree().root.add_child(tooltip)
 	if tooltip.has_method("set_item_id"):
 		tooltip.call("set_item_id", item_id)
-	var viewport: Viewport = get_viewport()
-	var viewport_position: Vector2 = viewport.get_mouse_position() if viewport != null else get_global_rect().end
 	if tooltip.has_method("show_at"):
 		tooltip.call("show_at", viewport_position)
 	_tooltip = tooltip

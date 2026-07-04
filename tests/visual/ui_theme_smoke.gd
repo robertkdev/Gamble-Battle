@@ -71,11 +71,15 @@ func _run() -> void:
 	if bottom_storage != null:
 		_expect(bottom_storage.get_theme_constant("separation") >= 10, "Command strip and shop cards are too tightly stacked", failures)
 		var shop_plate: Panel = view.get_node_or_null("GothicShopPlate") as Panel
-		_expect(shop_plate != null, "Generated bottom storage asset plate missing", failures)
-		if shop_plate != null:
+		var opening_shop_plate: bool = shop_grid != null and bool(shop_grid.get_meta("opening_fight_empty", false))
+		if opening_shop_plate:
+			_expect(shop_plate == null or not shop_plate.visible, "Opening fight should not render a wide empty shop plate", failures)
+		else:
+			_expect(shop_plate != null, "Generated bottom storage asset plate missing", failures)
+		if shop_plate != null and not opening_shop_plate:
 			var shop_plate_style: StyleBox = shop_plate.get_theme_stylebox("panel")
 			_expect(shop_plate_style is StyleBoxTexture, "Bottom storage should use the generated wide panel asset", failures)
-			_expect(shop_plate.size.y >= 180.0, "Bottom storage generated plate collapsed in the full layout", failures)
+			_expect(shop_plate.size.y >= 150.0, "Bottom storage generated plate collapsed in the full layout", failures)
 	if gold_label != null:
 		var command_bar: HBoxContainer = gold_label.get_parent() as HBoxContainer
 		_expect(command_bar != null, "Command bar missing", failures)
@@ -193,14 +197,14 @@ func _verify_forced_first_fight_placeholder(failures: Array[String]) -> void:
 	panel.set_empty_state(OPENING_FIGHT_LABEL, OPENING_FIGHT_HINT, true)
 	panel.set_offers([])
 	await get_tree().process_frame
-	_expect(grid.columns == 1, "First fight placeholder should occupy one wide shop panel", failures)
+	_expect(grid.columns == 1, "First fight placeholder should occupy one compact shop panel", failures)
 	_expect(grid.get_child_count() == 1, "First fight placeholder should be a single panel", failures)
 	var placeholder: PanelContainer = null
 	if grid.get_child_count() > 0:
 		placeholder = grid.get_child(0) as PanelContainer
 	_expect(placeholder != null, "First fight placeholder panel missing", failures)
 	if placeholder != null:
-		_expect(placeholder.custom_minimum_size.x >= 790.0, "First fight placeholder should span the shop strip", failures)
+		_expect(placeholder.custom_minimum_size.x >= 520.0 and placeholder.custom_minimum_size.x <= 620.0, "First fight placeholder should be compact and centered", failures)
 		var panel_style: StyleBox = placeholder.get_theme_stylebox("panel")
 		_expect(panel_style is StyleBoxTexture, "First fight placeholder should use the generated wide panel asset", failures)
 		_expect(placeholder.mouse_filter == Control.MOUSE_FILTER_STOP, "First fight placeholder should accept clicks for explanatory feedback", failures)
