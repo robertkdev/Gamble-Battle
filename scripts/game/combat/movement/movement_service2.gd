@@ -61,7 +61,7 @@ func configure(config_tile_size: float, player_pos: Array, enemy_pos: Array, bou
 		if typeof(v2) == TYPE_VECTOR2:
 			e.append(v2)
 	data.configure(config_tile_size, p, e, bounds)
-	_ensure_profiles()
+	_ensure_profiles_for_counts(p.size(), e.size())
 
 func set_bounds(bounds: Rect2) -> void:
 	data.set_bounds(bounds)
@@ -125,7 +125,7 @@ func diagnostics_snapshot() -> Dictionary:
 
 func ensure_capacity(player_count: int, enemy_count: int) -> void:
 	data.ensure_capacity(player_count, enemy_count)
-	_ensure_profiles()
+	_ensure_profiles_for_counts(player_count, enemy_count)
 
 func player_positions_copy() -> Array:
 	return data.player_positions_copy()
@@ -815,17 +815,19 @@ func _sync_prev_slots(out: Dictionary, slot_ids: Array[int], slot_timers: Array[
 		entry["frames"] = slot_timers[i]
 		out[i] = entry
 
-func _ensure_profiles() -> void:
-	if _profiles_player.size() < data.player_positions.size():
-		while _profiles_player.size() < data.player_positions.size():
+func _ensure_profiles_for_counts(player_count: int, enemy_count: int) -> void:
+	var safe_player_count: int = max(0, player_count)
+	var safe_enemy_count: int = max(0, enemy_count)
+	if _profiles_player.size() < safe_player_count:
+		while _profiles_player.size() < safe_player_count:
 			_profiles_player.append(MovementProfile.new())
-	elif _profiles_player.size() > data.player_positions.size():
-		_profiles_player.resize(data.player_positions.size())
-	if _profiles_enemy.size() < data.enemy_positions.size():
-		while _profiles_enemy.size() < data.enemy_positions.size():
+	elif _profiles_player.size() > safe_player_count:
+		_profiles_player.resize(safe_player_count)
+	if _profiles_enemy.size() < safe_enemy_count:
+		while _profiles_enemy.size() < safe_enemy_count:
 			_profiles_enemy.append(MovementProfile.new())
-	elif _profiles_enemy.size() > data.enemy_positions.size():
-		_profiles_enemy.resize(data.enemy_positions.size())
+	elif _profiles_enemy.size() > safe_enemy_count:
+		_profiles_enemy.resize(safe_enemy_count)
 
 func _profile_for(team: String, idx: int) -> MovementProfile:
 	if team == "player":

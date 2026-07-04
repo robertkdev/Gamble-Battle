@@ -875,6 +875,15 @@ Accepted change: `_sync_prev_slots()` now trusts that `MovementState.ensure_capa
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8620ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6919ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `333ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5704`.
 - This is another narrow movement bookkeeping cleanup. It improves repeat movement samples but does not change the remaining conclusion: 12v12 slot assignment is still the largest open surface.
 
+## Continuation - 2026-07-04 Movement Profile Count Trust
+
+Accepted change: `MovementService2.configure()` and `ensure_capacity()` now pass their already-known team counts into profile-array sizing instead of having `_ensure_profiles()` repeatedly read live position-array sizes. `MovementState.configure()` and `ensure_capacity()` resize positions to those same counts first, so this keeps behavior stable while trimming another setup/profile bookkeeping path.
+
+- Fresh real movement control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `247945us`, `482609us`, and `589499us`.
+- Patched repeats preserved the same signatures and errors `[]`. Movement samples were `255444us` / `464657us` / `570464us`, then `260388us` / `500235us` / `600250us`, then `246553us` / `476117us` / `567461us` for 6v6/8v8/12v12. The 12v12 median improved versus the fresh control despite one noisy repeat, 8v8 stayed slightly below control on median, and 6v6 remained noise-level mixed.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8463ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6881ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `333ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5846`.
+- This is a small safe cleanup, not a new hotspot conclusion. Slot assignment remains the dominant 12v12 movement surface.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
