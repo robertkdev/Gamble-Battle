@@ -1191,6 +1191,17 @@ No source optimization was retained. The expanded movement-helper gate rejected 
 - Rejected movement radius reciprocal probe: precomputing `1.0 / separation_radius` and `1.0 / avoidance_radius` preserved `PerfMovementStepHelpers.tscn` signatures, but regressed the expanded helper total from the latest clean `1790ms` control to `2355ms`. The largest regressions were `slot_step_8v8_no_anchor=367ms`, `slot_step_12v12=502ms`, and `slot_step_12v12_no_anchor=367ms`. Source was reverted before real movement validation.
 - Takeaway: in GDScript, this hot-loop reciprocal rewrite is slower than direct division in the current helper shapes. Keep the direct `distance / radius` form unless a future same-window focused gate proves otherwise.
 
+## Continuation - 2026-07-04 Remaining Optimization Frontier Check
+
+No gameplay source optimization was retained. The direct answer to "is that all that needs optimizing?" is no: the current real movement profile still has a large slot-assignment frontier, and smaller fights still leave step-loop and collision slices worth monitoring.
+
+- Fresh focused slot controls before source probing stayed clean with errors `[]`: `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `1434ms`; `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1395ms`.
+- Rejected Hungarian lower-bound shortcut: returning the already computed Hungarian assignment cost directly from `_hungarian_dual_lower_bound()` preserved `PerfSlotDpSearch.tscn` signatures, but regressed the focused total to `1582ms`, with `dp_12_pruned` rising from `67ms` to `106ms`. Source was reverted before broader solver validation.
+- Fresh `PerfMovementPhases.tscn` validation after reverting source stayed clean with errors `[]` and preserved deterministic signatures across 6v6, 8v8, 9v9, 10v10, 11v11, and 12v12. Current measured movement totals were `347118us`, `539514us`, `593875us`, `349207us`, `811095us`, and `715144us`.
+- Slot assignment remains the primary large-team optimization frontier: latest slot slices were `47.2%` for 6v6, `40.7%` for 8v8, `50.4%` for 9v9, `70.4%` for 10v10, `82.2%` for 11v11, and `78.7%` for 12v12.
+- Secondary but not finished surfaces remain visible in smaller and longer fights: 8v8 measured `20.3%` player steps, `14.4%` enemy steps, and `10.9%` collision, while 6v6 measured `17.2%` player steps, `11.4%` enemy steps, and `10.2%` collision.
+- Takeaway: the audit is past easy edits, not past optimization. Future retained work should first target the tie-preserving large-team slot path, but step-loop and collision candidates should stay in the queue when a fresh profile shows them above noise.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
