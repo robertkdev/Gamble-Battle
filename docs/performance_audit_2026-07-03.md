@@ -964,6 +964,14 @@ No source optimization was retained from this follow-up slot-frontier pass. Fres
 - Rejected isolated direct group iteration: changing `SlotStrategy.assign_slots_for_team()` from `groups.keys()` to direct dictionary iteration preserved `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, but regressed the focused total from `249ms` to `253ms` and the same-target 12 case from `117ms` to `125ms`.
 - Takeaway: the current slot frontier remains sensitive to seemingly reasonable local shortcuts. Keep the current DP incumbent check order and `groups.keys()` iteration unless a future candidate beats the focused gates first, then proves itself in `PerfMovementPhases.tscn`.
 
+## Continuation - 2026-07-04 Rejected Movement Team Local Probes
+
+No source optimization was retained from this frame-loop pass. Fresh real movement control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `253221us`, `591163us`, and `815592us`. The large-case control was noisy, but still showed 12v12 slot assignment as the dominant slice at `659432us` (`80.9%`).
+
+- Rejected full team-array local cache: caching `state.player_team` / `state.enemy_team` into local typed arrays at movement update start and using them for alive checks, slot assignment, and step loops preserved the 6v6 signature but immediately regressed 6v6 movement to `328444us`, so the run was stopped before larger cases and source was reverted.
+- Rejected alive-loop unit locals: reading each alive-check unit into a local before calling `is_alive()` preserved signatures and initially looked neutral (`252976us`/`487011us`/`597787us`), but the repeat failed 8v8 and 12v12 badly (`627030us` and `881968us`), so source was reverted.
+- Takeaway: local-variable reshaping around `state.player_team` / `state.enemy_team` is not a safe quick win in this GDScript hot loop. Keep the current direct property/index reads unless a future profiler shows a different access pattern and passes repeated `PerfMovementPhases.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
