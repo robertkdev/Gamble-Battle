@@ -1383,6 +1383,15 @@ Added benchmark-only target-group shape diagnostics for the lockstep simulator. 
 - Compatibility validation: `PerfMovementPhases.tscn` still preserved all six deterministic signatures with errors `[]` after adding the opt-in simulator diagnostics. Latest compatibility slices still put slot assignment at `69.2%`, `80.7%`, and `81.3%` for 10v10/11v11/12v12.
 - Takeaway: future solver work should prioritize exact assignment for high-count same-target clumps in 10v10/11v11/12v12, while 8v8 is better treated as a mixed step/collision/slot case rather than an all-on-one solver case.
 
+## Continuation - 2026-07-04 Rejected Movement Frame-Loop Cleanups
+
+No gameplay source optimization was retained from this pass. The direct answer to whether this is all that needs optimizing remains no: current controls still show slot assignment as the dominant 10v10/11v11/12v12 surface, but two attractive frame-loop cleanups failed the same-window high-count movement gate and were reverted.
+
+- Fresh restored-source `PerfMovementPhases.tscn` control preserved all six deterministic signatures with errors `[]`. Movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `258827us`, `581567us`, `583798us`, `312177us`, `613270us`, and `577267us`. Slot assignment remained the top large-fight slice at `70.4%`, `80.9%`, and `78.4%` in 10v10/11v11/12v12.
+- Rejected repeated slot-LOS clear removal: skipping `_p_slot_los_scratch.fill(false)` / `_e_slot_los_scratch.fill(false)` preserved signatures and improved some smaller rows, but 10v10 regressed to `460060us` movement with `308964us` slot assignment. 12v12 was flat at `573236us`, so this remains rejected and source was reverted.
+- Rejected duplicate slot-index branch cleanup: combining the slot-output read and slot-memory write under one `slot_idx >= 0` branch preserved signatures and improved 6v6/8v8/9v9 plus 11v11, but 10v10 regressed to `353945us` and 12v12 regressed sharply to `911321us` with `757198us` slot assignment. Source was reverted.
+- Takeaway: do not keep tiny movement frame-loop branch/clear cleanups unless they beat the full six-case `PerfMovementPhases.tscn` gate. The next serious retained change still needs to attack tie-preserving high-count slot assignment or a secondary movement slice with same-window proof across 10v10/11v11/12v12.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
