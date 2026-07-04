@@ -83,4 +83,5 @@ Validation surfaces:
 
 - `tests/rga_testing/validation/EndlessRuntimeIntegrationProbe.tscn` checks Chapter 1 generated specs, catalog stability, generated metadata, seed variation, spawner/rule compatibility, top-bar wiring, and mirror snapshot compatibility.
 - `tests/rga_testing/validation/EndlessRuntimeIntegrationProbe.tscn` also checks that a fresh run starts at board cap 3, leveling adds a board slot, and stronger unit levels improve estimated odds.
+- `tests/rga_testing/validation/TeamOddsCalibrationProbe.tscn` runs seeded random team matchups through the real lockstep combat simulator and compares displayed odds against observed wins by bucket. Latest pass: `144` combats, predicted mean `50.0%`, observed `48.6%`, overall gap `1.4%`, no timeouts.
 - `tests/visual/EndlessEntryMainFlowSmoke.tscn` is a Main-flow smoke that selects a starter through the real entrypoint, validates the Chapter 1 procedural preview UI/enemies, checks the `Board x/3` and `Win Odds` labels, starts the opening combat, and expects progression into Chapter 1 Round 2 with generated RGA metadata.
