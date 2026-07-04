@@ -1451,6 +1451,17 @@ No gameplay source optimization was retained. A support-only candidate scorer re
 - Candidate `PerfTargeting.tscn` preserved signature `9036604269279486158` and errors `[]`, but measured median `503ms`, failing the focused keep bar against the clean same-window control. Restored-source confirmation after revert preserved the expected signature with a noisy median `518ms`.
 - Takeaway: keep the current retained non-support fast path and generic support scorer. Support-targeting branch-shape edits need repeated focused wins before broader gates; preserving the target-selection signature is not enough.
 
+## Continuation - 2026-07-04 Rejected Ring Lower-Bound Rotation Precheck
+
+No gameplay source optimization was retained. A conservative ring-distance lower-bound precheck before full rotation cost-matrix construction preserved focused signatures and improved isolated slot benchmarks, but it regressed the real movement gate and was reverted.
+
+- Fresh `PerfMovementPhases.tscn` control preserved errors `[]` and showed the current frontier clearly: movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `296614us`, `496459us`, `629030us`, `391167us`, `791151us`, and `819392us`; slot assignment was `69.0%`, `81.6%`, and `79.0%` of 10v10/11v11/12v12 movement.
+- Focused controls: `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1527ms`; `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `6143ms`.
+- Candidate change: `_assign_for_target_into()` and `_assign_for_target_into_arrays()` skipped a rotation when a cheap nearest-ring-slot lower bound could not beat the current best cost, avoiding some `_evaluate_precomputed_assignment()` matrix/DP work.
+- Focused candidate results looked favorable: `PerfSlotSolverBreakdown.tscn` kept aggregate `3460608454349089621` and improved total to `1282ms`; `PerfSlotTeamAssignment.tscn` kept aggregate `773148128031759898` and improved total to `3535ms`.
+- Real movement rejected the candidate early. Candidate `PerfMovementPhases.tscn` preserved the first two signatures and errors `[]`, but 6v6 movement regressed to `325601us` with slot assignment `160222us`, and 8v8 regressed sharply to `972688us` with slot assignment `383179us`. The run was stopped after 8v8 and source was reverted.
+- Takeaway: do not add per-rotation lower-bound prechecks that look good in isolated slot benchmarks unless they also beat the real movement frame gate. The extra bound work can perturb the real GDScript frame profile enough to erase focused wins.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
