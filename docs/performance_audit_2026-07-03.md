@@ -1577,6 +1577,14 @@ No gameplay source optimization was retained in this checkpoint. Fresh profiling
 - Focused slot solver gates stayed clean but still expose the same shape. `PerfSlotDpSearch.tscn` preserved aggregate `7234308013805264845`, errors `[]`, total `2239ms`, with `dp_6_initial=399ms`, `dp_6_pruned=341ms`, `dp_9_initial=281ms`, `dp_9_pruned=207ms`, `dp_12_initial=58ms`, and `dp_12_pruned=81ms`. `PerfSlotSolverBreakdown.tscn` preserved aggregate `3460608454349089621`, errors `[]`, total `1490ms`, with rotation rows `rotation_6=85ms`, `rotation_8=209ms`, `rotation_9=425ms`, `rotation_10=214ms`, `rotation_11=164ms`, and `rotation_12=63ms`.
 - Takeaway: the next retained source change should not be another local row-cost, scratch, dispatcher, threshold, or ring-offset micro-edit. It needs a tie-preserving rotation/evaluator architecture win that improves the mid-size and high-count rotation rows, then survives same-window `PerfMovementPhases.tscn` across all six movement sizes.
 
+## Continuation - 2026-07-04 Rejected Count-3 Precomputed Evaluator
+
+No gameplay source optimization was retained. A source candidate added an unrolled `_evaluate_precomputed_assignment()` path for exactly 3 attackers, computing scalar row/slot costs directly and preserving the existing 3-row permutation order and strict tie behavior. It preserved signatures but regressed the focused slot assignment gate, so it was reverted before real movement validation.
+
+- Same-window `PerfSlotTeamAssignment.tscn` control preserved aggregate `773148128031759898`, errors `[]`, total `3383ms`. Candidate preserved the same aggregate and errors `[]`, but total rose to `3462ms`.
+- Important regressions included dictionary pair rows `dict_pair_10` `60ms -> 119ms`, `dict_pair_11` `85ms -> 176ms`, and `dict_pair_12` `97ms -> 201ms`; real array rows also regressed in places, including `array_single_10` `136ms -> 185ms`, `array_single_11` `141ms -> 207ms`, `array_pair_12` `118ms -> 184ms`, and `array_split_12` `26ms -> 32ms`.
+- Takeaway: do not retry an unrolled count-3 precomputed evaluator without new evidence. Avoiding row-array construction for 3-row groups does not pay for the extra GDScript branch/code shape in the public team-assignment gate.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
