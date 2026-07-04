@@ -1257,6 +1257,14 @@ Accepted a narrow slot-assignment allocation cleanup: the dictionary and array t
 - Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`; `Perf1v1.tscn` signature `-6199507685307107293:55`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - This is an allocation cleanup in the primary slot frontier, not completion. Future slot work should still target the 9/10/11/12 same-target rotation/DP path and require real movement evidence because focused slot wins can still be misleading.
 
+## Continuation - 2026-07-04 Rejected Slot Row-Cost Micro-Optimizations
+
+No gameplay source optimization was retained from this pass. Two `_evaluate_precomputed_assignment()` probes preserved slot signatures, but failed the real movement keep bar.
+
+- Rejected row-min used-column bitmask: replacing the per-evaluation `Array[bool]` used-column tracker with an integer bitmask preserved `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898` and improved focused total from fresh control `5336ms` to `4764ms` / `4994ms`, but real `PerfMovementPhases.tscn` regressed the six-case movement profile. Candidate movement measured 6v6/8v8/9v9/10v10/11v11/12v12 at `409466us` / `607770us` / `681554us` / `394460us` / `982184us` / `838346us`, while restored-source same-window control measured `269162us` / `546709us` / `602851us` / `375677us` / `956739us` / `654360us`.
+- Rejected row-level previous-slot branch split: hoisting the previous-slot active checks outside the inner column loop preserved `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898` and focused total `4970ms`, but real movement was inconsistent and repeated regressions hit the frontier. Candidate runs included `299524us` / `720757us` / `615259us` / `359664us` / `633063us` / `645262us`, then `286883us` / `555844us` / `724418us` / `472883us` / `1027689us` / `613153us`.
+- Takeaway: GDScript-level branch/bitmask rewrites inside row-cost construction can improve focused slot totals while hurting full movement. Keep requiring same-window `PerfMovementPhases.tscn` evidence before retaining evaluator micro-optimizations.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
