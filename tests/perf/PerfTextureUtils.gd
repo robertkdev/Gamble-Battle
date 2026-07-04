@@ -20,8 +20,10 @@ func _run() -> void:
 	var elapsed_ms: int = int((Time.get_ticks_usec() - started_usec) / 1000)
 	var diagnostics: Dictionary = TextureUtils.diagnostic_snapshot()
 	var signature: int = 23
-	signature = _mix(signature, int(texture.get_instance_id()) if texture != null else 0)
-	signature = _mix(signature, int(circle.get_instance_id()) if circle != null else 0)
+	signature = _mix(signature, texture.get_width() if texture != null else 0)
+	signature = _mix(signature, texture.get_height() if texture != null else 0)
+	signature = _mix(signature, circle.get_width() if circle != null else 0)
+	signature = _mix(signature, circle.get_height() if circle != null else 0)
 	signature = _mix(signature, int(diagnostics.get("try_load_requests", 0)))
 	signature = _mix(signature, int(diagnostics.get("path_cache_hits", 0)))
 	signature = _mix(signature, int(diagnostics.get("resource_load_attempts", 0)))
