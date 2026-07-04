@@ -610,6 +610,7 @@ Accepted change: `_assign_for_target_into()` now sorts the small per-target `[at
 - `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9239ms`.
 - `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7877ms`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5995`.
+- Rejected same-pass follow-ups: iterating `groups` directly instead of `groups.keys()` preserved signatures but stayed in the same focused timing spread (`288ms`, `291ms`) and was reverted; caching range setup sizes and clamped tile size regressed `PerfSlotTeamAssignment.tscn` to `306ms` and was reverted; removing private helper `max(0.0, delta)` clamps preserved movement signatures but slightly worsened the accepted phase control across 6v6/8v8/12v12 (`302155us`, `590481us`, `658685us`) and was reverted.
 - This removes callback sort overhead from a per-target movement hot path. It still does not close the larger performance audit; slot assignment remains the top 12v12 surface, while 8v8 step loops, targeting, and collision remain monitored.
 
 ## Current Hotspots
