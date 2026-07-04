@@ -1498,6 +1498,15 @@ No gameplay source optimization was retained. A targeting candidate inlined `_al
 - Candidate `PerfTargeting.tscn` preserved the same signature and errors `[]`, but regressed to median `560ms`, p95 `650ms`.
 - Takeaway: keep the current helper call inside `_ally_peel_pressure_from_positive_arrays()`. In this GDScript path, manually inlining the distance/proximity calculation is slower than the existing small helper.
 
+## Continuation - 2026-07-04 Rejected Retarget Sync and Slot-Step Lazy Normalize
+
+No gameplay source optimization was retained. Two fresh candidates preserved deterministic signatures but failed the broader keep bar once measured against integrated combat/movement surfaces.
+
+- Rejected target-controller bulk-refresh sync cleanup: `TargetController.refresh_live_targets()` and `_prime_targets()` used an already-synced private helper to avoid calling `_sync_arrays()` once per unit. Same-window `Perf6v6.tscn` looked favorable and preserved aggregate `4480953857527108889:18`, improving total `14483ms -> 10488ms`. The larger-board check rejected retention: candidate `PerfLargeBoard.tscn` preserved aggregate `7144113503220431359:12`, but measured `10980ms` versus a same-window restored-source control at `9579ms`. Source was restored.
+- Rejected movement slot-step lazy normalization: `_compute_slot_step()` delayed normalizing the self-neighbor vector until a neighbor was actually inside the separation or avoidance radius. The focused helper gate preserved aggregate `4713848927282072330` and improved `PerfMovementStepHelpers.tscn` total `1897ms -> 1597ms`, especially the 12v12 slot-step rows.
+- The real movement gate rejected the lazy-normalization candidate despite preserving all six `PerfMovementPhases.tscn` signatures and errors `[]`. Candidate movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `319343us`, `535424us`, `698864us`, `518970us`, `836376us`, and `683401us`, which did not beat the current integrated movement frontier, especially 10v10 through 12v12. Source was restored.
+- Takeaway: focused helper wins still are not enough. Continue to require same-window `PerfMovementPhases.tscn` wins before retaining movement-step cleanups, and require `PerfLargeBoard.tscn` scale proof before keeping controller/targeting control-flow cleanups that look positive only in 6v6.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
