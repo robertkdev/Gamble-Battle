@@ -67,14 +67,21 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 		var idx: int = int(entry[0])
 		var prev_slot: int = -1
 		var prev_frames: int = 0
-		var prev_value: Variant = prev_slot_assignments.get(idx)
-		if prev_value is Dictionary:
-			var prev: Dictionary = prev_value
-			prev_slot = int(prev.get("slot", -1))
-			prev_frames = int(prev.get("frames", 0))
 		var frame_factor: float = 1.0
-		if hysteresis_frames > 0:
-			frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
+		var prev_active: bool = false
+		if entry.size() >= 5:
+			prev_slot = int(entry[2])
+			frame_factor = float(entry[3])
+			prev_active = bool(entry[4])
+		else:
+			var prev_value: Variant = prev_slot_assignments.get(idx)
+			if prev_value is Dictionary:
+				var prev: Dictionary = prev_value
+				prev_slot = int(prev.get("slot", -1))
+				prev_frames = int(prev.get("frames", 0))
+			if hysteresis_frames > 0:
+				frame_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
+			prev_active = prev_frames > 0
 		var entry_angle: float = float(entry[1])
 		var row_min: float = 1e30
 		var row_min_col: int = -1
@@ -83,9 +90,9 @@ static func _evaluate_assignment(pairs: Array, ring_angles: Array[float], prev_s
 			var base_cost: float = abs(entry_angle - ring_angles[j])
 			if base_cost > PI:
 				base_cost = TAU - base_cost
-			if prev_slot == j and prev_frames > 0:
+			if prev_active and prev_slot == j:
 				base_cost = max(0.0, base_cost - HYST_STICKINESS * frame_factor)
-			elif prev_slot != -1 and prev_slot != j and prev_frames > 0:
+			elif prev_active and prev_slot != -1 and prev_slot != j:
 				base_cost += HYST_SWITCH_COST * frame_factor
 			row_cost[j] = base_cost
 			if base_cost < row_min:
@@ -393,11 +400,22 @@ static func _assign_for_target_into(res: Dictionary, _team: String, _target_idx:
 		}
 		return
 
-	var pairs: Array = [] # [attacker_idx, angle]
+	var pairs: Array = [] # [attacker_idx, angle, prev_slot, prev_factor, prev_active]
 	for attacker_idx in attackers:
-		var pos: Vector2 = attacker_positions[attacker_idx]
+		var attacker_index: int = int(attacker_idx)
+		var pos: Vector2 = attacker_positions[attacker_index]
 		var ang: float = _angle_to(target_pos, pos)
-		pairs.append([int(attacker_idx), ang])
+		var prev_slot: int = -1
+		var prev_frames: int = 0
+		var prev_factor: float = 1.0
+		var prev_value: Variant = prev_slot_assignments.get(attacker_index)
+		if prev_value is Dictionary:
+			var prev: Dictionary = prev_value
+			prev_slot = int(prev.get("slot", -1))
+			prev_frames = int(prev.get("frames", 0))
+		if hysteresis_frames > 0:
+			prev_factor = clampf(float(prev_frames) / float(hysteresis_frames), 0.0, 1.0)
+		pairs.append([attacker_index, ang, prev_slot, prev_factor, prev_frames > 0])
 	pairs.sort_custom(func(a: Array, b: Array) -> bool: return float(a[1]) < float(b[1]))
 
 	var count: int = pairs.size()
