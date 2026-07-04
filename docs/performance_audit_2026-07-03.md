@@ -914,6 +914,16 @@ Fresh answer to "is that all that needs optimizing?": no. A clean `PerfMovementP
 - Candidate `PerfMovementPhases.tscn` first moved to `250459us`, `465351us`, and `589894us`; repeat moved to `237650us`, `487189us`, and `562376us`. The focused collision win was not enough to justify a mixed full-frame result and a repeated 8v8 movement regression, so source was reverted.
 - No source optimization was retained from this pass. Continue treating slot assignment as the primary surface; collision remains monitored, but focused collision wins must still prove out in `PerfMovementPhases.tscn`.
 
+## Continuation - 2026-07-04 Rejected Previous-Slot Array And Mage Nearby Count
+
+No source optimization was retained from this pass. Two candidates preserved deterministic signatures and improved at least one focused or partial gate, but both failed the real movement acceptance bar and were reverted.
+
+- Fresh `PerfMovementPhases.tscn` control before the previous-slot array candidate preserved 6v6/8v8/12v12 signatures with movement `247964us`, `463366us`, and `544679us`; 12v12 slot assignment was `431693us`.
+- Rejected previous-slot array path: letting `SlotStrategy.assign_slots_for_team()` read `MovementState` slot-id/timer arrays directly removed the dictionary sync work but regressed real movement. Candidate runs preserved signatures but moved to `255581us`/`448064us`/`554098us`, then `248075us`/`489454us`/`569247us`; 12v12 slot assignment worsened to `447889us` then `453177us`. Source was reverted.
+- Fresh `PerfTargeting.tscn` control before the mage count candidate preserved signature `9036604269279486158`, errors `[]`, median `444ms`.
+- Rejected mage nearby-count cache: prebuilding nearby-live counts for mage AOE/zone picks improved focused targeting to `413ms` and `439ms` with the same signature, and `MovementTargetPriorityProbe.tscn` passed. The real movement gate did not hold: first run slowed every case to `317456us`, `632887us`, and `610934us`; repeat normalized 6v6 but still regressed 8v8 and 12v12 to `476755us` and `593986us`. Source was reverted.
+- Takeaway: direct previous-slot arrays and mage AOE count precomputation are not safe retained wins under the current gate. Slot assignment remains the primary open surface; targeting work needs focused wins that also avoid repeated `PerfMovementPhases.tscn` regressions.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
