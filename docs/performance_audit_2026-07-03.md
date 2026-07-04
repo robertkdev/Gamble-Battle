@@ -1211,6 +1211,15 @@ Accepted secondary-path source cleanup: `Targeting.pick_by_priority()` now reuse
 - Behavior and broader gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` PASS; `PerfMovementPhases.tscn` preserved 6v6/8v8/9v9/10v10/11v11/12v12 signatures with errors `[]`; `Perf6v6.tscn` aggregate `4480953857527108889:18`; `Perf1v1.tscn` signature `-6199507685307107293:55`; `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`; and `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`.
 - Latest movement phase evidence still points to slot assignment as the main unresolved surface: 10v10/11v11/12v12 slot slices were `69.8%`, `77.7%`, and `81.6%`. This targeting cleanup improves a monitored secondary path; it does not close the competitive optimization goal.
 
+## Continuation - 2026-07-04 Direct Frontier Answer Refresh
+
+No gameplay source optimization was retained from this answer pass. The direct answer to "is that all that needs optimizing?" remains no: the retained targeting cleanup is a real secondary-path win, but current real movement evidence still has a large slot-assignment frontier.
+
+- Fresh `PerfMovementPhases.tscn` control after `38b24c1` preserved deterministic signatures and errors `[]` across 6v6, 8v8, 9v9, 10v10, 11v11, and 12v12. Movement totals were `293775us`, `505928us`, `624483us`, `378961us`, `615269us`, and `647817us`.
+- Slot assignment remains the primary large-fight optimization surface: the latest slices were `51.3%` for 6v6, `40.5%` for 8v8, `51.1%` for 9v9, `70.3%` for 10v10, `78.4%` for 11v11, and `79.9%` for 12v12.
+- Focused slot controls stayed clean: `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3621ms`; `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1097ms`; and `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `1631ms`.
+- Takeaway: optimization is past easy local rewrites, not finished. The next retained source change should still target tie-preserving 10/11/12-unit slot assignment or a measured secondary movement slice, then prove itself in the real `PerfMovementPhases.tscn` gate.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
