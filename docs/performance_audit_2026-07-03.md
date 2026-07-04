@@ -789,6 +789,17 @@ Fresh answer to "is that all that needs optimizing?": no. The latest clean contr
 - The same candidate failed the real movement gate: first phase run moved to `274993us`, `518056us`, and `586307us`; repeat moved to `265340us`, `512527us`, and `589745us`. The 8v8 improvement was not enough to keep a repeated 12v12 regression, so source was reverted.
 - Keep using real `PerfMovementPhases.tscn` as the acceptance gate for slot-wrapper allocation changes; focused slot wins alone are not sufficient.
 
+## Continuation - 2026-07-04 Movement Position Capacity Trust
+
+Accepted change: `MovementService2._update_impl()` now trusts `MovementState.ensure_capacity()` inside the player and enemy step loops and removes redundant `i >= data.player_positions.size()` / `j >= data.enemy_positions.size()` checks from the dead-unit branch. The update already resizes player/enemy position arrays to the team counts before alive snapshots, target grouping, slot assignment, and step application, so this trims a per-unit branch without changing movement behavior.
+
+- Fresh controls before retained source change: `PerfMovementPhases.tscn` preserved signatures with movement `271933us`, `559227us`, and `622529us` for 6v6/8v8/12v12; `PerfSlotSolverBreakdown.tscn` kept aggregate `4738803460811644685`, errors `[]`, total `404ms`; `PerfTargeting.tscn` kept signature `9036604269279486158`, errors `[]`, median `435ms`; `PerfCollisionResolver.tscn` kept aggregate `1955603822268948610`, errors `[]`, total `75ms`.
+- Rejected targeting follow-up: pre-sizing `_build_positive_priority_indices()` before shrinking it back to the written count preserved `PerfTargeting.tscn` signature, but regressed the focused median to `450ms` versus the `435ms` control, so source was reverted.
+- Rejected movement cap follow-up: skipping `step.length()` when the final step was exactly `Vector2.ZERO` preserved movement signatures and improved 8v8/12v12, but repeatedly regressed 6v6 movement to `292860us` and `291358us` versus the `271933us` control. Source was reverted.
+- Retained position-capacity trust repeats preserved 6v6/8v8/12v12 signatures and errors `[]`. First run movement was `270086us`, `527992us`, and `598192us`; repeat movement was `276999us`, `535132us`, and `582314us`.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8832ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6964ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `325ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5842`.
+- This is a small step-loop branch cleanup, not a completion point. Slot assignment remains the largest 12v12 surface, while 8v8 step loops, targeting, and collision remain monitored.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

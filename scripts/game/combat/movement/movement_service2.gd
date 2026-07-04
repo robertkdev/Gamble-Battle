@@ -311,7 +311,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	for i in range(player_count):
 		var u: Unit = state.player_team[i]
 		var alive: bool = p_alive[i]
-		if not alive or i >= data.player_positions.size():
+		if not alive:
 			p_caps[i] = 0.0
 			data.set_slot_memory("player", i, -1, 0)
 			continue
@@ -402,7 +402,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	for j in range(enemy_count):
 		var e: Unit = state.enemy_team[j]
 		var alive_e: bool = e_alive[j]
-		if not alive_e or j >= data.enemy_positions.size():
+		if not alive_e:
 			e_caps[j] = 0.0
 			data.set_slot_memory("enemy", j, -1, 0)
 			continue
