@@ -454,6 +454,22 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/visual/combat_view_theme_playtest.gd`
   - Added explicit `CombatView` teardown/free on exit. The scene still reports renderer/resource cleanup errors under the MCP run, so it is not used as the clean validation source for this pass.
 
+## Continuation - 2026-07-04
+
+Fresh broad audit answer: no, slot assignment is not the only code worth monitoring, but it is still the only major proven hotspot in the current benchmark surface.
+
+- `tests/perf/PerfMovementPhases.tscn` fresh accepted baseline, errors `[]`:
+  - 6v6 neutral: signature `-3997862279252171970:232`, median elapsed `1856ms`, movement `552895us`; top phases slot assignment `237433us` (`42.9%`), player steps `129010us` (`23.3%`), enemy steps `62427us` (`11.3%`), targets `35531us` (`6.4%`), collision `27460us` (`5.0%`), groups `27261us` (`4.9%`).
+  - 8v8 large: signature `7184874536639686372:300`, median elapsed `2865ms`, movement `792485us`; top phases slot assignment `275266us` (`34.7%`), player steps `192263us` (`24.3%`), enemy steps `110791us` (`14.0%`), targets `68777us` (`8.7%`), collision `63878us` (`8.1%`), groups `21399us` (`2.7%`).
+  - 12v12 large: signature `3567836549670627538:428`, median elapsed `1645ms`, movement `906279us`; top phases slot assignment `627059us` (`69.2%`), player steps `135549us` (`15.0%`), enemy steps `47212us` (`5.2%`), targets `34096us` (`3.8%`), collision `31376us` (`3.5%`), previous slots `8284us` (`0.9%`).
+- `tests/perf/PerfLargeBoard.tscn` fresh accepted baseline, errors `[]`: 8v8 median `3185ms`, p95 `3326ms`, signature `7184874536639686372:300`; 12v12 median `1503ms`, p95 `1761ms`, signature `3567836549670627538:428`; aggregate `7144113503220431359:12`, inconsistent cases `0`.
+- `tests/perf/Perf6v6.tscn` fresh accepted baseline, errors `[]`: neutral median `1709ms`, burst median `1696ms`, peel median `2004ms`; aggregate `4480953857527108889:18`, inconsistent cases `0`.
+- `tests/perf/PerfTargeting.tscn` fresh accepted baseline, errors `[]`: median `611ms`, p95 `662ms`, signature `9036604269279486158`.
+- `tests/perf/PerfCombatUiSignals.tscn` fresh accepted check, errors `[]`: short player-facing combat sampled `1.518s`, signals were `position_updated=111`, `team_stats_updated=5`, `stats_updated=7`, `unit_stat_changed=6`, `hit_applied=3`, `target_start=7`, `projectile_fired=3`; unit/actor/trait diagnostics stayed bounded.
+- `tests/perf/PerfCollisionResolver.tscn` fresh accepted check, errors `[]`: dense 6v6 median `26ms`, dense 12v12 median `40ms`, late 12v12 median `38ms`, median total `104ms`, aggregate `1955603822268948610`.
+- `tests/perf/PerfMovementBlockers.tscn` fresh accepted check, errors `[]`: empty direct checks `630ms` versus gated empty `21ms`; active blocked legacy `639ms`, gated blocked `644ms`, unit-blocked fast path `165ms`, signature `1737463064138009568`.
+- Rejected movement-step candidate: changing separation and avoidance guards in `movement_service2.gd` to compare squared distances before `sqrt()` looked like a safe optimization and made 6v6 faster while preserving its signature, but it changed real movement outcomes in larger cases. `PerfMovementPhases.tscn` changed 8v8 from `7184874536639686372:300` to `1860074410702899490:300`, and changed 12v12 from `3567836549670627538:428` / `258` frames to `-400081363281330588:430` / `285` frames. Source was reverted. Treat exact movement floating-point math as behavior-sensitive even when the algebra appears equivalent.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
