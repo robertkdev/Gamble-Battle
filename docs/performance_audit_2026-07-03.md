@@ -1481,6 +1481,15 @@ No gameplay source optimization was retained. A fresh retest reconfirmed the old
 - Restored-source confirmation after revert preserved aggregate `773148128031759898` and errors `[]`. The noisy total was `6646ms`, so this confirmation is behavior validation rather than a new performance baseline.
 - Takeaway: keep inline `step * float(index)` math in the slot rotation loops. In this GDScript path, the cached array lookup is slower than the repeated multiply and adds another static cache that does not pay for itself.
 
+## Continuation - 2026-07-04 Rejected 7/9-Row DP Specialization
+
+No gameplay source optimization was retained. A source candidate split the generic unreduced 7-row and 9-row exact DP search into count-specialized helpers with the same row, mask, column, and strict-less tie order. It preserved focused signatures and improved isolated slot benchmarks, but it failed the decisive real movement comparison and was reverted.
+
+- Fresh focused controls before the edit stayed clean: `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1573ms`; `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3813ms`.
+- Candidate focused gates preserved signatures and errors `[]`: `PerfSlotSolverBreakdown.tscn` improved total to `1129ms`, `PerfSlotDpSearch.tscn` preserved aggregate `7234308013805264845` with total `1276ms`, and `PerfSlotTeamAssignment.tscn` improved total to `3330ms`.
+- Real `PerfMovementPhases.tscn` rejected the candidate despite preserving all six signatures. Candidate movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `305645us`, `583311us`, `625035us`, `486917us`, `622052us`, and `672533us`; restored source measured `261414us`, `510557us`, `868788us`, `411817us`, `578045us`, and `597774us`. The candidate only won the noisy 9v9 row and regressed 6v6, 8v8, 10v10, 11v11, and 12v12, including the slot-heavy rows.
+- Takeaway: do not retain count-specialized 7/9 DP wrappers without real movement wins. GDScript frame behavior is sensitive enough that focused DP/rotation wins can still lose in the integrated movement path.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
