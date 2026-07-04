@@ -17,8 +17,10 @@ func _ready() -> void:
 func _run() -> void:
 	var cases: Array[Dictionary] = [
 		{"label": "slot_step_8v8", "kind": "slot", "count": 8, "other_count": 8, "iterations": 2400},
+		{"label": "slot_step_8v8_no_anchor", "kind": "slot", "count": 8, "other_count": 8, "iterations": 2400, "anchors": false},
 		{"label": "slot_step_10v10", "kind": "slot", "count": 10, "other_count": 10, "iterations": 1800},
 		{"label": "slot_step_12v12", "kind": "slot", "count": 12, "other_count": 12, "iterations": 1400},
+		{"label": "arrive_step_8v8", "kind": "arrive", "count": 8, "other_count": 8, "iterations": 3200, "anchors": false},
 		{"label": "in_band_8v8", "kind": "in_band", "count": 8, "other_count": 8, "iterations": 2400}
 	]
 	var sample_count: int = max(1, int(samples_per_case))
@@ -72,7 +74,8 @@ func _run_case_once(case_data: Dictionary) -> Dictionary:
 	var other_positions: Array[Vector2] = _positions_for(other_count, Vector2(680.0, 376.0), 1.0)
 	var alive: Array[bool] = _bool_array(count, true)
 	var other_alive: Array[bool] = _bool_array(other_count, true)
-	var profiles: Array[MovementProfile] = _profiles_for(count)
+	var use_anchors: bool = bool(case_data.get("anchors", true))
+	var profiles: Array[MovementProfile] = _profiles_for(count, use_anchors)
 	service.configure(96.0, positions, other_positions, Rect2(Vector2(192.0, 96.0), Vector2(768.0, 576.0)))
 	service._refresh_inner_bounds()
 	var signature: int = 67
@@ -102,28 +105,40 @@ func _run_case_once(case_data: Dictionary) -> Dictionary:
 			else:
 				var slot_angle: float = float(index) * TAU / max(1.0, float(count)) + float(iteration % 3) * 0.015
 				var slot_pos: Vector2 = target + Vector2(cos(slot_angle), sin(slot_angle)) * 128.0
-				step = service._compute_slot_step(
-					"player",
-					index,
-					current,
-					slot_pos,
-					target,
-					unit,
-					profiles[index],
-					0.08,
-					1.0,
-					1.0,
-					0.45,
-					0.35,
-					144.0,
-					128.0,
-					54.0,
-					64.0,
-					positions,
-					other_positions,
-					alive,
-					other_alive,
-					0)
+				if kind == "arrive":
+					step = service._compute_arrive_step(
+						current,
+						slot_pos,
+						target,
+						unit,
+						0.08,
+						1.0,
+						144.0,
+						128.0,
+						12.0)
+				else:
+					step = service._compute_slot_step(
+						"player",
+						index,
+						current,
+						slot_pos,
+						target,
+						unit,
+						profiles[index],
+						0.08,
+						1.0,
+						1.0,
+						0.45,
+						0.35,
+						144.0,
+						128.0,
+						54.0,
+						64.0,
+						positions,
+						other_positions,
+						alive,
+						other_alive,
+						0)
 			signature = _mix(signature, int(round(step.x * 1000.0)))
 			signature = _mix(signature, int(round(step.y * 1000.0)))
 	var elapsed_ms: int = int((Time.get_ticks_usec() - started_usec) / 1000)
@@ -141,12 +156,12 @@ func _spawn_units(count: int) -> Array[Unit]:
 			out.append(unit)
 	return out
 
-func _profiles_for(count: int) -> Array[MovementProfile]:
+func _profiles_for(count: int, use_anchors: bool = true) -> Array[MovementProfile]:
 	var out: Array[MovementProfile] = []
 	for index in range(max(0, count)):
 		var side_bias: float = -1.0 if (index % 2) == 0 else 1.0
-		var anchor_index: int = max(0, index - 1) if (index % 4) == 0 else -1
-		var anchor_strength: float = 0.18 if anchor_index >= 0 and anchor_index != index else 0.0
+		var anchor_index: int = max(0, index - 1) if use_anchors and (index % 4) == 0 else -1
+		var anchor_strength: float = 0.18 if use_anchors and anchor_index >= 0 and anchor_index != index else 0.0
 		out.append(MovementProfile.new("approach", 0.90, 1.10, 0.35, 0.25, side_bias, anchor_index, 1.0, 4.0, anchor_strength))
 	return out
 

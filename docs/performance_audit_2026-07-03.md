@@ -1146,6 +1146,15 @@ No source optimization was retained from this pass. The direct answer remains no
 - Rejected raising `HUNGARIAN_PRUNE_MIN_SIZE` from `10` to `11`: the focused DP gate preserved signatures but made count-10 rows much worse (`dp_10_initial=392ms` versus `54ms` control, `dp_10_pruned=89ms` versus `47ms` control), so the run was stopped and source was reverted.
 - Takeaway: optimization is not exhausted, but further retained source work should target tie-preserving 10/12 slot assignment or a focused 8v8 step-loop win, then prove itself in same-window `PerfMovementPhases.tscn` across 6v6, 8v8, 10v10, and 12v12.
 
+## Continuation - 2026-07-04 Movement Helper Gate Expansion
+
+No gameplay source optimization was retained. `PerfMovementStepHelpers.tscn` now separates anchored 8v8 slot-step coverage from no-anchor 8v8 slot-step coverage and adds an `arrive_step_8v8` row for the single-attacker LOS-arrival helper used by one-unit target groups.
+
+- Fresh focused control before editing preserved errors `[]`, aggregate `4814297933245202717`, total `739ms`: `slot_step_8v8=238ms`, `slot_step_10v10=205ms`, `slot_step_12v12=212ms`, and `in_band_8v8=84ms`.
+- Rejected redundant helper delta-clamp removal: replacing `max_speed * max(0.0, delta)` with `max_speed * delta` in private movement helpers preserved focused signatures but regressed the focused total to `760ms`, so source was reverted before real movement validation.
+- Expanded benchmark validation preserved errors `[]`, aggregate `2737480079043224455`, total `1087ms`: `slot_step_8v8=233ms`, `slot_step_8v8_no_anchor=220ms`, `slot_step_10v10=252ms`, `slot_step_12v12=197ms`, `arrive_step_8v8=73ms`, and `in_band_8v8=112ms`.
+- Takeaway: arrive helper cost is currently small; future step-loop source candidates should use the expanded helper gate to distinguish anchor-related cost from the base slot-step path, then still pass real `PerfMovementPhases.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
