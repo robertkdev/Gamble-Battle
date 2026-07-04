@@ -192,6 +192,8 @@ func run(job: DataModels.SimJob, collect_events: bool = false, collector: Varian
 			perf_fast_dt = max(delta_s, float(jmeta_root.get("perf_fast_dt", perf_fast_dt)))
 		if jmeta_root.has("perf_margin_tiles"):
 			perf_margin_tiles = float(jmeta_root.get("perf_margin_tiles", perf_margin_tiles))
+	var collect_target_group_diagnostics: bool = bool(jmeta_root.get("perf_target_group_diagnostics", false))
+	var target_group_diagnostics: Dictionary = _new_target_group_diagnostics()
 	# Attach collector if provided (player side corresponds to team A in this simulator)
 	if collector != null and collector.has_method("attach"):
 		collector.attach(engine, state, true)
@@ -257,6 +259,8 @@ func run(job: DataModels.SimJob, collect_events: bool = false, collector: Varian
 			pending_hits.clear()
 			for kept_hit in remaining:
 				pending_hits.append(kept_hit)
+		if collect_target_group_diagnostics:
+			_record_target_group_diagnostics(target_group_diagnostics, state.player_team, state.enemy_team, state.player_targets, state.enemy_targets)
 		var a_alive: int = _alive_count(state.player_team)
 		var b_alive: int = _alive_count(state.enemy_team)
 		if a_alive <= 0:
@@ -279,6 +283,8 @@ func run(job: DataModels.SimJob, collect_events: bool = false, collector: Varian
 	outcome.team_b_alive = _alive_count(state.enemy_team)
 	if bool(jmeta_root.get("perf_movement_diagnostics", false)) and engine.arena_state != null and engine.arena_state.has_method("diagnostics_snapshot"):
 		result["movement_diagnostics"] = engine.arena_state.diagnostics_snapshot()
+	if collect_target_group_diagnostics:
+		result["target_group_diagnostics"] = target_group_diagnostics.duplicate(true)
 
 	# Derive capabilities actually present (from engine signals and attached kernels)
 	var caps_present: PackedStringArray = _derive_caps_present(engine, collector)
@@ -395,6 +401,65 @@ func _derive_caps_present(engine: Object, collector: Variant) -> PackedStringArr
 		out.append(String(k))
 	out.sort()
 	return out
+
+func _new_target_group_diagnostics() -> Dictionary:
+	return {
+		"frames": 0,
+		"player_group_sizes": {},
+		"enemy_group_sizes": {},
+		"combined_group_sizes": {},
+		"player_max_group_sizes": {},
+		"enemy_max_group_sizes": {},
+		"combined_max_group_sizes": {},
+		"player_single_target_frames": 0,
+		"enemy_single_target_frames": 0,
+		"player_group_events": 0,
+		"enemy_group_events": 0,
+		"player_alive_samples": 0,
+		"enemy_alive_samples": 0
+	}
+
+func _record_target_group_diagnostics(diag: Dictionary, player_team: Array, enemy_team: Array, player_targets: Array[int], enemy_targets: Array[int]) -> void:
+	diag["frames"] = int(diag.get("frames", 0)) + 1
+	_record_team_group_diagnostics(diag, "player", player_team, enemy_team, player_targets)
+	_record_team_group_diagnostics(diag, "enemy", enemy_team, player_team, enemy_targets)
+
+func _record_team_group_diagnostics(diag: Dictionary, prefix: String, attacker_team: Array, target_team: Array, targets: Array[int]) -> void:
+	var groups: Dictionary = {}
+	var alive_attackers: int = 0
+	for attacker_index in range(attacker_team.size()):
+		var attacker_value: Variant = attacker_team[attacker_index]
+		var attacker_unit: Unit = attacker_value if attacker_value is Unit else null
+		if attacker_unit == null or not attacker_unit.is_alive():
+			continue
+		alive_attackers += 1
+		var target_index: int = int(targets[attacker_index]) if attacker_index < targets.size() else -1
+		if not BattleState.is_target_alive(target_team, target_index):
+			continue
+		groups[target_index] = int(groups.get(target_index, 0)) + 1
+	diag[String(prefix) + "_alive_samples"] = int(diag.get(String(prefix) + "_alive_samples", 0)) + alive_attackers
+	diag[String(prefix) + "_group_events"] = int(diag.get(String(prefix) + "_group_events", 0)) + groups.size()
+	var max_group_size: int = 0
+	var group_hist: Dictionary = diag.get(String(prefix) + "_group_sizes", {})
+	var combined_hist: Dictionary = diag.get("combined_group_sizes", {})
+	for target_key in groups.keys():
+		var group_size: int = int(groups.get(target_key, 0))
+		if group_size <= 0:
+			continue
+		max_group_size = max(max_group_size, group_size)
+		_increment_histogram(group_hist, group_size)
+		_increment_histogram(combined_hist, group_size)
+	if max_group_size > 0:
+		var max_hist: Dictionary = diag.get(String(prefix) + "_max_group_sizes", {})
+		var combined_max_hist: Dictionary = diag.get("combined_max_group_sizes", {})
+		_increment_histogram(max_hist, max_group_size)
+		_increment_histogram(combined_max_hist, max_group_size)
+		if alive_attackers > 0 and max_group_size == alive_attackers:
+			diag[String(prefix) + "_single_target_frames"] = int(diag.get(String(prefix) + "_single_target_frames", 0)) + 1
+
+func _increment_histogram(histogram: Dictionary, value: int) -> void:
+	var key: String = str(max(0, value))
+	histogram[key] = int(histogram.get(key, 0)) + 1
 
 func _alive_count(team: Array) -> int:
 	var n: int = 0
