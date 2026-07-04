@@ -420,6 +420,9 @@ func is_stunned(u: Unit) -> bool:
 
 func is_movement_blocked(state: BattleState, team: String, index: int) -> bool:
 	var u: Unit = _unit_at(state, team, index)
+	return is_unit_movement_blocked(u)
+
+func is_unit_movement_blocked(u: Unit) -> bool:
 	if u == null or not _buffs.has(u):
 		return false
 	for b in _buffs[u]:

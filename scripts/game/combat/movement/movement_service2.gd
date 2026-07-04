@@ -336,7 +336,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		if forced_has_player_impulses:
 			step = forced.consume_step("player", i, delta)
-		if step == Vector2.ZERO and movement_blockers_active and buff_adapter.is_blocked(state, "player", i):
+		if step == Vector2.ZERO and movement_blockers_active and buff_adapter.is_unit_blocked(u):
 			step = Vector2.ZERO
 		elif step == Vector2.ZERO:
 			var prof: MovementProfile = _profiles_player[i]
@@ -420,7 +420,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 		if forced_has_enemy_impulses:
 			step2 = forced.consume_step("enemy", j, delta)
-		if step2 == Vector2.ZERO and movement_blockers_active and buff_adapter.is_blocked(state, "enemy", j):
+		if step2 == Vector2.ZERO and movement_blockers_active and buff_adapter.is_unit_blocked(e):
 			step2 = Vector2.ZERO
 		elif step2 == Vector2.ZERO:
 			var prof2: MovementProfile = _profiles_enemy[j]
