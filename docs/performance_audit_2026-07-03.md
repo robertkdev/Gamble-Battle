@@ -652,6 +652,15 @@ Rejected follow-up: moving collision cap reads inside the capped-pair branch pre
 - Candidate repeats preserved the same aggregate signature and errors `[]`, but worsened totals to `89ms` and `94ms`; dense 12v12 regressed to `43ms` then `42ms`, and dense 6v6 regressed to `29ms` in the second repeat.
 - Collision remains a monitored secondary surface, not the next primary target, unless a future real movement profile shows it climbing materially above the latest phase share.
 
+## Continuation - 2026-07-04 Movement Steering Weight Precompute
+
+Accepted change: `MovementService2._update_impl()` now computes clamped seek, separation, and avoidance steering weights once per movement update and passes them into `_compute_slot_step()`. This preserves behavior because the same `MovementTuning` values were already being clamped inside every slot-step call.
+
+- Fresh control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `301298us`, `644901us`, and `741582us`.
+- Patched `tests/perf/PerfMovementPhases.tscn` repeated cleanly with the same signatures and errors `[]`. First run movement was `304427us`, `625208us`, and `696401us`; repeat movement was `287470us`, `610027us`, and `647416us`.
+- Broad gates stayed clean through Godot MCP: `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7610ms`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9115ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `355ms`; `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6140`.
+- This is a retained step-loop cleanup. It improves the latest 8v8 and 12v12 movement phase samples, while slot assignment remains the top 12v12 hotspot and should stay the primary target for larger future wins.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

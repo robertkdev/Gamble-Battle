@@ -189,6 +189,9 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var separation_radius: float = radius * max(0.0, tuning.separation_radius_factor)
 	var avoidance_radius: float = radius * max(1.0, tuning.avoidance_radius_factor)
 	var speed_scale_safe: float = max(0.0, tuning.speed_scale)
+	var seek_weight_safe: float = max(0.0, tuning.seek_weight)
+	var separation_weight_safe: float = max(0.0, tuning.separation_weight)
+	var avoidance_weight_safe: float = max(0.0, tuning.avoidance_weight)
 
 	# Alive flags
 	_resize_bool_scratch(_p_alive_scratch, player_count, false)
@@ -375,6 +378,9 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						prof,
 						delta,
 						speed_scale_safe,
+						seek_weight_safe,
+						separation_weight_safe,
+						avoidance_weight_safe,
 						slow_radius,
 						corridor_radius,
 						separation_radius,
@@ -463,6 +469,9 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						prof2,
 						delta,
 						speed_scale_safe,
+						seek_weight_safe,
+						separation_weight_safe,
+						avoidance_weight_safe,
 						slow_radius2,
 						corridor_radius2,
 						separation_radius,
@@ -511,7 +520,7 @@ func _compute_arrive_step(cur: Vector2, slot_pos: Vector2, _target_pos: Vector2,
 		move_dist = dist
 	return dir_los * move_dist
 
-func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, speed_scale_safe: float, _slow_radius: float, corridor_radius: float, separation_radius: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
+func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2, target_pos: Vector2, unit: Unit, prof: MovementProfile, delta: float, speed_scale_safe: float, seek_weight_safe: float, separation_weight_safe: float, avoidance_weight_safe: float, _slow_radius: float, corridor_radius: float, separation_radius: float, avoidance_radius: float, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, debug_frames_left: int) -> Vector2:
 	var to_slot: Vector2 = slot_pos - cur
 	var dist_to_slot: float = to_slot.length()
 	if dist_to_slot <= ARRIVE_STOP_EPS:
@@ -543,9 +552,9 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var avoidance_len: float = avoidance_vec.length()
 	var avoidance_dir: Vector2 = avoidance_vec / avoidance_len if avoidance_len > 0.0 else Vector2.ZERO
 	var avoidance_strength: float = clampf(avoidance_len, 0.0, 1.0)
-	var w_seek: float = max(0.0, tuning.seek_weight)
-	var w_sep: float = max(0.0, tuning.separation_weight)
-	var w_avoid: float = max(0.0, tuning.avoidance_weight) * avoidance_strength
+	var w_seek: float = seek_weight_safe
+	var w_sep: float = separation_weight_safe
+	var w_avoid: float = avoidance_weight_safe * avoidance_strength
 	var steer: Vector2 = dir_seek * w_seek + sep_dir * (w_sep * sep_strength) + avoidance_dir * w_avoid
 	var blended: Vector2 = (steer if steer != Vector2.ZERO else dir_seek).normalized()
 	var min_dot: float = clampf(tuning.min_forward_dot, -1.0, 0.25)
