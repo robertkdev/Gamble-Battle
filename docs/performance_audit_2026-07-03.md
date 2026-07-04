@@ -1060,6 +1060,13 @@ No source optimization was retained. Fresh controls after the visual checkpoint 
 - Rejected packed DP predecessor scratch: changing `_dp_scratch_for_size()` to store `prev_cols` and `prev_masks` as `PackedInt32Array` instead of `Array[int]` preserved `PerfSlotDpSearch.tscn` signatures, but regressed the focused DP total from `153ms` to `164ms` (`dp_10_initial=38ms`, `dp_12_initial=51ms`, `dp_12_pruned=75ms`). Source was reverted before any broader gate.
 - Takeaway: the retained packed `best_costs` table does not generalize to packed predecessor arrays in this GDScript DP loop. Keep predecessor scratch as `Array[int]` unless a future candidate shows a same-window focused win before real movement validation.
 
+## Continuation - 2026-07-04 Slot Group Shape Coverage
+
+No gameplay source optimization was retained. `tests/perf/PerfSlotTeamAssignment.tscn` now covers intermediate 12-unit group shapes in both legacy dictionary and real array output paths, so future slot work can distinguish all-on-one, pair-split, 3-way split, 4-way split, and one-target-each behavior.
+
+- Clean expanded run preserved errors `[]`, aggregate signature `7518035012375708751`, and deterministic per-case signatures. Dictionary medians: `dict_single_6=134ms`, `dict_single_12=145ms`, `dict_pair_12=127ms`, `dict_split_12=27ms`, `dict_quad_12=34ms`, `dict_spread_12=13ms`. Real array medians: `array_single_6=99ms`, `array_single_12=140ms`, `array_pair_12=128ms`, `array_split_12=31ms`, `array_quad_12=46ms`, `array_spread_12=12ms`.
+- Takeaway: the meaningful focused slot frontier is large single-target and pair-split groups; once groups break into 3/4/spread shapes, assignment cost is much lower. Future source candidates should prioritize count-12 and paired count-6 workloads before optimizing broad slot-output mechanics.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
