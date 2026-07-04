@@ -1295,6 +1295,16 @@ No gameplay source optimization was retained from this pass. Two secondary-surfa
 - Candidate `PerfMovementPhases.tscn` preserved all six signatures. The first candidate pass was mixed but plausible against restored control; the repeat regressed 12v12 movement to `1162609us` with collision `47407us`, so source was reverted. Restored-source same-window control was lower at 12v12 movement `819991us` with collision `31837us`.
 - Takeaway: targeting and collision remain monitored secondary surfaces, but the next retained optimization should still prioritize tie-preserving slot assignment or pass `PerfMovementPhases.tscn` without a 12v12 regression.
 
+## Continuation - 2026-07-04 Direct Optimization Frontier Answer
+
+No gameplay source optimization was retained from this pass. The answer to whether that is all that needs optimizing is no: the current tree is past the easy local rewrites, but the real movement profile still has a clear large-team slot-assignment frontier, and 8v8/9v9 still leave measured secondary movement slices.
+
+- Fresh `PerfSlotDpSearch.tscn` control stayed clean with errors `[]`, aggregate `7234308013805264845`, and total `1638ms`. Current medians were `dp_6_initial=301ms`, `dp_6_pruned=244ms`, `dp_7_initial=305ms`, `dp_7_pruned=176ms`, `dp_9_initial=242ms`, `dp_9_pruned=106ms`, `dp_10_initial=41ms`, `dp_10_pruned=40ms`, `dp_11_initial=33ms`, `dp_11_pruned=27ms`, `dp_12_initial=49ms`, and `dp_12_pruned=74ms`.
+- Fresh `PerfSlotSolverBreakdown.tscn` stayed clean with errors `[]`, aggregate `3460608454349089621`, and total `1332ms`. The current expensive focused rows were `dp_12_pruned=191ms`, `rotation_8=168ms`, `rotation_9=182ms`, `rotation_10=127ms`, and `rotation_11=122ms`.
+- Fresh `PerfMovementPhases.tscn` preserved all six deterministic signatures with errors `[]`. Movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `262781us`, `531310us`, `555987us`, `309412us`, `579730us`, and `614189us`.
+- Slot assignment remains the primary large-fight frontier: latest slot slices were `49.2%`, `40.3%`, `50.3%`, `68.5%`, `80.3%`, and `80.9%` across 6v6/8v8/9v9/10v10/11v11/12v12. The 8v8 and 9v9 cases also keep secondary slices worth monitoring, with player/enemy steps plus collision totaling about `45.3%` in 8v8 and `36.4%` in 9v9.
+- A cost-only finite-incumbent DP precheck was considered but not repeated because the audit already records that candidate as rejected by focused slot validation. The next source candidate should still come from a tie-preserving slot-assignment improvement or a secondary movement slice that beats `PerfMovementPhases.tscn`, not from repeating already rejected DP predecessor or cost-only variants.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
