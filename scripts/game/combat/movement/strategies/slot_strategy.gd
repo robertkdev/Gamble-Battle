@@ -171,9 +171,78 @@ static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dict
 	var n: int = costs.size()
 	if n == 0:
 		return {"assignment": [], "cost": 0.0}
+	if n == 2:
+		return _best_assignment_2(costs, incumbent_cost)
+	if n == 3:
+		return _best_assignment_3(costs, incumbent_cost)
 	if n <= DP_ASSIGNMENT_LIMIT:
 		return _best_assignment_dp(costs, incumbent_cost)
 	return _best_assignment_greedy(costs)
+
+static func _best_assignment_2(costs: Array, incumbent_cost: float) -> Dictionary:
+	var row0: Array[float] = costs[0]
+	var row1: Array[float] = costs[1]
+	var best_cost: float = incumbent_cost
+	var first_cost: float = row0[0] + row1[1]
+	var use_first: bool = false
+	if first_cost < best_cost:
+		best_cost = first_cost
+		use_first = true
+	var second_cost: float = row0[1] + row1[0]
+	if second_cost < best_cost:
+		return {"assignment": _assignment_2(1, 0), "cost": second_cost}
+	if use_first:
+		return {"assignment": _assignment_2(0, 1), "cost": best_cost}
+	return {"assignment": [], "cost": incumbent_cost}
+
+static func _best_assignment_3(costs: Array, incumbent_cost: float) -> Dictionary:
+	var row0: Array[float] = costs[0]
+	var row1: Array[float] = costs[1]
+	var row2: Array[float] = costs[2]
+	var best_cost: float = incumbent_cost
+	var best_assignment: Array[int] = []
+	var candidate_cost: float = row0[0] + row1[1] + row2[2]
+	if candidate_cost < best_cost:
+		best_cost = candidate_cost
+		best_assignment = _assignment_3(0, 1, 2)
+	candidate_cost = row0[1] + row1[0] + row2[2]
+	if candidate_cost < best_cost:
+		best_cost = candidate_cost
+		best_assignment = _assignment_3(1, 0, 2)
+	candidate_cost = row0[0] + row1[2] + row2[1]
+	if candidate_cost < best_cost:
+		best_cost = candidate_cost
+		best_assignment = _assignment_3(0, 2, 1)
+	candidate_cost = row0[2] + row1[0] + row2[1]
+	if candidate_cost < best_cost:
+		best_cost = candidate_cost
+		best_assignment = _assignment_3(2, 0, 1)
+	candidate_cost = row0[1] + row1[2] + row2[0]
+	if candidate_cost < best_cost:
+		best_cost = candidate_cost
+		best_assignment = _assignment_3(1, 2, 0)
+	candidate_cost = row0[2] + row1[1] + row2[0]
+	if candidate_cost < best_cost:
+		best_cost = candidate_cost
+		best_assignment = _assignment_3(2, 1, 0)
+	if best_assignment.is_empty():
+		return {"assignment": [], "cost": incumbent_cost}
+	return {"assignment": best_assignment, "cost": best_cost}
+
+static func _assignment_2(first: int, second: int) -> Array[int]:
+	var assignment: Array[int] = []
+	assignment.resize(2)
+	assignment[0] = first
+	assignment[1] = second
+	return assignment
+
+static func _assignment_3(first: int, second: int, third: int) -> Array[int]:
+	var assignment: Array[int] = []
+	assignment.resize(3)
+	assignment[0] = first
+	assignment[1] = second
+	assignment[2] = third
+	return assignment
 
 static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
