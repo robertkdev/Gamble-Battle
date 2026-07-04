@@ -198,7 +198,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var p_targets: Array[int] = _p_targets_scratch
 	var e_targets: Array[int] = _e_targets_scratch
 	for i_t in range(state.player_team.size()):
-		if i_t < p_alive.size() and not p_alive[i_t]:
+		if not p_alive[i_t]:
 			p_targets[i_t] = -1
 			if diag_enabled:
 				_diag_target_skips += 1
@@ -208,7 +208,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		var v: Variant = target_resolver.call("player", i_t)
 		p_targets[i_t] = int(v) if typeof(v) == TYPE_INT else -1
 	for j_t in range(state.enemy_team.size()):
-		if j_t < e_alive.size() and not e_alive[j_t]:
+		if not e_alive[j_t]:
 			e_targets[j_t] = -1
 			if diag_enabled:
 				_diag_target_skips += 1
