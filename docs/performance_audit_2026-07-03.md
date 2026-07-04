@@ -661,6 +661,14 @@ Accepted change: `MovementService2._update_impl()` now computes clamped seek, se
 - Broad gates stayed clean through Godot MCP: `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7610ms`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9115ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `355ms`; `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6140`.
 - This is a retained step-loop cleanup. It improves the latest 8v8 and 12v12 movement phase samples, while slot assignment remains the top 12v12 hotspot and should stay the primary target for larger future wins.
 
+## Continuation - 2026-07-04 Rejected Min Forward Dot Precompute
+
+Rejected follow-up: precomputing the clamped `min_forward_dot` once per movement update preserved deterministic signatures, but failed the same-turn real movement control. Source was reverted.
+
+- Fresh control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `294970us`, `612226us`, and `633799us`.
+- Candidate `tests/perf/PerfMovementPhases.tscn` preserved the same signatures and errors `[]`, but regressed 6v6 to `356280us` and 12v12 to `649227us`; 8v8 improved to `597079us`, but that was not enough to keep the change.
+- Keep `min_forward_dot` as a helper-local clamp unless a future broader rewrite proves a stronger net win.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
