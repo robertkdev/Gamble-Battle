@@ -1585,6 +1585,15 @@ No gameplay source optimization was retained. A source candidate added an unroll
 - Important regressions included dictionary pair rows `dict_pair_10` `60ms -> 119ms`, `dict_pair_11` `85ms -> 176ms`, and `dict_pair_12` `97ms -> 201ms`; real array rows also regressed in places, including `array_single_10` `136ms -> 185ms`, `array_single_11` `141ms -> 207ms`, `array_pair_12` `118ms -> 184ms`, and `array_split_12` `26ms -> 32ms`.
 - Takeaway: do not retry an unrolled count-3 precomputed evaluator without new evidence. Avoiding row-array construction for 3-row groups does not pay for the extra GDScript branch/code shape in the public team-assignment gate.
 
+## Continuation - 2026-07-04 Rejected Cached 2/3 Assignment Arrays
+
+No gameplay source optimization was retained. A source candidate cached the two possible `_assignment_2()` result arrays and six possible `_assignment_3()` result arrays, returning shared read-only arrays instead of allocating a fresh small assignment array on each successful fast-path solve. It preserved deterministic signatures, but did not survive the broader slot-team gate and was reverted.
+
+- Focused controls stayed clean through Godot MCP: `PerfSlotSmallAssignment.tscn` aggregate `7023677399820711247`, errors `[]`, total `4262ms`, with `fast_2=297ms` and `fast_3=187ms`; `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, errors `[]`, total `3645ms`.
+- Candidate `PerfSlotSmallAssignment.tscn` preserved aggregate `7023677399820711247` and errors `[]`. It improved `fast_2` (`297ms -> 250ms`) but left `fast_3` flat (`187ms -> 188ms`) and the noisy total regressed to `4681ms`.
+- Candidate `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898` and errors `[]`, but total rose from `3645ms` to `4268ms`. It helped small split rows like `dict_split_12` (`33ms -> 27ms`) and `dict_quad_12` (`46ms -> 41ms`), but regressed broader rows including `dict_pair_12` (`118ms -> 145ms`), `array_pair_10` (`62ms -> 125ms`), `array_pair_12` (`114ms -> 161ms`), and `array_single_12` (`126ms -> 181ms`).
+- Takeaway: do not replace `_assignment_2()` / `_assignment_3()` fresh result arrays with shared cached arrays without new evidence. The extra branch shape and shared-array path can win an isolated 2-row microcase but lose in the real mixed slot-team wrapper.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
