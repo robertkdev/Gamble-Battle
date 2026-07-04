@@ -217,6 +217,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `MovementService2._sync_prev_slots()` now reads the movement state's slot-id and slot-timer arrays directly instead of string-dispatching through `MovementState.get_slot_id()` and `get_slot_timer()` for every unit. Fresh same-turn control was `PerfMovementPhases.tscn` 6v6 movement `441932us` with `prev_slots=15829us`, and 12v12 movement `2624348us` with `prev_slots=14021us`. Patched repeats preserved signatures and errors `[]`; 12v12 `prev_slots` stayed near half the control at `7353us`, `7471us`, and `7155us`, with movement samples `2551929us`, `2611506us`, and `2566572us`. Broad gates stayed clean: `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=379`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent `0`, `total_ms=10202`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent `0`, `total_ms=12122`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - Rejected in the same continuation: reusing cached team counts for all movement target grouping and step-loop size checks preserved 6v6/12v12 signatures, but produced mixed profiler evidence with 6v6/12v12 movement `465470us`/`2581026us` then `424121us`/`2710291us` versus same-turn control `441932us`/`2624348us`, so it was reverted.
 - Temporary slot-internal timing instrumentation, not retained, split the 12v12 slot hotspot further: with signatures preserved, `slot_assign=2307053us`, `target_assignment=2281647us` (`98.9%` of slot assignment), `assignment_eval=2233819us` (`96.8%`), `dp_search=1749041us` (`80.2%`), `hungarian_bound=130146us` (`6.0%`), `cost_matrix_build=103874us` (`4.8%`), and `dp_setup=49854us` (`2.3%`). This confirms the next serious slot optimization must reduce exact DP search work, not range lookup, pair sorting, output construction, previous-slot sync, or Hungarian bound overhead. The instrumentation code was reverted because diagnostics-off `PerfSlotTeamAssignment.tscn` focused `single_12` samples regressed from the same-turn control `638ms` to `698-783ms`.
+- `tests/perf/PerfSlotDpSearch.tscn` now gives a retained focused benchmark for exact DP search, separate from full slot-map construction and movement. Initial clean run: `dp_10_initial` median `152ms`, signature `6303755885759420833`; `dp_12_initial` median `136ms`, signature `2611917746955582709`; `dp_12_pruned` median `142ms`, signature `4518023324749157470`; aggregate signature `6007460045863670620`. Existing gates stayed behavior-stable afterward: `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, and `PerfMovementPhases.tscn` preserved 6v6/12v12 signatures with 12v12 movement `2431263us` and slot assignment `2153027us`.
 
 ## Changes Made
 
@@ -293,6 +294,9 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 - `tests/perf/PerfSlotTeamAssignment.gd` / `tests/perf/PerfSlotTeamAssignment.tscn`
   - Added focused coverage for `SlotStrategy.assign_slots_for_team()` across 6-attacker same-target, 12-attacker same-target, and 12-attacker split-target cases.
   - Reports repeated-sample median/p95/min/max timings plus deterministic slot-map signatures, making it a better focused gate for movement-path slot assignment changes than `PerfSlotStrategy.tscn` alone.
+- `tests/perf/PerfSlotDpSearch.gd` / `tests/perf/PerfSlotDpSearch.tscn`
+  - Added focused exact-DP search coverage for 10- and 12-row cost matrices with initial and pruned incumbent modes.
+  - Reports repeated-sample median/p95/min/max timings plus deterministic assignment/cost signatures, giving a faster gate for changes that target `_best_assignment_dp()` directly before running full movement profiling.
 - `tests/perf/PerfTargeting.gd` / `tests/perf/PerfTargeting.tscn`
   - Added a focused deterministic target-priority benchmark over mixed 12v12 teams.
   - Reports repeated-sample median/p95/min/max timings plus a deterministic target-selection signature.
@@ -404,7 +408,7 @@ Scope: Godot 4.5 Gamble Battle runtime, focused on combat simulation and player-
 ## Recommended Next Optimizations
 
 1. Continue slot assignment work with a tie-preserving exact algorithm or a proven safe cache; direct Hungarian assignment is not acceptable because it changed real combat signatures.
-2. Use `PerfSlotTeamAssignment.tscn`, `PerfMovementPhases.tscn`, and `PerfLargeBoard.tscn` as the focused/regression/stress gates before future movement changes above 6v6.
+2. Use `PerfSlotDpSearch.tscn` for `_best_assignment_dp()` changes, then `PerfSlotTeamAssignment.tscn`, `PerfMovementPhases.tscn`, and `PerfLargeBoard.tscn` as the focused/regression/stress gates before future movement changes above 6v6.
 3. Use `PerfTargeting.tscn` before and after target-priority changes, then confirm with `Perf6v6.tscn` or `RoleMatrixProbe6v6.tscn`.
 4. Consider engine-level `position_updated` coalescing only if telemetry consumers or visual profiling prove the remaining 155-170 events are material; the UI no longer polls every actor every frame.
 5. Continue adaptive/coarse stepping only behind acceptance tests; `delta_s=0.25` changed signatures in the sweep.
