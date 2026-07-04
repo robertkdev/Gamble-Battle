@@ -1085,6 +1085,16 @@ No gameplay source optimization was retained. This pass sharpened the count-6 ga
 - `tests/perf/PerfSlotSolverBreakdown.tscn` now includes a count-6 `rotation_eval` case. Clean run preserved errors `[]`: `rotation_6=147ms`, signature `2967004710389803135`; existing 12-row Hungarian/DP and 8/12-row rotation signatures stayed unchanged; new aggregate `4927161410404863131`.
 - Takeaway: future count-6 source work should beat the new direct DP and rotation breakdown gates, not only `PerfSlotSmallAssignment.tscn`, before moving to `PerfSlotTeamAssignment.tscn` pair-split and real `PerfMovementPhases.tscn` validation.
 
+## Continuation - 2026-07-04 Secondary Gate Refresh And Rejected Step Merge
+
+No gameplay source optimization was retained from this pass. The answer to "is that all that needs optimizing?" remains no: the easy wins are mostly gone, but real movement profiles still show enough slot and step-loop cost to keep the audit open.
+
+- Clean post-revert `tests/perf/PerfMovementPhases.tscn` control preserved signatures and errors `[]`: 6v6 movement `281236us` with slot assignment `139773us` (`49.7%`), 8v8 movement `655964us` with slot assignment `260894us` (`39.8%`) plus player/enemy steps and collision at roughly `303883us`, 10v10 movement `354992us` with slot assignment `240711us` (`67.8%`), and 12v12 movement `665384us` with slot assignment `535019us` (`80.4%`).
+- Rejected count-10 DP specialization: routing exactly 10-row assignments to a dedicated copy of the Hungarian-bounded DP preserved `PerfSlotDpSearch.tscn` signatures, but regressed the focused count-10 rows (`dp_10_initial` `43ms -> 60ms`, `dp_10_pruned` `35ms -> 40ms`), so source was reverted before real movement validation.
+- Rejected combined separation/avoidance scan: merging the friendly separation and friendly avoidance loops inside `_compute_slot_step()` preserved focused `PerfMovementStepHelpers.tscn` signatures and improved median total `747ms -> 661ms`, but failed the real movement gate. 6v6 regressed `281236us -> 305634us`, 10v10 regressed `354992us -> 374012us`, and 12v12 regressed `665384us -> 670387us`; only 8v8 improved (`655964us -> 589099us`). Source was reverted.
+- Secondary gate refresh stayed clean: `PerfTargeting.tscn` signature `9036604269279486158`, median `511ms`, errors `[]`; `PerfCollisionResolver.tscn` aggregate `1955603822268948610`, median total `96ms`, errors `[]`; `PerfCombatUiSignals.tscn` kept position events and actor applies aligned at `111`, hidden `UnitPanel` dynamic refreshes `0`, errors `[]`; `PerfTextureUtils.tscn` kept one real texture load and one circle generation across 600 requests each, signature `3546666616613787855`; `PerfMovementBlockers.tscn` kept empty gated lookup at `8ms` versus `757ms` direct, signature `8928121065208191259`; `PerfForcedMovement.tscn` kept signature `3092491491923327610`.
+- Takeaway: continue treating 10v10/12v12 slot assignment as the primary frontier and 8v8 step loops as the main secondary frontier. Focused helper wins are not enough; future source changes still need same-window `PerfMovementPhases.tscn` evidence across 6v6, 8v8, 10v10, and 12v12.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
