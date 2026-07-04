@@ -281,9 +281,11 @@ static func _has_approach(unit: Unit, approach_id: String) -> bool:
 	return false
 
 static func _approach_mask(unit: Unit) -> int:
-	var mask: int = 0
 	if unit == null:
-		return mask
+		return 0
+	if unit.targeting_approach_mask_cache >= 0:
+		return unit.targeting_approach_mask_cache
+	var mask: int = 0
 	for approach in unit.approaches:
 		var key: String = String(approach).strip_edges().to_lower()
 		match key:
@@ -317,6 +319,7 @@ static func _approach_mask(unit: Unit) -> int:
 				mask |= APPROACH_RAMP
 			_:
 				pass
+	unit.targeting_approach_mask_cache = mask
 	return mask
 
 static func _has_mask(mask: int, bit: int) -> bool:

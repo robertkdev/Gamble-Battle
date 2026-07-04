@@ -563,6 +563,18 @@ Accepted change: `ForcedMovement` now stores impulses in per-team dictionaries k
 - This mainly helps frames with active knockback/forced impulses or global active-impulse misses. It is retained as a focused movement-adapter cleanup, while slot assignment and 8v8 step loops remain higher-value measured surfaces.
 - Rejected follow-up: precomputing the default slow/corridor radii once per movement update preserved 6v6/8v8/12v12 signatures and improved 6v6 movement from the fresh `310093us` control to `297842us`, but 8v8 worsened from `592194us` to `603427us` and 12v12 worsened from `675811us` to `677755us`. Source was reverted.
 
+## Continuation - 2026-07-04 Targeting Approach Mask Cache
+
+Accepted change: `Unit` now carries a lazy targeting approach-mask cache that resets when identity data is assigned. `Targeting._approach_mask()` uses that cache instead of rescanning and normalizing the same static approach strings on every smart target selection. While editing `scripts/unit.gd`, the existing inferred local variables in the touched file were also converted to explicit types.
+
+- Focused A/B in `tests/perf/PerfTargeting.tscn`: same-turn control was median `508ms`, p95 `515ms`, signature `9036604269279486158`; patched repeats preserved the signature and errors `[]` with medians `414ms` and `422ms`.
+- `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: 6v6 movement `306112us`, 8v8 movement `600067us`, 12v12 movement `664898us`; target slices were `26349us`, `57499us`, and `24879us`.
+- `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, total `9367ms`.
+- `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `8077ms`.
+- `tests/perf/Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `331ms`.
+- `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6182`.
+- This is retained as a focused targeting cleanup. It does not change the ranking rules and does not close the broader optimization goal; slot assignment and 8v8 step loops remain the largest measured open surfaces.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
