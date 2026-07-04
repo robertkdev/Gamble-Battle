@@ -14,6 +14,10 @@ func _run() -> void:
 	var cases: Array[Dictionary] = [
 		{"label": "dp_6_initial", "count": 6, "iterations": 2400, "offset": 0.23, "bound": "initial"},
 		{"label": "dp_6_pruned", "count": 6, "iterations": 2400, "offset": 0.31, "bound": "pruned"},
+		{"label": "dp_7_initial", "count": 7, "iterations": 1200, "offset": 0.19, "bound": "initial"},
+		{"label": "dp_7_pruned", "count": 7, "iterations": 1200, "offset": 0.27, "bound": "pruned"},
+		{"label": "dp_9_initial", "count": 9, "iterations": 320, "offset": 0.25, "bound": "initial"},
+		{"label": "dp_9_pruned", "count": 9, "iterations": 320, "offset": 0.35, "bound": "pruned"},
 		{"label": "dp_10_initial", "count": 10, "iterations": 160, "offset": 0.17, "bound": "initial"},
 		{"label": "dp_10_pruned", "count": 10, "iterations": 160, "offset": 0.23, "bound": "pruned"},
 		{"label": "dp_12_initial", "count": 12, "iterations": 90, "offset": 0.29, "bound": "initial"},
