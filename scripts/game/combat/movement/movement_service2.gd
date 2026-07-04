@@ -38,6 +38,8 @@ var _prev_enemy_slots_scratch: Dictionary = {}
 var _inner_bounds_valid: bool = false
 var _inner_bounds_min: Vector2 = Vector2.ZERO
 var _inner_bounds_max: Vector2 = Vector2.ZERO
+var _arena_bounds_min: Vector2 = Vector2.ZERO
+var _arena_bounds_max: Vector2 = Vector2.ZERO
 
 # Debug helpers (optional)
 var _debug_watch_players: Array = []
@@ -375,8 +377,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						e_alive,
 						_dbg_frames_left)
 
-		var new_pos: Vector2 = cur + step
-		new_pos = MovementMath.clamp_to_rect(new_pos, data.arena_bounds)
+		var new_pos: Vector2 = _clamp_to_arena_bounds(cur + step)
 		data.player_positions[i] = new_pos
 		step = new_pos - cur
 		p_caps[i] = step.length()
@@ -460,8 +461,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 						p_alive,
 						_dbg_frames_left)
 
-		var new_pos_e: Vector2 = cur_e + step2
-		new_pos_e = MovementMath.clamp_to_rect(new_pos_e, data.arena_bounds)
+		var new_pos_e: Vector2 = _clamp_to_arena_bounds(cur_e + step2)
 		data.enemy_positions[j] = new_pos_e
 		step2 = new_pos_e - cur_e
 		e_caps[j] = step2.length()
@@ -689,11 +689,18 @@ func _clamp_to_inner_bounds(pos: Vector2) -> Vector2:
 		clampf(pos.x, _inner_bounds_min.x, _inner_bounds_max.x),
 		clampf(pos.y, _inner_bounds_min.y, _inner_bounds_max.y))
 
+func _clamp_to_arena_bounds(pos: Vector2) -> Vector2:
+	return Vector2(
+		clampf(pos.x, _arena_bounds_min.x, _arena_bounds_max.x),
+		clampf(pos.y, _arena_bounds_min.y, _arena_bounds_max.y))
+
 func _refresh_inner_bounds() -> void:
 	var bounds: Rect2 = data.arena_bounds
 	if bounds == Rect2():
 		_inner_bounds_valid = false
 		return
+	_arena_bounds_min = bounds.position
+	_arena_bounds_max = bounds.position + bounds.size
 	_inner_bounds_valid = true
 	_inner_bounds_min = Vector2(
 		bounds.position.x + IN_BAND_BOUNDS_BUFFER,
