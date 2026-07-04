@@ -1567,6 +1567,16 @@ No gameplay source optimization was retained. A source candidate changed only th
 - Candidate `PerfSlotTeamAssignment.tscn` preserved aggregate `773148128031759898` and errors `[]`, but total rose to `5209ms`. The changed array rows regressed sharply: `array_single_9` `417ms -> 549ms`, `array_single_10` `174ms -> 268ms`, `array_single_11` `199ms -> 298ms`, `array_single_12` `193ms -> 278ms`, `array_pair_10` `75ms -> 140ms`, `array_pair_11` `81ms -> 188ms`, and `array_pair_12` `122ms -> 230ms`.
 - Takeaway: do not retry "cost-only rotation selection plus final assignment rebuild" without a new algorithmic reason. Avoiding assignment retention does not save enough; the extra exact cost pass duplicates the expensive rotation/evaluator work. The next slot candidate must reduce exact DP/search work itself or prove a real cache across repeated combat frames.
 
+## Continuation - 2026-07-04 Current Slot Frontier Refresh
+
+No gameplay source optimization was retained in this checkpoint. Fresh profiling after the rejected cost-only rotation candidate confirms the goal is still active and the remaining professional optimization frontier is still slot assignment, now with clear evidence that mid-size rotation work matters alongside 10-12 attacker clumps.
+
+- `PerfMovementStepHelpers.tscn` stayed clean with aggregate `4713848927282072330`, errors `[]`, total `1771ms`. Slot-step helper rows remain the largest helper rows, but the full movement profiler still puts slot assignment ahead of step loops.
+- `PerfMovementPhases.tscn` preserved all six signatures with errors `[]`. Movement totals and slot shares were: 6v6 `315543us` / slot `179122us` (`56.8%`), 8v8 `703130us` / slot `359649us` (`51.1%`), 9v9 `799816us` / slot `471727us` (`59.0%`), 10v10 `366910us` / slot `265813us` (`72.4%`), 11v11 `680854us` / slot `563853us` (`82.8%`), and 12v12 `670695us` / slot `553208us` (`82.5%`).
+- Slot subphase evidence shows the frontier is rotation/evaluation across several sizes, not pair setup or output. Real profiler examples: 9v9 `combined_6_rotate=93953us` and `combined_2_rotate=74296us`; 10v10 `player_10_rotate=116725us`; 11v11 `player_9_rotate=208401us` plus `player_11_rotate=189592us`; 12v12 `player_10_rotate=169695us` plus `player_12_rotate=158010us`.
+- Focused slot solver gates stayed clean but still expose the same shape. `PerfSlotDpSearch.tscn` preserved aggregate `7234308013805264845`, errors `[]`, total `2239ms`, with `dp_6_initial=399ms`, `dp_6_pruned=341ms`, `dp_9_initial=281ms`, `dp_9_pruned=207ms`, `dp_12_initial=58ms`, and `dp_12_pruned=81ms`. `PerfSlotSolverBreakdown.tscn` preserved aggregate `3460608454349089621`, errors `[]`, total `1490ms`, with rotation rows `rotation_6=85ms`, `rotation_8=209ms`, `rotation_9=425ms`, `rotation_10=214ms`, `rotation_11=164ms`, and `rotation_12=63ms`.
+- Takeaway: the next retained source change should not be another local row-cost, scratch, dispatcher, threshold, or ring-offset micro-edit. It needs a tie-preserving rotation/evaluator architecture win that improves the mid-size and high-count rotation rows, then survives same-window `PerfMovementPhases.tscn` across all six movement sizes.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
