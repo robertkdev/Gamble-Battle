@@ -1433,6 +1433,15 @@ No gameplay source optimization was retained. A narrow `_evaluate_precomputed_as
 - Real `PerfMovementPhases.tscn` rejected the candidate despite preserving all six signatures. The candidate regressed 6v6/8v8 and especially 12v12: movement totals were `417464us`, `657341us`, `564869us`, `335977us`, `675974us`, and `1176865us`, with 12v12 slot assignment `978395us`.
 - Takeaway: even semantically identical dispatcher-shape changes can perturb the real GDScript frame profile. Keep the current `_best_assignment()` dispatch from `_evaluate_precomputed_assignment()` unless a future same-window candidate beats the full six-case movement gate, not only focused slot totals.
 
+## Continuation - 2026-07-04 Direct Frontier Answer After User Question
+
+No gameplay source optimization was retained from this pass. The answer to "is that all that needs optimizing?" is still no, but the remaining work is no longer broad cleanup; the fresh evidence points to a narrow slot-assignment frontier plus monitored movement-step steering.
+
+- Fresh `PerfMovementPhases.tscn` stayed clean with errors `[]` and preserved deterministic signatures. Movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `285649us`, `741853us`, `553116us`, `312294us`, `593055us`, and `721452us`. Slot assignment was still the dominant large-team slice at `67.6%`, `78.9%`, and `78.2%` for 10v10/11v11/12v12.
+- Fresh `PerfMovementStepHelpers.tscn` stayed clean with aggregate `4713848927282072330`, total `2971ms`. The slot-step rows are still the expensive helper rows; arrive and in-band rows remain secondary.
+- Fresh `PerfTargetGroupShapes.tscn` stayed clean with aggregate `-234389136367210299:36`, inconsistent cases `0`. The live shape evidence shows high-count same-target clumps still occur in larger fights: 10v10 produced group sizes up to `10`, 11v11 up to `11`, and 12v12 up to `12`, even though most group events are smaller 1/2/3-attacker groups.
+- Takeaway: optimization is not done, but the easy wins are mostly exhausted. Future retained source work should either change the exact slot-assignment architecture in a tie-preserving way, or beat both the focused helper/slot benchmarks and the full `PerfMovementPhases.tscn` gate. Do not repeat previous branch-shape, previous-slot array, reciprocal-radius, dispatcher-bypass, or threshold-lowering probes without new evidence.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
