@@ -1490,6 +1490,14 @@ No gameplay source optimization was retained. A source candidate split the gener
 - Real `PerfMovementPhases.tscn` rejected the candidate despite preserving all six signatures. Candidate movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `305645us`, `583311us`, `625035us`, `486917us`, `622052us`, and `672533us`; restored source measured `261414us`, `510557us`, `868788us`, `411817us`, `578045us`, and `597774us`. The candidate only won the noisy 9v9 row and regressed 6v6, 8v8, 10v10, 11v11, and 12v12, including the slot-heavy rows.
 - Takeaway: do not retain count-specialized 7/9 DP wrappers without real movement wins. GDScript frame behavior is sensitive enough that focused DP/rotation wins can still lose in the integrated movement path.
 
+## Continuation - 2026-07-04 Rejected Support Peel Positive-Path Inlining
+
+No gameplay source optimization was retained. A targeting candidate inlined `_ally_peel_pressure_for_ally_cached()` inside the retained positive-array support peel path to avoid one helper call and direct-index already-positive ally positions. It preserved target-selection behavior, but regressed the focused targeting benchmark and was reverted before broad combat validation.
+
+- Fresh `PerfTargeting.tscn` control preserved signature `9036604269279486158`, errors `[]`, median `444ms`, p95 `541ms`.
+- Candidate `PerfTargeting.tscn` preserved the same signature and errors `[]`, but regressed to median `560ms`, p95 `650ms`.
+- Takeaway: keep the current helper call inside `_ally_peel_pressure_from_positive_arrays()`. In this GDScript path, manually inlining the distance/proximity calculation is slower than the existing small helper.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
