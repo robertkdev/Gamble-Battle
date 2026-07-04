@@ -5,7 +5,6 @@ const Debug = preload("res://scripts/util/debug.gd")
 
 var _all_pos: Array[Vector2] = []
 var _caps: Array[float] = []
-var _tag_is_player: Array[bool] = []
 var _active_indices: Array[int] = []
 
 # CollisionResolver
@@ -33,14 +32,12 @@ func resolve(
     var total_count: int = player_count + enemy_count
     _all_pos.resize(total_count)
     _caps.resize(total_count)
-    _tag_is_player.resize(total_count)
     _active_indices.clear()
     for i in range(player_count):
         _all_pos[i] = player_positions[i]
         var player_is_alive: bool = player_alive[i]
         var player_step_cap: float = player_step_caps[i]
         _caps[i] = max(0.0, player_step_cap)
-        _tag_is_player[i] = true
         if player_is_alive:
             _active_indices.append(i)
     for j in range(enemy_count):
@@ -49,7 +46,6 @@ func resolve(
         var enemy_is_alive: bool = enemy_alive[j]
         var enemy_step_cap: float = enemy_step_caps[j]
         _caps[write_index] = max(0.0, enemy_step_cap)
-        _tag_is_player[write_index] = false
         if enemy_is_alive:
             _active_indices.append(write_index)
 
@@ -83,7 +79,7 @@ func resolve(
                 var dir: Vector2 = diff / d if d > 0.0 else Vector2.RIGHT
                 var half: float = overlap * 0.5
 
-                var same_team: bool = (_tag_is_player[a] == _tag_is_player[b])
+                var same_team: bool = (a < player_count) == (b < player_count)
                 var cap_a: float = _caps[a]
                 var cap_b: float = _caps[b]
 

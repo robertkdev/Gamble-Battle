@@ -1229,6 +1229,16 @@ No gameplay source optimization was retained from this pass. Both source probes 
 - Candidate `PerfMovementPhases.tscn` preserved all six signatures. First candidate run improved 6v6/9v9/10v10/12v12 versus the fresh frontier control, but the repeat regressed 11v11/12v12 to `741989us` / `684751us` movement.
 - Restored-source control after reverting was better on the primary large-fight frontier: 10v10 `329095us`, 11v11 `585770us`, and 12v12 `619848us`, with slot assignment `68.4%`, `80.3%`, and `79.4%`. Keep the `way.fill(0)` reset unless a future same-window candidate beats restored real movement, not only focused solver gates.
 
+## Continuation - 2026-07-04 Collision Team Tag Scratch Removal
+
+Accepted secondary-surface source cleanup: `CollisionResolver.resolve()` now derives same-team status from the combined player/enemy index ranges instead of maintaining a `_tag_is_player` scratch array. Player units are always written before enemy units in the combined collision arrays, so pair order, collision math, caps, friendly-soft behavior, and writeback order are unchanged.
+
+- Fresh focused control before the edit: `PerfCollisionResolver.tscn` aggregate `1955603822268948610`, total `89ms`, errors `[]`.
+- Patched focused validation preserved aggregate `1955603822268948610` and errors `[]`, improving `PerfCollisionResolver.tscn` to total `75ms`; dense 12v12 moved `35ms -> 28ms` and late 12v12 moved `35ms -> 25ms`.
+- Real movement validation preserved all six `PerfMovementPhases.tscn` signatures with errors `[]`. Repeats measured movement `268419us` / `491309us` / `548633us` / `307400us` / `584955us` / `604959us`, then `268828us` / `503786us` / `561717us` / `314966us` / `583869us` / `620028us`.
+- Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`; `Perf1v1.tscn` signature `-6199507685307107293:55`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
+- This trims a monitored collision slice. It does not close the optimization goal because 10v10/11v11/12v12 movement remains slot-assignment dominated.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
