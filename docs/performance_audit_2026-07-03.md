@@ -1345,6 +1345,15 @@ Accepted a secondary target-priority optimization: `Targeting.pick_by_priority()
 - Broad gates stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9278ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=340`; `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6081`; and `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7200ms`.
 - This improves a monitored secondary path. The competitive optimization goal remains active because large-team slot assignment still dominates current 10v10/11v11/12v12 movement profiles.
 
+## Continuation - 2026-07-04 Rejected Hungarian Unique-Optimum Shortcut
+
+No gameplay source optimization was retained from this pass. The direct answer to whether everything is optimized remains no: fresh evidence still puts slot assignment at the top of the real movement profile, but the tested solver shortcut did not pass the actual-fight keep bar.
+
+- Fresh restored-source controls stayed clean with errors `[]`: `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `994ms`; `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3417ms`; `PerfMovementPhases.tscn` preserved all six deterministic signatures, with movement `249903us` / `688270us` / `510722us` / `376641us` / `531877us` / `558182us` for 6v6 through 12v12.
+- Rejected candidate: after the existing Hungarian pass, return the Hungarian assignment only when all non-assigned reduced-cost edges are strictly worse, proving a unique optimum and otherwise falling back to the current tie-preserving DP. This preserved focused signatures and improved `PerfSlotTeamAssignment.tscn` total to `2959ms`.
+- The real movement gate rejected it. Patched `PerfMovementPhases.tscn` preserved signatures, but 11v11 regressed to `639043us` movement with `516684us` slot assignment, and 12v12 was not a movement win at `567283us` movement despite a small slot-assignment slice improvement (`443385us`). Source was reverted.
+- Takeaway: even a tie-safe-looking Hungarian shortcut needs same-window 10v10/11v11/12v12 movement proof before retention. The next slot candidate should keep the current DP tie behavior unless it can beat the broad phase gate, not just `PerfSlotTeamAssignment.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
