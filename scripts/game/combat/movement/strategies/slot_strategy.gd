@@ -117,12 +117,24 @@ static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dict
 
 static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
 	var n: int = costs.size()
+	var reduced_u: Array[float] = []
+	var reduced_v: Array[float] = []
+	var reduced_slack_limit: float = -1.0
 	if n >= HUNGARIAN_PRUNE_MIN_SIZE and incumbent_cost < 1e29:
 		var min_possible_cost: float = _assignment_min_cost_hungarian(costs)
 		if min_possible_cost > incumbent_cost + HUNGARIAN_PRUNE_EPS:
 			return {"assignment": [], "cost": incumbent_cost}
+		var scratch_existing: Dictionary = _hungarian_scratch_for_size(n)
+		reduced_u = scratch_existing["u"]
+		reduced_v = scratch_existing["v"]
+		reduced_slack_limit = max(0.0, incumbent_cost - _hungarian_dual_lower_bound(reduced_u, reduced_v, min_possible_cost, n)) + HUNGARIAN_PRUNE_EPS
 	elif n >= HUNGARIAN_PRUNE_MIN_SIZE:
-		incumbent_cost = _assignment_min_cost_hungarian(costs) + HUNGARIAN_PRUNE_EPS
+		var first_min_possible_cost: float = _assignment_min_cost_hungarian(costs)
+		incumbent_cost = first_min_possible_cost + HUNGARIAN_PRUNE_EPS
+		var scratch_initial: Dictionary = _hungarian_scratch_for_size(n)
+		reduced_u = scratch_initial["u"]
+		reduced_v = scratch_initial["v"]
+		reduced_slack_limit = max(0.0, incumbent_cost - _hungarian_dual_lower_bound(reduced_u, reduced_v, first_min_possible_cost, n)) + HUNGARIAN_PRUNE_EPS
 	var mask_count: int = 1 << n
 	var best_costs: Array[float] = []
 	var prev_cols: Array[int] = []
@@ -146,6 +158,10 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 				var bit: int = 1 << col
 				if (mask & bit) != 0:
 					continue
+				if reduced_slack_limit >= 0.0:
+					var reduced_cost: float = row_costs[col] - reduced_u[row + 1] - reduced_v[col + 1]
+					if reduced_cost > reduced_slack_limit:
+						continue
 				var next_mask: int = mask | bit
 				var candidate_cost: float = base_cost + row_costs[col]
 				if candidate_cost >= incumbent_cost:
@@ -169,6 +185,14 @@ static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> D
 		walk_mask = prev_masks[walk_mask]
 		write_row -= 1
 	return {"assignment": assignment, "cost": best_costs[final_mask]}
+
+static func _hungarian_dual_lower_bound(u: Array[float], v: Array[float], min_possible_cost: float, n: int) -> float:
+	var dual_cost: float = 0.0
+	for i in range(1, n + 1):
+		dual_cost += u[i]
+	for j in range(1, n + 1):
+		dual_cost += v[j]
+	return min(dual_cost, min_possible_cost)
 
 static func _assignment_min_cost_hungarian(costs: Array) -> float:
 	var n: int = costs.size()
