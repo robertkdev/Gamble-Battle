@@ -1155,6 +1155,15 @@ No gameplay source optimization was retained. `PerfMovementStepHelpers.tscn` now
 - Expanded benchmark validation preserved errors `[]`, aggregate `2737480079043224455`, total `1087ms`: `slot_step_8v8=233ms`, `slot_step_8v8_no_anchor=220ms`, `slot_step_10v10=252ms`, `slot_step_12v12=197ms`, `arrive_step_8v8=73ms`, and `in_band_8v8=112ms`.
 - Takeaway: arrive helper cost is currently small; future step-loop source candidates should use the expanded helper gate to distinguish anchor-related cost from the base slot-step path, then still pass real `PerfMovementPhases.tscn`.
 
+## Continuation - 2026-07-04 Odd-Size Movement Phase Coverage
+
+No gameplay source optimization was retained. `PerfMovementPhases.tscn` now includes `9v9_large` and `11v11_large` cases so recent odd-count slot solver work has real movement coverage instead of only focused DP and team-assignment coverage.
+
+- Same-turn focused slot controls before the movement expansion stayed clean: `PerfSlotTeamAssignment.tscn` aggregate `6126179979591804452`, total `2766ms`; `PerfSlotSolverBreakdown.tscn` aggregate `6131016972257857795`, total `776ms`; `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `1197ms`.
+- Expanded `PerfMovementPhases.tscn` preserved errors `[]` and deterministic signatures across six cases. Movement totals were `253526us` for 6v6, `480299us` for 8v8, `594025us` for new 9v9, `325632us` for 10v10, `580647us` for new 11v11, and `624757us` for 12v12.
+- New odd-size findings: 9v9 ran the full `45.05s` shape and was `50.7%` slot assignment (`301339us`), while 11v11 ended at `13.30s` and was `81.0%` slot assignment (`470322us`). 11v11 is therefore now part of the primary large-fight slot frontier alongside 10v10 and 12v12.
+- Takeaway: future slot source candidates should keep validating 6v6/8v8/9v9/10v10/11v11/12v12 in `PerfMovementPhases.tscn`, especially if they touch odd-count DP, Hungarian pruning, or target-group slot output.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
