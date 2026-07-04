@@ -1305,6 +1305,16 @@ No gameplay source optimization was retained from this pass. The answer to wheth
 - Slot assignment remains the primary large-fight frontier: latest slot slices were `49.2%`, `40.3%`, `50.3%`, `68.5%`, `80.3%`, and `80.9%` across 6v6/8v8/9v9/10v10/11v11/12v12. The 8v8 and 9v9 cases also keep secondary slices worth monitoring, with player/enemy steps plus collision totaling about `45.3%` in 8v8 and `36.4%` in 9v9.
 - A cost-only finite-incumbent DP precheck was considered but not repeated because the audit already records that candidate as rejected by focused slot validation. The next source candidate should still come from a tie-preserving slot-assignment improvement or a secondary movement slice that beats `PerfMovementPhases.tscn`, not from repeating already rejected DP predecessor or cost-only variants.
 
+## Continuation - 2026-07-04 Follow-Up Frontier Recheck
+
+No gameplay source optimization was retained from this pass. The direct answer is still no: the project is past broad obvious cleanup, but not past optimization. Current evidence narrows the remaining professional-grade work to large-team slot assignment first, with targeting and collision monitored as secondary surfaces.
+
+- Fresh focused slot controls stayed behavior-stable and clean: `PerfSlotSolverBreakdown.tscn` aggregate `3460608454349089621`, total `1222ms`; `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, total `3330ms`.
+- Fresh targeting control was `PerfTargeting.tscn` median `421ms`, p95 `453ms`, signature `9036604269279486158`. Rejected support-peel scratch-array reuse preserved the signature, but repeats did not hold as a reliable win (`393ms`, `450ms`, `433ms`); restored source then measured `407ms`, so the source was reverted.
+- Fresh collision control stayed stable and small relative to slot assignment: `PerfCollisionResolver.tscn` aggregate `1955603822268948610`, total `343ms`, with `dense_6v6=98ms`, `dense_12v12=126ms`, and `late_12v12=119ms`.
+- Fresh restored-source movement validation preserved all six `PerfMovementPhases.tscn` signatures with errors `[]`. Movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `256413us`, `548711us`, `579381us`, `326215us`, `795973us`, and `626534us`.
+- Slot assignment remains the decisive large-team frontier in that movement run: `49.8%`, `40.4%`, `50.4%`, `69.5%`, `73.9%`, and `81.1%` of measured movement respectively. The next retained source change should still come from a tie-preserving 10/11/12-slot assignment win or a secondary movement slice that beats the six-case real movement gate.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
