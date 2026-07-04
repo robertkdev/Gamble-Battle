@@ -316,7 +316,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			data.set_slot_memory("player", i, -1, 0)
 			continue
 		var cur: Vector2 = data.player_positions[i]
-		var tgt_idx: int = (p_targets[i] if i < p_targets.size() else -1)
+		var tgt_idx: int = p_targets[i]
 		var tpos: Vector2 = (data.enemy_positions[tgt_idx] if tgt_idx >= 0 and tgt_idx < data.enemy_positions.size() else cur)
 
 		var slot_info: Variant = p_slot_map.get(i)
@@ -407,7 +407,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			data.set_slot_memory("enemy", j, -1, 0)
 			continue
 		var cur_e: Vector2 = data.enemy_positions[j]
-		var tgt_idx2: int = (e_targets[j] if j < e_targets.size() else -1)
+		var tgt_idx2: int = e_targets[j]
 		var tpos2: Vector2 = (data.player_positions[tgt_idx2] if tgt_idx2 >= 0 and tgt_idx2 < data.player_positions.size() else cur_e)
 
 		var slot_info2: Variant = e_slot_map.get(j)

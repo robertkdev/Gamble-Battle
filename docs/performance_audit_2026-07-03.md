@@ -800,6 +800,15 @@ Accepted change: `MovementService2._update_impl()` now trusts `MovementState.ens
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8832ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6964ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `325ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5842`.
 - This is a small step-loop branch cleanup, not a completion point. Slot assignment remains the largest 12v12 surface, while 8v8 step loops, targeting, and collision remain monitored.
 
+## Continuation - 2026-07-04 Movement Target Scratch Trust
+
+Accepted change: `MovementService2._update_impl()` now trusts the resized target scratch arrays inside the player and enemy step loops. `_p_targets_scratch` and `_e_targets_scratch` are resized to exact team counts before target resolution and grouping, so the later `i < p_targets.size()` / `j < e_targets.size()` fallback branches were redundant.
+
+- Fresh real movement control before the edit preserved 6v6/8v8/12v12 signatures and errors `[]`: movement `278748us`, `512532us`, and `570398us`.
+- Candidate repeats preserved the same signatures and errors `[]`. First run movement was `262480us`, `512241us`, and `579428us`; repeat movement was `268522us`, `519652us`, and `557425us`.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8739ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6892ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `328ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5758`.
+- This is another narrow branch cleanup in the step loop. It improves the professional polish of the movement hot path but does not close the broader goal; slot assignment remains the largest 12v12 surface.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
