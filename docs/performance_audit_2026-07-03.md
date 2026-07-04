@@ -1095,6 +1095,15 @@ No gameplay source optimization was retained from this pass. The answer to "is t
 - Secondary gate refresh stayed clean: `PerfTargeting.tscn` signature `9036604269279486158`, median `511ms`, errors `[]`; `PerfCollisionResolver.tscn` aggregate `1955603822268948610`, median total `96ms`, errors `[]`; `PerfCombatUiSignals.tscn` kept position events and actor applies aligned at `111`, hidden `UnitPanel` dynamic refreshes `0`, errors `[]`; `PerfTextureUtils.tscn` kept one real texture load and one circle generation across 600 requests each, signature `3546666616613787855`; `PerfMovementBlockers.tscn` kept empty gated lookup at `8ms` versus `757ms` direct, signature `8928121065208191259`; `PerfForcedMovement.tscn` kept signature `3092491491923327610`.
 - Takeaway: continue treating 10v10/12v12 slot assignment as the primary frontier and 8v8 step loops as the main secondary frontier. Focused helper wins are not enough; future source changes still need same-window `PerfMovementPhases.tscn` evidence across 6v6, 8v8, 10v10, and 12v12.
 
+## Continuation - 2026-07-04 Compact Support Peel Targeting
+
+Accepted source optimization: support peel targeting now builds compact positive-priority ally arrays in one pass instead of building a full ally-priority array and then scanning it again for positive indices and wounded bonuses. The scoring semantics are unchanged: each positive ally keeps the same peel priority and wounded bonus, but non-positive allies are not stored in the hot support peel arrays.
+
+- Fresh focused control before the edit: `PerfTargeting.tscn` signature `9036604269279486158`, median `511ms`, errors `[]`.
+- Patched focused validation preserved signature `9036604269279486158` and errors `[]`, improving `PerfTargeting.tscn` to median `453ms`, then `415ms` on repeat.
+- Targeted behavior and broad gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` PASS; `PerfMovementPhases.tscn` preserved 6v6/8v8/10v10/12v12 signatures with errors `[]`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`; `Perf1v1.tscn` signature `-6199507685307107293:55`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
+- This improves a monitored secondary path, not the main remaining bottleneck. 10v10/12v12 slot assignment remains the primary frontier for the broader optimization goal.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.

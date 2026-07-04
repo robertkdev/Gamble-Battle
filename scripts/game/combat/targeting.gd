@@ -39,9 +39,10 @@ static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team
 	var ally_peel_wounded_bonuses: PackedFloat32Array = PackedFloat32Array()
 	var ally_peel_indices: PackedInt32Array = PackedInt32Array()
 	if attacker_role == "support" and ((attacker_mask & APPROACH_PEEL) != 0 or (attacker_mask & APPROACH_LOCKDOWN) != 0):
-		ally_peel_priorities = _build_ally_peel_priorities(attacker, ally_team)
-		ally_peel_indices = _build_positive_priority_indices(ally_peel_priorities)
-		ally_peel_wounded_bonuses = _build_positive_priority_wounded_bonuses(ally_team, ally_peel_indices)
+		var ally_peel_data: Dictionary = _build_positive_ally_peel_data(attacker, ally_team)
+		ally_peel_priorities = ally_peel_data.get("priorities", PackedFloat32Array())
+		ally_peel_indices = ally_peel_data.get("indices", PackedInt32Array())
+		ally_peel_wounded_bonuses = ally_peel_data.get("wounded_bonuses", PackedFloat32Array())
 	var best_idx: int = -1
 	var best_score: float = -INF
 	var current_score: float = -INF
@@ -213,7 +214,7 @@ static func _ally_peel_pressure(attacker: Unit, ally_team: Array[Unit], ally_pos
 		var ally: Unit = ally_team[i]
 		if ally == null or not ally.is_alive():
 			continue
-		var priority: float = float(ally_peel_priorities[i]) if i < ally_peel_priorities.size() else _ally_peel_priority(attacker, ally)
+		var priority: float = float(ally_peel_priorities[packed_index]) if packed_index < ally_peel_priorities.size() else _ally_peel_priority(attacker, ally)
 		if priority <= 0.0:
 			continue
 		var wounded_bonus: float = float(ally_peel_wounded_bonuses[packed_index]) if packed_index < ally_peel_wounded_bonuses.size() else _ally_wounded_bonus(ally)
@@ -239,31 +240,24 @@ static func _ally_wounded_bonus(ally: Unit) -> float:
 	var hp_pct: float = float(ally.hp) / max(1.0, float(ally.max_hp))
 	return clampf((0.75 - hp_pct) / 0.75, 0.0, 1.0) * 0.45
 
-static func _build_ally_peel_priorities(attacker: Unit, ally_team: Array[Unit]) -> PackedFloat32Array:
+static func _build_positive_ally_peel_data(attacker: Unit, ally_team: Array[Unit]) -> Dictionary:
+	var indices: PackedInt32Array = PackedInt32Array()
 	var priorities: PackedFloat32Array = PackedFloat32Array()
-	priorities.resize(ally_team.size())
+	var wounded_bonuses: PackedFloat32Array = PackedFloat32Array()
 	for i in range(ally_team.size()):
 		var ally: Unit = ally_team[i]
 		if ally == null or not ally.is_alive():
-			priorities[i] = 0.0
-		else:
-			priorities[i] = _ally_peel_priority(attacker, ally)
-	return priorities
-
-static func _build_positive_priority_wounded_bonuses(ally_team: Array[Unit], ally_peel_indices: PackedInt32Array) -> PackedFloat32Array:
-	var bonuses: PackedFloat32Array = PackedFloat32Array()
-	bonuses.resize(ally_peel_indices.size())
-	for packed_index in range(ally_peel_indices.size()):
-		var ally_index: int = int(ally_peel_indices[packed_index])
-		bonuses[packed_index] = _ally_wounded_bonus(ally_team[ally_index]) if ally_index >= 0 and ally_index < ally_team.size() else 0.0
-	return bonuses
-
-static func _build_positive_priority_indices(priorities: PackedFloat32Array) -> PackedInt32Array:
-	var indices: PackedInt32Array = PackedInt32Array()
-	for i in range(priorities.size()):
-		if priorities[i] > 0.0:
+			continue
+		var priority: float = _ally_peel_priority(attacker, ally)
+		if priority > 0.0:
 			indices.append(i)
-	return indices
+			priorities.append(priority)
+			wounded_bonuses.append(_ally_wounded_bonus(ally))
+	return {
+		"indices": indices,
+		"priorities": priorities,
+		"wounded_bonuses": wounded_bonuses
+	}
 
 static func _ally_peel_priority(attacker: Unit, ally: Unit) -> float:
 	if ally == attacker:
