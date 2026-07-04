@@ -561,6 +561,7 @@ Accepted change: `ForcedMovement` now stores impulses in per-team dictionaries k
 - `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7631ms`.
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6545`.
 - This mainly helps frames with active knockback/forced impulses or global active-impulse misses. It is retained as a focused movement-adapter cleanup, while slot assignment and 8v8 step loops remain higher-value measured surfaces.
+- Rejected follow-up: precomputing the default slow/corridor radii once per movement update preserved 6v6/8v8/12v12 signatures and improved 6v6 movement from the fresh `310093us` control to `297842us`, but 8v8 worsened from `592194us` to `603427us` and 12v12 worsened from `675811us` to `677755us`. Source was reverted.
 
 ## Current Hotspots
 
