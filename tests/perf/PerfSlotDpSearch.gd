@@ -20,6 +20,8 @@ func _run() -> void:
 		{"label": "dp_9_pruned", "count": 9, "iterations": 320, "offset": 0.35, "bound": "pruned"},
 		{"label": "dp_10_initial", "count": 10, "iterations": 160, "offset": 0.17, "bound": "initial"},
 		{"label": "dp_10_pruned", "count": 10, "iterations": 160, "offset": 0.23, "bound": "pruned"},
+		{"label": "dp_11_initial", "count": 11, "iterations": 120, "offset": 0.27, "bound": "initial"},
+		{"label": "dp_11_pruned", "count": 11, "iterations": 120, "offset": 0.33, "bound": "pruned"},
 		{"label": "dp_12_initial", "count": 12, "iterations": 90, "offset": 0.29, "bound": "initial"},
 		{"label": "dp_12_pruned", "count": 12, "iterations": 160, "offset": 0.41, "bound": "pruned"}
 	]

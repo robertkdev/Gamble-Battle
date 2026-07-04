@@ -1124,6 +1124,14 @@ Accepted source optimization: `_best_assignment_dp()` now routes 7-row and 9-row
 - Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9369ms`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7816ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, time `343ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`.
 - This is a retained large-fight slot improvement and coverage expansion, not completion of the broader optimization audit. Count 10/12 slot assignment remains the primary frontier, and odd-count coverage should remain in the focused gates for future solver changes.
 
+## Continuation - 2026-07-04 Count-11 Solver Coverage
+
+No gameplay source optimization was retained from this pass. Count-11 focused coverage was added because 11-unit groups occur naturally after one death in 12v12 fights, and the previous odd-count source pass covered 7/9 but not 11.
+
+- `PerfSlotDpSearch.tscn` now includes `dp_11_initial` and `dp_11_pruned`; clean post-revert validation preserved errors `[]`, aggregate `7234308013805264845`, and count-11 signatures `4075200561191643665` / `7850970466478732065` with medians `58ms` / `53ms`.
+- `PerfSlotSolverBreakdown.tscn` now includes `hungarian_11` and `rotation_11`; clean validation preserved errors `[]`, aggregate `6131016972257857795`, `hungarian_11=52ms` signature `2948632919463100959`, and `rotation_11=105ms` signature `2099189642656196703`.
+- Rejected count-11 no-Hungarian path: routing count 11 through the no-reduced DP helper preserved signatures but regressed `dp_11_initial` from the fresh `37ms` focused control to `471ms`. Source was reverted before real movement validation. Count 11 should keep the current Hungarian-pruned generic path unless a future candidate beats the expanded focused gates first.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
