@@ -164,13 +164,15 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	if state == null:
 		return
 	_refresh_inner_bounds()
+	var player_count: int = state.player_team.size()
+	var enemy_count: int = state.enemy_team.size()
 	var diag_enabled: bool = bool(diagnostics_enabled)
 	var diag_total_start: int = 0
 	var diag_phase_start: int = 0
 	if diag_enabled:
 		diag_total_start = Time.get_ticks_usec()
 		diag_phase_start = diag_total_start
-	ensure_capacity(state.player_team.size(), state.enemy_team.size())
+	ensure_capacity(player_count, enemy_count)
 	data.tick_slot_memory()
 	if diag_enabled:
 		diag_phase_start = _diag_mark_phase("setup", diag_phase_start)
@@ -183,25 +185,25 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 	var radius: float = ts * max(0.0, tuning.unit_radius_factor)
 
 	# Alive flags
-	_resize_bool_scratch(_p_alive_scratch, state.player_team.size(), false)
-	_resize_bool_scratch(_e_alive_scratch, state.enemy_team.size(), false)
+	_resize_bool_scratch(_p_alive_scratch, player_count, false)
+	_resize_bool_scratch(_e_alive_scratch, enemy_count, false)
 	var p_alive: Array[bool] = _p_alive_scratch
 	var e_alive: Array[bool] = _e_alive_scratch
-	for i_alive in range(state.player_team.size()):
+	for i_alive in range(player_count):
 		var u_alive: bool = (state.player_team[i_alive] != null and state.player_team[i_alive].is_alive())
 		p_alive[i_alive] = u_alive
-	for j_alive in range(state.enemy_team.size()):
+	for j_alive in range(enemy_count):
 		var e_u_alive: bool = (state.enemy_team[j_alive] != null and state.enemy_team[j_alive].is_alive())
 		e_alive[j_alive] = e_u_alive
 	if diag_enabled:
 		diag_phase_start = _diag_mark_phase("alive", diag_phase_start)
 
 	# Current targets via resolver
-	_resize_int_scratch(_p_targets_scratch, state.player_team.size(), -1)
-	_resize_int_scratch(_e_targets_scratch, state.enemy_team.size(), -1)
+	_resize_int_scratch(_p_targets_scratch, player_count, -1)
+	_resize_int_scratch(_e_targets_scratch, enemy_count, -1)
 	var p_targets: Array[int] = _p_targets_scratch
 	var e_targets: Array[int] = _e_targets_scratch
-	for i_t in range(state.player_team.size()):
+	for i_t in range(player_count):
 		if not p_alive[i_t]:
 			p_targets[i_t] = -1
 			if diag_enabled:
@@ -211,7 +213,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			_diag_target_calls += 1
 		var v: Variant = target_resolver.call("player", i_t)
 		p_targets[i_t] = int(v) if typeof(v) == TYPE_INT else -1
-	for j_t in range(state.enemy_team.size()):
+	for j_t in range(enemy_count):
 		if not e_alive[j_t]:
 			e_targets[j_t] = -1
 			if diag_enabled:
@@ -246,8 +248,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 	var prev_player_slots: Dictionary = _prev_player_slots_scratch
 	var prev_enemy_slots: Dictionary = _prev_enemy_slots_scratch
-	_sync_prev_slots(prev_player_slots, "player", state.player_team.size())
-	_sync_prev_slots(prev_enemy_slots, "enemy", state.enemy_team.size())
+	_sync_prev_slots(prev_player_slots, "player", player_count)
+	_sync_prev_slots(prev_enemy_slots, "enemy", enemy_count)
 	if diag_enabled:
 		diag_phase_start = _diag_mark_phase("prev_slots", diag_phase_start)
 
@@ -286,8 +288,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 		diag_phase_start = _diag_mark_phase("slot_assign", diag_phase_start)
 
 	# Per-unit attempted step caps
-	_resize_float_scratch(_p_caps_scratch, state.player_team.size(), 0.0)
-	_resize_float_scratch(_e_caps_scratch, state.enemy_team.size(), 0.0)
+	_resize_float_scratch(_p_caps_scratch, player_count, 0.0)
+	_resize_float_scratch(_e_caps_scratch, enemy_count, 0.0)
 	var p_caps: Array[float] = _p_caps_scratch
 	var e_caps: Array[float] = _e_caps_scratch
 	if diag_enabled:
@@ -298,7 +300,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 	# Player side
 	var forced_has_player_impulses: bool = forced.has_any_for_team("player")
-	for i in range(state.player_team.size()):
+	for i in range(player_count):
 		var u: Unit = state.player_team[i]
 		var alive: bool = p_alive[i]
 		if not alive or i >= data.player_positions.size():
@@ -383,7 +385,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 	# Enemy side
 	var forced_has_enemy_impulses: bool = forced.has_any_for_team("enemy")
-	for j in range(state.enemy_team.size()):
+	for j in range(enemy_count):
 		var e: Unit = state.enemy_team[j]
 		var alive_e: bool = e_alive[j]
 		if not alive_e or j >= data.enemy_positions.size():
