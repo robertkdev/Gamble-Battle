@@ -635,6 +635,15 @@ Accepted change: `MovementService2._update_impl()` now computes the clamped spee
 - `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` passed with final `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6314`.
 - This is retained as a small helper cleanup with favorable 6v6/12v12 phase samples and favorable broad aggregate checks, while the 8v8 phase remains noisy and should continue to be monitored before accepting larger step-loop changes.
 
+## Continuation - 2026-07-04 Rejected Movement Helper Parameter Trim
+
+Rejected follow-up: removing unused private helper parameters from `_compute_arrive_step()` and `_compute_in_band_step()` preserved deterministic signatures, but the aggregate timing signal was too weak to keep.
+
+- Fresh control in `tests/perf/PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `321642us`, `594383us`, and `666695us`.
+- Candidate `tests/perf/PerfMovementPhases.tscn` repeats preserved the same signatures and errors `[]`, but were mixed: first run `300063us`, `589906us`, `674972us`; second run `304546us`, `575320us`, `684324us`.
+- Candidate `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7544ms`.
+- Candidate `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, but total `9497ms` was weaker than the last retained 6v6 repeat. Source was reverted.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
