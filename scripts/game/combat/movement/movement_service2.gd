@@ -30,6 +30,18 @@ var _p_targets_scratch: Array[int] = []
 var _e_targets_scratch: Array[int] = []
 var _p_caps_scratch: Array[float] = []
 var _e_caps_scratch: Array[float] = []
+var _p_slot_positions_scratch: Array[Vector2] = []
+var _e_slot_positions_scratch: Array[Vector2] = []
+var _p_slot_indices_scratch: Array[int] = []
+var _e_slot_indices_scratch: Array[int] = []
+var _p_slot_los_scratch: Array[bool] = []
+var _e_slot_los_scratch: Array[bool] = []
+var _p_slot_slow_radii_scratch: Array[float] = []
+var _e_slot_slow_radii_scratch: Array[float] = []
+var _p_slot_corridor_radii_scratch: Array[float] = []
+var _e_slot_corridor_radii_scratch: Array[float] = []
+var _p_slot_corridor_eps_scratch: Array[float] = []
+var _e_slot_corridor_eps_scratch: Array[float] = []
 var _enemy_groups_scratch: Dictionary = {}
 var _player_groups_scratch: Dictionary = {}
 var _prev_player_slots_scratch: Dictionary = {}
@@ -273,7 +285,35 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		diag_phase_start = _diag_mark_phase("prev_slots", diag_phase_start)
 
 	# Slot destinations
-	var p_slot_map: Dictionary = slots.assign_slots_for_team(
+	_resize_vector2_scratch(_p_slot_positions_scratch, player_count, Vector2.ZERO)
+	_resize_vector2_scratch(_e_slot_positions_scratch, enemy_count, Vector2.ZERO)
+	_resize_int_scratch(_p_slot_indices_scratch, player_count, -1)
+	_resize_int_scratch(_e_slot_indices_scratch, enemy_count, -1)
+	_resize_bool_scratch(_p_slot_los_scratch, player_count, false)
+	_resize_bool_scratch(_e_slot_los_scratch, enemy_count, false)
+	_resize_float_scratch(_p_slot_slow_radii_scratch, player_count, 0.0)
+	_resize_float_scratch(_e_slot_slow_radii_scratch, enemy_count, 0.0)
+	_resize_float_scratch(_p_slot_corridor_radii_scratch, player_count, 0.0)
+	_resize_float_scratch(_e_slot_corridor_radii_scratch, enemy_count, 0.0)
+	_resize_float_scratch(_p_slot_corridor_eps_scratch, player_count, 0.0)
+	_resize_float_scratch(_e_slot_corridor_eps_scratch, enemy_count, 0.0)
+	_p_slot_indices_scratch.fill(-1)
+	_e_slot_indices_scratch.fill(-1)
+	_p_slot_los_scratch.fill(false)
+	_e_slot_los_scratch.fill(false)
+	var p_slot_positions: Array[Vector2] = _p_slot_positions_scratch
+	var e_slot_positions: Array[Vector2] = _e_slot_positions_scratch
+	var p_slot_indices: Array[int] = _p_slot_indices_scratch
+	var e_slot_indices: Array[int] = _e_slot_indices_scratch
+	var p_slot_los: Array[bool] = _p_slot_los_scratch
+	var e_slot_los: Array[bool] = _e_slot_los_scratch
+	var p_slot_slow_radii: Array[float] = _p_slot_slow_radii_scratch
+	var e_slot_slow_radii: Array[float] = _e_slot_slow_radii_scratch
+	var p_slot_corridor_radii: Array[float] = _p_slot_corridor_radii_scratch
+	var e_slot_corridor_radii: Array[float] = _e_slot_corridor_radii_scratch
+	var p_slot_corridor_eps: Array[float] = _p_slot_corridor_eps_scratch
+	var e_slot_corridor_eps: Array[float] = _e_slot_corridor_eps_scratch
+	slots.assign_slots_for_team_into_arrays(
 		"player",
 		state.player_team,
 		data.player_positions,
@@ -284,11 +324,17 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		enemy_groups,
 		_profiles_player,
 		ts,
+		p_slot_positions,
+		p_slot_indices,
+		p_slot_los,
+		p_slot_slow_radii,
+		p_slot_corridor_radii,
+		p_slot_corridor_eps,
 		data.debug_log_frames,
 		_debug_watch_players,
 		prev_player_slots,
 		SLOT_HYSTERESIS_FRAMES)
-	var e_slot_map: Dictionary = slots.assign_slots_for_team(
+	slots.assign_slots_for_team_into_arrays(
 		"enemy",
 		state.enemy_team,
 		data.enemy_positions,
@@ -299,6 +345,12 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		player_groups,
 		_profiles_enemy,
 		ts,
+		e_slot_positions,
+		e_slot_indices,
+		e_slot_los,
+		e_slot_slow_radii,
+		e_slot_corridor_radii,
+		e_slot_corridor_eps,
 		data.debug_log_frames,
 		_debug_watch_enemies,
 		prev_enemy_slots,
@@ -330,20 +382,18 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		var tgt_idx: int = p_targets[i]
 		var tpos: Vector2 = (data.enemy_positions[tgt_idx] if tgt_idx >= 0 and tgt_idx < enemy_count else cur)
 
-		var slot_info: Variant = p_slot_map.get(i)
 		var slot_pos: Vector2 = tpos
-		var slot_mode: String = "ring"
-		var slot_idx: int = -1
+		var slot_los_arrive: bool = false
+		var slot_idx: int = p_slot_indices[i]
 		var slow_radius: float = ts * tuning.arrival_slow_radius_factor
 		var corridor_radius: float = slow_radius * tuning.corridor_decay_radius_factor
 		var corridor_eps: float = ts * tuning.corridor_epsilon_factor
-		if slot_info is Dictionary:
-			slot_pos = slot_info.get("position", tpos)
-			slot_mode = String(slot_info.get("mode", "ring"))
-			slot_idx = int(slot_info.get("slot_index", -1))
-			slow_radius = float(slot_info.get("slow_radius", slow_radius))
-			corridor_radius = float(slot_info.get("corridor_radius", corridor_radius))
-			corridor_eps = float(slot_info.get("corridor_eps", corridor_eps))
+		if slot_idx >= 0:
+			slot_pos = p_slot_positions[i]
+			slot_los_arrive = p_slot_los[i]
+			slow_radius = p_slot_slow_radii[i]
+			corridor_radius = p_slot_corridor_radii[i]
+			corridor_eps = p_slot_corridor_eps[i]
 		if slot_idx >= 0:
 			data.set_slot_memory("player", i, slot_idx, SLOT_HYSTERESIS_FRAMES)
 		else:
@@ -375,7 +425,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 					e_alive,
 					prof)
 			else:
-				if slot_mode == "los_arrive":
+				if slot_los_arrive:
 					step = _compute_arrive_step(cur, slot_pos, tpos, u, delta, speed_scale_safe, slow_radius, corridor_radius, corridor_eps)
 				else:
 					step = _compute_slot_step(
@@ -421,20 +471,18 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 		var tgt_idx2: int = e_targets[j]
 		var tpos2: Vector2 = (data.player_positions[tgt_idx2] if tgt_idx2 >= 0 and tgt_idx2 < player_count else cur_e)
 
-		var slot_info2: Variant = e_slot_map.get(j)
 		var slot_pos2: Vector2 = tpos2
-		var slot_mode2: String = "ring"
-		var slot_idx2: int = -1
+		var slot_los_arrive2: bool = false
+		var slot_idx2: int = e_slot_indices[j]
 		var slow_radius2: float = ts * tuning.arrival_slow_radius_factor
 		var corridor_radius2: float = slow_radius2 * tuning.corridor_decay_radius_factor
 		var corridor_eps2: float = ts * tuning.corridor_epsilon_factor
-		if slot_info2 is Dictionary:
-			slot_pos2 = slot_info2.get("position", tpos2)
-			slot_mode2 = String(slot_info2.get("mode", "ring"))
-			slot_idx2 = int(slot_info2.get("slot_index", -1))
-			slow_radius2 = float(slot_info2.get("slow_radius", slow_radius2))
-			corridor_radius2 = float(slot_info2.get("corridor_radius", corridor_radius2))
-			corridor_eps2 = float(slot_info2.get("corridor_eps", corridor_eps2))
+		if slot_idx2 >= 0:
+			slot_pos2 = e_slot_positions[j]
+			slot_los_arrive2 = e_slot_los[j]
+			slow_radius2 = e_slot_slow_radii[j]
+			corridor_radius2 = e_slot_corridor_radii[j]
+			corridor_eps2 = e_slot_corridor_eps[j]
 		if slot_idx2 >= 0:
 			data.set_slot_memory("enemy", j, slot_idx2, SLOT_HYSTERESIS_FRAMES)
 		else:
@@ -466,7 +514,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 					p_alive,
 					prof2)
 			else:
-				if slot_mode2 == "los_arrive":
+				if slot_los_arrive2:
 					step2 = _compute_arrive_step(cur_e, slot_pos2, tpos2, e, delta, speed_scale_safe, slow_radius2, corridor_radius2, corridor_eps2)
 				else:
 					step2 = _compute_slot_step(
@@ -798,6 +846,16 @@ func _resize_int_scratch(arr: Array[int], length: int, fill: int) -> void:
 		arr.resize(length)
 
 func _resize_float_scratch(arr: Array[float], length: int, fill: float) -> void:
+	if length < 0:
+		length = 0
+	var current: int = arr.size()
+	if current < length:
+		for _i in range(length - current):
+			arr.append(fill)
+	elif current > length:
+		arr.resize(length)
+
+func _resize_vector2_scratch(arr: Array[Vector2], length: int, fill: Vector2) -> void:
 	if length < 0:
 		length = 0
 	var current: int = arr.size()

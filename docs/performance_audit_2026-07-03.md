@@ -993,6 +993,17 @@ No gameplay source optimization was retained from this pass. Fresh controls stil
 - Added `tests/perf/PerfMovementStepHelpers.tscn` / `.gd` to isolate the non-slot step-helper cost. Clean rerun preserved errors `[]`, aggregate signature `4095235582607810427`: `slot_step_8v8` median `179ms`, signature `8517957193674428854`; `slot_step_12v12` median `189ms`, signature `9171504211272572178`; `in_band_8v8` median `75ms`, signature `2023130859922751419`.
 - Skipped repeating already documented rejected candidates: precomputed slow/corridor defaults, clamped `min_forward_dot` hoisting, squared in-band/bounded range comparisons, support-peel positive-index one-pass construction, and several slot DP/local shortcut families. Future step-helper work should first beat `PerfMovementStepHelpers.tscn`, then prove itself in `PerfMovementPhases.tscn` 8v8 and 12v12.
 
+## Continuation - 2026-07-04 Slot Array Output Path
+
+Accepted change: real combat movement now asks `SlotStrategy` to fill reusable per-team slot arrays instead of allocating a `Dictionary` of nested slot dictionaries and unpacking those dictionaries during each step loop. The legacy `assign_slots_for_team()` dictionary API remains for tests and compatibility; the new `assign_slots_for_team_into_arrays()` path is used only by `MovementService2._update_impl()`.
+
+- Rejected Hungarian cost-return shortcut first: returning `-v[0]` from `_assignment_min_cost_hungarian()` preserved signatures and improved some direct Hungarian samples, but same-window focused totals were effectively tied and mixed (`PerfSlotSolverBreakdown` `543ms` candidate vs `540ms` control; `PerfSlotDpSearch` `150ms` candidate vs `156ms` control). Source was restored before the retained array-output work.
+- Fresh `PerfMovementPhases.tscn` control before the array path preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `357351us`, `601893us`, and `841390us`; slot assignment `171437us`, `246377us`, and `650954us`.
+- Array-path repeats preserved the same signatures and errors `[]`. First run movement was `369790us`, `540210us`, and `535315us`, with slot assignment `174879us`, `219203us`, and `426945us`. Repeat movement was `245848us`, `497269us`, and `751033us`, with slot assignment `118124us`, `202363us`, and `607380us`. 6v6 was mixed on the first sample, but 8v8 and 12v12 slot assignment both stayed below the fresh control.
+- Added `tests/rga_testing/validation/SlotArrayAssignmentParityProbe.tscn` / `slot_array_assignment_parity_probe.gd` to compare the new array output against the legacy dictionary output for single-target, split-target, and single-attacker LOS cases. The probe passed with errors `[]`.
+- Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0` on two runs (`12790ms`, `12311ms`, noisy totals); `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0` on two runs (`7932ms`, `8423ms`, 12v12 medians `1184ms` and `1147ms`); `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `363ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=7143`.
+- This removes a real allocation/unpack surface in the movement frame loop and lowers repeated 8v8/12v12 phase-profiler slot-assignment samples, but it does not finish the audit. The exact slot solver remains the dominant 12v12 slice after the output-shape cleanup.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
