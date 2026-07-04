@@ -884,6 +884,16 @@ Accepted change: `MovementService2.configure()` and `ensure_capacity()` now pass
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8463ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `6881ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `333ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5846`.
 - This is a small safe cleanup, not a new hotspot conclusion. Slot assignment remains the dominant 12v12 movement surface.
 
+## Continuation - 2026-07-04 Rejected Slot Wrapper and Hungarian Slack Probes
+
+Rejected two source candidates after they preserved deterministic signatures but failed to beat the real movement acceptance bar. Source was reverted; this is a docs-only checkpoint.
+
+- Fresh controls: `PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, errors `[]`, total `300ms`; `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `252181us`, `469941us`, and `548196us`.
+- Rejected slot wrapper cleanup: iterating groups directly, caching target/unit/profile sizes, and hoisting the tile-size clamp preserved `PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077` but regressed the focused total to `305ms`. The real movement gate also regressed all cases to `262270us`, `538823us`, and `647484us`, so source was reverted. This reconfirms the earlier wrapper-family rejection.
+- Fresh solver controls before the Hungarian slack candidate: `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, total `160ms`; `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, total `404ms`.
+- Rejected Hungarian slack candidate: using the exact Hungarian minimum directly for reduced-cost slack instead of the summed dual lower-bound helper preserved focused signatures and improved `PerfSlotDpSearch.tscn` to `159ms`, `PerfSlotSolverBreakdown.tscn` to `395ms`, and `PerfSlotTeamAssignment.tscn` to `276ms`. It still failed repeated real movement because 12v12 regressed to `575837us` and `572205us` versus the fresh `548196us` control. Source was reverted; keep the current dual lower-bound calculation unless a future change proves the real 12v12 phase.
+- Takeaway: focused slot wins remain useful filters, but they are still insufficient for retention. The real `PerfMovementPhases.tscn` 12v12 case remains the decisive gate for slot-assignment changes.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
