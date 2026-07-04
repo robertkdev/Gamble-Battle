@@ -935,6 +935,15 @@ Accepted change: `_best_assignment_dp()` now stores its reusable DP `best_costs`
 - Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8738ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7176ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `336ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6197`.
 - This is a retained solver-storage optimization, not completion of the broader audit. 12v12 slot assignment remains the primary surface, but the exact DP cost table now has lower focused and real 12v12 cost.
 
+## Continuation - 2026-07-04 Rejected Follow-up Solver And Movement Probes
+
+No source optimization was retained from this pass. The direct answer to "is that all that needs optimizing?" remains no: the restored current-tree `PerfMovementPhases.tscn` baseline still preserved deterministic signatures while showing 12v12 slot assignment at `439249us` of `551949us` movement (`79.6%`). The same baseline measured 6v6 and 8v8 movement at `243086us` and `514354us`, with 8v8 step loops plus collision still material secondary slices.
+
+- Rejected Hungarian packed scratch: changing Hungarian pruning scratch arrays to `PackedFloat64Array` / `PackedInt32Array` preserved solver signatures, but regressed focused gates. Fresh controls were `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`, total `1164ms`, and `PerfSlotDpSearch.tscn` aggregate `6007460045863670620`, total `232ms`; the candidate moved those totals to `1278ms` and `433ms`, so source was reverted.
+- Rejected DP reduced-branch split: splitting `_best_assignment_dp()` into reduced-prune and non-reduced loops preserved signatures and improved focused solver totals (`PerfSlotSolverBreakdown.tscn` `1164ms` -> `597ms`, `PerfSlotDpSearch.tscn` `232ms` -> `166ms`). It did not survive the real gate: `PerfMovementPhases.tscn` 12v12 movement regressed to `647002us`, with slot assignment `500841us`. Source was reverted.
+- Rejected movement slot-mode boolean cleanup: replacing per-unit slot-mode `String(...)` conversion with a boolean `los_arrive` flag in `MovementService2` immediately failed the 6v6 movement gate, moving from the restored `243086us` baseline to `423454us`. The run was stopped after the first case and source was reverted.
+- Takeaway: remaining optimization is not exhausted, but the current frontier is past easy local rewrites. Future candidates should keep using the focused solver scenes as filters, then require `PerfMovementPhases.tscn` 12v12 and 8v8 proof before retention.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
