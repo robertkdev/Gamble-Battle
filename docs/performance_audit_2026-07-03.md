@@ -644,6 +644,14 @@ Rejected follow-up: removing unused private helper parameters from `_compute_arr
 - Candidate `tests/perf/PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, total `7544ms`.
 - Candidate `tests/perf/Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, but total `9497ms` was weaker than the last retained 6v6 repeat. Source was reverted.
 
+## Continuation - 2026-07-04 Rejected Collision Cap Deferral
+
+Rejected follow-up: moving collision cap reads inside the capped-pair branch preserved focused collision signatures but regressed the focused collision benchmark, so source was reverted.
+
+- Fresh control in `tests/perf/PerfCollisionResolver.tscn` kept aggregate `1955603822268948610`, errors `[]`, total `73ms`: dense 6v6 `20ms`, dense 12v12 `29ms`, late 12v12 `24ms`.
+- Candidate repeats preserved the same aggregate signature and errors `[]`, but worsened totals to `89ms` and `94ms`; dense 12v12 regressed to `43ms` then `42ms`, and dense 6v6 regressed to `29ms` in the second repeat.
+- Collision remains a monitored secondary surface, not the next primary target, unless a future real movement profile shows it climbing materially above the latest phase share.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
