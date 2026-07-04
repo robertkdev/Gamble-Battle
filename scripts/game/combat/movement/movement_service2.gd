@@ -738,20 +738,22 @@ func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vec
 			continue
 		if not self_alive[s]:
 			continue
-		accum += _avoid_from(cur, self_positions[s], avoid_radius)
+		var self_diff: Vector2 = cur - self_positions[s]
+		var self_dist: float = self_diff.length()
+		if self_dist <= 0.0001 or self_dist >= avoid_radius:
+			continue
+		var self_weight: float = 1.0 - (self_dist / avoid_radius)
+		accum += (self_diff / self_dist) * self_weight
 	for o in range(other_positions.size()):
 		if not other_alive[o]:
 			continue
-		accum += _avoid_from(cur, other_positions[o], avoid_radius)
+		var other_diff: Vector2 = cur - other_positions[o]
+		var other_dist: float = other_diff.length()
+		if other_dist <= 0.0001 or other_dist >= avoid_radius:
+			continue
+		var other_weight: float = 1.0 - (other_dist / avoid_radius)
+		accum += (other_diff / other_dist) * other_weight
 	return accum * corridor_factor
-
-func _avoid_from(cur: Vector2, other: Vector2, avoid_radius: float) -> Vector2:
-	var diff: Vector2 = cur - other
-	var dist: float = diff.length()
-	if dist <= 0.0001 or dist >= avoid_radius:
-		return Vector2.ZERO
-	var weight: float = 1.0 - (dist / avoid_radius)
-	return (diff / dist) * weight
 
 func _corridor_factor(dist_to_slot: float, corridor_radius: float) -> float:
 	if corridor_radius <= ARRIVE_STOP_EPS:

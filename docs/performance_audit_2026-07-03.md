@@ -760,6 +760,16 @@ Accepted cleanup: removed the unused `MovementService2` `MovementMath` preload p
 - Broad gates stayed clean through Godot MCP: `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6301`; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9493ms`; and `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7779ms`.
 - Rejected after cleanup: replacing `_wrap_angle()` calls in the bounded slot-angle loops with a single subtract branch preserved signatures but regressed focused slot totals to `346ms` and `352ms`, so source was reverted. The remaining high-value work is still not exhausted, but it is concentrated in slot assignment and must continue to pass real movement gates, not only focused microbenchmarks.
 
+## Continuation - 2026-07-04 Inline Avoidance Steering
+
+Accepted change: `MovementService2._compute_avoidance_vector()` now performs the tiny `_avoid_from()` math inline inside the same-team and other-team neighbor loops, then removes the unused helper. The distance checks, weighting formula, accumulation order, and corridor scaling are unchanged; this removes repeated private helper calls from the 8v8/12v12 movement step loops.
+
+- Fresh same-turn controls before the edit: `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with movement `291806us`, `561222us`, and `623996us`; 8v8 player/enemy steps were `115734us`/`85048us`, and 12v12 player/enemy steps were `63039us`/`30492us`. `PerfSlotSolverBreakdown.tscn` kept aggregate `4738803460811644685`, total `419ms`; `PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, total `292ms`.
+- Rejected same-pass slot micro-candidate: reusing static scratch arrays for the 2/3/4-row assignment helpers preserved `PerfSlotSmallAssignment.tscn` signatures but regressed the focused total from `1469ms` to `1514ms` and introduced less clean mutable return semantics, so source was reverted.
+- Patched `PerfMovementPhases.tscn` repeats preserved 6v6/8v8/12v12 signatures and errors `[]`. First run movement was `259957us`, `518865us`, and `591176us`; repeat movement was `259505us`, `525419us`, and `607909us`. The 8v8 player/enemy step slices held at `99162us`/`70862us` then `100677us`/`71418us`, and the 12v12 step slices held at `46568us`/`21955us` then `52054us`/`24972us`.
+- Broad gates stayed clean through Godot MCP: `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8676ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7042ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `327ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5680`.
+- This improves the monitored 8v8 step-loop surface and lowers 12v12 movement, but the latest profile still shows 12v12 slot assignment as the dominant remaining cost (`458926us`, `75.5%` of movement in the accepted repeat). Continue treating slot assignment as the primary surface while watching 8v8 step loops and collision.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
