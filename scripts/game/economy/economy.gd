@@ -92,6 +92,17 @@ func resolve(win: bool) -> void:
 	gold_changed.emit(gold)
 	bet_changed.emit(current_bet)
 
+func resolve_tie() -> void:
+	if combat_active:
+		gold = max(0, last_gold_start)
+		combat_active = false
+		combat_credit_base = 0
+		combat_spent = 0
+		preferred_bet = int(clamp(preferred_bet, (1 if gold > 0 else 0), gold))
+	current_bet = 0
+	gold_changed.emit(gold)
+	bet_changed.emit(current_bet)
+
 func is_broke() -> bool:
 	return gold <= 0
 

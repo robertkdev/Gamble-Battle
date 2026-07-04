@@ -9,6 +9,7 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 @onready var _description_label: Label = $VBox/Description
 @onready var _footer_label: Label = $VBox/Footer
 @onready var _vbox: VBoxContainer = $VBox
+var _threshold_row: HBoxContainer = null
 
 const TOOLTIP_WIDTH: float = 304.0
 const PADDING: float = 10.0
@@ -34,6 +35,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	z_index = 900
 	custom_minimum_size.x = TOOLTIP_WIDTH
+	_ensure_threshold_row()
 	_apply_style()
 	_update_labels()
 
@@ -67,6 +69,7 @@ func _apply_style() -> void:
 		_state_label.add_theme_font_size_override("font_size", 12)
 		_state_label.add_theme_color_override("font_color", COLOR_GREEN if is_active else COLOR_BLOOD)
 	if _threshold_label != null:
+		_threshold_label.visible = false
 		_threshold_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _description_label != null:
 		_description_label.add_theme_color_override("font_color", COLOR_TEXT)
@@ -116,7 +119,8 @@ func _update_labels() -> void:
 	var thresholds_text: String = _format_thresholds(def)
 	if _threshold_label:
 		_threshold_label.text = thresholds_text
-		_threshold_label.visible = thresholds_text != ""
+		_threshold_label.visible = false
+	_update_threshold_row(def)
 	var description: String = ""
 	if def != null and def.description != null:
 		description = String(def.description)
@@ -153,6 +157,77 @@ func _format_thresholds(def: TraitDef) -> String:
 	if parts.size() == 0:
 		return ""
 	return "Thresholds: %s" % " / ".join(parts)
+
+func _ensure_threshold_row() -> void:
+	if _vbox == null:
+		return
+	_threshold_row = _vbox.get_node_or_null("ThresholdRow") as HBoxContainer
+	if _threshold_row != null:
+		return
+	_threshold_row = HBoxContainer.new()
+	_threshold_row.name = "ThresholdRow"
+	_threshold_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_threshold_row.add_theme_constant_override("separation", 6)
+	var insert_index: int = _vbox.get_child_count()
+	if _threshold_label != null:
+		insert_index = _threshold_label.get_index() + 1
+	_vbox.add_child(_threshold_row)
+	_vbox.move_child(_threshold_row, min(insert_index, _vbox.get_child_count() - 1))
+
+func _update_threshold_row(def: TraitDef) -> void:
+	_ensure_threshold_row()
+	if _threshold_row == null:
+		return
+	for child: Node in _threshold_row.get_children():
+		child.queue_free()
+	var values: Array[int] = _threshold_values(def)
+	if values.is_empty():
+		_threshold_row.visible = false
+		return
+	_threshold_row.visible = true
+	var active_value: int = values[clampi(trait_tier, 0, values.size() - 1)] if is_active and trait_tier >= 0 else -1
+	for value: int in values:
+		var reached: bool = trait_count >= value
+		var active_chip: bool = value == active_value
+		var chip: Label = Label.new()
+		chip.text = str(value)
+		chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		chip.custom_minimum_size = Vector2(42.0, 26.0)
+		chip.add_theme_font_size_override("font_size", 14)
+		chip.add_theme_color_override("font_color", Color(1.0, 0.92, 0.66, 1.0) if active_chip else (COLOR_TEXT if reached else COLOR_MUTED))
+		chip.add_theme_stylebox_override("normal", _make_threshold_chip_style(active_chip, reached))
+		_threshold_row.add_child(chip)
+
+func _threshold_values(def: TraitDef) -> Array[int]:
+	var values: Array[int] = []
+	if def != null:
+		var arr: Array = def.thresholds
+		if arr != null and arr.size() > 0:
+			for v in arr:
+				values.append(int(v))
+	return values
+
+func _make_threshold_chip_style(active_chip: bool, reached: bool) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	if active_chip:
+		style.bg_color = Color(0.34, 0.22, 0.070, 0.98)
+		style.border_color = Color(1.0, 0.80, 0.42, 1.0)
+	elif reached:
+		style.bg_color = Color(0.10, 0.080, 0.070, 0.94)
+		style.border_color = Color(0.62, 0.42, 0.22, 0.86)
+	else:
+		style.bg_color = Color(0.035, 0.030, 0.038, 0.88)
+		style.border_color = Color(0.28, 0.24, 0.24, 0.78)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 4
+	style.corner_radius_top_right = 4
+	style.corner_radius_bottom_right = 4
+	style.corner_radius_bottom_left = 4
+	return style
 
 func _format_footer(def: TraitDef) -> String:
 	if def == null:

@@ -15,6 +15,7 @@ signal unit_stat_changed(team: String, index: int, fields: Dictionary)
 signal log_line(text: String)
 signal victory(stage: int)
 signal defeat(stage: int)
+signal tie(stage: int)
 signal vfx_knockup(team: String, index: int, duration: float)
 signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
 signal position_updated(team: String, index: int, x: float, y: float)
@@ -577,6 +578,8 @@ func _emit_outcome(kind: String) -> void:
 			emit_signal("victory", stage)
 		"defeat":
 			emit_signal("defeat", stage)
+		"tie":
+			emit_signal("tie", stage)
 		_:
 			# Fallback: default to defeat if unknown outcome
 			emit_signal("defeat", stage)
@@ -629,7 +632,9 @@ func _fallback_timeout_outcome() -> String:
 		return "defeat"
 	if total_damage_player > total_damage_enemy:
 		return "victory"
-	return "defeat"
+	if total_damage_enemy > total_damage_player:
+		return "defeat"
+	return "tie"
 
 func _alive_count(units: Array[Unit]) -> int:
 	var count: int = 0

@@ -38,7 +38,7 @@ var stage_progress_top_bar: Control
 var player_name: String = "Hero"
 
 # Planning phase timer
-var planning_timer_total: float = 60.0
+var planning_timer_total: float = 120.0
 var planning_time_left: float = 0.0
 var planning_warn_at: float = 11.0
 var _planning_warn_played: bool = false
@@ -151,6 +151,9 @@ func _on_victory(_stage: int) -> void:
 func _on_defeat(_stage: int) -> void:
 	controller._on_defeat(_stage)
 
+func _on_tie(_stage: int) -> void:
+	controller._on_tie(_stage)
+
 func clear_log() -> void:
 	controller.clear_log()
 
@@ -243,11 +246,6 @@ func _update_planning_timer(delta: float) -> void:
 	var prev_time: float = planning_time_left
 	planning_time_left = max(0.0, float(planning_time_left) - float(delta))
 	planning_timer_label.text = _format_time(planning_time_left)
-	if planning_time_left <= 0.0 and controller and controller.has_method("should_hold_auto_start_for_first_deploy"):
-		if bool(controller.should_hold_auto_start_for_first_deploy()):
-			planning_time_left = 1.0
-			planning_timer_label.text = _format_time(planning_time_left)
-			return
 	# Warning sound at T-11s
 	if not _planning_warn_played and planning_time_left <= float(planning_warn_at):
 		var s: Variant = _get_sound()
@@ -267,7 +265,7 @@ func _format_time(seconds_left: float) -> String:
 	var s: int = int(ceil(max(0.0, seconds_left)))
 	var m: int = int(float(s) / 60.0)
 	var ss: int = int(s % 60)
-	return "Planning: %d:%02d" % [m, ss]
+	return "Plan: %d:%02d" % [m, ss]
 
 ## Ally sprite direct drag removed
 

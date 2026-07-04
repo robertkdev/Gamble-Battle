@@ -124,6 +124,7 @@ func _ensure_preview_panel() -> void:
 		preview_art.name = "Art"
 		preview_art.custom_minimum_size = Vector2(360, 360)
 		preview_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		preview_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		preview_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		art_wrap.add_child(preview_art)
 	details_label = preview.get_node_or_null("Details") as Label
@@ -192,6 +193,7 @@ func _apply_gothic_layout() -> void:
 		help_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if preview_art:
 		preview_art.custom_minimum_size = Vector2(360.0, 360.0)
+		preview_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		preview_art.modulate = Color(0.92, 0.88, 0.82, 1.0)
 	var art_wrap: Control = right_column.get_node_or_null("Preview/ArtWrap") as Control
 	if art_wrap:
@@ -316,6 +318,8 @@ func _populate_units() -> void:
 		btn.focus_mode = Control.FOCUS_ALL
 		btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		btn.expand_icon = true
+		btn.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn.custom_minimum_size = Vector2(150, 138)
 		btn.set_meta("unit_id", uid2)
 		var sp: String = String(it.get("sprite_path", ""))
@@ -441,6 +445,7 @@ func _build_detail_lines(id: String, it: Dictionary) -> Array[String]:
 		trait_text = _format_list(_duplicate_strings(it.get("approaches", PackedStringArray())), 5)
 	if trait_text != "":
 		lines.append("Traits: %s" % trait_text)
+	lines.append("Cost: %dg" % int(it.get("cost", 0)))
 	var alt_goals: String = _format_list(_duplicate_strings(it.get("alt_goals", PackedStringArray())), 3)
 	if alt_goals != "":
 		lines.append("Alt Goals: %s" % alt_goals)
@@ -806,11 +811,9 @@ func _apply_unit_button_motion(id: String, active: bool) -> void:
 	if existing != null and is_instance_valid(existing):
 		existing.kill()
 	button.pivot_offset = button.size * 0.5 if button.size != Vector2.ZERO else button.custom_minimum_size * 0.5
-	button.z_index = 55 if active else 0
-	var tween: Tween = create_tween()
-	tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_property(button, "scale", Vector2(1.035, 1.035) if active else Vector2.ONE, 0.09)
-	button.set_meta("hover_tween", tween)
+	button.scale = Vector2.ONE
+	button.z_index = 12 if active else 0
+	button.set_meta("hover_tween", null)
 
 func _ensure_float_plate(control: Control, plate_name: String, style: StyleBox, z_value: int, pad: float) -> Panel:
 	var plate: Panel = get_node_or_null(plate_name) as Panel

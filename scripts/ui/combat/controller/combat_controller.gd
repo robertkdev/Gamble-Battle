@@ -32,10 +32,10 @@ const TeamOddsEstimator := preload("res://scripts/game/combat/team_odds_estimato
 
 const START_BATTLE_TEXT: String = "Start Battle"
 const START_FORCED_FIGHT_TEXT: String = "Start Opening Fight"
-const BATTLE_LOCKED_TEXT: String = "Combat Resolving..."
+const BATTLE_LOCKED_TEXT: String = "Battle in progress"
 const RESOLVING_PROGRESS_DELAY_SECONDS: float = 3.0
 const RESOLVING_STUCK_WARNING_SECONDS: int = 10
-const RESOLVING_FALLBACK_TEXT: String = "Resolving fallback..."
+const RESOLVING_FALLBACK_TEXT: String = "Battle resolved by failsafe"
 const FIRST_DEPLOY_BENCH_TOOLTIP: String = "Drag this bench unit to a highlighted board cell."
 const OPENING_RETRY_MIN_GOLD: int = 3
 const FIRST_BOSS_PREP_CHAPTER: int = 1
@@ -139,6 +139,8 @@ var _combat_resolving_elapsed: float = 0.0
 var _combat_resolving_last_second: int = -1
 var _combat_resolving_watchdog_seen: bool = false
 var _hud_snapshot_signature: String = ""
+var _result_banner: PanelContainer = null
+var _bottom_combat_visibility_state: int = -1
 
 const FIRST_DEPLOY_TIMER_EXTENSION: float = 60.0
 
@@ -265,6 +267,10 @@ func teardown() -> void:
 	if _beam_overlay != null and is_instance_valid(_beam_overlay):
 		_beam_overlay.queue_free()
 	_beam_overlay = null
+	if _result_banner != null and is_instance_valid(_result_banner):
+		_result_banner.queue_free()
+	_result_banner = null
+	_bottom_combat_visibility_state = -1
 	player_views.clear()
 	enemy_views.clear()
 	player_grid_helper = null
@@ -287,6 +293,7 @@ func _disconnect_controller_signals() -> void:
 		_disconnect_signal(manager, "projectile_fired", "_on_projectile_fired")
 		_disconnect_signal(manager, "victory", "_on_victory")
 		_disconnect_signal(manager, "defeat", "_on_defeat")
+		_disconnect_signal(manager, "tie", "_on_tie")
 	if Engine.has_singleton("Items") and Items.is_connected("action_log", Callable(self, "_on_items_action_log")):
 		Items.action_log.disconnect(_on_items_action_log)
 	if Engine.has_singleton("Roster") and Roster.is_connected("bench_changed", Callable(self, "_on_bench_changed")):
@@ -367,6 +374,8 @@ func initialize() -> void:
 		manager.victory.connect(_on_victory)
 	if manager and not manager.is_connected("defeat", Callable(self, "_on_defeat")):
 		manager.defeat.connect(_on_defeat)
+	if manager and manager.has_signal("tie") and not manager.is_connected("tie", Callable(self, "_on_tie")):
+		manager.tie.connect(_on_tie)
 
 	# UI-side stats tracker
 	if stats_tracker == null:
@@ -672,6 +681,7 @@ func _apply_grid_dimensions(tile: int) -> void:
 func process(_delta: float) -> void:
 	if arena_container and arena_container.visible:
 		_sync_arena_units()
+	_sync_bottom_combat_visibility()
 	_update_combat_resolving_feedback(_delta)
 
 func _init_game() -> void:
@@ -682,6 +692,7 @@ func _init_game() -> void:
 	_clear_first_deploy_bench_highlight()
 	_first_deploy_bench_slot = -1
 	_end_combat_resolving_feedback()
+	_hide_result_banner()
 	if stats_tracker != null and stats_tracker.has_method("reset_run_totals"):
 		stats_tracker.reset_run_totals()
 	if continue_button:
@@ -736,6 +747,7 @@ func _init_game() -> void:
 		traits_presenter = TraitsPresenter.new()
 		traits_presenter.configure(parent, manager)
 		traits_presenter.initialize()
+	_sync_bottom_combat_visibility()
 
 func _on_items_action_log(t: String) -> void:
 	# Route item logs into the same UI logger used by combat engine
@@ -915,6 +927,7 @@ func _on_continue_pressed() -> void:
 			return
 		Trace.step("Economy bet accepted")
 		continue_button.disabled = true
+		_hide_result_banner()
 		_begin_combat_resolving_feedback()
 		if economy_ui:
 			economy_ui.set_bet_editable(false)
@@ -1221,6 +1234,7 @@ func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 	# Set COMBAT phase before starting Economy escrow so UI refresh sees correct phase
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.COMBAT)
+	_sync_bottom_combat_visibility()
 	if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
 		Economy.start_combat()
 	if grid_placement and manager:
@@ -1472,6 +1486,7 @@ func _on_victory(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "victory"
+	_show_result_banner("WON", Color(0.12, 0.22, 0.15, 0.96), Color(0.78, 0.98, 0.70, 1.0))
 	_auto_loop_running = false
 	_start_intermission(2.0)
 
@@ -1480,6 +1495,16 @@ func _on_defeat(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "defeat"
+	_show_result_banner("LOST", Color(0.28, 0.035, 0.050, 0.96), Color(1.0, 0.62, 0.55, 1.0))
+	_start_intermission(2.0)
+	_auto_loop_running = false
+
+func _on_tie(_stage: int) -> void:
+	if attack_button:
+		attack_button.disabled = true
+	_end_combat_resolving_feedback()
+	_post_combat_outcome = "tie"
+	_show_result_banner("TIE - BET REFUNDED", Color(0.12, 0.10, 0.16, 0.96), Color(0.92, 0.82, 1.0, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -1520,19 +1545,22 @@ func _on_intermission_finished() -> void:
 		if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
 			if _post_combat_outcome != "":
 				var win: bool = (_post_combat_outcome == "victory")
-				Economy.resolve(win)
-				_apply_first_boss_prep_gold_floor(win)
-				_apply_chapter_two_stability_gold_floor(win)
-				_apply_chapter_three_stability_gold_floor(win)
-				_apply_boss_prep_gold_floor(win)
-				_apply_opening_retry_recovery(win)
-				_apply_early_run_retry_recovery(win)
+				if _post_combat_outcome == "tie" and Economy.has_method("resolve_tie"):
+					Economy.resolve_tie()
+				else:
+					Economy.resolve(win)
+					_apply_first_boss_prep_gold_floor(win)
+					_apply_chapter_two_stability_gold_floor(win)
+					_apply_chapter_three_stability_gold_floor(win)
+					_apply_boss_prep_gold_floor(win)
+					_apply_opening_retry_recovery(win)
+					_apply_early_run_retry_recovery(win)
 			if economy_ui:
 				economy_ui.refresh()
 				economy_ui.set_bet_editable(true)
 	# Optional: add layout prints here when debugging sizes
 			# Auto-refresh the shop after combat ends (respect lock; free refresh)
-			if Engine.has_singleton("Shop") or parent.has_node("/root/Shop"):
+			if _post_combat_outcome != "tie" and (Engine.has_singleton("Shop") or parent.has_node("/root/Shop")):
 				var locked: bool = (bool(Shop.state.locked) if Shop and Shop.state else false)
 				if not locked:
 					Shop.add_free_rerolls(1)
@@ -1542,6 +1570,7 @@ func _on_intermission_finished() -> void:
 	# Return to planning phase after post-combat housekeeping
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.PREVIEW)
+	_sync_bottom_combat_visibility()
 	if parent and parent.has_method("reset_planning_timer"):
 		parent.call("reset_planning_timer")
 	if _post_combat_outcome == "defeat" and (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")) and Economy.is_broke():
@@ -1854,6 +1883,108 @@ func set_player_team_ids(ids: Array) -> void:
 			manager.player_team.append(u)
 	_update_board_status()
 
+func _sync_bottom_combat_visibility(force: bool = false) -> void:
+	if parent == null:
+		return
+	var in_combat: bool = false
+	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
+		in_combat = int(GameState.phase) == int(GameState.GamePhase.COMBAT)
+	var planning_visible: bool = not in_combat
+	var visibility_state: int = 1 if planning_visible else 0
+	if not force and visibility_state == _bottom_combat_visibility_state:
+		return
+	_bottom_combat_visibility_state = visibility_state
+	_set_control_visible("MarginContainer/VBoxContainer/BenchArea", planning_visible)
+	_set_control_visible("MarginContainer/VBoxContainer/BottomStorageArea", planning_visible)
+	_set_root_control_visible("GothicShopPlate", planning_visible)
+	_set_root_control_visible("GothicShopCommandPlate", planning_visible)
+
+func _set_control_visible(path: String, visible_state: bool) -> void:
+	if parent == null:
+		return
+	var control: Control = parent.get_node_or_null(path) as Control
+	if control != null:
+		control.visible = visible_state
+
+func _set_root_control_visible(node_name: String, visible_state: bool) -> void:
+	if parent == null:
+		return
+	var control: Control = parent.get_node_or_null(node_name) as Control
+	if control != null:
+		control.visible = visible_state
+
+func _show_result_banner(text: String, bg_color: Color, text_color: Color) -> void:
+	var banner: PanelContainer = _ensure_result_banner()
+	if banner == null:
+		return
+	var label: Label = banner.get_node_or_null("Margin/Label") as Label
+	if label != null:
+		label.text = text
+		label.add_theme_color_override("font_color", text_color)
+	banner.add_theme_stylebox_override("panel", _make_result_banner_style(bg_color, text_color))
+	banner.visible = true
+
+func _hide_result_banner() -> void:
+	if _result_banner != null and is_instance_valid(_result_banner):
+		_result_banner.visible = false
+
+func _ensure_result_banner() -> PanelContainer:
+	if parent == null:
+		return null
+	if _result_banner != null and is_instance_valid(_result_banner):
+		return _result_banner
+	var existing: PanelContainer = parent.get_node_or_null("BattleResultBanner") as PanelContainer
+	if existing != null:
+		_result_banner = existing
+		return _result_banner
+	_result_banner = PanelContainer.new()
+	_result_banner.name = "BattleResultBanner"
+	_result_banner.visible = false
+	_result_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_result_banner.z_as_relative = false
+	_result_banner.z_index = 160
+	_result_banner.anchor_left = 0.5
+	_result_banner.anchor_right = 0.5
+	_result_banner.anchor_top = 0.070
+	_result_banner.anchor_bottom = 0.070
+	_result_banner.offset_left = -260.0
+	_result_banner.offset_right = 260.0
+	_result_banner.offset_top = 0.0
+	_result_banner.offset_bottom = 58.0
+	var margin: MarginContainer = MarginContainer.new()
+	margin.name = "Margin"
+	margin.add_theme_constant_override("margin_left", 18)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	_result_banner.add_child(margin)
+	var label: Label = Label.new()
+	label.name = "Label"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 28)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
+	label.add_theme_constant_override("outline_size", 2)
+	margin.add_child(label)
+	parent.add_child(_result_banner)
+	return _result_banner
+
+func _make_result_banner_style(bg_color: Color, text_color: Color) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = bg_color
+	style.border_color = Color(text_color.r, text_color.g, text_color.b, 0.88)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.shadow_size = 16
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.56)
+	return style
+
 func _is_continue_start_text() -> bool:
 	if continue_button == null:
 		return false
@@ -1894,10 +2025,7 @@ func _update_combat_resolving_feedback(delta: float) -> void:
 	if elapsed_seconds == _combat_resolving_last_second:
 		return
 	_combat_resolving_last_second = elapsed_seconds
-	if elapsed_seconds >= RESOLVING_STUCK_WARNING_SECONDS:
-		continue_button.text = "Still resolving %ds..." % elapsed_seconds
-	else:
-		continue_button.text = "Resolving %ds..." % elapsed_seconds
+	continue_button.text = BATTLE_LOCKED_TEXT
 
 func _mark_combat_resolving_fallback() -> void:
 	if not _combat_resolving_active:

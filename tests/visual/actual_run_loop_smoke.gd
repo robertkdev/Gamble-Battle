@@ -55,12 +55,10 @@ func _run() -> void:
 	_expect(Items.get_inventory_snapshot().is_empty(), "new run should start with clean item inventory")
 	_assert_stage_one_runway()
 
-	_force_actual_loss_opening()
 	for cycle_index: int in range(1, LOSS_CYCLES + 1):
 		await _play_loss_cycle("axiom", cycle_index)
 		if _finish_if_failed():
 			return
-	_restore_actual_opening_entry()
 	await _play_shop_cycle("bonko")
 	if _finish_if_failed():
 		return
@@ -76,7 +74,6 @@ func _finish_if_failed() -> bool:
 func _finish() -> void:
 	Engine.time_scale = _previous_time_scale
 	UnitFactory.suppress_validation_warnings = _previous_suppress_validation_warnings
-	_restore_actual_opening_entry()
 	_flush_synthetic_input()
 	var exit_code: int = 0
 	if _failures.is_empty():
@@ -176,50 +173,48 @@ func _cleanup_runtime() -> void:
 		loss_layer.free()
 
 func _play_loss_cycle(unit_id: String, cycle_index: int) -> void:
-	print("ActualRunLoopSmoke: loss cycle %d begin" % cycle_index)
+	print("ActualRunLoopSmoke: opening cycle %d begin" % cycle_index)
 	await _ensure_unit_select()
 	_expect(_unit_select_reset(), "cycle %d should start with cleared unit select" % cycle_index)
 	if not _failures.is_empty():
 		return
 	await _select_starter(unit_id)
-	print("ActualRunLoopSmoke: loss cycle %d selected starter" % cycle_index)
+	print("ActualRunLoopSmoke: opening cycle %d selected starter" % cycle_index)
 	if not _failures.is_empty():
 		return
 	await _settle_frames(4)
 	_expect(_node_visible("CombatView"), "cycle %d combat view did not open" % cycle_index)
-	var repositioned: bool = await _reposition_first_board_unit("cycle %d board reposition" % cycle_index)
-	_expect(repositioned, "cycle %d board unit did not reposition through mouse drag" % cycle_index)
-	print("ActualRunLoopSmoke: loss cycle %d repositioned=%s" % [cycle_index, str(repositioned)])
-	if not repositioned:
+	var combat_seen: bool = await _wait_for_combat_active(6.0)
+	_expect(combat_seen, "cycle %d opener did not enter combat automatically" % cycle_index)
+	if not combat_seen:
 		return
-	_set_planning_timer_safe()
-	_set_bet_to_max()
-	await _press_continue(true, "cycle %d forced first fight" % cycle_index)
-	print("ActualRunLoopSmoke: loss cycle %d fight started" % cycle_index)
-	var loss_seen: bool = await _wait_for_loss_overlay(24.0)
-	_expect(loss_seen, "cycle %d did not reach loss overlay" % cycle_index)
-	if loss_seen:
-		print("ActualRunLoopSmoke: loss cycle %d loss overlay seen" % cycle_index)
+	print("ActualRunLoopSmoke: opening cycle %d opener auto-started" % cycle_index)
+	var outcome_seen: bool = await _wait_for_preview_or_loss(24.0)
+	_expect(outcome_seen, "cycle %d did not resolve opener" % cycle_index)
+	if not outcome_seen:
+		return
+	if get_tree().root.get_node_or_null("LossOverlayLayer") != null:
+		print("ActualRunLoopSmoke: opening cycle %d loss overlay seen" % cycle_index)
 		await _press_loss_new_game()
 		await _settle_frames(8)
 		_expect(get_tree().root.get_node_or_null("LossOverlayLayer") == null, "cycle %d loss overlay did not clear" % cycle_index)
 		_expect(_node_visible("UnitSelect"), "cycle %d New Game did not return to unit select" % cycle_index)
 		_expect(_unit_select_reset(), "cycle %d New Game did not clear unit select" % cycle_index)
-		print("ActualRunLoopSmoke: loss cycle %d reset complete" % cycle_index)
+		print("ActualRunLoopSmoke: opening cycle %d reset complete" % cycle_index)
+		return
+	_expect(GameState.phase == GameState.GamePhase.PREVIEW and int(GameState.stage_in_chapter) >= 2, "cycle %d opener did not reach post-fight planning" % cycle_index)
+	if _main != null and is_instance_valid(_main) and _main.has_method("request_new_run"):
+		_main.call("request_new_run")
+	await _settle_frames(8)
+	_expect(_node_visible("UnitSelect"), "cycle %d request_new_run did not return to unit select" % cycle_index)
+	_expect(_unit_select_reset(), "cycle %d request_new_run did not clear unit select" % cycle_index)
+	print("ActualRunLoopSmoke: opening cycle %d reset complete" % cycle_index)
 
 func _play_shop_cycle(unit_id: String) -> void:
 	print("ActualRunLoopSmoke: shop cycle begin")
 	await _ensure_unit_select()
 	await _select_starter(unit_id)
 	await _settle_frames(4)
-	var repositioned: bool = await _reposition_first_board_unit("shop cycle board reposition")
-	_expect(repositioned, "shop cycle board unit did not reposition through mouse drag")
-	if not repositioned:
-		return
-	_set_planning_timer_safe()
-	_expect(_first_fight_placeholder_visible(), "forced first fight shop placeholder was not visible")
-	_expect(_opening_shop_buttons_disabled(), "opening shop controls should be disabled during forced first fight")
-	await _press_continue(true, "shop cycle forced first fight")
 	var shop_ready: bool = await _wait_for_shop_after_win(30.0)
 	_expect(shop_ready, "shop cycle did not open a post-fight shop")
 	if not shop_ready:
@@ -235,10 +230,6 @@ func _play_shop_cycle(unit_id: String) -> void:
 	_expect(_deploy_prompt_visible(), "shop buy did not show deploy guidance")
 	_expect(_first_deploy_bench_highlight_visible(), "first deploy assist did not highlight the bought bench unit")
 	_expect(_planning_time_left() >= FIRST_DEPLOY_ASSIST_MIN_TIME_LEFT, "first deploy assist did not extend short planning timer; %s" % _deploy_assist_state())
-	_set_planning_time_left(0.05)
-	await _settle_frames(12)
-	_expect(GameState.phase == GameState.GamePhase.PREVIEW, "first deploy assist should hold planning before deployment; %s" % _deploy_assist_state())
-	_expect(_planning_time_left() > 0.0, "first deploy assist should keep timer above auto-start while bench unit is waiting; %s" % _deploy_assist_state())
 	var moved_to_board: bool = await _drag_first_bench_unit_to_board()
 	_expect(moved_to_board, "bought bench unit did not move to board through mouse drag")
 	await _settle_frames(4)
@@ -258,6 +249,13 @@ func _play_shop_cycle(unit_id: String) -> void:
 		_expect(_planning_time_left() >= POST_COMBAT_TIMER_MIN_TIME_LEFT, "post-combat planning timer did not reset after fight resolution")
 
 func _ensure_unit_select() -> void:
+	if _node_visible("TitlePage"):
+		var enter: Button = _main.get_node_or_null("TitlePage/Center/Stack/EnterButton") as Button
+		if enter == null:
+			_expect(false, "title page enter button missing")
+			return
+		await _click_button(enter, "title page enter button")
+		await _settle_frames(4)
 	if _node_visible("TitleMenu"):
 		var start: Button = _main.get_node_or_null("TitleMenu/Center/VBox/StartButton") as Button
 		if start == null:

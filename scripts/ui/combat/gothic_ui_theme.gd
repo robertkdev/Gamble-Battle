@@ -114,7 +114,6 @@ static func _apply_named_nodes(root: Control) -> void:
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/ActionsRow/BetRow", 10)
 	_add_grid_separator(root, "MarginContainer/VBoxContainer/BottomStorageArea", 14)
 	_style_shop_command_bar(root)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/StageLabel", "GothicStagePlate", _style(Color(0.030, 0.025, 0.033, 0.70), Color(0.42, 0.32, 0.24, 0.56), 1, 4), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea", "GothicBattlePlate", _style(Color(0.016, 0.013, 0.018, 0.58), Color(0.28, 0.22, 0.20, 0.62), 1, 6), -20)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicEnemyPlate", _style(Color(0.115, 0.022, 0.034, 0.46), Color(0.47, 0.045, 0.070, 0.84), 2, 4), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlayerPlate", _style(Color(0.025, 0.044, 0.046, 0.46), Color(0.27, 0.38, 0.38, 0.84), 2, 4), -5)

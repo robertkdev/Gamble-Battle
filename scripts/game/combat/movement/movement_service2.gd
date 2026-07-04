@@ -184,6 +184,7 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 
 	var ts: float = data.tile_size_px
 	var eps: float = tuning.range_epsilon
+	var eps_safe: float = max(0.0, eps)
 	var radius: float = ts * max(0.0, tuning.unit_radius_factor)
 
 	# Alive flags
@@ -340,7 +341,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			step = Vector2.ZERO
 		elif step == Vector2.ZERO:
 			var prof: MovementProfile = _profiles_player[i]
-			var within_enemy: bool = MovementMath.within_range(u, cur, tpos, ts, eps, prof.band_max)
+			var range_limit: float = max(0.0, float(u.attack_range)) * ts * max(0.0, prof.band_max) + eps_safe
+			var within_enemy: bool = cur.distance_squared_to(tpos) <= range_limit * range_limit
 			if within_enemy:
 				step = _compute_in_band_step(
 					"player",
@@ -424,7 +426,8 @@ func _update_impl(state, delta: float, target_resolver: Callable) -> void:
 			step2 = Vector2.ZERO
 		elif step2 == Vector2.ZERO:
 			var prof2: MovementProfile = _profiles_enemy[j]
-			var within_enemy2: bool = MovementMath.within_range(e, cur_e, tpos2, ts, eps, prof2.band_max)
+			var range_limit2: float = max(0.0, float(e.attack_range)) * ts * max(0.0, prof2.band_max) + eps_safe
+			var within_enemy2: bool = cur_e.distance_squared_to(tpos2) <= range_limit2 * range_limit2
 			if within_enemy2:
 				step2 = _compute_in_band_step(
 					"enemy",

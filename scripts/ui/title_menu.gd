@@ -1,6 +1,5 @@
 extends Control
 
-const HERO_TEXTURE: Texture2D = preload("res://assets/units/mortem.png")
 const SIGIL_TEXTURE: Texture2D = preload("res://assets/ui/gold icon.png")
 const UnitCatalogScript: GDScript = preload("res://scripts/game/shop/unit_catalog.gd")
 const PrimaryRoleScript: GDScript = preload("res://scripts/game/identity/primary_role.gd")
@@ -248,7 +247,7 @@ func _apply_gothic_layout() -> void:
 		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_ensure_title_panel()
 	_ensure_shade()
-	_ensure_hero()
+	_remove_hero()
 	_ensure_sigil()
 	_ensure_subtitle()
 	_style_menu_button(start_button, true)
@@ -259,7 +258,7 @@ func _build_navigation() -> void:
 	_ensure_nav_button("HomeButton", "Overview", SECTION_HOME)
 	_ensure_nav_button("HowToPlayButton", "How to Play", SECTION_HOW_TO_PLAY)
 	_ensure_nav_button("UnitsButton", "Units", SECTION_UNITS)
-	_ensure_nav_button("RGAGlossaryButton", "RGA Glossary", SECTION_RGA)
+	_ensure_nav_button("RGAGlossaryButton", "Combat Terms", SECTION_RGA)
 	_ensure_nav_button("SettingsButton", "Settings", SECTION_SETTINGS)
 	if start_button != null:
 		start_button.text = "Start Run"
@@ -320,25 +319,13 @@ func _ensure_shade() -> void:
 	_shade.color = Color(0.0, 0.0, 0.0, 0.34)
 
 func _ensure_hero() -> void:
+	_remove_hero()
+
+func _remove_hero() -> void:
 	_hero = get_node_or_null("TitleHero") as TextureRect
-	if _hero == null:
-		_hero = TextureRect.new()
-		_hero.name = "TitleHero"
-		_hero.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(_hero)
-	_hero.texture = HERO_TEXTURE
-	_hero.z_index = 3
-	_hero.anchor_left = 0.235
-	_hero.anchor_top = -0.055
-	_hero.anchor_right = 0.745
-	_hero.anchor_bottom = 1.08
-	_hero.offset_left = 0.0
-	_hero.offset_top = 0.0
-	_hero.offset_right = 0.0
-	_hero.offset_bottom = 0.0
-	_hero.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_hero.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_hero.modulate = Color(0.72, 0.60, 0.54, 0.38)
+	if _hero != null:
+		_hero.queue_free()
+	_hero = null
 
 func _ensure_sigil() -> void:
 	_sigil = get_node_or_null("TitleSigil") as TextureRect
@@ -504,9 +491,9 @@ func _render_active_section() -> void:
 			_render_home()
 
 func _render_home() -> void:
-	_set_content_header("Command Menu", "Start a run, study the roster, learn the RGA language, or tune local settings. Search here scans units, roles, goals, approaches, and tutorial entries.")
+	_set_content_header("Command Menu", "Start a run, study the roster, learn combat terms, or tune local settings. Search here scans units, roles, goals, approaches, and tutorial entries.")
 	if _search_field != null:
-		_search_field.placeholder_text = "Search units, roles, goals, shop, PASS..."
+		_search_field.placeholder_text = "Search units, roles, goals, shop, traits..."
 	if _search_query() != "":
 		_render_global_search_results()
 		return
@@ -553,8 +540,8 @@ func _add_home_route_grid() -> void:
 	_content_body.add_child(grid)
 	_add_card_to_parent(grid, "Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and betting decisions.", "Start Here", "run flow start starter shop bench combines items traits betting", COLOR_GOLD, false, "HomeRunFlow")
 	_add_card_to_parent(grid, "Roster Library", "Live unit cards include ability text, traits, cost, role, goal, and approaches, so roster study stays tied to current resources.", "Units", "units roster ability traits cost role goal approaches", COLOR_BLOOD_HOT, false, "HomeRoster")
-	_add_card_to_parent(grid, "RGA Language", "Role, Goal, Approach terms explain how a unit is supposed to win fights and how validation labels that evidence.", "Glossary", "rga role goal approach pass lean fail subject scenario", COLOR_BLUE, false, "HomeRGA")
-	_add_card_to_parent(grid, "Settings", "Runtime controls for master volume, fullscreen, and reduced-motion behavior in the current menu session.", "Local", "settings volume fullscreen reduced motion", COLOR_GREEN, false, "HomeSettings")
+	_add_card_to_parent(grid, "Combat Terms", "Role, Goal, and Approach explain what a unit is trying to do and why it belongs on a board.", "Glossary", "combat terms role goal approach trait board", COLOR_BLUE, false, "HomeRGA")
+	_add_card_to_parent(grid, "Settings", "Runtime controls for master volume and fullscreen behavior in the current menu session.", "Local", "settings volume fullscreen", COLOR_GREEN, false, "HomeSettings")
 
 func _render_global_search_results() -> void:
 	var count: int = 0
@@ -575,7 +562,7 @@ func _render_how_to_play() -> void:
 	_add_card("4. Use Bench and Board", "Bought units land on the bench. Drag bench units to highlighted board cells before the next fight. Three copies of the same unit and level combine into a stronger copy, up to level 3.", "bench board drag deploy combine three copies level")
 	_add_card("5. Read Items and Traits", "Items and traits are multipliers on a unit's job. Traits come from unit tags; items add scaling combat effects and should support the unit's role, goal, and approach.", "items traits tags scaling role goal approach")
 	_add_card("6. Manage Bets and Health", "Planning purchases must preserve survival. Combat spending can borrow against the current bet, but bad spending can leave the next planning phase short on health or gold.", "bet health planning combat spending gold survival")
-	_add_card("7. Learn Roles Before Optimizing", "Tank, Brawler, Assassin, Marksman, Mage, and Support describe the broad combat job. Use the Units and RGA pages to understand why two units in the same role can still play very differently.", "roles tank brawler assassin marksman mage support optimize")
+	_add_card("7. Learn Roles Before Optimizing", "Tank, Brawler, Assassin, Marksman, Mage, and Support describe the broad combat job. Use the Units and Combat Terms pages to understand why two units in the same role can still play very differently.", "roles tank brawler assassin marksman mage support optimize")
 
 func _render_units() -> void:
 	_set_content_header("Units", "Searchable roster cards built from current unit, ability, and identity resources.")
@@ -586,14 +573,15 @@ func _render_units() -> void:
 		_add_empty_state("No units match the search.")
 
 func _render_rga() -> void:
-	_set_content_header("RGA Glossary", "Role, Goal, Approach terms used by both design and validation.")
+	_set_content_header("Combat Terms", "Player-facing language for reading units, boards, and fights.")
 	if _search_field != null:
-		_search_field.placeholder_text = "Search RGA: PASS, subject, backline, peel, sustained..."
-	_add_card("RGA", "Role, Goal, Approach. Role is the broad job. Goal is the specific win condition. Approach is the toolkit used to achieve that goal.", "rga role goal approach toolkit win condition")
-	_add_card("Subject", "RGA tests are subject-aware: the verdict asks whether the assigned unit itself produced the evidence, not whether its whole side happened to win.", "subject unit_id side per-unit evidence")
-	_add_card("PASS / LEAN / FAIL", "PASS means the unit satisfied the configured evidence. LEAN means it showed partial or inconsistent evidence. FAIL means the tested identity was not supported by the run.", "pass lean fail verdict evidence")
-	_add_card("K-of-N", "Some checks use K-of-N logic: a unit can pass by meeting enough of several related conditions instead of hitting every single proxy.", "k-of-n conditions proxy threshold")
-	_add_card("Scenario Pack", "A scenario pack is a curated combat setup: opponent mix, starting lane, seed sweep, and intent labels chosen to stress a role or approach.", "scenario pack seed opponent intent lane")
+		_search_field.placeholder_text = "Search terms: backline, peel, sustained, role..."
+	_add_card("Role", "The broad job a unit is built to perform: tank, brawler, assassin, marksman, mage, or support.", "role tank brawler assassin marksman mage support")
+	_add_card("Goal", "The specific way a unit wants to win a fight, such as protecting a carry, bursting a target, or winning through attrition.", "goal win condition protect burst attrition")
+	_add_card("Approach", "The toolkit a unit uses to reach its goal: peel, ramp, sustain, lockdown, dive, zone control, and similar combat patterns.", "approach toolkit peel ramp sustain lockdown dive zone")
+	_add_card("Active Trait", "A trait turns on when enough matching units are on your board. Active thresholds are highlighted on trait hover cards.", "trait active threshold board")
+	_add_card("Win Odds", "A quick read of current board strength. Use it as a warning light, not a promise.", "win odds board strength warning")
+	_add_card("Bench", "Bought units wait on the bench until you drag them to the board. Dropping a bench unit onto a board unit swaps their positions.", "bench drag swap positions")
 	_add_heading("Roles")
 	_render_role_cards(false)
 	_add_heading("Goals")
@@ -604,11 +592,10 @@ func _render_rga() -> void:
 func _render_settings() -> void:
 	_set_content_header("Settings", "Local runtime controls for the title menu and current game window.")
 	if _search_field != null:
-		_search_field.placeholder_text = "Search settings: volume, fullscreen, motion..."
+		_search_field.placeholder_text = "Search settings: volume, fullscreen..."
 	var added: int = 0
 	added += _add_volume_setting()
 	added += _add_fullscreen_setting()
-	added += _add_motion_setting()
 	if added == 0:
 		_add_empty_state("No settings match the search.")
 
@@ -630,7 +617,7 @@ func _render_role_cards(compact: bool) -> int:
 			continue
 		var body: String = String(entry.get("description", ""))
 		if body == "":
-			body = "Primary combat role used to group baseline stats and validation expectations."
+			body = "Primary combat role used to explain what this unit is expected to do in a fight."
 		_add_card(String(entry.get("name", "")), body, String(entry.get("search", "")), "Role: " + String(entry.get("id", "")), COLOR_GOLD, compact)
 		count += 1
 	return count
@@ -805,11 +792,7 @@ func _add_fullscreen_setting() -> int:
 	return 1
 
 func _add_motion_setting() -> int:
-	if not _matches_query("reduced motion animation hover background movement"):
-		return 0
-	var check: CheckBox = _add_checkbox_setting("Reduced Motion", "ReducedMotionCheck", not _motion_enabled, "Disables new menu motion and hover scale effects.", "reduced motion animation hover background movement")
-	check.toggled.connect(_on_reduce_motion_toggled)
-	return 1
+	return 0
 
 func _add_checkbox_setting(title: String, node_name: String, enabled: bool, body: String, search_blob: String) -> CheckBox:
 	var card: PanelContainer = _make_card_container(node_name + "Card", COLOR_PANEL_SOFT, Color(0.42, 0.31, 0.24, 0.88), 1)
@@ -1017,7 +1000,7 @@ func _on_fullscreen_toggled(enabled: bool) -> void:
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if enabled else DisplayServer.WINDOW_MODE_WINDOWED)
 
 func _on_reduce_motion_toggled(enabled: bool) -> void:
-	_motion_enabled = not enabled
+	_motion_enabled = true
 
 func _current_master_volume_percent() -> float:
 	var bus_index: int = AudioServer.get_bus_index("Master")

@@ -26,6 +26,7 @@ signal team_stats_updated(player_team, enemy_team)
 signal unit_stat_changed(team: String, index: int, fields: Dictionary)
 signal victory(stage: int)
 signal defeat(stage: int)
+signal tie(stage: int)
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal vfx_knockup(team: String, index: int, duration: float)
 signal vfx_beam_line(start: Vector2, end: Vector2, color: Color, width: float, duration: float)
@@ -226,6 +227,8 @@ func _wire_engine_signals() -> void:
 		_engine.victory.connect(_on_victory)
 	if not _engine.is_connected("defeat", Callable(self, "_on_defeat")):
 		_engine.defeat.connect(_on_defeat)
+	if _engine.has_signal("tie") and not _engine.is_connected("tie", Callable(self, "_on_tie")):
+		_engine.tie.connect(_on_tie)
 	if not _engine.is_connected("unit_stat_changed", Callable(self, "_on_engine_unit_stat")):
 		_engine.unit_stat_changed.connect(_on_engine_unit_stat)
 	if not _engine.is_connected("vfx_knockup", Callable(self, "_on_engine_vfx_knockup")):
@@ -271,6 +274,8 @@ func _unwire_engine_signals() -> void:
 		_engine.victory.disconnect(_on_victory)
 	if _engine.is_connected("defeat", Callable(self, "_on_defeat")):
 		_engine.defeat.disconnect(_on_defeat)
+	if _engine.has_signal("tie") and _engine.is_connected("tie", Callable(self, "_on_tie")):
+		_engine.tie.disconnect(_on_tie)
 	if _engine.is_connected("unit_stat_changed", Callable(self, "_on_engine_unit_stat")):
 		_engine.unit_stat_changed.disconnect(_on_engine_unit_stat)
 	if _engine.is_connected("vfx_knockup", Callable(self, "_on_engine_vfx_knockup")):
@@ -662,6 +667,11 @@ func _on_defeat(_stage: int = 0) -> void:
 	# Defer unit reset and post-combat UI to view until intermission completes
 	emit_signal("stats_updated", BattleState.first_alive(player_team), enemy)
 	emit_signal("defeat", stage)
+
+func _on_tie(_stage: int = 0) -> void:
+	emit_signal("log_line", "Tie at Stage %d. Bet refunded." % stage)
+	emit_signal("stats_updated", BattleState.first_alive(player_team), enemy)
+	emit_signal("tie", stage)
 
 func _reset_units_after_combat() -> void:
 	for u in player_team:

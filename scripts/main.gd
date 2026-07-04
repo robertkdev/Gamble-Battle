@@ -10,6 +10,7 @@ const Debug := preload("res://scripts/util/debug.gd")
 const AuditPanelScene: GDScript = preload("res://scripts/ui/audit/audit_panel.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
+const TITLE_SIGIL: Texture2D = preload("res://assets/ui/gold icon.png")
 
 const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
@@ -27,6 +28,7 @@ var _new_run_button: Button
 var _quit_game_button: Button
 var _audit_panel: CanvasLayer
 var _system_menu_open: bool = false
+var _title_page: Control
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -46,7 +48,8 @@ func _ready() -> void:
 		title_menu.process_mode = Node.PROCESS_MODE_PAUSABLE
 	_build_system_menu()
 	_disable_embedded_menu_buttons()
-	_set_menu_visible(true)
+	_build_title_page()
+	_show_title_page()
 	if unit_select and not unit_select.is_connected("unit_selected", Callable(self, "_on_unit_selected")):
 		unit_select.unit_selected.connect(_on_unit_selected)
 	if OS.is_debug_build() and DEBUG_AUTO_START:
@@ -57,6 +60,8 @@ func _ready() -> void:
 func _set_menu_visible(show_menu: bool) -> void:
 	if show_menu:
 		_close_system_menu()
+	if _title_page != null:
+		_title_page.visible = false
 	if title_menu:
 		title_menu.visible = show_menu
 	if combat_view:
@@ -70,6 +75,8 @@ func _set_menu_visible(show_menu: bool) -> void:
 		GameState.set_phase(GameState.GamePhase.MENU)
 
 func _on_start() -> void:
+	if _title_page != null:
+		_title_page.visible = false
 	_set_menu_visible(false)
 	if unit_select and unit_select.has_method("show_screen"):
 		unit_select.call("show_screen")
@@ -101,11 +108,18 @@ func _on_unit_selected(unit_id: String) -> void:
 	if shop != null and shop.has_method("set_opening_starter_id"):
 		shop.call("set_opening_starter_id", unit_id)
 	GameState.set_phase(GameState.GamePhase.PREVIEW)
+	if combat_view and combat_view.has_method("_auto_start_battle"):
+		combat_view.call_deferred("_auto_start_battle")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _is_audit_panel_event(event):
 		_toggle_audit_panel()
 		get_viewport().set_input_as_handled()
+		return
+	if _title_page != null and _title_page.visible:
+		if _is_title_page_event(event):
+			_dismiss_title_page()
+			get_viewport().set_input_as_handled()
 		return
 	if not _is_system_menu_event(event):
 		return
@@ -135,7 +149,7 @@ func request_return_to_title() -> void:
 	_close_system_menu()
 	_remove_runtime_overlays()
 	_reset_run_state()
-	_set_menu_visible(true)
+	_show_title_page()
 
 func request_new_run() -> void:
 	_close_system_menu()
@@ -241,6 +255,100 @@ func _build_system_menu() -> void:
 
 	_sync_system_menu_button()
 
+func _build_title_page() -> void:
+	if _title_page != null and is_instance_valid(_title_page):
+		return
+	_title_page = Control.new()
+	_title_page.name = "TitlePage"
+	_title_page.visible = false
+	_title_page.mouse_filter = Control.MOUSE_FILTER_STOP
+	_title_page.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_title_page)
+	move_child(_title_page, 1)
+	var background: ColorRect = ColorRect.new()
+	background.name = "Background"
+	background.color = Color(0.010, 0.008, 0.012, 1.0)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_title_page.add_child(background)
+	var sigil: TextureRect = TextureRect.new()
+	sigil.name = "Sigil"
+	sigil.texture = TITLE_SIGIL
+	sigil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	sigil.modulate = Color(0.72, 0.48, 0.26, 0.24)
+	sigil.anchor_left = 0.22
+	sigil.anchor_top = 0.02
+	sigil.anchor_right = 0.78
+	sigil.anchor_bottom = 0.88
+	_title_page.add_child(sigil)
+	var center: CenterContainer = CenterContainer.new()
+	center.name = "Center"
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_title_page.add_child(center)
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.name = "Stack"
+	stack.alignment = BoxContainer.ALIGNMENT_CENTER
+	stack.custom_minimum_size = Vector2(720.0, 0.0)
+	stack.add_theme_constant_override("separation", 16)
+	center.add_child(stack)
+	var title: Label = Label.new()
+	title.name = "GameTitle"
+	title.text = "Gamble Battle"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 76)
+	title.add_theme_color_override("font_color", Color(0.93, 0.88, 0.78, 1.0))
+	title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
+	title.add_theme_constant_override("outline_size", 5)
+	stack.add_child(title)
+	var subtitle: Label = Label.new()
+	subtitle.name = "Subtitle"
+	subtitle.text = "Blood. Gold. Consequence."
+	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	subtitle.add_theme_font_size_override("font_size", 20)
+	subtitle.add_theme_color_override("font_color", Color(0.72, 0.66, 0.58, 1.0))
+	stack.add_child(subtitle)
+	var enter_button: Button = Button.new()
+	enter_button.name = "EnterButton"
+	enter_button.text = "Enter"
+	enter_button.custom_minimum_size = Vector2(260.0, 58.0)
+	enter_button.focus_mode = Control.FOCUS_ALL
+	_apply_button_style(enter_button, false)
+	enter_button.pressed.connect(_dismiss_title_page)
+	stack.add_child(enter_button)
+	_title_page.gui_input.connect(_on_title_page_gui_input)
+
+func _show_title_page() -> void:
+	_close_system_menu()
+	if _title_page == null or not is_instance_valid(_title_page):
+		_build_title_page()
+	if title_menu:
+		title_menu.visible = false
+	if combat_view:
+		combat_view.visible = false
+		combat_view.set_process(false)
+	if unit_select:
+		unit_select.visible = false
+		unit_select.set_process(false)
+	if _title_page != null:
+		_title_page.visible = true
+		var enter_button: Button = _title_page.get_node_or_null("Center/Stack/EnterButton") as Button
+		if enter_button != null:
+			enter_button.grab_focus()
+	_sync_system_menu_button()
+	GameState.set_phase(GameState.GamePhase.MENU)
+
+func _dismiss_title_page() -> void:
+	if _title_page != null:
+		_title_page.visible = false
+	_set_menu_visible(true)
+
+func _on_title_page_gui_input(event: InputEvent) -> void:
+	if _is_title_page_event(event):
+		_dismiss_title_page()
+		get_viewport().set_input_as_handled()
+
 func _disable_embedded_menu_buttons() -> void:
 	var embedded_combat_menu: Button = combat_view.get_node_or_null("TopBar/MenuButton") as Button
 	if embedded_combat_menu == null:
@@ -299,6 +407,8 @@ func _make_panel_style() -> StyleBox:
 	return GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), panel)
 
 func _open_system_menu() -> void:
+	if _title_page != null and _title_page.visible:
+		return
 	if title_menu and title_menu.visible:
 		return
 	if _loss_overlay_active():
@@ -323,9 +433,10 @@ func _sync_system_menu_button() -> void:
 	if _system_menu_button == null:
 		return
 	var title_is_visible: bool = title_menu != null and title_menu.visible
+	var title_page_is_visible: bool = _title_page != null and _title_page.visible
 	var loss_overlay_is_active: bool = _loss_overlay_active()
-	_system_menu_button.visible = not title_is_visible and not _system_menu_open and not loss_overlay_is_active
-	_system_menu_button.disabled = title_is_visible or loss_overlay_is_active
+	_system_menu_button.visible = not title_is_visible and not title_page_is_visible and not _system_menu_open and not loss_overlay_is_active
+	_system_menu_button.disabled = title_is_visible or title_page_is_visible or loss_overlay_is_active
 	_system_menu_button.mouse_default_cursor_shape = Control.CURSOR_ARROW if _system_menu_button.disabled else Control.CURSOR_POINTING_HAND
 
 func _wire_system_button_hover(button: Button, compact: bool) -> void:
@@ -375,6 +486,16 @@ func _is_system_menu_event(event: InputEvent) -> bool:
 	if key_event == null:
 		return false
 	return key_event.pressed and not key_event.echo and key_event.keycode == KEY_ESCAPE
+
+func _is_title_page_event(event: InputEvent) -> bool:
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+	if mouse_event != null:
+		return mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT
+	var key_event: InputEventKey = event as InputEventKey
+	if key_event != null:
+		return key_event.pressed and not key_event.echo
+	var joy_event: InputEventJoypadButton = event as InputEventJoypadButton
+	return joy_event != null and joy_event.pressed
 
 func _is_audit_panel_event(event: InputEvent) -> bool:
 	if not OS.is_debug_build():

@@ -38,7 +38,7 @@ func _run() -> void:
 	_expect(int(Economy.gold) == 4, "4g Buy XP denial should leave gold unchanged")
 	_expect(int(Shop.get_level()) == 1, "4g Buy XP denial should leave level unchanged")
 	_expect(int(Shop.get_xp()) == 0, "4g Buy XP denial should leave XP unchanged")
-	_expect(_label_with_text("Need +2 gold to buy XP and keep 2 health.") != null, "4g Buy XP denial should show reserve-floor feedback")
+	_expect(_label_with_text("Need +1 gold to buy XP and keep 1 health.") != null, "4g Buy XP denial should show reserve-floor feedback")
 	_expect(_label_with_text("Lvl 1 (0/2)") != null, "4g Buy XP denial should leave progress label at Lvl 1 (0/2)")
 
 	_set_gold(6)

@@ -20,6 +20,8 @@ const TOOLTIP_EDGE_PADDING: float = 12.0
 @onready var _icon: TextureRect = $Icon
 @onready var _name_label: Label = $Name
 @onready var _price_label: Label = $Price
+@onready var _border_gradient: TextureRect = get_node_or_null("boarder_gradient") as TextureRect
+@onready var _bottom_gradient: TextureRect = get_node_or_null("bottom_gradient") as TextureRect
 @onready var _legacy_role_label: Label = get_node_or_null("Role") as Label
 @onready var _traits_box: VBoxContainer = $TraitIcons
 @onready var _identity_panel: VBoxContainer = $IdentityPanel
@@ -301,6 +303,10 @@ func _apply_static_style() -> void:
 	add_theme_stylebox_override("disabled", _make_card_style(false, false, true))
 	add_theme_stylebox_override("focus", _make_card_style(false, true))
 	add_theme_color_override("font_disabled_color", Color(0.74, 0.67, 0.56, 0.92))
+	if _border_gradient != null:
+		_border_gradient.visible = false
+	if _bottom_gradient != null:
+		_bottom_gradient.visible = false
 	if _icon:
 		_icon.z_index = 2
 		_icon.modulate = Color(1.0, 0.93, 0.82, 1.0)
