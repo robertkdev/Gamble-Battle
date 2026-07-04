@@ -42,8 +42,6 @@ func _check_support_peel_priority(failures: Array[String]) -> void:
 	var enemy_positions: Array[Vector2] = [Vector2(128.0, 180.0), Vector2(340.0, 180.0)]
 	var picked: int = Targeting.pick_by_priority(
 		support,
-		0,
-		"player",
 		ally_positions[0],
 		ally_team,
 		ally_positions,

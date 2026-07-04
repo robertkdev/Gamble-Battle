@@ -27,7 +27,7 @@ static func pick_first_alive(enemy_team: Array[Unit]) -> int:
 			return i
 	return -1
 
-static func pick_by_priority(attacker: Unit, source_index: int, source_team: String, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy_team: Array[Unit], enemy_positions: Array[Vector2], current_target: int, tile_size: float) -> int:
+static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team: Array[Unit], ally_positions: Array[Vector2], enemy_team: Array[Unit], enemy_positions: Array[Vector2], current_target: int, tile_size: float) -> int:
 	if attacker == null or not attacker.is_alive():
 		return -1
 	var attacker_role: String = _role(attacker)

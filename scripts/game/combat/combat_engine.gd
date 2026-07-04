@@ -258,8 +258,6 @@ func _engine_select_closest_target(my_team: String, my_index: int, enemy_team: S
 	var current_target: int = _current_target_index(my_team, my_index)
 	return Targeting.pick_by_priority(
 		attacker,
-		my_index,
-		my_team,
 		src_pos,
 		ally_arr,
 		ally_positions,

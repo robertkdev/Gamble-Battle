@@ -53,8 +53,6 @@ func _run_sample() -> Dictionary:
 		for a_index in range(team_a.size()):
 			var selected_a: int = Targeting.pick_by_priority(
 				team_a[a_index],
-				a_index,
-				"player",
 				positions_a[a_index],
 				team_a,
 				positions_a,
@@ -67,8 +65,6 @@ func _run_sample() -> Dictionary:
 		for b_index in range(team_b.size()):
 			var selected_b: int = Targeting.pick_by_priority(
 				team_b[b_index],
-				b_index,
-				"enemy",
 				positions_b[b_index],
 				team_b,
 				positions_b,
