@@ -1239,6 +1239,14 @@ Accepted secondary-surface source cleanup: `CollisionResolver.resolve()` now der
 - Broad gates stayed behavior-stable through Godot MCP: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`; `Perf1v1.tscn` signature `-6199507685307107293:55`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - This trims a monitored collision slice. It does not close the optimization goal because 10v10/11v11/12v12 movement remains slot-assignment dominated.
 
+## Continuation - 2026-07-04 Rejected Follow-Up Micro-Optimizations
+
+No gameplay source optimization was retained from this pass. Both candidates preserved deterministic signatures, but neither cleared the real-game keep bar.
+
+- Rejected slot private-helper argument trim: removing unused private `_team` / `_target_idx` parameters from `SlotStrategy` assignment helpers preserved `PerfSlotTeamAssignment.tscn` aggregate `773148128031759898`, but regressed same-window focused total from `3409ms` control to `3471ms`. The public `assign_for_target()` signature was never changed, and the source was reverted.
+- Rejected collision non-debug loop split: splitting `CollisionResolver.resolve()` into separate diagnostics-off and diagnostics-on pair loops preserved `PerfCollisionResolver.tscn` aggregate `1955603822268948610` and improved the same-window focused total from `144ms` control to `95ms`, but broader `PerfMovementPhases.tscn` runs were mixed or worse despite preserving all six movement signatures. Repeats included 12v12 movement `639421us` and `625114us`, compared with the previous accepted collision-cleanup range of roughly `604959-620028us`. The source was reverted.
+- Takeaway: optimization is not exhausted, but the next professional-grade retained change should still come from the large same-target slot-assignment frontier or a secondary slice that wins in `PerfMovementPhases.tscn`, not only a focused microbenchmark.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
