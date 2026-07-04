@@ -248,7 +248,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 	# Group attackers per target
 	_enemy_groups_scratch.clear()
 	var enemy_groups: Dictionary = _enemy_groups_scratch
-	for i_g in range(p_targets.size()):
+	for i_g in range(player_count):
 		var t: int = p_targets[i_g]
 		if t >= 0 and t < enemy_count and p_alive[i_g]:
 			if not enemy_groups.has(t):
@@ -256,7 +256,7 @@ func _update_impl(state, delta: float, target_resolver: Callable, direct_player_
 			(enemy_groups[t] as Array).append(i_g)
 	_player_groups_scratch.clear()
 	var player_groups: Dictionary = _player_groups_scratch
-	for j_g in range(e_targets.size()):
+	for j_g in range(enemy_count):
 		var t2: int = e_targets[j_g]
 		if t2 >= 0 and t2 < player_count and e_alive[j_g]:
 			if not player_groups.has(t2):
