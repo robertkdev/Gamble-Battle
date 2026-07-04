@@ -88,6 +88,57 @@ static func _sort_pairs_by_angle(pairs: Array) -> void:
 static func _evaluate_precomputed_assignment(pairs: Array, ring_angles: Array[float], incumbent_cost: float = 1e30) -> Dictionary:
 	var rows: int = pairs.size()
 	var cols: int = ring_angles.size()
+	if rows == 2 and cols == 2:
+		var entry0: Array = pairs[0]
+		var entry1: Array = pairs[1]
+		var angle0: float = float(entry0[1])
+		var angle1: float = float(entry1[1])
+		var prev_slot0: int = int(entry0[2])
+		var prev_slot1: int = int(entry1[2])
+		var frame_factor0: float = float(entry0[3])
+		var frame_factor1: float = float(entry1[3])
+		var prev_active0: bool = bool(entry0[4])
+		var prev_active1: bool = bool(entry1[4])
+
+		var cost00: float = abs(angle0 - ring_angles[0])
+		if cost00 > PI:
+			cost00 = TAU - cost00
+		if prev_active0 and prev_slot0 == 0:
+			cost00 = max(0.0, cost00 - HYST_STICKINESS * frame_factor0)
+		elif prev_active0 and prev_slot0 != -1:
+			cost00 += HYST_SWITCH_COST * frame_factor0
+
+		var cost01: float = abs(angle0 - ring_angles[1])
+		if cost01 > PI:
+			cost01 = TAU - cost01
+		if prev_active0 and prev_slot0 == 1:
+			cost01 = max(0.0, cost01 - HYST_STICKINESS * frame_factor0)
+		elif prev_active0 and prev_slot0 != -1:
+			cost01 += HYST_SWITCH_COST * frame_factor0
+
+		var cost10: float = abs(angle1 - ring_angles[0])
+		if cost10 > PI:
+			cost10 = TAU - cost10
+		if prev_active1 and prev_slot1 == 0:
+			cost10 = max(0.0, cost10 - HYST_STICKINESS * frame_factor1)
+		elif prev_active1 and prev_slot1 != -1:
+			cost10 += HYST_SWITCH_COST * frame_factor1
+
+		var cost11: float = abs(angle1 - ring_angles[1])
+		if cost11 > PI:
+			cost11 = TAU - cost11
+		if prev_active1 and prev_slot1 == 1:
+			cost11 = max(0.0, cost11 - HYST_STICKINESS * frame_factor1)
+		elif prev_active1 and prev_slot1 != -1:
+			cost11 += HYST_SWITCH_COST * frame_factor1
+
+		var first_cost: float = cost00 + cost11
+		var second_cost: float = cost01 + cost10
+		if second_cost < first_cost and second_cost < incumbent_cost:
+			return {"assignment": _assignment_2(1, 0), "cost": second_cost}
+		if first_cost < incumbent_cost:
+			return {"assignment": _assignment_2(0, 1), "cost": first_cost}
+		return {"assignment": [], "cost": incumbent_cost}
 	var costs: Array = []
 	costs.resize(rows)
 	var unique_min_assignment: Array[int] = []
