@@ -55,25 +55,41 @@ static func pick_by_priority(attacker: Unit, source_position: Vector2, ally_team
 		if enemy == null or not enemy.is_alive():
 			continue
 		var enemy_position: Vector2 = _position_at(enemy_positions, i, source_position)
-		var score: float = _score_candidate(
-			attacker,
-			attacker_role,
-			attacker_goal,
-			attacker_mask,
-			source_position,
-			ally_team,
-			ally_positions,
-			ally_peel_priorities,
-			ally_peel_wounded_bonuses,
-			ally_peel_indices,
-			enemy,
-			i,
-			enemy_team,
-			enemy_positions,
-			enemy_position,
-			current_target,
-			safe_tile_size,
-			inv_tile_size)
+		var score: float = 0.0
+		if attacker_role == "support":
+			score = _score_candidate(
+				attacker,
+				attacker_role,
+				attacker_goal,
+				attacker_mask,
+				source_position,
+				ally_team,
+				ally_positions,
+				ally_peel_priorities,
+				ally_peel_wounded_bonuses,
+				ally_peel_indices,
+				enemy,
+				i,
+				enemy_team,
+				enemy_positions,
+				enemy_position,
+				current_target,
+				safe_tile_size,
+				inv_tile_size)
+		else:
+			score = _score_candidate_non_support(
+				attacker_role,
+				attacker_goal,
+				attacker_mask,
+				source_position,
+				enemy,
+				i,
+				enemy_team,
+				enemy_positions,
+				enemy_position,
+				current_target,
+				safe_tile_size,
+				inv_tile_size)
 		if i == current_target:
 			current_score = score
 		if score > best_score:
@@ -121,6 +137,43 @@ static func _score_candidate(attacker: Unit, attacker_role: String, attacker_goa
 			score += _score_mage(attacker_mask, enemy, enemy_is_carry, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
 		"support":
 			score += _score_support(attacker, attacker_mask, ally_team, ally_positions, ally_peel_priorities, ally_peel_wounded_bonuses, ally_peel_indices, enemy, enemy_position, enemy_role, enemy_is_carry, dist_tiles, threat_norm, inv_tile_size)
+		_:
+			score += max(0.0, 5.0 - dist_tiles) * 0.25
+	return score
+
+static func _score_candidate_non_support(attacker_role: String, attacker_goal: String, attacker_mask: int, source_position: Vector2, enemy: Unit, enemy_index: int, enemy_team: Array[Unit], enemy_positions: Array[Vector2], enemy_position: Vector2, current_target: int, tile_size: float, inv_tile_size: float) -> float:
+	var enemy_role: String = _role(enemy)
+	var enemy_is_carry: bool = enemy_role == "marksman" or enemy_role == "mage"
+	var dist_tiles: float = source_position.distance_to(enemy_position) * inv_tile_size
+	var hp_pct: float = float(enemy.hp) / max(1.0, float(enemy.max_hp))
+	var low_hp: float = clampf(1.0 - hp_pct, 0.0, 1.0)
+	var has_lockdown: bool = (attacker_mask & APPROACH_LOCKDOWN) != 0
+	var has_debuff: bool = (attacker_mask & APPROACH_DEBUFF) != 0
+	var threat_norm: float = 0.0
+	if has_lockdown or has_debuff or attacker_role == "tank":
+		var threat: float = _threat_score(enemy)
+		threat_norm = clampf(threat / 120.0, 0.0, 4.0)
+	var score: float = 0.0
+	score -= dist_tiles * 0.35
+	score += low_hp * 0.25
+	if enemy_index == current_target:
+		score += CURRENT_TARGET_STICKINESS
+	if (attacker_mask & APPROACH_EXECUTE) != 0:
+		score += low_hp * 2.25
+	if has_lockdown or has_debuff:
+		score += threat_norm * 0.55
+
+	match attacker_role:
+		"assassin":
+			score += _score_assassin(attacker_mask, enemy, enemy_role, enemy_is_carry, dist_tiles, low_hp)
+		"marksman":
+			score += _score_marksman(attacker_mask, attacker_goal, enemy, enemy_role, enemy_is_carry, dist_tiles)
+		"tank":
+			score += _score_tank(attacker_mask, enemy_role, dist_tiles, threat_norm)
+		"brawler":
+			score += _score_brawler(attacker_mask, enemy_role, enemy_is_carry, dist_tiles, low_hp)
+		"mage":
+			score += _score_mage(attacker_mask, enemy, enemy_is_carry, enemy_index, enemy_team, enemy_positions, enemy_position, tile_size, low_hp)
 		_:
 			score += max(0.0, 5.0 - dist_tiles) * 0.25
 	return score

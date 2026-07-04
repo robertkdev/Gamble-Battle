@@ -1335,6 +1335,16 @@ No gameplay source optimization was retained from this pass. The candidate lower
 - Restored-source same-window control after reverting was better on the decisive movement cases while preserving signatures and errors `[]`: 6v6/8v8/9v9/10v10/11v11/12v12 movement was `254112us`, `520240us`, `551827us`, `330044us`, `660501us`, and `635306us`, with 12v12 slot assignment back down to `514037us`.
 - Takeaway: extending Hungarian-bounded pruning to 9-row groups is another focused-solver win that does not survive real movement. Keep the explicit 9-row unreduced DP path unless a future candidate beats same-window `PerfMovementPhases.tscn`, especially 9v9 and 12v12 together.
 
+## Continuation - 2026-07-04 Non-Support Targeting Fast Path
+
+Accepted a secondary target-priority optimization: `Targeting.pick_by_priority()` now routes non-support attackers through a narrower candidate scorer that does not pass support-peel arrays or branch through support scoring. Support attackers still use the existing full scorer, so support peel, engage, threat, stickiness, mage AOE, and role-specific rules keep the same formulas and target signatures.
+
+- Fresh focused control before the edit: `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `1308ms`.
+- Patched focused repeats preserved signature `9036604269279486158` and errors `[]`, improving medians to `489ms` and `387ms`.
+- Target-specific validation passed: `MovementTargetPriorityProbe.tscn` printed `PASS` with errors `[]`.
+- Broad gates stayed behavior-stable and clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, total `9278ms`; `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=340`; `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6081`; and `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7200ms`.
+- This improves a monitored secondary path. The competitive optimization goal remains active because large-team slot assignment still dominates current 10v10/11v11/12v12 movement profiles.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
@@ -1346,7 +1356,7 @@ No gameplay source optimization was retained from this pass. The candidate lower
 2. Targeting does meaningful per-candidate scoring.
    - `Targeting.pick_by_priority()` walks live enemies and may score ally peel pressure and nearby units.
    - The `target_recheck_interval_s=0.35` throttle is important. Do not move this to per-frame retargeting.
-   - `PerfTargeting.tscn` now isolates target-priority scoring and shows attacker approach metadata plus support ally peel metadata were real focused hotspots. The current implementation caches attacker role/goal/approach mask and ally peel priorities once per pick; future targeting work should preserve signature `9036604269279486158` in that focused benchmark.
+   - `PerfTargeting.tscn` now isolates target-priority scoring and shows attacker approach metadata plus support ally peel metadata were real focused hotspots. The current implementation caches attacker role/goal/approach mask and ally peel priorities once per pick, and routes non-support attackers through a narrower scorer that skips support-peel argument traffic; future targeting work should preserve signature `9036604269279486158` in that focused benchmark.
 
 3. Telemetry and UI signals are broad.
    - Combat emits position, target, hit, stat, and team-stat signals.
