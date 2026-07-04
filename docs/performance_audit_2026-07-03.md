@@ -1036,6 +1036,15 @@ No source optimization was retained from this pass. Fresh `PerfMovementPhases.ts
 - Rejected slot unique-minimum bookkeeping trim: avoiding row-min tie bookkeeping after the unique-minimum shortcut was already impossible preserved focused slot signatures (`PerfSlotTeamAssignment.tscn` aggregate `2813605715628331077`, `PerfSlotSolverBreakdown.tscn` aggregate `4738803460811644685`) and improved 12v12 movement versus restored control (`767273us` versus `819356us`), but it regressed both 6v6 and 8v8 real movement (`289985us` and `560365us` versus restored `264367us` and `509184us`), so source was reverted.
 - Takeaway: GDScript hot-loop branch and helper-call shape remains counterintuitive under real workloads. Continue requiring same-window `PerfMovementPhases.tscn` A/B evidence across 6v6, 8v8, and 12v12 before retaining even tiny movement or slot-evaluator changes.
 
+## Continuation - 2026-07-04 Slot Array Benchmark Expansion
+
+No gameplay source optimization was retained from this pass. The answer to "is that all that needs optimizing?" is still no: the current measured frontier is narrower and harder, but the 8v8 and 12v12 phase data still show meaningful remaining work.
+
+- Fresh `PerfMovementPhases.tscn` control preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `277770us`, `562769us`, and `578471us`. Slot assignment remained the largest single surface at `144680us` (`52.1%`), `228057us` (`40.5%`), and `464182us` (`80.2%`). The 8v8 case still shows combined step loops plus collision as a secondary surface (`255741us`, about `45.4%`).
+- `tests/perf/PerfSlotTeamAssignment.tscn` now measures both the legacy dictionary slot output and the real array-output path used by `MovementService2._update_impl()`. Restored-source expanded control preserved errors `[]`, aggregate signature `7341365920787360302`: dictionary cases `dict_single_6=115ms`, `dict_single_12=157ms`, `dict_split_12=22ms`; real array cases `array_single_6=107ms`, `array_single_12=138ms`, `array_split_12=23ms`.
+- Rejected array-path typed range scratch: replacing the real array-output path's index-keyed range dictionary with a typed float array preserved signatures and improved one split-target sample (`array_split_12=23ms` versus `46ms` in the immediate pre-candidate run), but regressed the single-target array cases that map closest to the 12v12 hotspot (`array_single_6=126ms`, `array_single_12=152ms` versus immediate control `117ms` and `135ms`). Source was reverted; the expanded benchmark coverage was retained.
+- Takeaway: future slot-output changes should now prove both dictionary compatibility and real array-path timing in `PerfSlotTeamAssignment.tscn`, then still pass `PerfMovementPhases.tscn`. The slot frontier is not exhausted, but source changes need same-window wins on single-target 12v12-style cases before broader validation.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
