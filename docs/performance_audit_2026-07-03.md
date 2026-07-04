@@ -1136,6 +1136,16 @@ No gameplay source optimization was retained from this pass. Count-11 focused co
 
 No source optimization was retained. Replacing the accepted shared 7/9 no-reduced DP helper with fixed-size `_best_assignment_dp_7()` and `_best_assignment_dp_9()` preserved focused signatures and improved `PerfSlotDpSearch.tscn` (`dp_7_initial=243ms`, `dp_7_pruned=160ms`, `dp_9_initial=246ms`, `dp_9_pruned=109ms`, aggregate `7234308013805264845`) plus `PerfSlotTeamAssignment.tscn` aggregate `6126179979591804452`. It failed the real movement gate: `PerfMovementPhases.tscn` preserved signatures but regressed 6v6/8v8/10v10/12v12 movement to `399197us`, `703222us`, `356293us`, and `967245us`, with 12v12 slot assignment at `781165us`. Source was reverted; keep the shared generic 7/9 helper unless a future candidate passes real movement.
 
+## Continuation - 2026-07-04 Frontier Recheck After "Is That All?"
+
+No source optimization was retained from this pass. The direct answer remains no: the current-tree profiler still shows meaningful large-fight movement cost, but the retained frontier is past easy local rewrites.
+
+- Fresh `PerfMovementPhases.tscn` control preserved 6v6/8v8/10v10/12v12 signatures and errors `[]`: movement `380481us`, `601394us`, `388688us`, and `704631us`. Slot assignment remained the largest single slice at `50.1%`, `40.5%`, `68.4%`, and `78.7%` respectively.
+- Fresh focused controls stayed clean: `PerfSlotSolverBreakdown.tscn` aggregate `6131016972257857795`, total `1148ms`; `PerfSlotDpSearch.tscn` aggregate `7234308013805264845`, total `2010ms`; `PerfSlotTeamAssignment.tscn` aggregate `6126179979591804452`, total `3831ms`.
+- Rejected `_sync_prev_slots()` redundant-write cleanup: updating existing previous-slot dictionaries in place without reassigning them preserved signatures and improved 6v6/8v8 movement to `301593us` and `589080us`, but regressed 10v10/12v12 to `446880us` and `765758us`; 12v12 slot assignment rose to `616205us`. Source was reverted.
+- Rejected raising `HUNGARIAN_PRUNE_MIN_SIZE` from `10` to `11`: the focused DP gate preserved signatures but made count-10 rows much worse (`dp_10_initial=392ms` versus `54ms` control, `dp_10_pruned=89ms` versus `47ms` control), so the run was stopped and source was reverted.
+- Takeaway: optimization is not exhausted, but further retained source work should target tie-preserving 10/12 slot assignment or a focused 8v8 step-loop win, then prove itself in same-window `PerfMovementPhases.tscn` across 6v6, 8v8, 10v10, and 12v12.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
