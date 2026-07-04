@@ -835,6 +835,17 @@ Rejected follow-up after `226bded`: inlining target validity checks inside `Targ
 - Candidate `PerfMovementPhases.tscn` repeats preserved signatures and errors `[]`, but were mixed: first run `245121us`, `498363us`, and `599543us`; second run `259063us`, `485928us`, and `551350us`; third run `232974us`, `476790us`, and `588303us`.
 - `MovementTargetPriorityProbe.tscn` passed and `Perf6v6.tscn` stayed clean with aggregate `4480953857527108889:18`, total `8550ms`, but `PerfLargeBoard.tscn` repeated slightly worse than the retained direct-target-array gate: `7015ms` and `7022ms` versus the `6975ms` retained gate. Source was reverted because this was too small to keep against a repeated stress regression.
 
+## Continuation - 2026-07-04 Rejected Slot Allocation Shortcuts
+
+Fresh answer to "is that all that needs optimizing?": no. A clean control still shows slot assignment dominating the 12v12 movement phase, so the remaining optimization surface is real and not just theoretical.
+
+- Fresh focused control in `PerfSlotTeamAssignment.tscn` preserved aggregate `2813605715628331077`, errors `[]`, total `285ms`.
+- Fresh real movement control in `PerfMovementPhases.tscn` preserved 6v6/8v8/12v12 signatures with errors `[]`: movement `252441us`, `495148us`, and `538207us`; slot assignment was `118368us`, `197926us`, and `423718us`.
+- Rejected scratch-array candidate: reusing the unique-minimum shortcut arrays preserved the focused slot signature and was effectively flat in `PerfSlotTeamAssignment.tscn` (`284ms`), but failed the real gate: 12v12 movement regressed to `588680us` and slot assignment to `466781us`, so source was reverted.
+- Rejected no-duplicate candidate: recording the returned best assignment array without `.duplicate()` improved focused slot total to `256ms`, preserving aggregate `2813605715628331077`, and initially improved 6v6/8v8 movement. It repeatedly regressed 12v12 movement (`571189us`, then `576941us`) and slot assignment (`451034us`, then `454659us`), so source was reverted.
+- Rejected tiny-group unique-minimum guard: skipping the unique-minimum shortcut for 2/3/4-row assignments kept `PerfSlotSmallAssignment.tscn` fast/DP signatures aligned and improved `PerfSlotTeamAssignment.tscn` to `274ms`, but failed the 12v12 movement gate with movement `586305us` and slot assignment `466078us`, so source was reverted.
+- Takeaway: allocation micro-optimizations around `_evaluate_precomputed_assignment()` can make focused team-slot timings look better while still hurting the single-target 12v12 stress case. Future slot work should target the 5+ row exact path itself and keep `PerfMovementPhases.tscn` 12v12 as a hard acceptance gate.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
