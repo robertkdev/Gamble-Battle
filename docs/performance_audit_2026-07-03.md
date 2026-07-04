@@ -1403,6 +1403,17 @@ No gameplay source optimization was retained from this pass. The direct answer t
 - `PerfTargetGroupShapes.tscn` stayed clean with aggregate `-234389136367210299:36`. The shape evidence confirms 8v8 is mostly 1/2/3-attacker groups, while 10v10/11v11/12v12 do produce high-count same-target clumps up to 10/11/12. Future slot work should use this shape probe before assuming a solver change helps every large-board case.
 - Takeaway: the project is past broad obvious cleanup, not past optimization. The next professional-grade source change should be an architecture-level, tie-preserving exact-assignment improvement for the high-count clumps, or a measured movement-step/gating improvement that wins in `PerfMovementPhases.tscn`. Repeating small branch, scratch, threshold, or row-cost rewrites is unlikely to be productive unless they beat same-window real movement gates.
 
+## Continuation - 2026-07-04 Support Peel Positive-Array Fast Path
+
+Accepted targeting optimization: support scoring now uses a direct positive-array peel-pressure helper when `_build_positive_ally_peel_data()` has already produced live, positive-priority ally indices. The fallback `_ally_peel_pressure()` path remains for the empty-array case.
+
+- Focused targeting proof: retained-diff `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, with medians `537ms`, `432ms`, and `556ms`. Same-window restored-source controls preserved the same signature but measured `1055ms` and `735ms`.
+- Behavioral check: `MovementTargetPriorityProbe.tscn` printed `MovementTargetPriorityProbe: PASS`, errors `[]`.
+- Broad validation through Godot MCP stayed behavior-stable: `Perf1v1.tscn` signature `-6199507685307107293:55`, `time_ms=436`, errors `[]`; `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`, `total_ms=15291`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`, `total_ms=8655`; `RoleMatrixProbe6v6.tscn` final verdict `PASS`, `failed=0`, `skipped=0`, `errors=0`, `wall_ms=6385`.
+- Movement-phase compatibility stayed clean and preserved all six deterministic signatures. Latest measured movement totals for 6v6/8v8/9v9/10v10/11v11/12v12 were `259083us`, `493014us`, `556775us`, `305264us`, `548440us`, and `607631us`; slot assignment remained the dominant large-team slice at `67.9%`, `79.0%`, and `81.2%` for 10v10/11v11/12v12.
+- Rejected same-pass slot experiment: three 5-row exact-assignment fast path attempts were reverted. Two changed focused assignment signatures, and the tie-preserving DP specialization preserved behavior but measured `fast_5=443ms` versus existing `dp_5=427ms`.
+- Takeaway: support targeting still had one measured secondary win, but the main frontier is unchanged. Large-team slot assignment remains the dominant 10v10/11v11/12v12 movement cost, and future source work should keep using same-window movement gates before retaining solver changes.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
