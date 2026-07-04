@@ -1285,6 +1285,16 @@ No gameplay source optimization was retained from this pass. The answer to wheth
 - Rejected slot-step avoidance length cleanup: measuring the unscaled avoidance accumulator and applying `corridor_factor` only to strength preserved `PerfMovementStepHelpers.tscn` aggregate `4713848927282072330` with a mixed focused total (`2050ms` versus `2058ms` control), but real `PerfMovementPhases.tscn` regressed 12v12 to `1099351us` movement with slot assignment `917632us`. Source was reverted.
 - Takeaway: remaining optimization is real but past easy local rewrites. Continue with tie-preserving 10/11/12-slot assignment work or secondary movement changes only when they beat the six-case `PerfMovementPhases.tscn` gate, not just a focused microbenchmark.
 
+## Continuation - 2026-07-04 Rejected Targeting And Collision Micro-Probes
+
+No gameplay source optimization was retained from this pass. Two secondary-surface probes preserved deterministic signatures, but failed focused or real movement gates.
+
+- Rejected support-peel direct dictionary indexing: replacing `Dictionary.get(..., Packed*Array())` with direct key reads in `Targeting.pick_by_priority()` preserved `PerfTargeting.tscn` signature `9036604269279486158`, but regressed the focused targeting median from `496ms` control to `626ms`. Source was reverted before broader validation.
+- Fresh `PerfSlotTeamAssignment.tscn` remained clean while checking the primary frontier, with aggregate `773148128031759898` and total `5611ms`. The expensive rows were still the 9/10/11/12 same-target and pair-target assignment paths, so the primary conclusion did not change.
+- Rejected collision same-team expression simplification: changing the resolved-pair test from `(a < player_count) == (b < player_count)` to the equivalent `b < player_count or a >= player_count` preserved `PerfCollisionResolver.tscn` aggregate `1955603822268948610` and improved focused total from `92ms` to `74ms`, but failed the decisive real movement gate.
+- Candidate `PerfMovementPhases.tscn` preserved all six signatures. The first candidate pass was mixed but plausible against restored control; the repeat regressed 12v12 movement to `1162609us` with collision `47407us`, so source was reverted. Restored-source same-window control was lower at 12v12 movement `819991us` with collision `31837us`.
+- Takeaway: targeting and collision remain monitored secondary surfaces, but the next retained optimization should still prioritize tie-preserving slot assignment or pass `PerfMovementPhases.tscn` without a 12v12 regression.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
