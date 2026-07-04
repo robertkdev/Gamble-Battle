@@ -26,6 +26,7 @@ func _run() -> void:
 	var case_defs: Array[Dictionary] = [
 		{"label": "6v6_neutral", "team_size": 6, "map_params": _map_params_6v6("perf_phase_6v6_neutral")},
 		{"label": "8v8_large", "team_size": 8, "map_params": _map_params_large(8)},
+		{"label": "10v10_large", "team_size": 10, "map_params": _map_params_large(10)},
 		{"label": "12v12_large", "team_size": 12, "map_params": _map_params_large(12)}
 	]
 	var failures: int = 0

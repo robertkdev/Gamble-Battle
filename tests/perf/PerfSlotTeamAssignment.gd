@@ -17,6 +17,7 @@ func _run() -> void:
 	var cases: Array[Dictionary] = [
 		{"label": "dict_single_6", "mode": "dict", "count": 6, "target_count": 1, "iterations": 180},
 		{"label": "dict_single_8", "mode": "dict", "count": 8, "target_count": 1, "iterations": 72},
+		{"label": "dict_single_10", "mode": "dict", "count": 10, "target_count": 1, "iterations": 36},
 		{"label": "dict_single_12", "mode": "dict", "count": 12, "target_count": 1, "iterations": 24},
 		{"label": "dict_pair_12", "mode": "dict", "count": 12, "target_count": 2, "iterations": 96},
 		{"label": "dict_split_12", "mode": "dict", "count": 12, "target_count": 3, "iterations": 72},
@@ -24,6 +25,7 @@ func _run() -> void:
 		{"label": "dict_spread_12", "mode": "dict", "count": 12, "target_count": 12, "iterations": 180},
 		{"label": "array_single_6", "mode": "array", "count": 6, "target_count": 1, "iterations": 180},
 		{"label": "array_single_8", "mode": "array", "count": 8, "target_count": 1, "iterations": 72},
+		{"label": "array_single_10", "mode": "array", "count": 10, "target_count": 1, "iterations": 36},
 		{"label": "array_single_12", "mode": "array", "count": 12, "target_count": 1, "iterations": 24},
 		{"label": "array_pair_12", "mode": "array", "count": 12, "target_count": 2, "iterations": 96},
 		{"label": "array_split_12", "mode": "array", "count": 12, "target_count": 3, "iterations": 72},
