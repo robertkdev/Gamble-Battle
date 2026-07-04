@@ -15,7 +15,9 @@ func _run() -> void:
 		{"label": "fast_2", "kind": "fast", "count": 2, "iterations": 32000, "offset": 0.19},
 		{"label": "dp_2", "kind": "dp", "count": 2, "iterations": 32000, "offset": 0.19},
 		{"label": "fast_3", "kind": "fast", "count": 3, "iterations": 24000, "offset": 0.31},
-		{"label": "dp_3", "kind": "dp", "count": 3, "iterations": 24000, "offset": 0.31}
+		{"label": "dp_3", "kind": "dp", "count": 3, "iterations": 24000, "offset": 0.31},
+		{"label": "fast_4", "kind": "fast", "count": 4, "iterations": 16000, "offset": 0.43},
+		{"label": "dp_4", "kind": "dp", "count": 4, "iterations": 16000, "offset": 0.43}
 	]
 	var sample_count: int = max(1, int(samples_per_case))
 	var aggregate_signature: int = 151

@@ -175,6 +175,8 @@ static func _best_assignment(costs: Array, incumbent_cost: float = 1e30) -> Dict
 		return _best_assignment_2(costs, incumbent_cost)
 	if n == 3:
 		return _best_assignment_3(costs, incumbent_cost)
+	if n == 4:
+		return _best_assignment_4(costs, incumbent_cost)
 	if n <= DP_ASSIGNMENT_LIMIT:
 		return _best_assignment_dp(costs, incumbent_cost)
 	return _best_assignment_greedy(costs)
@@ -229,6 +231,244 @@ static func _best_assignment_3(costs: Array, incumbent_cost: float) -> Dictionar
 		return {"assignment": [], "cost": incumbent_cost}
 	return {"assignment": best_assignment, "cost": best_cost}
 
+static func _best_assignment_4(costs: Array, incumbent_cost: float) -> Dictionary:
+	var row0: Array[float] = costs[0]
+	var row1: Array[float] = costs[1]
+	var row2: Array[float] = costs[2]
+	var row3: Array[float] = costs[3]
+	var mask1_cost: float = row0[0]
+	var mask2_cost: float = row0[1]
+	var mask4_cost: float = row0[2]
+	var mask8_cost: float = row0[3]
+	if mask1_cost >= incumbent_cost:
+		mask1_cost = 1e30
+	if mask2_cost >= incumbent_cost:
+		mask2_cost = 1e30
+	if mask4_cost >= incumbent_cost:
+		mask4_cost = 1e30
+	if mask8_cost >= incumbent_cost:
+		mask8_cost = 1e30
+
+	var mask3_cost: float = 1e30
+	var mask3_0: int = -1
+	var mask3_1: int = -1
+	var mask5_cost: float = 1e30
+	var mask5_0: int = -1
+	var mask5_1: int = -1
+	var mask6_cost: float = 1e30
+	var mask6_0: int = -1
+	var mask6_1: int = -1
+	var mask9_cost: float = 1e30
+	var mask9_0: int = -1
+	var mask9_1: int = -1
+	var mask10_cost: float = 1e30
+	var mask10_0: int = -1
+	var mask10_1: int = -1
+	var mask12_cost: float = 1e30
+	var mask12_0: int = -1
+	var mask12_1: int = -1
+	var candidate_cost: float = 0.0
+	if mask1_cost < incumbent_cost:
+		candidate_cost = mask1_cost + row1[1]
+		if candidate_cost < incumbent_cost and candidate_cost < mask3_cost:
+			mask3_cost = candidate_cost
+			mask3_0 = 0
+			mask3_1 = 1
+		candidate_cost = mask1_cost + row1[2]
+		if candidate_cost < incumbent_cost and candidate_cost < mask5_cost:
+			mask5_cost = candidate_cost
+			mask5_0 = 0
+			mask5_1 = 2
+		candidate_cost = mask1_cost + row1[3]
+		if candidate_cost < incumbent_cost and candidate_cost < mask9_cost:
+			mask9_cost = candidate_cost
+			mask9_0 = 0
+			mask9_1 = 3
+	if mask2_cost < incumbent_cost:
+		candidate_cost = mask2_cost + row1[0]
+		if candidate_cost < incumbent_cost and candidate_cost < mask3_cost:
+			mask3_cost = candidate_cost
+			mask3_0 = 1
+			mask3_1 = 0
+		candidate_cost = mask2_cost + row1[2]
+		if candidate_cost < incumbent_cost and candidate_cost < mask6_cost:
+			mask6_cost = candidate_cost
+			mask6_0 = 1
+			mask6_1 = 2
+		candidate_cost = mask2_cost + row1[3]
+		if candidate_cost < incumbent_cost and candidate_cost < mask10_cost:
+			mask10_cost = candidate_cost
+			mask10_0 = 1
+			mask10_1 = 3
+	if mask4_cost < incumbent_cost:
+		candidate_cost = mask4_cost + row1[0]
+		if candidate_cost < incumbent_cost and candidate_cost < mask5_cost:
+			mask5_cost = candidate_cost
+			mask5_0 = 2
+			mask5_1 = 0
+		candidate_cost = mask4_cost + row1[1]
+		if candidate_cost < incumbent_cost and candidate_cost < mask6_cost:
+			mask6_cost = candidate_cost
+			mask6_0 = 2
+			mask6_1 = 1
+		candidate_cost = mask4_cost + row1[3]
+		if candidate_cost < incumbent_cost and candidate_cost < mask12_cost:
+			mask12_cost = candidate_cost
+			mask12_0 = 2
+			mask12_1 = 3
+	if mask8_cost < incumbent_cost:
+		candidate_cost = mask8_cost + row1[0]
+		if candidate_cost < incumbent_cost and candidate_cost < mask9_cost:
+			mask9_cost = candidate_cost
+			mask9_0 = 3
+			mask9_1 = 0
+		candidate_cost = mask8_cost + row1[1]
+		if candidate_cost < incumbent_cost and candidate_cost < mask10_cost:
+			mask10_cost = candidate_cost
+			mask10_0 = 3
+			mask10_1 = 1
+		candidate_cost = mask8_cost + row1[2]
+		if candidate_cost < incumbent_cost and candidate_cost < mask12_cost:
+			mask12_cost = candidate_cost
+			mask12_0 = 3
+			mask12_1 = 2
+
+	var mask7_cost: float = 1e30
+	var mask7_0: int = -1
+	var mask7_1: int = -1
+	var mask7_2: int = -1
+	var mask11_cost: float = 1e30
+	var mask11_0: int = -1
+	var mask11_1: int = -1
+	var mask11_2: int = -1
+	var mask13_cost: float = 1e30
+	var mask13_0: int = -1
+	var mask13_1: int = -1
+	var mask13_2: int = -1
+	var mask14_cost: float = 1e30
+	var mask14_0: int = -1
+	var mask14_1: int = -1
+	var mask14_2: int = -1
+	if mask3_cost < incumbent_cost:
+		candidate_cost = mask3_cost + row2[2]
+		if candidate_cost < incumbent_cost and candidate_cost < mask7_cost:
+			mask7_cost = candidate_cost
+			mask7_0 = mask3_0
+			mask7_1 = mask3_1
+			mask7_2 = 2
+		candidate_cost = mask3_cost + row2[3]
+		if candidate_cost < incumbent_cost and candidate_cost < mask11_cost:
+			mask11_cost = candidate_cost
+			mask11_0 = mask3_0
+			mask11_1 = mask3_1
+			mask11_2 = 3
+	if mask5_cost < incumbent_cost:
+		candidate_cost = mask5_cost + row2[1]
+		if candidate_cost < incumbent_cost and candidate_cost < mask7_cost:
+			mask7_cost = candidate_cost
+			mask7_0 = mask5_0
+			mask7_1 = mask5_1
+			mask7_2 = 1
+		candidate_cost = mask5_cost + row2[3]
+		if candidate_cost < incumbent_cost and candidate_cost < mask13_cost:
+			mask13_cost = candidate_cost
+			mask13_0 = mask5_0
+			mask13_1 = mask5_1
+			mask13_2 = 3
+	if mask6_cost < incumbent_cost:
+		candidate_cost = mask6_cost + row2[0]
+		if candidate_cost < incumbent_cost and candidate_cost < mask7_cost:
+			mask7_cost = candidate_cost
+			mask7_0 = mask6_0
+			mask7_1 = mask6_1
+			mask7_2 = 0
+		candidate_cost = mask6_cost + row2[3]
+		if candidate_cost < incumbent_cost and candidate_cost < mask14_cost:
+			mask14_cost = candidate_cost
+			mask14_0 = mask6_0
+			mask14_1 = mask6_1
+			mask14_2 = 3
+	if mask9_cost < incumbent_cost:
+		candidate_cost = mask9_cost + row2[1]
+		if candidate_cost < incumbent_cost and candidate_cost < mask11_cost:
+			mask11_cost = candidate_cost
+			mask11_0 = mask9_0
+			mask11_1 = mask9_1
+			mask11_2 = 1
+		candidate_cost = mask9_cost + row2[2]
+		if candidate_cost < incumbent_cost and candidate_cost < mask13_cost:
+			mask13_cost = candidate_cost
+			mask13_0 = mask9_0
+			mask13_1 = mask9_1
+			mask13_2 = 2
+	if mask10_cost < incumbent_cost:
+		candidate_cost = mask10_cost + row2[0]
+		if candidate_cost < incumbent_cost and candidate_cost < mask11_cost:
+			mask11_cost = candidate_cost
+			mask11_0 = mask10_0
+			mask11_1 = mask10_1
+			mask11_2 = 0
+		candidate_cost = mask10_cost + row2[2]
+		if candidate_cost < incumbent_cost and candidate_cost < mask14_cost:
+			mask14_cost = candidate_cost
+			mask14_0 = mask10_0
+			mask14_1 = mask10_1
+			mask14_2 = 2
+	if mask12_cost < incumbent_cost:
+		candidate_cost = mask12_cost + row2[0]
+		if candidate_cost < incumbent_cost and candidate_cost < mask13_cost:
+			mask13_cost = candidate_cost
+			mask13_0 = mask12_0
+			mask13_1 = mask12_1
+			mask13_2 = 0
+		candidate_cost = mask12_cost + row2[1]
+		if candidate_cost < incumbent_cost and candidate_cost < mask14_cost:
+			mask14_cost = candidate_cost
+			mask14_0 = mask12_0
+			mask14_1 = mask12_1
+			mask14_2 = 1
+
+	var best_cost: float = incumbent_cost
+	var best0: int = -1
+	var best1: int = -1
+	var best2: int = -1
+	var best3: int = -1
+	if mask7_cost < incumbent_cost:
+		candidate_cost = mask7_cost + row3[3]
+		if candidate_cost < best_cost:
+			best_cost = candidate_cost
+			best0 = mask7_0
+			best1 = mask7_1
+			best2 = mask7_2
+			best3 = 3
+	if mask11_cost < incumbent_cost:
+		candidate_cost = mask11_cost + row3[2]
+		if candidate_cost < best_cost:
+			best_cost = candidate_cost
+			best0 = mask11_0
+			best1 = mask11_1
+			best2 = mask11_2
+			best3 = 2
+	if mask13_cost < incumbent_cost:
+		candidate_cost = mask13_cost + row3[1]
+		if candidate_cost < best_cost:
+			best_cost = candidate_cost
+			best0 = mask13_0
+			best1 = mask13_1
+			best2 = mask13_2
+			best3 = 1
+	if mask14_cost < incumbent_cost:
+		candidate_cost = mask14_cost + row3[0]
+		if candidate_cost < best_cost:
+			best_cost = candidate_cost
+			best0 = mask14_0
+			best1 = mask14_1
+			best2 = mask14_2
+			best3 = 0
+	if best0 < 0:
+		return {"assignment": [], "cost": incumbent_cost}
+	return {"assignment": _assignment_4(best0, best1, best2, best3), "cost": best_cost}
+
 static func _assignment_2(first: int, second: int) -> Array[int]:
 	var assignment: Array[int] = []
 	assignment.resize(2)
@@ -242,6 +482,15 @@ static func _assignment_3(first: int, second: int, third: int) -> Array[int]:
 	assignment[0] = first
 	assignment[1] = second
 	assignment[2] = third
+	return assignment
+
+static func _assignment_4(first: int, second: int, third: int, fourth: int) -> Array[int]:
+	var assignment: Array[int] = []
+	assignment.resize(4)
+	assignment[0] = first
+	assignment[1] = second
+	assignment[2] = third
+	assignment[3] = fourth
 	return assignment
 
 static func _best_assignment_dp(costs: Array, incumbent_cost: float = 1e30) -> Dictionary:
