@@ -1132,6 +1132,10 @@ No gameplay source optimization was retained from this pass. Count-11 focused co
 - `PerfSlotSolverBreakdown.tscn` now includes `hungarian_11` and `rotation_11`; clean validation preserved errors `[]`, aggregate `6131016972257857795`, `hungarian_11=52ms` signature `2948632919463100959`, and `rotation_11=105ms` signature `2099189642656196703`.
 - Rejected count-11 no-Hungarian path: routing count 11 through the no-reduced DP helper preserved signatures but regressed `dp_11_initial` from the fresh `37ms` focused control to `471ms`. Source was reverted before real movement validation. Count 11 should keep the current Hungarian-pruned generic path unless a future candidate beats the expanded focused gates first.
 
+## Continuation - 2026-07-04 Rejected Fixed-Size 7/9 DP Helpers
+
+No source optimization was retained. Replacing the accepted shared 7/9 no-reduced DP helper with fixed-size `_best_assignment_dp_7()` and `_best_assignment_dp_9()` preserved focused signatures and improved `PerfSlotDpSearch.tscn` (`dp_7_initial=243ms`, `dp_7_pruned=160ms`, `dp_9_initial=246ms`, `dp_9_pruned=109ms`, aggregate `7234308013805264845`) plus `PerfSlotTeamAssignment.tscn` aggregate `6126179979591804452`. It failed the real movement gate: `PerfMovementPhases.tscn` preserved signatures but regressed 6v6/8v8/10v10/12v12 movement to `399197us`, `703222us`, `356293us`, and `967245us`, with 12v12 slot assignment at `781165us`. Source was reverted; keep the shared generic 7/9 helper unless a future candidate passes real movement.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
