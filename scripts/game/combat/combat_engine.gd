@@ -785,9 +785,10 @@ func _emit_target_events(force: bool = false) -> void:
 	_last_targets_enemy = _emit_target_events_for_team("enemy", "player", enemy_targets, _last_targets_enemy, force)
 
 func _emit_target_events_for_team(team: String, target_team: String, current: Array, previous: Array, force: bool) -> Array:
-	var result: Array = []
 	var curr_count: int = current.size()
 	var prev_count: int = previous.size()
+	if previous.size() < curr_count:
+		previous.resize(curr_count)
 	for i in range(curr_count):
 		var new_target: int = int(current[i])
 		var prev_target: int = (int(previous[i]) if i < prev_count else -1)
@@ -800,13 +801,15 @@ func _emit_target_events_for_team(team: String, target_team: String, current: Ar
 					emit_signal("target_end", team, i, target_team, prev_target)
 				if new_target >= 0:
 					emit_signal("target_start", team, i, target_team, new_target)
-		result.append(new_target)
+		previous[i] = new_target
 	if not force and prev_count > curr_count:
 		for j in range(curr_count, prev_count):
 			var prev_val: int = int(previous[j])
 			if prev_val >= 0:
 				emit_signal("target_end", team, j, target_team, prev_val)
-	return result
+	if previous.size() > curr_count:
+		previous.resize(curr_count)
+	return previous
 
 # Public helper to avoid external scripts depending on internal fields
 func set_movement_debug_frames(frames: int) -> void:
