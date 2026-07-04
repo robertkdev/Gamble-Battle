@@ -905,6 +905,15 @@ Accepted change: support targeting now caches wounded-bonus values only for posi
 - Target behavior and broad gates stayed clean through Godot MCP: `MovementTargetPriorityProbe.tscn` PASS; `Perf6v6.tscn` kept aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8454ms`; `PerfLargeBoard.tscn` kept aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7058ms`; `Perf1v1.tscn` kept signature `-6199507685307107293:55`, errors `[]`, time `335ms`; and `RoleMatrixProbe6v6.tscn` passed with `failed=0`, `skipped=0`, `errors=0`, `wall_ms=5867`.
 - This is a scoped targeting cleanup. It does not change the larger conclusion: 12v12 slot assignment remains the main open performance surface.
 
+## Continuation - 2026-07-04 Rejected Support Param And Collision Active Index
+
+Fresh answer to "is that all that needs optimizing?": no. A clean `PerfMovementPhases.tscn` control still shows 12v12 slot assignment as the largest remaining measured surface: 6v6/8v8/12v12 movement was `238166us`, `469410us`, and `563929us`, with slot assignment at `119553us` (`50.2%`), `190436us` (`40.6%`), and `454939us` (`80.7%`). `PerfSlotSolverBreakdown.tscn` kept aggregate `4738803460811644685`, errors `[]`, total `422ms`; `PerfSlotTeamAssignment.tscn` kept aggregate `2813605715628331077`, errors `[]`, total `301ms`.
+
+- Rejected targeting micro-cleanup: removing the unused support `enemy` parameter and null check preserved `PerfTargeting.tscn` signature `9036604269279486158`, but timing did not hold. Fresh control was `412ms`; the candidate first read `406ms`, then repeated at `445ms`. Source was reverted.
+- Rejected collision active-index scratch write: pre-sizing `_active_indices` and writing live indices by explicit `active_count` improved focused `PerfCollisionResolver.tscn` from clean `80ms` to `72ms` and `69ms`, preserving aggregate `1955603822268948610`, but failed the real movement acceptance bar.
+- Candidate `PerfMovementPhases.tscn` first moved to `250459us`, `465351us`, and `589894us`; repeat moved to `237650us`, `487189us`, and `562376us`. The focused collision win was not enough to justify a mixed full-frame result and a repeated 8v8 movement regression, so source was reverted.
+- No source optimization was retained from this pass. Continue treating slot assignment as the primary surface; collision remains monitored, but focused collision wins must still prove out in `PerfMovementPhases.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
