@@ -669,6 +669,14 @@ Rejected follow-up: precomputing the clamped `min_forward_dot` once per movement
 - Candidate `tests/perf/PerfMovementPhases.tscn` preserved the same signatures and errors `[]`, but regressed 6v6 to `356280us` and 12v12 to `649227us`; 8v8 improved to `597079us`, but that was not enough to keep the change.
 - Keep `min_forward_dot` as a helper-local clamp unless a future broader rewrite proves a stronger net win.
 
+## Continuation - 2026-07-04 Rejected Direct Slot Info Reads
+
+Rejected follow-up: reading known slot-map fields directly and only computing default slot radii when no slot info existed preserved deterministic signatures, but did not beat the same-turn real movement control. Source was reverted.
+
+- Same control as above in `tests/perf/PerfMovementPhases.tscn`: 6v6/8v8/12v12 movement `294970us`, `612226us`, and `633799us`.
+- Candidate preserved signatures and errors `[]`, and improved 8v8 to `580413us`, but regressed 6v6 to `323280us` and 12v12 to `654659us`.
+- Keep the current fallback `Dictionary.get(...)` slot-info reads unless a larger slot-data shape change proves faster across 6v6, 8v8, and 12v12 together.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
