@@ -14,6 +14,7 @@ const TAU := PI * 2.0
 const SLOT_HYSTERESIS_FRAMES := 6
 const ARRIVE_STOP_EPS := 0.5
 const IN_BAND_BOUNDS_BUFFER := 12.0
+const FAR_DISTANCE_CULL_FACTOR := 1.000001
 
 var tuning: MovementTuning = MovementTuning.new()
 var data: MovementState = MovementState.new()
@@ -641,6 +642,8 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 	var sep: Vector2 = Vector2.ZERO
 	var sep_r: float = separation_radius
 	var avoid_r: float = avoidance_radius
+	var max_influence_r: float = max(sep_r, avoid_r)
+	var max_influence_r_sq: float = max_influence_r * max_influence_r * FAR_DISTANCE_CULL_FACTOR
 	var avoid_accum: Vector2 = Vector2.ZERO
 	if sep_r > 0.0 or avoid_r > 0.0:
 		for k in range(self_positions.size()):
@@ -649,6 +652,8 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 			if not self_alive[k]:
 				continue
 			var self_diff: Vector2 = cur - self_positions[k]
+			if self_diff.length_squared() > max_influence_r_sq:
+				continue
 			var d: float = self_diff.length()
 			if d <= 0.0:
 				continue
@@ -660,10 +665,13 @@ func _compute_slot_step(team: String, idx: int, cur: Vector2, slot_pos: Vector2,
 				var self_avoid_weight: float = 1.0 - (d / avoid_r)
 				avoid_accum += self_dir * self_avoid_weight
 	if avoid_r > 0.0:
+		var avoid_r_sq: float = avoid_r * avoid_r * FAR_DISTANCE_CULL_FACTOR
 		for o in range(other_positions.size()):
 			if not other_alive[o]:
 				continue
 			var diff: Vector2 = cur - other_positions[o]
+			if diff.length_squared() > avoid_r_sq:
+				continue
 			var d: float = diff.length()
 			if d <= 0.0001 or d >= avoid_r:
 				continue
@@ -857,6 +865,7 @@ func _refresh_inner_bounds() -> void:
 func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vector2], other_positions: Array[Vector2], self_alive: Array, other_alive: Array, avoid_radius: float, corridor_factor: float) -> Vector2:
 	if avoid_radius <= 0.0:
 		return Vector2.ZERO
+	var avoid_radius_sq: float = avoid_radius * avoid_radius * FAR_DISTANCE_CULL_FACTOR
 	var accum: Vector2 = Vector2.ZERO
 	for s in range(self_positions.size()):
 		if s == idx:
@@ -864,6 +873,8 @@ func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vec
 		if not self_alive[s]:
 			continue
 		var self_diff: Vector2 = cur - self_positions[s]
+		if self_diff.length_squared() > avoid_radius_sq:
+			continue
 		var self_dist: float = self_diff.length()
 		if self_dist <= 0.0001 or self_dist >= avoid_radius:
 			continue
@@ -873,6 +884,8 @@ func _compute_avoidance_vector(cur: Vector2, idx: int, self_positions: Array[Vec
 		if not other_alive[o]:
 			continue
 		var other_diff: Vector2 = cur - other_positions[o]
+		if other_diff.length_squared() > avoid_radius_sq:
+			continue
 		var other_dist: float = other_diff.length()
 		if other_dist <= 0.0001 or other_dist >= avoid_radius:
 			continue

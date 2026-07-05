@@ -1615,6 +1615,16 @@ No additional gameplay source optimization was retained in this checkpoint. Fres
 - Candidate families intentionally skipped as already exhausted in this audit: unique-minimum bookkeeping/bitmask/preflight variants, count-3 scalar precomputed evaluation, count-4/5 row precomputed rewrites, group-array reuse, direct dictionary iteration, previous-slot rewrites, Hungarian threshold changes, predecessor-state trims, ring-offset caches, lower-bound rotation prechecks, and targeting branch-shape rewrites.
 - Takeaway: further retained source work likely needs a real tie-preserving exact-assignment architecture change for 9/10/11/12 attacker groups, or a secondary movement-step/collision win that beats the full movement gate. Small GDScript branch/scratch rewrites are now more likely to be noise or regressions unless they beat same-window `PerfMovementPhases.tscn`.
 
+## Continuation - 2026-07-04 Retained Conservative Far-Distance Movement Cull
+
+Retained a secondary movement-step optimization in `MovementService2`: separation and avoidance scans now skip units that are provably outside the relevant influence radius using a conservative squared-distance far cull, then keep the original `length()` calculation and original threshold checks for all near-radius candidates. This avoids the behavior drift from exact squared-threshold rewrites while reducing unnecessary distance work in step helpers.
+
+- Rejected first candidate: replacing the actual radius checks with squared-distance threshold checks improved focused `PerfMovementStepHelpers.tscn` total to `1418ms`, but changed real `PerfMovementPhases.tscn` signatures in 8v8 (`1860074410702899490:300`) and 9v9 (`1871751904924299171:334`), so it was reverted.
+- Retained candidate focused gate: the conservative far-cull version preserved `PerfMovementStepHelpers.tscn` aggregate `4713848927282072330`, errors `[]`; best candidate total was `1232ms` versus the fresh control `1896ms`, and the final re-applied source stayed behavior-stable at `1815ms`.
+- Integrated movement gate preserved all six deterministic signatures. Candidate full movement totals were `318708us`, `639452us`, `690871us`, `326007us`, `634169us`, and `638829us`; repeat totals were `299857us`, `578282us`, `664460us`, `322553us`, `610472us`, and `815406us`. A same-window restored-source control after reverting measured `330460us`, `625648us`, `620465us`, `400777us`, `698124us`, and `693176us`, so timing stayed noisy but the retained source improved the 6v6/8v8/10v10/11v11 repeat rows and the total movement sum while preserving signatures.
+- Broad validation stayed clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, total `8795ms`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, total `7132ms`; `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`; and `Perf1v1.tscn` signature `-6199507685307107293:55`, time `358ms`.
+- Takeaway: this is a retained secondary step-loop win, not the end of the performance audit. 10v10/11v11/12v12 remain slot-assignment dominated, and the next major optimization still needs to reduce high-count rotation/evaluator cost without changing combat signatures.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
