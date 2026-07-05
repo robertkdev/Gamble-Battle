@@ -1604,6 +1604,17 @@ Retained a narrow slot-assignment source optimization in `SlotStrategy._evaluate
 - Broad validation stayed clean: `Perf6v6.tscn` aggregate `4480953857527108889:18`, inconsistent cases `0`, errors `[]`; `PerfLargeBoard.tscn` aggregate `7144113503220431359:12`, inconsistent cases `0`, errors `[]`; and `RoleMatrixProbe6v6.tscn` PASS with `failed=0`, `skipped=0`, `errors=0`.
 - Takeaway: the goal remains active, but this is a real retained movement win. Count-2 slot groups are common enough in 6v6/8v8/9v9 and still present around larger clumps, so cutting their precomputed evaluator work improves the full movement gate without disturbing high-count signatures.
 
+## Continuation - 2026-07-04 Post Count-2 Frontier Refresh
+
+No additional gameplay source optimization was retained in this checkpoint. Fresh profiling after the retained generic count-2 evaluator confirms the goal remains active and narrows the next work to high-count slot rotation/evaluator architecture rather than another local bookkeeping tweak.
+
+- Current `PerfMovementPhases.tscn` preserved all six deterministic signatures with errors `[]`. Movement totals and slot shares were 6v6 `290070us` / slot `164169us` (`56.6%`), 8v8 `696917us` / slot `345152us` (`49.5%`), 9v9 `649149us` / slot `363126us` (`55.9%`), 10v10 `405105us` / slot `298273us` (`73.6%`), 11v11 `599506us` / slot `481399us` (`80.3%`), and 12v12 `827064us` / slot `653762us` (`79.0%`).
+- Current slot subphase evidence still points to high-count rotation/evaluator cost. The biggest current buckets were 10v10 `player_10_rotate=153022us`, 11v11 `player_9_rotate=187835us` plus `player_11_rotate=137350us`, and 12v12 `player_10_rotate=169813us` plus `player_12_rotate=195337us`. Count-3 and count-6 rows remain visible in 8v8/9v9, but count-3 scalar precomputed evaluation has already been rejected.
+- Focused `PerfSlotSolverBreakdown.tscn` preserved aggregate `3460608454349089621`, errors `[]`, total `1165ms`. The largest rows were `dp_12_pruned=193ms`, `rotation_8=164ms`, `rotation_9=212ms`, `rotation_10=135ms`, and `rotation_11=114ms`.
+- Current `PerfTargeting.tscn` preserved signature `9036604269279486158`, errors `[]`, median `368ms`, p95 `400ms`. Targeting remains monitored but is not the main frontier beside current slot-assignment costs.
+- Candidate families intentionally skipped as already exhausted in this audit: unique-minimum bookkeeping/bitmask/preflight variants, count-3 scalar precomputed evaluation, count-4/5 row precomputed rewrites, group-array reuse, direct dictionary iteration, previous-slot rewrites, Hungarian threshold changes, predecessor-state trims, ring-offset caches, lower-bound rotation prechecks, and targeting branch-shape rewrites.
+- Takeaway: further retained source work likely needs a real tie-preserving exact-assignment architecture change for 9/10/11/12 attacker groups, or a secondary movement-step/collision win that beats the full movement gate. Small GDScript branch/scratch rewrites are now more likely to be noise or regressions unless they beat same-window `PerfMovementPhases.tscn`.
+
 ## Current Hotspots
 
 1. Combat movement is the primary optimization surface.
