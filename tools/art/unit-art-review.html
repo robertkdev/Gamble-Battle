@@ -284,17 +284,28 @@
 		}
 
 		dialog {
-			width: min(92vw, 860px);
-			border: 1px solid var(--line);
-			border-radius: 8px;
+			width: 100vw;
+			max-width: 100vw;
+			height: 100vh;
+			max-height: 100vh;
+			margin: 0;
+			border: 0;
+			border-radius: 0;
 			padding: 0;
 			background: #151411;
 			color: var(--text);
-			box-shadow: 0 24px 80px rgba(0, 0, 0, 0.65);
+			box-shadow: none;
 		}
 
 		dialog::backdrop {
-			background: rgba(0, 0, 0, 0.68);
+			background: #000;
+		}
+
+		.preview-shell {
+			display: grid;
+			grid-template-rows: auto minmax(0, 1fr) auto;
+			width: 100vw;
+			height: 100vh;
 		}
 
 		.preview-head {
@@ -304,12 +315,13 @@
 			align-items: center;
 			padding: 12px 14px;
 			border-bottom: 1px solid var(--line);
+			background: rgba(18, 17, 15, 0.94);
 		}
 
 		.preview-body {
 			display: grid;
 			place-items: center;
-			min-height: min(74vh, 760px);
+			min-height: 0;
 			padding: 16px;
 			background:
 				linear-gradient(45deg, rgba(255, 255, 255, 0.05) 25%, transparent 25%),
@@ -319,12 +331,96 @@
 				#1b1a17;
 			background-position: 0 0, 0 12px, 12px -12px, -12px 0;
 			background-size: 24px 24px;
+			cursor: pointer;
+			position: relative;
+			user-select: none;
 		}
 
 		.preview-body img {
 			max-width: 100%;
-			max-height: 72vh;
+			max-height: 100%;
 			object-fit: contain;
+		}
+
+		.preview-side-hint {
+			position: absolute;
+			top: 50%;
+			width: 48px;
+			height: 48px;
+			display: grid;
+			place-items: center;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			border-radius: 999px;
+			background: rgba(0, 0, 0, 0.34);
+			color: rgba(255, 255, 255, 0.72);
+			font-size: 28px;
+			transform: translateY(-50%);
+			pointer-events: none;
+		}
+
+		.preview-side-hint.prev {
+			left: 18px;
+		}
+
+		.preview-side-hint.next {
+			right: 18px;
+		}
+
+		.preview-foot {
+			display: grid;
+			grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr);
+			gap: 12px;
+			align-items: center;
+			padding: 12px 14px;
+			border-top: 1px solid var(--line);
+			background: rgba(18, 17, 15, 0.96);
+		}
+
+		.preview-status {
+			color: var(--muted);
+			font-size: 13px;
+		}
+
+		.preview-actions {
+			display: grid;
+			grid-auto-flow: column;
+			gap: 8px;
+			justify-content: center;
+		}
+
+		.preview-choice {
+			min-width: 88px;
+			padding: 0 12px;
+		}
+
+		dialog[data-choice="like"] .preview-choice[data-choice="like"] {
+			background: rgba(104, 194, 124, 0.22);
+			border-color: rgba(104, 194, 124, 0.7);
+			color: #daf3de;
+		}
+
+		dialog[data-choice="maybe"] .preview-choice[data-choice="maybe"] {
+			background: rgba(215, 170, 72, 0.24);
+			border-color: rgba(215, 170, 72, 0.75);
+			color: #f8e7b7;
+		}
+
+		dialog[data-choice="cut"] .preview-choice[data-choice="cut"] {
+			background: rgba(217, 109, 100, 0.24);
+			border-color: rgba(217, 109, 100, 0.75);
+			color: #f8d3cf;
+		}
+
+		dialog:not([data-choice]) .preview-choice[data-choice="open"] {
+			background: rgba(229, 217, 193, 0.14);
+			border-color: rgba(229, 217, 193, 0.42);
+			color: var(--text);
+		}
+
+		.preview-help {
+			color: var(--muted);
+			font-size: 12px;
+			text-align: right;
 		}
 
 		.toast {
@@ -382,6 +478,20 @@
 			.segment button {
 				min-width: 58px;
 			}
+
+			.preview-foot {
+				grid-template-columns: 1fr;
+			}
+
+			.preview-actions {
+				grid-auto-flow: row;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.preview-help,
+			.preview-status {
+				text-align: center;
+			}
 		}
 	</style>
 </head>
@@ -427,15 +537,29 @@
 	</div>
 
 	<dialog id="preview">
-		<div class="preview-head">
-			<div>
-				<div class="name" id="preview-name"></div>
-				<div class="path" id="preview-path"></div>
+		<div class="preview-shell">
+			<div class="preview-head">
+				<div>
+					<div class="name" id="preview-name"></div>
+					<div class="path" id="preview-path"></div>
+				</div>
+				<button id="close-preview" class="action" type="button">Close</button>
 			</div>
-			<button id="close-preview" class="action" type="button">Close</button>
-		</div>
-		<div class="preview-body">
-			<img id="preview-image" src="" alt="">
+			<div class="preview-body" id="preview-body">
+				<div class="preview-side-hint prev" aria-hidden="true">&lsaquo;</div>
+				<img id="preview-image" src="" alt="">
+				<div class="preview-side-hint next" aria-hidden="true">&rsaquo;</div>
+			</div>
+			<div class="preview-foot">
+				<div class="preview-status" id="preview-status">1 / 1</div>
+				<div class="preview-actions" aria-label="Preview voting controls">
+					<button class="preview-choice" type="button" data-preview-choice="like" data-choice="like">Like</button>
+					<button class="preview-choice" type="button" data-preview-choice="maybe" data-choice="maybe">Maybe</button>
+					<button class="preview-choice" type="button" data-preview-choice="cut" data-choice="cut">Cut</button>
+					<button class="preview-choice" type="button" data-preview-choice="" data-choice="open">Open</button>
+				</div>
+				<div class="preview-help">Left/right side or arrow keys move between visible cards</div>
+			</div>
 		</div>
 	</dialog>
 
@@ -651,7 +775,9 @@
 			filter: "all",
 			query: "",
 			tileSize: 170,
-			decisions: loadDecisions()
+			decisions: loadDecisions(),
+			previewItems: [],
+			previewIndex: -1
 		};
 
 		const els = {
@@ -664,9 +790,11 @@
 			cut: document.getElementById("count-cut"),
 			open: document.getElementById("count-open"),
 			preview: document.getElementById("preview"),
+			previewBody: document.getElementById("preview-body"),
 			previewName: document.getElementById("preview-name"),
 			previewPath: document.getElementById("preview-path"),
 			previewImage: document.getElementById("preview-image"),
+			previewStatus: document.getElementById("preview-status"),
 			toast: document.getElementById("toast")
 		};
 
@@ -736,10 +864,27 @@
 			els.preview.close();
 		});
 
-		els.preview.addEventListener("click", (event) => {
-			if (event.target === els.preview) {
-				els.preview.close();
+		els.previewBody.addEventListener("click", (event) => {
+			const rect = els.previewBody.getBoundingClientRect();
+			const midpoint = rect.left + rect.width / 2;
+			movePreview(event.clientX < midpoint ? -1 : 1);
+		});
+
+		els.preview.addEventListener("keydown", (event) => {
+			if (event.key === "ArrowLeft") {
+				event.preventDefault();
+				movePreview(-1);
 			}
+			if (event.key === "ArrowRight") {
+				event.preventDefault();
+				movePreview(1);
+			}
+		});
+
+		document.querySelectorAll("[data-preview-choice]").forEach((button) => {
+			button.addEventListener("click", () => {
+				voteCurrentPreview(button.dataset.previewChoice);
+			});
 		});
 
 		function createArtItem(config) {
@@ -780,11 +925,14 @@
 
 		function render() {
 			const visible = filteredItems();
-			els.grid.replaceChildren(...visible.map(renderTile));
+			els.grid.replaceChildren(...visible.map((item, index) => renderTile(item, index, visible)));
 			updateCounts(visible.length);
+			if (els.preview.open) {
+				updatePreviewChoice();
+			}
 		}
 
-		function renderTile(item) {
+		function renderTile(item, index, visible) {
 			const choice = state.decisions[item.key] || "";
 			const tile = document.createElement("article");
 			tile.className = "tile";
@@ -796,7 +944,7 @@
 			frame.type = "button";
 			frame.className = "art-frame";
 			frame.title = item.path;
-			frame.addEventListener("click", () => openPreview(item));
+			frame.addEventListener("click", () => openPreview(visible, index));
 
 			const image = document.createElement("img");
 			image.src = item.src;
@@ -889,12 +1037,70 @@
 			return counts;
 		}
 
-		function openPreview(item) {
+		function openPreview(items, index) {
+			state.previewItems = items.slice();
+			state.previewIndex = clampPreviewIndex(index);
+			updatePreview();
+			els.preview.showModal();
+		}
+
+		function currentPreviewItem() {
+			return state.previewItems[state.previewIndex] || null;
+		}
+
+		function movePreview(delta) {
+			if (!state.previewItems.length) {
+				return;
+			}
+			state.previewIndex = clampPreviewIndex(state.previewIndex + delta);
+			updatePreview();
+		}
+
+		function clampPreviewIndex(index) {
+			const count = state.previewItems.length;
+			if (!count) {
+				return -1;
+			}
+			return ((index % count) + count) % count;
+		}
+
+		function voteCurrentPreview(choice) {
+			const item = currentPreviewItem();
+			if (!item) {
+				return;
+			}
+			setDecision(item.key, choice);
+			updatePreviewChoice();
+		}
+
+		function updatePreview() {
+			const item = currentPreviewItem();
+			if (!item) {
+				if (els.preview.open) {
+					els.preview.close();
+				}
+				return;
+			}
 			els.previewName.textContent = item.id;
 			els.previewPath.textContent = item.path;
 			els.previewImage.src = item.src;
 			els.previewImage.alt = item.id;
-			els.preview.showModal();
+			updatePreviewChoice();
+		}
+
+		function updatePreviewChoice() {
+			const item = currentPreviewItem();
+			if (!item) {
+				return;
+			}
+			const choice = state.decisions[item.key] || "";
+			if (choice) {
+				els.preview.dataset.choice = choice;
+			} else {
+				delete els.preview.dataset.choice;
+			}
+			const label = choice ? labelFor(choice) : "Open";
+			els.previewStatus.textContent = (state.previewIndex + 1) + " / " + state.previewItems.length + " - " + label;
 		}
 
 		function loadDecisions() {
