@@ -197,9 +197,17 @@ func _expect_unit_info_labels(context: String) -> void:
 	var attack_label: Label = _unit_panel.find_child("AttackInfo", true, false) as Label
 	if attack_label == null or not String(attack_label.text).begins_with("Attack:"):
 		_fail("%s: attack info label missing or empty" % context)
+	var attack_targeting_label: Label = _unit_panel.find_child("AttackTargetingInfo", true, false) as Label
+	if attack_targeting_label == null or not String(attack_targeting_label.text).begins_with("Attack Targeting:"):
+		_fail("%s: attack targeting info label missing or empty" % context)
 	var ability_label: Label = _unit_panel.find_child("AbilityInfo", true, false) as Label
 	if ability_label == null or not String(ability_label.text).begins_with("Ability:"):
 		_fail("%s: ability info label missing or empty" % context)
+	var ability_targeting_label: Label = _unit_panel.find_child("AbilityTargetingInfo", true, false) as Label
+	if ability_targeting_label == null or not String(ability_targeting_label.text).begins_with("Ability Targeting:"):
+		_fail("%s: ability targeting info label missing or empty" % context)
+	if ability_targeting_label != null and String(ability_targeting_label.text).find("Positioning:") >= 0:
+		_fail("%s: unit info should not prescribe positioning" % context)
 	var stats_grid: GridContainer = _unit_panel.find_child("StatsGrid", true, false) as GridContainer
 	if stats_grid == null or stats_grid.get_child_count() == 0:
 		_fail("%s: unit stat cards missing" % context)

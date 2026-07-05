@@ -6,6 +6,7 @@ signal unit_selected(unit_id: String)
 const UnitCatalog := preload("res://scripts/game/shop/unit_catalog.gd")
 const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
+const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
@@ -498,9 +499,15 @@ func _build_detail_lines(id: String, it: Dictionary) -> Array[String]:
 	var attack_text: String = _format_attack_info(preview_unit)
 	if attack_text != "":
 		lines.append(attack_text)
+	var attack_targeting_text: String = UnitTargetingText.attack_targeting_line(preview_unit)
+	if attack_targeting_text != "":
+		lines.append(attack_targeting_text)
 	var ability_text: String = _format_ability_info(preview_unit)
 	if ability_text != "":
 		lines.append(ability_text)
+	var ability_targeting_text: String = UnitTargetingText.ability_targeting_line(preview_unit)
+	if ability_targeting_text != "":
+		lines.append(ability_targeting_text)
 	if lines.is_empty():
 		lines.append("No preview details available.")
 	return lines

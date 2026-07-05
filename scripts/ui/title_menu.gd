@@ -7,6 +7,8 @@ const GoalCatalogScript: GDScript = preload("res://scripts/game/identity/goal_ca
 const ApproachCatalogScript: GDScript = preload("res://scripts/game/identity/approach_catalog.gd")
 const AbilityCatalogScript: GDScript = preload("res://scripts/game/abilities/ability_catalog.gd")
 const TextureUtils: GDScript = preload("res://scripts/util/texture_utils.gd")
+const UnitFactoryScript: GDScript = preload("res://scripts/unit_factory.gd")
+const UnitTargetingText: GDScript = preload("res://scripts/ui/unit_targeting_text.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const SECTION_HOME: String = "home"
@@ -106,6 +108,7 @@ func _build_unit_entries() -> void:
 				if profile != null:
 					ability_id = String(profile.ability_id)
 			var ability: Dictionary = _ability_entry(ability_id)
+			var preview_unit: Unit = UnitFactoryScript.spawn(unit_id)
 			var primary_role: String = String(meta.get("primary_role", ""))
 			var primary_goal: String = String(meta.get("primary_goal", ""))
 			var approaches: Array[String] = _array_to_strings(meta.get("approaches", []))
@@ -129,6 +132,8 @@ func _build_unit_entries() -> void:
 				"ability_id": ability_id,
 				"ability_name": String(ability.get("name", _display_key(ability_id))),
 				"ability_description": String(ability.get("description", "")),
+				"attack_targeting": UnitTargetingText.attack_targeting_summary(preview_unit),
+				"ability_targeting": UnitTargetingText.ability_targeting_summary(preview_unit),
 				"traits": traits,
 				"primary_role": primary_role,
 				"role_name": String(role_entry.get("name", _display_key(primary_role))),
@@ -145,6 +150,8 @@ func _build_unit_entries() -> void:
 					ability_id,
 					String(ability.get("name", "")),
 					String(ability.get("description", "")),
+					UnitTargetingText.attack_targeting_summary(preview_unit),
+					UnitTargetingText.ability_targeting_summary(preview_unit),
 					primary_role,
 					String(role_entry.get("name", "")),
 					primary_goal,
@@ -691,6 +698,12 @@ func _add_unit_card(entry: Dictionary, compact: bool) -> void:
 
 	var ability_line: String = "%s: %s" % [String(entry.get("ability_name", "")), String(entry.get("ability_description", ""))]
 	stack.add_child(_make_label(ability_line, 14, COLOR_MUTED, true))
+	var attack_targeting: String = String(entry.get("attack_targeting", "")).strip_edges()
+	if attack_targeting != "":
+		stack.add_child(_make_label("Attack Targeting: " + attack_targeting, 13, Color(0.73, 0.77, 0.70, 1.0), true))
+	var ability_targeting: String = String(entry.get("ability_targeting", "")).strip_edges()
+	if ability_targeting != "":
+		stack.add_child(_make_label("Ability Targeting: " + ability_targeting, 13, Color(0.73, 0.77, 0.70, 1.0), true))
 
 	if not compact:
 		var role_description: String = String(entry.get("role_description", ""))

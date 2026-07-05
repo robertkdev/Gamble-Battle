@@ -61,6 +61,9 @@ func _run() -> void:
 			await get_tree().process_frame
 			_expect(_find_label_containing_text(title_menu, "Hexeon") != null, "Unit search did not find Hexeon", failures)
 			_expect(_find_label_containing_text(title_menu, "Prismatic Guillotine") != null, "Unit card did not show ability info", failures)
+			_expect(_find_label_containing_text(title_menu, "Attack Targeting:") != null, "Unit card did not show attack targeting", failures)
+			_expect(_find_label_containing_text(title_menu, "Ability Targeting:") != null, "Unit card did not show ability targeting", failures)
+			_expect(_find_label_containing_text(title_menu, "Positioning:") == null, "Unit card should not prescribe positioning", failures)
 			_expect_content_panels_generated(title_menu, "Units page cards should use generated texture styling", failures)
 		if rga_button != null and search_field != null:
 			rga_button.emit_signal("pressed")

@@ -8,6 +8,11 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	var window: Window = get_window()
+	if window != null:
+		window.size = Vector2i(1920, 1080)
+		window.content_scale_size = Vector2i(1920, 1080)
 	var view: UnitSelect = UNIT_SELECT_SCENE.instantiate() as UnitSelect
 	add_child(view)
 	await get_tree().process_frame
@@ -68,7 +73,10 @@ func _run() -> void:
 		_expect(details_label != null and String(details_label.text).find("Identity summary above") < 0, "Sari preview should not show identity placeholder copy", failures)
 		_expect(details_label != null and String(details_label.text).find("Traits:") >= 0, "Sari preview should show readable traits/identity tags", failures)
 		_expect(details_label != null and String(details_label.text).find("Attack:") >= 0, "Starter preview should show attack details", failures)
+		_expect(details_label != null and String(details_label.text).find("Attack Targeting:") >= 0, "Starter preview should show attack targeting", failures)
 		_expect(details_label != null and String(details_label.text).find("Ability:") >= 0, "Starter preview should show ability details", failures)
+		_expect(details_label != null and String(details_label.text).find("Ability Targeting:") >= 0, "Starter preview should show ability targeting", failures)
+		_expect(details_label != null and String(details_label.text).find("Positioning:") < 0, "Starter preview should not prescribe positioning", failures)
 		sari_button.emit_signal("mouse_exited")
 		await get_tree().process_frame
 	var first_button: Button = view.find_child("UnitButton_*", true, false) as Button

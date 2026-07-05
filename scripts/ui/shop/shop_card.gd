@@ -5,6 +5,7 @@ const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const TraitIconScene := preload("res://scenes/ui/traits/TraitIcon.tscn")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
+const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
@@ -236,9 +237,15 @@ func _build_tooltip_lines(display_role: String, display_goal: String, approaches
 	var attack_text: String = _format_attack_info(preview_unit)
 	if attack_text != "":
 		lines.append(attack_text)
+	var attack_targeting_text: String = UnitTargetingText.attack_targeting_line(preview_unit)
+	if attack_targeting_text != "":
+		lines.append(attack_targeting_text)
 	var ability_text: String = _format_ability_info(preview_unit)
 	if ability_text != "":
 		lines.append(ability_text)
+	var ability_targeting_text: String = UnitTargetingText.ability_targeting_line(preview_unit)
+	if ability_targeting_text != "":
+		lines.append(ability_targeting_text)
 	return lines
 
 func _format_attack_info(unit: Unit) -> String:
