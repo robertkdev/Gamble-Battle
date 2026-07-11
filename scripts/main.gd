@@ -375,7 +375,10 @@ func _apply_button_style(button: Button, compact: bool) -> void:
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.88, 0.58))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.72, 0.48))
 	button.add_theme_font_size_override("font_size", 15 if compact else 21)
-	_wire_system_button_hover(button, compact)
+	# The fixed top-right Menu control must not move into the viewport edge or
+	# adjacent HUD when hovered. Full-size modal actions keep their subtle scale.
+	if not compact:
+		_wire_system_button_hover(button, compact)
 
 func _make_system_button_style(compact: bool, modulate: Color) -> StyleBox:
 	var fallback: StyleBoxFlat = StyleBoxFlat.new()

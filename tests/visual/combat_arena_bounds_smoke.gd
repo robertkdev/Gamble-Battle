@@ -47,10 +47,10 @@ func _run() -> void:
 		_fail("planning layout refs missing")
 		await _finish()
 		return
-	var planning_rect: Rect2 = planning_area.get_global_rect()
-	var stats_rect: Rect2 = stats_area.get_global_rect()
-	_expect(planning_rect.size.x > 0.0 and planning_rect.size.y > 0.0, "planning board rect should be measurable before combat")
-	_expect(stats_rect.size.x > 0.0 and stats_rect.size.y > 0.0, "team metrics rect should be measurable before combat")
+	var planning_rect_before: Rect2 = planning_area.get_global_rect()
+	var stats_rect_before: Rect2 = stats_area.get_global_rect()
+	_expect(planning_rect_before.size.x > 0.0 and planning_rect_before.size.y > 0.0, "planning board rect should be measurable before combat")
+	_expect(stats_rect_before.size.x > 0.0 and stats_rect_before.size.y > 0.0, "team metrics rect should be measurable before combat")
 
 	if _view.has_method("_on_continue_pressed"):
 		_view.call("_on_continue_pressed")
@@ -63,16 +63,24 @@ func _run() -> void:
 		await _finish()
 		return
 	var arena_rect: Rect2 = arena_container.get_global_rect()
+	var combat_board_rect: Rect2 = planning_area.get_global_rect()
+	var combat_stats_rect: Rect2 = stats_area.get_global_rect()
 	var engine_bounds: Rect2 = _manager.get_arena_bounds()
-	_expect(_rect_close(arena_rect, planning_rect, 3.0), "arena container should match planning board rect")
-	_expect(_rect_inside(engine_bounds, planning_rect.grow(3.0)), "engine arena bounds should stay inside planning board rect engine=%s planning=%s arena=%s" % [str(engine_bounds), str(planning_rect), str(arena_rect)])
-	_expect(not arena_rect.intersects(stats_rect), "arena container should not overlap team metrics area")
+	var viewport_rect: Rect2 = get_viewport().get_visible_rect()
+	_expect(_rect_close(arena_rect, combat_board_rect, 3.0), "arena container should match the live combat board rect arena=%s board=%s" % [str(arena_rect), str(combat_board_rect)])
+	_expect(absf(arena_rect.position.x - planning_rect_before.position.x) <= 3.0, "combat reflow should preserve board x alignment")
+	_expect(arena_rect.size.distance_to(planning_rect_before.size) <= 3.0, "combat reflow should preserve board size")
+	_expect(absf(combat_stats_rect.position.x - stats_rect_before.position.x) <= 3.0, "combat reflow should preserve metrics x alignment before=%s combat=%s" % [str(stats_rect_before), str(combat_stats_rect)])
+	_expect(combat_stats_rect.size.distance_to(stats_rect_before.size) <= 3.0, "combat reflow should preserve metrics size")
+	_expect(_rect_inside(arena_rect, viewport_rect.grow(3.0)), "combat arena should remain inside the viewport arena=%s viewport=%s" % [str(arena_rect), str(viewport_rect)])
+	_expect(_rect_inside(engine_bounds, arena_rect.grow(3.0)), "engine arena bounds should stay inside the live arena rect engine=%s board=%s arena=%s" % [str(engine_bounds), str(combat_board_rect), str(arena_rect)])
+	_expect(not arena_rect.intersects(combat_stats_rect), "arena container should not overlap live team metrics area arena=%s stats=%s" % [str(arena_rect), str(combat_stats_rect)])
 	for child: Node in arena_units.get_children():
 		var control: Control = child as Control
 		if control == null or not control.visible:
 			continue
 		var center: Vector2 = control.get_global_rect().get_center()
-		_expect(planning_rect.grow(24.0).has_point(center), "arena actor center outside board rect: %s" % str(center))
+		_expect(arena_rect.grow(24.0).has_point(center), "arena actor center outside live arena rect: %s" % str(center))
 	await _finish()
 
 func _rect_close(a: Rect2, b: Rect2, tolerance: float) -> bool:

@@ -2,6 +2,7 @@ extends Object
 class_name GothicUITheme
 
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const CombatVfxInstallerScript: GDScript = preload("res://scripts/ui/combat/combat_vfx_installer.gd")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
 const COLOR_PANEL: Color = Color(0.050, 0.044, 0.056, 0.97)
@@ -79,7 +80,7 @@ static func _apply_root(root: Control) -> void:
 static func _apply_named_nodes(root: Control) -> void:
 	_apply_screen_backdrop(root)
 	_configure_combat_layout(root)
-	_apply_combat_vfx_readability(root)
+	_ensure_combat_vfx_installer(root)
 	_clear_battlefield_rect(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground")
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(0.94, 0.91, 0.86, 0.95))
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(0.92, 0.94, 0.90, 0.95))
@@ -467,35 +468,15 @@ static func _configure_combat_layout(root: Control) -> void:
 	if arena != null:
 		arena.clip_contents = true
 
-static func _apply_combat_vfx_readability(root: Control) -> void:
-	for child: Node in root.get_children():
-		_style_combat_vfx_node(child)
-	var callback: Callable = Callable(GothicUITheme, "_on_root_child_entered").bind(root)
-	if not root.child_entered_tree.is_connected(callback):
-		root.child_entered_tree.connect(callback)
-
-static func _on_root_child_entered(child: Node, root: Control) -> void:
-	if root == null or not is_instance_valid(root):
+static func _ensure_combat_vfx_installer(root: Control) -> void:
+	var existing: Node = root.get_node_or_null("CombatVfxInstaller")
+	if existing != null:
+		existing.call("configure", root)
 		return
-	_style_combat_vfx_node(child)
-
-static func _style_combat_vfx_node(node: Node) -> void:
-	var control: Control = node as Control
-	if control == null:
-		return
-	var script_resource: Script = control.get_script() as Script
-	if script_resource == null or not script_resource.resource_path.ends_with("combat_vfx_bridge.gd"):
-		return
-	var readability_tint: Color = Color(0.74, 0.62, 0.54, 0.48)
-	control.z_as_relative = false
-	control.z_index = 15
-	control.self_modulate = readability_tint
-	control.set_meta("gothic_readability_profile", "v2")
-	# A newly added bridge assigns its default z-index in _ready(). Deferred
-	# overrides keep effect glyphs above actors but below their z=18/19 bars.
-	control.set_deferred("z_as_relative", false)
-	control.set_deferred("z_index", 15)
-	control.set_deferred("self_modulate", readability_tint)
+	var installer: Node = CombatVfxInstallerScript.new() as Node
+	installer.name = "CombatVfxInstaller"
+	root.add_child(installer)
+	installer.call("configure", root)
 
 static func _clear_battlefield_rect(root: Control, path: String) -> void:
 	var rect: ColorRect = root.get_node_or_null(path) as ColorRect

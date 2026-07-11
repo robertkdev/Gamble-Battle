@@ -28,7 +28,7 @@ func configure(grid: GridContainer, slot_count: int = ShopConfig.SLOT_COUNT) -> 
     _slot_count = max(1, int(slot_count))
     if _grid and _grid.has_method("set"):
         _grid.columns = _slot_count
-        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, NORMAL_GRID_MIN_SIZE.x), NORMAL_GRID_MIN_SIZE.y)
+        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, NORMAL_GRID_MIN_SIZE.x), _normal_grid_height())
 
 func get_host_container() -> Container:
     return _host_container
@@ -65,7 +65,7 @@ func set_offers(offers: Array) -> void:
         _grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
     else:
         _grid.set_meta("opening_fight_empty", false)
-        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, NORMAL_GRID_MIN_SIZE.x), NORMAL_GRID_MIN_SIZE.y)
+        _grid.custom_minimum_size = Vector2(max(_grid.custom_minimum_size.x, NORMAL_GRID_MIN_SIZE.x), _normal_grid_height())
         _grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
     var shown: int = 0
@@ -124,6 +124,17 @@ func set_offers(offers: Array) -> void:
         _grid.add_child(_make_empty())
         shown += 1
 
+func _normal_grid_height() -> float:
+    if _grid == null:
+        return NORMAL_GRID_MIN_SIZE.y
+    return 94.0 if _is_compact_viewport() else NORMAL_GRID_MIN_SIZE.y
+
+func _is_compact_viewport() -> bool:
+    if _grid == null:
+        return false
+    var viewport_size: Vector2 = _grid.get_viewport_rect().size
+    return viewport_size.y <= 760.0 or viewport_size.x <= 1400.0
+
 func _make_card(offer, index: int) -> Control:
     if ShopCardScene:
         if offer is ShopOffer and String(offer.id) == "":
@@ -148,9 +159,10 @@ func _make_sold() -> Control:
 
 func _make_placeholder(sold: bool) -> Control:
     var first_fight_placeholder: bool = _single_empty_state and not sold
+    var compact: bool = _is_compact_viewport()
     var wrap: PanelContainer = PanelContainer.new()
     wrap.set_meta("opening_fight_placeholder", first_fight_placeholder)
-    wrap.custom_minimum_size = OPENING_PANEL_SIZE if first_fight_placeholder else Vector2(144.0, 124.0)
+    wrap.custom_minimum_size = OPENING_PANEL_SIZE if first_fight_placeholder else (Vector2(120.0, 94.0) if compact else Vector2(144.0, 124.0))
     wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if first_fight_placeholder else Control.SIZE_SHRINK_CENTER
     wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
     wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder or sold else Control.MOUSE_FILTER_IGNORE
@@ -172,7 +184,7 @@ func _make_placeholder(sold: bool) -> Control:
 
     var icon: TextureRect = TextureRect.new()
     icon.texture = EmptySigilTexture
-    icon.custom_minimum_size = Vector2(38.0, 38.0) if first_fight_placeholder else Vector2(44.0, 44.0)
+    icon.custom_minimum_size = Vector2(38.0, 38.0) if first_fight_placeholder or compact else Vector2(44.0, 44.0)
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     icon.modulate = Color(0.88, 0.66, 0.42, 0.40) if first_fight_placeholder else (Color(0.72, 0.58, 0.42, 0.26) if not sold else Color(0.62, 0.38, 0.32, 0.30))
@@ -195,7 +207,7 @@ func _make_placeholder(sold: bool) -> Control:
         hint.text = hint_text
         hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-        hint.custom_minimum_size = Vector2(410.0, 0.0) if first_fight_placeholder else Vector2(126.0, 0.0)
+        hint.custom_minimum_size = Vector2(410.0, 0.0) if first_fight_placeholder else Vector2(104.0 if compact else 126.0, 0.0)
         hint.add_theme_font_size_override("font_size", 13 if first_fight_placeholder else 10)
         hint.add_theme_color_override("font_color", Color(0.78, 0.72, 0.62, 0.96) if first_fight_placeholder else (Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.54, 0.43, 0.40, 0.86)))
         hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))

@@ -303,7 +303,9 @@ func _make_tag_style() -> StyleBoxFlat:
 func _apply_static_style() -> void:
 	pivot_offset = size * 0.5
 	tooltip_text = ""
-	custom_minimum_size = Vector2(150.0, 138.0)
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var compact: bool = viewport_size.y <= 760.0 or viewport_size.x <= 1400.0
+	custom_minimum_size = Vector2(120.0, 94.0) if compact else Vector2(150.0, 138.0)
 	add_theme_stylebox_override("normal", _make_card_style(false, false))
 	add_theme_stylebox_override("hover", _make_card_style(false, true))
 	add_theme_stylebox_override("pressed", _make_card_style(true, true))

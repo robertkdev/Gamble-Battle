@@ -317,7 +317,8 @@ func _exercise_trait_hover() -> bool:
 	var stable_rect: bool = _rect_is_stable(before_rect, icon.get_global_rect())
 	_save_capture("05_trait_hover_tooltip.png")
 	icon.call("_on_mouse_exited")
-	await _settle(0.06)
+	Input.warp_mouse(Vector2(4.0, 4.0))
+	await _settle(0.18)
 	var cleared: bool = _count_script_instances(get_tree().root, "res://scripts/ui/traits/trait_tooltip.gd") == 0
 	return shown and cleared and stable_rect
 

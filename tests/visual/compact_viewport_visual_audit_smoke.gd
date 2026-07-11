@@ -33,7 +33,8 @@ func _run() -> void:
 	var enter_button: Button = _main.get_node_or_null("TitlePage/Center/Stack/EnterButton") as Button
 	if enter_button != null:
 		enter_button.emit_signal("pressed")
-	await _settle_frames(16)
+	await get_tree().create_timer(1.15).timeout
+	await _settle_frames(4)
 	var title_menu: Control = _main.get_node_or_null("TitleMenu") as Control
 	_expect(title_menu != null and title_menu.visible, "title menu did not become visible")
 	_expect_control_inside(title_menu, "title menu")

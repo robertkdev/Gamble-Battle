@@ -404,35 +404,73 @@ func _apply_shop_compact_layout(compact: bool) -> void:
 					control.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				else:
 					control.custom_minimum_size = card_size
-	var storage: Node = get_node_or_null("MarginContainer/VBoxContainer/BottomStorageArea")
-	if storage != null:
-		for child: Node in storage.get_children():
-			var bar: HBoxContainer = child as HBoxContainer
-			if bar == null:
-				continue
-			bar.custom_minimum_size = Vector2(900.0 if compact else 1120.0, 40.0 if compact else 54.0)
-			bar.add_theme_constant_override("separation", 8 if compact else 16)
-			for grandchild: Node in bar.get_children():
-				var button: Button = grandchild as Button
-				if button != null:
-					if button.name == "ContinueButton":
-						button.custom_minimum_size = Vector2(142.0 if compact else 224.0, 34.0 if compact else 48.0)
-						button.add_theme_font_size_override("font_size", 15 if compact else 20)
-					else:
-						button.custom_minimum_size = Vector2(78.0 if compact else 96.0, 34.0 if compact else 40.0)
-						button.add_theme_font_size_override("font_size", 13 if compact else 15)
-					continue
-				var slider: HSlider = grandchild as HSlider
-				if slider != null:
-					slider.custom_minimum_size = Vector2(124.0 if compact else 166.0, 28.0)
-					continue
-				var label: Label = grandchild as Label
-				if label != null:
-					if label.name == "GoldLabel":
-						label.custom_minimum_size = Vector2(78.0 if compact else 112.0, 34.0 if compact else 44.0)
-						label.add_theme_font_size_override("font_size", 16 if compact else 22)
-					else:
-						label.add_theme_font_size_override("font_size", 13 if compact else 15)
+	var action_bars: Array[HBoxContainer] = []
+	var actions_row: HBoxContainer = get_node_or_null("MarginContainer/VBoxContainer/ActionsRow") as HBoxContainer
+	if actions_row != null:
+		action_bars.append(actions_row)
+	var live_bet_row: HBoxContainer = bet_slider.get_parent() as HBoxContainer if bet_slider != null else null
+	var live_action_bar: HBoxContainer = live_bet_row.get_parent() as HBoxContainer if live_bet_row != null else null
+	if live_action_bar != null and not action_bars.has(live_action_bar):
+		action_bars.append(live_action_bar)
+	for action_bar: HBoxContainer in action_bars:
+		_apply_action_bar_layout(action_bar, compact)
+	_apply_bet_row_layout(live_bet_row, compact)
+
+func _apply_action_bar_layout(action_bar: HBoxContainer, compact: bool) -> void:
+	if action_bar == null:
+		return
+	action_bar.custom_minimum_size = Vector2(900.0 if compact else 1120.0, 40.0 if compact else 54.0)
+	action_bar.add_theme_constant_override("separation", 8 if compact else 16)
+	for child: Node in action_bar.get_children():
+		var button: Button = child as Button
+		if button != null:
+			if button.name == "ContinueButton":
+				button.custom_minimum_size = Vector2(142.0 if compact else 224.0, 34.0 if compact else 48.0)
+				button.add_theme_font_size_override("font_size", 15 if compact else 20)
+			else:
+				button.custom_minimum_size = Vector2(78.0 if compact else 96.0, 34.0 if compact else 40.0)
+				button.add_theme_font_size_override("font_size", 13 if compact else 15)
+			continue
+		var label: Label = child as Label
+		if label != null:
+			if label.name == "GoldLabel":
+				label.custom_minimum_size = Vector2(78.0 if compact else 112.0, 34.0 if compact else 44.0)
+				label.add_theme_font_size_override("font_size", 16 if compact else 22)
+			else:
+				label.add_theme_font_size_override("font_size", 13 if compact else 15)
+	action_bar.queue_sort()
+
+func _apply_bet_row_layout(bet_row: HBoxContainer, compact: bool) -> void:
+	if bet_row == null:
+		return
+	bet_row.custom_minimum_size = Vector2(190.0 if compact else 226.0, 36.0 if compact else 46.0)
+	bet_row.add_theme_constant_override("separation", 6 if compact else 8)
+	for child: Node in bet_row.get_children():
+		var slider: HSlider = child as HSlider
+		if slider != null:
+			slider.custom_minimum_size = Vector2(124.0 if compact else 166.0, 28.0)
+			slider.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+			continue
+		var label: Label = child as Label
+		if label != null:
+			label.add_theme_font_size_override("font_size", 13 if compact else 15)
+			if label.name == "BetValue":
+				label.custom_minimum_size = Vector2(28.0, 34.0 if compact else 40.0)
+				label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				label.add_theme_color_override("font_color", Color(0.92, 0.66, 0.32, 1.0))
+				label.add_theme_stylebox_override("normal", _make_bet_value_style())
+	bet_row.queue_sort()
+
+func _make_bet_value_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.035, 0.028, 0.032, 0.96)
+	style.border_color = Color(0.46, 0.32, 0.18, 0.90)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
+	style.content_margin_left = 5.0
+	style.content_margin_right = 5.0
+	return style
 
 func _update_external_backplates() -> void:
 	for plate_name: String in ["GothicShopPlate", "GothicItemsPlate", "GothicStatsAreaPlate", "GothicBenchPlate"]:
