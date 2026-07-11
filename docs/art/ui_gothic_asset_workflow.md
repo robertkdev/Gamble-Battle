@@ -8,19 +8,33 @@ Live generated UI assets are under `assets/ui/gothic/`:
 
 | Asset | Current canvas | Runtime helper |
 | --- | ---: | --- |
-| `panel_plate_wide.png` | `1120x238` | `GothicUIAssets.wide_panel_style()` |
-| `panel_plate_grid.png` | `1120x178` | `GothicUIAssets.grid_panel_style()` |
+| `panel_plate_wide_v2.png` | `1120x238` | `GothicUIAssets.wide_panel_style()` |
+| `panel_plate_grid_v2.png` | `1120x178` | `GothicUIAssets.grid_panel_style()` |
 | `panel_plate_item_storage.png` | `320x180` | `GothicUIAssets.item_storage_panel_style()` |
 | `panel_plate_traits.png` | `320x320` | `GothicUIAssets.traits_panel_style()` |
-| `shop_card_frame.png` | `150x138` | `GothicUIAssets.shop_card_style()` |
-| `button_primary.png` | `240x54` | `GothicUIAssets.primary_button_style()` |
-| `button_small.png` | `100x44` | `GothicUIAssets.small_button_style()` / `item_slot_style()` |
+| `shop_card_frame_v2.png` | `150x138` | `GothicUIAssets.shop_card_style()` |
+| `button_primary_v2.png` | `240x54` | `GothicUIAssets.primary_button_style()` |
+| `button_small_v2.png` | `100x44` | `GothicUIAssets.small_button_style()` / `item_slot_style()` |
 | `screen_backdrop.png` | `1920x1080` | `GothicUIAssets.screen_backdrop_texture()` |
 | `battlefield_surface.png` | `1536x768` | `GothicUIAssets.battlefield_texture()` |
 | `battlefield_surface_top.png` | `1536x384` | `GothicUIAssets.battlefield_top_texture()` |
 | `battlefield_surface_bottom.png` | `1536x384` | `GothicUIAssets.battlefield_bottom_texture()` |
 | `board_tile_player.png` | `96x96` | `GothicUIAssets.board_tile_style(true)` |
 | `board_tile_enemy.png` | `96x96` | `GothicUIAssets.board_tile_style(false)` |
+| `bench_slot_frame.png` | `96x96` | `GothicUIAssets.bench_slot_style()` |
+| `item_icon_frame.png` | `96x96` | `GothicUIAssets.item_icon_frame_style()` |
+| `unit_base_player.png` | `128x96` | `GothicUIAssets.unit_base_style(true)` |
+| `unit_base_enemy.png` | `128x96` | `GothicUIAssets.unit_base_style(false)` |
+| `arena_frame.png` | `640x360` | `GothicUIAssets.arena_frame_style()` |
+| `status_strip.png` | `512x64` | `GothicUIAssets.status_strip_style()` |
+
+The July 11 restrained v2 pass replaced the first-generation wide/grid plates,
+shop card, and button family with versioned siblings. The v1 files remain for
+non-destructive rollback and comparison, while runtime constants point to v2.
+The local run source and deterministic audit are kept under
+`outputs/art_pipeline/ui_gothic_v2_2026_07_11/` (ignored review evidence). The
+committed `tools/art/recover_gothic_ui_v2.py` reruns exact sizing, v1 alpha-mask
+recovery, and key-green checks when supplied a compatible generated sheet.
 
 The implementation hook is `scripts/ui/gothic_ui_assets.gd`. Runtime callers should use `StyleBoxTexture` through that helper and keep a flat fallback with `GothicUIAssets.style_or_fallback(...)`.
 
@@ -71,6 +85,7 @@ For button states, prefer one recovered asset plus `modulate_color` variants for
 
 At minimum, run a scoped MCP visual/style gate after UI asset or styling changes:
 
+- `tests/visual/GothicUIAssetAudit.tscn` for exact dimensions and visible/transparent key-green contamination.
 - `tests/visual/UIThemeSmoke.tscn` for combat/shop/bottom-bar styling.
 - `tests/visual/TitleMenuSmoke.tscn` and `tests/visual/TitleMenuStateCapture.tscn` for title/menu/search/settings states.
 - `tests/visual/UnitSelectSmoke.tscn` and `tests/visual/UnitSelectPreviewVisualSmoke.tscn` for starter selection states.

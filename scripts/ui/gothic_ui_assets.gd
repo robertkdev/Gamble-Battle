@@ -3,13 +3,13 @@ class_name GothicUIAssets
 
 const TextureUtils: GDScript = preload("res://scripts/util/texture_utils.gd")
 
-const PANEL_PLATE_WIDE: String = "res://assets/ui/gothic/panel_plate_wide.png"
-const PANEL_PLATE_GRID: String = "res://assets/ui/gothic/panel_plate_grid.png"
+const PANEL_PLATE_WIDE: String = "res://assets/ui/gothic/panel_plate_wide_v2.png"
+const PANEL_PLATE_GRID: String = "res://assets/ui/gothic/panel_plate_grid_v2.png"
 const PANEL_PLATE_ITEM_STORAGE: String = "res://assets/ui/gothic/panel_plate_item_storage.png"
 const PANEL_PLATE_TRAITS: String = "res://assets/ui/gothic/panel_plate_traits.png"
-const SHOP_CARD_FRAME: String = "res://assets/ui/gothic/shop_card_frame.png"
-const BUTTON_SMALL: String = "res://assets/ui/gothic/button_small.png"
-const BUTTON_PRIMARY: String = "res://assets/ui/gothic/button_primary.png"
+const SHOP_CARD_FRAME: String = "res://assets/ui/gothic/shop_card_frame_v2.png"
+const BUTTON_SMALL: String = "res://assets/ui/gothic/button_small_v2.png"
+const BUTTON_PRIMARY: String = "res://assets/ui/gothic/button_primary_v2.png"
 const SCREEN_BACKDROP: String = "res://assets/ui/gothic/screen_backdrop.png"
 const BATTLEFIELD_SURFACE: String = "res://assets/ui/gothic/battlefield_surface.png"
 const BATTLEFIELD_SURFACE_TOP: String = "res://assets/ui/gothic/battlefield_surface_top.png"
@@ -62,6 +62,21 @@ static func arena_frame_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 
 static func status_strip_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(STATUS_STRIP, Vector4(54.0, 24.0, 54.0, 24.0), Vector4(16.0, 6.0, 16.0, 6.0), modulate)
+
+static func focus_outline_style(radius: int = 5, border_color: Color = Color(1.0, 0.80, 0.43, 1.0), border_width: int = 2) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	style.border_color = border_color
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_right = radius
+	style.corner_radius_bottom_left = radius
+	style.draw_center = false
+	return style
 
 static func screen_backdrop_texture() -> Texture2D:
 	return TextureUtils.try_load_texture(SCREEN_BACKDROP)

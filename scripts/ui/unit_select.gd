@@ -834,7 +834,7 @@ func _style_unit_card(tile: VBoxContainer, button: Button, name_label: Label, ro
 	button.add_theme_stylebox_override("normal", _make_unit_button_style(selected, hovered))
 	button.add_theme_stylebox_override("hover", _make_unit_button_style(false, true))
 	button.add_theme_stylebox_override("pressed", _make_unit_button_style(true, true))
-	button.add_theme_stylebox_override("focus", _make_unit_button_style(selected, true))
+	button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, COLOR_GOLD))
 	button.add_theme_stylebox_override("disabled", _make_unit_button_style(false, false))
 	if name_label:
 		name_label.add_theme_font_size_override("font_size", 13 if compact else 15)
@@ -883,7 +883,7 @@ func _style_start_button() -> void:
 	start_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _make_panel_style(COLOR_BLOOD, Color(0.92, 0.47, 0.30, 0.86), 2, 5)))
 	start_button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.18, 1.06, 0.92, 1.0)), _make_panel_style(COLOR_BLOOD_HOT, COLOR_GOLD, 2, 5)))
 	start_button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_panel_style(Color(0.22, 0.020, 0.040, 1.0), COLOR_GOLD, 2, 5)))
-	start_button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_panel_style(Color(0.18, 0.040, 0.052, 1.0), COLOR_GOLD, 2, 5)))
+	start_button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, COLOR_GOLD))
 	start_button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.46, 0.44, 0.42, 0.80)), _make_panel_style(Color(0.030, 0.027, 0.034, 0.84), Color(0.16, 0.15, 0.17, 0.88), 1, 5)))
 
 func _wire_start_button_hover() -> void:

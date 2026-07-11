@@ -227,7 +227,7 @@ func _apply_styles() -> void:
 		new_game_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _make_style(Color(0.14, 0.053, 0.045, 1.0), FRAME_BORDER, 2, 5)))
 		new_game_button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.16, 1.06, 0.92, 1.0)), _make_style(Color(0.20, 0.07, 0.055, 1.0), DULL_GOLD, 2, 5)))
 		new_game_button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_style(Color(0.09, 0.035, 0.035, 1.0), BLOOD_COLOR, 2, 5)))
-		new_game_button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_style(Color(0.18, 0.058, 0.050, 1.0), DULL_GOLD, 2, 5)))
+		new_game_button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, DULL_GOLD))
 
 func _wire_new_game_hover() -> void:
 	if new_game_button == null:

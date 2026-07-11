@@ -49,7 +49,7 @@ static func _get_theme() -> Theme:
 	_theme.set_stylebox("hover", "Button", _hover_style(Color(0.15, 0.10, 0.11, 0.98), COLOR_GOLD_HOT, 1, 5))
 	_theme.set_stylebox("pressed", "Button", _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 1, 5))
 	_theme.set_stylebox("disabled", "Button", _style(Color(0.035, 0.032, 0.039, 0.82), Color(0.18, 0.17, 0.19, 0.86), 1, 5))
-	_theme.set_stylebox("focus", "Button", _hover_style(Color(0.11, 0.075, 0.083, 0.98), COLOR_GOLD_HOT, 1, 5))
+	_theme.set_stylebox("focus", "Button", _focus_outline(5))
 	_theme.set_color("font_color", "LineEdit", COLOR_TEXT)
 	_theme.set_color("font_placeholder_color", "LineEdit", COLOR_TEXT_MUTED)
 	_theme.set_stylebox("normal", "LineEdit", _style(COLOR_PANEL_DEEP, COLOR_IRON_DIM, 1, 4))
@@ -78,10 +78,12 @@ static func _apply_root(root: Control) -> void:
 
 static func _apply_named_nodes(root: Control) -> void:
 	_apply_screen_backdrop(root)
+	_configure_combat_layout(root)
+	_apply_combat_vfx_readability(root)
 	_clear_battlefield_rect(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground")
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(0.94, 0.91, 0.86, 0.95))
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(0.92, 0.94, 0.90, 0.95))
-	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaSurface", GothicUIAssets.battlefield_texture(), -8, Color(1.06, 1.02, 0.94, 1.0))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaSurface", GothicUIAssets.battlefield_texture(), -8, Color(1.16, 1.10, 1.04, 1.0))
 	_style_label(root, "MarginContainer/VBoxContainer/StageLabel", 34, COLOR_TEXT, true)
 	_style_label(root, "MarginContainer/VBoxContainer/PlanningTimerLabel", 18, COLOR_GOLD, true)
 	_style_label(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", 22, COLOR_GOLD, true)
@@ -315,7 +317,7 @@ static func _apply_tile(button: Button, is_player: bool) -> void:
 	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(normal_asset, normal_style))
 	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
 	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(pressed_asset, hover_style))
-	button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
+	button.add_theme_stylebox_override("focus", _focus_outline(3))
 
 static func _apply_bench_slot(button: Button) -> void:
 	var normal_style: StyleBoxFlat = _style(Color(0.024, 0.021, 0.027, 0.82), Color(0.34, 0.28, 0.20, 0.60), 1, 5)
@@ -331,7 +333,7 @@ static func _apply_bench_slot(button: Button) -> void:
 	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(normal_asset, normal_style))
 	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
 	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
-	button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(hover_asset, hover_style))
+	button.add_theme_stylebox_override("focus", _focus_outline(5))
 	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(disabled_asset, disabled_style))
 
 static func _style_shop_card(button: Button) -> void:
@@ -339,6 +341,9 @@ static func _style_shop_card(button: Button) -> void:
 	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(), _style(Color(0.036, 0.030, 0.038, 0.98), Color(0.50, 0.37, 0.28, 0.98), 2, 5)))
 	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.105, 0.046, 0.056, 0.99), COLOR_GOLD_HOT, 2, 5)))
 	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(0.92, 0.82, 0.78, 1.0)), _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 2, 5)))
+	button.add_theme_stylebox_override("hover_pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(1.02, 0.88, 0.80, 1.0)), _hover_style(Color(0.16, 0.045, 0.058, 0.99), COLOR_GOLD_HOT, 2, 5)))
+	button.add_theme_stylebox_override("focus", _focus_outline(5))
+	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.shop_card_style(Color(0.48, 0.46, 0.44, 0.74)), _style(Color(0.028, 0.025, 0.030, 0.82), Color(0.20, 0.18, 0.18, 0.72), 1, 5)))
 	button.add_theme_font_size_override("font_size", 13)
 	button.clip_text = false
 
@@ -349,6 +354,8 @@ static func _style_shop_action_button(button: Button) -> void:
 	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(Color(0.055, 0.047, 0.058, 0.97), Color(0.31, 0.27, 0.28, 0.96), 1, 5)))
 	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.18, 1.08, 0.90, 1.0)), _hover_style(Color(0.13, 0.078, 0.088, 0.99), COLOR_GOLD_HOT, 1, 5)))
 	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.88, 0.72, 0.68, 1.0)), _style(Color(0.17, 0.040, 0.055, 0.98), COLOR_BLOOD_HOT, 1, 5)))
+	button.add_theme_stylebox_override("hover_pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.98, 0.82, 0.72, 1.0)), _hover_style(Color(0.18, 0.045, 0.060, 0.99), COLOR_GOLD_HOT, 1, 5)))
+	button.add_theme_stylebox_override("focus", _focus_outline(5))
 	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.60, 0.56, 0.50, 0.86)), _style(Color(0.046, 0.041, 0.045, 0.88), Color(0.34, 0.30, 0.25, 0.86), 1, 5)))
 
 static func _style_metric_button(button: Button) -> void:
@@ -358,7 +365,9 @@ static func _style_metric_button(button: Button) -> void:
 	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(Color(0.044, 0.038, 0.048, 0.96), Color(0.28, 0.25, 0.28, 0.92), 1, 4)))
 	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.12, 0.073, 0.085, 0.99), COLOR_GOLD_HOT, 1, 4)))
 	button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _style(Color(0.17, 0.034, 0.050, 0.98), COLOR_BLOOD_HOT, 1, 4)))
-	button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _hover_style(Color(0.14, 0.083, 0.052, 0.98), COLOR_GOLD_HOT, 1, 4)))
+	button.add_theme_stylebox_override("hover_pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.98, 0.82, 0.72, 1.0)), _hover_style(Color(0.18, 0.042, 0.056, 0.99), COLOR_GOLD_HOT, 1, 4)))
+	button.add_theme_stylebox_override("focus", _focus_outline(4))
+	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.48, 0.46, 0.43, 0.72)), _style(Color(0.028, 0.026, 0.030, 0.76), Color(0.18, 0.17, 0.17, 0.64), 1, 4)))
 
 static func _apply_metric_tabs(tabs: Control) -> void:
 	tabs.custom_minimum_size = Vector2(max(tabs.custom_minimum_size.x, 294.0), 52.0)
@@ -391,6 +400,8 @@ static func _style_button_node(button: Button, primary: bool) -> void:
 		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(), _style(COLOR_BLOOD, Color(0.92, 0.48, 0.31, 0.78), 1, 5)))
 		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.18, 1.06, 0.92, 1.0)), _hover_style(COLOR_BLOOD_HOT, COLOR_GOLD_HOT, 1, 5)))
 		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _style(Color(0.30, 0.018, 0.038, 1.0), COLOR_GOLD, 1, 5)))
+		button.add_theme_stylebox_override("hover_pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.02, 0.84, 0.74, 1.0)), _hover_style(Color(0.38, 0.024, 0.045, 1.0), COLOR_GOLD_HOT, 1, 5)))
+		button.add_theme_stylebox_override("focus", _focus_outline(5))
 		button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.58, 0.54, 0.46, 0.84)), _style(Color(0.10, 0.08, 0.08, 0.82), Color(0.34, 0.26, 0.22, 0.84), 1, 5)))
 	else:
 		button.custom_minimum_size.y = max(button.custom_minimum_size.y, 34.0)
@@ -398,6 +409,9 @@ static func _style_button_node(button: Button, primary: bool) -> void:
 		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(COLOR_PANEL_SOFT, COLOR_IRON_DIM, 1, 5)))
 		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.115, 0.087, 0.098, 0.98), COLOR_GOLD_HOT, 1, 5)))
 		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 1, 5)))
+		button.add_theme_stylebox_override("hover_pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.98, 0.82, 0.72, 1.0)), _hover_style(Color(0.16, 0.052, 0.064, 0.99), COLOR_GOLD_HOT, 1, 5)))
+		button.add_theme_stylebox_override("focus", _focus_outline(5))
+		button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.50, 0.47, 0.44, 0.72)), _style(Color(0.030, 0.028, 0.032, 0.78), Color(0.18, 0.17, 0.18, 0.66), 1, 5)))
 
 static func _style_label(root: Control, path: String, font_size: int, color: Color, outline: bool) -> void:
 	var label: Label = root.get_node_or_null(path) as Label
@@ -447,6 +461,41 @@ static func _apply_screen_backdrop(root: Control) -> void:
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_SCALE
 	backdrop.modulate = Color(0.52, 0.50, 0.48, 0.78)
+
+static func _configure_combat_layout(root: Control) -> void:
+	var arena: Control = root.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer") as Control
+	if arena != null:
+		arena.clip_contents = true
+
+static func _apply_combat_vfx_readability(root: Control) -> void:
+	for child: Node in root.get_children():
+		_style_combat_vfx_node(child)
+	var callback: Callable = Callable(GothicUITheme, "_on_root_child_entered").bind(root)
+	if not root.child_entered_tree.is_connected(callback):
+		root.child_entered_tree.connect(callback)
+
+static func _on_root_child_entered(child: Node, root: Control) -> void:
+	if root == null or not is_instance_valid(root):
+		return
+	_style_combat_vfx_node(child)
+
+static func _style_combat_vfx_node(node: Node) -> void:
+	var control: Control = node as Control
+	if control == null:
+		return
+	var script_resource: Script = control.get_script() as Script
+	if script_resource == null or not script_resource.resource_path.ends_with("combat_vfx_bridge.gd"):
+		return
+	var readability_tint: Color = Color(0.74, 0.62, 0.54, 0.48)
+	control.z_as_relative = false
+	control.z_index = 15
+	control.self_modulate = readability_tint
+	control.set_meta("gothic_readability_profile", "v2")
+	# A newly added bridge assigns its default z-index in _ready(). Deferred
+	# overrides keep effect glyphs above actors but below their z=18/19 bars.
+	control.set_deferred("z_as_relative", false)
+	control.set_deferred("z_index", 15)
+	control.set_deferred("self_modulate", readability_tint)
 
 static func _clear_battlefield_rect(root: Control, path: String) -> void:
 	var rect: ColorRect = root.get_node_or_null(path) as ColorRect
@@ -633,6 +682,9 @@ static func _hover_style(bg_color: Color, border_color: Color, border_width: int
 	style.shadow_size = 10
 	style.shadow_color = Color(0.74, 0.22, 0.055, 0.34)
 	return style
+
+static func _focus_outline(radius: int) -> StyleBoxFlat:
+	return GothicUIAssets.focus_outline_style(radius, COLOR_GOLD_HOT)
 
 static func _mark_interactive(button: Button) -> void:
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

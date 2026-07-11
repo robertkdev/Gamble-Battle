@@ -86,7 +86,7 @@ func _run() -> void:
 		_expect_texture_style(first_button, "normal", "Starter card normal state should use the generated 150x138 frame asset", failures)
 		_expect_texture_style(first_button, "hover", "Starter card hover state should use the generated 150x138 frame asset", failures)
 		_expect_texture_style(first_button, "pressed", "Starter card pressed state should use the generated 150x138 frame asset", failures)
-		_expect_texture_style(first_button, "focus", "Starter card focus state should use the generated 150x138 frame asset", failures)
+		_expect_focus_outline(first_button, "Starter card focus should preserve the underlying card state", failures)
 		first_button.emit_signal("pressed")
 		await get_tree().process_frame
 		_expect(not start_button.disabled, "StartButton did not enable after unit selection", failures)
@@ -139,6 +139,13 @@ func _expect_texture_style(control: Control, style_name: String, message: String
 		return
 	var style: StyleBox = control.get_theme_stylebox(style_name)
 	_expect(style is StyleBoxTexture, message, failures)
+
+func _expect_focus_outline(control: Control, message: String, failures: Array[String]) -> void:
+	if control == null:
+		failures.append(message)
+		return
+	var style: StyleBoxFlat = control.get_theme_stylebox("focus") as StyleBoxFlat
+	_expect(style != null and not style.draw_center, message, failures)
 
 func _first_label_child(parent: Control) -> Label:
 	if parent == null:
