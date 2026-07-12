@@ -29,6 +29,8 @@ var _quit_game_button: Button
 var _audit_panel: CanvasLayer
 var _system_menu_open: bool = false
 var _title_page: Control
+var _starter_transition_pending: bool = false
+var _pending_starter_id: String = ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -75,6 +77,7 @@ func _set_menu_visible(show_menu: bool) -> void:
 		GameState.set_phase(GameState.GamePhase.MENU)
 
 func _on_start() -> void:
+	_set_starter_transition_pending(false)
 	if _title_page != null:
 		_title_page.visible = false
 	_set_menu_visible(false)
@@ -92,6 +95,17 @@ func go_to_menu() -> void:
 	request_return_to_title()
 
 func _on_unit_selected(unit_id: String) -> void:
+	var starter_id: String = String(unit_id).strip_edges()
+	if starter_id == "" or _starter_transition_pending:
+		return
+	_set_starter_transition_pending(true, starter_id)
+	# Give the selection screen one rendered frame to show responsive feedback
+	# before the first combat setup performs its one-time cache and view work.
+	get_tree().process_frame.connect(_complete_unit_selection.bind(starter_id), CONNECT_ONE_SHOT)
+
+func _complete_unit_selection(unit_id: String) -> void:
+	if not _starter_transition_pending or unit_id != _pending_starter_id:
+		return
 	if unit_select and unit_select.has_method("hide_screen"):
 		unit_select.call("hide_screen")
 	if unit_select:
@@ -110,6 +124,13 @@ func _on_unit_selected(unit_id: String) -> void:
 	GameState.set_phase(GameState.GamePhase.PREVIEW)
 	if combat_view and combat_view.has_method("_auto_start_battle"):
 		combat_view.call_deferred("_auto_start_battle")
+	_set_starter_transition_pending(false)
+
+func _set_starter_transition_pending(pending: bool, unit_id: String = "") -> void:
+	_starter_transition_pending = pending
+	_pending_starter_id = String(unit_id).strip_edges() if pending else ""
+	if unit_select != null and unit_select.has_method("set_transition_pending"):
+		unit_select.call("set_transition_pending", pending)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _is_audit_panel_event(event):
@@ -525,6 +546,7 @@ func _ensure_audit_panel() -> void:
 	add_child(_audit_panel)
 
 func _reset_run_state() -> void:
+	_set_starter_transition_pending(false)
 	RosterCatalog.start_new_run()
 
 	var economy: Node = _get_autoload("Economy")

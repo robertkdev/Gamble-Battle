@@ -182,8 +182,10 @@ func _play_loss_cycle(unit_id: String, cycle_index: int) -> void:
 	print("ActualRunLoopSmoke: opening cycle %d selected starter" % cycle_index)
 	if not _failures.is_empty():
 		return
-	await _settle_frames(4)
-	_expect(_node_visible("CombatView"), "cycle %d combat view did not open" % cycle_index)
+	var combat_opened: bool = await _wait_for_combat_view_visible(20.0)
+	_expect(combat_opened, "cycle %d combat view did not open" % cycle_index)
+	if not combat_opened:
+		return
 	var combat_seen: bool = await _wait_for_combat_active(6.0)
 	_expect(combat_seen, "cycle %d opener did not enter combat automatically" % cycle_index)
 	if not combat_seen:
@@ -782,6 +784,14 @@ func _unit_select_reset() -> bool:
 func _node_visible(path: String) -> bool:
 	var node: CanvasItem = _main.get_node_or_null(path) as CanvasItem
 	return node != null and node.visible
+
+func _wait_for_combat_view_visible(timeout_seconds: float) -> bool:
+	var deadline_ms: int = Time.get_ticks_msec() + int(max(0.0, timeout_seconds) * 1000.0)
+	while Time.get_ticks_msec() < deadline_ms:
+		if _node_visible("CombatView"):
+			return true
+		await get_tree().process_frame
+	return false
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

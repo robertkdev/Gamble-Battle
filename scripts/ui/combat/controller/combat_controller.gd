@@ -1566,7 +1566,7 @@ func _on_victory(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "victory"
-	_show_result_banner("WON", Color(0.12, 0.22, 0.15, 0.96), Color(0.78, 0.98, 0.70, 1.0))
+	_show_result_banner("VICTORY", "Round secured. Preparing your next decision.", Color(0.58, 0.72, 0.38, 1.0), Color(0.86, 0.94, 0.74, 1.0))
 	_auto_loop_running = false
 	_start_intermission(2.0)
 
@@ -1575,7 +1575,7 @@ func _on_defeat(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "defeat"
-	_show_result_banner("LOST", Color(0.28, 0.035, 0.050, 0.96), Color(1.0, 0.62, 0.55, 1.0))
+	_show_result_banner("DEFEAT", "Round lost. Resolving the aftermath.", Color(0.74, 0.20, 0.16, 1.0), Color(1.0, 0.69, 0.60, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -1584,7 +1584,7 @@ func _on_tie(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "tie"
-	_show_result_banner("TIE - BET REFUNDED", Color(0.12, 0.10, 0.16, 0.96), Color(0.92, 0.82, 1.0, 1.0))
+	_show_result_banner("STALEMATE", "Wager returned. Preparing your next decision.", Color(0.48, 0.38, 0.66, 1.0), Color(0.90, 0.84, 1.0, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -1998,15 +1998,24 @@ func _set_root_control_visible(node_name: String, visible_state: bool) -> void:
 	if control != null:
 		control.visible = visible_state
 
-func _show_result_banner(text: String, bg_color: Color, text_color: Color) -> void:
+func _show_result_banner(title: String, detail: String, accent_color: Color, title_color: Color) -> void:
 	var banner: PanelContainer = _ensure_result_banner()
 	if banner == null:
 		return
-	var label: Label = banner.get_node_or_null("Margin/Label") as Label
-	if label != null:
-		label.text = text
-		label.add_theme_color_override("font_color", text_color)
-	banner.add_theme_stylebox_override("panel", _make_result_banner_style(bg_color, text_color))
+	var card: PanelContainer = banner.get_node_or_null("Center/BattleResultCard") as PanelContainer
+	var title_label: Label = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/OutcomeLabel") as Label
+	var detail_label: Label = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/DetailLabel") as Label
+	var accent_rule: ColorRect = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/AccentRule") as ColorRect
+	if title_label != null:
+		title_label.text = title
+		title_label.add_theme_color_override("font_color", title_color)
+	if detail_label != null:
+		detail_label.text = detail
+	if accent_rule != null:
+		accent_rule.color = Color(accent_color.r, accent_color.g, accent_color.b, 0.86)
+	if card != null:
+		card.add_theme_stylebox_override("panel", _make_result_card_style(accent_color))
+	banner.add_theme_stylebox_override("panel", _make_result_scrim_style())
 	banner.visible = true
 
 func _hide_result_banner() -> void:
@@ -2027,48 +2036,93 @@ func _ensure_result_banner() -> PanelContainer:
 	_result_banner.visible = false
 	_result_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_result_banner.z_as_relative = false
-	_result_banner.z_index = 160
-	_result_banner.anchor_left = 0.5
-	_result_banner.anchor_right = 0.5
-	_result_banner.anchor_top = 0.070
-	_result_banner.anchor_bottom = 0.070
-	_result_banner.offset_left = -260.0
-	_result_banner.offset_right = 260.0
+	_result_banner.z_index = 158
+	_result_banner.anchor_left = 0.0
+	_result_banner.anchor_right = 1.0
+	_result_banner.anchor_top = 0.0
+	_result_banner.anchor_bottom = 1.0
+	_result_banner.offset_left = 0.0
+	_result_banner.offset_right = 0.0
 	_result_banner.offset_top = 0.0
-	_result_banner.offset_bottom = 58.0
+	_result_banner.offset_bottom = 0.0
+	var center: CenterContainer = CenterContainer.new()
+	center.name = "Center"
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	center.offset_top = -34.0
+	center.offset_bottom = -34.0
+	_result_banner.add_child(center)
+	var card: PanelContainer = PanelContainer.new()
+	card.name = "BattleResultCard"
+	card.custom_minimum_size = Vector2(560.0, 176.0)
+	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	center.add_child(card)
 	var margin: MarginContainer = MarginContainer.new()
-	margin.name = "Margin"
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	_result_banner.add_child(margin)
-	var label: Label = Label.new()
-	label.name = "Label"
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 28)
-	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
-	label.add_theme_constant_override("outline_size", 2)
-	margin.add_child(label)
+	margin.name = "CardMargin"
+	margin.add_theme_constant_override("margin_left", 34)
+	margin.add_theme_constant_override("margin_top", 22)
+	margin.add_theme_constant_override("margin_right", 34)
+	margin.add_theme_constant_override("margin_bottom", 22)
+	card.add_child(margin)
+	var content: VBoxContainer = VBoxContainer.new()
+	content.name = "Content"
+	content.add_theme_constant_override("separation", 8)
+	margin.add_child(content)
+	var kicker: Label = Label.new()
+	kicker.name = "KickerLabel"
+	kicker.text = "BATTLE OUTCOME"
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kicker.add_theme_font_size_override("font_size", 13)
+	kicker.add_theme_color_override("font_color", Color(0.72, 0.61, 0.45, 1.0))
+	content.add_child(kicker)
+	var title_label: Label = Label.new()
+	title_label.name = "OutcomeLabel"
+	title_label.custom_minimum_size = Vector2(0.0, 46.0)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 36)
+	title_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
+	title_label.add_theme_constant_override("outline_size", 2)
+	content.add_child(title_label)
+	var accent_rule: ColorRect = ColorRect.new()
+	accent_rule.name = "AccentRule"
+	accent_rule.custom_minimum_size = Vector2(0.0, 1.0)
+	accent_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(accent_rule)
+	var detail_label: Label = Label.new()
+	detail_label.name = "DetailLabel"
+	detail_label.custom_minimum_size = Vector2(0.0, 24.0)
+	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	detail_label.add_theme_font_size_override("font_size", 16)
+	detail_label.add_theme_color_override("font_color", Color(0.82, 0.79, 0.75, 1.0))
+	content.add_child(detail_label)
 	parent.add_child(_result_banner)
 	return _result_banner
 
-func _make_result_banner_style(bg_color: Color, text_color: Color) -> StyleBoxFlat:
+func _make_result_scrim_style() -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = bg_color
-	style.border_color = Color(text_color.r, text_color.g, text_color.b, 0.88)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	style.shadow_size = 16
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.56)
+	style.bg_color = Color(0.006, 0.005, 0.008, 0.46)
 	return style
+
+func _make_result_card_style(accent_color: Color) -> StyleBox:
+	var fallback: StyleBoxFlat = StyleBoxFlat.new()
+	fallback.bg_color = Color(0.026, 0.022, 0.030, 0.98)
+	fallback.border_color = Color(accent_color.r, accent_color.g, accent_color.b, 0.88)
+	fallback.border_width_left = 1
+	fallback.border_width_top = 1
+	fallback.border_width_right = 1
+	fallback.border_width_bottom = 1
+	fallback.corner_radius_top_left = 7
+	fallback.corner_radius_top_right = 7
+	fallback.corner_radius_bottom_right = 7
+	fallback.corner_radius_bottom_left = 7
+	fallback.shadow_size = 18
+	fallback.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
+	return GothicUIAssets.style_or_fallback(
+		GothicUIAssets.wide_panel_style(Color(0.86, 0.82, 0.74, 0.98)),
+		fallback
+	)
 
 func _is_continue_start_text() -> bool:
 	if continue_button == null:
