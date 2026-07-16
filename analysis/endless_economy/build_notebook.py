@@ -38,8 +38,9 @@ def build_notebook() -> None:
 
 This notebook models the economy from the live July 16, 2026 checkout. It tests
 probability-based payouts, fixed chapter-derived prices, several betting
-policies, and alternative unit-price ladders. Conclusions are populated by the
-executed cells below; the blueprint report is the decision-facing artifact.
+policies, and the corrected sticky Stakes-market model that preserves meaningful
+unit purchases under exponential bankroll growth. Conclusions are populated by
+the executed cells below; the blueprint report is the decision-facing artifact.
 """
         ),
         markdown(
@@ -52,7 +53,11 @@ uses all-ins only for exceptional reads.
 
 ### Key Assumptions
 
-- Prices come from a fixed reference curve, never the player’s live bankroll.
+- Contract prices use the fixed reference curve.
+- Unit, reroll, and XP prices use a visible, irreversible Stakes denomination
+  that follows the normal depth schedule but may promote early from the run’s
+  high-water bankroll.
+- Stakes promotions occur only between chapters and never reverse after spending.
 - The saved odds calibration is directionally useful but too small to authorize
   production payouts by itself.
 - The model abstracts qualitative contracts as the power increment required to
@@ -70,10 +75,12 @@ import json
 import math
 
 import economy_model
+import unit_market_model
 
 ROOT = Path.cwd()
 baseline = economy_model.load_baseline()
 result = economy_model.run_model(simulations=5000, chapters=40)
+unit_market_result = unit_market_model.build_results()
 result["selected_config"]
 """
         ),
@@ -97,6 +104,24 @@ baseline_summary
         code(
             """
 result["unit_price_candidates"]
+"""
+        ),
+        code(
+            """
+{
+    "market_rule": unit_market_result["market_rule"],
+    "price_rule": unit_market_result["price_rule"],
+    "million_gold_scenario": next(
+        row for row in unit_market_result["scenarios"]
+        if row["peak_bankroll"] == 1_000_000
+    ),
+    "greedy_stress": unit_market_result["greedy_five_shop_stress"],
+}
+"""
+        ),
+        code(
+            """
+unit_market_result["specific_unit_search_level_14"]
 """
         ),
         code(
@@ -138,16 +163,22 @@ odds_exponent = baseline["odds_estimator"]["odds_exponent"]
 
 The final report should treat the following as the model’s decision tests:
 
-1. A fixed unit-price ladder cannot solve exponential bankroll growth by itself.
-2. Unit sticker prices should remain tied to unit power and rarity; chapter
-   contracts, donor fees, scouting, rerolls, and command upgrades carry the
-   long-run price curve.
-3. Probability-based payouts can make all-in play mathematically positive but
+1. Literal 1–5 gold forever is rejected. Preserve the 1–5 ratio through a
+   visible Stakes unit `U`.
+2. Use `unit price = rarity × U`, `reroll = 2U`, and `XP/command = 4U`.
+3. Promote `U` irreversibly through a 1-2-5 ladder at chapter boundaries, using
+   the depth schedule normally and high-water wealth to prevent rich outliers
+   from permanently trivializing shops.
+4. Higher-Stakes shops must sell current-depth or premium recruits; repricing
+   the same obsolete unit is fake inflation.
+5. Units and the next wager must compete for post-shopping liquid gold so buying
+   a unit damages the player’s compounding engine.
+6. Probability-based payouts can make all-in play mathematically positive but
    strategically overbet, allowing large-money runs without making all-ins the
    default.
-4. The “hold ten times the next price” policy must not outperform the odds-aware
+7. The “hold ten times the next price” policy must not outperform the odds-aware
    policy on both survival and total earned.
-5. The selected coefficients require broader in-engine odds calibration and
+8. The selected coefficients require broader in-engine odds calibration and
    real playtest telemetry before implementation.
 """
         ),

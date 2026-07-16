@@ -5,9 +5,22 @@ Status: research and implementation blueprint; no gameplay behavior changed
 
 ## Decision
 
-Keep ordinary units priced at 1–5 gold. Do not ask the unit shop alone to absorb an exponential bankroll.
+The earlier recommendation to keep ordinary units at literal 1–5 gold forever is rejected.
 
-Build the endless economy around a fixed, chapter-indexed reference curve and a new class of large purchases: chapter contracts, donor fees, targeted scouting, command research, item awakenings, and battlefield rule changes. These purchases must create qualitative combat escalation rather than an infinite ladder of tiny stat upgrades.
+Preserve TFT's `1–5` rarity and price relationship, but multiply it by a visible Stakes denomination `U`:
+
+- 1-cost unit: `1U`
+- 5-cost unit: `5U`
+- Reroll: `2U`
+- XP or Command Research: `4U`
+
+`U` advances through an irreversible 1-2-5 ladder at chapter boundaries:
+
+`1, 2, 5, 10, 20, 50, 100, 200, 500...`
+
+The normal promotion schedule comes from the independent depth curve. A sticky high-water rule may promote an unusually rich run early, preventing jackpot outcomes from trivializing every future shop. Spending never lowers the tier, prices never change during a chapter, and the entire bankroll remains liquid.
+
+Build the rest of the endless economy around this Stakes market plus chapter contracts, targeted scouting, command research, item awakenings, premium recruits, and battlefield rule changes. Large purchases must create qualitative combat escalation rather than an infinite ladder of tiny stat upgrades.
 
 The first tuning target is:
 
@@ -27,27 +40,99 @@ The Last Flame exposes an endless continuation after its acts and builds escalat
 
 Incremental games commonly pair exponentially increasing production with exponentially increasing costs, then introduce qualitative breakpoints, automation, or prestige layers when the old scale becomes routine. Gamble Battle should use the exponential curve and breakpoints, but not the conventional permanent-power prestige loop. Defeat should preserve identity and history while restoring the next run's combat baseline.
 
-## Why Base Unit Prices Stay 1–5
+## Why Literal 1–5 Gold Fails
 
-The current game has five cost tiers and a 1.5x stat multiplier per unit level. Comparing candidate fixed price schedules against that power multiplier gives:
+Riot has described this exact failure in TFT: when gold inflation lets players buy every shop, the interesting decision-making disappears. Gamble Battle's problem is more severe because its bankroll can grow without a fixed ceiling and currently has no interest system.
+
+For any unit price based only on chapter:
+
+`unit price / bankroll → 0 as bankroll → infinity`
+
+No chapter-only formula can prevent a sufficiently rich player from buying everything. The honest choices are to adapt prices, partition liquid wealth, reset currency, or accept that the shop eventually becomes free.
+
+The proposed Stakes ladder chooses a limited and visible form of price adaptation:
+
+- Promotions are discrete progression milestones, not per-offer wallet percentages.
+- The market uses peak/high-water wealth, so spending cannot manipulate prices downward.
+- Promotions happen only between chapters.
+- Stakes never fall after a loss.
+- Higher Stakes raise enemies, payouts, score potential, and recruit quality along with prices.
+- The player becomes genuinely richer within a tier before graduating to the next one.
+
+The current game has five rarity tiers and a 1.5x stat multiplier per unit level. Comparing alternative *fixed* schedules still shows why merely changing the five numbers does not solve the problem:
 
 | Candidate | Prices | Price/power CV | Extra doublings from 5-gold top tier | Decision |
 |---|---:|---:|---:|---|
-| Current | 1 / 2 / 3 / 4 / 5 | 0.1303 | 0.00 | Keep |
+| Current ratio | 1 / 2 / 3 / 4 / 5 | 0.1303 | 0.00 | Keep the ratio, scale `U` |
 | Moderate | 1 / 2 / 4 / 7 / 11 | 0.2662 | 1.14 | Reject as the main sink |
 | Broad | 1 / 3 / 10 / 30 / 100 | 0.9469 | 4.32 | Reject as the main sink |
 
-The wider schedules provide only a few doublings of runway and make value per gold substantially less consistent. They would also make a strong unit's identity harder to separate from its sticker price.
+The wider fixed schedules provide only a few doublings of runway and make value per gold less consistent. The answer is not `1 / 3 / 10 / 30 / 100` forever. The answer is `1U / 2U / 3U / 4U / 5U`, with `U` rising as the fight circuit enters a higher economic league.
 
-Ordinary unit prices should remain a readable recruitment vocabulary. Late-game units become economically important because they can be named donors, catalysts, or identity requirements for expensive contracts.
+At a one-million-gold high-water mark, `U = 20,000`:
 
-## Independent Money Curve
+| Purchase | Price | Share of 1M |
+|---|---:|---:|
+| 1-cost | 20,000 | 2% |
+| 5-cost | 100,000 | 10% |
+| Reroll | 40,000 | 4% |
+| XP/command | 80,000 | 8% |
+| Expected level-14 five-slot shop | 396,000 | 39.6% |
+
+At two million, those prices are temporarily cheaper relative to wealth. At the 2.5-million promotion threshold, `U` becomes 50,000 and a five-cost returns to 10% of the bankroll. This produces an incremental sawtooth rather than a perfectly wallet-pegged price.
+
+## What Higher-Stakes Units Must Be
+
+Charging more for the exact same obsolete level-one recruit would be fake inflation. Higher-Stakes shops must sell current-depth value:
+
+- Ascended or current-grade recruits.
+- Promotion-ready copies.
+- Direct two-star packages.
+- Mutation sockets or selected ability branches.
+- Better donor and graft value.
+- Units with item packages.
+- Bosses, commanders, dragons, colossi, or other capital units.
+
+At a healthy `50U` reserve:
+
+| Offer | Starting band |
+|---|---:|
+| Standard five-cost | `5U` or 10% |
+| Direct two-star five-cost | `15U` or 30% |
+| Dragon/colossus | `8–10U` or 16–20% |
+| Boss/commander/capital unit | `15–25U` or 30–50% |
+
+These premium units need team-specific compatibility, slot costs, drawbacks, or qualitative mechanics. Otherwise they become automatic purchases rather than difficult economic decisions.
+
+## Search Cost Is Part of Unit Cost
+
+At the current level-14 odds and 51-unit roster:
+
+| Target | Chance per shop | Expected search + purchase | Share of 50U reserve |
+|---|---:|---:|---:|
+| Specific 3-cost | 7.28% | 28.48U | 57.0% |
+| Specific 4-cost | 21.60% | 11.26U | 22.5% |
+| Specific 5-cost | 36.73% | 8.44U | 16.9% |
+
+Three targeted five-cost copies cost approximately 50.6% of the healthy reserve, nine cost about 151.9%, and twenty-seven cost about 455.7%, before considering other purchases. Geometrically increasing every successive copy is therefore unnecessary for the first prototype.
+
+Late-game low-cost searching is extremely expensive under the current odds. Targeted scouting, retained early copies, or a legacy-unit market will be necessary.
+
+## Independent Money Curve and Stakes Schedule
 
 The initial reference bankroll is:
 
 `B(chapter) = 3 × 1.22^(chapter − 1)`
 
-This is not a prediction of the player's current wallet. It is the desired content budget for a healthy run and the common ruler used to tune enemy power, rewards, and prices.
+This is not a prediction of the player's current wallet. It is the desired content budget for a healthy run and the common ruler used to tune enemy power, rewards, contract prices, and the normal Stakes-promotion schedule.
+
+The economy now needs three planned curves:
+
+1. Target liquid reserve by Stakes tier.
+2. Gross income and betting turnover per chapter.
+3. Expected unit, reroll, XP, contract, and other upgrade spending.
+
+A healthy run could receive gross sources equal to roughly 50–100% of reserve per chapter, spend 25–60% on the shop and other systems, and retain approximately 22% net growth. The exact values require simulation and playtesting.
 
 Player-facing prices are rounded to readable 1-2-5 bands:
 
@@ -89,6 +174,12 @@ Recommended wager UX:
 - Normal presentation: projected win probability, gross return, loss amount, and bankroll after win/loss.
 - All-in: separated from the normal slider flow and presented as exceptional.
 - Never promise deterministic results from a probability estimate.
+
+Critical economic rule: units, rerolls, XP, contracts, and the next wager must compete for the same post-shopping liquid bankroll. A purchase that consumes 10% of the bank reduces both the next wager and the capital available for later compounding.
+
+The current modeled bet fraction and payout subsidy imply approximately 1.131x expected bankroll growth per fight, or 1.853x over five fights before spending. Spending 10% before those fights creates approximately an 18.5% difference in end-of-chapter capital. That is already a meaningful TFT-like opportunity cost.
+
+Do not add literal TFT interest in the first prototype. Betting is already Gamble Battle's compounding engine; adding interest may double-reward hoarding. Test interest later only if scaled prices and post-shop wagering still fail to produce enough buy/pass tension.
 
 ## The Five-Fight Chapter Market
 
@@ -296,14 +387,18 @@ Do not persist raw combat power, bankroll multipliers, permanent starting stats,
 
 ## Required Prototypes Before Gameplay Implementation
 
-1. Expand win-probability calibration well beyond the current 144 saved samples, especially below 25% and above 75%.
-2. Prototype three chapter markets at chapters 5, 20, and 40 using fixed prices from the CSV.
-3. Prototype one contract from each family and evaluate whether the fight is visibly different without reading tooltips.
-4. Run price sensitivity for 18%, 20%, 22%, and 24% standard contract shares.
-5. Test the odds quote and wager UI with players who do not know Kelly betting.
-6. Test whether total money earned actually encourages spending.
-7. Test multi-session save/resume and the identity-only defeat reset.
-8. Establish performance and readability budgets for summons, chain reactions, transformations, and hazards.
+1. Prototype `50U`, `75U`, and `100U` healthy-reserve targets.
+2. Test the hybrid promotion rule: depth schedule normally, high-water achievement when a run outruns the market.
+3. Require fewer than roughly 5–10% of shops to be bought out completely.
+4. Require at least 30% of plausible offers to be passed for economic reasons.
+5. Confirm five-cost acceptance materially depends on composition, not only affordability.
+6. Confirm selective purchasing outperforms indiscriminate buy-all behavior.
+7. Confirm wagers use post-shopping liquid gold and a premium purchase visibly reduces betting flexibility.
+8. Test whether higher-grade recruits clearly justify higher-Stakes prices.
+9. Test sell values using acquisition cost and prevent buy-low/sell-high promotion arbitrage.
+10. Expand win-probability calibration beyond the current 144 saved samples.
+11. Prototype one contract from each family and evaluate whether the fight changes visibly.
+12. Test multi-session save/resume and the identity-only defeat reset.
 
 ## Evidence and Reproduction
 
@@ -312,6 +407,9 @@ Do not persist raw combat power, bankroll multipliers, permanent starting stats,
 - Live-code baseline snapshot: `analysis/endless_economy/live_baseline.json`
 - Full 80-chapter table: `analysis/endless_economy/recommended_curve.csv`
 - Policy results: `analysis/endless_economy/policy_summary.csv`
+- Unit-market model: `analysis/endless_economy/unit_market_model.py`
+- Stakes scenarios: `analysis/endless_economy/unit_market_scenarios.csv`
+- Unit-market results: `analysis/endless_economy/unit_market_results.json`
 - Decision report: `analysis/endless_economy/report.html`
 
 The baseline snapshot records which values came from the live dirty checkout and which values are explicit design assumptions. The notebook can be re-executed without changing game code.
@@ -320,5 +418,11 @@ External reference points:
 
 - [Riot Games: New TFT Workshop Mode — Tocker's Trials](https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/new-tft-workshop-mode-tockers-trials/)
 - [Riot Games: Magic n' Mayhem Learnings](https://teamfighttactics.leagueoflegends.com/en-ph/news/dev/dev-tft-magic-n-mayhem-learnings/)
+- [Riot Games: Rise of the Elements Learnings](https://teamfighttactics.leagueoflegends.com/en-gb/news/dev/dev-tft-rise-of-the-elements-learnings/)
+- [Riot Games: TFT shop odds and shared pools](https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-13-23-notes/)
+- [Riot Games: Dragonlands expensive-unit tradeoffs](https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/dragonlands-set-mechanics-overview/)
+- [Riot Games: Into the Arcane Learnings](https://teamfighttactics.leagueoflegends.com/en-ph/news/dev/dev-tft-into-the-arcane-learnings/)
+- [Kongregate: The Math of Idle Games, Part I](https://blog.kongregate.com/the-math-of-idle-games-part-i/)
+- [Kongregate: The Math of Idle Games, Part III](https://blog.kongregate.com/the-math-of-idle-games-part-iii/)
 - [The Last Flame official announcements](https://steamcommunity.com/app/1830970/announcements/?l=english)
 - [Hadean Tactics / Eternal Rift](https://emberfishgames.com/hadean-tactics)

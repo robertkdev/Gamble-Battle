@@ -5,7 +5,7 @@
     "surface": "report",
     "title": "Gamble Battle Endless Economy \u2014 Decision Blueprint",
     "description": "A research-backed, simulation-checked economy and escalation blueprint.",
-    "generatedAt": "2026-07-16T07:23:28+00:00",
+    "generatedAt": "2026-07-16T14:28:54+00:00",
     "sources": [
       {
         "id": "curve-source",
@@ -59,7 +59,7 @@
         "query": {
           "engine": "SQLite",
           "language": "sql",
-          "sql": "WITH unit_source (candidate, prices, price_power_cv, top_tier_doublings, decision) AS (\n  VALUES\n    ('Current', '1 / 2 / 3 / 4 / 5', 0.1303, 0.0, 'Keep for base units'),\n    ('Moderate widening', '1 / 2 / 4 / 7 / 11', 0.2662, 1.1375, 'Reject as main sink'),\n    ('Broad exponential', '1 / 3 / 10 / 30 / 100', 0.9469, 4.3219, 'Reject as main sink')\n)\nSELECT * FROM unit_source;",
+          "sql": "WITH unit_source (candidate, prices, price_power_cv, top_tier_doublings, decision) AS (\n  VALUES\n    ('Current', '1 / 2 / 3 / 4 / 5', 0.1303, 0.0, 'Keep ratio, scale denomination'),\n    ('Moderate widening', '1 / 2 / 4 / 7 / 11', 0.2662, 1.1375, 'Reject as main sink'),\n    ('Broad exponential', '1 / 3 / 10 / 30 / 100', 0.9469, 4.3219, 'Reject as main sink')\n)\nSELECT * FROM unit_source;",
           "description": "Candidate tier schedules compared against the current 1.5x per-level stat multiplier.",
           "tables_used": [
             "analysis/endless_economy/live_baseline.json"
@@ -70,6 +70,92 @@
           "metric_definitions": [
             "Price-power CV = coefficient of variation of price divided by modeled power.",
             "Lower CV means more consistent value per gold across unit tiers."
+          ]
+        }
+      },
+      {
+        "id": "market-source",
+        "label": "Sticky high-water unit-market model",
+        "path": "analysis/endless_economy/unit_market_results.json",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "WITH market_source (peak_bankroll, market_unit, one_cost_price, five_cost_price, reroll_price, xp_or_command_price, expected_level_14_shop_price, five_cost_share_of_peak, expected_shop_share_of_peak) AS (\n  VALUES\n    (50, 1, 1, 5, 2, 4, 19.8, 0.1, 0.396),\n    (100, 2, 2, 10, 4, 8, 39.6, 0.1, 0.396),\n    (250, 5, 5, 25, 10, 20, 99.0, 0.1, 0.396),\n    (500, 10, 10, 50, 20, 40, 198.0, 0.1, 0.396),\n    (1000, 20, 20, 100, 40, 80, 396.0, 0.1, 0.396),\n    (10000, 200, 200, 1000, 400, 800, 3960.0, 0.1, 0.396),\n    (100000, 2000, 2000, 10000, 4000, 8000, 39600.0, 0.1, 0.396),\n    (1000000, 20000, 20000, 100000, 40000, 80000, 396000.0, 0.1, 0.396),\n    (2000000, 20000, 20000, 100000, 40000, 80000, 396000.0, 0.05, 0.198),\n    (2500000, 50000, 50000, 250000, 100000, 200000, 990000.0, 0.1, 0.396),\n    (5000000, 100000, 100000, 500000, 200000, 400000, 1980000.0, 0.1, 0.396),\n    (10000000, 200000, 200000, 1000000, 400000, 800000, 3960000.0, 0.1, 0.396)\n)\nSELECT * FROM market_source;",
+          "description": "Deterministic 1-2-5 Stakes denomination scenarios using the current five-slot shop odds and 51-unit cost distribution.",
+          "tables_used": [
+            "analysis/endless_economy/unit_market_results.json"
+          ],
+          "filters": [
+            "Deterministic model output generated from the checked-in baseline and fixed seed."
+          ],
+          "metric_definitions": [
+            "U = largest 1-2-5 denomination no greater than peak bankroll / 50.",
+            "Unit price = rarity tier * U; reroll = 2U; XP or command = 4U.",
+            "Promotions use a sticky high-water mark and occur only at chapter boundaries.",
+            "Expected shop price uses current level-specific tier odds across five slots."
+          ]
+        }
+      },
+      {
+        "id": "shop-pressure-source",
+        "label": "Expected five-slot shop pressure by player level",
+        "path": "analysis/endless_economy/unit_market_results.json",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "WITH shop_pressure_source (level, expected_shop_units, share_of_50_unit_reserve, reroll_plus_shop_share) AS (\n  VALUES\n    (1, 5.0, 0.1, 0.14),\n    (3, 7.0, 0.14, 0.18),\n    (6, 11.85, 0.237, 0.277),\n    (10, 16.25, 0.325, 0.365),\n    (14, 19.8, 0.396, 0.436)\n)\nSELECT * FROM shop_pressure_source;",
+          "description": "Expected shop sticker cost under the current level-specific tier odds.",
+          "tables_used": [
+            "analysis/endless_economy/unit_market_results.json"
+          ],
+          "filters": [
+            "Deterministic model output generated from the checked-in baseline and fixed seed."
+          ],
+          "metric_definitions": [
+            "Expected shop units = five times the probability-weighted average unit tier.",
+            "Reserve share uses a 50U healthy liquid reserve."
+          ]
+        }
+      },
+      {
+        "id": "search-source",
+        "label": "Specific-unit search cost at level 14",
+        "path": "analysis/endless_economy/unit_market_results.json",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "WITH search_source (tier, identities_in_tier, specific_unit_slot_probability, specific_unit_shop_probability, expected_rerolls, expected_search_and_purchase_units, share_of_50_unit_reserve) AS (\n  VALUES\n    (1, 14, 0.002142857142857143, 0.010668465638060454, 92.73419139416208, 186.46838278832416, 3.729367655766483),\n    (2, 13, 0.004615384615384615, 0.022864886217562774, 42.73518374352936, 87.47036748705872, 1.7494073497411744),\n    (3, 12, 0.015, 0.07278349763437508, 12.739378190142208, 28.478756380284416, 0.5695751276056883),\n    (4, 8, 0.0475, 0.21598400723623046, 3.629972435441757, 11.259944870883514, 0.22519889741767027),\n    (5, 4, 0.0875, 0.367348757019043, 1.7222087482064379, 8.444417496412875, 0.1688883499282575)\n)\nSELECT * FROM search_source;",
+          "description": "Expected paid rerolls plus sticker price for one named unit at level 14.",
+          "tables_used": [
+            "analysis/endless_economy/unit_market_results.json"
+          ],
+          "filters": [
+            "Deterministic model output generated from the checked-in baseline and fixed seed."
+          ],
+          "metric_definitions": [
+            "Specific shop probability assumes five independent slots using current tier odds and identities per tier.",
+            "Expected rerolls = 1 / shop probability - 1."
+          ]
+        }
+      },
+      {
+        "id": "completion-source",
+        "label": "Specific five-cost completion pressure",
+        "path": "analysis/endless_economy/unit_market_results.json",
+        "query": {
+          "engine": "SQLite",
+          "language": "sql",
+          "sql": "WITH completion_source (copies, expected_cost_units, share_of_50_unit_reserve, expected_chapters_from_natural_shops) AS (\n  VALUES\n    (1, 8.44, 0.168888, 0.46),\n    (3, 25.33, 0.506665, 1.37),\n    (9, 76.0, 1.519995, 4.11),\n    (27, 228.0, 4.559985, 12.34)\n)\nSELECT * FROM completion_source;",
+          "description": "Expected cost and natural-shop time for completing a named five-cost.",
+          "tables_used": [
+            "analysis/endless_economy/unit_market_results.json"
+          ],
+          "filters": [
+            "Deterministic model output generated from the checked-in baseline and fixed seed."
+          ],
+          "metric_definitions": [
+            "Costs multiply the one-copy expected search and purchase cost.",
+            "Natural-shop chapters assume five natural shops per five-fight chapter."
           ]
         }
       },
@@ -87,6 +173,26 @@
         "id": "tockers-source",
         "label": "Riot Games \u2014 Tocker's Trials mode overview",
         "href": "https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/new-tft-workshop-mode-tockers-trials/"
+      },
+      {
+        "id": "riot-inflation-source",
+        "label": "Riot Games \u2014 Rise of the Elements economy learnings",
+        "href": "https://teamfighttactics.leagueoflegends.com/en-gb/news/dev/dev-tft-rise-of-the-elements-learnings/"
+      },
+      {
+        "id": "riot-shop-source",
+        "label": "Riot Games \u2014 TFT shop odds and shared-pool strategy",
+        "href": "https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-13-23-notes/"
+      },
+      {
+        "id": "riot-dragons-source",
+        "label": "Riot Games \u2014 Dragonlands expensive-unit tradeoffs",
+        "href": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/dragonlands-set-mechanics-overview/"
+      },
+      {
+        "id": "incremental-math-source",
+        "label": "Kongregate \u2014 The Math of Idle Games",
+        "href": "https://blog.kongregate.com/the-math-of-idle-games-part-i/"
       },
       {
         "id": "last-flame-source",
@@ -148,6 +254,32 @@
           {
             "label": "10x hoarder earnings vs odds-aware",
             "field": "hoard_ratio",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "five-cost-pressure",
+        "description": "A standard five-cost immediately after a Stakes promotion.",
+        "dataset": "market_headline",
+        "sourceId": "market-source",
+        "metrics": [
+          {
+            "label": "Five-cost / promoted bankroll",
+            "field": "five_cost_share",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "mature-shop-pressure",
+        "description": "Expected five-slot shop cost at current level-14 odds.",
+        "dataset": "market_headline",
+        "sourceId": "market-source",
+        "metrics": [
+          {
+            "label": "Mature shop / promoted bankroll",
+            "field": "mature_shop_share",
             "format": "percent"
           }
         ]
@@ -237,6 +369,44 @@
         "yAxisTitle": "Median cumulative winnings",
         "valueFormat": "compact",
         "layout": "full"
+      },
+      {
+        "id": "shop-pressure",
+        "title": "Expected shop cost by player level",
+        "subtitle": "Five-slot expected sticker cost as a share of a 50U healthy reserve; rerolls and targeted search add further pressure.",
+        "type": "bar",
+        "dataset": "level_shop_pressure",
+        "sourceId": "shop-pressure-source",
+        "encodings": {
+          "x": {
+            "field": "level",
+            "type": "ordinal",
+            "label": "Player level"
+          },
+          "y": {
+            "field": "share_of_50_unit_reserve",
+            "type": "quantitative",
+            "format": "percent",
+            "label": "Reserve share"
+          },
+          "tooltip": [
+            {
+              "field": "expected_shop_units",
+              "type": "quantitative",
+              "label": "Expected shop cost in U"
+            },
+            {
+              "field": "reroll_plus_shop_share",
+              "type": "quantitative",
+              "format": "percent",
+              "label": "Reroll plus shop"
+            }
+          ]
+        },
+        "xAxisTitle": "Player level",
+        "yAxisTitle": "Expected shop / 50U reserve",
+        "valueFormat": "percent",
+        "layout": "full"
       }
     ],
     "tables": [
@@ -291,8 +461,8 @@
       },
       {
         "id": "unit-price-table",
-        "title": "Base unit price candidates",
-        "subtitle": "Widening fixed unit tiers buys little exponential runway and worsens value consistency.",
+        "title": "Why widening one fixed ladder is insufficient",
+        "subtitle": "The 1\u20135 relationship remains useful, but literal prices must inherit the current Stakes denomination.",
         "dataset": "unit_candidates",
         "sourceId": "unit-source",
         "defaultSort": {
@@ -325,6 +495,138 @@
             "field": "decision",
             "label": "Decision",
             "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "stakes-scenario-table",
+        "title": "Sticky Stakes-market examples",
+        "subtitle": "All gold remains liquid; the market denomination promotes irreversibly at chapter boundaries using a 1-2-5 high-water ladder.",
+        "dataset": "market_scenarios",
+        "sourceId": "market-source",
+        "defaultSort": {
+          "field": "peak_bankroll",
+          "direction": "asc"
+        },
+        "layout": "full",
+        "columns": [
+          {
+            "field": "peak_bankroll",
+            "label": "Peak bank",
+            "format": "compact"
+          },
+          {
+            "field": "market_unit",
+            "label": "U",
+            "format": "compact"
+          },
+          {
+            "field": "one_cost_price",
+            "label": "1-cost",
+            "format": "compact"
+          },
+          {
+            "field": "five_cost_price",
+            "label": "5-cost",
+            "format": "compact"
+          },
+          {
+            "field": "reroll_price",
+            "label": "Reroll",
+            "format": "compact"
+          },
+          {
+            "field": "expected_level_14_shop_price",
+            "label": "Expected L14 shop",
+            "format": "compact"
+          },
+          {
+            "field": "five_cost_share_of_peak",
+            "label": "5-cost share",
+            "format": "percent"
+          },
+          {
+            "field": "expected_shop_share_of_peak",
+            "label": "Shop share",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "specific-search-table",
+        "title": "Expected targeted-unit search cost at level 14",
+        "subtitle": "Current 51-unit roster and five-slot shop; figures include expected paid rerolls before purchase.",
+        "dataset": "specific_search",
+        "sourceId": "search-source",
+        "defaultSort": {
+          "field": "tier",
+          "direction": "asc"
+        },
+        "layout": "full",
+        "columns": [
+          {
+            "field": "tier",
+            "label": "Cost tier",
+            "format": "number"
+          },
+          {
+            "field": "identities_in_tier",
+            "label": "Identities",
+            "format": "number"
+          },
+          {
+            "field": "specific_unit_shop_probability",
+            "label": "Chance / shop",
+            "format": "percent"
+          },
+          {
+            "field": "expected_rerolls",
+            "label": "Expected rerolls",
+            "format": "number"
+          },
+          {
+            "field": "expected_search_and_purchase_units",
+            "label": "Search + buy (U)",
+            "format": "number"
+          },
+          {
+            "field": "share_of_50_unit_reserve",
+            "label": "Reserve share",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "five-cost-completion-table",
+        "title": "Specific five-cost completion pressure",
+        "subtitle": "Flat tier\u00d7U prices already become expensive through copies and search; geometric copy taxes are unnecessary initially.",
+        "dataset": "five_cost_completion",
+        "sourceId": "completion-source",
+        "defaultSort": {
+          "field": "copies",
+          "direction": "asc"
+        },
+        "layout": "full",
+        "columns": [
+          {
+            "field": "copies",
+            "label": "Copies",
+            "format": "number"
+          },
+          {
+            "field": "expected_cost_units",
+            "label": "Expected cost (U)",
+            "format": "number"
+          },
+          {
+            "field": "share_of_50_unit_reserve",
+            "label": "Reserve share",
+            "format": "percent"
+          },
+          {
+            "field": "expected_chapters_from_natural_shops",
+            "label": "Natural-shop chapters",
+            "format": "number"
           }
         ]
       },
@@ -392,14 +694,14 @@
       {
         "id": "exec-body",
         "type": "markdown",
-        "body": "Keep the existing **1\u20135 base unit prices**. They are already better aligned with current power scaling than wider fixed tiers, and even a 1\u2013100 schedule adds only about 4.3 doublings. Put exponential spending into **chapter contracts, donor fees, scouting, and command research**.\n\nTarget normal pre-fight projections near **68% win odds**, quote payouts from those odds, and make a minority wager the normal behavior. Use a fixed reference curve\u2014not the player's current wallet\u2014to set prices. Every five-fight chapter should end with one mutually exclusive, identity-changing purchase that visibly escalates combat."
+        "body": "The earlier recommendation to keep units at literal **1\u20135 gold forever is rejected**. Riot has described the same failure in TFT: when players can buy every shop, the economic decision disappears. Gamble Battle should preserve TFT's **ratios**, not its nominal numbers.\n\nUse a visible, irreversible **Stakes denomination U**. Units cost `1U\u20135U`, rerolls `2U`, and XP/command purchases `4U`. U advances through a sticky 1-2-5 high-water ladder only at chapter boundaries, while the entire bankroll remains liquid. At one million gold, the proposed market is 20k/40k/60k/80k/100k\u2014not 1/2/3/4/5."
       },
       {
         "id": "headline",
         "type": "metric-strip",
         "cardIds": [
-          "target-odds",
-          "curve-growth",
+          "five-cost-pressure",
+          "mature-shop-pressure",
           "normal-survival",
           "hoard-penalty"
         ]
@@ -422,17 +724,17 @@
       {
         "id": "decision-body",
         "type": "markdown",
-        "body": "1. **Unit shop:** retain 1\u20135 prices for ordinary recruitment; later shops become donor and contract markets.\n2. **Pricing:** use `3 \u00d7 1.22^(chapter\u22121)` as the first tuning reference, then round offers to readable 1-2-5 bands.\n3. **Odds and payouts:** start with `gross payout = clamp(1.45 / projected win probability, 1.05, 4.0)`; recalibrate before production.\n4. **Escalation:** one chapter contract every five fights; contracts create transformations, chains, hazards, trait rewrites, or command changes\u2014not repeatable +1% stats.\n5. **Run structure:** endless multi-session runs persist inside a run; after defeat, preserve identity/history only, not compounding power.\n6. **Score:** emphasize total money earned and depth, with peak bank and biggest wager as secondary records."
+        "body": "1. **Unit shop:** preserve the 1\u20135 rarity relationship, but multiply it by a visible Stakes unit `U`.\n2. **Stakes progression:** use `U = 1, 2, 5, 10, 20, 50\u2026`; promote irreversibly between chapters using the greater of depth schedule or high-water eligibility.\n3. **Shared economy:** scale units, rerolls, XP/command and premium offers together; wagers use post-shopping liquid gold.\n4. **Recruit quality:** higher-Stakes shops sell current-depth, promoted, mutation-bearing or premium recruits\u2014not the same obsolete copy with extra zeroes.\n5. **Premium units:** direct two-stars, dragons, bosses and capital units may cost `8U\u201325U` when their qualitative power and slot cost justify it.\n6. **No conventional interest initially:** wagering already supplies compounding opportunity cost; test interest only if purchasing remains too easy.\n7. **Contracts and spectacle:** retain chapter contracts as additional sinks, but do not use them to replace the core unit-buying decision."
       },
       {
         "id": "curve-heading",
         "type": "markdown",
-        "body": "## The Independent Price Curve"
+        "body": "## Reference Curve and Stakes Ladder"
       },
       {
         "id": "curve-body",
         "type": "markdown",
-        "body": "The reference curve is a content budget, not a rubber band. It defines what a healthy run should be able to earn and spend by chapter. Standard contracts cost roughly 20% of that reference; bold offers occupy the next visible price band. Actual wallet size never enters the price formula."
+        "body": "The reference curve is a content budget, not a rubber band. It defines what a healthy run should be able to earn and spend by chapter. It sets the normal depth schedule for Stakes promotion and contract prices. A sticky high-water rule may promote unusually rich runs early so shops cannot remain trivial forever. Prices never fall after spending, and never change during a chapter."
       },
       {
         "id": "curve-chart-block",
@@ -447,12 +749,38 @@
       {
         "id": "unit-heading",
         "type": "markdown",
-        "body": "## Unit Prices Are Not the Exponential Sink"
+        "body": "## Preserve TFT Ratios, Not Literal Prices"
       },
       {
         "id": "unit-body",
         "type": "markdown",
-        "body": "The current unit tiers should stay cheap and legible. Raising their fixed prices distorts value faster than it creates runway. A late-game unit can instead be valuable because it is the required donor, catalyst, or identity component for a chapter contract whose fee follows the large curve."
+        "body": "A fixed chapter-only price cannot survive unbounded liquid wealth: as bankroll grows, price divided by wealth approaches zero. The proposed sawtooth market lets the player become genuinely richer within a Stakes tier, then visibly promotes the run to a higher-grade market before buying everything becomes permanent. Riot's own TFT retrospective identifies buy-all gold inflation as destructive to shop decision-making."
+      },
+      {
+        "id": "shop-pressure-chart-block",
+        "type": "chart",
+        "chartId": "shop-pressure"
+      },
+      {
+        "id": "stakes-scenario-block",
+        "type": "table",
+        "tableId": "stakes-scenario-table"
+      },
+      {
+        "id": "search-body",
+        "type": "markdown",
+        "sourceId": "search-source",
+        "body": "### Search cost is part of unit price\n\nAt current level-14 odds, a specific five-cost appears in about 36.7% of shops. Expected rerolls plus purchase cost about `8.44U`, or 16.9% of a healthy `50U` reserve. Three targeted copies cost roughly half a reserve before considering tactical pivots or other purchases."
+      },
+      {
+        "id": "specific-search-block",
+        "type": "table",
+        "tableId": "specific-search-table"
+      },
+      {
+        "id": "five-cost-completion-block",
+        "type": "table",
+        "tableId": "five-cost-completion-table"
       },
       {
         "id": "unit-table-block",
@@ -497,13 +825,13 @@
       {
         "id": "risks-body",
         "type": "markdown",
-        "body": "This is a blueprint, not production balance. The saved odds calibration has only 144 samples and is weakest in the outer probability buckets. The combat-rating model is a budgeting proxy, not a full unit-power estimator. The Monte Carlo model omits player skill, shop variance, composition synergy, and content-specific contract value.\n\nBefore implementation, run: (1) larger odds calibration; (2) contract-choice prototypes at chapters 5, 20, and 40; (3) readability tests for chain-reaction fights; (4) price sensitivity around 18\u201324% of the reference curve; and (5) multi-session save/resume and defeat-reset UX tests."
+        "body": "This is a blueprint, not production balance. The saved odds calibration has only 144 samples and is weakest in the outer probability buckets. The combat-rating model is a budgeting proxy, not a full unit-power estimator. The betting model has an extreme rich tail: its chapter-40 odds-aware P90 bankroll is more than 350,000 times the reference curve. Stakes promotion is required precisely because a depth-only price cannot cover such outcomes.\n\nBefore implementation, test `50U`, `75U` and `100U` healthy reserves; shop buy-out rate; economic pass rate; composition-dependent five-cost acceptance; higher-grade recruit clarity; post-shopping wager flexibility; sell-value arbitrage; and whether Stakes promotion feels like advancement rather than a merchant reading the wallet."
       }
     ]
   },
   "snapshot": {
     "version": 1,
-    "generatedAt": "2026-07-16T07:23:28+00:00",
+    "generatedAt": "2026-07-16T14:28:54+00:00",
     "status": "ready",
     "datasets": {
       "headline": [
@@ -512,6 +840,14 @@
           "curve_growth": 0.22,
           "normal_survival": 0.7018,
           "hoard_ratio": 0.016997
+        }
+      ],
+      "market_headline": [
+        {
+          "five_cost_share": 0.1,
+          "mature_shop_share": 0.396,
+          "greedy_offer_buy_rate": 0.6909595000000001,
+          "greedy_remaining_share": 0.0
         }
       ],
       "curve": [
@@ -2018,7 +2354,7 @@
           "prices": "1 / 2 / 3 / 4 / 5",
           "price_power_cv": 0.1303,
           "top_tier_doublings": 0.0,
-          "decision": "Keep for base units"
+          "decision": "Keep ratio, scale denomination"
         },
         {
           "candidate": "Moderate widening",
@@ -2033,6 +2369,230 @@
           "price_power_cv": 0.9469,
           "top_tier_doublings": 4.3219,
           "decision": "Reject as main sink"
+        }
+      ],
+      "market_scenarios": [
+        {
+          "peak_bankroll": 50,
+          "market_unit": 1,
+          "effective_market_reserve_units": 50.0,
+          "one_cost_price": 1,
+          "two_cost_price": 2,
+          "three_cost_price": 3,
+          "four_cost_price": 4,
+          "five_cost_price": 5,
+          "reroll_price": 2,
+          "xp_or_command_price": 4,
+          "expected_level_14_shop_price": 19.8,
+          "five_cost_share_of_peak": 0.1,
+          "reroll_share_of_peak": 0.04,
+          "expected_shop_share_of_peak": 0.396
+        },
+        {
+          "peak_bankroll": 1000,
+          "market_unit": 20,
+          "effective_market_reserve_units": 50.0,
+          "one_cost_price": 20,
+          "two_cost_price": 40,
+          "three_cost_price": 60,
+          "four_cost_price": 80,
+          "five_cost_price": 100,
+          "reroll_price": 40,
+          "xp_or_command_price": 80,
+          "expected_level_14_shop_price": 396.0,
+          "five_cost_share_of_peak": 0.1,
+          "reroll_share_of_peak": 0.04,
+          "expected_shop_share_of_peak": 0.396
+        },
+        {
+          "peak_bankroll": 1000000,
+          "market_unit": 20000,
+          "effective_market_reserve_units": 50.0,
+          "one_cost_price": 20000,
+          "two_cost_price": 40000,
+          "three_cost_price": 60000,
+          "four_cost_price": 80000,
+          "five_cost_price": 100000,
+          "reroll_price": 40000,
+          "xp_or_command_price": 80000,
+          "expected_level_14_shop_price": 396000.0,
+          "five_cost_share_of_peak": 0.1,
+          "reroll_share_of_peak": 0.04,
+          "expected_shop_share_of_peak": 0.396
+        },
+        {
+          "peak_bankroll": 2000000,
+          "market_unit": 20000,
+          "effective_market_reserve_units": 100.0,
+          "one_cost_price": 20000,
+          "two_cost_price": 40000,
+          "three_cost_price": 60000,
+          "four_cost_price": 80000,
+          "five_cost_price": 100000,
+          "reroll_price": 40000,
+          "xp_or_command_price": 80000,
+          "expected_level_14_shop_price": 396000.0,
+          "five_cost_share_of_peak": 0.05,
+          "reroll_share_of_peak": 0.02,
+          "expected_shop_share_of_peak": 0.198
+        },
+        {
+          "peak_bankroll": 2500000,
+          "market_unit": 50000,
+          "effective_market_reserve_units": 50.0,
+          "one_cost_price": 50000,
+          "two_cost_price": 100000,
+          "three_cost_price": 150000,
+          "four_cost_price": 200000,
+          "five_cost_price": 250000,
+          "reroll_price": 100000,
+          "xp_or_command_price": 200000,
+          "expected_level_14_shop_price": 990000.0,
+          "five_cost_share_of_peak": 0.1,
+          "reroll_share_of_peak": 0.04,
+          "expected_shop_share_of_peak": 0.396
+        },
+        {
+          "peak_bankroll": 5000000,
+          "market_unit": 100000,
+          "effective_market_reserve_units": 50.0,
+          "one_cost_price": 100000,
+          "two_cost_price": 200000,
+          "three_cost_price": 300000,
+          "four_cost_price": 400000,
+          "five_cost_price": 500000,
+          "reroll_price": 200000,
+          "xp_or_command_price": 400000,
+          "expected_level_14_shop_price": 1980000.0,
+          "five_cost_share_of_peak": 0.1,
+          "reroll_share_of_peak": 0.04,
+          "expected_shop_share_of_peak": 0.396
+        },
+        {
+          "peak_bankroll": 10000000,
+          "market_unit": 200000,
+          "effective_market_reserve_units": 50.0,
+          "one_cost_price": 200000,
+          "two_cost_price": 400000,
+          "three_cost_price": 600000,
+          "four_cost_price": 800000,
+          "five_cost_price": 1000000,
+          "reroll_price": 400000,
+          "xp_or_command_price": 800000,
+          "expected_level_14_shop_price": 3960000.0,
+          "five_cost_share_of_peak": 0.1,
+          "reroll_share_of_peak": 0.04,
+          "expected_shop_share_of_peak": 0.396
+        }
+      ],
+      "level_shop_pressure": [
+        {
+          "level": 1,
+          "expected_shop_units": 5.0,
+          "share_of_50_unit_reserve": 0.1,
+          "reroll_plus_shop_share": 0.14
+        },
+        {
+          "level": 3,
+          "expected_shop_units": 7.0,
+          "share_of_50_unit_reserve": 0.14,
+          "reroll_plus_shop_share": 0.18
+        },
+        {
+          "level": 6,
+          "expected_shop_units": 11.85,
+          "share_of_50_unit_reserve": 0.237,
+          "reroll_plus_shop_share": 0.277
+        },
+        {
+          "level": 10,
+          "expected_shop_units": 16.25,
+          "share_of_50_unit_reserve": 0.325,
+          "reroll_plus_shop_share": 0.365
+        },
+        {
+          "level": 14,
+          "expected_shop_units": 19.8,
+          "share_of_50_unit_reserve": 0.396,
+          "reroll_plus_shop_share": 0.436
+        }
+      ],
+      "specific_search": [
+        {
+          "level": 14,
+          "tier": 1,
+          "identities_in_tier": 14,
+          "specific_unit_slot_probability": 0.002142857142857143,
+          "specific_unit_shop_probability": 0.010668465638060454,
+          "expected_rerolls": 92.73419139416208,
+          "expected_search_and_purchase_units": 186.46838278832416,
+          "share_of_50_unit_reserve": 3.729367655766483
+        },
+        {
+          "level": 14,
+          "tier": 2,
+          "identities_in_tier": 13,
+          "specific_unit_slot_probability": 0.004615384615384615,
+          "specific_unit_shop_probability": 0.022864886217562774,
+          "expected_rerolls": 42.73518374352936,
+          "expected_search_and_purchase_units": 87.47036748705872,
+          "share_of_50_unit_reserve": 1.7494073497411744
+        },
+        {
+          "level": 14,
+          "tier": 3,
+          "identities_in_tier": 12,
+          "specific_unit_slot_probability": 0.015,
+          "specific_unit_shop_probability": 0.07278349763437508,
+          "expected_rerolls": 12.739378190142208,
+          "expected_search_and_purchase_units": 28.478756380284416,
+          "share_of_50_unit_reserve": 0.5695751276056883
+        },
+        {
+          "level": 14,
+          "tier": 4,
+          "identities_in_tier": 8,
+          "specific_unit_slot_probability": 0.0475,
+          "specific_unit_shop_probability": 0.21598400723623046,
+          "expected_rerolls": 3.629972435441757,
+          "expected_search_and_purchase_units": 11.259944870883514,
+          "share_of_50_unit_reserve": 0.22519889741767027
+        },
+        {
+          "level": 14,
+          "tier": 5,
+          "identities_in_tier": 4,
+          "specific_unit_slot_probability": 0.0875,
+          "specific_unit_shop_probability": 0.367348757019043,
+          "expected_rerolls": 1.7222087482064379,
+          "expected_search_and_purchase_units": 8.444417496412875,
+          "share_of_50_unit_reserve": 0.1688883499282575
+        }
+      ],
+      "five_cost_completion": [
+        {
+          "copies": 1,
+          "expected_cost_units": 8.44,
+          "share_of_50_unit_reserve": 0.168888,
+          "expected_chapters_from_natural_shops": 0.46
+        },
+        {
+          "copies": 3,
+          "expected_cost_units": 25.33,
+          "share_of_50_unit_reserve": 0.506665,
+          "expected_chapters_from_natural_shops": 1.37
+        },
+        {
+          "copies": 9,
+          "expected_cost_units": 76.0,
+          "share_of_50_unit_reserve": 1.519995,
+          "expected_chapters_from_natural_shops": 4.11
+        },
+        {
+          "copies": 27,
+          "expected_cost_units": 228.0,
+          "share_of_50_unit_reserve": 4.559985,
+          "expected_chapters_from_natural_shops": 12.34
         }
       ]
     },
@@ -2091,7 +2651,7 @@
       "query": {
         "engine": "SQLite",
         "language": "sql",
-        "sql": "WITH unit_source (candidate, prices, price_power_cv, top_tier_doublings, decision) AS (\n  VALUES\n    ('Current', '1 / 2 / 3 / 4 / 5', 0.1303, 0.0, 'Keep for base units'),\n    ('Moderate widening', '1 / 2 / 4 / 7 / 11', 0.2662, 1.1375, 'Reject as main sink'),\n    ('Broad exponential', '1 / 3 / 10 / 30 / 100', 0.9469, 4.3219, 'Reject as main sink')\n)\nSELECT * FROM unit_source;",
+        "sql": "WITH unit_source (candidate, prices, price_power_cv, top_tier_doublings, decision) AS (\n  VALUES\n    ('Current', '1 / 2 / 3 / 4 / 5', 0.1303, 0.0, 'Keep ratio, scale denomination'),\n    ('Moderate widening', '1 / 2 / 4 / 7 / 11', 0.2662, 1.1375, 'Reject as main sink'),\n    ('Broad exponential', '1 / 3 / 10 / 30 / 100', 0.9469, 4.3219, 'Reject as main sink')\n)\nSELECT * FROM unit_source;",
         "description": "Candidate tier schedules compared against the current 1.5x per-level stat multiplier.",
         "tables_used": [
           "analysis/endless_economy/live_baseline.json"
@@ -2102,6 +2662,92 @@
         "metric_definitions": [
           "Price-power CV = coefficient of variation of price divided by modeled power.",
           "Lower CV means more consistent value per gold across unit tiers."
+        ]
+      }
+    },
+    {
+      "id": "market-source",
+      "label": "Sticky high-water unit-market model",
+      "path": "analysis/endless_economy/unit_market_results.json",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "WITH market_source (peak_bankroll, market_unit, one_cost_price, five_cost_price, reroll_price, xp_or_command_price, expected_level_14_shop_price, five_cost_share_of_peak, expected_shop_share_of_peak) AS (\n  VALUES\n    (50, 1, 1, 5, 2, 4, 19.8, 0.1, 0.396),\n    (100, 2, 2, 10, 4, 8, 39.6, 0.1, 0.396),\n    (250, 5, 5, 25, 10, 20, 99.0, 0.1, 0.396),\n    (500, 10, 10, 50, 20, 40, 198.0, 0.1, 0.396),\n    (1000, 20, 20, 100, 40, 80, 396.0, 0.1, 0.396),\n    (10000, 200, 200, 1000, 400, 800, 3960.0, 0.1, 0.396),\n    (100000, 2000, 2000, 10000, 4000, 8000, 39600.0, 0.1, 0.396),\n    (1000000, 20000, 20000, 100000, 40000, 80000, 396000.0, 0.1, 0.396),\n    (2000000, 20000, 20000, 100000, 40000, 80000, 396000.0, 0.05, 0.198),\n    (2500000, 50000, 50000, 250000, 100000, 200000, 990000.0, 0.1, 0.396),\n    (5000000, 100000, 100000, 500000, 200000, 400000, 1980000.0, 0.1, 0.396),\n    (10000000, 200000, 200000, 1000000, 400000, 800000, 3960000.0, 0.1, 0.396)\n)\nSELECT * FROM market_source;",
+        "description": "Deterministic 1-2-5 Stakes denomination scenarios using the current five-slot shop odds and 51-unit cost distribution.",
+        "tables_used": [
+          "analysis/endless_economy/unit_market_results.json"
+        ],
+        "filters": [
+          "Deterministic model output generated from the checked-in baseline and fixed seed."
+        ],
+        "metric_definitions": [
+          "U = largest 1-2-5 denomination no greater than peak bankroll / 50.",
+          "Unit price = rarity tier * U; reroll = 2U; XP or command = 4U.",
+          "Promotions use a sticky high-water mark and occur only at chapter boundaries.",
+          "Expected shop price uses current level-specific tier odds across five slots."
+        ]
+      }
+    },
+    {
+      "id": "shop-pressure-source",
+      "label": "Expected five-slot shop pressure by player level",
+      "path": "analysis/endless_economy/unit_market_results.json",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "WITH shop_pressure_source (level, expected_shop_units, share_of_50_unit_reserve, reroll_plus_shop_share) AS (\n  VALUES\n    (1, 5.0, 0.1, 0.14),\n    (3, 7.0, 0.14, 0.18),\n    (6, 11.85, 0.237, 0.277),\n    (10, 16.25, 0.325, 0.365),\n    (14, 19.8, 0.396, 0.436)\n)\nSELECT * FROM shop_pressure_source;",
+        "description": "Expected shop sticker cost under the current level-specific tier odds.",
+        "tables_used": [
+          "analysis/endless_economy/unit_market_results.json"
+        ],
+        "filters": [
+          "Deterministic model output generated from the checked-in baseline and fixed seed."
+        ],
+        "metric_definitions": [
+          "Expected shop units = five times the probability-weighted average unit tier.",
+          "Reserve share uses a 50U healthy liquid reserve."
+        ]
+      }
+    },
+    {
+      "id": "search-source",
+      "label": "Specific-unit search cost at level 14",
+      "path": "analysis/endless_economy/unit_market_results.json",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "WITH search_source (tier, identities_in_tier, specific_unit_slot_probability, specific_unit_shop_probability, expected_rerolls, expected_search_and_purchase_units, share_of_50_unit_reserve) AS (\n  VALUES\n    (1, 14, 0.002142857142857143, 0.010668465638060454, 92.73419139416208, 186.46838278832416, 3.729367655766483),\n    (2, 13, 0.004615384615384615, 0.022864886217562774, 42.73518374352936, 87.47036748705872, 1.7494073497411744),\n    (3, 12, 0.015, 0.07278349763437508, 12.739378190142208, 28.478756380284416, 0.5695751276056883),\n    (4, 8, 0.0475, 0.21598400723623046, 3.629972435441757, 11.259944870883514, 0.22519889741767027),\n    (5, 4, 0.0875, 0.367348757019043, 1.7222087482064379, 8.444417496412875, 0.1688883499282575)\n)\nSELECT * FROM search_source;",
+        "description": "Expected paid rerolls plus sticker price for one named unit at level 14.",
+        "tables_used": [
+          "analysis/endless_economy/unit_market_results.json"
+        ],
+        "filters": [
+          "Deterministic model output generated from the checked-in baseline and fixed seed."
+        ],
+        "metric_definitions": [
+          "Specific shop probability assumes five independent slots using current tier odds and identities per tier.",
+          "Expected rerolls = 1 / shop probability - 1."
+        ]
+      }
+    },
+    {
+      "id": "completion-source",
+      "label": "Specific five-cost completion pressure",
+      "path": "analysis/endless_economy/unit_market_results.json",
+      "query": {
+        "engine": "SQLite",
+        "language": "sql",
+        "sql": "WITH completion_source (copies, expected_cost_units, share_of_50_unit_reserve, expected_chapters_from_natural_shops) AS (\n  VALUES\n    (1, 8.44, 0.168888, 0.46),\n    (3, 25.33, 0.506665, 1.37),\n    (9, 76.0, 1.519995, 4.11),\n    (27, 228.0, 4.559985, 12.34)\n)\nSELECT * FROM completion_source;",
+        "description": "Expected cost and natural-shop time for completing a named five-cost.",
+        "tables_used": [
+          "analysis/endless_economy/unit_market_results.json"
+        ],
+        "filters": [
+          "Deterministic model output generated from the checked-in baseline and fixed seed."
+        ],
+        "metric_definitions": [
+          "Costs multiply the one-copy expected search and purchase cost.",
+          "Natural-shop chapters assume five natural shops per five-fight chapter."
         ]
       }
     },
@@ -2119,6 +2765,26 @@
       "id": "tockers-source",
       "label": "Riot Games \u2014 Tocker's Trials mode overview",
       "href": "https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/new-tft-workshop-mode-tockers-trials/"
+    },
+    {
+      "id": "riot-inflation-source",
+      "label": "Riot Games \u2014 Rise of the Elements economy learnings",
+      "href": "https://teamfighttactics.leagueoflegends.com/en-gb/news/dev/dev-tft-rise-of-the-elements-learnings/"
+    },
+    {
+      "id": "riot-shop-source",
+      "label": "Riot Games \u2014 TFT shop odds and shared-pool strategy",
+      "href": "https://teamfighttactics.leagueoflegends.com/en-gb/news/game-updates/teamfight-tactics-patch-13-23-notes/"
+    },
+    {
+      "id": "riot-dragons-source",
+      "label": "Riot Games \u2014 Dragonlands expensive-unit tradeoffs",
+      "href": "https://teamfighttactics.leagueoflegends.com/en-us/news/game-updates/dragonlands-set-mechanics-overview/"
+    },
+    {
+      "id": "incremental-math-source",
+      "label": "Kongregate \u2014 The Math of Idle Games",
+      "href": "https://blog.kongregate.com/the-math-of-idle-games-part-i/"
     },
     {
       "id": "last-flame-source",
