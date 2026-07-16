@@ -21,7 +21,7 @@ func set_remove_from_board(cb: Callable) -> void:
 
 func combine() -> Array:
 	# Scan bench (and optionally board) for three-of-a-kind (same id and level).
-	# Promote one copy by +1 level (max 3), remove two others. Repeat while possible.
+	# Promote one copy by +1 level (max 4), remove two others. Repeat while possible.
 	var results: Array = []
 	var bench_count: int = _bench_size()
 	if bench_count <= 0 and not _has_team():
@@ -40,22 +40,29 @@ func combine() -> Array:
 		var id_level: Array = match_key.split("#")
 		var id: String = String(id_level[0])
 		var level: int = int(id_level[1])
-		if level >= 3:
-			# No promotion beyond 3-star; drop this group to avoid infinite loop
+		if level >= 4:
+			# No promotion beyond level 4; drop this group to avoid infinite loop
 			groups.erase(match_key)
 			continue
 		var u: Unit = kept.get("unit")
 		if u == null or String(u.id) != id or int(u.level) != level:
 			groups = _build_groups()
 			continue
+		var combined_purchase_value: int = max(0, int(u.purchase_value))
+		var consumed_for_value: Array = _pick_consumed(entries, kept, 2)
+		for value_entry: Dictionary in consumed_for_value:
+			var value_unit: Unit = value_entry.get("unit") as Unit
+			if value_unit != null:
+				combined_purchase_value += max(0, int(value_unit.purchase_value))
 		_promote_one_level(u)
+		u.purchase_value = combined_purchase_value
 		# Persist promotion (bench unit updated via set_slot; board unit left in-place)
 		if kept.get("kind") == "bench":
 			var ks: int = int(kept.get("index", -1))
 			if ks >= 0:
 				_roster.set_slot(ks, u)
 		# Prepare to consume two others, preferring bench units first
-		var consumed: Array = _pick_consumed(entries, kept, 2)
+		var consumed: Array = consumed_for_value
 		var consumed_slots: Array = []
 		# Capture items from consumed units first so none are lost
 		var items_to_transfer: Array[String] = []
@@ -261,31 +268,36 @@ func _pick_consumed(entries: Array, kept: Dictionary, count: int) -> Array:
 	return out
 
 func _promote_one_level(u: Unit) -> void:
-	# Increase unit.level by 1 (max 3) and apply multiplicative step to scaled stats.
+	# Increase unit.level by 1 (max 4). Scale the pre-item base, then reapply
+	# items so flat modifiers are not multiplied and promotion is reproducible.
 	if u == null:
 		return
-	var steps := 1
-	for _i in range(steps):
-		for k in UnitScaler.SCALE_KEYS:
-			var curv: float = float(u.get(k))
-			curv *= 1.5
-			match k:
-				"max_hp":
-					u.max_hp = max(1, int(curv))
-				"hp_regen":
-					u.hp_regen = max(0.0, curv)
-				"attack_damage":
-					u.attack_damage = max(0.0, curv)
-				"spell_power":
-					u.spell_power = max(0.0, curv)
-				"lifesteal":
-					u.lifesteal = clampf(curv, 0.0, 0.9)
-				"armor":
-					u.armor = max(0.0, curv)
-				"magic_resist":
-					u.magic_resist = max(0.0, curv)
-				"true_damage":
-					u.true_damage = max(0.0, curv)
-	u.level = min(3, int(u.level) + 1)
+	var equipped_items: Array[String] = []
+	var item_base: Dictionary = {}
+	if _has_items() and Items.has_method("get_equipped") and Items.has_method("get_equipped_base_snapshot"):
+		var raw_equipped: Variant = Items.get_equipped(u)
+		if raw_equipped is Array:
+			for raw_item: Variant in raw_equipped:
+				equipped_items.append(String(raw_item))
+		item_base = Items.get_equipped_base_snapshot(u)
+	for key: String in UnitScaler.SCALE_KEYS:
+		var current_value: float = float(item_base.get(key, u.get(key)))
+		var scaled_value: float = current_value * 1.5
+		if item_base.has(key):
+			item_base[key] = _scaled_stat_value(key, scaled_value)
+		else:
+			u.set(key, _scaled_stat_value(key, scaled_value))
+	u.level = min(4, int(u.level) + 1)
+	if not equipped_items.is_empty() and Items.has_method("restore_equipped_snapshot"):
+		Items.restore_equipped_snapshot(u, equipped_items, item_base)
 	# Heal to full after promotion
 	u.hp = u.max_hp
+
+func _scaled_stat_value(key: String, value: float) -> Variant:
+	match key:
+		"max_hp":
+			return max(1, int(value))
+		"lifesteal":
+			return clampf(value, 0.0, 0.9)
+		_:
+			return max(0.0, value)

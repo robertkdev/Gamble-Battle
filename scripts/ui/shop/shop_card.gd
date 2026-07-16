@@ -40,6 +40,8 @@ var _tooltip_title: String = ""
 var _tooltip_subtitle: String = ""
 var _tooltip_lines: Array[String] = []
 var _status_tip: String = ""
+var _package_level: int = 1
+var _package_kind: String = "standard"
 
 func _resolve_child(paths: Array) -> Node:
 	for p in paths:
@@ -67,6 +69,8 @@ func set_data(props: Dictionary) -> void:
 	offer_id = String(props.get("id", ""))
 	var title := String(props.get("name", "?"))
 	var price_i := int(props.get("price", props.get("cost", 0)))
+	_package_level = max(1, int(props.get("package_level", 1)))
+	_package_kind = String(props.get("package_kind", "standard"))
 	var img_path := String(props.get("image_path", props.get("sprite_path", "")))
 	var roles: Array = _coerce_array(props.get("roles", []))
 	var traits: Array = _coerce_array(props.get("traits", []))
@@ -82,7 +86,7 @@ func set_data(props: Dictionary) -> void:
 	var display_goal := _format_goal(primary_goal)
 
 	if _name_label:
-		_name_label.text = title
+		_name_label.text = "%s • Lv%d" % [title, _package_level] if _package_kind != "standard" else title
 	if _price_label:
 		_price_label.text = str(price_i) + "g"
 	if _icon:
@@ -111,6 +115,8 @@ func set_data(props: Dictionary) -> void:
 		tooltip_lines.append("Alt Goals: %s" % alt_text)
 	if identity_path != "":
 		tooltip_lines.append(identity_path)
+	if _package_kind != "standard":
+		tooltip_lines.append("%s package: arrives at level %d" % ["Current-grade" if _package_kind == "current_grade" else "Depth-grade", _package_level])
 	var identity_tip := "\n".join(tooltip_lines)
 	set_meta("identity_tooltip", identity_tip)
 	if _disabled_reason != "":
@@ -120,7 +126,7 @@ func set_data(props: Dictionary) -> void:
 	else:
 		tooltip_text = title
 	_tooltip_title = title
-	_tooltip_subtitle = "%dg" % price_i
+	_tooltip_subtitle = "%dg • %s Lv%d" % [price_i, "Current Grade" if _package_kind == "current_grade" else "Depth Grade", _package_level] if _package_kind != "standard" else "%dg" % price_i
 	_tooltip_lines = _build_tooltip_lines(display_role, display_goal, approaches, alt_goals, traits)
 	tooltip_text = ""
 	if _hovered:
@@ -233,7 +239,7 @@ func _build_tooltip_lines(display_role: String, display_goal: String, approaches
 	var alt_text: String = _format_list(alt_goals, 3)
 	if alt_text != "":
 		lines.append("Alt Goals: %s" % alt_text)
-	var preview_unit: Unit = UnitFactory.spawn(offer_id) if offer_id.strip_edges() != "" else null
+	var preview_unit: Unit = UnitFactory.spawn_at_level(offer_id, _package_level) if offer_id.strip_edges() != "" else null
 	var attack_text: String = _format_attack_info(preview_unit)
 	if attack_text != "":
 		lines.append(attack_text)

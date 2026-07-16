@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parent
 BASELINE_PATH = ROOT / "live_baseline.json"
 SCENARIO_PATH = ROOT / "unit_market_scenarios.csv"
 RESULT_PATH = ROOT / "unit_market_results.json"
+POLICY_PATH = ROOT / "policy_summary.csv"
 
 LEVELS_TO_TEST = (1, 3, 6, 10, 14)
 PEAK_BANKROLLS = (
@@ -68,6 +69,24 @@ def market_unit_for_peak(peak_bankroll: float) -> int:
 			choice = candidate
 	return max(1, int(choice * magnitude))
 
+def market_rank_for_unit(unit: int) -> int:
+	rank: int = 0
+	value: int = 1
+	while value < unit:
+		rank += 1
+		cycle: int = rank // 3
+		offset: int = rank % 3
+		value = (1, 2, 5)[offset] * (10 ** cycle)
+	return rank
+
+
+def package_level(stake_rank: int) -> int:
+	return min(4, 1 + max(0, stake_rank) // 3)
+
+
+def copy_multiplier(level: int) -> int:
+	return 3 ** max(0, level - 1)
+
 
 def expected_shop_units(odds: dict[int, float]) -> float:
 	return 5.0 * sum(float(tier) * probability for tier, probability in odds.items())
@@ -101,8 +120,10 @@ def draw_shop(rng: random.Random, odds: dict[int, float]) -> list[int]:
 	return rng.choices(tiers, weights=weights, k=5)
 
 
-def simulate_greedy_shops(
+def simulate_shop_policy(
 	odds: dict[int, float],
+	stake_rank: int,
+	policy: str,
 	starting_units: float = 50.0,
 	shops: int = 5,
 ) -> dict[str, float]:
@@ -121,9 +142,32 @@ def simulate_greedy_shops(
 					break
 				bankroll -= 2.0
 			shop: list[int] = draw_shop(rng, odds)
+			current_level: int = package_level(stake_rank)
+			standard_level: int = max(1, current_level - 1)
+			prices: list[float] = [
+				float(tier * copy_multiplier(standard_level))
+				for tier in shop
+			]
+			if current_level > 1:
+				prices[-1] = float(shop[-1] * copy_multiplier(current_level))
 			offers_seen += len(shop)
 			bought_this_shop: int = 0
-			for price in sorted(shop):
+			candidates: list[tuple[float, int]] = sorted(zip(prices, shop))
+			if policy == "selective":
+				budget: float = starting_units * 0.20
+				eligible_indices: list[int] = [
+					index for index, price in enumerate(prices)
+					if price <= budget
+				]
+				if eligible_indices:
+					best_index: int = max(
+						eligible_indices,
+						key=lambda index: (shop[index], -prices[index]),
+					)
+					candidates = [(prices[best_index], shop[best_index])]
+				else:
+					candidates = []
+			for price, tier in candidates:
 				if bankroll < float(price):
 					continue
 				bankroll -= float(price)
@@ -137,6 +181,9 @@ def simulate_greedy_shops(
 	return {
 		"simulations": SIMULATIONS,
 		"shops_per_run": shops,
+		"stake_rank": stake_rank,
+		"package_level": package_level(stake_rank),
+		"policy": policy,
 		"mean_offer_buy_rate": statistics.fmean(offer_buys),
 		"mean_full_shop_rate": statistics.fmean(full_shops),
 		"median_remaining_bankroll_share": statistics.median(remaining),
@@ -153,17 +200,31 @@ def build_results() -> dict[str, Any]:
 	scenarios: list[dict[str, Any]] = []
 	for peak in PEAK_BANKROLLS:
 		unit: int = market_unit_for_peak(float(peak))
-		level_14_shop: float = expected_shop_units(odds[14]) * unit
+		stake_rank: int = market_rank_for_unit(unit)
+		current_package_level: int = package_level(stake_rank)
+		standard_package_level: int = max(1, current_package_level - 1)
+		standard_multiplier: int = copy_multiplier(standard_package_level)
+		premium_multiplier: int = copy_multiplier(current_package_level)
+		expected_tier: float = expected_shop_units(odds[14]) / 5.0
+		level_14_shop: float = expected_tier * (
+			(4.0 * standard_multiplier) + premium_multiplier
+		) * unit
 		scenarios.append(
 			{
 				"peak_bankroll": peak,
 				"market_unit": unit,
+				"stake_rank": stake_rank,
+				"standard_package_level": standard_package_level,
+				"premium_package_level": current_package_level,
+				"standard_package_multiplier": standard_multiplier,
+				"premium_package_multiplier": premium_multiplier,
 				"effective_market_reserve_units": round(peak / unit, 2),
 				"one_cost_price": unit,
 				"two_cost_price": 2 * unit,
 				"three_cost_price": 3 * unit,
 				"four_cost_price": 4 * unit,
 				"five_cost_price": 5 * unit,
+				"current_grade_five_cost_price": 5 * unit * premium_multiplier,
 				"reroll_price": 2 * unit,
 				"xp_or_command_price": 4 * unit,
 				"expected_level_14_shop_price": round(level_14_shop, 2),
@@ -219,6 +280,16 @@ def build_results() -> dict[str, Any]:
 				"capital_remaining_before_fights": 1.0 - spend_share,
 			}
 		)
+	policy_stress: list[dict[str, Any]] = []
+	for stake_rank in (0, 3, 6, 9):
+		for policy in ("buy_all", "selective"):
+			policy_stress.append(
+				simulate_shop_policy(
+					odds[14],
+					stake_rank=stake_rank,
+					policy=policy,
+				)
+			)
 	return {
 		"model": "sticky-high-water-1-2-5-market-unit",
 		"market_rule": "U is the largest 1-2-5 denomination not greater than peak_bankroll / 50; promotion is irreversible and occurs at chapter boundaries.",
@@ -227,7 +298,12 @@ def build_results() -> dict[str, Any]:
 		"level_shop_pressure": level_shop_pressure,
 		"specific_unit_search_level_14": search,
 		"five_cost_completion": five_cost_completion,
-		"greedy_five_shop_stress": simulate_greedy_shops(odds[14]),
+		"greedy_five_shop_stress": simulate_shop_policy(
+			odds[14],
+			stake_rank=0,
+			policy="buy_all",
+		),
+		"implemented_package_policy_stress": policy_stress,
 		"betting_opportunity_cost": {
 			"mean_bet_fraction": bet_fraction,
 			"target_probability": probability,
@@ -249,6 +325,11 @@ def write_outputs(results: dict[str, Any]) -> None:
 		writer.writeheader()
 		writer.writerows(scenarios)
 	RESULT_PATH.write_text(json.dumps(results, indent=2), encoding="utf-8")
+	policies: list[dict[str, Any]] = results["implemented_package_policy_stress"]
+	with POLICY_PATH.open("w", encoding="utf-8", newline="") as handle:
+		writer = csv.DictWriter(handle, fieldnames=list(policies[0].keys()))
+		writer.writeheader()
+		writer.writerows(policies)
 
 
 def main() -> None:

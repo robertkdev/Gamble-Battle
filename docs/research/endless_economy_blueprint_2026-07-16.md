@@ -1,7 +1,43 @@
 # Gamble Battle Endless Economy Blueprint
 
 Date: 2026-07-16
-Status: research and implementation blueprint; no gameplay behavior changed
+Status: locked design direction with a first implementation branch in progress
+
+## Locked Product Rules
+
+These are now decisions, not a menu of equal alternatives:
+
+1. Unit rarity remains 1-5, but actual gold price is `rarity * U`.
+2. `U` uses a visible, irreversible 1-2-5 Stakes ladder.
+3. Stakes only reprice between chapters. A promotion re-denominates any locked carry-over offers before the next shopping decision, preventing stale-price arbitrage.
+4. Peak bankroll and independent depth progression can promote Stakes; spending or losing cannot lower it.
+5. Rerolls cost `2U`; XP or Command Research costs `4U`.
+6. At higher Stakes, one shop slot can sell a current-grade package. Rarity and actual price remain separate fields.
+7. A purchased unit remembers its acquisition value. Combining sums invested value; selling never uses the current `U`.
+8. Shopping and wagering use the same liquid bankroll. Spending immediately reduces the next wager.
+9. At the level cap, the progression button becomes Command Research instead of deleting gold for useless XP.
+10. Each chapter market offers Champion, Stable, and Pit contract families. One choice expires the others, and passing remains legal.
+11. Total money earned is the primary score. Peak bankroll, depth, richest fight, and biggest winning wager are supporting records.
+12. Active-run saves may preserve run power, but defeat persistence preserves identity/history only and never carries raw combat power into a new run.
+
+## First Implemented Slice
+
+The implementation branch currently contains:
+
+- A pure Stakes market model and chapter-boundary promotion logic.
+- Economy records for total earned, peak bankroll, richest fight, and biggest wager won.
+- Probability-derived gross payout quotes with a contract payout modifier.
+- Separate shop rarity and actual gold price.
+- Scaled reroll and XP/Command prices.
+- One current-grade premium package per higher-Stakes shop.
+- Exact-level premium spawning and acquisition-value resale accounting.
+- Post-shopping wager clamping.
+- Post-cap Command Research with bounded targeting doctrines.
+- Deterministic three-family chapter contract state and one functional effect per family.
+- Schema-checked planning save storage plus identity-only career record storage.
+- Focused validation scenes for Stakes, shop integration, command research, contracts, score, and persistence contracts.
+
+The newer live checkout has large uncommitted changes in the main combat, shop, progression, and UI integration files. Full contract choice UI, active board-position restore, and application of the Pit enemy multiplier to the live combat director must be reconciled with those newer files rather than overwriting them from this isolated branch.
 
 ## Decision
 
@@ -385,6 +421,42 @@ After defeat, persist identity and history:
 
 Do not persist raw combat power, bankroll multipliers, permanent starting stats, or exponential meta-currency bonuses.
 
+### Active-run continuation
+
+The current implementation preserves the last stable planning state, never an in-progress combat simulation. A resumed run restores:
+
+- Chapter and round.
+- Exact Stakes, bankroll, wager preference, score counters, and pending promotion.
+- Shop offers, lock state, progression, Command Research, chapter contracts, and shop RNG state.
+- Board identities, levels, acquisition values, targeting doctrines, tile positions, bench slots, and board capacity.
+- Inventory order, duplicate equipped items, and the item system's pre-item stat bases.
+- Procedural chapter seed/cache and mirror-board history.
+- Remaining planning time.
+
+The save uses an atomic temporary/backup replacement and string-encodes integers beyond JSON's exact range. Unknown units, invalid items, malformed placements, missing production sections, and mid-combat saves fail closed without deleting the recovery file. New Run and terminal defeat clear the active run; returning to title and quitting preserve it.
+
+Career persistence remains identity-only: records, discovered units/contracts, and run history survive defeat, while bankroll, unit power, items, and exponential multipliers do not.
+
+## Implemented First Slice
+
+The first production slice now locks the following choices:
+
+- Sticky high-water 1-2-5 Stakes denomination with chapter-boundary promotion.
+- Rarity tier remains 1-5, while actual price is `rarity × U × package multiplier`.
+- Four shop slots trail one grade below the current premium package; one slot is current-grade.
+- Locked offers keep their identities but are re-denominated after Stakes promotion.
+- Rerolls cost `2U`; XP or Command Research costs `4U`.
+- Player level caps at 14; unit combining caps at level 4.
+- Post-cap XP purchases unlock six targeting doctrines with real targeting behavior.
+- Chapter contract market offers Champion, Stable, and Pit choices with a free pass.
+- Pit raises enemy strength only; lower estimated win odds naturally improve the payout quote, avoiding double compensation.
+- Wager payout is quoted from projected win probability, clamped to 1.05x-4x gross, locked at combat start, and calculated with saturating arithmetic.
+- Economic unit abilities, traits, and creep gold rewards pay in Stakes units.
+- Total gross money earned is the primary run score; recovery stipends and unit sales do not inflate it.
+- Planning-state Continue Run and identity-only career records are implemented.
+
+The implemented package-policy stress test runs 20,000 samples for each of four Stakes bands. At stake ranks 0, 3, 6, and 9, indiscriminate buy-all behavior bought roughly 69.1%, 65.6%, 31.5%, and 9.1% of seen offers. A disciplined one-offer, 20%-budget policy bought 20.0% or less and preserved materially more capital in the early/mid bands. This is evidence that price pressure survives bankroll growth; it is not yet evidence that the combat-value judgments are balanced.
+
 ## Required Prototypes Before Gameplay Implementation
 
 1. Prototype `50U`, `75U`, and `100U` healthy-reserve targets.
@@ -398,7 +470,7 @@ Do not persist raw combat power, bankroll multipliers, permanent starting stats,
 9. Test sell values using acquisition cost and prevent buy-low/sell-high promotion arbitrage.
 10. Expand win-probability calibration beyond the current 144 saved samples.
 11. Prototype one contract from each family and evaluate whether the fight changes visibly.
-12. Test multi-session save/resume and the identity-only defeat reset.
+12. Test multi-session save/resume and the identity-only defeat reset. The serialization and restore paths are implemented; fresh-process runtime validation remains required.
 
 ## Evidence and Reproduction
 
