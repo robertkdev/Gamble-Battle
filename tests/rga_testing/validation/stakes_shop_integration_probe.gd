@@ -6,9 +6,9 @@ func _ready() -> void:
 	Economy.reset_run()
 	Roster.reset()
 	Shop.reset_run()
-	Economy.add_gold(997, false, "test_setup")
+	Economy.add_gold(1497, false, "test_setup")
 	Economy.force_reconcile_stakes(1)
-	_expect(int(Economy.stake_unit) == 20, "1000 peak should establish U=20")
+	_expect(int(Economy.stake_unit) == 20, "1500 peak should establish U=20 at a 75U reserve")
 	var reroll_gold_before: int = int(Economy.gold)
 	var reroll_result: Dictionary = Shop.reroll()
 	_expect(bool(reroll_result.get("ok", false)), "scaled reroll should succeed")
@@ -30,9 +30,9 @@ func _ready() -> void:
 			_expect(int(offer.package_level) == 2, "U=20 market should provide a level-2 premium package")
 			_expect(int(offer.package_multiplier) == 3, "level-2 premium should use three-copy price")
 	_expect(premium_index >= 0, "higher Stakes shop should contain a current-grade premium")
-	Economy.add_gold(1540, false, "test_setup")
+	Economy.add_gold(2290, false, "test_setup")
 	Economy.force_reconcile_stakes(1)
-	_expect(int(Economy.stake_unit) == 50, "2500 peak should promote U to 50")
+	_expect(int(Economy.stake_unit) == 50, "3750 peak should promote U to 50 at a 75U reserve")
 	for repriced_index: int in old_prices.keys():
 		var repriced_offer: Variant = offers[repriced_index]
 		_expect(int(repriced_offer.price) > int(old_prices[repriced_index]), "Stakes promotion must re-denominate locked offers to prevent stale-price arbitrage")

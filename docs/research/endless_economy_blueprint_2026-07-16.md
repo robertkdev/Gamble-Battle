@@ -443,7 +443,7 @@ The first production slice now locks the following choices:
 
 - Sticky high-water 1-2-5 Stakes denomination with chapter-boundary promotion.
 - Rarity tier remains 1-5, while actual price is `rarity × U × package multiplier`.
-- Four shop slots trail one grade below the current premium package; one slot is current-grade.
+- Four shop slots trail one grade below the current premium package; one slot is current-grade. Direct shop packages cap at level 3 so level-4 power remains earned.
 - Locked offers keep their identities but are re-denominated after Stakes promotion.
 - Rerolls cost `2U`; XP or Command Research costs `4U`.
 - Player level caps at 14; unit combining caps at level 4.
@@ -457,20 +457,31 @@ The first production slice now locks the following choices:
 
 The implemented package-policy stress test runs 20,000 samples for each of four Stakes bands. At stake ranks 0, 3, 6, and 9, indiscriminate buy-all behavior bought roughly 69.1%, 65.6%, 31.5%, and 9.1% of seen offers. A disciplined one-offer, 20%-budget policy bought 20.0% or less and preserved materially more capital in the early/mid bands. This is evidence that price pressure survives bankroll growth; it is not yet evidence that the combat-value judgments are balanced.
 
-## Required Prototypes Before Gameplay Implementation
+## Decision-Quality Tuning Result
 
-1. Prototype `50U`, `75U`, and `100U` healthy-reserve targets.
-2. Test the hybrid promotion rule: depth schedule normally, high-water achievement when a run outruns the market.
-3. Require fewer than roughly 5–10% of shops to be bought out completely.
-4. Require at least 30% of plausible offers to be passed for economic reasons.
-5. Confirm five-cost acceptance materially depends on composition, not only affordability.
-6. Confirm selective purchasing outperforms indiscriminate buy-all behavior.
-7. Confirm wagers use post-shopping liquid gold and a premium purchase visibly reduces betting flexibility.
-8. Test whether higher-grade recruits clearly justify higher-Stakes prices.
-9. Test sell values using acquisition cost and prevent buy-low/sell-high promotion arbitrage.
-10. Expand win-probability calibration beyond the current 144 saved samples.
-11. Prototype one contract from each family and evaluate whether the fight changes visibly.
-12. Test multi-session save/resume and the identity-only defeat reset. The serialization and restore paths are implemented; fresh-process runtime validation remains required.
+The follow-up model runs 12,000 deterministic simulations for every combination of `50U`, `75U`, and `100U` reserves, four Stakes package bands, and buy-all versus composition-aware selective policies. It uses the live level-14 odds, implemented five-slot/package structure, post-shop wagering, finite formation value, and an explicit role-plus-trait compatibility model.
+
+`75U` is the only reserve that passes every requested gate:
+
+- Full-shop buyouts: `1.41%` (target below `5-10%`).
+- Plausible offers passed for economic reasons: `40.88%` (target at least `30%`).
+- Selective median decision score: `200.62%` above buy-all.
+- Minimum five-cost core-fit versus off-plan acceptance spread across every package band: `44.13` percentage points.
+- Mean next-wager reduction after a premium purchase: `26.06%`.
+
+`50U` fails because top-grade five-cost acceptance becomes affordability-gated even for core fits. `100U` fails because the plausible economic pass rate falls to `29.43%`. The runtime therefore promotes around `75U`, and direct shop packages cap at level 3. This is model evidence, not player telemetry; the real-run playtest gate remains open.
+
+Evidence: `analysis/endless_economy/decision_quality_results.json`, `analysis/endless_economy/decision_quality_summary.csv`, and `tests/rga_testing/validation/EconomyDecisionQualityProbe.tscn`.
+
+## Remaining Prototypes Before Broader Gameplay Implementation
+
+1. Test the hybrid promotion rule: depth schedule normally, high-water achievement when a run outruns the market.
+2. Validate the `75U` model result in real play; tune if player behavior contradicts it.
+3. Test whether higher-grade recruits clearly justify higher-Stakes prices.
+4. Test sell values using acquisition cost and prevent buy-low/sell-high promotion arbitrage.
+5. Expand win-probability calibration beyond the current 144 saved samples.
+6. Prototype one contract from each family and evaluate whether the fight changes visibly.
+7. Test multi-session save/resume and the identity-only defeat reset. The serialization and restore paths are implemented; fresh-process runtime validation remains required.
 
 ## Evidence and Reproduction
 

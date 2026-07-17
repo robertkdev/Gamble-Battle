@@ -11,7 +11,7 @@ Stakes Pricing
 - XP / Command Research: `4U`
 - Current-grade package: `cost * U * copy_equivalent_multiplier`
 
-The Stakes denomination `U` follows an irreversible 1-2-5 ladder and only changes between chapters. A locked carry-over shop keeps its unit identities, but promotion re-denominates those offers before the next shopping decision so stale quotes cannot become effectively free. Purchased units store their acquisition value so later Stakes promotions cannot create buy-low/sell-high arbitrage.
+The Stakes denomination `U` follows an irreversible 1-2-5 ladder and only changes between chapters. Promotion targets a healthy `75U` liquid reserve, selected by the decision-quality sweep in `analysis/endless_economy/decision_quality_results.json`. A locked carry-over shop keeps its unit identities, but promotion re-denominates those offers before the next shopping decision so stale quotes cannot become effectively free. Purchased units store their acquisition value so later Stakes promotions cannot create buy-low/sell-high arbitrage.
 
 At the player level cap, the progression purchase routes to Command Research rather than charging for discarded XP.
 
@@ -43,7 +43,7 @@ Odds & Costs
 - Rarity remains a 1-5 identity tier. It is not the final gold price.
 - The current Stakes denomination is `U`. Standard unit price is `rarity × U × package multiplier`.
 - Reroll costs `2U`; Buy XP or Command Research costs `4U`.
-- Higher Stakes markets sell level-2/3/4 packages. Four slots trail one package grade behind and one slot is current-grade.
+- Higher Stakes markets directly sell level-2/3 packages. Four slots trail one package grade behind and one slot is current-grade. Level-4 power remains an earned combine/upgrade endpoint rather than a one-click shop purchase.
 - Locked offers keep their identities after Stakes promotion, but receive current denomination prices so stale cheap shops cannot bypass the new market.
 - Buy XP grants +4 XP until player level 14. At cap it purchases one of six Command Research ranks.
 - Odds by level:

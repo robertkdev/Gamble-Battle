@@ -3,7 +3,8 @@ class_name StakesMarket
 
 const STARTING_BANKROLL: float = 3.0
 const DEPTH_GROWTH_PER_CHAPTER: float = 1.22
-const HEALTHY_RESERVE_UNITS: int = 50
+const HEALTHY_RESERVE_UNITS: int = 75
+const MAX_DIRECT_SHOP_PACKAGE_LEVEL: int = 3
 const MIN_STAKE_UNIT: int = 1
 const MAX_SAFE_GOLD: int = 9000000000000000000
 
@@ -64,7 +65,11 @@ static func action_price(stake_units: int, stake_unit: int) -> int:
 	return _safe_product(max(0, int(stake_units)), max(MIN_STAKE_UNIT, int(stake_unit)), 1)
 
 static func premium_package_level(stake_rank: int) -> int:
-	return clamp(1 + max(0, int(stake_rank)) / 3, 1, 4)
+	return clamp(
+		1 + max(0, int(stake_rank)) / 3,
+		1,
+		MAX_DIRECT_SHOP_PACKAGE_LEVEL
+	)
 
 static func copy_equivalent_multiplier(package_level: int) -> int:
 	var multiplier: int = 1
