@@ -148,6 +148,9 @@ var _combat_resolving_last_second: int = -1
 var _combat_resolving_watchdog_seen: bool = false
 var _hud_snapshot_signature: String = ""
 var _result_banner: PanelContainer = null
+var _encounter_banner: PanelContainer = null
+var _encounter_banner_label: Label = null
+var _encounter_banner_tween: Tween = null
 var _bottom_combat_visibility_state: int = -1
 var _layout_tile_size: int = UI.TILE_SIZE
 var _active_run_save_pending: bool = false
@@ -284,6 +287,13 @@ func teardown() -> void:
 	if _result_banner != null and is_instance_valid(_result_banner):
 		_result_banner.queue_free()
 	_result_banner = null
+	if _encounter_banner_tween != null and _encounter_banner_tween.is_valid():
+		_encounter_banner_tween.kill()
+	_encounter_banner_tween = null
+	if _encounter_banner != null and is_instance_valid(_encounter_banner):
+		_encounter_banner.queue_free()
+	_encounter_banner = null
+	_encounter_banner_label = null
 	_bottom_combat_visibility_state = -1
 	player_views.clear()
 	enemy_views.clear()
@@ -303,6 +313,7 @@ func _disconnect_controller_signals() -> void:
 		_disconnect_signal(manager, "unit_stat_changed", "_on_unit_stat_changed")
 		_disconnect_signal(manager, "vfx_knockup", "_on_vfx_knockup")
 		_disconnect_signal(manager, "vfx_beam_line", "_on_vfx_beam_line")
+		_disconnect_signal(manager, "encounter_escalated", "_on_encounter_escalated")
 		_disconnect_signal(manager, "hit_applied", "_on_engine_hit_applied")
 		_disconnect_signal(manager, "projectile_fired", "_on_projectile_fired")
 		_disconnect_signal(manager, "victory", "_on_victory")
@@ -372,6 +383,8 @@ func initialize() -> void:
 			manager.vfx_knockup.connect(_on_vfx_knockup)
 		if not manager.is_connected("vfx_beam_line", Callable(self, "_on_vfx_beam_line")):
 			manager.vfx_beam_line.connect(_on_vfx_beam_line)
+		if manager.has_signal("encounter_escalated") and not manager.is_connected("encounter_escalated", Callable(self, "_on_encounter_escalated")):
+			manager.encounter_escalated.connect(_on_encounter_escalated)
 		# Stable hit signal from manager (re-emitted from engine)
 		if not manager.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
 			manager.hit_applied.connect(_on_engine_hit_applied)
@@ -2159,6 +2172,121 @@ func _on_vfx_knockup(team: String, index: int, duration: float) -> void:
 	var actor: UnitActor = arena_bridge.get_actor(team, index)
 	if actor and is_instance_valid(actor):
 		actor.play_knockup(duration)
+
+func _on_encounter_escalated(_phase_id: String, label: String, _champion_index: int, revived_indices: Array[int], _affected_player_indices: Array[int], _pulse_damage: int, intensity: int) -> void:
+	var banner: PanelContainer = _ensure_encounter_banner()
+	if banner == null or _encounter_banner_label == null:
+		return
+	_show_reinforcement_callouts(revived_indices, intensity)
+	_encounter_banner_label.text = "%s\n%d REINFORCEMENT%s RETURN" % [
+		label,
+		revived_indices.size(),
+		"" if revived_indices.size() == 1 else "S",
+	]
+	var accent: Color = Color(0.95, 0.23, 0.14, 1.0) if intensity >= 2 else Color(0.96, 0.55, 0.16, 1.0)
+	banner.add_theme_stylebox_override("panel", _make_result_card_style(accent))
+	_encounter_banner_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72, 1.0))
+	if _encounter_banner_tween != null and _encounter_banner_tween.is_valid():
+		_encounter_banner_tween.kill()
+	banner.visible = true
+	banner.modulate = Color(1.0, 1.0, 1.0, 0.0)
+	banner.scale = Vector2(0.94, 0.94)
+	banner.pivot_offset = banner.size * 0.5
+	_encounter_banner_tween = parent.create_tween()
+	_encounter_banner_tween.set_parallel(true)
+	_encounter_banner_tween.tween_property(banner, "modulate:a", 1.0, 0.16)
+	_encounter_banner_tween.tween_property(banner, "scale", Vector2.ONE, 0.22).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_encounter_banner_tween.set_parallel(false)
+	_encounter_banner_tween.tween_interval(1.65)
+	_encounter_banner_tween.tween_property(banner, "modulate:a", 0.0, 0.42)
+	_encounter_banner_tween.tween_callback(func() -> void: banner.visible = false)
+
+func _show_reinforcement_callouts(revived_indices: Array[int], intensity: int) -> void:
+	if arena_bridge == null:
+		return
+	var lane_offsets: Array[Vector2] = [
+		Vector2(-104.0, -30.0),
+		Vector2(24.0, -58.0),
+		Vector2(-104.0, -86.0),
+		Vector2(24.0, -114.0),
+	]
+	for order_index: int in range(revived_indices.size()):
+		var revived_index: int = revived_indices[order_index]
+		var actor: UnitActor = arena_bridge.get_enemy_actor(revived_index)
+		if actor == null or not is_instance_valid(actor):
+			continue
+		actor.visible = true
+		var existing: Node = actor.get_node_or_null("ReinforcementCallout")
+		if existing != null:
+			existing.queue_free()
+		var callout: Label = Label.new()
+		callout.name = "ReinforcementCallout"
+		callout.text = "RETURNED %d" % [order_index + 1]
+		callout.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		callout.z_as_relative = false
+		callout.z_index = 170
+		callout.position = lane_offsets[order_index % lane_offsets.size()]
+		callout.size = Vector2(max(116.0, actor.size.x + 48.0), 27.0)
+		callout.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		callout.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		callout.add_theme_font_size_override("font_size", 15 if intensity < 2 else 17)
+		callout.add_theme_color_override("font_color", Color(1.0, 0.92, 0.58, 1.0))
+		callout.add_theme_color_override("font_outline_color", Color(0.08, 0.01, 0.01, 1.0))
+		callout.add_theme_constant_override("outline_size", 3)
+		var callout_style: StyleBoxFlat = StyleBoxFlat.new()
+		callout_style.bg_color = Color(0.10, 0.015, 0.012, 0.90)
+		callout_style.border_color = Color(0.97, 0.54, 0.14, 0.96)
+		callout_style.set_border_width_all(2)
+		callout_style.corner_radius_top_left = 5
+		callout_style.corner_radius_top_right = 5
+		callout_style.corner_radius_bottom_left = 5
+		callout_style.corner_radius_bottom_right = 5
+		callout.add_theme_stylebox_override("normal", callout_style)
+		actor.add_child(callout)
+		callout.modulate = Color(1.0, 1.0, 1.0, 0.0)
+		callout.scale = Vector2(0.70, 0.70)
+		callout.pivot_offset = callout.size * 0.5
+		var tween: Tween = actor.create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(callout, "modulate:a", 1.0, 0.10)
+		tween.tween_property(callout, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tween.set_parallel(false)
+		tween.tween_interval(1.55)
+		tween.tween_property(callout, "modulate:a", 0.0, 0.35)
+		tween.tween_callback(callout.queue_free)
+
+func _ensure_encounter_banner() -> PanelContainer:
+	if parent == null:
+		return null
+	if _encounter_banner != null and is_instance_valid(_encounter_banner):
+		return _encounter_banner
+	_encounter_banner = PanelContainer.new()
+	_encounter_banner.name = "EncounterEscalationBanner"
+	_encounter_banner.visible = false
+	_encounter_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_encounter_banner.z_as_relative = false
+	_encounter_banner.z_index = 156
+	_encounter_banner.anchor_left = 0.18
+	_encounter_banner.anchor_right = 0.82
+	_encounter_banner.anchor_top = 0.0
+	_encounter_banner.anchor_bottom = 0.0
+	_encounter_banner.offset_top = 68.0
+	_encounter_banner.offset_bottom = 148.0
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 24)
+	margin.add_theme_constant_override("margin_top", 10)
+	margin.add_theme_constant_override("margin_right", 24)
+	margin.add_theme_constant_override("margin_bottom", 10)
+	_encounter_banner.add_child(margin)
+	_encounter_banner_label = Label.new()
+	_encounter_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_encounter_banner_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_encounter_banner_label.add_theme_font_size_override("font_size", 24)
+	_encounter_banner_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
+	_encounter_banner_label.add_theme_constant_override("outline_size", 3)
+	margin.add_child(_encounter_banner_label)
+	parent.add_child(_encounter_banner)
+	return _encounter_banner
 
 func _ensure_beam_overlay() -> void:
 	if _beam_overlay and is_instance_valid(_beam_overlay):

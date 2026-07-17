@@ -473,6 +473,12 @@ The follow-up model runs 12,000 deterministic simulations for every combination 
 
 Evidence: `analysis/endless_economy/decision_quality_results.json`, `analysis/endless_economy/decision_quality_summary.csv`, and `tests/rga_testing/validation/EconomyDecisionQualityProbe.tscn`.
 
+## Qualitative Boss Escalation
+
+Boss rounds now use a reusable two-phase escalation contract. At 65% enemy-team health, the strongest survivor transforms, two fallen allies return at partial health, and the arena fires a light max-health pulse. At 30%, the final transformation is larger, every fallen ally returns, and the pulse intensifies. These thresholds turn purchased power into a qualitative encounter response instead of only larger enemy numbers.
+
+Evidence: `scripts/game/combat/encounter_escalation_runtime.gd` and `tests/rga_testing/validation/EncounterEscalationProbe.tscn`.
+
 ## Remaining Prototypes Before Broader Gameplay Implementation
 
 1. Test the hybrid promotion rule: depth schedule normally, high-water achievement when a run outruns the market.

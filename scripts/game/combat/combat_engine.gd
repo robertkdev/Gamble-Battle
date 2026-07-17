@@ -7,6 +7,7 @@ const BuffSystemLib := preload("res://scripts/game/abilities/buff_system.gd")
 const MovementServiceLib := preload("res://scripts/game/combat/movement/movement_service2.gd")
 const MovementProfileLib := preload("res://scripts/game/combat/movement/movement_profile.gd")
 const Targeting := preload("res://scripts/game/combat/targeting.gd")
+const EncounterEscalationRuntimeLib := preload("res://scripts/game/combat/encounter_escalation_runtime.gd")
 
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal stats_updated(player, enemy)
@@ -23,6 +24,7 @@ signal target_start(source_team: String, source_index: int, target_team: String,
 signal target_end(source_team: String, source_index: int, target_team: String, target_index: int)
 signal ability_cast(source_team: String, source_index: int, target_team: String, target_index: int, position: Vector2)
 signal ability_committed(source_team: String, source_index: int, ability_id: String, target_team: String, target_index: int, position: Vector2, cooldown_s: float, commitment_kind: String)
+signal encounter_escalated(phase_id: String, label: String, champion_index: int, revived_indices: Array[int], affected_player_indices: Array[int], pulse_damage: int, intensity: int)
 
 const POSITION_EMIT_INTERVAL: float = 0.1
 var position_emit_interval_override: float = -1.0
@@ -94,6 +96,8 @@ var projectile_handler: ProjectileHandler = ProjectileHandler.new()
 var regen_system: RegenSystem = RegenSystem.new()
 var ability_system: AbilitySystem = null
 var buff_system: BuffSystem = null
+var encounter_escalation_runtime: RefCounted = EncounterEscalationRuntimeLib.new()
+var encounter_escalation_config: Dictionary = {}
 var _connected_ability_system: AbilitySystem = null
 var _connected_buff_system: BuffSystem = null
 ## Removed passive damage system (was: tick accumulator + constants)
@@ -124,12 +128,18 @@ func set_seed(seed: int) -> void:
 	_seed_locked = true
 	rng.seed = coerced
 
+func configure_encounter_escalation(config: Dictionary) -> void:
+	encounter_escalation_config = config.duplicate(true)
+	if state != null:
+		encounter_escalation_runtime.configure(state, encounter_escalation_config)
+
 func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Callable = Callable()) -> void:
 	Trace.step("CombatEngine.configure: begin")
 	_disconnect_signal_bindings()
 	state = _state
 	player_ref = _player
 	stage = _stage
+	encounter_escalation_runtime.configure(state, encounter_escalation_config)
 	# Prefer engine-provided closest-target selector if none supplied
 	select_closest_target = (_selector if _selector.is_valid() else Callable(self, "_engine_select_closest_target"))
 	if _seed_locked:
@@ -223,6 +233,8 @@ func teardown() -> void:
 	_movement_enemy_targets_scratch.clear()
 	_first_attack_windup_done.clear()
 	_target_recheck_accum = 0.0
+	encounter_escalation_config.clear()
+	encounter_escalation_runtime.configure(null, {})
 
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	# Cast/convert to typed arrays of Vector2 for movement.configure signature
@@ -491,6 +503,7 @@ func process(delta: float) -> void:
 	target_controller.copy_arena_targets(_movement_player_targets_scratch, _movement_enemy_targets_scratch)
 	arena_state.update_movement_with_targets(state, delta, _movement_player_targets_scratch, _movement_enemy_targets_scratch)
 	_update_combat_progress_watchdog()
+	_process_encounter_escalation()
 	var timeout_outcome: String = _combat_timeout_outcome()
 	if timeout_outcome != "":
 		_emit_outcome(timeout_outcome)
@@ -521,6 +534,7 @@ func process(delta: float) -> void:
 		if gated.size() > 0:
 			attack_resolver.resolve_ordered(gated)
 	_emit_target_events()
+	_process_encounter_escalation()
 	if _evaluate_outcome():
 		return
 	_update_totals_cache()
@@ -547,10 +561,57 @@ func on_projectile_hit(source_team: String, source_index: int, target_index: int
 	_update_totals_cache()
 	_mark_combat_progress()
 	_reset_debug_counters()
+	_process_encounter_escalation()
 	_evaluate_outcome()
 
 func _apply_regen(ticks: int) -> void:
 	regen_system.apply_ticks(state, ticks, player_ref, _resolver_emitters)
+
+func _process_encounter_escalation() -> void:
+	if encounter_escalation_runtime == null:
+		return
+	var event: Dictionary = encounter_escalation_runtime.process()
+	if event.is_empty():
+		return
+	var champion_index: int = int(event.get("champion_index", -1))
+	var revived_indices: Array[int] = []
+	for revived_value: Variant in event.get("revived_indices", []):
+		var revived_index: int = int(revived_value)
+		revived_indices.append(revived_index)
+		if revived_index >= 0 and revived_index < state.enemy_cds.size():
+			state.enemy_cds[revived_index] = 0.0
+		emit_signal("unit_stat_changed", "enemy", revived_index, {"hp": true, "mana": true})
+		emit_signal("vfx_knockup", "enemy", revived_index, 0.55)
+	var affected_player_indices: Array[int] = []
+	for player_value: Variant in event.get("affected_player_indices", []):
+		var player_index: int = int(player_value)
+		affected_player_indices.append(player_index)
+		emit_signal("unit_stat_changed", "player", player_index, {"hp": true})
+		emit_signal("vfx_knockup", "player", player_index, 0.18)
+	if champion_index >= 0:
+		emit_signal("unit_stat_changed", "enemy", champion_index, {"hp": true, "max_hp": true, "attack_damage": true, "spell_power": true, "attack_speed": true, "mana": true})
+		emit_signal("vfx_knockup", "enemy", champion_index, 0.85)
+	if target_controller != null:
+		target_controller.refresh_live_targets()
+	_emit_stats_snapshot()
+	var label: String = String(event.get("label", "BOSS PHASE"))
+	var pulse_damage: int = int(event.get("pulse_damage", 0))
+	emit_signal("log_line", "[BOSS PHASE %d] %s — %d reinforcement(s) return; arena pulse deals %d total damage." % [
+		int(event.get("phase_number", 1)),
+		label,
+		revived_indices.size(),
+		pulse_damage,
+	])
+	emit_signal(
+		"encounter_escalated",
+		String(event.get("phase_id", "boss_phase")),
+		label,
+		champion_index,
+		revived_indices,
+		affected_player_indices,
+		pulse_damage,
+		int(event.get("intensity", 1))
+	)
 
 ## Passive damage removed
 
