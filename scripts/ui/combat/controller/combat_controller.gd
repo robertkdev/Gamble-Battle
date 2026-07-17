@@ -189,16 +189,19 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	stats_panel = nodes.get("stats_panel")
 
 func _shop_singleton() -> Node:
+	return _autoload_node("Shop")
+
+func _autoload_node(name: String) -> Node:
 	if parent != null and parent.get_tree() != null:
 		var root: Node = parent.get_tree().root
 		if root != null:
-			var shop_node: Node = root.get_node_or_null("/root/Shop")
-			if shop_node != null:
-				return shop_node
+			var autoload_node: Node = root.get_node_or_null("/root/%s" % name)
+			if autoload_node != null:
+				return autoload_node
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	if tree == null:
 		return null
-	return tree.root.get_node_or_null("/root/Shop") if tree.root != null else null
+	return tree.root.get_node_or_null("/root/%s" % name) if tree.root != null else null
 
 func teardown() -> void:
 	if _teardown_done:
@@ -707,7 +710,7 @@ func _update_board_status() -> void:
 			var player_rating: float = TeamOddsEstimator.team_rating(manager.player_team)
 			var enemy_rating: float = TeamOddsEstimator.team_rating(manager.enemy_team)
 			var odds: int = TeamOddsEstimator.estimate_from_ratings(player_rating, enemy_rating)
-			var economy_node: Node = get_tree().root.get_node_or_null("/root/Economy")
+			var economy_node: Node = _autoload_node("Economy")
 			var gross_multiplier: float = 2.0
 			var quoted_payout: int = 0
 			var quoted_bet: int = 0
@@ -1031,7 +1034,7 @@ func _on_menu_pressed() -> void:
 func _on_continue_pressed() -> void:
 	if not continue_button:
 		return
-	var contract_shop: Node = get_tree().root.get_node_or_null("/root/Shop")
+	var contract_shop: Node = _autoload_node("Shop")
 	if contract_shop != null and contract_shop.has_method("has_pending_contract_choice") and bool(contract_shop.call("has_pending_contract_choice")):
 		_show_contract_market()
 		return
@@ -1369,7 +1372,7 @@ func _auto_start_battle() -> void:
 	_on_continue_pressed()
 
 func _sync_contract_market_overlay() -> void:
-	var shop_node: Node = get_tree().root.get_node_or_null("/root/Shop")
+	var shop_node: Node = _autoload_node("Shop")
 	var should_show: bool = false
 	if shop_node != null and shop_node.has_method("has_pending_contract_choice"):
 		should_show = bool(shop_node.call("has_pending_contract_choice"))
@@ -1384,7 +1387,7 @@ func _show_contract_market() -> void:
 		return
 	if _contract_overlay.visible:
 		return
-	var shop_node: Node = get_tree().root.get_node_or_null("/root/Shop")
+	var shop_node: Node = _autoload_node("Shop")
 	if shop_node == null or not shop_node.has_method("get_contract_offers"):
 		return
 	for child: Node in _contract_choices.get_children():
@@ -1463,7 +1466,7 @@ func _ensure_contract_market_ui() -> void:
 	stack.add_child(_contract_choices)
 
 func _on_contract_choice_pressed(index: int) -> void:
-	var shop_node: Node = get_tree().root.get_node_or_null("/root/Shop")
+	var shop_node: Node = _autoload_node("Shop")
 	if shop_node == null:
 		return
 	var offers: Array = shop_node.call("get_contract_offers")
@@ -1487,7 +1490,7 @@ func _on_contract_choice_pressed(index: int) -> void:
 	_close_contract_market()
 
 func _on_contract_pass_pressed() -> void:
-	var shop_node: Node = get_tree().root.get_node_or_null("/root/Shop")
+	var shop_node: Node = _autoload_node("Shop")
 	if shop_node != null and shop_node.has_method("pass_contract"):
 		shop_node.call("pass_contract")
 	_close_contract_market()
@@ -1495,7 +1498,7 @@ func _on_contract_pass_pressed() -> void:
 func _default_contract_unit() -> Unit:
 	if manager != null and not manager.player_team.is_empty():
 		return manager.player_team[0]
-	var roster_node: Node = get_tree().root.get_node_or_null("/root/Roster")
+	var roster_node: Node = _autoload_node("Roster")
 	if roster_node != null and roster_node.has_method("compact"):
 		var bench_units: Array = roster_node.call("compact")
 		if not bench_units.is_empty():

@@ -242,7 +242,11 @@ func _equip_onto(target: Unit, ids: Array[String]) -> void:
 				equipped_now += 1
 
 func _has_items() -> bool:
-	return Engine.has_singleton("Items")
+	var loop: MainLoop = Engine.get_main_loop()
+	if loop == null or not loop.has_method("get_root"):
+		return false
+	var root: Window = loop.get_root()
+	return root != null and root.get_node_or_null("/root/Items") != null
 
 func _pick_consumed(entries: Array, kept: Dictionary, count: int) -> Array:
 	# Prefer consuming bench entries; exclude 'kept'
