@@ -461,10 +461,12 @@ func _reposition_first_board_unit(label: String) -> bool:
 	var target_tile: int = _first_empty_board_tile_except(controller, current_tile)
 	if target_tile < 0:
 		return false
+	var moved_unit: Unit = unit_view.unit as Unit
 	var target_center: Vector2 = controller.player_grid_helper.get_center(target_tile)
 	var dragged: bool = await _drag_control_to(unit_view, target_center, label)
 	await _settle_frames(4)
-	var new_tile: int = controller.player_grid_helper.index_of(unit_view)
+	var live_view: UnitView = _find_unit_view_for_unit(player_grid, moved_unit)
+	var new_tile: int = controller.player_grid_helper.index_of(live_view if live_view != null else unit_view)
 	return dragged and new_tile == target_tile
 
 func _drag_first_bench_unit_to_board() -> bool:
@@ -495,6 +497,18 @@ func _find_first_unit_view(root: Node) -> UnitView:
 		if child is UnitView:
 			return child as UnitView
 		var nested: UnitView = _find_first_unit_view(child)
+		if nested != null:
+			return nested
+	return null
+
+func _find_unit_view_for_unit(root: Node, target_unit: Unit) -> UnitView:
+	if root == null or target_unit == null:
+		return null
+	for child: Node in root.get_children():
+		var unit_view: UnitView = child as UnitView
+		if unit_view != null and unit_view.unit == target_unit:
+			return unit_view
+		var nested: UnitView = _find_unit_view_for_unit(child, target_unit)
 		if nested != null:
 			return nested
 	return null
