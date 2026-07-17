@@ -28,10 +28,12 @@ static func post_spawn(units: Array, spec: Dictionary, ch: int, sic: int) -> voi
 	_apply_item_overrides(units, spec)
 	apply_enemy_multiplier(units, _current_contract_enemy_multiplier())
 
-static func pre_engine_config(state, engine, spec: Dictionary, ch: int, sic: int) -> void:
+static func pre_engine_config(state: Variant, engine: Variant, spec: Dictionary, ch: int, sic: int) -> void:
 	var p: Variant = _provider_for(spec, ch)
 	if p and p.has_method("on_pre_engine_config"):
 		p.on_pre_engine_config(state, engine, spec, int(ch), int(sic))
+	if engine != null and engine.has_method("configure_contract_battle"):
+		engine.configure_contract_battle(_current_contract_battle_config())
 
 static func on_battle_start(state, engine, spec: Dictionary, ch: int, sic: int) -> void:
 	var p: Variant = _provider_for(spec, ch)
@@ -168,6 +170,19 @@ static func _current_contract_enemy_multiplier() -> float:
 	if shop != null and shop.has_method("get_contract_enemy_multiplier"):
 		return max(1.0, float(shop.call("get_contract_enemy_multiplier")))
 	return 1.0
+
+static func _current_contract_battle_config() -> Dictionary:
+	var loop: MainLoop = Engine.get_main_loop()
+	if loop == null or not loop.has_method("get_root"):
+		return {}
+	var root: Window = loop.get_root()
+	if root == null:
+		return {}
+	var shop: Node = root.get_node_or_null("/root/Shop")
+	if shop != null and shop.has_method("get_contract_battle_config"):
+		var value: Variant = shop.call("get_contract_battle_config")
+		return (value as Dictionary).duplicate(true) if value is Dictionary else {}
+	return {}
 
 static func _apply_stat_overrides(units: Array, spec: Dictionary) -> void:
 	if typeof(spec) != TYPE_DICTIONARY or not spec.has(StageTypes.KEY_RULES):

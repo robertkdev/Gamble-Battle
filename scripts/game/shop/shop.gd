@@ -190,6 +190,9 @@ func apply_pending_champion_contract(unit: Unit, doctrine_id: String) -> Diction
 func get_contract_enemy_multiplier() -> float:
 	return float(_contracts.pit_enemy_multiplier) if _contracts != null else 1.0
 
+func get_contract_battle_config() -> Dictionary:
+	return _contracts.battle_config() if _contracts != null else {}
+
 func get_contract_snapshot() -> Dictionary:
 	return _contracts.snapshot() if _contracts != null else {}
 

@@ -314,6 +314,7 @@ func _disconnect_controller_signals() -> void:
 		_disconnect_signal(manager, "vfx_knockup", "_on_vfx_knockup")
 		_disconnect_signal(manager, "vfx_beam_line", "_on_vfx_beam_line")
 		_disconnect_signal(manager, "encounter_escalated", "_on_encounter_escalated")
+		_disconnect_signal(manager, "contract_battle_event", "_on_contract_battle_event")
 		_disconnect_signal(manager, "hit_applied", "_on_engine_hit_applied")
 		_disconnect_signal(manager, "projectile_fired", "_on_projectile_fired")
 		_disconnect_signal(manager, "victory", "_on_victory")
@@ -385,6 +386,8 @@ func initialize() -> void:
 			manager.vfx_beam_line.connect(_on_vfx_beam_line)
 		if manager.has_signal("encounter_escalated") and not manager.is_connected("encounter_escalated", Callable(self, "_on_encounter_escalated")):
 			manager.encounter_escalated.connect(_on_encounter_escalated)
+		if manager.has_signal("contract_battle_event") and not manager.is_connected("contract_battle_event", Callable(self, "_on_contract_battle_event")):
+			manager.contract_battle_event.connect(_on_contract_battle_event)
 		# Stable hit signal from manager (re-emitted from engine)
 		if not manager.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
 			manager.hit_applied.connect(_on_engine_hit_applied)
@@ -1410,24 +1413,29 @@ func _show_contract_market() -> void:
 		var offer: Dictionary = offers[index] as Dictionary
 		var button: Button = Button.new()
 		button.name = "ContractChoice%d" % index
-		button.text = "%s — %dg\n%s" % [
+		button.text = "[%s] %s  •  PRICE %dg\nREWARD — %s\nRISK — %s\nNEXT FIGHT — %s" % [
+			String(offer.get("family", "contract")).to_upper(),
 			String(offer.get("name", "Contract")),
 			int(offer.get("price", 0)),
-			String(offer.get("description", "")),
+			String(offer.get("reward", offer.get("description", "Unknown reward."))),
+			String(offer.get("drawback", "No listed drawback.")),
+			String(offer.get("fight_impact", "No visible fight impact listed.")),
 		]
-		button.custom_minimum_size = Vector2(720.0, 78.0)
+		button.custom_minimum_size = Vector2(880.0, 118.0)
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.add_theme_font_size_override("font_size", 15)
 		button.disabled = bool(offer.get("exhausted", false))
 		button.pressed.connect(Callable(self, "_on_contract_choice_pressed").bind(index))
 		_contract_choices.add_child(button)
 	var pass_button: Button = Button.new()
 	pass_button.name = "ContractPass"
-	pass_button.text = "Pass — keep your gold"
-	pass_button.custom_minimum_size = Vector2(720.0, 48.0)
+	pass_button.text = "PASS — keep your gold and accept no new obligation"
+	pass_button.custom_minimum_size = Vector2(880.0, 48.0)
+	pass_button.add_theme_font_size_override("font_size", 15)
 	pass_button.pressed.connect(_on_contract_pass_pressed)
 	_contract_choices.add_child(pass_button)
 	if _contract_status != null:
-		_contract_status.text = "Choose one chapter contract. The other offers expire."
+		_contract_status.text = "Choose one chapter contract. Compare price, reward, risk, and the visible next-fight consequence. The other offers expire."
 	_contract_overlay.visible = true
 	if continue_button != null:
 		continue_button.disabled = true
@@ -1454,7 +1462,7 @@ func _ensure_contract_market_ui() -> void:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_contract_overlay.add_child(center)
 	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(800.0, 540.0)
+	panel.custom_minimum_size = Vector2(980.0, 680.0)
 	center.add_child(panel)
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 28)
@@ -1468,11 +1476,12 @@ func _ensure_contract_market_ui() -> void:
 	var title: Label = Label.new()
 	title.text = "Chapter Contracts"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_font_size_override("font_size", 32)
 	stack.add_child(title)
 	_contract_status = Label.new()
 	_contract_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_contract_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_contract_status.add_theme_font_size_override("font_size", 16)
 	stack.add_child(_contract_status)
 	_contract_choices = VBoxContainer.new()
 	_contract_choices.add_theme_constant_override("separation", 10)
@@ -1492,14 +1501,8 @@ func _on_contract_choice_pressed(index: int) -> void:
 			_contract_status.text = "Cannot buy: %s" % String(result.get("error", "unknown"))
 		return
 	if String(chosen_offer.get("family", "")) == "champion":
-		var target: Unit = _default_contract_unit()
-		if target != null:
-			var doctrine: String = String(chosen_offer.get("doctrine", ""))
-			var applied: Dictionary = shop_node.call("apply_pending_champion_contract", target, doctrine)
-			if not bool(applied.get("ok", false)):
-				if _contract_status != null:
-					_contract_status.text = "Contract bought; doctrine assignment pending."
-				return
+		_show_champion_contract_targets(chosen_offer)
+		return
 	_close_contract_market()
 
 func _on_contract_pass_pressed() -> void:
@@ -1508,15 +1511,88 @@ func _on_contract_pass_pressed() -> void:
 		shop_node.call("pass_contract")
 	_close_contract_market()
 
-func _default_contract_unit() -> Unit:
-	if manager != null and not manager.player_team.is_empty():
-		return manager.player_team[0]
+func _show_champion_contract_targets(offer: Dictionary) -> void:
+	if _contract_choices == null:
+		return
+	for child: Node in _contract_choices.get_children():
+		child.queue_free()
+	var doctrine: String = String(offer.get("doctrine", "")).strip_edges().to_lower()
+	if _contract_status != null:
+		_contract_status.text = "CHAMPION WRIT PURCHASED — choose its bearer. %s" % _doctrine_explanation(doctrine)
+	var candidates: Array[Unit] = _champion_contract_units()
+	for unit: Unit in candidates:
+		var target_button: Button = Button.new()
+		target_button.name = "ChampionTarget_%s" % String(unit.id)
+		var display_name: String = String(unit.name).strip_edges()
+		if display_name == "":
+			display_name = String(unit.id).capitalize()
+		var role: String = String(unit.primary_role).strip_edges().capitalize()
+		target_button.text = "%s  •  %s  •  Lv%d\n%s" % [display_name, role, max(1, int(unit.level)), _doctrine_fit_text(unit, doctrine)]
+		target_button.custom_minimum_size = Vector2(880.0, 72.0)
+		target_button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		target_button.add_theme_font_size_override("font_size", 16)
+		target_button.pressed.connect(Callable(self, "_on_champion_contract_target_pressed").bind(unit, doctrine))
+		_contract_choices.add_child(target_button)
+	if candidates.is_empty() and _contract_status != null:
+		_contract_status.text = "Contract bought, but no owned unit is currently available. Assignment remains pending."
+
+func _champion_contract_units() -> Array[Unit]:
+	var candidates: Array[Unit] = []
+	if manager != null:
+		for unit: Unit in manager.player_team:
+			if unit != null and not candidates.has(unit):
+				candidates.append(unit)
 	var roster_node: Node = _autoload_node("Roster")
 	if roster_node != null and roster_node.has_method("compact"):
-		var bench_units: Array = roster_node.call("compact")
-		if not bench_units.is_empty():
-			return bench_units[0] as Unit
-	return null
+		var bench_units_value: Variant = roster_node.call("compact")
+		if bench_units_value is Array:
+			for value: Variant in bench_units_value:
+				var bench_unit: Unit = value as Unit
+				if bench_unit != null and not candidates.has(bench_unit):
+					candidates.append(bench_unit)
+	return candidates
+
+func _on_champion_contract_target_pressed(unit: Unit, doctrine: String) -> void:
+	var shop_node: Node = _autoload_node("Shop")
+	if shop_node == null or not shop_node.has_method("apply_pending_champion_contract"):
+		return
+	var applied: Dictionary = shop_node.call("apply_pending_champion_contract", unit, doctrine)
+	if not bool(applied.get("ok", false)):
+		if _contract_status != null:
+			_contract_status.text = "Cannot assign writ: %s" % String(applied.get("error", "unknown"))
+		return
+	_close_contract_market()
+
+func _doctrine_explanation(doctrine: String) -> String:
+	match doctrine:
+		"backline":
+			return "Backline prioritizes distant carries."
+		"lowest_hp":
+			return "Lowest HP hunts wounded enemies for resets and executions."
+		"highest_threat":
+			return "Highest Threat attacks the enemy with the most offensive pressure."
+		"clump":
+			return "Clump seeks enemies surrounded by allies for area attacks."
+		"peel":
+			return "Peel protects your formation by attacking threats near vulnerable allies."
+	return "Front to Back attacks the nearest accessible enemy."
+
+func _doctrine_fit_text(unit: Unit, doctrine: String) -> String:
+	var role: String = String(unit.primary_role).strip_edges().to_lower()
+	var fit: String = "CONDITIONAL FIT"
+	if doctrine == "backline" and (role == "assassin" or role == "marksman"):
+		fit = "STRONG FIT"
+	elif doctrine == "lowest_hp" and (role == "assassin" or role == "brawler"):
+		fit = "STRONG FIT"
+	elif doctrine == "highest_threat" and (role == "marksman" or role == "mage"):
+		fit = "STRONG FIT"
+	elif doctrine == "clump" and role == "mage":
+		fit = "STRONG FIT"
+	elif doctrine == "peel" and (role == "tank" or role == "support"):
+		fit = "STRONG FIT"
+	elif doctrine == "front_to_back" and (role == "tank" or role == "brawler" or role == "marksman"):
+		fit = "STRONG FIT"
+	return "%s — %s" % [fit, _doctrine_explanation(doctrine)]
 
 func _close_contract_market() -> void:
 	if _contract_overlay != null:
@@ -2174,16 +2250,66 @@ func _on_vfx_knockup(team: String, index: int, duration: float) -> void:
 		actor.play_knockup(duration)
 
 func _on_encounter_escalated(_phase_id: String, label: String, _champion_index: int, revived_indices: Array[int], _affected_player_indices: Array[int], _pulse_damage: int, intensity: int) -> void:
-	var banner: PanelContainer = _ensure_encounter_banner()
-	if banner == null or _encounter_banner_label == null:
-		return
 	_show_reinforcement_callouts(revived_indices, intensity)
-	_encounter_banner_label.text = "%s\n%d REINFORCEMENT%s RETURN" % [
+	var text: String = "%s\n%d REINFORCEMENT%s RETURN" % [
 		label,
 		revived_indices.size(),
 		"" if revived_indices.size() == 1 else "S",
 	]
 	var accent: Color = Color(0.95, 0.23, 0.14, 1.0) if intensity >= 2 else Color(0.96, 0.55, 0.16, 1.0)
+	_show_combat_event_banner(text, accent)
+
+func _on_contract_battle_event(event_type: String, label: String, _affected_player_indices: Array[int], _affected_enemy_indices: Array[int], value: int, intensity: int) -> void:
+	var text: String = "%s\n%d TOTAL EFFECT" % [label, max(0, value)]
+	var accent: Color = Color(0.94, 0.65, 0.18, 1.0)
+	if event_type == "starting_ward":
+		text = "%s\n%d SHIELD DEPLOYED" % [label, max(0, value)]
+		accent = Color(0.31, 0.74, 0.78, 1.0)
+	elif event_type == "death_inheritance":
+		text = "%s\nSURVIVORS CLAIM %d SHIELD" % [label, max(0, value)]
+		accent = Color(0.84, 0.66, 0.25, 1.0)
+	elif event_type == "arena_hazard":
+		text = "%s\nARENA PULSE - %d DAMAGE" % [label, max(0, value)]
+		accent = Color(0.98, 0.18, 0.11, 1.0) if intensity >= 2 else Color(0.88, 0.31, 0.13, 1.0)
+		_flash_contract_hazard(accent, intensity)
+	_show_combat_event_banner(text, accent)
+
+func _flash_contract_hazard(accent: Color, intensity: int) -> void:
+	if arena_container == null or not is_instance_valid(arena_container):
+		return
+	var hazard_frame: Panel = Panel.new()
+	hazard_frame.name = "ContractHazardFlash"
+	hazard_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hazard_frame.z_index = 150
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(accent.r * 0.42, accent.g * 0.16, accent.b * 0.12, 0.54)
+	style.border_color = Color(accent.r, min(1.0, accent.g + 0.08), accent.b, 0.96)
+	var border_width: int = 10 if intensity >= 2 else 7
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = 10
+	style.corner_radius_top_right = 10
+	style.corner_radius_bottom_right = 10
+	style.corner_radius_bottom_left = 10
+	hazard_frame.add_theme_stylebox_override("panel", style)
+	arena_container.add_child(hazard_frame)
+	hazard_frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hazard_frame.modulate.a = 0.0
+	var tween: Tween = parent.create_tween()
+	tween.tween_property(hazard_frame, "modulate:a", 0.78, 0.08)
+	tween.tween_property(hazard_frame, "modulate:a", 0.30, 0.12)
+	tween.tween_property(hazard_frame, "modulate:a", 0.72, 0.09)
+	tween.tween_interval(0.32)
+	tween.tween_property(hazard_frame, "modulate:a", 0.0, 1.20)
+	tween.tween_callback(hazard_frame.queue_free)
+
+func _show_combat_event_banner(text: String, accent: Color) -> void:
+	var banner: PanelContainer = _ensure_encounter_banner()
+	if banner == null or _encounter_banner_label == null:
+		return
+	_encounter_banner_label.text = text
 	banner.add_theme_stylebox_override("panel", _make_result_card_style(accent))
 	_encounter_banner_label.add_theme_color_override("font_color", Color(1.0, 0.91, 0.72, 1.0))
 	if _encounter_banner_tween != null and _encounter_banner_tween.is_valid():

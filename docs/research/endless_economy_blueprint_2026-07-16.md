@@ -479,6 +479,19 @@ Boss rounds now use a reusable two-phase escalation contract. At 65% enemy-team 
 
 Evidence: `scripts/game/combat/encounter_escalation_runtime.gd` and `tests/rga_testing/validation/EncounterEscalationProbe.tscn`.
 
+## Run-Shaping Contract Prototype
+
+The first live contract catalog now changes both the decision screen and the next fight:
+
+- Champion rotates targeting doctrines by chapter and, after purchase, requires an explicit owned-unit target. The target screen exposes unit role, level, and whether the doctrine is a strong or conditional fit.
+- Stable rotates between a permanent formation license, Warded Lines (a timed opening shield for every deployed ally), and Inheritance Writ (the first allied death shields surviving allies).
+- Pit rotates between Blood Odds, Cinder Clock, and Mortal Bell. Each raises enemy strength and schedules readable arena pulses with distinct timing and player/enemy damage shares.
+- Every market row exposes `PRICE`, `REWARD`, `RISK`, and `NEXT FIGHT`; passing explicitly keeps the bankroll and accepts no new obligation.
+
+The contract combat runtime is serialized through the existing run snapshot path. The engine applies timed shields and hazards, emits typed battle events, and the combat UI presents banners, shield state, and an arena-scale cinder pulse with a fading afterglow. Final real-runtime visual evidence passed independent review after the initial text-only hazard presentation was rejected and repaired.
+
+Evidence: `scripts/game/progression/chapter_contract_service.gd`, `scripts/game/combat/contract_battle_runtime.gd`, `tests/rga_testing/validation/ChapterContractMarketProbe.tscn`, `tests/rga_testing/validation/ContractBattleRuntimeProbe.tscn`, and `outputs/visual_debug/vdh_runs/contract-system-d0b23f6724/packet/`.
+
 ## Remaining Prototypes Before Broader Gameplay Implementation
 
 1. Test the hybrid promotion rule: depth schedule normally, high-water achievement when a run outruns the market.
@@ -486,7 +499,7 @@ Evidence: `scripts/game/combat/encounter_escalation_runtime.gd` and `tests/rga_t
 3. Test whether higher-grade recruits clearly justify higher-Stakes prices.
 4. Test sell values using acquisition cost and prevent buy-low/sell-high promotion arbitrage.
 5. Expand win-probability calibration beyond the current 144 saved samples.
-6. Prototype one contract from each family and evaluate whether the fight changes visibly.
+6. Expand the validated Champion, Stable, and Pit prototype catalogs with additional donors, hazards, and team rules once broader playtest evidence identifies the strongest branches.
 7. Test multi-session save/resume and the identity-only defeat reset. The serialization and restore paths are implemented; fresh-process runtime validation remains required.
 
 ## Evidence and Reproduction

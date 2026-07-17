@@ -4,11 +4,11 @@
 
 At chapter entry the run prepares three mutually exclusive contract families:
 
-- Champion: installs a run-persistent targeting doctrine on one owned unit.
-- Stable: grants a bounded formation license, capped at three additional board slots.
-- Pit: raises visible enemy difficulty; the resulting lower projected win odds naturally raise the quoted payout without a second reward multiplier.
+- Champion: installs a run-persistent targeting doctrine on an explicitly chosen owned unit; the assignment screen explains role fit before the player commits the bearer.
+- Stable: rotates between a bounded formation license, an opening team ward, and a first-death inheritance shield.
+- Pit: rotates between visible timed arena hazards while raising enemy difficulty; the resulting lower projected win odds naturally raise the quoted payout without a second reward multiplier.
 
-One selection expires the other offers. Passing is always valid. Contract prices derive from the current Stakes denomination rather than the player's current wallet.
+One selection expires the other offers. Passing is always valid. Contract prices derive from the current Stakes denomination rather than the player's current wallet. The market must show each offer's price, reward, drawback, and next-fight impact; purchased Stable and Pit effects are part of the run snapshot and survive resume.
 
 Stakes promotion is committed only at chapter boundaries, after the chapter-closing combat payout has updated the run's peak bankroll. It never reprices the shop during a fight or shopping decision.
 
