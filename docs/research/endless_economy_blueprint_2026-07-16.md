@@ -428,12 +428,14 @@ The current implementation preserves the last stable planning state, never an in
 - Chapter and round.
 - Exact Stakes, bankroll, wager preference, score counters, and pending promotion.
 - Shop offers, lock state, progression, Command Research, chapter contracts, and shop RNG state.
-- Board identities, levels, acquisition values, targeting doctrines, tile positions, bench slots, and board capacity.
+- Board identities, levels, acquisition values, targeting doctrines, Capital charters, level-four legacies, tile positions, bench slots, and board capacity.
 - Inventory order, duplicate equipped items, and the item system's pre-item stat bases.
 - Procedural chapter seed/cache and mirror-board history.
 - Remaining planning time.
 
-The save uses an atomic temporary/backup replacement and string-encodes integers beyond JSON's exact range. Unknown units, invalid items, malformed placements, missing production sections, and mid-combat saves fail closed without deleting the recovery file. New Run and terminal defeat clear the active run; returning to title and quitting preserve it.
+The save uses an atomic temporary/backup replacement, retains the last complete primary as a fallback, wraps current saves in a SHA-256-checked schema-2 envelope, and string-encodes integers beyond JSON's exact range. The loader still accepts schema-1 saves, explicitly reports backup recovery, and rejects checksum mismatch, unknown units, invalid items, malformed placements, missing production sections, and mid-combat saves without deleting the recovery file. New Run and terminal defeat clear the active run; returning to title and quitting preserve it.
+
+A dedicated two-process probe now writes a representative deep-run snapshot in one Godot process and verifies it from a second process. It covers an exact large bankroll, committed wager, locked shop offers and RNG state, contract history and pending choice, board/bench placement, inventory, procedural roster state, mirror-board history, planning time, Capital charter, and level-four legacy. Separate corruption coverage proves a tampered primary fails checksum validation and loads the prior complete backup instead.
 
 Career persistence remains identity-only: records, discovered units/contracts, and run history survive defeat, while bankroll, unit power, items, and exponential multipliers do not.
 
@@ -500,7 +502,7 @@ Evidence: `scripts/game/progression/chapter_contract_service.gd`, `scripts/game/
 4. Test sell values using acquisition cost and prevent buy-low/sell-high promotion arbitrage.
 5. Expand win-probability calibration beyond the current 144 saved samples.
 6. Expand the validated Champion, Stable, and Pit prototype catalogs with additional donors, hazards, and team rules once broader playtest evidence identifies the strongest branches.
-7. Test multi-session save/resume and the identity-only defeat reset. The serialization and restore paths are implemented; fresh-process runtime validation remains required.
+7. Test the identity-only defeat reset through a full player-facing loss/new-run flow. Fresh-process active-run persistence is now validated; the remaining gate is confirming the terminal UI clears combat power while retaining only career identity/history.
 
 ## Evidence and Reproduction
 
@@ -513,6 +515,8 @@ Evidence: `scripts/game/progression/chapter_contract_service.gd`, `scripts/game/
 - Stakes scenarios: `analysis/endless_economy/unit_market_scenarios.csv`
 - Unit-market results: `analysis/endless_economy/unit_market_results.json`
 - Decision report: `analysis/endless_economy/report.html`
+- Fresh-process resume proof: `tests/rga_testing/validation/FreshProcessResumeWriter.tscn` followed by `tests/rga_testing/validation/FreshProcessResumeReader.tscn`
+- Corruption and backup proof: `tests/rga_testing/validation/RunStateStoreProbe.tscn`
 
 The baseline snapshot records which values came from the live dirty checkout and which values are explicit design assumptions. The notebook can be re-executed without changing game code.
 
