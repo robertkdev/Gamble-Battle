@@ -146,6 +146,8 @@ static func _serialize_unit(unit: Unit) -> Dictionary:
 		"level": unit.level,
 		"purchase_value": unit.purchase_value,
 		"market_package_kind": unit.market_package_kind,
+		"capital_charter_id": unit.capital_charter_id,
+		"ascension_path_id": unit.ascension_path_id,
 		"targeting_mode_override": unit.targeting_mode_override,
 		"items": equipped,
 		"item_base": item_base,
@@ -160,6 +162,8 @@ static func _deserialize_unit(record: Dictionary) -> Unit:
 		return null
 	unit.purchase_value = max(0, int(record.get("purchase_value", unit.cost)))
 	unit.market_package_kind = String(record.get("market_package_kind", "standard"))
+	unit.capital_charter_id = String(record.get("capital_charter_id", ""))
+	unit.ascension_path_id = String(record.get("ascension_path_id", ""))
 	unit.targeting_mode_override = String(record.get("targeting_mode_override", ""))
 	return unit
 

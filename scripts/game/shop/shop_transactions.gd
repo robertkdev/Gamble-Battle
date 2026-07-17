@@ -1,6 +1,8 @@
 extends RefCounted
 class_name ShopTransactions
 
+const UnitUpgradePaths := preload("res://scripts/game/units/unit_upgrade_paths.gd")
+
 const ShopConfig := preload("res://scripts/game/shop/shop_config.gd")
 const ShopErrors := preload("res://scripts/game/shop/shop_errors.gd")
 const ShopAffordability := preload("res://scripts/game/shop/affordability.gd")
@@ -155,6 +157,8 @@ func buy_unit(state: ShopState, slot_index: int, available_gold: int, _level: in
 		return { "ok": false, "error": ShopErrors.UNKNOWN }
 	u.purchase_value = cost
 	u.market_package_kind = String(offer.package_kind)
+	if u.market_package_kind == "current_grade":
+		UnitUpgradePaths.apply_capital_charter(u)
 	# Place in bench
 	var placed: bool = false
 	if _roster != null and _roster.has_method("set_slot"):

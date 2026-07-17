@@ -32,6 +32,7 @@ const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 const TeamOddsEstimator := preload("res://scripts/game/combat/team_odds_estimator.gd")
 const RunStateStore := preload("res://scripts/game/run/run_state_store.gd")
 const RunSnapshotCoordinator := preload("res://scripts/game/run/run_snapshot_coordinator.gd")
+const UnitUpgradePaths := preload("res://scripts/game/units/unit_upgrade_paths.gd")
 
 const START_BATTLE_TEXT: String = "Start Battle"
 const START_FORCED_FIGHT_TEXT: String = "Start Opening Fight"
@@ -94,6 +95,11 @@ var _contract_layer: CanvasLayer = null
 var _contract_overlay: Control = null
 var _contract_choices: VBoxContainer = null
 var _contract_status: Label = null
+var _ascension_layer: CanvasLayer = null
+var _ascension_overlay: Control = null
+var _ascension_choices: VBoxContainer = null
+var _ascension_status: Label = null
+var _pending_ascension_units: Array[Unit] = []
 
 # External engine manager
 var manager: CombatManager
@@ -315,6 +321,7 @@ func _disconnect_controller_signals() -> void:
 		_disconnect_signal(manager, "vfx_beam_line", "_on_vfx_beam_line")
 		_disconnect_signal(manager, "encounter_escalated", "_on_encounter_escalated")
 		_disconnect_signal(manager, "contract_battle_event", "_on_contract_battle_event")
+		_disconnect_signal(manager, "unit_upgrade_event", "_on_unit_upgrade_event")
 		_disconnect_signal(manager, "hit_applied", "_on_engine_hit_applied")
 		_disconnect_signal(manager, "projectile_fired", "_on_projectile_fired")
 		_disconnect_signal(manager, "victory", "_on_victory")
@@ -388,6 +395,8 @@ func initialize() -> void:
 			manager.encounter_escalated.connect(_on_encounter_escalated)
 		if manager.has_signal("contract_battle_event") and not manager.is_connected("contract_battle_event", Callable(self, "_on_contract_battle_event")):
 			manager.contract_battle_event.connect(_on_contract_battle_event)
+		if manager.has_signal("unit_upgrade_event") and not manager.is_connected("unit_upgrade_event", Callable(self, "_on_unit_upgrade_event")):
+			manager.unit_upgrade_event.connect(_on_unit_upgrade_event)
 		# Stable hit signal from manager (re-emitted from engine)
 		if not manager.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
 			manager.hit_applied.connect(_on_engine_hit_applied)
@@ -1242,7 +1251,12 @@ func _play_promotions(promotions: Array) -> void:
 			_play_bench_promo(idx, to_level, delay)
 		elif kind == "board" and idx >= 0:
 			_play_board_promo(idx, to_level, delay)
+		var promoted_unit: Unit = p.get("unit") as Unit
+		if to_level >= 4 and promoted_unit != null and String(promoted_unit.ascension_path_id) == "" and not _pending_ascension_units.has(promoted_unit):
+			_pending_ascension_units.append(promoted_unit)
 		delay += 0.05
+	if not _pending_ascension_units.is_empty():
+		call_deferred("_show_next_ascension_choice")
 
 func _play_bench_promo(bench_index: int, to_level: int, delay: float) -> void:
 	if bench_grid == null:
@@ -1598,6 +1612,115 @@ func _close_contract_market() -> void:
 	if _contract_overlay != null:
 		_contract_overlay.visible = false
 	if continue_button != null:
+		continue_button.disabled = false
+	_update_board_status()
+
+func _show_next_ascension_choice() -> void:
+	while not _pending_ascension_units.is_empty():
+		var first_unit: Unit = _pending_ascension_units[0]
+		if first_unit == null or int(first_unit.level) < 4 or String(first_unit.ascension_path_id) != "":
+			_pending_ascension_units.pop_front()
+			continue
+		_show_ascension_choice(first_unit)
+		return
+	_close_ascension_choice()
+
+func _show_ascension_choice(unit: Unit) -> void:
+	_ensure_ascension_ui()
+	if _ascension_overlay == null or _ascension_choices == null:
+		return
+	for child: Node in _ascension_choices.get_children():
+		child.queue_free()
+	var display_name: String = String(unit.name).strip_edges()
+	if display_name == "":
+		display_name = String(unit.id).capitalize()
+	if _ascension_status != null:
+		_ascension_status.text = "%s reached Level 4. Choose one permanent legacy; this decision is saved with the run." % display_name
+	for option: Dictionary in UnitUpgradePaths.legacy_options(unit):
+		var button: Button = Button.new()
+		button.name = "Ascension_%s" % String(option.get("id", "path"))
+		button.text = "%s  •  %s\nTRIGGER — %s\nEFFECT — %s\nRISK — %s" % [
+			String(option.get("name", "Legacy")),
+			String(option.get("fit", "CONDITIONAL FIT")),
+			String(option.get("trigger", "Unknown")),
+			String(option.get("effect", "Unknown")),
+			String(option.get("risk", "Unknown")),
+		]
+		button.custom_minimum_size = Vector2(900.0, 132.0)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.add_theme_font_size_override("font_size", 16)
+		button.pressed.connect(Callable(self, "_on_ascension_choice_pressed").bind(unit, String(option.get("id", ""))))
+		_ascension_choices.add_child(button)
+	_ascension_overlay.visible = true
+	if continue_button != null:
+		continue_button.disabled = true
+
+func _ensure_ascension_ui() -> void:
+	if _ascension_layer != null and is_instance_valid(_ascension_layer):
+		return
+	_ascension_layer = CanvasLayer.new()
+	_ascension_layer.name = "UnitAscensionLayer"
+	_ascension_layer.layer = 210
+	parent.add_child(_ascension_layer)
+	_ascension_overlay = Control.new()
+	_ascension_overlay.name = "UnitAscensionOverlay"
+	_ascension_overlay.visible = false
+	_ascension_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_ascension_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ascension_layer.add_child(_ascension_overlay)
+	var backdrop: ColorRect = ColorRect.new()
+	backdrop.color = Color(0.012, 0.006, 0.010, 0.91)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ascension_overlay.add_child(backdrop)
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ascension_overlay.add_child(center)
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(1020.0, 610.0)
+	panel.add_theme_stylebox_override("panel", _make_result_card_style(Color(0.92, 0.31, 0.12, 1.0)))
+	center.add_child(panel)
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 34)
+	margin.add_theme_constant_override("margin_top", 30)
+	margin.add_theme_constant_override("margin_right", 34)
+	margin.add_theme_constant_override("margin_bottom", 30)
+	panel.add_child(margin)
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 18)
+	margin.add_child(stack)
+	var title: Label = Label.new()
+	title.text = "LEVEL FOUR ASCENSION"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 34)
+	title.add_theme_color_override("font_color", Color(1.0, 0.75, 0.34, 1.0))
+	stack.add_child(title)
+	_ascension_status = Label.new()
+	_ascension_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_ascension_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_ascension_status.add_theme_font_size_override("font_size", 17)
+	stack.add_child(_ascension_status)
+	_ascension_choices = VBoxContainer.new()
+	_ascension_choices.add_theme_constant_override("separation", 14)
+	stack.add_child(_ascension_choices)
+
+func _on_ascension_choice_pressed(unit: Unit, legacy_id: String) -> void:
+	var result: Dictionary = UnitUpgradePaths.apply_legacy(unit, legacy_id)
+	if not bool(result.get("ok", false)):
+		if _ascension_status != null:
+			_ascension_status.text = "Cannot bind legacy: %s" % String(result.get("error", "unknown"))
+		return
+	_pending_ascension_units.erase(unit)
+	refresh_all_views()
+	_queue_active_run_save()
+	var chosen_name: String = String(legacy_id).replace("_", " ").capitalize()
+	_show_combat_event_banner("LEGACY BOUND\n%s" % chosen_name.to_upper(), Color(0.96, 0.52, 0.13, 1.0))
+	_show_next_ascension_choice()
+
+func _close_ascension_choice() -> void:
+	if _ascension_overlay != null:
+		_ascension_overlay.visible = false
+	if continue_button != null and (_contract_overlay == null or not _contract_overlay.visible):
 		continue_button.disabled = false
 	_update_board_status()
 
@@ -2272,6 +2395,25 @@ func _on_contract_battle_event(event_type: String, label: String, _affected_play
 		text = "%s\nARENA PULSE - %d DAMAGE" % [label, max(0, value)]
 		accent = Color(0.98, 0.18, 0.11, 1.0) if intensity >= 2 else Color(0.88, 0.31, 0.13, 1.0)
 		_flash_contract_hazard(accent, intensity)
+	_show_combat_event_banner(text, accent)
+
+func _on_unit_upgrade_event(event_type: String, label: String, _affected_player_indices: Array[int], value: int, intensity: int) -> void:
+	var text: String = "%s\n%d TOTAL EFFECT" % [label, max(0, value)]
+	var accent: Color = Color(0.94, 0.48, 0.12, 1.0)
+	if event_type == "capital_blood_engine":
+		text = "%s\nHEALTH FOR SPEED" % label
+		accent = Color(0.92, 0.12, 0.10, 1.0)
+	elif event_type == "capital_iron_retinue":
+		text = "%s\n%d OPENING SHIELD" % [label, max(0, value)]
+		accent = Color(0.34, 0.70, 0.80, 1.0)
+	elif event_type == "legacy_executioner_crown":
+		text = "%s\nMANA FILLED • POWER UNCHAINED" % label
+		accent = Color(1.0, 0.28, 0.08, 1.0)
+	elif event_type == "legacy_martyr_seal":
+		text = "%s\nALLIES CLAIM %d SHIELD" % [label, max(0, value)]
+		accent = Color(0.90, 0.66, 0.18, 1.0)
+	if intensity >= 3:
+		_flash_contract_hazard(accent, 1)
 	_show_combat_event_banner(text, accent)
 
 func _flash_contract_hazard(accent: Color, intensity: int) -> void:

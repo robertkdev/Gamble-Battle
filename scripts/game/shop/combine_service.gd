@@ -54,6 +54,7 @@ func combine() -> Array:
 			var value_unit: Unit = value_entry.get("unit") as Unit
 			if value_unit != null:
 				combined_purchase_value += max(0, int(value_unit.purchase_value))
+		_inherit_upgrade_identity(u, entries)
 		_promote_one_level(u)
 		u.purchase_value = combined_purchase_value
 		# Persist promotion (bench unit updated via set_slot; board unit left in-place)
@@ -102,11 +103,29 @@ func combine() -> Array:
 			"kept_kind": kept.get("kind"),
 			"kept_index": kept.get("index", -1),
 			"consumed": consumed_slots,
+			"unit": u,
 		})
 		# Rebuild groups after mutation and loop again (chained promotions allowed)
 		groups = _build_groups()
 		changed = true
 	return results
+
+func _inherit_upgrade_identity(kept_unit: Unit, entries: Array) -> void:
+	if kept_unit == null:
+		return
+	for entry_value: Variant in entries:
+		if not entry_value is Dictionary:
+			continue
+		var entry: Dictionary = entry_value as Dictionary
+		var donor: Unit = entry.get("unit") as Unit
+		if donor == null:
+			continue
+		if kept_unit.capital_charter_id == "" and donor.capital_charter_id != "":
+			kept_unit.capital_charter_id = donor.capital_charter_id
+		if kept_unit.ascension_path_id == "" and donor.ascension_path_id != "":
+			kept_unit.ascension_path_id = donor.ascension_path_id
+		if donor.market_package_kind == "current_grade":
+			kept_unit.market_package_kind = "current_grade"
 
 func _bench_size() -> int:
 	if _roster != null and _roster.has_method("slot_count"):

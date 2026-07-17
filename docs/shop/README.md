@@ -70,6 +70,26 @@ Card UX Notes
 - If bench is full, cards show a disabled state with tooltip.
 - If you cannot afford a card, the price is tinted and a tooltip indicates "Not enough gold".
 
+Premium Recruit Identity
+------------------------
+
+The current-grade slot is a CAPITAL recruit rather than only a larger copy bundle. Its role assigns one persistent charter at purchase, disclosed on the shop card before gold is spent:
+
+- Blood Engine (mages, marksmen, assassins, and other damage roles): +20% attack speed for the fight, but enters every fight at 70% health.
+- Iron Retinue (tanks, brawlers, and supports): opens with a 25% max-health shield for 12 seconds, but attacks 15% slower for the fight.
+
+Charters are combat-scoped effects and revert cleanly after battle. The charter id, package identity, and acquisition value are stored in active-run snapshots.
+
+Level-Four Ascension
+--------------------
+
+Level 4 remains earned by combining. Reaching it opens a mandatory permanent legacy choice:
+
+- Executioner's Crown: after the first enemy death, fill mana and gain +30% attack damage and spell power for the rest of combat. It offers nothing until the team secures a kill.
+- Martyr Seal: when the bearer first reaches 40% health, shield every living ally for 18% max health for 8 seconds. It can fail if the bearer is killed above the threshold.
+
+The choice UI discloses role fit, trigger, effect, and failure case. The selected legacy persists in active-run snapshots and triggers once per battle.
+
 Lifecycle
 - New Run: `Shop.reset_run()` clears state; `PlayerProgress` resets to level 1, XP 0.
 - Reroll: `Shop.reroll()` spends `REROLL_COST` gold (unless a free reroll is available) and populates `SLOT_COUNT` offers.

@@ -9,6 +9,7 @@ const MovementProfileLib := preload("res://scripts/game/combat/movement/movement
 const Targeting := preload("res://scripts/game/combat/targeting.gd")
 const EncounterEscalationRuntimeLib := preload("res://scripts/game/combat/encounter_escalation_runtime.gd")
 const ContractBattleRuntimeLib := preload("res://scripts/game/combat/contract_battle_runtime.gd")
+const UnitUpgradeRuntimeLib := preload("res://scripts/game/combat/unit_upgrade_runtime.gd")
 
 signal projectile_fired(source_team: String, source_index: int, target_index: int, damage: int, crit: bool)
 signal stats_updated(player, enemy)
@@ -27,6 +28,7 @@ signal ability_cast(source_team: String, source_index: int, target_team: String,
 signal ability_committed(source_team: String, source_index: int, ability_id: String, target_team: String, target_index: int, position: Vector2, cooldown_s: float, commitment_kind: String)
 signal encounter_escalated(phase_id: String, label: String, champion_index: int, revived_indices: Array[int], affected_player_indices: Array[int], pulse_damage: int, intensity: int)
 signal contract_battle_event(event_type: String, label: String, affected_player_indices: Array[int], affected_enemy_indices: Array[int], value: int, intensity: int)
+signal unit_upgrade_event(event_type: String, label: String, affected_player_indices: Array[int], value: int, intensity: int)
 
 const POSITION_EMIT_INTERVAL: float = 0.1
 var position_emit_interval_override: float = -1.0
@@ -102,6 +104,7 @@ var encounter_escalation_runtime: RefCounted = EncounterEscalationRuntimeLib.new
 var encounter_escalation_config: Dictionary = {}
 var contract_battle_runtime: RefCounted = ContractBattleRuntimeLib.new()
 var contract_battle_config: Dictionary = {}
+var unit_upgrade_runtime: RefCounted = UnitUpgradeRuntimeLib.new()
 var _connected_ability_system: AbilitySystem = null
 var _connected_buff_system: BuffSystem = null
 ## Removed passive damage system (was: tick accumulator + constants)
@@ -150,6 +153,7 @@ func configure(_state: BattleState, _player: Unit, _stage: int, _selector: Calla
 	stage = _stage
 	encounter_escalation_runtime.configure(state, encounter_escalation_config)
 	contract_battle_runtime.configure(state, contract_battle_config)
+	unit_upgrade_runtime.configure(state)
 	# Prefer engine-provided closest-target selector if none supplied
 	select_closest_target = (_selector if _selector.is_valid() else Callable(self, "_engine_select_closest_target"))
 	if _seed_locked:
@@ -247,6 +251,7 @@ func teardown() -> void:
 	encounter_escalation_runtime.configure(null, {})
 	contract_battle_config.clear()
 	contract_battle_runtime.configure(null, {})
+	unit_upgrade_runtime.configure(null)
 
 func set_arena(tile_size: float, player_pos: Array, enemy_pos: Array, bounds: Rect2) -> void:
 	# Cast/convert to typed arrays of Vector2 for movement.configure signature
@@ -517,6 +522,7 @@ func process(delta: float) -> void:
 	_update_combat_progress_watchdog()
 	_process_encounter_escalation()
 	_process_contract_battle(delta)
+	_process_unit_upgrades()
 	var timeout_outcome: String = _combat_timeout_outcome()
 	if timeout_outcome != "":
 		_emit_outcome(timeout_outcome)
@@ -669,6 +675,51 @@ func _process_contract_battle(delta: float) -> void:
 			label,
 			affected_player_indices,
 			affected_enemy_indices,
+			value,
+			max(1, int(event.get("intensity", 1)))
+		)
+
+func _process_unit_upgrades() -> void:
+	if unit_upgrade_runtime == null:
+		return
+	var events: Array[Dictionary] = unit_upgrade_runtime.process()
+	for event: Dictionary in events:
+		var event_type: String = String(event.get("event_type", "unit_upgrade"))
+		var label: String = String(event.get("label", "LEGACY AWAKENS"))
+		var affected_player_indices: Array[int] = []
+		for player_value: Variant in event.get("player_indices", []):
+			affected_player_indices.append(int(player_value))
+		var stat_index: int = int(event.get("stat_index", -1))
+		var stat_value: Variant = event.get("stat_fields", {})
+		if stat_index >= 0 and stat_value is Dictionary and not (stat_value as Dictionary).is_empty() and buff_system != null:
+			buff_system.apply_stats_labeled(
+				state,
+				"player",
+				stat_index,
+				"unit_upgrade_%s" % event_type,
+				stat_value as Dictionary,
+				max(0.5, float(event.get("duration_s", 90.0)))
+			)
+		var shield_values: Array[int] = []
+		for shield_value: Variant in event.get("player_values", []):
+			shield_values.append(int(shield_value))
+		var shield_duration_s: float = max(0.5, float(event.get("shield_duration_s", 8.0)))
+		for value_index: int in range(affected_player_indices.size()):
+			var player_index: int = affected_player_indices[value_index]
+			var shield_amount: int = int(shield_values[value_index]) if value_index < shield_values.size() else 0
+			if shield_amount > 0 and buff_system != null:
+				buff_system.apply_shield(state, "player", player_index, shield_amount, shield_duration_s)
+			emit_signal("unit_stat_changed", "player", player_index, {"hp": true, "mana": true, "shield": true, "attack_speed": true, "attack_damage": true, "spell_power": true})
+			emit_signal("vfx_knockup", "player", player_index, 0.25 if int(event.get("intensity", 1)) < 3 else 0.48)
+		var value: int = max(0, int(event.get("value", 0)))
+		_mark_combat_progress()
+		_emit_stats_snapshot()
+		emit_signal("log_line", "[UNIT LEGACY] %s - %d total effect." % [label, value])
+		emit_signal(
+			"unit_upgrade_event",
+			event_type,
+			label,
+			affected_player_indices,
 			value,
 			max(1, int(event.get("intensity", 1)))
 		)
