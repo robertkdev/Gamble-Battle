@@ -30,6 +30,8 @@ const ProgressionService := preload("res://scripts/game/progression/progression_
 const ChapterCatalog := preload("res://scripts/game/progression/chapter_catalog.gd")
 const RosterUtils := preload("res://scripts/game/progression/roster_utils.gd")
 const TeamOddsEstimator := preload("res://scripts/game/combat/team_odds_estimator.gd")
+const RunStateStore := preload("res://scripts/game/run/run_state_store.gd")
+const RunSnapshotCoordinator := preload("res://scripts/game/run/run_snapshot_coordinator.gd")
 
 const START_BATTLE_TEXT: String = "Start Battle"
 const START_FORCED_FIGHT_TEXT: String = "Start Opening Fight"
@@ -88,6 +90,10 @@ var board_status_row: HBoxContainer
 var board_timer_label: Label
 var board_capacity_label: Label
 var win_odds_label: Label
+var _contract_layer: CanvasLayer = null
+var _contract_overlay: Control = null
+var _contract_choices: VBoxContainer = null
+var _contract_status: Label = null
 
 # External engine manager
 var manager: CombatManager
@@ -144,6 +150,8 @@ var _hud_snapshot_signature: String = ""
 var _result_banner: PanelContainer = null
 var _bottom_combat_visibility_state: int = -1
 var _layout_tile_size: int = UI.TILE_SIZE
+var _active_run_save_pending: bool = false
+var _active_run_restore_in_progress: bool = false
 
 const FIRST_DEPLOY_TIMER_EXTENSION: float = 60.0
 
@@ -181,16 +189,19 @@ func configure(_parent: Control, _manager: CombatManager, nodes: Dictionary) -> 
 	stats_panel = nodes.get("stats_panel")
 
 func _shop_singleton() -> Node:
+	return _autoload_node("Shop")
+
+func _autoload_node(name: String) -> Node:
 	if parent != null and parent.get_tree() != null:
 		var root: Node = parent.get_tree().root
 		if root != null:
-			var shop_node: Node = root.get_node_or_null("/root/Shop")
-			if shop_node != null:
-				return shop_node
+			var autoload_node: Node = root.get_node_or_null("/root/%s" % name)
+			if autoload_node != null:
+				return autoload_node
 	var tree: SceneTree = Engine.get_main_loop() as SceneTree
 	if tree == null:
 		return null
-	return tree.root.get_node_or_null("/root/Shop") if tree.root != null else null
+	return tree.root.get_node_or_null("/root/%s" % name) if tree.root != null else null
 
 func teardown() -> void:
 	if _teardown_done:
@@ -301,6 +312,17 @@ func _disconnect_controller_signals() -> void:
 		Items.action_log.disconnect(_on_items_action_log)
 	if Engine.has_singleton("Roster") and Roster.is_connected("bench_changed", Callable(self, "_on_bench_changed")):
 		Roster.bench_changed.disconnect(_on_bench_changed)
+	if Engine.has_singleton("Economy") and Economy.is_connected("gold_changed", Callable(self, "_on_economy_gold_changed_for_save")):
+		Economy.gold_changed.disconnect(_on_economy_gold_changed_for_save)
+	if Engine.has_singleton("Shop") and Shop.is_connected("offers_changed", Callable(self, "_on_shop_offers_changed_for_save")):
+		Shop.offers_changed.disconnect(_on_shop_offers_changed_for_save)
+	if Engine.has_singleton("Shop") and Shop.is_connected("locked_changed", Callable(self, "_on_shop_locked_changed_for_save")):
+		Shop.locked_changed.disconnect(_on_shop_locked_changed_for_save)
+	if Engine.has_singleton("Items"):
+		if Items.is_connected("inventory_changed", Callable(self, "_on_inventory_changed_for_save")):
+			Items.inventory_changed.disconnect(_on_inventory_changed_for_save)
+		if Items.is_connected("equipped_changed", Callable(self, "_on_equipped_changed_for_save")):
+			Items.equipped_changed.disconnect(_on_equipped_changed_for_save)
 	if Engine.has_singleton("GameState"):
 		if GameState.is_connected("chapter_changed", Callable(self, "_on_gs_chapter_changed")):
 			GameState.chapter_changed.disconnect(_on_gs_chapter_changed)
@@ -433,6 +455,7 @@ func initialize() -> void:
 	_layout_tile_size = _responsive_tile_size()
 	grid_placement = GridPlacement.new()
 	grid_placement.configure(player_grid, enemy_grid, _layout_tile_size, 8, 3)
+	grid_placement.player_placements_changed.connect(_on_player_placements_changed_for_save)
 	# Ensure grid containers match the configured tile size so the
 	# runtime layout looks the same as the editor preview.
 	_apply_grid_dimensions(_layout_tile_size)
@@ -459,6 +482,17 @@ func initialize() -> void:
 		Roster.bench_changed.connect(_on_bench_changed)
 	if Roster and not Roster.is_connected("max_team_size_changed", Callable(self, "_on_roster_max_team_size_changed")):
 		Roster.max_team_size_changed.connect(_on_roster_max_team_size_changed)
+	if Economy and not Economy.is_connected("gold_changed", Callable(self, "_on_economy_gold_changed_for_save")):
+		Economy.gold_changed.connect(_on_economy_gold_changed_for_save)
+	if Shop and not Shop.is_connected("offers_changed", Callable(self, "_on_shop_offers_changed_for_save")):
+		Shop.offers_changed.connect(_on_shop_offers_changed_for_save)
+	if Shop and not Shop.is_connected("locked_changed", Callable(self, "_on_shop_locked_changed_for_save")):
+		Shop.locked_changed.connect(_on_shop_locked_changed_for_save)
+	if Items:
+		if not Items.is_connected("inventory_changed", Callable(self, "_on_inventory_changed_for_save")):
+			Items.inventory_changed.connect(_on_inventory_changed_for_save)
+		if not Items.is_connected("equipped_changed", Callable(self, "_on_equipped_changed_for_save")):
+			Items.equipped_changed.connect(_on_equipped_changed_for_save)
 
 	_ensure_board_status_row()
 
@@ -676,8 +710,21 @@ func _update_board_status() -> void:
 			var player_rating: float = TeamOddsEstimator.team_rating(manager.player_team)
 			var enemy_rating: float = TeamOddsEstimator.team_rating(manager.enemy_team)
 			var odds: int = TeamOddsEstimator.estimate_from_ratings(player_rating, enemy_rating)
+			var economy_node: Node = _autoload_node("Economy")
+			var gross_multiplier: float = 2.0
+			var quoted_payout: int = 0
+			var quoted_bet: int = 0
+			if economy_node != null:
+				if not bool(economy_node.get("combat_active")) and economy_node.has_method("set_projected_win_probability"):
+					economy_node.call("set_projected_win_probability", float(odds) / 100.0)
+				gross_multiplier = float(economy_node.get("quoted_gross_multiplier"))
+				quoted_bet = int(economy_node.get("current_bet"))
+				if economy_node.has_method("quoted_payout"):
+					quoted_payout = int(economy_node.call("quoted_payout", quoted_bet))
 			win_odds_label.text = "Win Odds %d%%" % odds
-			win_odds_label.tooltip_text = "Your board rating %.0f vs enemy %.0f." % [player_rating, enemy_rating]
+			win_odds_label.tooltip_text = "Your board rating %.0f vs enemy %.0f. Quote: %dg -> %dg gross (%.2fx)." % [player_rating, enemy_rating, quoted_bet, quoted_payout, gross_multiplier]
+	_sync_contract_market_overlay()
+	_queue_active_run_save()
 
 func set_board_timer_text(text: String, active: bool = true) -> void:
 	_ensure_board_status_row()
@@ -952,6 +999,7 @@ func refresh_all_views() -> void:
 		selection.attach_clear_on(arena_background)
 	if selection != null and planning_area != null:
 		selection.attach_clear_on(planning_area)
+	_queue_active_run_save()
 	if selection != null and player_grid != null:
 		selection.attach_clear_on(player_grid)
 	if selection != null and enemy_grid != null:
@@ -985,6 +1033,10 @@ func _on_menu_pressed() -> void:
 
 func _on_continue_pressed() -> void:
 	if not continue_button:
+		return
+	var contract_shop: Node = _autoload_node("Shop")
+	if contract_shop != null and contract_shop.has_method("has_pending_contract_choice") and bool(contract_shop.call("has_pending_contract_choice")):
+		_show_contract_market()
 		return
 	if _is_continue_start_text():
 		Trace.step("Continue pressed: Start Battle branch")
@@ -1084,6 +1136,8 @@ func _on_continue_pressed() -> void:
 func _on_bench_changed() -> void:
 	# Rebuild bench views first so visuals reflect any immediate bench changes
 	_rebuild_bench_views(true)
+	if _active_run_restore_in_progress:
+		return
 	# Auto-try combines when bench changes during planning. This makes triples consistent
 	# whether they are formed by buying or by moving units between bench/board.
 	var in_planning: bool = true
@@ -1099,6 +1153,24 @@ func _on_bench_changed() -> void:
 			_play_promotions(promos)
 	_update_first_deploy_assist()
 	_update_board_status()
+
+func _on_economy_gold_changed_for_save(_gold: int) -> void:
+	_queue_active_run_save()
+
+func _on_shop_offers_changed_for_save(_offers: Array) -> void:
+	_queue_active_run_save()
+
+func _on_shop_locked_changed_for_save(_locked: bool) -> void:
+	_queue_active_run_save()
+
+func _on_inventory_changed_for_save() -> void:
+	_queue_active_run_save()
+
+func _on_equipped_changed_for_save(_unit: Variant) -> void:
+	_queue_active_run_save()
+
+func _on_player_placements_changed_for_save() -> void:
+	_queue_active_run_save()
 
 func _update_first_deploy_assist() -> void:
 	if not _first_deploy_assist_active:
@@ -1298,6 +1370,181 @@ func _auto_start_battle() -> void:
 	if Debug.enabled:
 		print("[CombatView] Auto-starting battle")
 	_on_continue_pressed()
+
+func _sync_contract_market_overlay() -> void:
+	var shop_node: Node = _autoload_node("Shop")
+	var should_show: bool = false
+	if shop_node != null and shop_node.has_method("has_pending_contract_choice"):
+		should_show = bool(shop_node.call("has_pending_contract_choice"))
+	if should_show and int(GameState.phase) != int(GameState.GamePhase.COMBAT):
+		_show_contract_market()
+	elif _contract_overlay != null and not should_show:
+		_contract_overlay.visible = false
+
+func _show_contract_market() -> void:
+	_ensure_contract_market_ui()
+	if _contract_overlay == null or _contract_choices == null:
+		return
+	if _contract_overlay.visible:
+		return
+	var shop_node: Node = _autoload_node("Shop")
+	if shop_node == null or not shop_node.has_method("get_contract_offers"):
+		return
+	for child: Node in _contract_choices.get_children():
+		child.queue_free()
+	var offers: Array = shop_node.call("get_contract_offers")
+	for index: int in range(offers.size()):
+		var offer: Dictionary = offers[index] as Dictionary
+		var button: Button = Button.new()
+		button.name = "ContractChoice%d" % index
+		button.text = "%s — %dg\n%s" % [
+			String(offer.get("name", "Contract")),
+			int(offer.get("price", 0)),
+			String(offer.get("description", "")),
+		]
+		button.custom_minimum_size = Vector2(720.0, 78.0)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.disabled = bool(offer.get("exhausted", false))
+		button.pressed.connect(Callable(self, "_on_contract_choice_pressed").bind(index))
+		_contract_choices.add_child(button)
+	var pass_button: Button = Button.new()
+	pass_button.name = "ContractPass"
+	pass_button.text = "Pass — keep your gold"
+	pass_button.custom_minimum_size = Vector2(720.0, 48.0)
+	pass_button.pressed.connect(_on_contract_pass_pressed)
+	_contract_choices.add_child(pass_button)
+	if _contract_status != null:
+		_contract_status.text = "Choose one chapter contract. The other offers expire."
+	_contract_overlay.visible = true
+	if continue_button != null:
+		continue_button.disabled = true
+
+func _ensure_contract_market_ui() -> void:
+	if _contract_layer != null and is_instance_valid(_contract_layer):
+		return
+	_contract_layer = CanvasLayer.new()
+	_contract_layer.name = "ChapterContractLayer"
+	_contract_layer.layer = 205
+	parent.add_child(_contract_layer)
+	_contract_overlay = Control.new()
+	_contract_overlay.name = "ChapterContractOverlay"
+	_contract_overlay.visible = false
+	_contract_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	_contract_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_contract_layer.add_child(_contract_overlay)
+	var backdrop: ColorRect = ColorRect.new()
+	backdrop.color = Color(0.01, 0.008, 0.012, 0.88)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	backdrop.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_contract_overlay.add_child(backdrop)
+	var center: CenterContainer = CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_contract_overlay.add_child(center)
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(800.0, 540.0)
+	center.add_child(panel)
+	var margin: MarginContainer = MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 24)
+	panel.add_child(margin)
+	var stack: VBoxContainer = VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 12)
+	margin.add_child(stack)
+	var title: Label = Label.new()
+	title.text = "Chapter Contracts"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 30)
+	stack.add_child(title)
+	_contract_status = Label.new()
+	_contract_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_contract_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(_contract_status)
+	_contract_choices = VBoxContainer.new()
+	_contract_choices.add_theme_constant_override("separation", 10)
+	stack.add_child(_contract_choices)
+
+func _on_contract_choice_pressed(index: int) -> void:
+	var shop_node: Node = _autoload_node("Shop")
+	if shop_node == null:
+		return
+	var offers: Array = shop_node.call("get_contract_offers")
+	var chosen_offer: Dictionary = {}
+	if index >= 0 and index < offers.size():
+		chosen_offer = offers[index] as Dictionary
+	var result: Dictionary = shop_node.call("buy_contract", index)
+	if not bool(result.get("ok", false)):
+		if _contract_status != null:
+			_contract_status.text = "Cannot buy: %s" % String(result.get("error", "unknown"))
+		return
+	if String(chosen_offer.get("family", "")) == "champion":
+		var target: Unit = _default_contract_unit()
+		if target != null:
+			var doctrine: String = String(chosen_offer.get("doctrine", ""))
+			var applied: Dictionary = shop_node.call("apply_pending_champion_contract", target, doctrine)
+			if not bool(applied.get("ok", false)):
+				if _contract_status != null:
+					_contract_status.text = "Contract bought; doctrine assignment pending."
+				return
+	_close_contract_market()
+
+func _on_contract_pass_pressed() -> void:
+	var shop_node: Node = _autoload_node("Shop")
+	if shop_node != null and shop_node.has_method("pass_contract"):
+		shop_node.call("pass_contract")
+	_close_contract_market()
+
+func _default_contract_unit() -> Unit:
+	if manager != null and not manager.player_team.is_empty():
+		return manager.player_team[0]
+	var roster_node: Node = _autoload_node("Roster")
+	if roster_node != null and roster_node.has_method("compact"):
+		var bench_units: Array = roster_node.call("compact")
+		if not bench_units.is_empty():
+			return bench_units[0] as Unit
+	return null
+
+func _close_contract_market() -> void:
+	if _contract_overlay != null:
+		_contract_overlay.visible = false
+	if continue_button != null:
+		continue_button.disabled = false
+	_update_board_status()
+
+func save_active_run_now() -> Dictionary:
+	_active_run_save_pending = false
+	if manager == null or manager.player_team.is_empty():
+		return {"ok": false, "error": "NO_ACTIVE_TEAM"}
+	if not (Engine.has_singleton("GameState") or parent.has_node("/root/GameState")):
+		return {"ok": false, "error": "NO_GAME_STATE"}
+	if int(GameState.phase) != int(GameState.GamePhase.PREVIEW):
+		return {"ok": false, "error": "UNSTABLE_PHASE"}
+	var snapshot: Dictionary = RunSnapshotCoordinator.capture(self)
+	if snapshot.is_empty():
+		return {"ok": false, "error": "CAPTURE_FAILED"}
+	return RunStateStore.save_snapshot(snapshot)
+
+func restore_active_run(snapshot: Dictionary) -> Dictionary:
+	_active_run_restore_in_progress = true
+	var result: Dictionary = RunSnapshotCoordinator.restore(self, snapshot)
+	_active_run_restore_in_progress = false
+	if bool(result.get("ok", false)):
+		_queue_active_run_save()
+	return result
+
+func _queue_active_run_save() -> void:
+	if _active_run_restore_in_progress or _active_run_save_pending or manager == null or manager.player_team.is_empty():
+		return
+	if not (Engine.has_singleton("GameState") or parent.has_node("/root/GameState")):
+		return
+	if int(GameState.phase) != int(GameState.GamePhase.PREVIEW):
+		return
+	_active_run_save_pending = true
+	call_deferred("_save_active_run_deferred")
+
+func _save_active_run_deferred() -> void:
+	save_active_run_now()
 
 func _on_bet_changed(val: float) -> void:
 	if economy_ui:
@@ -1655,6 +1902,7 @@ func _on_intermission_finished() -> void:
 	# Return to planning phase after post-combat housekeeping
 	if Engine.has_singleton("GameState") or parent.has_node("/root/GameState"):
 		GameState.set_phase(GameState.GamePhase.PREVIEW)
+	_queue_active_run_save()
 	_sync_bottom_combat_visibility()
 	if parent and parent.has_method("reset_planning_timer"):
 		parent.call("reset_planning_timer")
@@ -1719,7 +1967,7 @@ func _apply_first_boss_prep_gold_floor(win: bool) -> void:
 	var missing_gold: int = max(0, FIRST_BOSS_PREP_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
-	Economy.add_gold(missing_gold)
+	Economy.add_gold(missing_gold, false, "recovery")
 	_on_log_line("First boss prep stipend: +%d gold." % missing_gold)
 
 func _apply_chapter_two_stability_gold_floor(win: bool) -> void:
@@ -1737,7 +1985,7 @@ func _apply_chapter_two_stability_gold_floor(win: bool) -> void:
 	var missing_gold: int = max(0, CHAPTER_TWO_STABILITY_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
-	Economy.add_gold(missing_gold)
+	Economy.add_gold(missing_gold, false, "recovery")
 	_on_log_line("Chapter 2 stability stipend: +%d gold." % missing_gold)
 
 func _apply_chapter_three_stability_gold_floor(win: bool) -> void:
@@ -1755,7 +2003,7 @@ func _apply_chapter_three_stability_gold_floor(win: bool) -> void:
 	var missing_gold: int = max(0, CHAPTER_THREE_STABILITY_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
-	Economy.add_gold(missing_gold)
+	Economy.add_gold(missing_gold, false, "recovery")
 	_on_log_line("Chapter 3 stability stipend: +%d gold." % missing_gold)
 
 func _apply_boss_prep_gold_floor(win: bool) -> void:
@@ -1772,7 +2020,7 @@ func _apply_boss_prep_gold_floor(win: bool) -> void:
 	var missing_gold: int = max(0, BOSS_PREP_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
-	Economy.add_gold(missing_gold)
+	Economy.add_gold(missing_gold, false, "recovery")
 	_on_log_line("Boss prep stipend: +%d gold." % missing_gold)
 
 func _apply_opening_retry_recovery(win: bool) -> void:
@@ -1792,7 +2040,7 @@ func _apply_opening_retry_recovery(win: bool) -> void:
 	var missing_gold: int = max(0, OPENING_RETRY_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
-	Economy.add_gold(missing_gold)
+	Economy.add_gold(missing_gold, false, "recovery")
 	_on_log_line("Opening retry recovery: +%d gold." % missing_gold)
 
 func _apply_early_run_retry_recovery(win: bool) -> void:
@@ -1811,7 +2059,7 @@ func _apply_early_run_retry_recovery(win: bool) -> void:
 	var missing_gold: int = max(0, EARLY_RETRY_RECOVERY_MIN_GOLD - int(Economy.gold))
 	if missing_gold <= 0:
 		return
-	Economy.add_gold(missing_gold)
+	Economy.add_gold(missing_gold, false, "recovery")
 	_on_log_line("Early retry recovery: +%d gold." % missing_gold)
 
 func _start_auto_loop() -> void:

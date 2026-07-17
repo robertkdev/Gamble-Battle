@@ -10,6 +10,7 @@ const Debug := preload("res://scripts/util/debug.gd")
 const AuditPanelScene: GDScript = preload("res://scripts/ui/audit/audit_panel.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
+const RunStateStore := preload("res://scripts/game/run/run_state_store.gd")
 const TITLE_SIGIL: Texture2D = preload("res://assets/ui/gold icon.png")
 
 const DEBUG_AUTO_START := false
@@ -31,6 +32,7 @@ var _system_menu_open: bool = false
 var _title_page: Control
 var _starter_transition_pending: bool = false
 var _pending_starter_id: String = ""
+var _continue_run_button: Button
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -42,6 +44,7 @@ func _ready() -> void:
 		start_button.pressed.connect(_on_start)
 	if quit_button and not quit_button.is_connected("pressed", Callable(self, "_on_quit")):
 		quit_button.pressed.connect(_on_quit)
+	_build_continue_run_button()
 	if combat_view:
 		combat_view.process_mode = Node.PROCESS_MODE_PAUSABLE
 	if unit_select:
@@ -77,7 +80,8 @@ func _set_menu_visible(show_menu: bool) -> void:
 		GameState.set_phase(GameState.GamePhase.MENU)
 
 func _on_start() -> void:
-	_set_starter_transition_pending(false)
+	RunStateStore.clear()
+	_reset_run_state()
 	if _title_page != null:
 		_title_page.visible = false
 	_set_menu_visible(false)
@@ -88,8 +92,15 @@ func _on_start() -> void:
 	_sync_system_menu_button()
 
 func _on_quit() -> void:
+	if combat_view != null and combat_view.has_method("save_active_run_now"):
+		combat_view.call("save_active_run_now")
 	get_tree().paused = false
 	get_tree().quit()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		if combat_view != null and combat_view.has_method("save_active_run_now"):
+			combat_view.call("save_active_run_now")
 
 func go_to_menu() -> void:
 	request_return_to_title()
@@ -168,13 +179,16 @@ func enable_audit_panel_for_test() -> CanvasLayer:
 
 func request_return_to_title() -> void:
 	_close_system_menu()
+	if combat_view != null and combat_view.has_method("save_active_run_now"):
+		combat_view.call("save_active_run_now")
 	_remove_runtime_overlays()
-	_reset_run_state()
 	_show_title_page()
+	_refresh_continue_run_button()
 
 func request_new_run() -> void:
 	_close_system_menu()
 	_remove_runtime_overlays()
+	RunStateStore.clear()
 	_reset_run_state()
 	_set_menu_visible(false)
 	if unit_select and unit_select.has_method("show_screen"):
@@ -576,6 +590,60 @@ func _reset_run_state() -> void:
 
 	if unit_select != null and unit_select.has_method("reset_selection"):
 		unit_select.call("reset_selection")
+
+func _build_continue_run_button() -> void:
+	if start_button == null or start_button.get_parent() == null:
+		return
+	var host: VBoxContainer = start_button.get_parent() as VBoxContainer
+	if host == null:
+		return
+	_continue_run_button = host.get_node_or_null("ContinueRunButton") as Button
+	if _continue_run_button == null:
+		_continue_run_button = start_button.duplicate() as Button
+		_continue_run_button.name = "ContinueRunButton"
+		host.add_child(_continue_run_button)
+		host.move_child(_continue_run_button, start_button.get_index())
+	if not _continue_run_button.is_connected("pressed", Callable(self, "_on_continue_run")):
+		_continue_run_button.pressed.connect(_on_continue_run)
+	_refresh_continue_run_button()
+
+func _refresh_continue_run_button() -> void:
+	if _continue_run_button == null:
+		return
+	var available: bool = RunStateStore.has_save()
+	_continue_run_button.visible = available
+	_continue_run_button.disabled = not available
+	_continue_run_button.text = "Continue Run"
+	if start_button != null:
+		start_button.text = "New Run" if available else "Start"
+
+func _on_continue_run() -> void:
+	var loaded: Dictionary = RunStateStore.load_snapshot()
+	if not bool(loaded.get("ok", false)):
+		_mark_continue_unavailable()
+		return
+	if _title_page != null:
+		_title_page.visible = false
+	_set_menu_visible(false)
+	if combat_view == null:
+		return
+	combat_view.visible = true
+	combat_view.set_process(true)
+	if combat_view.has_method("_init_game"):
+		combat_view.call("_init_game")
+	var result: Dictionary = combat_view.call("restore_active_run", loaded.get("snapshot", {}))
+	if not bool(result.get("ok", false)):
+		_set_menu_visible(true)
+		_mark_continue_unavailable()
+		return
+	_sync_system_menu_button()
+
+func _mark_continue_unavailable() -> void:
+	if _continue_run_button == null:
+		return
+	_continue_run_button.visible = true
+	_continue_run_button.disabled = true
+	_continue_run_button.text = "Continue Unavailable"
 
 func _remove_runtime_overlays() -> void:
 	var root: Window = get_tree().root

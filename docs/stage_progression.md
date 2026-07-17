@@ -1,5 +1,17 @@
 # Stage Progression
 
+## Endless chapter market
+
+At chapter entry the run prepares three mutually exclusive contract families:
+
+- Champion: installs a run-persistent targeting doctrine on one owned unit.
+- Stable: grants a bounded formation license, capped at three additional board slots.
+- Pit: raises visible enemy difficulty; the resulting lower projected win odds naturally raise the quoted payout without a second reward multiplier.
+
+One selection expires the other offers. Passing is always valid. Contract prices derive from the current Stakes denomination rather than the player's current wallet.
+
+Stakes promotion is committed only at chapter boundaries, after the chapter-closing combat payout has updated the run's peak bankroll. It never reprices the shop during a fight or shopping decision.
+
 Gamble Battle uses procedural chapters as the default campaign path from Chapter 1 onward. Every chapter keeps the same 5-stage cadence:
 
 1. Creep reward round
