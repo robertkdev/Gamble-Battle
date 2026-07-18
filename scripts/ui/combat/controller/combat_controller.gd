@@ -1299,6 +1299,9 @@ func _auto_start_battle() -> void:
 		print("[CombatView] Auto-starting battle")
 	_on_continue_pressed()
 
+func set_auto_start_battle_enabled(enabled: bool) -> void:
+	auto_combat = enabled
+
 func _on_bet_changed(val: float) -> void:
 	if economy_ui:
 		economy_ui.on_bet_changed(val)
