@@ -19,9 +19,12 @@ static func reload() -> void:
 		var entry := dir.get_next()
 		if entry == "":
 			break
-		if dir.current_is_dir() or not entry.ends_with(".tres"):
+		if dir.current_is_dir():
 			continue
-		var path := "%s/%s" % [APPROACH_DIR, entry]
+		var resource_entry: String = entry.trim_suffix(".remap") if entry.ends_with(".tres.remap") else entry
+		if not resource_entry.ends_with(".tres"):
+			continue
+		var path := "%s/%s" % [APPROACH_DIR, resource_entry]
 		if not ResourceLoader.exists(path):
 			continue
 		var res := ResourceLoader.load(path)

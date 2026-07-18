@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/rga_testing/validation/audio_catalog_package_probe.gd" id="1"]
+
+[node name="AudioCatalogPackageProbe" type="Node"]
+script = ExtResource("1")

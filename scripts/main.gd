@@ -99,8 +99,7 @@ func _on_quit() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
-		if combat_view != null and combat_view.has_method("save_active_run_now"):
-			combat_view.call("save_active_run_now")
+		_on_quit()
 
 func go_to_menu() -> void:
 	request_return_to_title()

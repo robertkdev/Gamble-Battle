@@ -662,9 +662,12 @@ static func _load_unit_catalog() -> Array[Dictionary]:
 		var entry: String = dir.get_next()
 		if entry == "":
 			break
-		if dir.current_is_dir() or not entry.ends_with(".tres"):
+		if dir.current_is_dir():
 			continue
-		var path: String = PLAYABLE_UNIT_ROOT + "/" + entry
+		var resource_entry: String = entry.trim_suffix(".remap") if entry.ends_with(".tres.remap") else entry
+		if not resource_entry.ends_with(".tres"):
+			continue
+		var path: String = PLAYABLE_UNIT_ROOT + "/" + resource_entry
 		var res: Resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 		if not (res is UnitProfile):
 			continue

@@ -52,8 +52,12 @@ func _scan_dir(path: String) -> void:
 		if dir.current_is_dir():
 			_scan_dir(full)
 			continue
-		if not (name.ends_with(".ogg") or name.ends_with(".wav") or name.ends_with(".mp3")):
+		var resource_name: String = name
+		if resource_name.ends_with(".import") or resource_name.ends_with(".remap"):
+			resource_name = resource_name.get_basename()
+		if not (resource_name.ends_with(".ogg") or resource_name.ends_with(".wav") or resource_name.ends_with(".mp3")):
 			continue
+		full = path + "/" + resource_name
 		if not ResourceLoader.exists(full):
 			continue
 		var stream = load(full)

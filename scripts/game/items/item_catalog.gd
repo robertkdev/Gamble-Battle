@@ -42,8 +42,10 @@ static func _scan_dir(path: String) -> void:
 		if dir.current_is_dir():
 			_scan_dir(full)
 		else:
-			if not name.ends_with(".tres"):
+			var resource_name: String = name.trim_suffix(".remap") if name.ends_with(".tres.remap") else name
+			if not resource_name.ends_with(".tres"):
 				continue
+			full = path + "/" + resource_name
 			if not ResourceLoader.exists(full):
 				continue
 			var res = load(full)

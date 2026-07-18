@@ -4,7 +4,8 @@ const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
 const UNIT_SELECT_SCENE: PackedScene = preload("res://scenes/UnitSelect.tscn")
 const VisionSnapshot := preload("res://scripts/util/vision_snapshot.gd")
 const SMOKE_NAME: String = "CompactViewportVisualAuditSmoke"
-const OUTPUT_DIR: String = "res://outputs/visual_iter/compact_viewport_audit"
+const EDITOR_OUTPUT_DIR: String = "res://outputs/visual_iter/compact_viewport_audit"
+const PACKAGED_OUTPUT_DIR: String = "user://packaged_compact_viewport_audit"
 const VIEWPORT_SIZE: Vector2i = Vector2i(1280, 720)
 
 var _main: Control = null
@@ -21,7 +22,7 @@ func _run() -> void:
 	if window != null:
 		window.size = VIEWPORT_SIZE
 		window.content_scale_size = VIEWPORT_SIZE
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output_dir()))
 
 	_main = MAIN_SCENE.instantiate() as Control
 	_main.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -187,7 +188,7 @@ func _save_capture(filename: String, root_node: Node) -> void:
 	if image == null or image.is_empty():
 		push_error("%s: skipped %s; viewport image unavailable" % [SMOKE_NAME, filename])
 		return
-	var path: String = "%s/%s" % [OUTPUT_DIR, filename]
+	var path: String = "%s/%s" % [_output_dir(), filename]
 	var error: Error = image.save_png(path)
 	if error != OK:
 		push_error("%s: failed to save %s error=%s" % [SMOKE_NAME, ProjectSettings.globalize_path(path), str(int(error))])
@@ -196,7 +197,7 @@ func _save_capture(filename: String, root_node: Node) -> void:
 	print("%s: saved %s" % [SMOKE_NAME, ProjectSettings.globalize_path(path)])
 
 func _save_vision_capture(filename: String, root_node: Node) -> void:
-	var result: Dictionary[String, Variant] = VisionSnapshot.capture(root_node, filename.get_basename(), OUTPUT_DIR)
+	var result: Dictionary[String, Variant] = VisionSnapshot.capture(root_node, filename.get_basename(), _output_dir())
 	if not bool(result.get("ok", false)):
 		push_error("%s: vision fallback failed for %s reason=%s" % [SMOKE_NAME, filename, str(result.get("reason", ""))])
 		return
@@ -207,6 +208,11 @@ func _is_framebuffer_unavailable() -> bool:
 	var display_name: String = DisplayServer.get_name().to_lower()
 	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
 	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")
+
+func _output_dir() -> String:
+	if OS.has_feature("editor"):
+		return EDITOR_OUTPUT_DIR
+	return PACKAGED_OUTPUT_DIR
 
 func _settle_frames(count: int) -> void:
 	for _frame_index: int in range(count):
@@ -219,7 +225,7 @@ func _expect(condition: bool, message: String) -> void:
 func _finish() -> void:
 	var exit_code: int = 0
 	if _failures.is_empty():
-		print("%s: OK captures=%d output=%s" % [SMOKE_NAME, _saved_captures, ProjectSettings.globalize_path(OUTPUT_DIR)])
+		print("%s: OK captures=%d output=%s" % [SMOKE_NAME, _saved_captures, ProjectSettings.globalize_path(_output_dir())])
 	else:
 		for failure: String in _failures:
 			push_error("%s: %s" % [SMOKE_NAME, failure])

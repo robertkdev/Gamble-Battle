@@ -38,6 +38,21 @@ The final `VisionCaptureSmoke` evidence uses the exact task editor's live game v
 
 Framebuffer capture remains unavailable inside the legacy `ExitFlowSmoke` and `LossScreenSmoke` runners; their behavior is accepted, their screenshots are not. Raw `outputs/` captures remain intentionally ignored, while this reviewed report and the test contracts are normal Git evidence.
 
-A checked-in Windows Desktop export preset now targets `build/windows/GambleBattle.exe`, and `/build/` is ignored. No packaged executable was produced because export templates are not installed and the approved Godot MCP surfaces do not expose an export operation. Packaged startup, performance, distribution, and OS scaling therefore remain an environment/tooling gate rather than source-build acceptance.
+## Packaged Windows acceptance
 
-The canonical vault validator is currently green; the three previously reported vault failures were stale, unrelated evidence and were not converted into project changes.
+With explicit user approval, the official Godot 4.5 stable export templates were hash-verified and installed without restarting Godot, Codex, or Windows. The final Windows export completed with exit code 0, zero export warnings/errors, and no `res://outputs/` evidence accidentally embedded.
+
+The first packaged run exposed a systemic PCK discovery defect: exported resource directories enumerate imported resources as `.tres.remap` (and audio imports as `.wav.import`), while runtime catalogs only accepted source extensions. That left creeps, identity definitions, playable units, shop offers, items, audio, and endless-generation unit data undiscoverable in release builds. Runtime catalogs and their packaged probes now normalize remapped/imported entries back to loadable resource paths.
+
+- Packaged `VisionCaptureSmoke`: PASS, six states at 1920x1080; the first shop contains purchasable unit offers and the planning timer reads `1:59`.
+- Packaged `CompactViewportVisualAuditSmoke`: PASS, five 1280x720 states with all layout/overflow assertions green.
+- Packaged `ItemTraitSystemsProbe`: PASS, 22 traits, 36 recipes, and 36 completed items.
+- Packaged `AudioCatalogPackageProbe`: PASS, six discoverable streams.
+- Packaged endless generation/runtime probes: PASS across 240 generated chapters and the first procedural transition.
+- Packaged `Perf6v6`: PASS, all three deterministic cases consistent; final total runtime 5531 ms.
+- Visible launch, close, relaunch, and second close: PASS; both close requests exited normally with no forced cleanup.
+- Distribution roundtrip: the one-file ZIP extracts to a byte-identical EXE and the extracted build passes its audio probe.
+
+Final local artifacts (intentionally ignored): `outputs/packaged_playtest/2026-07-18/dist/GambleBattle.exe` (SHA-256 `0C5A1007A1D504C59EF265860B176D5F591D306CB806819D2AA803902C44EA73`) and `GambleBattle-windows-x86_64.zip` (SHA-256 `661CF50D2F7D418FAED26EEFFD9D337C57C30F3B56C25AE2D1DFCD9B7006FF38`).
+
+The packaged headless captures are diagnostic control maps, not final framebuffers. Actual visual fidelity is supported by the six editor-game framebuffer captures; packaged OS-compositor capture remains unavailable because Windows Graphics Capture returns `0x80004002` before input. This is an evidence limitation, not a known packaged gameplay failure.

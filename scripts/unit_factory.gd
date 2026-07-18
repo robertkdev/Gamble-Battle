@@ -128,6 +128,13 @@ static func _resolve_path_for(id: String) -> String:
 	var primary: String = _def_path(sid)
 	if ResourceLoader.exists(primary):
 		return primary
+	# Exported PCKs do not guarantee that runtime directory enumeration exposes
+	# imported resources. Try the supported flat non-playable locations directly
+	# before falling back to the recursive editor-friendly index.
+	for root: String in _roots_other:
+		var direct_path: String = "%s/%s.tres" % [root, sid]
+		if ResourceLoader.exists(direct_path):
+			return direct_path
 	# Lazy-build index on first miss
 	if not _index_built:
 		_build_index()
@@ -164,9 +171,10 @@ static func _scan_root_into_index(root: String, recursive: bool) -> void:
 			if recursive and not entry.begins_with("."):
 				_scan_root_into_index(base + "/" + entry, recursive)
 			continue
-		if not entry.ends_with(".tres"):
+		var resource_entry: String = entry.trim_suffix(".remap") if entry.ends_with(".tres.remap") else entry
+		if not resource_entry.ends_with(".tres"):
 			continue
-		var path: String = base + "/" + entry
+		var path: String = base + "/" + resource_entry
 		if not ResourceLoader.exists(path):
 			continue
 		var res = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)

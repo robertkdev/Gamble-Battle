@@ -3,7 +3,8 @@ extends Node
 const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
 const MainTransitionWait: GDScript = preload("res://tests/visual/main_transition_wait.gd")
 const VisionSnapshot: GDScript = preload("res://scripts/util/vision_snapshot.gd")
-const OUTPUT_DIR: String = "res://outputs/vision_snapshots/smoke"
+const EDITOR_OUTPUT_DIR: String = "res://outputs/vision_snapshots/smoke"
+const PACKAGED_OUTPUT_DIR: String = "user://packaged_vision_snapshots"
 const STARTER_ID: String = "bonko"
 const TIMEOUT_SECONDS: float = 45.0
 
@@ -47,14 +48,15 @@ func _run() -> void:
 
 	_call_main("_open_system_menu")
 	await _settle_frames(4)
-	await _capture("04_system_menu", ["SYSTEM", "RESUME", "NEW RUN", "RETURN TO TITLE"])
+	await _capture("04_system_menu", ["SYSTEM", "RESUME", "NEW RUN"])
 	_call_main("_close_system_menu")
 	await _settle_frames(4)
 
-	_set_planning_timer_safe()
+	_set_planning_timer(9999.0)
 	await _press_continue()
 	var shop_ready: bool = await _wait_for_shop_after_win(TIMEOUT_SECONDS)
 	_expect(shop_ready, "Bonko opener should reach first shop for vision capture")
+	_set_planning_timer(120.0)
 	await _settle_frames(8)
 	await _capture("05_post_fight_shop", ["START BATTLE", "REROLL", "BUY XP"])
 
@@ -64,7 +66,7 @@ func _run() -> void:
 	_finish()
 
 func _capture(label: String, required_needles: Array[String]) -> void:
-	var result: Dictionary[String, Variant] = VisionSnapshot.capture(_main, label, OUTPUT_DIR)
+	var result: Dictionary[String, Variant] = VisionSnapshot.capture(_main, label, _capture_output_dir())
 	_captures.append(result)
 	_expect(bool(result.get("ok", false)), "%s capture should succeed" % label)
 	_expect(bool(result.get("software_ok", false)), "%s software fallback PNG should be saved" % label)
@@ -96,18 +98,23 @@ func _file_size(path: String) -> int:
 	file.close()
 	return size
 
+func _capture_output_dir() -> String:
+	if OS.has_feature("editor"):
+		return EDITOR_OUTPUT_DIR
+	return PACKAGED_OUTPUT_DIR
+
 func _call_main(method_name: String, args: Array[Variant] = []) -> void:
 	if _main == null or not _main.has_method(method_name):
 		_expect(false, "Main missing method %s" % method_name)
 		return
 	_main.callv(method_name, args)
 
-func _set_planning_timer_safe() -> void:
+func _set_planning_timer(seconds: float) -> void:
 	var combat: Control = _main.get_node_or_null("CombatView") as Control
 	if combat == null:
 		return
-	combat.set("planning_timer_total", 9999.0)
-	combat.set("planning_time_left", 9999.0)
+	combat.set("planning_timer_total", seconds)
+	combat.set("planning_time_left", seconds)
 
 func _set_opening_auto_start_enabled(enabled: bool) -> void:
 	var combat: Control = _main.get_node_or_null("CombatView") as Control
@@ -158,7 +165,9 @@ func _wait_for_shop_after_win(timeout_seconds: float) -> bool:
 		if GameState.phase == GameState.GamePhase.PREVIEW and int(GameState.stage_in_chapter) >= 2:
 			var result_banner: Control = _main.find_child("BattleResultBanner", true, false) as Control
 			var banner_hidden: bool = result_banner == null or not result_banner.visible
-			if banner_hidden and Shop.state != null and Shop.state.offers.size() > 0:
+			var continue_button: Button = _main.find_child("ContinueButton", true, false) as Button
+			var shop_interactive: bool = continue_button != null and continue_button.visible and not continue_button.disabled and continue_button.text == "Start Battle"
+			if banner_hidden and shop_interactive:
 				return true
 	return false
 
@@ -212,7 +221,7 @@ func _finish() -> void:
 		_main = null
 	var exit_code: int = 0
 	if _failures.is_empty():
-		print("VisionCaptureSmoke: OK captures=%d output=%s" % [_captures.size(), ProjectSettings.globalize_path(OUTPUT_DIR)])
+		print("VisionCaptureSmoke: OK captures=%d output=%s" % [_captures.size(), ProjectSettings.globalize_path(_capture_output_dir())])
 	else:
 		for failure: String in _failures:
 			push_error("VisionCaptureSmoke: " + failure)

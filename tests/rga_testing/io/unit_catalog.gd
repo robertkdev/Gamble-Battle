@@ -23,9 +23,12 @@ func list(settings: RGASettings) -> Array[Dictionary]:
         var f := dir.get_next()
         if f == "":
             break
-        if dir.current_is_dir() or f.begins_with(".") or not f.ends_with(".tres"):
+        if dir.current_is_dir() or f.begins_with("."):
             continue
-        var path := "res://data/units/%s" % f
+        var resource_name: String = f.trim_suffix(".remap") if f.ends_with(".tres.remap") else f
+        if not resource_name.ends_with(".tres"):
+            continue
+        var path := "res://data/units/%s" % resource_name
         var res = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
         if res == null:
             continue
@@ -113,4 +116,3 @@ func _to_lower_array(arr: PackedStringArray) -> PackedStringArray:
         if s != "":
             out.append(s)
     return out
-

@@ -349,9 +349,12 @@ func _resource_ids_in_dir(path: String) -> Array[String]:
 		var entry: String = dir.get_next()
 		if entry == "":
 			break
-		if dir.current_is_dir() or entry.begins_with(".") or not entry.ends_with(".tres"):
+		if dir.current_is_dir() or entry.begins_with("."):
 			continue
-		ids.append(entry.get_basename())
+		var resource_name: String = entry.trim_suffix(".remap") if entry.ends_with(".tres.remap") else entry
+		if not resource_name.ends_with(".tres"):
+			continue
+		ids.append(resource_name.get_basename())
 	dir.list_dir_end()
 	ids.sort()
 	return ids

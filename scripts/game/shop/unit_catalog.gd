@@ -31,9 +31,10 @@ func refresh() -> void:
 			continue
 		if dir.current_is_dir():
 			continue
-		if not f.ends_with(".tres"):
+		var resource_name: String = f.trim_suffix(".remap") if f.ends_with(".tres.remap") else f
+		if not resource_name.ends_with(".tres"):
 			continue
-		var path := "res://data/units/%s" % f
+		var path := "res://data/units/%s" % resource_name
 		if not ResourceLoader.exists(path):
 			continue
 		var res = load(path)
