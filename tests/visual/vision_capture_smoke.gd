@@ -2,7 +2,7 @@ extends Node
 
 const MAIN_SCENE: PackedScene = preload("res://scenes/Main.tscn")
 const MainTransitionWait: GDScript = preload("res://tests/visual/main_transition_wait.gd")
-const VisionSnapshot := preload("res://scripts/util/vision_snapshot.gd")
+const VisionSnapshot: GDScript = preload("res://scripts/util/vision_snapshot.gd")
 const OUTPUT_DIR: String = "res://outputs/vision_snapshots/smoke"
 const STARTER_ID: String = "bonko"
 const TIMEOUT_SECONDS: float = 45.0
@@ -37,8 +37,12 @@ func _run() -> void:
 	_call_main("_on_start")
 	await _settle_frames(6)
 	await _capture("02_unit_select", ["NO CHAMPION CHOSEN", "START GAME"])
+	_set_opening_auto_start_enabled(false)
 	_call_main("_on_unit_selected", [STARTER_ID])
-	await MainTransitionWait.for_combat_view(self, _main)
+	var combat: Control = await MainTransitionWait.for_combat_view(self, _main)
+	_expect(combat != null, "CombatView should be ready for opening capture")
+	var opening_ready: bool = await _wait_for_opening_planning(20.0)
+	_expect(opening_ready, "Opening planning UI should replace unit select before capture")
 	await _capture("03_opening_combat", ["START OPENING FIGHT", "OPENING FIGHT"])
 
 	_call_main("_open_system_menu")
@@ -54,9 +58,9 @@ func _run() -> void:
 	await _settle_frames(8)
 	await _capture("05_post_fight_shop", ["START BATTLE", "REROLL", "BUY XP"])
 
-	_show_first_unit_details()
+	await _show_first_unit_details()
 	await _settle_frames(4)
-	await _capture("06_unit_detail_stats", ["PLAYER UNIT", "ATTACK", "ABILITY"])
+	await _capture("06_unit_detail_stats", ["PLAYER UNIT"])
 	_finish()
 
 func _capture(label: String, required_needles: Array[String]) -> void:
@@ -105,11 +109,41 @@ func _set_planning_timer_safe() -> void:
 	combat.set("planning_timer_total", 9999.0)
 	combat.set("planning_time_left", 9999.0)
 
+func _set_opening_auto_start_enabled(enabled: bool) -> void:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return
+	if combat.has_method("set_auto_start_battle_enabled"):
+		combat.call("set_auto_start_battle_enabled", enabled)
+		return
+	var controller: Variant = combat.get("controller")
+	if controller != null and controller.has_method("set_auto_start_battle_enabled"):
+		controller.call("set_auto_start_battle_enabled", enabled)
+
+func _wait_for_opening_planning(timeout_seconds: float) -> bool:
+	var deadline: int = Time.get_ticks_msec() + int(timeout_seconds * 1000.0)
+	while Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+		var unit_select: Control = _main.get_node_or_null("UnitSelect") as Control
+		var button: Button = _main.find_child("ContinueButton", true, false) as Button
+		var select_hidden: bool = unit_select == null or not unit_select.visible
+		if select_hidden and button != null and button.visible and not button.disabled:
+			if button.text == "Start Opening Fight":
+				return true
+	return false
+
 func _press_continue() -> void:
+	if int(GameState.phase) == int(GameState.GamePhase.COMBAT) or bool(Economy.combat_active):
+		return
 	var button: Button = _main.find_child("ContinueButton", true, false) as Button
 	if button == null:
 		_expect(false, "ContinueButton missing")
 		return
+	var deadline: int = Time.get_ticks_msec() + 5000
+	while button.disabled and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+		if int(GameState.phase) == int(GameState.GamePhase.COMBAT) or bool(Economy.combat_active):
+			return
 	if button.disabled:
 		_expect(false, "ContinueButton disabled")
 		return
@@ -122,7 +156,9 @@ func _wait_for_shop_after_win(timeout_seconds: float) -> bool:
 		if get_tree().root.get_node_or_null("LossOverlayLayer") != null:
 			return false
 		if GameState.phase == GameState.GamePhase.PREVIEW and int(GameState.stage_in_chapter) >= 2:
-			if Shop.state != null and Shop.state.offers.size() > 0:
+			var result_banner: Control = _main.find_child("BattleResultBanner", true, false) as Control
+			var banner_hidden: bool = result_banner == null or not result_banner.visible
+			if banner_hidden and Shop.state != null and Shop.state.offers.size() > 0:
 				return true
 	return false
 
@@ -145,6 +181,16 @@ func _show_first_unit_details() -> void:
 		return
 	if stats_panel.has_method("show_unit_metrics_ctx"):
 		stats_panel.call("show_unit_metrics_ctx", "player", 0, unit)
+	await _settle_frames(3)
+	var unit_scroll: ScrollContainer = stats_panel.find_child("UnitScroll", true, false) as ScrollContainer
+	if unit_scroll != null:
+		var scroll_bar: VScrollBar = unit_scroll.get_v_scroll_bar()
+		unit_scroll.scroll_vertical = int(scroll_bar.max_value)
+		await _settle_frames(3)
+	var attack_info: Label = stats_panel.find_child("AttackInfo", true, false) as Label
+	var ability_info: Label = stats_panel.find_child("AbilityInfo", true, false) as Label
+	_expect(attack_info != null and attack_info.text.begins_with("Attack:"), "Unit detail should expose attack copy")
+	_expect(ability_info != null and ability_info.text.begins_with("Ability:"), "Unit detail should expose ability copy")
 
 func _settle_frames(count: int) -> void:
 	for _frame_index: int in range(count):

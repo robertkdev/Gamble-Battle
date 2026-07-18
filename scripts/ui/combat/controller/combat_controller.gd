@@ -2167,6 +2167,7 @@ func _on_intermission_finished() -> void:
 			continue_button.visible = true
 	_pending_continue = false
 	_post_combat_outcome = ""
+	_hide_result_banner()
 
 func _apply_first_boss_prep_gold_floor(win: bool) -> void:
 	if not win:

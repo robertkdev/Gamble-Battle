@@ -91,6 +91,9 @@ func _prepare_first_shop_planning(_result: Dictionary) -> void:
 func _require_opener_board_reposition() -> bool:
 	return false
 
+func _uses_manual_opening_continue() -> bool:
+	return false
+
 func _run_starter_main_flow(starter_id: String, catalog: UnitCatalog) -> Dictionary:
 	var failure_start: int = _failures.size()
 	var shop_error_start: int = _shop_errors.size()

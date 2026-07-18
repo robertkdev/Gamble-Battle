@@ -1,12 +1,14 @@
-# Full playtest repair — 2026-07-17
+# Full playtest repair — 2026-07-18
 
 ## Outcome
 
-The reported source-build blockers were repaired on `codex/019f7308-526-full-playtest-repair`. CombatView and its shop/item/trait scene dependencies load, the Bonko betting and deterministic mid-run paths reach live combat, automatic capacity floors are asserted at stages 7/12/17/22, and the 144-sample odds calibration probe has zero timeouts.
+The reported source-build blockers were integrated and finished on `codex/019f7639-37d-playtest`. CombatView and its shop/item/trait scene dependencies load, the Bonko betting and deterministic mid-run paths reach live combat, automatic capacity floors are asserted at stages 7/12/17/22, and the 144-sample odds calibration probe has zero timeouts.
 
 The stale visual and interaction harnesses now follow `TitlePage`, control the forced opener before auto-start, match price-bearing progression button labels, respect live board capacity, and use an authoritative 1920x1080 SubViewport for arena geometry. Exit/loss tests now return truthful failure codes and explicitly tear down runtime state.
 
 Combat Terms renders a recoverable `Nothing Found` card with `Clear Search`. Settings now persist 100%, 125%, and 150% UI scale choices and expose conflict-aware keyboard remapping for Confirm and Menu / Back, with cancel and reset behavior.
+
+The real all-starter input path no longer inherits the manual first-shop opener from its quality-test subclass, so all 14 starters now reach and resolve the second combat. The post-fight result banner is also cleared when intermission ends instead of obscuring the planning/shop state.
 
 ## Fresh validation
 
@@ -16,7 +18,8 @@ Combat Terms renders a recoverable `Nothing Found` card with `Clear Search`. Set
 - `BettingEconomySmoke`: OK; CombatView opens and betting state locks/resolves correctly.
 - `MidRunProgressionSmoke`: OK; five real post-opener battles reach Chapter 2 Stage 1.
 - `NaturalRepresentativeMultiStageMainFlowSmoke`: OK; all six representative starters and seeds load CombatView and advance through the Chapter 1 multi-stage runway.
-- `FirstShopChoiceQualitySmoke`: PASS, 39/45 choices advanced across nine starters; all five Axiom trials advanced.
+- `NaturalInputMainFlowSmoke`: PASS; all 14 starters reached the first shop and resolved the second combat with zero retries.
+- `FirstShopChoiceQualitySmoke`: PASS, 41/45 choices advanced across nine starters.
 - `ProductionRapidShopPressureSmoke`: OK; five purchases and capacity-correct deployment.
 - `EndlessRuntimeIntegrationProbe`: PASS; exact capacity floors 6/7/8/9 at stages 7/12/17/22.
 - `TeamOddsCalibrationProbe`: PASS, 144 samples, predicted 50.0%, observed 50.7%, aggregate gap 0.7%, Brier 0.136, zero timeouts; largest reported bucket gap 17.7 points.
@@ -25,11 +28,13 @@ Combat Terms renders a recoverable `Nothing Found` card with `Clear Search`. Set
 - `ExitFlowSmoke` and `LossScreenSmoke`: OK behaviorally with empty Godot error arrays.
 - `RoleMatrixProbe6v6`: PASS for Bonko's role, goal, sustain, and ramp contracts; empty Godot error array.
 - `RGATesting`: PASS, 48 rows, no failed/skipped/error metrics and an empty Godot error array.
-- Godot-AI game framebuffer capture: available at 1920x1080. Fresh title and Settings frames were visually inspected; the settings page fits and shows UI Scale plus both keyboard bindings without visible overlap.
+- `Perf6v6`: PASS across neutral, burst, and peel cases; total runtime 8387 ms with stable frame-time distributions.
+- `VisionCaptureSmoke`: PASS, six fresh 1920x1080 player-facing states: title, unit select, opening planning, system menu, post-fight shop, and scrolled unit detail.
+- Visual Debug Harness run `main-vision-1df6d5a339`: evidence staging passed and an independent image review accepted all six states without findings.
 
 ## Evidence limits
 
-The software `VisionSnapshot` PNGs are diagnostic control maps, not authoritative pixel renders. They remain useful for state, text, control-presence, and gross-bound checks only. Godot-AI supplied authoritative 1920x1080 game frames, but Windows physical-window capture still fails before input with `0x80004002`, so physical keyboard/mouse feel and OS compositor fidelity remain externally unaccepted.
+The final `VisionCaptureSmoke` evidence uses the exact task editor's live game viewport at 1920x1080 and is suitable for player-facing layout review. Windows physical-window capture still fails before input with `0x80004002`, so OS-compositor fidelity remains externally unaccepted; gameplay input itself is covered by the 14-starter natural-input smoke.
 
 Framebuffer capture remains unavailable inside the legacy `ExitFlowSmoke` and `LossScreenSmoke` runners; their behavior is accepted, their screenshots are not. Raw `outputs/` captures remain intentionally ignored, while this reviewed report and the test contracts are normal Git evidence.
 
