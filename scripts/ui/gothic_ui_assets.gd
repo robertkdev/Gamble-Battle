@@ -23,6 +23,32 @@ const UNIT_BASE_ENEMY: String = "res://assets/ui/gothic/unit_base_enemy.png"
 const ARENA_FRAME: String = "res://assets/ui/gothic/arena_frame.png"
 const STATUS_STRIP: String = "res://assets/ui/gothic/status_strip.png"
 
+# Shared visual language. Keep these semantic: screens may vary in composition,
+# but the same information role should not silently change size or contrast.
+const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
+const COLOR_SURFACE: Color = Color(0.036, 0.030, 0.040, 0.96)
+const COLOR_SURFACE_RAISED: Color = Color(0.060, 0.043, 0.050, 0.98)
+const COLOR_TEXT: Color = Color(0.94, 0.90, 0.82, 1.0)
+const COLOR_TEXT_MUTED: Color = Color(0.70, 0.65, 0.57, 1.0)
+const COLOR_GOLD: Color = Color(0.96, 0.72, 0.38, 1.0)
+const COLOR_BLOOD: Color = Color(0.66, 0.055, 0.090, 1.0)
+const COLOR_PLAYER: Color = Color(0.32, 0.69, 0.96, 1.0)
+const COLOR_ENEMY: Color = Color(0.96, 0.32, 0.25, 1.0)
+
+const FONT_DISPLAY: int = 36
+const FONT_TITLE: int = 28
+const FONT_HEADING: int = 20
+const FONT_BODY: int = 16
+const FONT_META: int = 14
+const FONT_MICRO: int = 12
+
+const SPACE_1: int = 4
+const SPACE_2: int = 8
+const SPACE_3: int = 12
+const SPACE_4: int = 16
+const SPACE_5: int = 24
+const SPACE_6: int = 32
+
 static func wide_panel_style(modulate: Color = Color.WHITE) -> StyleBoxTexture:
 	return texture_style(PANEL_PLATE_WIDE, Vector4(42.0, 42.0, 42.0, 42.0), Vector4(22.0, 18.0, 22.0, 18.0), modulate)
 
@@ -77,6 +103,41 @@ static func focus_outline_style(radius: int = 5, border_color: Color = Color(1.0
 	style.corner_radius_bottom_left = radius
 	style.draw_center = false
 	return style
+
+static func semantic_surface_style(accent: Color = COLOR_GOLD, raised: bool = false, border_width: int = 1) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = COLOR_SURFACE_RAISED if raised else COLOR_SURFACE
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.76)
+	style.border_width_left = border_width
+	style.border_width_top = border_width
+	style.border_width_right = border_width
+	style.border_width_bottom = border_width
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.content_margin_left = float(SPACE_3)
+	style.content_margin_top = float(SPACE_2)
+	style.content_margin_right = float(SPACE_3)
+	style.content_margin_bottom = float(SPACE_2)
+	style.shadow_size = 8 if raised else 3
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.56)
+	return style
+
+static func font_size(role: StringName, compact: bool = false) -> int:
+	match role:
+		&"display":
+			return 30 if compact else FONT_DISPLAY
+		&"title":
+			return 24 if compact else FONT_TITLE
+		&"heading":
+			return 18 if compact else FONT_HEADING
+		&"meta":
+			return FONT_META
+		&"micro":
+			return FONT_MICRO
+		_:
+			return FONT_META if compact else FONT_BODY
 
 static func screen_backdrop_texture() -> Texture2D:
 	return TextureUtils.try_load_texture(SCREEN_BACKDROP)

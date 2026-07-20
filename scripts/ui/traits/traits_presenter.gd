@@ -15,6 +15,7 @@ var _trait_signature: String = ""
 var _trait_icon_scene: PackedScene = null
 
 const WIDTH: int = 296
+const COMPACT_WIDTH: int = 196
 const PADDING_X: int = 10
 const SPACING: int = 6
 const ROW_HEIGHT: int = 48
@@ -198,10 +199,17 @@ func _update_layout() -> void:
 	if _overlay == null or _scroll == null:
 		return
 	# With prebuilt panel, respect authored position/size; just ensure visibility
-	_overlay.custom_minimum_size.x = WIDTH
+	var panel_width: int = _current_width()
+	_overlay.custom_minimum_size.x = panel_width
 	_scroll.visible = true
 	if _vbox:
-		_vbox.custom_minimum_size.x = max(1.0, float(WIDTH - (PADDING_X * 2)))
+		_vbox.custom_minimum_size.x = max(1.0, float(panel_width - (PADDING_X * 2)))
+
+func _current_width() -> int:
+	if view == null:
+		return WIDTH
+	var viewport_size: Vector2 = view.get_viewport_rect().size
+	return COMPACT_WIDTH if viewport_size.y <= 760.0 or viewport_size.x <= 1400.0 else WIDTH
 
 func _compare_traits(a: String, b: String, counts: Dictionary, thresholds_by_id: Dictionary, use_checkpoint: bool) -> bool:
 	var count_a: int = int(counts.get(a, 0))
@@ -224,7 +232,7 @@ func _add_trait_row(id: String, active_trait: bool, count: int, tier: int, thres
 		return
 	var row: PanelContainer = PanelContainer.new()
 	row.name = "TraitRow_%s" % id.to_lower().replace(" ", "_").replace("-", "_")
-	row.custom_minimum_size = Vector2(float(WIDTH - (PADDING_X * 2)), float(ROW_HEIGHT))
+	row.custom_minimum_size = Vector2(float(_current_width() - (PADDING_X * 2)), float(ROW_HEIGHT))
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.mouse_filter = Control.MOUSE_FILTER_PASS
 	row.add_theme_stylebox_override("panel", _make_trait_row_style(active_trait))

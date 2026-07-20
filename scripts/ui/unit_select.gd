@@ -11,17 +11,17 @@ const UnitFactory := preload("res://scripts/unit_factory.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
-const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
-const COLOR_PANEL: Color = Color(0.034, 0.029, 0.039, 0.94)
-const COLOR_PANEL_DEEP: Color = Color(0.018, 0.015, 0.023, 0.98)
-const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
-const COLOR_MUTED: Color = Color(0.65, 0.60, 0.53, 1.0)
-const COLOR_GOLD: Color = Color(0.92, 0.66, 0.32, 1.0)
-const COLOR_BLOOD: Color = Color(0.52, 0.040, 0.080, 1.0)
+const COLOR_VOID: Color = GothicUIAssets.COLOR_VOID
+const COLOR_PANEL: Color = GothicUIAssets.COLOR_SURFACE
+const COLOR_PANEL_DEEP: Color = GothicUIAssets.COLOR_SURFACE_RAISED
+const COLOR_TEXT: Color = GothicUIAssets.COLOR_TEXT
+const COLOR_MUTED: Color = GothicUIAssets.COLOR_TEXT_MUTED
+const COLOR_GOLD: Color = GothicUIAssets.COLOR_GOLD
+const COLOR_BLOOD: Color = GothicUIAssets.COLOR_BLOOD
 const COLOR_BLOOD_HOT: Color = Color(0.82, 0.070, 0.120, 1.0)
-const FULL_LAYOUT_SIZE: Vector2 = Vector2(1320.0, 900.0)
+const FULL_LAYOUT_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const COMPACT_VIEWPORT_HEIGHT: float = 780.0
-const IDENTITY_PANEL_MIN_HEIGHT: float = 96.0
+const IDENTITY_PANEL_MIN_HEIGHT: float = 158.0
 const START_BUTTON_READY_TEXT: String = "Start Game"
 const START_BUTTON_PENDING_TEXT: String = "Preparing Battle..."
 
@@ -40,8 +40,10 @@ var details_scroll: ScrollContainer = null
 var details_label: Label = null
 var help_label: Label = null
 var identity_panel: VBoxContainer = null
+var selected_marker_label: Label = null
 var identity_role_label: Label = null
 var identity_goal_label: Label = null
+var identity_ability_label: Label = null
 var identity_approach_tags: FlowContainer = null
 
 var items: Array[Dictionary] = []
@@ -127,13 +129,13 @@ func _ensure_preview_panel() -> void:
 			old_art.queue_free()
 		art_wrap = CenterContainer.new()
 		art_wrap.name = "ArtWrap"
-		art_wrap.custom_minimum_size = Vector2(380, 300)
+		art_wrap.custom_minimum_size = Vector2(560, 280)
 		preview.add_child(art_wrap)
 	preview_art = art_wrap.get_node_or_null("Art") as TextureRect
 	if preview_art == null:
 		preview_art = TextureRect.new()
 		preview_art.name = "Art"
-		preview_art.custom_minimum_size = Vector2(360, 360)
+		preview_art.custom_minimum_size = Vector2(280, 280)
 		preview_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		preview_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		preview_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -162,7 +164,7 @@ func _ensure_preview_panel() -> void:
 		help_label.name = "HelpLabel"
 		help_label.text = "Select a unit to continue"
 		right.add_child(help_label)
-	right.custom_minimum_size = Vector2(500, 0)
+	right.custom_minimum_size = Vector2(560, 0)
 	right.size_flags_horizontal = 0
 	start_button.size_flags_vertical = 0
 	right.move_child(preview, 0)
@@ -178,14 +180,14 @@ func _apply_gothic_layout() -> void:
 			mat.set_shader_parameter("vignette", 0.48)
 			mat.set_shader_parameter("vignette_softness", 0.62)
 	if hbox:
-		hbox.custom_minimum_size = Vector2(1320.0, 900.0)
+		hbox.custom_minimum_size = FULL_LAYOUT_SIZE
 		hbox.add_theme_constant_override("separation", 34)
 	if left_column:
-		left_column.custom_minimum_size = Vector2(760.0, 880.0)
+		left_column.custom_minimum_size = Vector2(900.0, 880.0)
 		left_column.add_theme_constant_override("separation", 14)
 		_left_plate = _ensure_float_plate(left_column, "GothicRosterPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(COLOR_PANEL, Color(0.36, 0.29, 0.27, 0.86), 1, 7)), -2, 10.0)
 	if right_column:
-		right_column.custom_minimum_size = Vector2(500.0, 880.0)
+		right_column.custom_minimum_size = Vector2(560.0, 880.0)
 		right_column.add_theme_constant_override("separation", 16)
 		_right_plate = _ensure_float_plate(right_column, "GothicPreviewPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(Color(0.030, 0.025, 0.034, 0.96), Color(0.48, 0.34, 0.25, 0.88), 1, 7)), -2, 10.0)
 	if heading_label:
@@ -209,7 +211,7 @@ func _apply_gothic_layout() -> void:
 		grid.add_theme_constant_override("h_separation", 12)
 		grid.add_theme_constant_override("v_separation", 14)
 	if selected_label:
-		selected_label.custom_minimum_size = Vector2(500.0, 64.0)
+		selected_label.custom_minimum_size = Vector2(560.0, 58.0)
 		selected_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		selected_label.add_theme_font_size_override("font_size", 32)
 		selected_label.add_theme_color_override("font_color", COLOR_TEXT)
@@ -217,23 +219,25 @@ func _apply_gothic_layout() -> void:
 		selected_label.add_theme_constant_override("outline_size", 2)
 	if identity_goal_label:
 		identity_goal_label.add_theme_color_override("font_color", COLOR_MUTED)
+	if identity_ability_label:
+		identity_ability_label.add_theme_color_override("font_color", COLOR_TEXT)
 	if details_label:
 		details_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		details_label.add_theme_font_size_override("font_size", 16)
+		details_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_BODY)
 		details_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if details_scroll:
-		details_scroll.custom_minimum_size = Vector2(500.0, 126.0)
+		details_scroll.custom_minimum_size = Vector2(560.0, 170.0)
 		details_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	if help_label:
-		help_label.add_theme_font_size_override("font_size", 16)
+		help_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_BODY)
 		help_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if preview_art:
-		preview_art.custom_minimum_size = Vector2(360.0, 360.0)
+		preview_art.custom_minimum_size = Vector2(280.0, 280.0)
 		preview_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		preview_art.modulate = Color(0.92, 0.88, 0.82, 1.0)
 	var art_wrap: Control = right_column.get_node_or_null("Preview/ArtWrap") as Control
 	if art_wrap:
-		art_wrap.custom_minimum_size = Vector2(430.0, 360.0)
+		art_wrap.custom_minimum_size = Vector2(560.0, 280.0)
 		_preview_art_plate = _ensure_float_plate(art_wrap, "GothicArtPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(), _make_panel_style(Color(0.014, 0.012, 0.018, 0.86), Color(0.32, 0.24, 0.23, 0.84), 1, 6)), -1, 8.0)
 		if not art_wrap.resized.is_connected(Callable(self, "_queue_gothic_plate_reposition")):
 			art_wrap.resized.connect(_queue_gothic_plate_reposition)
@@ -272,6 +276,19 @@ func _ensure_identity_panel(preview: VBoxContainer) -> void:
 	if selected_label:
 		var index: int = selected_label.get_index() + 1
 		preview.move_child(identity_panel, min(index, preview.get_child_count() - 1))
+	selected_marker_label = identity_panel.get_node_or_null("SelectedMarker") as Label
+	if selected_marker_label == null:
+		selected_marker_label = Label.new()
+		selected_marker_label.name = "SelectedMarker"
+		selected_marker_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		selected_marker_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		identity_panel.add_child(selected_marker_label)
+		identity_panel.move_child(selected_marker_label, 0)
+	selected_marker_label.visible = false
+	selected_marker_label.custom_minimum_size = Vector2(0.0, 28.0)
+	selected_marker_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
+	selected_marker_label.add_theme_color_override("font_color", COLOR_GOLD)
+	selected_marker_label.add_theme_stylebox_override("normal", GothicUIAssets.semantic_surface_style(COLOR_GOLD, true, 1))
 	identity_role_label = identity_panel.get_node_or_null("RoleBadge") as Label
 	if identity_role_label == null:
 		identity_role_label = Label.new()
@@ -283,16 +300,28 @@ func _ensure_identity_panel(preview: VBoxContainer) -> void:
 	identity_role_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	identity_role_label.custom_minimum_size = Vector2(132.0, 0.0)
 	identity_role_label.add_theme_stylebox_override("normal", _make_badge_style())
-	identity_role_label.add_theme_font_size_override("font_size", 13)
+	identity_role_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
 	identity_role_label.add_theme_color_override("font_color", COLOR_TEXT)
 	identity_goal_label = identity_panel.get_node_or_null("GoalLabel") as Label
 	if identity_goal_label == null:
 		identity_goal_label = Label.new()
 		identity_goal_label.name = "GoalLabel"
 		identity_goal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		identity_goal_label.add_theme_font_size_override("font_size", 18)
+		identity_goal_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		identity_goal_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
 		identity_goal_label.modulate = Color(1, 1, 1, 0.9)
 		identity_panel.add_child(identity_goal_label)
+	identity_ability_label = identity_panel.get_node_or_null("AbilitySummary") as Label
+	if identity_ability_label == null:
+		identity_ability_label = Label.new()
+		identity_ability_label.name = "AbilitySummary"
+		identity_ability_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		identity_ability_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		identity_ability_label.max_lines_visible = 2
+		identity_ability_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		identity_ability_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
+		identity_panel.add_child(identity_ability_label)
+	identity_ability_label.custom_minimum_size = Vector2(0.0, 24.0)
 	identity_approach_tags = identity_panel.get_node_or_null("ApproachTags") as FlowContainer
 	if identity_approach_tags == null:
 		identity_approach_tags = FlowContainer.new()
@@ -389,6 +418,7 @@ func _populate_units() -> void:
 		var name_label: Label = Label.new()
 		name_label.name = "UnitName"
 		name_label.text = String(it.get("name", ""))
+		name_label.set_meta("display_name", name_label.text)
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var role_label: Label = Label.new()
 		role_label.name = "UnitRole"
@@ -498,7 +528,9 @@ func _update_preview(id: String, is_selected: bool = false) -> void:
 	var role_text: String = _format_role(String(it.get("primary_role", "")))
 	var goal_text: String = _format_goal(String(it.get("primary_goal", "")))
 	var approach_arr: Array = _duplicate_strings(it.get("approaches", PackedStringArray()))
-	_set_identity_summary(role_text, goal_text, approach_arr)
+	var preview_unit: Unit = _preview_unit(id)
+	var ability_summary: String = _format_ability_summary(preview_unit)
+	_set_identity_summary(role_text, goal_text, approach_arr, ability_summary, is_selected)
 	var sp: String = String(it.get("sprite_path", ""))
 	if preview_art:
 		preview_art.texture = TextureUtils.try_load_texture(sp) if sp != "" else null
@@ -514,11 +546,11 @@ func _build_detail_lines(id: String, it: Dictionary) -> Array[String]:
 	if trait_text == "":
 		trait_text = _format_list(_duplicate_strings(it.get("approaches", PackedStringArray())), 5)
 	if trait_text != "":
-		lines.append("Traits: %s" % trait_text)
-	lines.append("Cost: %dg" % int(it.get("cost", 0)))
+		lines.append("TRAITS  %s" % trait_text)
+	lines.append("COMBAT  Cost: %dg" % int(it.get("cost", 0)))
 	var alt_goals: String = _format_list(_duplicate_strings(it.get("alt_goals", PackedStringArray())), 3)
 	if alt_goals != "":
-		lines.append("Alt Goals: %s" % alt_goals)
+		lines.append("FLEX  Alt Goals: %s" % alt_goals)
 	var preview_unit: Unit = _preview_unit(id)
 	var attack_text: String = _format_attack_info(preview_unit)
 	if attack_text != "":
@@ -581,6 +613,15 @@ func _format_ability_info(unit: Unit) -> String:
 		return "%s - %s" % [prefix, description]
 	return prefix
 
+func _format_ability_summary(unit: Unit) -> String:
+	var full_text: String = _format_ability_info(unit)
+	if full_text == "":
+		return ""
+	var separator_index: int = full_text.find(" - ")
+	if separator_index >= 0:
+		return full_text.left(separator_index)
+	return full_text
+
 func _on_unit_unhovered() -> void:
 	if _hovered_id != "":
 		_apply_unit_button_motion(_hovered_id, false)
@@ -615,7 +656,13 @@ func _clear_preview() -> void:
 		details_label.text = "Hover a unit to preview"
 	_queue_gothic_plate_reposition()
 
-func _set_identity_summary(role_text: String, goal_text: String, approaches: Array) -> void:
+func _set_identity_summary(role_text: String, goal_text: String, approaches: Array, ability_summary: String, _is_selected: bool) -> void:
+	if selected_marker_label:
+		var selected_item: Dictionary = items_by_id.get(selected_id, {})
+		var selected_name: String = String(selected_item.get("name", selected_id)).strip_edges()
+		selected_marker_label.text = "✓ %s SELECTED" % selected_name.to_upper() if selected_id != "" else "NO STARTER SELECTED"
+		selected_marker_label.visible = true
+		selected_marker_label.add_theme_color_override("font_color", COLOR_GOLD if selected_id != "" else COLOR_MUTED)
 	var show_role: bool = role_text.strip_edges() != ""
 	if identity_role_label:
 		identity_role_label.text = role_text
@@ -624,6 +671,9 @@ func _set_identity_summary(role_text: String, goal_text: String, approaches: Arr
 	if identity_goal_label:
 		identity_goal_label.text = goal_text
 		identity_goal_label.visible = show_goal
+	if identity_ability_label:
+		identity_ability_label.text = ability_summary
+		identity_ability_label.visible = ability_summary.strip_edges() != ""
 	_set_identity_approach_tags(approaches)
 	if identity_panel:
 		identity_panel.visible = true
@@ -657,10 +707,16 @@ func _set_identity_approach_tags(approaches: Array) -> bool:
 	return identity_approach_tags.visible
 
 func _clear_identity_panel() -> void:
+	if selected_marker_label:
+		selected_marker_label.text = "NO STARTER SELECTED"
+		selected_marker_label.visible = true
+		selected_marker_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if identity_role_label:
 		identity_role_label.visible = false
 	if identity_goal_label:
 		identity_goal_label.visible = false
+	if identity_ability_label:
+		identity_ability_label.visible = false
 	if identity_approach_tags:
 		for child in identity_approach_tags.get_children():
 			child.queue_free()
@@ -676,14 +732,14 @@ func _on_resized() -> void:
 	var layout_width: float = min(FULL_LAYOUT_SIZE.x, available_width)
 	var layout_height: float = min(FULL_LAYOUT_SIZE.y, available_height)
 	var gap: float = 20.0 if compact else 34.0
-	var right_width: float = min(500.0, max(420.0, layout_width * 0.38))
+	var right_width: float = 440.0 if compact else min(560.0, max(500.0, layout_width * 0.38))
 	var left_width: float = max(520.0, layout_width - right_width - gap)
 	var heading_height: float = 52.0 if compact else 70.0
 	var scroll_height: float = max(470.0, layout_height - heading_height - 26.0)
 	var tile_width: float = 138.0 if compact else 150.0
 	var tile_height: float = 166.0 if compact else 184.0
 	var button_size: Vector2 = Vector2(138.0, 116.0) if compact else Vector2(150.0, 138.0)
-	var preview_art_size: float = 270.0 if compact else 360.0
+	var preview_art_size: float = 224.0 if compact else 292.0
 	if hbox != null:
 		hbox.custom_minimum_size = Vector2(layout_width, layout_height)
 		hbox.add_theme_constant_override("separation", int(gap))
@@ -693,6 +749,8 @@ func _on_resized() -> void:
 	if right_column != null:
 		right_column.custom_minimum_size = Vector2(right_width, layout_height)
 		right_column.add_theme_constant_override("separation", 10 if compact else 16)
+	if identity_panel != null:
+		identity_panel.custom_minimum_size = Vector2(right_width, IDENTITY_PANEL_MIN_HEIGHT)
 	if heading_label != null:
 		heading_label.custom_minimum_size = Vector2(0.0, heading_height)
 		heading_label.add_theme_font_size_override("font_size", 30 if compact else 38)
@@ -702,7 +760,7 @@ func _on_resized() -> void:
 		selected_label.custom_minimum_size = Vector2(right_width, 50.0 if compact else 64.0)
 		selected_label.add_theme_font_size_override("font_size", 24 if compact else 32)
 	if details_scroll != null:
-		details_scroll.custom_minimum_size = Vector2(right_width, 92.0 if compact else 126.0)
+		details_scroll.custom_minimum_size = Vector2(right_width, 112.0 if compact else 160.0)
 	if details_label != null:
 		details_label.add_theme_font_size_override("font_size", 15 if compact else 16)
 	if preview_art != null:
@@ -727,9 +785,12 @@ func _on_resized() -> void:
 				continue
 			var label: Label = child as Label
 			if label != null:
-				label.add_theme_font_size_override("font_size", 13 if compact and label.name == "UnitName" else (10 if compact else (15 if label.name == "UnitName" else 11)))
+				label.add_theme_font_size_override("font_size", 14 if compact else (16 if label.name == "UnitName" else 14))
 	var tile_w: float = tile_width + 14.0
-	var available: float = max(1.0, float(scroll.size.x))
+	# Use the target column width, not the previous frame's ScrollContainer size.
+	# Reading the stale wide size during a compact resize centered a five-column
+	# grid inside a 900px wrapper and produced horizontal clipping at 1280px.
+	var available: float = max(1.0, left_width)
 	var cols: int = int(floor(available / tile_w))
 	grid.columns = max(3, min(cols, 5))
 	if grid_wrap:
@@ -862,12 +923,14 @@ func _style_unit_card(tile: VBoxContainer, button: Button, name_label: Label, ro
 	button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, COLOR_GOLD))
 	button.add_theme_stylebox_override("disabled", _make_unit_button_style(false, false))
 	if name_label:
-		name_label.add_theme_font_size_override("font_size", 13 if compact else 15)
+		var display_name: String = String(name_label.get_meta("display_name", name_label.text))
+		name_label.text = ("[X] %s" % display_name) if selected else display_name
+		name_label.add_theme_font_size_override("font_size", 14 if compact else 16)
 		name_label.add_theme_color_override("font_color", COLOR_TEXT if selected or hovered else Color(0.82, 0.78, 0.70, 1.0))
 		name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
 		name_label.add_theme_constant_override("outline_size", 1)
 	if role_label:
-		role_label.add_theme_font_size_override("font_size", 10 if compact else 11)
+		role_label.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
 		role_label.add_theme_color_override("font_color", COLOR_GOLD if selected or hovered else COLOR_MUTED)
 
 func _is_compact_layout() -> bool:
@@ -898,9 +961,10 @@ func _make_unit_button_style(selected: bool, highlighted: bool) -> StyleBox:
 func _style_start_button() -> void:
 	if start_button == null:
 		return
-	start_button.custom_minimum_size = Vector2(500.0, 68.0)
+	var compact: bool = _is_compact_layout()
+	start_button.custom_minimum_size = Vector2(440.0, 54.0) if compact else Vector2(560.0, 68.0)
 	start_button.mouse_default_cursor_shape = Control.CURSOR_ARROW if start_button.disabled else Control.CURSOR_POINTING_HAND
-	start_button.add_theme_font_size_override("font_size", 27)
+	start_button.add_theme_font_size_override("font_size", 22 if compact else 27)
 	start_button.add_theme_color_override("font_color", COLOR_TEXT)
 	start_button.add_theme_color_override("font_hover_color", Color(1.0, 0.91, 0.76, 1.0))
 	start_button.add_theme_color_override("font_pressed_color", Color(1.0, 0.80, 0.58, 1.0))

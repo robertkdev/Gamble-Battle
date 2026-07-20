@@ -41,18 +41,21 @@ func _run() -> void:
 		if search_field != null:
 			_expect_stylebox_texture(search_field, "normal", "SearchField normal should use generated texture styling", failures)
 			_expect_stylebox_texture(search_field, "focus", "SearchField focus should use generated texture styling", failures)
-		var how_to_play_button: Button = title_menu.get_node_or_null("Center/VBox/HowToPlayButton") as Button
-		var units_button: Button = title_menu.get_node_or_null("Center/VBox/UnitsButton") as Button
-		var rga_button: Button = title_menu.get_node_or_null("Center/VBox/RGAGlossaryButton") as Button
+		var guide_button: Button = title_menu.get_node_or_null("Center/VBox/GuideButton") as Button
 		var settings_button: Button = title_menu.get_node_or_null("Center/VBox/SettingsButton") as Button
-		_expect(how_to_play_button != null, "HowToPlayButton missing", failures)
-		_expect(units_button != null, "UnitsButton missing", failures)
-		_expect(rga_button != null, "RGAGlossaryButton missing", failures)
+		_expect(guide_button != null, "GuideButton missing", failures)
 		_expect(settings_button != null, "SettingsButton missing", failures)
-		_expect_button_states(how_to_play_button, "HowToPlayButton", failures)
-		_expect_button_states(units_button, "UnitsButton", failures)
-		_expect_button_states(rga_button, "RGAGlossaryButton", failures)
+		_expect_button_states(guide_button, "GuideButton", failures)
 		_expect_button_states(settings_button, "SettingsButton", failures)
+		if guide_button != null:
+			guide_button.emit_signal("pressed")
+			await get_tree().process_frame
+		var how_to_play_button: Button = title_menu.get_node_or_null("ContentPanel/Margin/Stack/Header/GuideTabs/HowToPlayTab") as Button
+		var units_button: Button = title_menu.get_node_or_null("ContentPanel/Margin/Stack/Header/GuideTabs/UnitsTab") as Button
+		var rga_button: Button = title_menu.get_node_or_null("ContentPanel/Margin/Stack/Header/GuideTabs/CombatTermsTab") as Button
+		_expect(how_to_play_button != null, "HowToPlayTab missing", failures)
+		_expect(units_button != null, "UnitsTab missing", failures)
+		_expect(rga_button != null, "CombatTermsTab missing", failures)
 		if units_button != null and search_field != null:
 			units_button.emit_signal("pressed")
 			await get_tree().process_frame

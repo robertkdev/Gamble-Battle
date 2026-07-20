@@ -49,7 +49,7 @@ func _run() -> void:
 		return
 	await _settle_frames(2)
 	_assert_result_card()
-	_assert_shared_result_variants()
+	await _assert_shared_result_variants()
 	if _finish_if_failed():
 		return
 	_save_capture("01_post_win_intermission_bar.png")
@@ -113,12 +113,14 @@ func _assert_result_card() -> void:
 	var detail_label: Label = card.get_node_or_null("CardMargin/Content/DetailLabel") as Label
 	var kicker_label: Label = card.get_node_or_null("CardMargin/Content/KickerLabel") as Label
 	_expect(title_label != null and title_label.text == "VICTORY", "post-win result title should read VICTORY")
-	_expect(detail_label != null and detail_label.text.contains("Preparing"), "post-win result detail should explain the transition")
+	_expect(detail_label != null and detail_label.text.contains("WAGER"), "post-win result detail should expose the resolved wager")
+	_expect(detail_label != null and detail_label.text.contains("RETURN"), "post-win result detail should expose the return")
+	_expect(detail_label != null and detail_label.text.contains("CHAPTER"), "post-win result detail should expose the run consequence")
 	_expect(kicker_label != null and kicker_label.text == "BATTLE OUTCOME", "post-win result card should include its outcome context")
 	var card_rect: Rect2 = card.get_global_rect()
 	var viewport: Viewport = get_viewport()
 	var viewport_size: Vector2 = viewport.get_visible_rect().size if viewport != null else Vector2.ZERO
-	_expect(card_rect.size.x >= 500.0 and card_rect.size.x <= 640.0, "result card width should stay restrained, got %.1f" % card_rect.size.x)
+	_expect(card_rect.size.x >= 600.0 and card_rect.size.x <= 700.0, "result card width should stay restrained, got %.1f" % card_rect.size.x)
 	_expect(card_rect.size.y >= 150.0 and card_rect.size.y <= 230.0, "result card height should stay restrained, got %.1f" % card_rect.size.y)
 	_expect(card_rect.size.x < viewport_size.x * 0.55, "result card should not read as a full-screen color panel")
 	_expect(card.get_theme_stylebox("panel") != null, "result card should have a gothic panel style")
@@ -130,10 +132,28 @@ func _assert_shared_result_variants() -> void:
 		return
 	controller.call("_show_result_banner", "DEFEAT", "Round lost. Resolving the aftermath.", Color(0.72, 0.18, 0.16, 1.0), Color(1.0, 0.66, 0.60, 1.0))
 	_expect_result_copy("DEFEAT", "aftermath")
+	await _settle_frames(2)
+	_expect_result_card_visible("DEFEAT")
+	_save_capture("01a_post_defeat_intermission_card.png")
 	controller.call("_show_result_banner", "STALEMATE", "Wager returned. Preparing your next decision.", Color(0.76, 0.62, 0.32, 1.0), Color(0.98, 0.85, 0.58, 1.0))
 	_expect_result_copy("STALEMATE", "Wager returned")
+	await _settle_frames(2)
+	_expect_result_card_visible("STALEMATE")
+	_save_capture("01b_post_stalemate_intermission_card.png")
+	var saved_chapter: int = int(GameState.chapter)
+	var saved_stage: int = int(GameState.stage_in_chapter)
+	GameState.set_chapter_and_stage(1, 4)
+	var boss_detail: String = String(controller.call("_build_result_detail", "victory", 4))
+	_expect(boss_detail.contains("BOSS DEFEATED"), "boss victory detail should state that the boss was defeated")
+	_expect(boss_detail.contains("CHAPTER 1 CLEARED"), "boss victory detail should state the chapter consequence")
+	controller.call("_show_result_banner", "VICTORY", boss_detail, Color(0.58, 0.72, 0.38, 1.0), Color(0.86, 0.94, 0.74, 1.0))
+	await _settle_frames(2)
+	_expect_result_card_visible("VICTORY")
+	_save_capture("01c_boss_victory_chapter_cleared.png")
+	GameState.set_chapter_and_stage(saved_chapter, saved_stage)
 	controller.call("_show_result_banner", "VICTORY", "Round secured. Preparing your next decision.", Color(0.42, 0.78, 0.24, 1.0), Color(0.82, 1.0, 0.66, 1.0))
 	_expect_result_copy("VICTORY", "Preparing")
+	controller.call("_hide_result_banner")
 
 func _expect_result_copy(expected_title: String, detail_token: String) -> void:
 	var banner: PanelContainer = _main.find_child("BattleResultBanner", true, false) as PanelContainer
@@ -141,6 +161,14 @@ func _expect_result_copy(expected_title: String, detail_token: String) -> void:
 	var detail_label: Label = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/DetailLabel") as Label if banner != null else null
 	_expect(title_label != null and title_label.text == expected_title, "shared result card should render %s" % expected_title)
 	_expect(detail_label != null and detail_label.text.contains(detail_token), "%s detail should contain %s" % [expected_title, detail_token])
+
+func _expect_result_card_visible(expected_title: String) -> void:
+	var banner: PanelContainer = _main.find_child("BattleResultBanner", true, false) as PanelContainer
+	var card: PanelContainer = banner.get_node_or_null("Center/BattleResultCard") as PanelContainer if banner != null else null
+	var title_label: Label = card.get_node_or_null("CardMargin/Content/OutcomeLabel") as Label if card != null else null
+	_expect(banner != null and banner.is_visible_in_tree(), "%s result banner should be visible at capture time" % expected_title)
+	_expect(card != null and card.is_visible_in_tree(), "%s result card should be visible at capture time" % expected_title)
+	_expect(title_label != null and title_label.text == expected_title, "%s capture should retain its outcome title" % expected_title)
 
 func _bottom_planning_visible() -> bool:
 	var combat: Control = _main.get_node_or_null("CombatView") as Control

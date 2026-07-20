@@ -8,6 +8,7 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 var unit: Unit
 var focus_plate: Panel
+var team_rim: Panel
 var bar_plate: Panel
 var sprite: TextureRect
 var hp_bar: ProgressBar
@@ -79,6 +80,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_focus_plate()
 	_ensure_sprite()
+	_update_actor_visual_layout()
 	_ensure_bars()
 	_ensure_effect_player()
 	_update_effect_player_sprite()
@@ -98,40 +100,78 @@ func _ensure_focus_plate() -> void:
 		if focus_plate.get_parent() != self:
 			add_child(focus_plate)
 		_apply_focus_plate_style()
+		_ensure_team_rim()
 		return
 	focus_plate = Panel.new()
 	focus_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	focus_plate.z_index = 0
 	focus_plate.anchor_left = 0.0
-	focus_plate.anchor_top = 0.0
+	focus_plate.anchor_top = 0.56
 	focus_plate.anchor_right = 1.0
 	focus_plate.anchor_bottom = 1.0
-	focus_plate.offset_left = -18.0
-	focus_plate.offset_top = -5.0
-	focus_plate.offset_right = 18.0
-	focus_plate.offset_bottom = 18.0
+	focus_plate.offset_left = -16.0
+	focus_plate.offset_top = -4.0
+	focus_plate.offset_right = 16.0
+	focus_plate.offset_bottom = 14.0
 	add_child(focus_plate)
 	_apply_focus_plate_style()
+	_ensure_team_rim()
 
 func _apply_focus_plate_style() -> void:
 	if focus_plate == null:
 		return
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, min(_team_tint.a, 0.14))
-	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.68)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
+	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, min(_team_tint.a, 0.24))
+	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.90)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
 	style.corner_radius_top_left = 18
 	style.corner_radius_top_right = 18
 	style.corner_radius_bottom_right = 18
 	style.corner_radius_bottom_left = 18
-	style.shadow_size = 14
-	style.shadow_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.22)
+	style.shadow_size = 10
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.56)
 	var is_player: bool = _team_tint.b >= _team_tint.r
-	var asset: StyleBoxTexture = GothicUIAssets.unit_base_style(is_player, Color(0.98, 0.90, 0.68, 0.96))
+	var asset_tint: Color = Color(0.72, 0.88, 1.0, 1.0) if is_player else Color(1.0, 0.68, 0.60, 1.0)
+	var asset: StyleBoxTexture = GothicUIAssets.unit_base_style(is_player, asset_tint)
 	focus_plate.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(asset, style))
+
+func _ensure_team_rim() -> void:
+	if team_rim != null and is_instance_valid(team_rim):
+		_apply_team_rim_style()
+		return
+	team_rim = Panel.new()
+	team_rim.name = "TeamRim"
+	team_rim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	team_rim.z_index = 3
+	team_rim.anchor_left = 0.0
+	team_rim.anchor_top = 0.0
+	team_rim.anchor_right = 1.0
+	team_rim.anchor_bottom = 1.0
+	add_child(team_rim)
+	_apply_team_rim_style()
+
+func _apply_team_rim_style() -> void:
+	if team_rim == null:
+		return
+	var rim_color: Color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.88)
+	team_rim.add_theme_stylebox_override("panel", GothicUIAssets.focus_outline_style(18, rim_color, 2))
+
+func _update_actor_visual_layout() -> void:
+	var visual_margin: float = max(5.0, min(size_px.x, size_px.y) * 0.09)
+	if sprite != null:
+		sprite.offset_left = -visual_margin
+		sprite.offset_top = -visual_margin * 1.45
+		sprite.offset_right = visual_margin
+		sprite.offset_bottom = visual_margin * 0.45
+		sprite.modulate = Color(1.0, 0.97, 0.91, 1.0)
+	if team_rim != null:
+		team_rim.offset_left = -visual_margin * 0.55
+		team_rim.offset_top = -visual_margin * 0.85
+		team_rim.offset_right = visual_margin * 0.55
+		team_rim.offset_bottom = visual_margin * 0.35
 
 func _ensure_bar_plate() -> void:
 	if bar_plate and is_instance_valid(bar_plate):
@@ -308,6 +348,7 @@ func set_unit(u: Unit) -> void:
 	unit = u
 	_ensure_focus_plate()
 	_ensure_sprite()
+	_update_actor_visual_layout()
 	_ensure_bars()
 	_ensure_effect_player()
 	_update_effect_player_sprite()
@@ -450,12 +491,14 @@ func _update_bars() -> void:
 func set_size_px(new_size: Vector2) -> void:
 	size_px = new_size
 	size = size_px
+	_update_actor_visual_layout()
 	_update_visuals()
 	_update_screen_position()
 
 func set_team_tint(color: Color) -> void:
 	_team_tint = color
 	_ensure_focus_plate()
+	_ensure_team_rim()
 
 func play_knockup(duration_s: float) -> void:
 	# Simple up-then-down bounce using a vertical effect offset; non-intrusive to arena positioning.

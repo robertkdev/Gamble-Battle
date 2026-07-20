@@ -206,6 +206,7 @@ func _set_sprite_texture(rect: TextureRect, path: String, fallback_color: Color)
 func _process(_delta: float) -> void:
 	controller.process(_delta)
 	_update_planning_timer(_delta)
+	_update_external_backplates()
 
 
 func _get_gs() -> Node:
@@ -368,15 +369,18 @@ func _apply_responsive_layout() -> void:
 		margin.add_theme_constant_override("margin_right", 10 if compact else 20)
 		margin.add_theme_constant_override("margin_bottom", 8 if compact else 18)
 	_set_minimum_size("MarginContainer/VBoxContainer/PlanningTimerLabel", Vector2(0.0, 0.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, 408.0 if compact else 604.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(288.0 if compact else 340.0, 408.0 if compact else 596.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(170.0 if compact else 296.0, 408.0 if compact else 596.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(150.0 if compact else 296.0, 118.0 if compact else 164.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(150.0 if compact else 296.0, 254.0 if compact else 398.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, 396.0 if compact else 604.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(240.0 if compact else 292.0, 396.0 if compact else 596.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel", Vector2(228.0 if compact else 316.0, 360.0 if compact else 560.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/MetricTabs", Vector2(220.0 if compact else 294.0, 42.0 if compact else 52.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard", Vector2(220.0 if compact else 294.0, 300.0 if compact else 430.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(212.0 if compact else 256.0, 396.0 if compact else 596.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(192.0 if compact else 256.0, 200.0 if compact else 164.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(196.0 if compact else 256.0, 188.0 if compact else 398.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, 60.0 if compact else 88.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 104.0 if compact else 152.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 96.0 if compact else 152.0))
 	var opening_shop: bool = shop_grid != null and bool(shop_grid.get_meta("opening_fight_empty", false))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, 108.0) if opening_shop else Vector2(900.0 if compact else 1120.0, 88.0 if compact else 108.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, 108.0) if opening_shop else Vector2(900.0 if compact else 1120.0, 82.0 if compact else 108.0))
 	if shop_grid != null:
 		shop_grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if opening_shop else Control.SIZE_EXPAND_FILL
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow", Vector2(900.0 if compact else 1120.0, 42.0 if compact else 56.0))
@@ -387,6 +391,7 @@ func _apply_responsive_layout() -> void:
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea", 6 if compact else 8)
 	_set_box_separation("MarginContainer/VBoxContainer/BottomStorageArea", 6 if compact else 10)
 	_set_box_separation("MarginContainer/VBoxContainer/ActionsRow", 10 if compact else 18)
+	_apply_side_rail_layout(compact)
 	_apply_shop_compact_layout(compact)
 	_update_external_backplates()
 	call_deferred("_update_external_backplates")
@@ -401,8 +406,54 @@ func _set_box_separation(path: String, separation: int) -> void:
 	if box != null:
 		box.add_theme_constant_override("separation", separation)
 
+func _apply_side_rail_layout(compact: bool) -> void:
+	var item_grid: GridContainer = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid") as GridContainer
+	if item_grid != null:
+		item_grid.columns = 4 if compact else 6
+		item_grid.add_theme_constant_override("h_separation", 4 if compact else 8)
+		item_grid.add_theme_constant_override("v_separation", 4 if compact else 8)
+		for child: Node in item_grid.get_children():
+			var card: Control = child as Control
+			if card != null:
+				card.custom_minimum_size = Vector2(38.0, 38.0) if compact else Vector2(48.0, 48.0)
+	var metric_tabs: Control = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/MetricTabs") as Control
+	if metric_tabs != null:
+		var metric_row: HBoxContainer = metric_tabs.get_child(0) as HBoxContainer if metric_tabs.get_child_count() > 0 else null
+		if metric_row != null:
+			metric_row.add_theme_constant_override("separation", 4 if compact else 8)
+			for child: Node in metric_row.get_children():
+				var button: Button = child as Button
+				if button == null:
+					continue
+				if not button.has_meta("full_label"):
+					button.set_meta("full_label", button.text)
+				var full_label: String = String(button.get_meta("full_label", button.text))
+				button.text = _compact_metric_label(full_label) if compact else full_label
+				button.custom_minimum_size = Vector2(50.0 if compact else 58.0, 28.0 if compact else 30.0)
+				button.add_theme_font_size_override("font_size", 12)
+	var stats_title: Label = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Header/Title") as Label
+	if stats_title != null:
+		stats_title.text = "Metrics" if compact else "Team Metrics"
+	var scoreboard_title: Label = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard/Header/Title") as Label
+	if scoreboard_title != null:
+		scoreboard_title.text = "Score" if compact else "Scoreboard"
+		scoreboard_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL if compact else Control.SIZE_SHRINK_END
+		scoreboard_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if compact else HORIZONTAL_ALIGNMENT_RIGHT
+	var scoreboard_spacer: Control = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard/Header/Spacer") as Control
+	if scoreboard_spacer != null:
+		scoreboard_spacer.visible = not compact
+
+func _compact_metric_label(label: String) -> String:
+	match label.strip_edges().to_lower():
+		"damage", "total":
+			return "DMG"
+		"casts":
+			return "CAST"
+		_:
+			return label.to_upper()
+
 func _apply_shop_compact_layout(compact: bool) -> void:
-	var card_size: Vector2 = Vector2(120.0, 94.0) if compact else Vector2(144.0, 124.0)
+	var card_size: Vector2 = Vector2(120.0, 86.0) if compact else Vector2(144.0, 124.0)
 	if shop_grid != null:
 		shop_grid.add_theme_constant_override("h_separation", 10 if compact else 16)
 		shop_grid.add_theme_constant_override("v_separation", 6 if compact else 10)
@@ -463,9 +514,13 @@ func _apply_bet_row_layout(bet_row: HBoxContainer, compact: bool) -> void:
 			continue
 		var label: Label = child as Label
 		if label != null:
-			label.add_theme_font_size_override("font_size", 13 if compact else 15)
+			label.add_theme_font_size_override("font_size", 14 if compact else 16)
+			if label.name == "BetLabel":
+				label.text = "WAGER"
+				label.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT_MUTED)
 			if label.name == "BetValue":
-				label.custom_minimum_size = Vector2(28.0, 34.0 if compact else 40.0)
+				label.custom_minimum_size = Vector2(42.0, 34.0 if compact else 40.0)
+				label.add_theme_font_size_override("font_size", 16 if compact else 18)
 				label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 				label.add_theme_color_override("font_color", Color(0.92, 0.66, 0.32, 1.0))

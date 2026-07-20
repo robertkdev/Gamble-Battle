@@ -2028,7 +2028,7 @@ func _on_victory(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "victory"
-	_show_result_banner("VICTORY", "Round secured. Preparing your next decision.", Color(0.58, 0.72, 0.38, 1.0), Color(0.86, 0.94, 0.74, 1.0))
+	_show_result_banner("VICTORY", _build_result_detail("victory", _stage), Color(0.58, 0.72, 0.38, 1.0), Color(0.86, 0.94, 0.74, 1.0))
 	_auto_loop_running = false
 	_start_intermission(2.0)
 
@@ -2037,7 +2037,7 @@ func _on_defeat(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "defeat"
-	_show_result_banner("DEFEAT", "Round lost. Resolving the aftermath.", Color(0.74, 0.20, 0.16, 1.0), Color(1.0, 0.69, 0.60, 1.0))
+	_show_result_banner("DEFEAT", _build_result_detail("defeat", _stage), Color(0.74, 0.20, 0.16, 1.0), Color(1.0, 0.69, 0.60, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -2046,7 +2046,7 @@ func _on_tie(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "tie"
-	_show_result_banner("STALEMATE", "Wager returned. Preparing your next decision.", Color(0.48, 0.38, 0.66, 1.0), Color(0.90, 0.84, 1.0, 1.0))
+	_show_result_banner("STALEMATE", _build_result_detail("tie", _stage), Color(0.48, 0.38, 0.66, 1.0), Color(0.90, 0.84, 1.0, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -2665,6 +2665,37 @@ func _show_result_banner(title: String, detail: String, accent_color: Color, tit
 	banner.add_theme_stylebox_override("panel", _make_result_scrim_style())
 	banner.visible = true
 
+func _build_result_detail(outcome: String, resolved_stage: int) -> String:
+	var chapter: int = 1
+	var chapter_stage: int = max(1, resolved_stage)
+	if Engine.has_singleton("GameState") or (parent != null and parent.has_node("/root/GameState")):
+		chapter = max(1, int(GameState.chapter))
+		chapter_stage = max(1, int(GameState.stage_in_chapter))
+	var wager: int = 0
+	var gross_return: int = 0
+	if Engine.has_singleton("Economy") or (parent != null and parent.has_node("/root/Economy")):
+		wager = max(0, int(Economy.current_bet))
+		if Economy.has_method("quoted_payout"):
+			gross_return = max(0, int(Economy.quoted_payout(wager)))
+	var boss_stage: bool = RosterUtils.is_boss_stage(chapter_stage)
+	if boss_stage:
+		match outcome:
+			"victory":
+				return "BOSS DEFEATED  |  CHAPTER %d CLEARED  |  WAGER %dg -> %dg" % [chapter, wager, gross_return]
+			"defeat":
+				return "BOSS HOLDS  |  CHAPTER %d BOSS RETRY  |  WAGER %dg LOST" % [chapter, wager]
+			"tie":
+				return "BOSS STANDOFF  |  CHAPTER %d BOSS REMAINS  |  WAGER %dg RETURNED" % [chapter, wager]
+	match outcome:
+		"victory":
+			return "WAGER %dg  •  RETURN %dg  •  CHAPTER %d — STAGE %d CLEARED" % [wager, gross_return, chapter, chapter_stage]
+		"defeat":
+			return "WAGER %dg LOST  •  CHAPTER %d — STAGE %d RETRY" % [wager, chapter, chapter_stage]
+		"tie":
+			return "WAGER %dg RETURNED  •  CHAPTER %d — STAGE %d HOLDS" % [wager, chapter, chapter_stage]
+		_:
+			return "CHAPTER %d — STAGE %d RESOLVED" % [chapter, chapter_stage]
+
 func _hide_result_banner() -> void:
 	if _result_banner != null and is_instance_valid(_result_banner):
 		_result_banner.visible = false
@@ -2701,7 +2732,7 @@ func _ensure_result_banner() -> PanelContainer:
 	_result_banner.add_child(center)
 	var card: PanelContainer = PanelContainer.new()
 	card.name = "BattleResultCard"
-	card.custom_minimum_size = Vector2(560.0, 176.0)
+	card.custom_minimum_size = Vector2(660.0, 204.0)
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(card)
 	var margin: MarginContainer = MarginContainer.new()
@@ -2741,8 +2772,9 @@ func _ensure_result_banner() -> PanelContainer:
 	detail_label.custom_minimum_size = Vector2(0.0, 24.0)
 	detail_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	detail_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_label.add_theme_font_size_override("font_size", 16)
-	detail_label.add_theme_color_override("font_color", Color(0.82, 0.79, 0.75, 1.0))
+	detail_label.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT)
 	content.add_child(detail_label)
 	parent.add_child(_result_banner)
 	return _result_banner

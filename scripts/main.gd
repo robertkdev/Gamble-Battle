@@ -302,7 +302,7 @@ func _build_title_page() -> void:
 	move_child(_title_page, 1)
 	var background: ColorRect = ColorRect.new()
 	background.name = "Background"
-	background.color = Color(0.010, 0.008, 0.012, 1.0)
+	background.color = GothicUIAssets.COLOR_VOID
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_title_page.add_child(background)
@@ -312,11 +312,12 @@ func _build_title_page() -> void:
 	sigil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	sigil.modulate = Color(0.72, 0.48, 0.26, 0.24)
-	sigil.anchor_left = 0.22
-	sigil.anchor_top = 0.02
-	sigil.anchor_right = 0.78
-	sigil.anchor_bottom = 0.88
+	# Keep the mark atmospheric, but visible enough to read as the title-page crest.
+	sigil.modulate = Color(0.82, 0.60, 0.34, 0.36)
+	sigil.anchor_left = 0.20
+	sigil.anchor_top = 0.03
+	sigil.anchor_right = 0.80
+	sigil.anchor_bottom = 0.86
 	_title_page.add_child(sigil)
 	var center: CenterContainer = CenterContainer.new()
 	center.name = "Center"
@@ -333,7 +334,7 @@ func _build_title_page() -> void:
 	title.text = "Gamble Battle"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 76)
-	title.add_theme_color_override("font_color", Color(0.93, 0.88, 0.78, 1.0))
+	title.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT)
 	title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 	title.add_theme_constant_override("outline_size", 5)
 	stack.add_child(title)
@@ -342,7 +343,7 @@ func _build_title_page() -> void:
 	subtitle.text = "Blood. Gold. Consequence."
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	subtitle.add_theme_font_size_override("font_size", 20)
-	subtitle.add_theme_color_override("font_color", Color(0.72, 0.66, 0.58, 1.0))
+	subtitle.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT_MUTED)
 	stack.add_child(subtitle)
 	var enter_button: Button = Button.new()
 	enter_button.name = "EnterButton"

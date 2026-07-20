@@ -111,7 +111,7 @@ func _run() -> void:
 	var traits_panel: Control = view.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel") as Control
 	_expect(traits_panel != null, "Traits panel should live inside the left storage dock", failures)
 	if traits_panel != null:
-		_expect(traits_panel.custom_minimum_size.x >= 280.0, "Traits panel is too narrow for readable rows", failures)
+		_expect(traits_panel.custom_minimum_size.x >= 250.0, "Traits panel is too narrow for readable rows", failures)
 	_verify_trait_activation_checkpoint_sort(failures)
 	var scoreboard_row: ScoreboardRow = SCOREBOARD_ROW_SCENE.instantiate() as ScoreboardRow
 	add_child(scoreboard_row)

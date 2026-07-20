@@ -6,6 +6,7 @@ const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const UnitFactory: GDScript = preload("res://scripts/unit_factory.gd")
 
 const COLOR_PANEL: Color = Color(0.026, 0.022, 0.030, 0.92)
 const COLOR_PANEL_SOFT: Color = Color(0.046, 0.039, 0.048, 0.94)
@@ -38,6 +39,7 @@ var attack_info_label: Label = null
 var attack_targeting_label: Label = null
 var ability_info_label: Label = null
 var ability_targeting_label: Label = null
+var comparison_legend_label: Label = null
 
 static var diagnostics_enabled: bool = false
 static var diagnostic_dynamic_refresh_calls: int = 0
@@ -59,6 +61,7 @@ static func diagnostic_snapshot() -> Dictionary:
 func _ready() -> void:
     _ensure_bars()
     _ensure_combat_info()
+    _ensure_comparison_legend()
     _ensure_identity_styles()
     _apply_static_styles()
     set_process(false)
@@ -232,6 +235,24 @@ func _ensure_combat_info() -> void:
         root_box.add_child(ability_targeting_label)
         var ability_targeting_index: int = root_box.get_children().find(ability_info_label) + 1
         root_box.move_child(ability_targeting_label, min(ability_targeting_index, root_box.get_child_count() - 1))
+
+func _ensure_comparison_legend() -> void:
+    if stats_grid == null or comparison_legend_label != null:
+        return
+    var root_box: VBoxContainer = $"VBox"
+    if root_box == null:
+        return
+    comparison_legend_label = Label.new()
+    comparison_legend_label.name = "StatComparisonLegend"
+    comparison_legend_label.text = "BASE > CURRENT  (DELTA)"
+    comparison_legend_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    comparison_legend_label.add_theme_font_size_override("font_size", 11)
+    comparison_legend_label.add_theme_color_override("font_color", COLOR_GOLD)
+    comparison_legend_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
+    comparison_legend_label.add_theme_constant_override("outline_size", 1)
+    root_box.add_child(comparison_legend_label)
+    var stats_index: int = root_box.get_children().find(stats_grid)
+    root_box.move_child(comparison_legend_label, maxi(0, stats_index))
 
 func _make_info_label(label_name: String) -> Label:
     var label: Label = Label.new()
@@ -448,43 +469,84 @@ func _build_stats_grid() -> void:
     _clear_stats_grid()
     if unit_ref == null:
         return
-    var entries: Array[Array] = [
-        ["LVL", str(unit_ref.level)],
-        ["Cost", "%dg" % int(unit_ref.cost)],
-        ["HP", str(unit_ref.max_hp)],
-        ["AD", _fmt(unit_ref.attack_damage)],
-        ["SP", _fmt(unit_ref.spell_power)],
-        ["AS", String.num(unit_ref.attack_speed, 2)],
-        ["CRIT", str(int(round(unit_ref.crit_chance * 100.0))) + "%"],
-        ["Range", str(unit_ref.attack_range)],
-        ["Armor", _fmt(unit_ref.armor)],
-        ["MR", _fmt(unit_ref.magic_resist)],
-        ["Move", _fmt(unit_ref.move_speed)],
-        ["Mana", str(unit_ref.mana_start) + "/" + str(unit_ref.mana_max)],
+    var baseline: Unit = UnitFactory.spawn_at_level(String(unit_ref.id), int(unit_ref.level))
+    if baseline == null:
+        baseline = unit_ref
+    var entries: Array[Dictionary] = [
+        _plain_stat_entry("LVL", str(unit_ref.level)),
+        _plain_stat_entry("Cost", "%dg" % int(unit_ref.cost)),
+        _comparison_stat_entry("HP", float(baseline.max_hp), float(unit_ref.max_hp), 0, ""),
+        _comparison_stat_entry("AD", float(baseline.attack_damage), float(unit_ref.attack_damage), 0, ""),
+        _comparison_stat_entry("SP", float(baseline.spell_power), float(unit_ref.spell_power), 0, ""),
+        _comparison_stat_entry("AS", float(baseline.attack_speed), float(unit_ref.attack_speed), 2, ""),
+        _comparison_stat_entry("CRIT", float(baseline.crit_chance * 100.0), float(unit_ref.crit_chance * 100.0), 0, "%"),
+        _comparison_stat_entry("Range", float(baseline.attack_range), float(unit_ref.attack_range), 0, ""),
+        _comparison_stat_entry("Armor", float(baseline.armor), float(unit_ref.armor), 0, ""),
+        _comparison_stat_entry("MR", float(baseline.magic_resist), float(unit_ref.magic_resist), 0, ""),
+        _comparison_stat_entry("Move", float(baseline.move_speed), float(unit_ref.move_speed), 0, ""),
+        _comparison_stat_entry("Mana", float(baseline.mana_max), float(unit_ref.mana_max), 0, ""),
     ]
-    for e: Array in entries:
+    for e: Dictionary in entries:
         var card: PanelContainer = PanelContainer.new()
-        card.custom_minimum_size = Vector2(64.0, 50.0)
+        card.custom_minimum_size = Vector2(64.0, 54.0)
         card.add_theme_stylebox_override("panel", _make_stat_card_style())
         var box: VBoxContainer = VBoxContainer.new()
         box.add_theme_constant_override("separation", 2)
         box.alignment = BoxContainer.ALIGNMENT_CENTER
         var icon: Label = Label.new()
-        icon.text = String(e[0])
+        icon.text = String(e.get("label", ""))
         icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         icon.add_theme_font_size_override("font_size", 11)
         icon.add_theme_color_override("font_color", COLOR_MUTED)
         var val: Label = Label.new()
-        val.text = String(e[1])
+        val.text = String(e.get("value", ""))
         val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-        val.add_theme_font_size_override("font_size", 16)
+        val.add_theme_font_size_override("font_size", 12 if bool(e.get("comparison", false)) else 15)
         val.add_theme_color_override("font_color", COLOR_TEXT)
         val.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
         val.add_theme_constant_override("outline_size", 1)
         box.add_child(icon)
         box.add_child(val)
+        var delta_text: String = String(e.get("delta", ""))
+        if delta_text != "":
+            var delta: Label = Label.new()
+            delta.name = "Delta"
+            delta.text = delta_text
+            delta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+            delta.add_theme_font_size_override("font_size", 10)
+            var changed: bool = bool(e.get("changed", false))
+            delta.add_theme_color_override("font_color", COLOR_GOLD if changed else COLOR_MUTED)
+            box.add_child(delta)
         card.add_child(box)
         stats_grid.add_child(card)
+
+func _plain_stat_entry(label_text: String, value_text: String) -> Dictionary:
+    return {
+        "label": label_text,
+        "value": value_text,
+        "delta": "",
+        "comparison": false,
+        "changed": false,
+    }
+
+func _comparison_stat_entry(label_text: String, base_value: float, current_value: float, precision: int, suffix: String) -> Dictionary:
+    var base_text: String = _format_stat_value(base_value, precision)
+    var current_text: String = _format_stat_value(current_value, precision)
+    var delta_value: float = current_value - base_value
+    var changed: bool = not is_equal_approx(delta_value, 0.0)
+    var delta_prefix: String = "+" if delta_value > 0.0 else ""
+    return {
+        "label": label_text,
+        "value": "%s>%s%s" % [base_text, current_text, suffix],
+        "delta": "(%s%s%s)" % [delta_prefix, _format_stat_value(delta_value, precision), suffix],
+        "comparison": true,
+        "changed": changed,
+    }
+
+func _format_stat_value(value: float, precision: int) -> String:
+    if precision <= 0:
+        return str(int(round(value)))
+    return String.num(value, precision)
 
 func _fmt(v) -> String:
     var f: float = 0.0

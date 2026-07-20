@@ -9,7 +9,7 @@ colors = PackedColorArray(0.035, 0.031, 0.039, 1, 0.18, 0.038, 0.055, 1)
 gradient = SubResource("Gradient_2qg5p")
 
 [node name="ShopCard" type="Button"]
-custom_minimum_size = Vector2(150, 138)
+custom_minimum_size = Vector2(156, 140)
 anchors_preset = -1
 anchor_right = 0.075
 anchor_bottom = 0.137037
@@ -29,7 +29,7 @@ texture = SubResource("GradientTexture2D_1ap5a")
 metadata/_edit_use_anchors_ = true
 
 [node name="Icon" type="TextureRect" parent="."]
-custom_minimum_size = Vector2(112, 112)
+custom_minimum_size = Vector2(132, 116)
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.0138889
@@ -78,14 +78,14 @@ metadata/_edit_use_anchors_ = true
 [node name="RoleBadge" type="Label" parent="IdentityPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92, 0.72, 0.42, 0.96)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 text = "Role"
 horizontal_alignment = 1
 
 [node name="GoalLabel" type="Label" parent="IdentityPanel"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.72, 0.68, 0.62, 0.92)
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 12
 text = "Goal"
 horizontal_alignment = 1
 
@@ -119,6 +119,7 @@ offset_right = -4.0
 offset_bottom = -2.0
 grow_vertical = 0
 text = "?"
+theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
 
 [node name="Price" type="Label" parent="."]
@@ -137,4 +138,5 @@ grow_horizontal = 0
 grow_vertical = 0
 size_flags_horizontal = 8
 text = "0g"
+theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1

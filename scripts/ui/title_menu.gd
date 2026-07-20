@@ -13,21 +13,22 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const UserSettingsScript: GDScript = preload("res://scripts/game/settings/user_settings.gd")
 
 const SECTION_HOME: String = "home"
+const SECTION_GUIDE: String = "guide"
 const SECTION_HOW_TO_PLAY: String = "how_to_play"
 const SECTION_UNITS: String = "units"
 const SECTION_RGA: String = "rga"
 const SECTION_SETTINGS: String = "settings"
 
-const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
-const COLOR_PANEL: Color = Color(0.030, 0.026, 0.034, 0.94)
-const COLOR_PANEL_SOFT: Color = Color(0.050, 0.040, 0.048, 0.90)
-const COLOR_PANEL_RICH: Color = Color(0.070, 0.038, 0.044, 0.92)
+const COLOR_VOID: Color = GothicUIAssets.COLOR_VOID
+const COLOR_PANEL: Color = GothicUIAssets.COLOR_SURFACE
+const COLOR_PANEL_SOFT: Color = GothicUIAssets.COLOR_SURFACE
+const COLOR_PANEL_RICH: Color = GothicUIAssets.COLOR_SURFACE_RAISED
 const COLOR_PANEL_EDGE: Color = Color(0.42, 0.31, 0.24, 0.88)
-const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
-const COLOR_MUTED: Color = Color(0.62, 0.57, 0.50, 1.0)
-const COLOR_BLOOD: Color = Color(0.48, 0.035, 0.070, 1.0)
+const COLOR_TEXT: Color = GothicUIAssets.COLOR_TEXT
+const COLOR_MUTED: Color = GothicUIAssets.COLOR_TEXT_MUTED
+const COLOR_BLOOD: Color = GothicUIAssets.COLOR_BLOOD
 const COLOR_BLOOD_HOT: Color = Color(0.78, 0.060, 0.105, 1.0)
-const COLOR_GOLD: Color = Color(0.92, 0.66, 0.32, 1.0)
+const COLOR_GOLD: Color = GothicUIAssets.COLOR_GOLD
 const COLOR_GREEN: Color = Color(0.42, 0.70, 0.50, 1.0)
 const COLOR_BLUE: Color = Color(0.34, 0.55, 0.72, 1.0)
 
@@ -41,6 +42,7 @@ const COLOR_BLUE: Color = Color(0.34, 0.55, 0.72, 1.0)
 @onready var logo: TextureRect = get_node_or_null("../TextureRect")
 
 var _active_section: String = SECTION_HOME
+var _active_guide_section: String = SECTION_HOW_TO_PLAY
 var _motion_enabled: bool = true
 var _title_panel: Panel = null
 var _shade: ColorRect = null
@@ -60,6 +62,8 @@ var _role_entries: Array[Dictionary] = []
 var _goal_entries: Array[Dictionary] = []
 var _approach_entries: Array[Dictionary] = []
 var _nav_buttons: Array[Button] = []
+var _guide_tabs: HBoxContainer = null
+var _guide_tab_buttons: Array[Button] = []
 var _binding_buttons: Dictionary[StringName, Button] = {}
 var _binding_status: Label = null
 var _listening_action: StringName = StringName()
@@ -289,14 +293,11 @@ func _apply_gothic_layout() -> void:
 	_ensure_sigil()
 	_ensure_subtitle()
 	_style_menu_button(start_button, true)
-	_style_menu_button(quit_button, false)
+	_style_menu_button(quit_button, false, true)
 
 func _build_navigation() -> void:
 	_nav_buttons.clear()
-	_ensure_nav_button("HomeButton", "Overview", SECTION_HOME)
-	_ensure_nav_button("HowToPlayButton", "How to Play", SECTION_HOW_TO_PLAY)
-	_ensure_nav_button("UnitsButton", "Units", SECTION_UNITS)
-	_ensure_nav_button("RGAGlossaryButton", "Combat Terms", SECTION_RGA)
+	_ensure_nav_button("GuideButton", "Codex & Guide", SECTION_GUIDE)
 	_ensure_nav_button("SettingsButton", "Settings", SECTION_SETTINGS)
 	if start_button != null:
 		start_button.text = "Start Run"
@@ -320,6 +321,44 @@ func _ensure_nav_button(node_name: String, button_text: String, section: String)
 		button.pressed.connect(Callable(self, "_select_section").bind(section, true))
 		button.set_meta("nav_connected", true)
 	_nav_buttons.append(button)
+	return button
+
+func _ensure_guide_tabs(header: VBoxContainer) -> void:
+	_guide_tabs = header.get_node_or_null("GuideTabs") as HBoxContainer
+	if _guide_tabs == null:
+		_guide_tabs = HBoxContainer.new()
+		_guide_tabs.name = "GuideTabs"
+		_guide_tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_guide_tabs.add_theme_constant_override("separation", GothicUIAssets.SPACE_2)
+		header.add_child(_guide_tabs)
+	_guide_tab_buttons.clear()
+	_ensure_guide_tab("HowToPlayTab", "How to Play", SECTION_HOW_TO_PLAY)
+	_ensure_guide_tab("UnitsTab", "Units", SECTION_UNITS)
+	_ensure_guide_tab("CombatTermsTab", "Combat Terms", SECTION_RGA)
+
+func _ensure_guide_tab(node_name: String, button_text: String, section: String) -> Button:
+	var button: Button = _guide_tabs.get_node_or_null(node_name) as Button
+	if button == null:
+		button = Button.new()
+		button.name = node_name
+		_guide_tabs.add_child(button)
+	button.text = button_text
+	button.focus_mode = Control.FOCUS_ALL
+	button.toggle_mode = true
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.custom_minimum_size = Vector2(120.0, 40.0)
+	button.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
+	button.add_theme_color_override("font_color", COLOR_TEXT)
+	button.add_theme_color_override("font_hover_color", COLOR_GOLD)
+	button.add_theme_stylebox_override("normal", GothicUIAssets.semantic_surface_style(COLOR_PANEL_EDGE, false, 1))
+	button.add_theme_stylebox_override("hover", GothicUIAssets.semantic_surface_style(COLOR_GOLD, true, 1))
+	button.add_theme_stylebox_override("pressed", GothicUIAssets.semantic_surface_style(COLOR_GOLD, true, 2))
+	button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style())
+	button.set_meta("guide_section", section)
+	if not bool(button.get_meta("guide_connected", false)):
+		button.pressed.connect(Callable(self, "_select_guide_section").bind(section))
+		button.set_meta("guide_connected", true)
+	_guide_tab_buttons.append(button)
 	return button
 
 func _ensure_title_panel() -> void:
@@ -470,8 +509,9 @@ func _ensure_content_panel() -> void:
 		_section_hint.name = "SectionHint"
 		header.add_child(_section_hint)
 	_section_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_section_hint.add_theme_font_size_override("font_size", 14)
+	_section_hint.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
 	_section_hint.add_theme_color_override("font_color", COLOR_MUTED)
+	_ensure_guide_tabs(header)
 
 	_search_field = header.get_node_or_null("SearchField") as LineEdit
 	if _search_field == null:
@@ -505,8 +545,20 @@ func _ensure_content_panel() -> void:
 	_content_body.add_theme_constant_override("separation", 12)
 
 func _select_section(section: String, clear_search: bool = true) -> void:
-	_active_section = section
+	if section == SECTION_HOW_TO_PLAY or section == SECTION_UNITS or section == SECTION_RGA:
+		_active_guide_section = section
+		_active_section = SECTION_GUIDE
+	else:
+		_active_section = section
 	if clear_search and _search_field != null:
+		_search_field.text = ""
+	_render_active_section()
+	_update_nav_state()
+
+func _select_guide_section(section: String) -> void:
+	_active_guide_section = section
+	_active_section = SECTION_GUIDE
+	if _search_field != null:
 		_search_field.text = ""
 	_render_active_section()
 	_update_nav_state()
@@ -518,6 +570,8 @@ func _render_active_section() -> void:
 	match _active_section:
 		SECTION_HOME:
 			_render_home()
+		SECTION_GUIDE:
+			_render_active_guide()
 		SECTION_HOW_TO_PLAY:
 			_render_how_to_play()
 		SECTION_UNITS:
@@ -528,6 +582,15 @@ func _render_active_section() -> void:
 			_render_settings()
 		_:
 			_render_home()
+
+func _render_active_guide() -> void:
+	match _active_guide_section:
+		SECTION_UNITS:
+			_render_units()
+		SECTION_RGA:
+			_render_rga()
+		_:
+			_render_how_to_play()
 
 func _render_home() -> void:
 	_set_content_header("Command Menu", "Start a run, study the roster, learn combat terms, or tune local settings. Search here scans units, roles, goals, approaches, and tutorial entries.")
@@ -1017,13 +1080,13 @@ func _make_badge(text: String, color: Color) -> PanelContainer:
 	margin.add_child(label)
 	return badge
 
-func _style_menu_button(button: Button, primary: bool) -> void:
+func _style_menu_button(button: Button, primary: bool, tertiary: bool = false) -> void:
 	if button == null:
 		return
-	button.custom_minimum_size = Vector2(320.0, 48.0)
+	button.custom_minimum_size = Vector2(320.0, 42.0 if tertiary else 48.0)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.add_theme_font_size_override("font_size", 20 if primary else 17)
-	button.add_theme_color_override("font_color", COLOR_TEXT)
+	button.add_theme_font_size_override("font_size", GothicUIAssets.FONT_HEADING if primary else (GothicUIAssets.FONT_META if tertiary else GothicUIAssets.FONT_BODY))
+	button.add_theme_color_override("font_color", COLOR_MUTED if tertiary else COLOR_TEXT)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.72, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.76, 0.55, 1.0))
 	if primary:
@@ -1031,6 +1094,11 @@ func _style_menu_button(button: Button, primary: bool) -> void:
 		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.18, 1.06, 0.92, 1.0)), _make_button_style(Color(0.55, 0.055, 0.080, 1.0), Color(1.0, 0.82, 0.45, 1.0), 2)))
 		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2)))
 		button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2)))
+	elif tertiary:
+		button.add_theme_stylebox_override("normal", GothicUIAssets.semantic_surface_style(Color(COLOR_PANEL_EDGE.r, COLOR_PANEL_EDGE.g, COLOR_PANEL_EDGE.b, 0.52), false, 1))
+		button.add_theme_stylebox_override("hover", GothicUIAssets.semantic_surface_style(COLOR_GOLD, false, 1))
+		button.add_theme_stylebox_override("pressed", GothicUIAssets.semantic_surface_style(COLOR_BLOOD, true, 1))
+		button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style())
 	else:
 		button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1)))
 		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _make_button_style(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0), 1)))
@@ -1048,6 +1116,16 @@ func _update_nav_state() -> void:
 			nav_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.04, 0.84, 1.0)), _make_button_style(Color(0.15, 0.060, 0.062, 0.98), COLOR_GOLD, 1)))
 		else:
 			nav_button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _make_button_style(Color(0.043, 0.037, 0.047, 0.96), Color(0.36, 0.30, 0.26, 0.96), 1)))
+	_update_guide_tab_state()
+
+func _update_guide_tab_state() -> void:
+	if _guide_tabs != null:
+		_guide_tabs.visible = _active_section == SECTION_GUIDE
+	for guide_button: Button in _guide_tab_buttons:
+		var section: String = String(guide_button.get_meta("guide_section", ""))
+		var is_active: bool = _active_section == SECTION_GUIDE and section == _active_guide_section
+		guide_button.button_pressed = is_active
+		guide_button.add_theme_color_override("font_color", COLOR_GOLD if is_active else COLOR_TEXT)
 
 func _style_search_field(field: LineEdit) -> void:
 	if field == null:

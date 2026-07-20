@@ -49,6 +49,15 @@ func _run() -> void:
 		_expect_selected_preview()
 		_expect_preview_art_geometry_stable("selected preview")
 		_save_capture("03_selected_enabled.png")
+		var inspected_button: Button = _different_unit_button(first_button)
+		if inspected_button != null:
+			inspected_button.emit_signal("mouse_entered")
+			await _settle_frames(4)
+			_expect(_selected_marker() != null and _selected_marker().visible, "selected marker should persist while inspecting another unit")
+			_expect(_selected_marker() != null and String(_selected_marker().text).contains("SELECTED"), "persistent marker should name the committed starter state")
+			var selected_name_label: Label = first_button.get_parent().get_node_or_null("UnitName") as Label
+			_expect(selected_name_label != null and String(selected_name_label.text).begins_with("[X] "), "selected grid card should keep a non-color check marker")
+			_save_capture("03b_selected_while_inspecting.png")
 		_view.set_transition_pending(true)
 		await _settle_frames(2)
 		_expect(_start_button() != null and _start_button().disabled, "pending transition should disable Start Game")
@@ -128,6 +137,8 @@ func _expect_neutral_preview(context: String) -> void:
 	_expect(identity_panel != null and identity_panel.visible, "%s identity summary slot should remain reserved" % context)
 	_expect(_role_badge() == null or not _role_badge().visible, "%s role badge should be hidden" % context)
 	_expect(_goal_label() == null or not _goal_label().visible, "%s goal label should be hidden" % context)
+	_expect(_selected_marker() != null and _selected_marker().visible and String(_selected_marker().text).contains("NO STARTER"), "%s selection status should explicitly say no starter" % context)
+	_expect(_ability_summary() == null or not _ability_summary().visible, "%s ability summary should be hidden" % context)
 	_expect(_approach_tags() == null or not _approach_tags().visible, "%s approach tags should be hidden" % context)
 	_expect(start_button != null and start_button.disabled, "%s Start Game should remain disabled" % context)
 
@@ -142,6 +153,8 @@ func _expect_hover_preview() -> void:
 	_expect(details_label != null and String(details_label.text) != "Hover a unit to preview", "hover preview should show unit details")
 	_expect(preview_art != null and preview_art.texture != null, "hover preview should show unit art")
 	_expect(identity_panel != null and identity_panel.visible, "hover preview should show identity summary")
+	_expect(_selected_marker() != null and _selected_marker().visible and String(_selected_marker().text).contains("NO STARTER"), "hover preview should preserve neutral starter status")
+	_expect(_ability_summary() != null and _ability_summary().visible, "hover preview should show concise ability summary")
 	_expect(start_button != null and start_button.disabled, "hover preview should not enable Start Game")
 	_expect_generated_preview_surfaces()
 
@@ -158,6 +171,8 @@ func _expect_selected_preview() -> void:
 	_expect(details_label != null and String(details_label.text).find("Ability:") >= 0, "selected preview should show ability details")
 	_expect(preview_art != null and preview_art.texture != null, "selected preview should show unit art")
 	_expect(identity_panel != null and identity_panel.visible, "selected preview should show identity summary")
+	_expect(_selected_marker() != null and _selected_marker().visible, "selected preview should show a persistent non-color marker")
+	_expect(_selected_marker() != null and String(_selected_marker().text).contains("SELECTED"), "selected marker should state selection explicitly")
 	_expect(start_button != null and not start_button.disabled, "selected preview should enable Start Game")
 	if start_button != null:
 		_expect_texture_style(start_button, "normal", "selected Start Game normal style should use generated texture")
@@ -225,6 +240,12 @@ func _role_badge() -> Label:
 func _goal_label() -> Label:
 	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/GoalLabel") as Label
 
+func _selected_marker() -> Label:
+	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/SelectedMarker") as Label
+
+func _ability_summary() -> Label:
+	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/AbilitySummary") as Label
+
 func _approach_tags() -> FlowContainer:
 	return _view.get_node_or_null("Center/HBox/Right/Preview/IdentityPanel/ApproachTags") as FlowContainer
 
@@ -250,6 +271,15 @@ func _first_label_child(parent: Control) -> Label:
 		var label: Label = child as Label
 		if label != null:
 			return label
+	return null
+
+func _different_unit_button(current: Button) -> Button:
+	if _view == null:
+		return null
+	for candidate_variant: Variant in _view.buttons_by_id.values():
+		var candidate: Button = candidate_variant as Button
+		if candidate != current:
+			return candidate
 	return null
 
 func _expect_texture_style(control: Control, style_name: String, message: String) -> void:

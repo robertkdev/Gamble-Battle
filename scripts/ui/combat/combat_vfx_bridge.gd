@@ -5,7 +5,7 @@ const AttackVisualCatalog: GDScript = preload("res://scripts/ui/combat/attack_vi
 
 const MAX_ACTIVE_BURSTS: int = 16
 const MAX_ACTIVE_LINES: int = 10
-const READABILITY_MODULATE: Color = Color(0.74, 0.62, 0.54, 0.42)
+const READABILITY_MODULATE: Color = Color(0.92, 0.90, 0.96, 0.78)
 
 const KIND_ABILITY: String = "ability"
 const KIND_HEAL: String = "heal"
@@ -166,8 +166,8 @@ func _on_ability_cast(source_team: String, source_index: int, ability_id: String
 				source_info.get("position", Vector2.ZERO),
 				target_info.get("position", Vector2.ZERO),
 				_effect_color(style, "edge_color", Color(0.80, 0.95, 1.0, 0.92)),
-				2.6,
-				0.28,
+				3.8,
+				0.36,
 				"ability"
 			)
 
@@ -794,7 +794,7 @@ func _default_radius(kind: String, style: Dictionary[String, Variant]) -> float:
 	var base_radius: float = max(24.0, float(style.get("impact_radius", 28.0)) * 0.94)
 	match kind:
 		KIND_ABILITY:
-			return base_radius * 1.18
+			return base_radius * 1.45
 		KIND_SHIELD, KIND_STUN:
 			return base_radius * 1.15
 		KIND_ZONE:

@@ -42,15 +42,15 @@ func _run() -> void:
 			enter_button.emit_signal("pressed")
 		await _settle_seconds(0.85)
 
-	await _open_section("HomeButton")
 	await _capture("01_overview", ["GAMBLE BATTLE", "COMMAND MENU", "OPENING LOOP"])
-	await _open_section("HowToPlayButton")
+	await _open_section("GuideButton")
+	await _open_guide_tab("HowToPlayTab")
 	await _set_search("combine")
 	await _capture("02_how_to_play_search_combine", ["HOW TO PLAY", "STRONGER COPY"])
-	await _open_section("UnitsButton")
+	await _open_guide_tab("UnitsTab")
 	await _set_search("hexeon")
 	await _capture("03_units_search_hexeon", ["UNITS", "HEXEON", "PRISMATIC GUILLOTINE"])
-	await _open_section("RGAGlossaryButton")
+	await _open_guide_tab("CombatTermsTab")
 	await _set_search("threshold")
 	await _capture("04_combat_terms_search_threshold", ["COMBAT TERMS", "ACTIVE TRAIT", "THRESHOLD"])
 	await _set_search("definitely-no-such-combat-term")
@@ -62,6 +62,13 @@ func _run() -> void:
 
 func _open_section(button_name: String) -> void:
 	var button: Button = _title_menu.get_node_or_null("Center/VBox/%s" % button_name) as Button
+	_expect(button != null, "%s missing" % button_name)
+	if button != null:
+		button.emit_signal("pressed")
+	await _settle_frames(3)
+
+func _open_guide_tab(button_name: String) -> void:
+	var button: Button = _title_menu.get_node_or_null("ContentPanel/Margin/Stack/Header/GuideTabs/%s" % button_name) as Button
 	_expect(button != null, "%s missing" % button_name)
 	if button != null:
 		button.emit_signal("pressed")
@@ -120,7 +127,7 @@ func _expect_generated_title_styles(context: String) -> void:
 				panel_count += 1
 				_expect(panel.get_theme_stylebox("panel") is StyleBoxTexture, "%s %s should use generated texture style" % [context, str(panel.name)])
 		_expect(panel_count > 0, "%s should expose at least one generated card or chip" % context)
-	var nav_names: Array[String] = ["HomeButton", "HowToPlayButton", "UnitsButton", "RGAGlossaryButton", "SettingsButton"]
+	var nav_names: Array[String] = ["GuideButton", "SettingsButton"]
 	for nav_name: String in nav_names:
 		var button: Button = _title_menu.get_node_or_null("Center/VBox/%s" % nav_name) as Button
 		_expect(button != null and button.get_theme_stylebox("normal") is StyleBoxTexture, "%s %s normal style should be generated" % [context, nav_name])

@@ -123,9 +123,18 @@ func _verify_post_shop_bet_controls() -> void:
 	_expect(label == null or label.visible, "post-shop Bet label should be visible")
 	_expect(int(slider.min_value) == 1, "post-shop bet slider min should be 1")
 	_expect(int(slider.max_value) == gold, "post-shop bet slider max should equal current gold")
+	slider.value = 1
+	slider.emit_signal("value_changed", 1.0)
+	await _settle_frames(3)
+	_expect(int(slider.value) == 1, "minimum wager capture should keep the slider at 1")
+	_expect(int(Economy.current_bet) == 1, "minimum wager slider should update Economy.current_bet")
+	_expect(int(Economy.preferred_bet) == 1, "minimum wager slider should update Economy.preferred_bet")
+	_expect(String(value_label.text) == "1", "minimum wager slider should repaint BetValue to 1, got %s" % String(value_label.text))
+	_save_capture("01b_post_shop_min_bet_selected.png")
 	var max_bet: int = int(slider.max_value)
 	slider.value = max_bet
 	await _settle_frames(3)
+	_expect(int(slider.value) == max_bet, "maximum wager capture should keep the slider at %d" % max_bet)
 	_expect(int(Economy.current_bet) == max_bet, "max-bet slider should update Economy.current_bet")
 	_expect(int(Economy.preferred_bet) == max_bet, "max-bet slider should update Economy.preferred_bet")
 	_expect(String(value_label.text) == str(max_bet), "max-bet slider should repaint BetValue to %d, got %s" % [max_bet, String(value_label.text)])
@@ -143,7 +152,6 @@ func _start_and_verify_locked_max_bet() -> void:
 	_expect(selected_bet == int(slider.max_value), "selected bet should still be max before combat")
 	await _press_continue(false, "betting smoke max-bet fight")
 	await _settle_frames(4)
-	_save_capture("03_combat_bet_locked.png")
 	_expect(int(GameState.phase) == int(GameState.GamePhase.COMBAT), "max-bet Start Battle should enter combat phase")
 	_expect(bool(Economy.combat_active), "max-bet Start Battle should mark Economy combat active")
 	_expect(int(Economy.current_bet) == selected_bet, "combat should preserve selected bet")
@@ -161,6 +169,7 @@ func _start_and_verify_locked_max_bet() -> void:
 	await _settle_frames(2)
 	_expect(int(Economy.current_bet) == selected_bet, "hidden combat slider changes should not alter wager")
 	_expect(String(value_label.text) == "Bet: %d (locked)" % selected_bet, "hidden combat slider changes should not repaint locked copy")
+	_save_capture("03_combat_bet_locked.png")
 
 func _bet_slider() -> HSlider:
 	return _main.find_child("BetSlider", true, false) as HSlider if _main != null else null

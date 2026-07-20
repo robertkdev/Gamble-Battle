@@ -326,7 +326,7 @@ func _apply_static_style() -> void:
 	tooltip_text = ""
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var compact: bool = viewport_size.y <= 760.0 or viewport_size.x <= 1400.0
-	custom_minimum_size = Vector2(120.0, 94.0) if compact else Vector2(150.0, 138.0)
+	custom_minimum_size = Vector2(120.0, 86.0) if compact else Vector2(156.0, 140.0)
 	add_theme_stylebox_override("normal", _make_card_style(false, false))
 	add_theme_stylebox_override("hover", _make_card_style(false, true))
 	add_theme_stylebox_override("pressed", _make_card_style(true, true))
@@ -338,12 +338,13 @@ func _apply_static_style() -> void:
 	if _bottom_gradient != null:
 		_bottom_gradient.visible = false
 	if _icon:
+		_icon.custom_minimum_size = Vector2(104.0, 70.0) if compact else Vector2(132.0, 116.0)
 		_icon.z_index = 2
 		_icon.modulate = Color(1.0, 0.93, 0.82, 1.0)
-		_icon.anchor_left = 0.12
-		_icon.anchor_top = 0.21
-		_icon.anchor_right = 0.88
-		_icon.anchor_bottom = 0.78
+		_icon.anchor_left = 0.06
+		_icon.anchor_top = 0.16
+		_icon.anchor_right = 0.94
+		_icon.anchor_bottom = 0.82
 		_icon.offset_left = 0.0
 		_icon.offset_top = 0.0
 		_icon.offset_right = 0.0
@@ -364,21 +365,25 @@ func _apply_static_style() -> void:
 	if _legacy_role_label:
 		_legacy_role_label.visible = false
 	if _role_badge:
-		_role_badge.add_theme_font_size_override("font_size", 11)
+		_role_badge.add_theme_font_size_override("font_size", 12 if compact else 14)
 		_role_badge.add_theme_color_override("font_color", COLOR_GOLD)
 		_role_badge.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
 		_role_badge.add_theme_constant_override("outline_size", 1)
 	if _goal_label:
+		_goal_label.add_theme_font_size_override("font_size", 12)
 		_goal_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _name_label:
 		_name_label.z_index = 6
-		_name_label.add_theme_font_size_override("font_size", 13)
+		_name_label.add_theme_font_size_override("font_size", 12 if compact else 14)
+		_name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT if compact else HORIZONTAL_ALIGNMENT_CENTER
+		_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		_name_label.add_theme_color_override("font_color", COLOR_TEXT)
 		_name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_name_label.add_theme_constant_override("outline_size", 1)
 	if _price_label:
 		_price_label.z_index = 6
-		_price_label.add_theme_font_size_override("font_size", 13)
+		_price_label.add_theme_font_size_override("font_size", 12 if compact else 14)
+		_price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT if compact else HORIZONTAL_ALIGNMENT_CENTER
 		_price_label.add_theme_color_override("font_color", COLOR_GOLD)
 		_price_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_price_label.add_theme_constant_override("outline_size", 1)
