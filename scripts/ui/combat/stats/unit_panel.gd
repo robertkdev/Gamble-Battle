@@ -2,6 +2,7 @@ extends Control
 class_name UnitPanel
 
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const PortraitPresentation := preload("res://scripts/ui/portrait_presentation.gd")
 const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
@@ -290,7 +291,7 @@ func _refresh_header() -> void:
         tex = TextureUtils.try_load_texture(unit_ref.sprite_path)
     if tex == null:
         tex = TextureUtils.make_circle_texture(Color(0.7, 0.7, 0.9), 64)
-    portrait.texture = tex
+    PortraitPresentation.configure(portrait, tex)
     portrait.modulate = Color(0.92, 0.86, 0.78, 1.0) if team == "enemy" else Color(0.98, 0.93, 0.84, 1.0)
     name_label.text = (unit_ref.name if unit_ref != null else "Unit")
 

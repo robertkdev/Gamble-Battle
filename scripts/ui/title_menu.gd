@@ -7,6 +7,7 @@ const GoalCatalogScript: GDScript = preload("res://scripts/game/identity/goal_ca
 const ApproachCatalogScript: GDScript = preload("res://scripts/game/identity/approach_catalog.gd")
 const AbilityCatalogScript: GDScript = preload("res://scripts/game/abilities/ability_catalog.gd")
 const TextureUtils: GDScript = preload("res://scripts/util/texture_utils.gd")
+const PortraitPresentation: GDScript = preload("res://scripts/ui/portrait_presentation.gd")
 const UnitFactoryScript: GDScript = preload("res://scripts/unit_factory.gd")
 const UnitTargetingText: GDScript = preload("res://scripts/ui/unit_targeting_text.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
@@ -729,12 +730,13 @@ func _add_unit_card(entry: Dictionary, compact: bool) -> void:
 
 	var portrait: TextureRect = TextureRect.new()
 	portrait.name = "Portrait"
-	portrait.custom_minimum_size = Vector2(76.0, 76.0)
+	portrait.custom_minimum_size = Vector2(104.0, 104.0) if compact else Vector2(136.0, 136.0)
+	portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	var sprite_path: String = String(entry.get("sprite_path", ""))
 	if sprite_path != "":
-		portrait.texture = TextureUtils.try_load_texture(sprite_path)
+		PortraitPresentation.configure(portrait, TextureUtils.try_load_texture(sprite_path))
 	row.add_child(portrait)
 
 	var stack: VBoxContainer = VBoxContainer.new()

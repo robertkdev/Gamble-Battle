@@ -3,6 +3,7 @@ class_name GothicUITheme
 
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const CombatVfxInstallerScript: GDScript = preload("res://scripts/ui/combat/combat_vfx_installer.gd")
+const ArenaAtmosphereScript: GDScript = preload("res://scripts/ui/combat/arena_atmosphere.gd")
 
 const COLOR_VOID: Color = Color(0.018, 0.014, 0.020, 1.0)
 const COLOR_PANEL: Color = Color(0.072, 0.062, 0.075, 0.97)
@@ -81,6 +82,7 @@ static func _apply_named_nodes(root: Control) -> void:
 	_apply_screen_backdrop(root)
 	_configure_combat_layout(root)
 	_ensure_combat_vfx_installer(root)
+	_ensure_arena_atmosphere(root)
 	_clear_battlefield_rect(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground")
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(1.04, 1.01, 0.96, 1.0))
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(1.02, 1.04, 1.00, 1.0))
@@ -477,6 +479,22 @@ static func _ensure_combat_vfx_installer(root: Control) -> void:
 	installer.name = "CombatVfxInstaller"
 	root.add_child(installer)
 	installer.call("configure", root)
+
+static func _ensure_arena_atmosphere(root: Control) -> void:
+	var arena: Control = root.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer") as Control
+	if arena == null:
+		return
+	var atmosphere: Control = arena.get_node_or_null("ArenaAtmosphere") as Control
+	if atmosphere == null:
+		atmosphere = ArenaAtmosphereScript.new() as Control
+		atmosphere.name = "ArenaAtmosphere"
+		arena.add_child(atmosphere)
+		atmosphere.set_anchors_preset(Control.PRESET_FULL_RECT)
+		atmosphere.offset_left = 0.0
+		atmosphere.offset_top = 0.0
+		atmosphere.offset_right = 0.0
+		atmosphere.offset_bottom = 0.0
+	atmosphere.z_index = -6
 
 static func _clear_battlefield_rect(root: Control, path: String) -> void:
 	var rect: ColorRect = root.get_node_or_null(path) as ColorRect

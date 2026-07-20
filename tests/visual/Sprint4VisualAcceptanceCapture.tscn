@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/visual/sprint4_visual_acceptance_capture.gd" id="1"]
+
+[node name="Sprint4VisualAcceptanceCapture" type="Node"]
+script = ExtResource("1")

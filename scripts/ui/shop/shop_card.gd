@@ -2,6 +2,7 @@ extends Button
 class_name ShopCard
 
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const PortraitPresentation := preload("res://scripts/ui/portrait_presentation.gd")
 const TraitIconScene := preload("res://scenes/ui/traits/TraitIcon.tscn")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
@@ -98,7 +99,7 @@ func set_data(props: Dictionary) -> void:
 			tex = TextureUtils.try_load_texture(img_path)
 		if tex == null:
 			tex = TextureUtils.make_circle_texture(Color(0.75, 0.75, 0.75), 96)
-		_icon.texture = tex
+		PortraitPresentation.configure(_icon, tex)
 
 	_update_identity_panel(display_role, display_goal, approaches)
 	_set_traits(traits)

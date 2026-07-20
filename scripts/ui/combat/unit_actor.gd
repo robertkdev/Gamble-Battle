@@ -8,6 +8,7 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 var unit: Unit
 var focus_plate: Panel
+var ground_shadow: Panel
 var bar_plate: Panel
 var team_marker: Label
 var sprite: TextureRect
@@ -82,6 +83,7 @@ func _ready() -> void:
 	size = size_px
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_focus_plate()
+	_ensure_ground_shadow()
 	_ensure_sprite()
 	_ensure_bars()
 	_ensure_team_marker()
@@ -146,6 +148,30 @@ func _apply_focus_plate_style() -> void:
 		focus_plate.add_theme_stylebox_override("panel", style)
 	else:
 		focus_plate.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(asset, style))
+
+func _ensure_ground_shadow() -> void:
+	if ground_shadow != null and is_instance_valid(ground_shadow):
+		return
+	ground_shadow = Panel.new()
+	ground_shadow.name = "GroundShadow"
+	ground_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	ground_shadow.anchor_left = 0.08
+	ground_shadow.anchor_top = 0.78
+	ground_shadow.anchor_right = 0.92
+	ground_shadow.anchor_bottom = 1.0
+	ground_shadow.offset_left = 0.0
+	ground_shadow.offset_top = 0.0
+	ground_shadow.offset_right = 0.0
+	ground_shadow.offset_bottom = 10.0
+	ground_shadow.z_index = -2
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.46)
+	style.set_corner_radius_all(999)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = 8
+	ground_shadow.add_theme_stylebox_override("panel", style)
+	add_child(ground_shadow)
+	move_child(ground_shadow, 0)
 
 func _ensure_bar_plate() -> void:
 	if bar_plate and is_instance_valid(bar_plate):
@@ -368,6 +394,7 @@ func _ensure_bars() -> void:
 func set_unit(u: Unit) -> void:
 	unit = u
 	_ensure_focus_plate()
+	_ensure_ground_shadow()
 	_ensure_sprite()
 	_ensure_bars()
 	_ensure_team_marker()

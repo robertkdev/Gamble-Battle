@@ -252,3 +252,60 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle Sprint 3 presentation"
+  - id: sprint4-acceptance
+    title: Sprint 4 asset normalization and complete visual acceptance
+    adapter: godot
+    objective: Verify normalized portrait framing, scan-friendly character detail copy, grounded arena depth, and every major player-facing state at 1280x720 and 1920x1080, including a dense-combat temporal sequence.
+    required_groups: [navigation, character, planning, tooltip, temporal, outcome]
+    runtime_provenance:
+      entrypoint: "Godot debug game framebuffer"
+      scene: "res://tests/visual/Sprint4VisualAcceptanceCapture.tscn"
+      build: "codex/019f7d5d-592-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [title, main_menu, settings, roster, character_hover, character_selected, planning, shop_tooltip, item_tooltip, trait_tooltip, system_menu, dense_combat, victory, defeat]
+      required_viewports: [compact-1280x720, desktop-1920x1080]
+      required_events: [dense_timeline]
+      min_temporal_frames: 4
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 900
+    captures:
+      - {path: "outputs/visual_iter/sprint4/01_title_1280x720.png", label: "Title 1280", group: navigation, role: actual, state: title, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/02_main_menu_1280x720.png", label: "Main menu 1280", group: navigation, role: actual, state: main_menu, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/03_settings_1280x720.png", label: "Settings 1280", group: navigation, role: actual, state: settings, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/04_vertical_roster_portrait_1280x720.png", label: "Vertical portrait normalization 1280", group: character, role: actual, state: roster, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/05_character_hover_1280x720.png", label: "Character hover 1280", group: character, role: actual, state: character_hover, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/06_character_selected_1280x720.png", label: "Character selected 1280", group: character, role: actual, state: character_selected, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/07_planning_1280x720.png", label: "Planning 1280", group: planning, role: actual, state: planning, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/08_shop_tooltip_1280x720.png", label: "Shop tooltip 1280", group: tooltip, role: actual, state: shop_tooltip, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/09_item_tooltip_1280x720.png", label: "Item tooltip 1280", group: tooltip, role: actual, state: item_tooltip, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/10_trait_tooltip_1280x720.png", label: "Trait tooltip 1280", group: tooltip, role: actual, state: trait_tooltip, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/11_system_menu_1280x720.png", label: "System menu 1280", group: navigation, role: actual, state: system_menu, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/12a_dense_combat_anticipation_1280x720.png", label: "Dense combat anticipation 1280", group: temporal, role: actual, state: dense_combat, viewport: compact-1280x720, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/12b_dense_combat_impact_1280x720.png", label: "Dense combat impact 1280", group: temporal, role: actual, state: dense_combat, viewport: compact-1280x720, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/12c_dense_combat_peak_1280x720.png", label: "Dense combat peak 1280", group: temporal, role: actual, state: dense_combat, viewport: compact-1280x720, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/12d_dense_combat_recovery_1280x720.png", label: "Dense combat recovery 1280", group: temporal, role: actual, state: dense_combat, viewport: compact-1280x720, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/13_victory_1280x720.png", label: "Victory 1280", group: outcome, role: actual, state: victory, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/14_defeat_1280x720.png", label: "Defeat 1280", group: outcome, role: actual, state: defeat, viewport: compact-1280x720, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/01_title_1920x1080.png", label: "Title 1920", group: navigation, role: actual, state: title, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/02_main_menu_1920x1080.png", label: "Main menu 1920", group: navigation, role: actual, state: main_menu, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/03_settings_1920x1080.png", label: "Settings 1920", group: navigation, role: actual, state: settings, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/04_vertical_roster_portrait_1920x1080.png", label: "Vertical portrait normalization 1920", group: character, role: actual, state: roster, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/05_character_hover_1920x1080.png", label: "Character hover 1920", group: character, role: actual, state: character_hover, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/06_character_selected_1920x1080.png", label: "Character selected 1920", group: character, role: actual, state: character_selected, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/07_planning_1920x1080.png", label: "Planning 1920", group: planning, role: actual, state: planning, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/08_shop_tooltip_1920x1080.png", label: "Shop tooltip 1920", group: tooltip, role: actual, state: shop_tooltip, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/09_item_tooltip_1920x1080.png", label: "Item tooltip 1920", group: tooltip, role: actual, state: item_tooltip, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/10_trait_tooltip_1920x1080.png", label: "Trait tooltip 1920", group: tooltip, role: actual, state: trait_tooltip, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/11_system_menu_1920x1080.png", label: "System menu 1920", group: navigation, role: actual, state: system_menu, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/12a_dense_combat_anticipation_1920x1080.png", label: "Dense combat anticipation 1920", group: temporal, role: actual, state: dense_combat, viewport: desktop-1920x1080, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/12b_dense_combat_impact_1920x1080.png", label: "Dense combat impact 1920", group: temporal, role: actual, state: dense_combat, viewport: desktop-1920x1080, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/12c_dense_combat_peak_1920x1080.png", label: "Dense combat peak 1920", group: temporal, role: actual, state: dense_combat, viewport: desktop-1920x1080, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/12d_dense_combat_recovery_1920x1080.png", label: "Dense combat recovery 1920", group: temporal, role: actual, state: dense_combat, viewport: desktop-1920x1080, camera: player, layer: final, event: dense_timeline}
+      - {path: "outputs/visual_iter/sprint4/13_victory_1920x1080.png", label: "Victory 1920", group: outcome, role: actual, state: victory, viewport: desktop-1920x1080, camera: player, layer: final}
+      - {path: "outputs/visual_iter/sprint4/14_defeat_1920x1080.png", label: "Defeat 1920", group: outcome, role: actual, state: defeat, viewport: desktop-1920x1080, camera: player, layer: final}
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Sprint 4 acceptance"

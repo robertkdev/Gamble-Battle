@@ -9,6 +9,7 @@ const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd
 const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const PortraitPresentation := preload("res://scripts/ui/portrait_presentation.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
@@ -385,7 +386,7 @@ func _populate_units() -> void:
 		if sp != "":
 			var icon: Texture2D = TextureUtils.try_load_texture(sp)
 			if icon:
-				btn.icon = icon
+				btn.icon = PortraitPresentation.normalize(icon)
 		var name_label: Label = Label.new()
 		name_label.name = "UnitName"
 		name_label.text = String(it.get("name", ""))
@@ -501,7 +502,8 @@ func _update_preview(id: String, is_selected: bool = false) -> void:
 	_set_identity_summary(role_text, goal_text, approach_arr)
 	var sp: String = String(it.get("sprite_path", ""))
 	if preview_art:
-		preview_art.texture = TextureUtils.try_load_texture(sp) if sp != "" else null
+		var preview_texture: Texture2D = TextureUtils.try_load_texture(sp) if sp != "" else null
+		PortraitPresentation.configure(preview_art, preview_texture)
 	if details_label:
 		var lines: Array[String] = _build_detail_lines(id, it)
 		details_label.text = "\n".join(lines)
@@ -509,29 +511,33 @@ func _update_preview(id: String, is_selected: bool = false) -> void:
 
 func _build_detail_lines(id: String, it: Dictionary) -> Array[String]:
 	var lines: Array[String] = []
+	lines.append("LOADOUT")
 	var traits: Array = _duplicate_strings(it.get("traits", PackedStringArray()))
 	var trait_text: String = _format_list(traits, 5)
 	if trait_text == "":
 		trait_text = _format_list(_duplicate_strings(it.get("approaches", PackedStringArray())), 5)
 	if trait_text != "":
-		lines.append("Traits: %s" % trait_text)
-	lines.append("Cost: %dg" % int(it.get("cost", 0)))
+		lines.append("  Traits  %s" % trait_text)
+	lines.append("  Cost    %dg" % int(it.get("cost", 0)))
 	var alt_goals: String = _format_list(_duplicate_strings(it.get("alt_goals", PackedStringArray())), 3)
 	if alt_goals != "":
-		lines.append("Alt Goals: %s" % alt_goals)
+		lines.append("  Alt goals  %s" % alt_goals)
+	lines.append("COMBAT PROFILE")
 	var preview_unit: Unit = _preview_unit(id)
 	var attack_text: String = _format_attack_info(preview_unit)
 	if attack_text != "":
-		lines.append(attack_text)
+		lines.append("  " + attack_text)
 	var attack_targeting_text: String = UnitTargetingText.attack_targeting_line(preview_unit)
 	if attack_targeting_text != "":
-		lines.append(attack_targeting_text)
+		lines.append("TARGETING")
+		lines.append("  " + attack_targeting_text.trim_prefix("Attack Targeting: "))
 	var ability_text: String = _format_ability_info(preview_unit)
 	if ability_text != "":
-		lines.append(ability_text)
+		lines.append("ABILITY")
+		lines.append("  " + ability_text.trim_prefix("Ability: "))
 	var ability_targeting_text: String = UnitTargetingText.ability_targeting_line(preview_unit)
 	if ability_targeting_text != "":
-		lines.append(ability_targeting_text)
+		lines.append("  " + ability_targeting_text.trim_prefix("Ability Targeting: "))
 	if lines.is_empty():
 		lines.append("No preview details available.")
 	return lines
