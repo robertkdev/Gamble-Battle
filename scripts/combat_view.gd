@@ -110,6 +110,12 @@ func _teardown() -> void:
 func _init_game() -> void:
 	controller._init_game()
 
+func save_active_run_now() -> Dictionary:
+	return controller.save_active_run_now() if controller != null else {"ok": false, "error": "NO_CONTROLLER"}
+
+func restore_active_run(snapshot: Dictionary) -> Dictionary:
+	return controller.restore_active_run(snapshot) if controller != null else {"ok": false, "error": "NO_CONTROLLER"}
+
 func _on_attack_pressed() -> void:
 	# No manual attacks in realtime autobattler
 	pass
@@ -122,6 +128,10 @@ func _on_continue_pressed() -> void:
 
 func _auto_start_battle() -> void:
 	controller._auto_start_battle()
+
+func set_auto_start_battle_enabled(enabled: bool) -> void:
+	if controller != null:
+		controller.set_auto_start_battle_enabled(enabled)
 
 func _refresh_economy_ui() -> void:
 	controller.economy_ui.refresh()
