@@ -35,8 +35,8 @@ func enter_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotV
             pos = player_grid_helper.get_center(idx)
         player_summary.append("%d:%s" % [i, pos])
         var actor: UnitActor = unit_actor_class.new() as UnitActor
+        actor.set_team("player")
         actor.set_unit(pv.unit)
-        actor.set_team_tint(Color(0.12, 0.30, 0.46, 0.72))
         arena_units.add_child(actor)
         actor.set_size_px(Vector2(tile_size, tile_size))
         actor.set_screen_position(pos)
@@ -55,8 +55,8 @@ func enter_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotV
             pos2 = enemy_grid_helper.get_center(idx2)
         enemy_summary.append("%d:%s" % [i, pos2])
         var actor2: UnitActor = unit_actor_class.new() as UnitActor
+        actor2.set_team("enemy")
         actor2.set_unit(ev.unit)
-        actor2.set_team_tint(Color(0.54, 0.06, 0.09, 0.76))
         arena_units.add_child(actor2)
         actor2.set_size_px(Vector2(tile_size, tile_size))
         actor2.set_screen_position(pos2)

@@ -171,7 +171,7 @@ func _make_placeholder(sold: bool) -> Control:
     var compact: bool = _is_compact_viewport()
     var wrap: PanelContainer = PanelContainer.new()
     wrap.set_meta("opening_fight_placeholder", first_fight_placeholder)
-    wrap.custom_minimum_size = OPENING_PANEL_SIZE if first_fight_placeholder else (Vector2(120.0, 94.0) if compact else Vector2(144.0, 124.0))
+    wrap.custom_minimum_size = (Vector2(560.0, 88.0) if compact else OPENING_PANEL_SIZE) if first_fight_placeholder else (Vector2(120.0, 94.0) if compact else Vector2(144.0, 124.0))
     wrap.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if first_fight_placeholder else Control.SIZE_SHRINK_CENTER
     wrap.size_flags_vertical = Control.SIZE_SHRINK_CENTER
     wrap.mouse_filter = Control.MOUSE_FILTER_STOP if first_fight_placeholder or sold else Control.MOUSE_FILTER_IGNORE
@@ -187,13 +187,13 @@ func _make_placeholder(sold: bool) -> Control:
 
     var stack: VBoxContainer = VBoxContainer.new()
     stack.alignment = BoxContainer.ALIGNMENT_CENTER
-    stack.add_theme_constant_override("separation", 4 if first_fight_placeholder else 4)
+    stack.add_theme_constant_override("separation", 2 if first_fight_placeholder and compact else 4)
     stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
     wrap.add_child(stack)
 
     var icon: TextureRect = TextureRect.new()
     icon.texture = EmptySigilTexture
-    icon.custom_minimum_size = Vector2(38.0, 38.0) if first_fight_placeholder or compact else Vector2(44.0, 44.0)
+    icon.custom_minimum_size = Vector2(24.0, 24.0) if first_fight_placeholder and compact else (Vector2(38.0, 38.0) if first_fight_placeholder or compact else Vector2(44.0, 44.0))
     icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
     icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
     icon.modulate = Color(0.88, 0.66, 0.42, 0.40) if first_fight_placeholder else (Color(0.72, 0.58, 0.42, 0.26) if not sold else Color(0.62, 0.38, 0.32, 0.30))
@@ -203,7 +203,7 @@ func _make_placeholder(sold: bool) -> Control:
     var label: Label = Label.new()
     label.text = "SOLD" if sold else _empty_label_text
     label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-    label.add_theme_font_size_override("font_size", 16 if first_fight_placeholder else 11)
+    label.add_theme_font_size_override("font_size", (14 if compact else 16) if first_fight_placeholder else 11)
     label.add_theme_color_override("font_color", Color(0.92, 0.76, 0.48, 0.98) if first_fight_placeholder else (Color(0.66, 0.58, 0.48, 0.88) if not sold else Color(0.68, 0.52, 0.46, 0.88)))
     label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.80))
     label.add_theme_constant_override("outline_size", 2 if first_fight_placeholder else 1)
@@ -217,7 +217,7 @@ func _make_placeholder(sold: bool) -> Control:
         hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
         hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         hint.custom_minimum_size = Vector2(410.0, 0.0) if first_fight_placeholder else Vector2(104.0 if compact else 126.0, 0.0)
-        hint.add_theme_font_size_override("font_size", 13 if first_fight_placeholder else 10)
+        hint.add_theme_font_size_override("font_size", (12 if compact else 13) if first_fight_placeholder else 10)
         hint.add_theme_color_override("font_color", Color(0.78, 0.72, 0.62, 0.96) if first_fight_placeholder else (Color(0.52, 0.47, 0.42, 0.88) if not sold else Color(0.54, 0.43, 0.40, 0.86)))
         hint.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
         hint.add_theme_constant_override("outline_size", 2 if first_fight_placeholder else 1)

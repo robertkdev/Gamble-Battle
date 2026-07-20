@@ -73,4 +73,4 @@ func _ensure_bridge() -> void:
 	if _bridge == null:
 		_bridge = CombatVfxBridgeScript.new() as CombatVfxBridge
 		_bridge.name = BRIDGE_NAME
-	_bridge.configure(_arena_container, _arena_bridge, _manager)
+	_bridge.configure(_arena_container, _arena_bridge, _manager, _root)

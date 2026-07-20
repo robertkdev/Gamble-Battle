@@ -9,6 +9,7 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 var unit: Unit
 var focus_plate: Panel
 var bar_plate: Panel
+var team_marker: Label
 var sprite: TextureRect
 var hp_bar: ProgressBar
 var mana_bar: ProgressBar
@@ -19,6 +20,9 @@ var shield_ticks: TickMarks
 var size_px: Vector2 = Vector2(64, 64)
 var _effect_player: UnitEffectPlayer
 var _team_tint: Color = Color(0.40, 0.08, 0.10, 0.68)
+var _team_id: String = "enemy"
+var _selected: bool = false
+var _targeted_count: int = 0
 var _base_screen_pos: Vector2 = Vector2.ZERO
 var _screen_position_initialized: bool = false
 var _effect_offset: Vector2 = Vector2.ZERO
@@ -80,6 +84,7 @@ func _ready() -> void:
 	_ensure_focus_plate()
 	_ensure_sprite()
 	_ensure_bars()
+	_ensure_team_marker()
 	_ensure_effect_player()
 	_update_effect_player_sprite()
 	_update_visuals()
@@ -117,21 +122,30 @@ func _apply_focus_plate_style() -> void:
 	if focus_plate == null:
 		return
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, min(_team_tint.a, 0.14))
-	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.68)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
+	var accent: Color = _team_tint
+	var border_width: int = 1
+	var shadow_strength: float = 0.22
+	if _selected:
+		accent = Color(1.0, 0.78, 0.30, 1.0)
+		border_width = 3
+		shadow_strength = 0.46
+	var focus_alpha: float = 0.18 if _selected else min(_team_tint.a, 0.14)
+	style.bg_color = Color(accent.r, accent.g, accent.b, focus_alpha)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.96 if _selected else 0.72)
+	style.set_border_width_all(border_width)
 	style.corner_radius_top_left = 18
 	style.corner_radius_top_right = 18
 	style.corner_radius_bottom_right = 18
 	style.corner_radius_bottom_left = 18
 	style.shadow_size = 14
-	style.shadow_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.22)
-	var is_player: bool = _team_tint.b >= _team_tint.r
-	var asset: StyleBoxTexture = GothicUIAssets.unit_base_style(is_player, Color(0.98, 0.90, 0.68, 0.96))
-	focus_plate.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(asset, style))
+	style.shadow_color = Color(accent.r, accent.g, accent.b, shadow_strength)
+	var is_player: bool = _team_id == "player"
+	var asset_tint: Color = Color(0.62, 0.88, 1.0, 0.76) if is_player else Color(0.86, 0.34, 0.40, 0.76)
+	var asset: StyleBoxTexture = GothicUIAssets.unit_base_style(is_player, asset_tint)
+	if _selected:
+		focus_plate.add_theme_stylebox_override("panel", style)
+	else:
+		focus_plate.add_theme_stylebox_override("panel", GothicUIAssets.style_or_fallback(asset, style))
 
 func _ensure_bar_plate() -> void:
 	if bar_plate and is_instance_valid(bar_plate):
@@ -142,13 +156,13 @@ func _ensure_bar_plate() -> void:
 	bar_plate = Panel.new()
 	bar_plate.name = "BarPlate"
 	bar_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	bar_plate.anchor_left = 0.0
 	bar_plate.anchor_top = 0.0
-	bar_plate.anchor_right = 1.0
 	bar_plate.anchor_bottom = 0.0
-	bar_plate.offset_left = -6.0
-	bar_plate.offset_top = -32.0
-	bar_plate.offset_right = 6.0
+	bar_plate.anchor_left = 0.14
+	bar_plate.anchor_right = 0.86
+	bar_plate.offset_left = 0.0
+	bar_plate.offset_top = -27.0
+	bar_plate.offset_right = 0.0
 	bar_plate.offset_bottom = -5.0
 	bar_plate.z_index = 7
 	add_child(bar_plate)
@@ -158,12 +172,10 @@ func _apply_bar_plate_style() -> void:
 	if bar_plate == null:
 		return
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.018, 0.015, 0.021, 0.82)
-	style.border_color = Color(0.44, 0.32, 0.20, 0.72)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
+	var accent: Color = Color(1.0, 0.32, 0.60, 1.0) if _targeted_count > 0 else (Color(1.0, 0.78, 0.30, 1.0) if _selected else _team_tint)
+	style.bg_color = Color(0.018, 0.015, 0.021, 0.90 if _targeted_count > 0 or _selected else 0.84)
+	style.border_color = Color(accent.r, accent.g, accent.b, 0.96 if _targeted_count > 0 or _selected else 0.78)
+	style.set_border_width_all(2 if _targeted_count > 0 or _selected else 1)
 	style.corner_radius_top_left = 5
 	style.corner_radius_top_right = 5
 	style.corner_radius_bottom_right = 5
@@ -171,6 +183,51 @@ func _apply_bar_plate_style() -> void:
 	style.shadow_size = 6
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
 	bar_plate.add_theme_stylebox_override("panel", style)
+
+func _ensure_team_marker() -> void:
+	if team_marker != null and is_instance_valid(team_marker):
+		_apply_team_marker_style()
+		return
+	team_marker = Label.new()
+	team_marker.name = "TeamMarker"
+	team_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	team_marker.anchor_left = 0.5
+	team_marker.anchor_top = 0.0
+	team_marker.anchor_right = 0.5
+	team_marker.anchor_bottom = 0.0
+	team_marker.offset_left = -30.0
+	team_marker.offset_top = -25.0
+	team_marker.offset_right = -9.0
+	team_marker.offset_bottom = -7.0
+	team_marker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	team_marker.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	team_marker.add_theme_font_size_override("font_size", 10)
+	team_marker.z_index = 12
+	add_child(team_marker)
+	_apply_team_marker_style()
+
+func _apply_team_marker_style() -> void:
+	if team_marker == null:
+		return
+	var team_letter: String = "A" if _team_id == "player" else "E"
+	team_marker.text = team_letter + ("!" if _targeted_count > 0 else "")
+	team_marker.add_theme_color_override("font_color", Color(0.94, 0.98, 1.0, 1.0))
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.96)
+	style.border_color = Color(1.0, 0.32, 0.60, 0.94) if _targeted_count > 0 else Color(0.90, 0.93, 0.96, 0.82)
+	style.set_border_width_all(2 if _targeted_count > 0 else 1)
+	style.set_corner_radius_all(4)
+	team_marker.add_theme_stylebox_override("normal", style)
+
+func _apply_health_fill_style() -> void:
+	if hp_bar == null:
+		return
+	var fill: StyleBoxFlat = StyleBoxFlat.new()
+	fill.bg_color = Color(0.12, 0.72, 0.68, 1.0) if _team_id == "player" else Color(0.86, 0.18, 0.24, 1.0)
+	fill.border_color = Color(0.82, 0.95, 0.92, 0.48) if _team_id == "player" else Color(1.0, 0.72, 0.68, 0.48)
+	fill.set_border_width_all(1)
+	fill.set_corner_radius_all(2)
+	hp_bar.add_theme_stylebox_override("fill", fill)
 
 func _ensure_sprite() -> void:
 	if sprite and is_instance_valid(sprite):
@@ -197,73 +254,76 @@ func _ensure_bars() -> void:
 	if not (hp_bar and is_instance_valid(hp_bar)):
 		hp_bar = UIBars.make_hp_bar()
 		add_child(hp_bar)
-		hp_bar.anchor_left = 0.0
 		hp_bar.anchor_top = 0.0
-		hp_bar.anchor_right = 1.0
+		hp_bar.anchor_left = 0.18
+		hp_bar.anchor_right = 0.82
 		hp_bar.anchor_bottom = 0.0
-		hp_bar.offset_left = 5.0
-		hp_bar.offset_top = -25.0
-		hp_bar.offset_right = -5.0
-		hp_bar.offset_bottom = -16.0
+		hp_bar.offset_left = 0.0
+		hp_bar.offset_top = -21.0
+		hp_bar.offset_right = 0.0
+		hp_bar.offset_bottom = -14.0
 		hp_bar.z_index = 8
 		# HP tick marks
 		if not (hp_ticks and is_instance_valid(hp_ticks)):
 			hp_ticks = load("res://scripts/ui/combat/tick_marks.gd").new()
 			add_child(hp_ticks)
-			hp_ticks.anchor_left = 0.0
 			hp_ticks.anchor_top = 0.0
-			hp_ticks.anchor_right = 1.0
+			hp_ticks.anchor_left = 0.18
+			hp_ticks.anchor_right = 0.82
 			hp_ticks.anchor_bottom = 0.0
-			hp_ticks.offset_left = 5.0
-			hp_ticks.offset_top = -25.0
-			hp_ticks.offset_right = -5.0
-			hp_ticks.offset_bottom = -16.0
+			hp_ticks.offset_left = 0.0
+			hp_ticks.offset_top = -21.0
+			hp_ticks.offset_right = 0.0
+			hp_ticks.offset_bottom = -14.0
 			hp_ticks.z_index = 9
 			hp_ticks.minor_step = 200
 			hp_ticks.major_step = 1000
 			hp_ticks.minor_color = Color(0, 0, 0, 0.45)
 			hp_ticks.major_color = Color(0, 0, 0, 0.65)
+			hp_ticks.visible = false
+	_apply_health_fill_style()
 	if not (mana_bar and is_instance_valid(mana_bar)):
 		mana_bar = UIBars.make_mana_bar()
 		add_child(mana_bar)
-		mana_bar.anchor_left = 0.0
 		mana_bar.anchor_top = 0.0
-		mana_bar.anchor_right = 1.0
+		mana_bar.anchor_left = 0.18
+		mana_bar.anchor_right = 0.82
 		mana_bar.anchor_bottom = 0.0
-		mana_bar.offset_left = 5.0
-		mana_bar.offset_top = -14.0
-		mana_bar.offset_right = -5.0
-		mana_bar.offset_bottom = -8.0
+		mana_bar.offset_left = 0.0
+		mana_bar.offset_top = -12.0
+		mana_bar.offset_right = 0.0
+		mana_bar.offset_bottom = -7.0
 		mana_bar.z_index = 8
 		# Mana tick marks
 		if not (mana_ticks and is_instance_valid(mana_ticks)):
 			mana_ticks = load("res://scripts/ui/combat/tick_marks.gd").new()
 			add_child(mana_ticks)
-			mana_ticks.anchor_left = 0.0
 			mana_ticks.anchor_top = 0.0
-			mana_ticks.anchor_right = 1.0
+			mana_ticks.anchor_left = 0.18
+			mana_ticks.anchor_right = 0.82
 			mana_ticks.anchor_bottom = 0.0
-			mana_ticks.offset_left = 5.0
-			mana_ticks.offset_top = -14.0
-			mana_ticks.offset_right = -5.0
-			mana_ticks.offset_bottom = -8.0
+			mana_ticks.offset_left = 0.0
+			mana_ticks.offset_top = -12.0
+			mana_ticks.offset_right = 0.0
+			mana_ticks.offset_bottom = -7.0
 			mana_ticks.z_index = 9
 			mana_ticks.minor_step = 10
 			mana_ticks.major_step = 50
 			mana_ticks.minor_color = Color(0, 0, 0, 0.5)
 			mana_ticks.major_color = Color(0, 0, 0, 0.7)
+			mana_ticks.visible = false
 		# Shield bar (thin, above HP)
 		if not (shield_bar and is_instance_valid(shield_bar)):
 			shield_bar = ProgressBar.new()
 			add_child(shield_bar)
-			shield_bar.anchor_left = 0.0
 			shield_bar.anchor_top = 0.0
-			shield_bar.anchor_right = 1.0
+			shield_bar.anchor_left = 0.18
+			shield_bar.anchor_right = 0.82
 			shield_bar.anchor_bottom = 0.0
-			shield_bar.offset_left = 5.0
-			shield_bar.offset_top = -30.0
-			shield_bar.offset_right = -5.0
-			shield_bar.offset_bottom = -23.0
+			shield_bar.offset_left = 0.0
+			shield_bar.offset_top = -25.0
+			shield_bar.offset_right = 0.0
+			shield_bar.offset_bottom = -22.0
 			shield_bar.z_index = 8
 			shield_bar.show_percentage = false
 			shield_bar.min_value = 0
@@ -289,26 +349,28 @@ func _ensure_bars() -> void:
 		if not (shield_ticks and is_instance_valid(shield_ticks)):
 			shield_ticks = load("res://scripts/ui/combat/tick_marks.gd").new()
 			add_child(shield_ticks)
-			shield_ticks.anchor_left = 0.0
 			shield_ticks.anchor_top = 0.0
-			shield_ticks.anchor_right = 1.0
+			shield_ticks.anchor_left = 0.18
+			shield_ticks.anchor_right = 0.82
 			shield_ticks.anchor_bottom = 0.0
-			shield_ticks.offset_left = 5.0
-			shield_ticks.offset_top = -30.0
-			shield_ticks.offset_right = -5.0
-			shield_ticks.offset_bottom = -23.0
+			shield_ticks.offset_left = 0.0
+			shield_ticks.offset_top = -25.0
+			shield_ticks.offset_right = 0.0
+			shield_ticks.offset_bottom = -22.0
 			shield_ticks.z_index = 9
 			shield_ticks.minor_step = 200
 			shield_ticks.major_step = 1000
 			shield_ticks.minor_color = Color(0.85, 0.95, 1.0, 0.55)
 			shield_ticks.major_color = Color(1.0, 1.0, 1.0, 0.75)
 			shield_ticks.rtl = true
+			shield_ticks.visible = false
 
 func set_unit(u: Unit) -> void:
 	unit = u
 	_ensure_focus_plate()
 	_ensure_sprite()
 	_ensure_bars()
+	_ensure_team_marker()
 	_ensure_effect_player()
 	_update_effect_player_sprite()
 	_update_visuals()
@@ -441,7 +503,7 @@ func _update_bars() -> void:
 			shield_bar.max_value = shield_max
 			shield_bar.value = shield_val
 	if shield_ticks:
-		shield_ticks.visible = (shield_val > 0)
+		shield_ticks.visible = false
 		if shield_val > 0:
 			shield_ticks.max_value = shield_max
 	_bar_signature_cache = next_signature
@@ -456,6 +518,31 @@ func set_size_px(new_size: Vector2) -> void:
 func set_team_tint(color: Color) -> void:
 	_team_tint = color
 	_ensure_focus_plate()
+	_apply_focus_plate_style()
+	_ensure_bar_plate()
+	_apply_bar_plate_style()
+	_ensure_team_marker()
+	_apply_health_fill_style()
+
+func set_team(team_id: String) -> void:
+	_team_id = "player" if team_id == "player" else "enemy"
+	set_team_tint(Color(0.10, 0.48, 0.62, 0.88) if _team_id == "player" else Color(0.68, 0.08, 0.13, 0.90))
+
+func set_selected(selected: bool) -> void:
+	if _selected == selected:
+		return
+	_selected = selected
+	_apply_focus_plate_style()
+	_apply_bar_plate_style()
+
+func set_targeted_count(targeted_count: int) -> void:
+	var next_count: int = max(0, targeted_count)
+	if _targeted_count == next_count:
+		return
+	_targeted_count = next_count
+	_apply_focus_plate_style()
+	_apply_bar_plate_style()
+	_apply_team_marker_style()
 
 func play_knockup(duration_s: float) -> void:
 	# Simple up-then-down bounce using a vertical effect offset; non-intrusive to arena positioning.

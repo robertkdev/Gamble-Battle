@@ -161,6 +161,7 @@ var _bottom_combat_visibility_state: int = -1
 var _layout_tile_size: int = UI.TILE_SIZE
 var _active_run_save_pending: bool = false
 var _active_run_restore_in_progress: bool = false
+var _active_targets_by_source: Dictionary[String, String] = {}
 
 const FIRST_DEPLOY_TIMER_EXTENSION: float = 60.0
 
@@ -301,6 +302,7 @@ func teardown() -> void:
 	_encounter_banner = null
 	_encounter_banner_label = null
 	_bottom_combat_visibility_state = -1
+	_active_targets_by_source.clear()
 	player_views.clear()
 	enemy_views.clear()
 	player_grid_helper = null
@@ -324,6 +326,8 @@ func _disconnect_controller_signals() -> void:
 		_disconnect_signal(manager, "unit_upgrade_event", "_on_unit_upgrade_event")
 		_disconnect_signal(manager, "hit_applied", "_on_engine_hit_applied")
 		_disconnect_signal(manager, "projectile_fired", "_on_projectile_fired")
+		_disconnect_signal(manager, "target_start", "_on_target_start")
+		_disconnect_signal(manager, "target_end", "_on_target_end")
 		_disconnect_signal(manager, "victory", "_on_victory")
 		_disconnect_signal(manager, "defeat", "_on_defeat")
 		_disconnect_signal(manager, "tie", "_on_tie")
@@ -400,6 +404,10 @@ func initialize() -> void:
 		# Stable hit signal from manager (re-emitted from engine)
 		if not manager.is_connected("hit_applied", Callable(self, "_on_engine_hit_applied")):
 			manager.hit_applied.connect(_on_engine_hit_applied)
+		if manager.has_signal("target_start") and not manager.is_connected("target_start", Callable(self, "_on_target_start")):
+			manager.target_start.connect(_on_target_start)
+		if manager.has_signal("target_end") and not manager.is_connected("target_end", Callable(self, "_on_target_end")):
+			manager.target_end.connect(_on_target_end)
 
 	# Items runtime: orchestrates combat item effects based on equipped items
 	if item_runtime == null:
@@ -1768,6 +1776,7 @@ func _on_bet_changed(val: float) -> void:
 
 func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 	Trace.step("CombatView._on_battle_started: begin")
+	_active_targets_by_source.clear()
 	_on_log_line("Prepare to fight.")
 	if projectile_bridge and projectile_bridge.has_method("set_visuals_enabled"):
 		projectile_bridge.set_visuals_enabled(true)
@@ -1825,6 +1834,7 @@ func _attach_selection_to_arena() -> void:
 			var _prov2 := func():
 				return (manager.enemy_team[_j] if _j < manager.enemy_team.size() else null)
 			selection.attach_to_unit_actor(eactor, "enemy", _j, _prov2)
+	_refresh_actor_focus_states()
 
 
 func _debug_trigger_hit_flash_test() -> void:
@@ -1884,18 +1894,55 @@ func _on_engine_ability_cast(team: String, index: int, ability_id: String, targe
 		stats_panel._on_ability_cast(team, index, ability_id, target_team, target_index, target_point)
 
 func _on_unit_selected(u: Unit) -> void:
+	_refresh_actor_focus_states()
 	if stats_panel == null:
 		return
 	if u != null:
 		if stats_panel.has_method("show_unit_metrics_ctx"):
 			# Use selection service's current context if available
-			var team := (selection.get_selected_team() if selection else "player")
-			var idx := (selection.get_selected_index() if selection else -1)
+			var team: String = selection.get_selected_team() if selection else "player"
+			var idx: int = selection.get_selected_index() if selection else -1
 			stats_panel.show_unit_metrics_ctx(team, idx, u)
 		elif stats_panel.has_method("show_unit_metrics"):
 			stats_panel.show_unit_metrics(u)
 	elif stats_panel.has_method("show_team_metrics"):
 		stats_panel.show_team_metrics()
+
+func _on_target_start(source_team: String, source_index: int, target_team: String, target_index: int) -> void:
+	var source_key: String = _actor_focus_key(source_team, source_index)
+	_active_targets_by_source[source_key] = _actor_focus_key(target_team, target_index)
+	_refresh_actor_focus_states()
+
+func _on_target_end(source_team: String, source_index: int, target_team: String, target_index: int) -> void:
+	var source_key: String = _actor_focus_key(source_team, source_index)
+	var target_key: String = _actor_focus_key(target_team, target_index)
+	if String(_active_targets_by_source.get(source_key, "")) == target_key:
+		_active_targets_by_source.erase(source_key)
+	_refresh_actor_focus_states()
+
+func _actor_focus_key(team: String, index: int) -> String:
+	return "%s:%d" % [team, index]
+
+func _refresh_actor_focus_state(team: String, index: int) -> void:
+	if arena_bridge == null:
+		return
+	var actor: UnitActor = arena_bridge.get_actor(team, index)
+	if actor == null or not is_instance_valid(actor):
+		return
+	var selected_team: String = selection.get_selected_team() if selection != null else ""
+	var selected_index: int = selection.get_selected_index() if selection != null else -1
+	actor.set_selected(selected_team == team and selected_index == index)
+	var selected_source_key: String = _actor_focus_key(selected_team, selected_index) if selected_index >= 0 else ""
+	var selected_target_key: String = String(_active_targets_by_source.get(selected_source_key, ""))
+	actor.set_targeted_count(1 if selected_target_key == _actor_focus_key(team, index) else 0)
+
+func _refresh_actor_focus_states() -> void:
+	if arena_bridge == null or manager == null:
+		return
+	for player_index: int in range(manager.player_team.size()):
+		_refresh_actor_focus_state("player", player_index)
+	for enemy_index: int in range(manager.enemy_team.size()):
+		_refresh_actor_focus_state("enemy", enemy_index)
 
 func _on_log_line(text: String) -> void:
 	if Debug.enabled:
@@ -2594,6 +2641,7 @@ func _sync_arena_units() -> void:
 	arena_bridge.sync(manager, player_views, enemy_views)
 
 func _exit_combat_arena() -> void:
+	_active_targets_by_source.clear()
 	arena_bridge.exit_arena()
 
 func _configure_engine_arena() -> void:

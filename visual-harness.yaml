@@ -72,3 +72,43 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle unit upgrades"
+  - id: sprint1-readability
+    title: Sprint 1 compact planning and combat readability
+    adapter: godot
+    objective: Verify the 1280x720 player-facing runtime keeps planning controls in bounds, preserves a wide battlefield, clearly distinguishes allies and enemies, makes selection and active targeting readable without visual clutter, and places Arena Pressure outside the battlefield.
+    required_groups: [overview]
+    runtime_provenance:
+      entrypoint: "Godot editor game framebuffer"
+      scene: "res://tests/visual/Sprint1VisualCapture.tscn"
+      build: "codex/019f7d5d-592-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [planning, combat]
+      required_viewports: [compact-1280x720]
+      required_events: [planning_ready, combat_ready]
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 600
+    captures:
+      - path: "outputs/visual_iter/sprint1/01_compact_planning_1280x720.png"
+        label: "Compact planning at 1280x720"
+        group: overview
+        role: actual
+        state: planning
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: planning_ready
+      - path: "outputs/visual_iter/sprint1/02_compact_combat_1280x720.png"
+        label: "Compact combat at 1280x720"
+        group: overview
+        role: actual
+        state: combat
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: combat_ready
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Sprint 1 readability"

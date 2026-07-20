@@ -26,6 +26,7 @@ func _run() -> void:
 		_fail("CombatView instantiate failed")
 		await _finish()
 		return
+	_view.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(_view)
 	await _settle_frames(8)
 
@@ -91,6 +92,8 @@ func _run() -> void:
 	_expect(bridge.manager == _manager, "CombatVfxBridge manager reference mismatch")
 	_expect(bridge.get("_bound_manager") == _manager, "CombatVfxBridge signal manager should be bound")
 	_expect(bridge.get("_bound_engine") == engine, "CombatVfxBridge signal engine should be bound")
+	_exercise_pressure_hud(bridge, arena_container)
+	await _exercise_actor_readability()
 
 	_exercise_line_cap(bridge, arena_container)
 	_exercise_burst_cap(bridge)
@@ -103,6 +106,44 @@ func _run() -> void:
 	var cleared_bursts: Array[Dictionary] = bridge.get("_bursts") as Array[Dictionary]
 	_expect(cleared_lines.is_empty() and cleared_bursts.is_empty(), "CombatVfxBridge should clear queued effects when the arena hides")
 	await _finish()
+
+func _exercise_pressure_hud(bridge: CombatVfxBridge, arena_container: Control) -> void:
+	bridge.call("_on_arena_pressure_changed", 0.72, 2)
+	var banner: PanelContainer = _view.find_child("ArenaPressureBanner", true, false) as PanelContainer
+	_expect(banner != null, "Arena Pressure HUD chip missing")
+	if banner == null:
+		return
+	_expect(banner.get_parent() == _view, "Arena Pressure HUD chip should be a direct CombatView child")
+	_expect(not arena_container.is_ancestor_of(banner), "Arena Pressure HUD chip should not obstruct the battlefield")
+	_expect(banner.visible, "Arena Pressure HUD chip should be visible after pressure activates")
+	var banner_rect: Rect2 = banner.get_global_rect()
+	var arena_rect: Rect2 = arena_container.get_global_rect()
+	_expect(banner_rect.end.y <= arena_rect.position.y + 1.0, "Arena Pressure HUD chip overlaps the battlefield: banner=%s arena=%s" % [str(banner_rect), str(arena_rect)])
+	var label: Label = banner.get_node_or_null("Margin/Label") as Label
+	_expect(label != null and label.text == "PRESSURE 2  ·  SUSTAIN 72%", "Arena Pressure HUD chip copy should be concise")
+
+func _exercise_actor_readability() -> void:
+	var controller: Variant = _view.get("controller")
+	var arena_bridge: ArenaBridge = null
+	if controller != null:
+		arena_bridge = controller.get("arena_bridge") as ArenaBridge
+	_expect(arena_bridge != null, "ArenaBridge missing for actor readability checks")
+	if arena_bridge == null:
+		return
+	var ally: UnitActor = arena_bridge.get_player_actor(0)
+	var enemy: UnitActor = arena_bridge.get_enemy_actor(0)
+	_expect(ally != null and enemy != null, "combat actors missing for readability checks")
+	if ally == null or enemy == null:
+		return
+	var ally_marker: Label = ally.get_node_or_null("TeamMarker") as Label
+	var enemy_marker: Label = enemy.get_node_or_null("TeamMarker") as Label
+	_expect(ally_marker != null and ally_marker.text.begins_with("A"), "ally actor should expose an A ownership marker")
+	_expect(enemy_marker != null and enemy_marker.text.begins_with("E"), "enemy actor should expose an E ownership marker")
+	_expect(_manager.is_connected("target_start", Callable(controller, "_on_target_start")), "target-start emphasis signal should be connected")
+	enemy.set_targeted_count(1)
+	_expect(int(enemy.get("_targeted_count")) == 1, "enemy actor should gain target emphasis")
+	enemy.set_targeted_count(0)
+	_expect(int(enemy.get("_targeted_count")) == 0, "enemy actor should clear target emphasis")
 
 func _exercise_line_cap(bridge: CombatVfxBridge, arena_container: Control) -> void:
 	var arena_rect: Rect2 = arena_container.get_global_rect()

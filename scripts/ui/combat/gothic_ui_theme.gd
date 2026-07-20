@@ -4,14 +4,14 @@ class_name GothicUITheme
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const CombatVfxInstallerScript: GDScript = preload("res://scripts/ui/combat/combat_vfx_installer.gd")
 
-const COLOR_VOID: Color = Color(0.012, 0.010, 0.014, 1.0)
-const COLOR_PANEL: Color = Color(0.050, 0.044, 0.056, 0.97)
-const COLOR_PANEL_DEEP: Color = Color(0.024, 0.020, 0.028, 0.98)
-const COLOR_PANEL_SOFT: Color = Color(0.090, 0.078, 0.090, 0.94)
-const COLOR_IRON: Color = Color(0.34, 0.33, 0.38, 0.90)
-const COLOR_IRON_DIM: Color = Color(0.16, 0.15, 0.18, 0.92)
-const COLOR_TEXT: Color = Color(0.90, 0.87, 0.80, 1.0)
-const COLOR_TEXT_MUTED: Color = Color(0.66, 0.62, 0.57, 1.0)
+const COLOR_VOID: Color = Color(0.018, 0.014, 0.020, 1.0)
+const COLOR_PANEL: Color = Color(0.072, 0.062, 0.075, 0.97)
+const COLOR_PANEL_DEEP: Color = Color(0.032, 0.027, 0.037, 0.98)
+const COLOR_PANEL_SOFT: Color = Color(0.118, 0.101, 0.116, 0.94)
+const COLOR_IRON: Color = Color(0.42, 0.39, 0.43, 0.92)
+const COLOR_IRON_DIM: Color = Color(0.22, 0.20, 0.23, 0.94)
+const COLOR_TEXT: Color = Color(0.96, 0.92, 0.85, 1.0)
+const COLOR_TEXT_MUTED: Color = Color(0.75, 0.69, 0.62, 1.0)
 const COLOR_BLOOD: Color = Color(0.55, 0.045, 0.085, 1.0)
 const COLOR_BLOOD_HOT: Color = Color(0.82, 0.075, 0.12, 1.0)
 const COLOR_GOLD: Color = Color(0.92, 0.68, 0.34, 1.0)
@@ -82,8 +82,8 @@ static func _apply_named_nodes(root: Control) -> void:
 	_configure_combat_layout(root)
 	_ensure_combat_vfx_installer(root)
 	_clear_battlefield_rect(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground")
-	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(0.94, 0.91, 0.86, 0.95))
-	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(0.92, 0.94, 0.90, 0.95))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(1.04, 1.01, 0.96, 1.0))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(1.02, 1.04, 1.00, 1.0))
 	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaSurface", GothicUIAssets.battlefield_texture(), -8, Color(1.16, 1.10, 1.04, 1.0))
 	_style_label(root, "MarginContainer/VBoxContainer/StageLabel", 34, COLOR_TEXT, true)
 	_style_label(root, "MarginContainer/VBoxContainer/PlanningTimerLabel", 18, COLOR_GOLD, true)
@@ -461,7 +461,7 @@ static func _apply_screen_backdrop(root: Control) -> void:
 	backdrop.texture = texture
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_SCALE
-	backdrop.modulate = Color(0.52, 0.50, 0.48, 0.78)
+	backdrop.modulate = Color(0.66, 0.62, 0.58, 0.88)
 
 static func _configure_combat_layout(root: Control) -> void:
 	var arena: Control = root.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer") as Control

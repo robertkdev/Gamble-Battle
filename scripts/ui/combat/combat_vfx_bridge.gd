@@ -31,6 +31,7 @@ var _lines: Array[Dictionary] = []
 var _clock: float = 0.0
 var _recent: Dictionary[String, float] = {}
 var _overlay_parent: Control = null
+var _hud_host: Control = null
 var _pressure_banner: PanelContainer = null
 var _pressure_label: Label = null
 
@@ -46,8 +47,9 @@ func _ready() -> void:
 	_fill_parent_rect()
 	set_process(true)
 
-func configure(arena_host: Control, _arena_bridge: ArenaBridge, _manager: CombatManager) -> void:
+func configure(arena_host: Control, _arena_bridge: ArenaBridge, _manager: CombatManager, hud_host: Control = null) -> void:
 	_overlay_parent = arena_host
+	_hud_host = hud_host if hud_host != null else arena_host
 	arena_bridge = _arena_bridge
 	manager = _manager
 	if _overlay_parent != null and get_parent() != _overlay_parent:
@@ -62,7 +64,12 @@ func teardown() -> void:
 	_bursts.clear()
 	_lines.clear()
 	_recent.clear()
+	if _pressure_banner != null and is_instance_valid(_pressure_banner):
+		_pressure_banner.queue_free()
+	_pressure_banner = null
+	_pressure_label = null
 	_overlay_parent = null
+	_hud_host = null
 	arena_bridge = null
 	manager = null
 
@@ -322,10 +329,11 @@ func _on_arena_pressure_changed(sustain_effectiveness: float, stage: int) -> voi
 	if _pressure_banner == null or _pressure_label == null:
 		return
 	if stage == 1:
-		_pressure_label.text = "ARENA PRESSURE  |  HEALING + NEW SHIELDS WEAKENING"
+		_pressure_label.text = "PRESSURE I  ·  SUSTAIN WEAKENING"
 	else:
 		var effectiveness_pct: int = clampi(int(round(sustain_effectiveness * 100.0)), 0, 100)
-		_pressure_label.text = "ARENA PRESSURE  |  HEALING + NEW SHIELDS %d%%" % effectiveness_pct
+		_pressure_label.text = "PRESSURE %d  ·  SUSTAIN %d%%" % [stage, effectiveness_pct]
+	_pressure_banner.tooltip_text = "Arena Pressure weakens healing and newly applied shields as combat continues."
 	_pressure_banner.visible = true
 
 func _ensure_pressure_banner() -> void:
@@ -335,15 +343,21 @@ func _ensure_pressure_banner() -> void:
 	_pressure_banner.name = "ArenaPressureBanner"
 	_pressure_banner.visible = false
 	_pressure_banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_pressure_banner.z_index = 24
-	_pressure_banner.anchor_left = 0.5
-	_pressure_banner.anchor_right = 0.5
+	_pressure_banner.z_as_relative = false
+	_pressure_banner.z_index = 185
+	_pressure_banner.anchor_left = 1.0
+	_pressure_banner.anchor_right = 1.0
 	_pressure_banner.anchor_top = 0.0
 	_pressure_banner.anchor_bottom = 0.0
-	_pressure_banner.offset_left = -286.0
-	_pressure_banner.offset_right = 286.0
-	_pressure_banner.offset_top = 82.0
-	_pressure_banner.offset_bottom = 122.0
+	_pressure_banner.offset_left = -438.0
+	_pressure_banner.offset_right = -18.0
+	var host: Control = _hud_host if _hud_host != null and is_instance_valid(_hud_host) else self
+	var arena_top_local: float = 80.0
+	if _overlay_parent != null and is_instance_valid(_overlay_parent):
+		arena_top_local = _overlay_parent.global_position.y - host.global_position.y
+	var banner_top: float = max(12.0, arena_top_local - 68.0)
+	_pressure_banner.offset_top = banner_top
+	_pressure_banner.offset_bottom = banner_top + 35.0
 	var panel_style: StyleBoxFlat = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.075, 0.024, 0.034, 0.94)
 	panel_style.border_color = Color(0.86, 0.55, 0.24, 0.92)
@@ -369,13 +383,13 @@ func _ensure_pressure_banner() -> void:
 	_pressure_label.name = "Label"
 	_pressure_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_pressure_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_pressure_label.add_theme_font_size_override("font_size", 17)
+	_pressure_label.add_theme_font_size_override("font_size", 15)
 	_pressure_label.add_theme_color_override("font_color", Color(1.0, 0.82, 0.48, 1.0))
 	_pressure_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.90))
 	_pressure_label.add_theme_constant_override("outline_size", 2)
 	_pressure_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(_pressure_label)
-	add_child(_pressure_banner)
+	host.add_child(_pressure_banner)
 
 func _hide_pressure_banner() -> void:
 	if _pressure_banner != null and is_instance_valid(_pressure_banner):

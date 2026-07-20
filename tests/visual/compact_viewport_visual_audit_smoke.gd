@@ -78,6 +78,20 @@ func _run() -> void:
 	_expect_control_inside(combat, "combat view")
 	_expect_control_inside(_combat_node("MarginContainer/VBoxContainer/BenchArea"), "bench area")
 	_expect_control_inside(_combat_node("MarginContainer/VBoxContainer/BottomStorageArea"), "bottom shop area")
+	var compact_stats_button: Button = combat.get_node_or_null("CompactStatsButton") as Button
+	var stats_area: Control = _combat_node("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea")
+	var board_column: Control = _combat_node("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn")
+	_expect(compact_stats_button != null and compact_stats_button.visible, "compact unit-details toggle missing")
+	_expect(stats_area != null and not stats_area.visible, "compact stats area should collapse by default")
+	_expect(board_column != null and board_column.size.x >= 800.0, "compact board column is too narrow: %.1f" % (board_column.size.x if board_column != null else 0.0))
+	if compact_stats_button != null:
+		compact_stats_button.emit_signal("pressed")
+		await _settle_frames(4)
+		_expect(stats_area != null and stats_area.visible, "compact stats area did not open from its toggle")
+		_expect_control_inside(stats_area, "expanded compact stats area")
+		compact_stats_button.emit_signal("pressed")
+		await _settle_frames(4)
+		_expect(stats_area != null and not stats_area.visible, "compact stats area did not close from its toggle")
 	_expect_no_button_text_overflow(combat, "post-shop combat")
 	_save_capture("05_post_shop_planning_1280x720.png", _main)
 	await _finish()
@@ -133,7 +147,7 @@ func _build_post_shop_state() -> void:
 	combat.set("planning_time_left", 120.0)
 	var timer_label: Label = combat.get_node_or_null("MarginContainer/VBoxContainer/PlanningTimerLabel") as Label
 	if timer_label != null:
-		timer_label.visible = true
+		timer_label.visible = false
 		timer_label.text = "Planning: 2:00"
 
 func _combat_node(path: String) -> Control:
