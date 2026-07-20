@@ -6,7 +6,11 @@ const OUTPUT_DIR: String = "res://outputs/visual_iter/loss_screen_pass"
 
 func _ready() -> void:
 	var failures: Array[String] = []
-	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	var window: Window = get_window()
+	if window != null:
+		window.size = Vector2i(1280, 720)
+		window.content_scale_size = Vector2i(1280, 720)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_prepare_dirty_run_state()
 	var tracker: StatsTracker = _make_populated_tracker()
@@ -23,17 +27,29 @@ func _ready() -> void:
 	layer.add_child(screen)
 	await get_tree().process_frame
 	await get_tree().process_frame
+	# Sprint 3 gives the result frame a short scale/fade reveal. Validate its
+	# settled bounds rather than an intentional transitional transform.
+	await _settle_frames(32)
 
 	var stage_label: Label = screen.get_node_or_null("Panel/Center/Frame/VBox/StageLabel") as Label
+	var defeat_title_label: Label = screen.get_node_or_null("Panel/Center/Frame/VBox/Title") as Label
+	var defeat_kicker: Label = screen.get_node_or_null("Panel/Center/Frame/VBox/DefeatKicker") as Label
+	var defeat_sigil: TextureRect = screen.get_node_or_null("Panel/Center/Frame/DefeatSigil") as TextureRect
 	_expect(stage_label != null, "StageLabel missing after deferred configure", failures)
+	_expect(defeat_title_label != null and defeat_title_label.text == "THE HOUSE COLLECTS", "loss screen should use the branded defeat headline", failures)
+	_expect(defeat_kicker != null and defeat_kicker.text.contains("THE LEDGER CLOSES"), "loss screen branded kicker missing", failures)
+	_expect(defeat_sigil != null and defeat_sigil.texture != null, "loss screen background sigil missing", failures)
 	var frame_panel: PanelContainer = screen.get_node_or_null("Panel/Center/Frame") as PanelContainer
 	_expect(frame_panel != null, "Loss frame panel missing", failures)
 	if frame_panel != null:
 		var frame_style: StyleBox = frame_panel.get_theme_stylebox("panel")
 		_expect(frame_style is StyleBoxTexture, "Loss frame should use the generated wide panel asset", failures)
+		_expect(frame_panel.get_global_rect().position.y >= -0.5, "Loss frame should stay inside the compact viewport top edge", failures)
+		_expect(frame_panel.get_global_rect().end.y <= get_viewport().get_visible_rect().end.y + 0.5, "Loss frame should stay inside the compact viewport bottom edge", failures)
 	var new_game_button: Button = screen.get_node_or_null("Panel/Center/Frame/VBox/NewGameButton") as Button
 	_expect(new_game_button != null, "NewGameButton missing", failures)
 	if new_game_button != null:
+		_expect(new_game_button.text == "BEGIN A NEW RUN", "loss-screen primary action should use run language", failures)
 		_expect_texture_style(new_game_button, "normal", "NewGameButton normal should use the generated primary button asset", failures)
 		_expect_texture_style(new_game_button, "hover", "NewGameButton hover should use the generated primary button asset", failures)
 		_expect_texture_style(new_game_button, "pressed", "NewGameButton pressed should use the generated primary button asset", failures)

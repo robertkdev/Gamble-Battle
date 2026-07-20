@@ -3,9 +3,9 @@ class_name CombatVfxBridge
 
 const AttackVisualCatalog: GDScript = preload("res://scripts/ui/combat/attack_visual_catalog.gd")
 
-const MAX_ACTIVE_BURSTS: int = 16
+const MAX_ACTIVE_BURSTS: int = 18
 const MAX_ACTIVE_LINES: int = 10
-const READABILITY_MODULATE: Color = Color(0.74, 0.62, 0.54, 0.42)
+const READABILITY_MODULATE: Color = Color(0.96, 0.90, 0.84, 0.82)
 
 const KIND_ABILITY: String = "ability"
 const KIND_HEAL: String = "heal"
@@ -16,6 +16,7 @@ const KIND_BUFF: String = "buff"
 const KIND_DEBUFF: String = "debuff"
 const KIND_DOT: String = "dot"
 const KIND_EXECUTE: String = "execute"
+const KIND_CRITICAL: String = "critical"
 const KIND_CLEANSE: String = "cleanse"
 const KIND_MITIGATE: String = "mitigate"
 const KIND_ZONE: String = "zone"
@@ -78,6 +79,7 @@ func bind_manager(next_manager: CombatManager) -> void:
 		return
 	if _bound_manager != null and is_instance_valid(_bound_manager):
 		_disconnect_signal(_bound_manager, "ability_cast", "_on_ability_cast")
+		_disconnect_signal(_bound_manager, "hit_applied", "_on_hit_applied")
 		_disconnect_signal(_bound_manager, "heal_applied", "_on_heal_applied")
 		_disconnect_signal(_bound_manager, "shield_absorbed", "_on_shield_absorbed")
 		_disconnect_signal(_bound_manager, "hit_mitigated", "_on_hit_mitigated")
@@ -86,6 +88,7 @@ func bind_manager(next_manager: CombatManager) -> void:
 	if _bound_manager == null:
 		return
 	_connect_signal(_bound_manager, "ability_cast", "_on_ability_cast")
+	_connect_signal(_bound_manager, "hit_applied", "_on_hit_applied")
 	_connect_signal(_bound_manager, "heal_applied", "_on_heal_applied")
 	_connect_signal(_bound_manager, "shield_absorbed", "_on_shield_absorbed")
 	_connect_signal(_bound_manager, "hit_mitigated", "_on_hit_mitigated")
@@ -177,6 +180,20 @@ func _on_ability_cast(source_team: String, source_index: int, ability_id: String
 				0.28,
 				"ability"
 			)
+
+func _on_hit_applied(source_team: String, source_index: int, target_index: int, _rolled: int, dealt: int, crit: bool, _before_hp: int, _after_hp: int, _player_cd: float, _enemy_cd: float) -> void:
+	if not crit or dealt <= 0:
+		return
+	var target_team: String = "enemy" if source_team == "player" else "player"
+	var key: String = "critical:%s:%d" % [target_team, target_index]
+	if not _debounced(key, 0.16):
+		return
+	_add_burst(KIND_CRITICAL, target_team, target_index, {
+		"magnitude": float(dealt),
+		"duration": 0.72,
+		"radius": 46.0,
+	})
+	_add_source_link(source_team, source_index, target_team, target_index, Color(1.0, 0.55, 0.18, 0.88), 3.4, 0.24, KIND_CRITICAL)
 
 func _on_heal_applied(source_team: String, source_index: int, target_team: String, target_index: int, healed: int, overheal: int, _before_hp: int, _after_hp: int) -> void:
 	if int(healed) <= 0 and int(overheal) <= 0:
@@ -497,6 +514,8 @@ func _draw_effect_burst(effect: Dictionary[String, Variant]) -> void:
 			_draw_dot(pos, radius, t, inv, core, edge, accent)
 		KIND_EXECUTE:
 			_draw_execute(pos, radius, t, inv, core, edge, accent)
+		KIND_CRITICAL:
+			_draw_critical(pos, radius, t, inv, core, edge, accent)
 		KIND_CLEANSE:
 			_draw_cleanse(pos, radius, t, inv, core, edge, accent)
 		KIND_MITIGATE:
@@ -509,11 +528,29 @@ func _draw_effect_burst(effect: Dictionary[String, Variant]) -> void:
 			_draw_buff(pos, radius, t, inv, core, edge, accent)
 
 func _draw_ability(pos: Vector2, radius: float, t: float, inv: float, shape: String, core: Color, edge: Color, accent: Color) -> void:
-	var ring_radius: float = lerp(radius * 0.52, radius * 1.18, t)
-	draw_circle(pos, radius * 0.98, Color(core.r, core.g, core.b, 0.26 * inv))
-	draw_arc(pos, ring_radius, -PI * 0.15, TAU * 0.82, 48, Color(edge.r, edge.g, edge.b, 1.0 * inv), max(1.5, 5.0 * inv), true)
-	draw_arc(pos, radius * 0.62, PI * 0.18 + t * TAU, PI * 1.52 + t * TAU, 32, Color(accent.r, accent.g, accent.b, 0.96 * inv), max(1.4, 3.4 * inv), true)
-	_draw_signature_glyph(pos, radius * 0.42, shape, t * TAU, core, edge, accent, inv)
+	var anticipation: float = clamp(t / 0.24, 0.0, 1.0)
+	var impact: float = clamp((t - 0.20) / 0.24, 0.0, 1.0)
+	var recovery: float = clamp((t - 0.42) / 0.58, 0.0, 1.0)
+	var ring_radius: float = lerp(radius * 1.10, radius * 0.48, anticipation)
+	if t >= 0.20:
+		ring_radius = lerp(radius * 0.50, radius * 1.30, impact)
+	var phase_alpha: float = (0.58 + anticipation * 0.42) * (1.0 - recovery)
+	draw_circle(pos, radius * (0.56 + impact * 0.44), Color(core.r, core.g, core.b, 0.14 * phase_alpha))
+	draw_arc(pos, ring_radius, -PI * 0.15, TAU * 0.82, 48, Color(edge.r, edge.g, edge.b, phase_alpha), max(1.5, 5.2 * phase_alpha), true)
+	draw_arc(pos, radius * (0.56 + impact * 0.18), PI * 0.18 + t * TAU, PI * 1.52 + t * TAU, 32, Color(accent.r, accent.g, accent.b, 0.92 * phase_alpha), max(1.4, 3.4 * phase_alpha), true)
+	_draw_signature_glyph(pos, radius * (0.36 + impact * 0.10), shape, t * TAU, core, edge, accent, phase_alpha)
+
+func _draw_critical(pos: Vector2, radius: float, t: float, inv: float, core: Color, edge: Color, accent: Color) -> void:
+	var impact: float = sin(clamp(t * 1.55, 0.0, 1.0) * PI * 0.5)
+	var ring_radius: float = radius * lerp(0.30, 1.24, impact)
+	draw_circle(pos, radius * 0.42 * (1.0 - t * 0.35), Color(1.0, 0.84, 0.42, 0.28 * inv))
+	draw_arc(pos, ring_radius, 0.0, TAU, 40, Color(1.0, 0.68, 0.24, 0.96 * inv), max(1.8, 4.8 * inv), true)
+	for ray_index: int in range(8):
+		var angle: float = TAU * float(ray_index) / 8.0 + t * 0.26
+		var inner: Vector2 = pos + Vector2(cos(angle), sin(angle)) * radius * 0.34
+		var outer: Vector2 = pos + Vector2(cos(angle), sin(angle)) * radius * (0.68 + impact * 0.44)
+		draw_line(inner, outer, Color(edge.r, edge.g, edge.b, 0.92 * inv), max(1.3, 3.4 * inv), true)
+	_draw_x(pos, radius * 0.34, Color(accent.r, accent.g, accent.b, 1.0 * inv), max(2.2, radius * 0.12))
 
 func _draw_phase(pos: Vector2, radius: float, t: float, inv: float, core: Color, edge: Color, accent: Color) -> void:
 	var pulse: float = 0.5 + 0.5 * sin(t * TAU * 4.0)
@@ -734,7 +771,7 @@ func _kind_core_color(kind: String, style: Dictionary[String, Variant]) -> Color
 			return Color(0.70, 0.92, 1.0, 0.96)
 		KIND_STUN:
 			return Color(0.86, 0.72, 1.0, 0.96)
-		KIND_DOT, KIND_EXECUTE:
+		KIND_DOT, KIND_EXECUTE, KIND_CRITICAL:
 			return Color(1.0, 0.45, 0.30, 0.96)
 		KIND_CLEANSE:
 			return Color(0.95, 1.0, 0.80, 0.96)
@@ -761,6 +798,8 @@ func _kind_edge_color(kind: String, style: Dictionary[String, Variant]) -> Color
 			return Color(1.0, 0.24, 0.08, 0.92)
 		KIND_EXECUTE:
 			return Color(1.0, 0.05, 0.16, 0.96)
+		KIND_CRITICAL:
+			return Color(1.0, 0.50, 0.10, 0.98)
 		KIND_CLEANSE:
 			return Color(1.0, 0.96, 0.50, 0.92)
 		KIND_DEBUFF, KIND_ZONE:
@@ -780,7 +819,7 @@ func _kind_accent_color(kind: String, style: Dictionary[String, Variant]) -> Col
 			return Color(1.0, 1.0, 1.0, 0.92)
 		KIND_STUN:
 			return Color(1.0, 0.82, 0.30, 0.96)
-		KIND_DOT, KIND_EXECUTE:
+		KIND_DOT, KIND_EXECUTE, KIND_CRITICAL:
 			return Color(1.0, 0.86, 0.36, 0.96)
 		KIND_DEBUFF, KIND_ZONE:
 			return Color(0.98, 0.68, 1.0, 0.92)
@@ -801,6 +840,8 @@ func _default_duration(kind: String) -> float:
 			return 0.70
 		KIND_PHASE:
 			return 0.90
+		KIND_CRITICAL:
+			return 0.72
 		_:
 			return 0.52
 
@@ -815,6 +856,8 @@ func _default_radius(kind: String, style: Dictionary[String, Variant]) -> float:
 			return base_radius * 2.0
 		KIND_PHASE:
 			return base_radius * 1.25
+		KIND_CRITICAL:
+			return base_radius * 1.45
 		_:
 			return base_radius
 

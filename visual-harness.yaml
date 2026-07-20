@@ -170,3 +170,85 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle Sprint 2 visual hierarchy"
+  - id: sprint3-presentation
+    title: Sprint 3 combat VFX, outcomes, and title branding
+    adapter: godot
+    objective: Verify the 1280x720 player-facing runtime has a distinctive gothic title and command-menu lockup, semantically distinct combat effect signatures across anticipation, impact, and recovery, and clear cinematic victory and defeat feedback without obscuring core information.
+    required_groups: [branding, temporal, outcome]
+    runtime_provenance:
+      entrypoint: "Godot editor game framebuffer"
+      scene: "res://tests/visual/Sprint3VisualCapture.tscn"
+      build: "codex/019f7d5d-592-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [title, main_menu, combat_vfx, victory, defeat]
+      required_viewports: [compact-1280x720]
+      required_events: [vfx_timeline]
+      min_temporal_frames: 3
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 600
+    captures:
+      - path: "outputs/visual_iter/sprint3/01_title_brand_1280x720.png"
+        label: "Title-page brand lockup"
+        group: branding
+        role: actual
+        state: title
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+      - path: "outputs/visual_iter/sprint3/02_main_menu_brand_1280x720.png"
+        label: "Command-menu brand lockup"
+        group: branding
+        role: actual
+        state: main_menu
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+      - path: "outputs/visual_iter/sprint3/03a_combat_vfx_anticipation_1280x720.png"
+        label: "Combat VFX anticipation"
+        group: temporal
+        role: actual
+        state: combat_vfx
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: vfx_timeline
+      - path: "outputs/visual_iter/sprint3/03b_combat_vfx_impact_1280x720.png"
+        label: "Combat VFX impact"
+        group: temporal
+        role: actual
+        state: combat_vfx
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: vfx_timeline
+      - path: "outputs/visual_iter/sprint3/03c_combat_vfx_recovery_1280x720.png"
+        label: "Combat VFX recovery"
+        group: temporal
+        role: actual
+        state: combat_vfx
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: vfx_timeline
+      - path: "outputs/visual_iter/sprint3/04_victory_feedback_1280x720.png"
+        label: "Victory outcome feedback"
+        group: outcome
+        role: actual
+        state: victory
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+      - path: "outputs/visual_iter/sprint3/05_defeat_feedback_1280x720.png"
+        label: "Defeat outcome feedback"
+        group: outcome
+        role: actual
+        state: defeat
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Sprint 3 presentation"

@@ -14,6 +14,12 @@ func _run() -> void:
 	var failures: Array[String] = []
 	var title_page: Control = main.get_node_or_null("TitlePage") as Control
 	_expect(title_page != null and title_page.visible, "TitlePage should be visible before the main menu", failures)
+	var title_page_kicker: Label = main.get_node_or_null("TitlePage/Center/Stack/BrandKicker") as Label
+	var title_page_genre: Label = main.get_node_or_null("TitlePage/Center/Stack/GenreLabel") as Label
+	var title_page_frame: PanelContainer = main.get_node_or_null("TitlePage/BrandFrame") as PanelContainer
+	_expect(title_page_kicker != null and title_page_kicker.text == "OPEN THE BLACK LEDGER", "TitlePage should expose the branded ledger kicker", failures)
+	_expect(title_page_genre != null and title_page_genre.text.contains("TACTICAL AUTO-BATTLER"), "TitlePage should communicate the game genre", failures)
+	_expect(title_page_frame != null and title_page_frame.get_theme_stylebox("panel") is StyleBoxTexture, "TitlePage brand frame should use generated gothic styling", failures)
 	var title_menu: Control = main.get_node_or_null("TitleMenu") as Control
 	_expect(title_menu != null, "TitleMenu missing", failures)
 	if title_menu != null:
@@ -29,6 +35,11 @@ func _run() -> void:
 		_expect(title_label != null, "GameTitle missing", failures)
 		if title_label != null:
 			_expect(title_label.get_theme_font_size("font_size") >= 54, "GameTitle is not visually prioritized", failures)
+			_expect(title_label.text == "GAMBLE\nBATTLE", "main-menu title should use the intentional two-line brand lockup", failures)
+		var brand_kicker: Label = title_menu.get_node_or_null("Center/VBox/BrandKicker") as Label
+		var title_sigil: TextureRect = title_menu.get_node_or_null("TitleSigil") as TextureRect
+		_expect(brand_kicker != null and brand_kicker.text == "THE BLACK LEDGER", "main-menu brand kicker missing", failures)
+		_expect(title_sigil != null and title_sigil.visible, "main-menu sigil should support the brand lockup", failures)
 		var hero: TextureRect = title_menu.get_node_or_null("TitleHero") as TextureRect
 		_expect(hero == null, "TitleHero should not render a background unit over the menu", failures)
 		var content_panel: PanelContainer = title_menu.get_node_or_null("ContentPanel") as PanelContainer

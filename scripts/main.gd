@@ -33,6 +33,7 @@ var _title_page: Control
 var _starter_transition_pending: bool = false
 var _pending_starter_id: String = ""
 var _continue_run_button: Button
+var _title_page_tween: Tween
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -306,18 +307,36 @@ func _build_title_page() -> void:
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_title_page.add_child(background)
+	var upper_glow: ColorRect = ColorRect.new()
+	upper_glow.name = "UpperBloodGlow"
+	upper_glow.color = Color(0.22, 0.018, 0.032, 0.34)
+	upper_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	upper_glow.anchor_left = 0.0
+	upper_glow.anchor_top = 0.0
+	upper_glow.anchor_right = 1.0
+	upper_glow.anchor_bottom = 0.34
+	_title_page.add_child(upper_glow)
 	var sigil: TextureRect = TextureRect.new()
 	sigil.name = "Sigil"
 	sigil.texture = TITLE_SIGIL
 	sigil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	sigil.modulate = Color(0.72, 0.48, 0.26, 0.24)
+	sigil.modulate = Color(0.86, 0.56, 0.24, 0.30)
 	sigil.anchor_left = 0.22
 	sigil.anchor_top = 0.02
 	sigil.anchor_right = 0.78
 	sigil.anchor_bottom = 0.88
 	_title_page.add_child(sigil)
+	var brand_frame: PanelContainer = PanelContainer.new()
+	brand_frame.name = "BrandFrame"
+	brand_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	brand_frame.anchor_left = 0.205
+	brand_frame.anchor_top = 0.145
+	brand_frame.anchor_right = 0.795
+	brand_frame.anchor_bottom = 0.855
+	brand_frame.add_theme_stylebox_override("panel", _make_title_brand_frame_style())
+	_title_page.add_child(brand_frame)
 	var center: CenterContainer = CenterContainer.new()
 	center.name = "Center"
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -325,29 +344,52 @@ func _build_title_page() -> void:
 	var stack: VBoxContainer = VBoxContainer.new()
 	stack.name = "Stack"
 	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	stack.custom_minimum_size = Vector2(720.0, 0.0)
-	stack.add_theme_constant_override("separation", 16)
+	stack.custom_minimum_size = Vector2(620.0, 0.0)
+	stack.add_theme_constant_override("separation", 11)
 	center.add_child(stack)
+	var kicker: Label = Label.new()
+	kicker.name = "BrandKicker"
+	kicker.text = "OPEN THE BLACK LEDGER"
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kicker.add_theme_font_size_override("font_size", 14)
+	kicker.add_theme_color_override("font_color", Color(0.82, 0.62, 0.32, 1.0))
+	kicker.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
+	kicker.add_theme_constant_override("outline_size", 2)
+	stack.add_child(kicker)
 	var title: Label = Label.new()
 	title.name = "GameTitle"
-	title.text = "Gamble Battle"
+	title.text = "GAMBLE BATTLE"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 76)
-	title.add_theme_color_override("font_color", Color(0.93, 0.88, 0.78, 1.0))
+	title.add_theme_font_size_override("font_size", 70)
+	title.add_theme_color_override("font_color", Color(0.96, 0.84, 0.62, 1.0))
 	title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
-	title.add_theme_constant_override("outline_size", 5)
+	title.add_theme_constant_override("outline_size", 6)
 	stack.add_child(title)
+	var brand_rule: Label = Label.new()
+	brand_rule.name = "BrandRule"
+	brand_rule.text = "—  ◆  —"
+	brand_rule.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	brand_rule.add_theme_font_size_override("font_size", 18)
+	brand_rule.add_theme_color_override("font_color", Color(0.76, 0.18, 0.12, 1.0))
+	stack.add_child(brand_rule)
 	var subtitle: Label = Label.new()
 	subtitle.name = "Subtitle"
-	subtitle.text = "Blood. Gold. Consequence."
+	subtitle.text = "BLOOD  •  GOLD  •  CONSEQUENCE"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 20)
-	subtitle.add_theme_color_override("font_color", Color(0.72, 0.66, 0.58, 1.0))
+	subtitle.add_theme_font_size_override("font_size", 17)
+	subtitle.add_theme_color_override("font_color", Color(0.78, 0.71, 0.62, 1.0))
 	stack.add_child(subtitle)
+	var genre: Label = Label.new()
+	genre.name = "GenreLabel"
+	genre.text = "TACTICAL AUTO-BATTLER  •  HIGH-STAKES RUNS"
+	genre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	genre.add_theme_font_size_override("font_size", 13)
+	genre.add_theme_color_override("font_color", Color(0.52, 0.48, 0.44, 1.0))
+	stack.add_child(genre)
 	var enter_button: Button = Button.new()
 	enter_button.name = "EnterButton"
-	enter_button.text = "Enter"
-	enter_button.custom_minimum_size = Vector2(260.0, 58.0)
+	enter_button.text = "ENTER THE LEDGER"
+	enter_button.custom_minimum_size = Vector2(420.0, 58.0)
 	enter_button.focus_mode = Control.FOCUS_ALL
 	_apply_button_style(enter_button, false)
 	enter_button.pressed.connect(_dismiss_title_page)
@@ -371,13 +413,59 @@ func _show_title_page() -> void:
 		var enter_button: Button = _title_page.get_node_or_null("Center/Stack/EnterButton") as Button
 		if enter_button != null:
 			enter_button.grab_focus()
+		_play_title_page_intro()
 	_sync_system_menu_button()
 	GameState.set_phase(GameState.GamePhase.MENU)
 
 func _dismiss_title_page() -> void:
+	if _title_page_tween != null and _title_page_tween.is_valid():
+		_title_page_tween.kill()
+	_title_page_tween = null
 	if _title_page != null:
 		_title_page.visible = false
 	_set_menu_visible(true)
+
+func _play_title_page_intro() -> void:
+	if _title_page == null:
+		return
+	if _title_page_tween != null and _title_page_tween.is_valid():
+		_title_page_tween.kill()
+	var stack: VBoxContainer = _title_page.get_node_or_null("Center/Stack") as VBoxContainer
+	var frame: PanelContainer = _title_page.get_node_or_null("BrandFrame") as PanelContainer
+	var sigil: TextureRect = _title_page.get_node_or_null("Sigil") as TextureRect
+	if stack == null:
+		return
+	stack.modulate.a = 0.0
+	stack.scale = Vector2(0.96, 0.96)
+	stack.pivot_offset = stack.custom_minimum_size * 0.5
+	if frame != null:
+		frame.modulate.a = 0.0
+	if sigil != null:
+		sigil.modulate.a = 0.0
+	_title_page_tween = create_tween()
+	_title_page_tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	if frame != null:
+		_title_page_tween.tween_property(frame, "modulate:a", 1.0, 0.22)
+	if sigil != null:
+		_title_page_tween.parallel().tween_property(sigil, "modulate:a", 0.30, 0.30)
+	_title_page_tween.parallel().tween_property(stack, "modulate:a", 1.0, 0.24)
+	_title_page_tween.parallel().tween_property(stack, "scale", Vector2.ONE, 0.30)
+
+func _make_title_brand_frame_style() -> StyleBox:
+	var fallback: StyleBoxFlat = StyleBoxFlat.new()
+	fallback.bg_color = Color(0.020, 0.014, 0.020, 0.86)
+	fallback.border_color = Color(0.55, 0.34, 0.15, 0.86)
+	fallback.border_width_left = 1
+	fallback.border_width_top = 1
+	fallback.border_width_right = 1
+	fallback.border_width_bottom = 1
+	fallback.corner_radius_top_left = 8
+	fallback.corner_radius_top_right = 8
+	fallback.corner_radius_bottom_right = 8
+	fallback.corner_radius_bottom_left = 8
+	fallback.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
+	fallback.shadow_size = 24
+	return GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(Color(0.88, 0.78, 0.62, 0.96)), fallback)
 
 func _on_title_page_gui_input(event: InputEvent) -> void:
 	if _is_title_page_event(event):

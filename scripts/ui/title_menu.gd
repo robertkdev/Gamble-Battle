@@ -47,6 +47,7 @@ var _shade: ColorRect = null
 var _hero: TextureRect = null
 var _sigil: TextureRect = null
 var _subtitle: Label = null
+var _brand_kicker: Label = null
 var _rule: ColorRect = null
 var _content_panel: PanelContainer = null
 var _content_stack: VBoxContainer = null
@@ -274,11 +275,11 @@ func _apply_gothic_layout() -> void:
 		center.offset_bottom = 0.0
 	if center_vbox != null:
 		center_vbox.custom_minimum_size = Vector2(350.0, 0.0)
-		center_vbox.add_theme_constant_override("separation", 13)
+		center_vbox.add_theme_constant_override("separation", 7)
 	if title_label != null:
-		title_label.text = "Gamble Battle"
-		title_label.add_theme_font_size_override("font_size", 64)
-		title_label.add_theme_color_override("font_color", COLOR_TEXT)
+		title_label.text = "GAMBLE\nBATTLE"
+		title_label.add_theme_font_size_override("font_size", 56)
+		title_label.add_theme_color_override("font_color", Color(0.96, 0.84, 0.62, 1.0))
 		title_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
 		title_label.add_theme_constant_override("outline_size", 5)
 		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -333,9 +334,9 @@ func _ensure_title_panel() -> void:
 			move_child(_title_panel, max(0, center.get_index()))
 	_title_panel.z_index = 2
 	_title_panel.anchor_left = 0.035
-	_title_panel.anchor_top = 0.115
+	_title_panel.anchor_top = 0.075
 	_title_panel.anchor_right = 0.36
-	_title_panel.anchor_bottom = 0.895
+	_title_panel.anchor_bottom = 0.94
 	_title_panel.offset_left = 0.0
 	_title_panel.offset_top = 0.0
 	_title_panel.offset_right = 0.0
@@ -373,33 +374,44 @@ func _ensure_sigil() -> void:
 		_sigil.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_sigil)
 	_sigil.texture = SIGIL_TEXTURE
-	_sigil.z_index = 2
-	_sigil.visible = false
-	_sigil.anchor_left = 0.00
-	_sigil.anchor_top = 0.035
-	_sigil.anchor_right = 0.285
-	_sigil.anchor_bottom = 0.49
+	_sigil.z_index = 3
+	_sigil.visible = true
+	_sigil.anchor_left = 0.075
+	_sigil.anchor_top = 0.10
+	_sigil.anchor_right = 0.325
+	_sigil.anchor_bottom = 0.52
 	_sigil.offset_left = 0.0
 	_sigil.offset_top = 0.0
 	_sigil.offset_right = 0.0
 	_sigil.offset_bottom = 0.0
 	_sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_sigil.modulate = Color(0.74, 0.54, 0.34, 0.28)
+	_sigil.modulate = Color(0.82, 0.52, 0.26, 0.18)
 
 func _ensure_subtitle() -> void:
 	if center_vbox == null:
 		return
+	_brand_kicker = center_vbox.get_node_or_null("BrandKicker") as Label
+	if _brand_kicker == null:
+		_brand_kicker = Label.new()
+		_brand_kicker.name = "BrandKicker"
+		center_vbox.add_child(_brand_kicker)
+	center_vbox.move_child(_brand_kicker, 0)
+	_brand_kicker.text = "THE BLACK LEDGER"
+	_brand_kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_brand_kicker.add_theme_font_size_override("font_size", 12)
+	_brand_kicker.add_theme_color_override("font_color", COLOR_GOLD)
+	center_vbox.move_child(title_label, 1)
 	_subtitle = center_vbox.get_node_or_null("Subtitle") as Label
 	if _subtitle == null:
 		_subtitle = Label.new()
 		_subtitle.name = "Subtitle"
 		center_vbox.add_child(_subtitle)
-		center_vbox.move_child(_subtitle, min(1, center_vbox.get_child_count() - 1))
-	_subtitle.text = "Blood. Gold. Consequence."
+	center_vbox.move_child(_subtitle, min(2, center_vbox.get_child_count() - 1))
+	_subtitle.text = "BLOOD  •  GOLD  •  CONSEQUENCE"
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_subtitle.add_theme_font_size_override("font_size", 17)
+	_subtitle.add_theme_font_size_override("font_size", 14)
 	_subtitle.add_theme_color_override("font_color", COLOR_MUTED)
 	_subtitle.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
 	_subtitle.add_theme_constant_override("outline_size", 2)
@@ -408,7 +420,7 @@ func _ensure_subtitle() -> void:
 		_rule = ColorRect.new()
 		_rule.name = "TitleRule"
 		center_vbox.add_child(_rule)
-		center_vbox.move_child(_rule, min(2, center_vbox.get_child_count() - 1))
+	center_vbox.move_child(_rule, min(3, center_vbox.get_child_count() - 1))
 	_rule.custom_minimum_size = Vector2(240.0, 2.0)
 	_rule.color = Color(0.70, 0.42, 0.22, 0.86)
 
@@ -572,12 +584,18 @@ func _add_loop_step(parent: HBoxContainer, number: String, title: String, body: 
 func _add_home_route_grid() -> void:
 	var grid: GridContainer = GridContainer.new()
 	grid.name = "HomeRouteGrid"
-	grid.columns = 1 if get_viewport_rect().size.x < 1300.0 else 2
+	var compact_layout: bool = get_viewport_rect().size.x < 1300.0
+	grid.columns = 1 if compact_layout else 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 12)
 	_content_body.add_child(grid)
 	_add_card_to_parent(grid, "Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and betting decisions.", "Start Here", "run flow start starter shop bench combines items traits betting", COLOR_GOLD, false, "HomeRunFlow")
+	# The compact command menu already exposes these destinations in its left rail.
+	# Keeping the home route to one complete card avoids presenting a visibly clipped
+	# second card at the initial 1280x720 scroll position.
+	if compact_layout:
+		return
 	_add_card_to_parent(grid, "Roster Library", "Live unit cards include ability text, traits, cost, role, goal, and approaches, so roster study stays tied to current resources.", "Units", "units roster ability traits cost role goal approaches", COLOR_BLOOD_HOT, false, "HomeRoster")
 	_add_card_to_parent(grid, "Combat Terms", "Role, Goal, and Approach explain what a unit is trying to do and why it belongs on a board.", "Glossary", "combat terms role goal approach trait board", COLOR_BLUE, false, "HomeRGA")
 	_add_card_to_parent(grid, "Settings", "Runtime controls for volume, fullscreen behavior, readable UI scaling, and keyboard bindings.", "Local", "settings volume fullscreen ui scale keyboard bindings accessibility", COLOR_GREEN, false, "HomeSettings")
@@ -1020,9 +1038,9 @@ func _make_badge(text: String, color: Color) -> PanelContainer:
 func _style_menu_button(button: Button, primary: bool) -> void:
 	if button == null:
 		return
-	button.custom_minimum_size = Vector2(320.0, 48.0)
+	button.custom_minimum_size = Vector2(320.0, 46.0 if primary else 40.0)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.add_theme_font_size_override("font_size", 20 if primary else 17)
+	button.add_theme_font_size_override("font_size", 19 if primary else 16)
 	button.add_theme_color_override("font_color", COLOR_TEXT)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.72, 1.0))
 	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.76, 0.55, 1.0))

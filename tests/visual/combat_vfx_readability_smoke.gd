@@ -7,9 +7,9 @@ const INSTALLER_NAME: String = "CombatVfxInstaller"
 const BRIDGE_NAME: String = "CombatVfxBridge"
 const PLAYER_IDS: Array[String] = ["saffron"]
 const ENEMY_IDS: Array[String] = ["brute"]
-const EXPECTED_READABILITY_MODULATE: Color = Color(0.74, 0.62, 0.54, 0.42)
+const EXPECTED_READABILITY_MODULATE: Color = Color(0.96, 0.90, 0.84, 0.82)
 const MAX_EXPECTED_ACTIVE_LINES: int = 10
-const MAX_EXPECTED_ACTIVE_BURSTS: int = 16
+const MAX_EXPECTED_ACTIVE_BURSTS: int = 18
 
 var _view: Control = null
 var _manager: CombatManager = null
@@ -94,6 +94,7 @@ func _run() -> void:
 	_expect(bridge.get("_bound_engine") == engine, "CombatVfxBridge signal engine should be bound")
 	_exercise_pressure_hud(bridge, arena_container)
 	await _exercise_actor_readability()
+	_exercise_critical_signature(bridge)
 
 	_exercise_line_cap(bridge, arena_container)
 	_exercise_burst_cap(bridge)
@@ -166,6 +167,16 @@ func _exercise_burst_cap(bridge: CombatVfxBridge) -> void:
 	var active_bursts: Array[Dictionary] = bridge.get("_bursts") as Array[Dictionary]
 	_expect(active_bursts.size() <= MAX_EXPECTED_ACTIVE_BURSTS, "CombatVfxBridge active burst count should stay <= %d, got %d" % [MAX_EXPECTED_ACTIVE_BURSTS, active_bursts.size()])
 	_expect(active_bursts.size() == MAX_EXPECTED_ACTIVE_BURSTS, "CombatVfxBridge should retain exactly the capped %d newest bursts after overflow, got %d" % [MAX_EXPECTED_ACTIVE_BURSTS, active_bursts.size()])
+
+func _exercise_critical_signature(bridge: CombatVfxBridge) -> void:
+	bridge.call("_on_hit_applied", "player", 0, 0, 180, 180, true, 300, 120, 0.0, 0.0)
+	var active_bursts: Array[Dictionary] = bridge.get("_bursts") as Array[Dictionary]
+	var critical_seen: bool = false
+	for burst: Dictionary in active_bursts:
+		if String(burst.get("kind", "")) == "critical":
+			critical_seen = true
+			break
+	_expect(critical_seen, "critical hits should create a dedicated critical signature")
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition:

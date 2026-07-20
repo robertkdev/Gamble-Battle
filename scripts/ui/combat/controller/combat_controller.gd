@@ -8,6 +8,7 @@ const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const Debug := preload("res://scripts/util/debug.gd")
 const BenchConstants := preload("res://scripts/constants/bench_constants.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const OUTCOME_SIGIL: Texture2D = preload("res://assets/ui/gold icon.png")
 
 const ArenaBridge := preload("res://scripts/ui/combat/arena_bridge.gd")
 const GridPlacement := preload("res://scripts/ui/combat/grid_placement.gd")
@@ -154,6 +155,7 @@ var _combat_resolving_last_second: int = -1
 var _combat_resolving_watchdog_seen: bool = false
 var _hud_snapshot_signature: String = ""
 var _result_banner: PanelContainer = null
+var _result_banner_tween: Tween = null
 var _encounter_banner: PanelContainer = null
 var _encounter_banner_label: Label = null
 var _encounter_banner_tween: Tween = null
@@ -294,6 +296,9 @@ func teardown() -> void:
 	if _result_banner != null and is_instance_valid(_result_banner):
 		_result_banner.queue_free()
 	_result_banner = null
+	if _result_banner_tween != null and _result_banner_tween.is_valid():
+		_result_banner_tween.kill()
+	_result_banner_tween = null
 	if _encounter_banner_tween != null and _encounter_banner_tween.is_valid():
 		_encounter_banner_tween.kill()
 	_encounter_banner_tween = null
@@ -2700,20 +2705,30 @@ func _show_result_banner(title: String, detail: String, accent_color: Color, tit
 	var card: PanelContainer = banner.get_node_or_null("Center/BattleResultCard") as PanelContainer
 	var title_label: Label = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/OutcomeLabel") as Label
 	var detail_label: Label = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/DetailLabel") as Label
+	var kicker_label: Label = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/KickerLabel") as Label
+	var emblem: TextureRect = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/OutcomeEmblem") as TextureRect
 	var accent_rule: ColorRect = banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content/AccentRule") as ColorRect
 	if title_label != null:
 		title_label.text = title
 		title_label.add_theme_color_override("font_color", title_color)
 	if detail_label != null:
 		detail_label.text = detail
+	if kicker_label != null:
+		kicker_label.text = "THE LEDGER FAVORS YOU" if title == "VICTORY" else ("THE LEDGER TAKES ITS DUE" if title == "DEFEAT" else "THE LEDGER HOLDS")
+	if emblem != null:
+		emblem.modulate = Color(title_color.r, title_color.g, title_color.b, 0.78)
 	if accent_rule != null:
 		accent_rule.color = Color(accent_color.r, accent_color.g, accent_color.b, 0.86)
 	if card != null:
 		card.add_theme_stylebox_override("panel", _make_result_card_style(accent_color))
 	banner.add_theme_stylebox_override("panel", _make_result_scrim_style())
 	banner.visible = true
+	_play_result_banner_intro(banner, card)
 
 func _hide_result_banner() -> void:
+	if _result_banner_tween != null and _result_banner_tween.is_valid():
+		_result_banner_tween.kill()
+	_result_banner_tween = null
 	if _result_banner != null and is_instance_valid(_result_banner):
 		_result_banner.visible = false
 
@@ -2749,27 +2764,35 @@ func _ensure_result_banner() -> PanelContainer:
 	_result_banner.add_child(center)
 	var card: PanelContainer = PanelContainer.new()
 	card.name = "BattleResultCard"
-	card.custom_minimum_size = Vector2(560.0, 176.0)
+	card.custom_minimum_size = Vector2(620.0, 232.0)
 	card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(card)
 	var margin: MarginContainer = MarginContainer.new()
 	margin.name = "CardMargin"
 	margin.add_theme_constant_override("margin_left", 34)
-	margin.add_theme_constant_override("margin_top", 22)
+	margin.add_theme_constant_override("margin_top", 18)
 	margin.add_theme_constant_override("margin_right", 34)
-	margin.add_theme_constant_override("margin_bottom", 22)
+	margin.add_theme_constant_override("margin_bottom", 20)
 	card.add_child(margin)
 	var content: VBoxContainer = VBoxContainer.new()
 	content.name = "Content"
-	content.add_theme_constant_override("separation", 8)
+	content.add_theme_constant_override("separation", 7)
 	margin.add_child(content)
 	var kicker: Label = Label.new()
 	kicker.name = "KickerLabel"
-	kicker.text = "BATTLE OUTCOME"
+	kicker.text = "THE LEDGER IS SEALED"
 	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	kicker.add_theme_font_size_override("font_size", 13)
 	kicker.add_theme_color_override("font_color", Color(0.72, 0.61, 0.45, 1.0))
 	content.add_child(kicker)
+	var emblem: TextureRect = TextureRect.new()
+	emblem.name = "OutcomeEmblem"
+	emblem.texture = OUTCOME_SIGIL
+	emblem.custom_minimum_size = Vector2(66.0, 48.0)
+	emblem.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	emblem.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	emblem.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(emblem)
 	var title_label: Label = Label.new()
 	title_label.name = "OutcomeLabel"
 	title_label.custom_minimum_size = Vector2(0.0, 46.0)
@@ -2794,6 +2817,20 @@ func _ensure_result_banner() -> PanelContainer:
 	content.add_child(detail_label)
 	parent.add_child(_result_banner)
 	return _result_banner
+
+func _play_result_banner_intro(banner: PanelContainer, card: PanelContainer) -> void:
+	if parent == null or banner == null or card == null:
+		return
+	if _result_banner_tween != null and _result_banner_tween.is_valid():
+		_result_banner_tween.kill()
+	banner.modulate.a = 0.0
+	card.scale = Vector2(0.92, 0.92)
+	card.pivot_offset = card.custom_minimum_size * 0.5
+	_result_banner_tween = parent.create_tween()
+	_result_banner_tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	_result_banner_tween.tween_property(banner, "modulate:a", 1.0, 0.16)
+	_result_banner_tween.parallel().tween_property(card, "scale", Vector2(1.02, 1.02), 0.24)
+	_result_banner_tween.tween_property(card, "scale", Vector2.ONE, 0.14)
 
 func _make_result_scrim_style() -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()

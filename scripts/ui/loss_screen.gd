@@ -5,6 +5,7 @@ const Scoreboard := preload("res://scenes/ui/stats/Scoreboard.tscn")
 const HighScore := preload("res://scripts/util/high_score.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const RunStateStore := preload("res://scripts/game/run/run_state_store.gd")
+const DEFEAT_SIGIL: Texture2D = preload("res://assets/ui/gold icon.png")
 
 const BACKDROP_COLOR: Color = Color(0.006, 0.005, 0.008, 1.0)
 const FRAME_COLOR: Color = Color(0.075, 0.057, 0.061, 1.0)
@@ -29,6 +30,7 @@ var _tracker: StatsTracker = null
 var _ready_done: bool = false
 var _pending_populate: bool = false
 var _new_game_hover_tween: Tween = null
+var _intro_tween: Tween = null
 
 func _ready() -> void:
 	RunStateStore.clear()
@@ -36,12 +38,14 @@ func _ready() -> void:
 	_fit_full_rect()
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_apply_styles()
+	_ensure_defeat_branding()
 	_wire_new_game_hover()
 	if new_game_button and not new_game_button.is_connected("pressed", Callable(self, "_on_new_game")):
 		new_game_button.pressed.connect(_on_new_game)
 	if _pending_populate or _tracker != null:
 		_pending_populate = false
 		_populate()
+	_play_intro()
 
 func _exit_tree() -> void:
 	teardown()
@@ -50,6 +54,9 @@ func teardown() -> void:
 	if _new_game_hover_tween != null and is_instance_valid(_new_game_hover_tween):
 		_new_game_hover_tween.kill()
 	_new_game_hover_tween = null
+	if _intro_tween != null and is_instance_valid(_intro_tween):
+		_intro_tween.kill()
+	_intro_tween = null
 	if new_game_button != null and is_instance_valid(new_game_button):
 		if new_game_button.is_connected("pressed", Callable(self, "_on_new_game")):
 			new_game_button.pressed.disconnect(_on_new_game)
@@ -79,7 +86,7 @@ func configure(tracker: StatsTracker) -> void:
 func _populate() -> void:
 	# Title
 	if title_label:
-		title_label.text = "Defeat"
+		title_label.text = "THE HOUSE COLLECTS"
 	# Total-earned score and supporting run records.
 	var stage_reached: int = 1
 	var chapter_reached: int = 1
@@ -281,6 +288,7 @@ func _apply_styles() -> void:
 	if scoreboard_holder != null:
 		scoreboard_holder.custom_minimum_size = Vector2(720.0, 220.0)
 	if new_game_button != null:
+		new_game_button.text = "BEGIN A NEW RUN"
 		new_game_button.focus_mode = Control.FOCUS_ALL
 		new_game_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		new_game_button.add_theme_color_override("font_color", BONE_COLOR)
@@ -290,6 +298,71 @@ func _apply_styles() -> void:
 		new_game_button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(1.16, 1.06, 0.92, 1.0)), _make_style(Color(0.20, 0.07, 0.055, 1.0), DULL_GOLD, 2, 5)))
 		new_game_button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.primary_button_style(Color(0.84, 0.70, 0.66, 1.0)), _make_style(Color(0.09, 0.035, 0.035, 1.0), BLOOD_COLOR, 2, 5)))
 		new_game_button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, DULL_GOLD))
+	_apply_compact_layout()
+
+func _apply_compact_layout() -> void:
+	var viewport_size: Vector2 = get_viewport_rect().size
+	if viewport_size.y > 800.0:
+		return
+	if frame_panel != null:
+		frame_panel.custom_minimum_size = Vector2(min(900.0, max(720.0, viewport_size.x - 96.0)), 0.0)
+	if content_box != null:
+		content_box.add_theme_constant_override("separation", 8)
+	if title_label != null:
+		title_label.add_theme_font_size_override("font_size", 38)
+	if stage_label != null:
+		stage_label.add_theme_font_size_override("font_size", 20)
+	if high_label != null:
+		high_label.add_theme_font_size_override("font_size", 20)
+	if stats_label != null:
+		stats_label.add_theme_font_size_override("font_size", 16)
+		stats_label.add_theme_constant_override("line_spacing", 2)
+	if scoreboard_holder != null:
+		scoreboard_holder.custom_minimum_size = Vector2(680.0, 158.0)
+	if new_game_button != null:
+		new_game_button.custom_minimum_size = Vector2(300.0, 48.0)
+		new_game_button.add_theme_font_size_override("font_size", 20)
+
+func _ensure_defeat_branding() -> void:
+	var sigil: TextureRect = frame_panel.get_node_or_null("DefeatSigil") as TextureRect
+	if sigil == null:
+		sigil = TextureRect.new()
+		sigil.name = "DefeatSigil"
+		sigil.texture = DEFEAT_SIGIL
+		sigil.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		sigil.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		sigil.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		sigil.anchor_left = 0.22
+		sigil.anchor_top = 0.10
+		sigil.anchor_right = 0.78
+		sigil.anchor_bottom = 0.88
+		sigil.modulate = Color(0.68, 0.16, 0.10, 0.10)
+		frame_panel.add_child(sigil)
+		frame_panel.move_child(sigil, 0)
+	var kicker: Label = content_box.get_node_or_null("DefeatKicker") as Label
+	if kicker == null:
+		kicker = Label.new()
+		kicker.name = "DefeatKicker"
+		content_box.add_child(kicker)
+	content_box.move_child(kicker, 0)
+	kicker.text = "RUN ENDED  •  THE LEDGER CLOSES"
+	kicker.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kicker.add_theme_font_size_override("font_size", 13)
+	kicker.add_theme_color_override("font_color", DULL_GOLD)
+
+func _play_intro() -> void:
+	if frame_panel == null:
+		return
+	if _intro_tween != null and is_instance_valid(_intro_tween):
+		_intro_tween.kill()
+	frame_panel.modulate.a = 0.0
+	frame_panel.scale = Vector2(0.95, 0.95)
+	frame_panel.pivot_offset = frame_panel.custom_minimum_size * 0.5
+	_intro_tween = create_tween()
+	_intro_tween.set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	_intro_tween.tween_property(frame_panel, "modulate:a", 1.0, 0.20)
+	_intro_tween.parallel().tween_property(frame_panel, "scale", Vector2(1.01, 1.01), 0.28)
+	_intro_tween.tween_property(frame_panel, "scale", Vector2.ONE, 0.12)
 
 func _wire_new_game_hover() -> void:
 	if new_game_button == null:
