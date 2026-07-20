@@ -87,7 +87,7 @@ func _ready() -> void:
 	if gs:
 		_on_phase_changed(gs.phase, gs.phase)
 	else:
-		_set_planning_timer_status("Plan --", true)
+		_set_planning_timer_status("PREP --", true)
 
 func _exit_tree() -> void:
 	_teardown()
@@ -287,7 +287,7 @@ func _format_time(seconds_left: float) -> String:
 	var s: int = int(ceil(max(0.0, seconds_left)))
 	var m: int = int(float(s) / 60.0)
 	var ss: int = int(s % 60)
-	return "Plan %d:%02d" % [m, ss]
+	return "PREP %d:%02d" % [m, ss]
 
 func _set_planning_timer_status(text: String, active: bool) -> void:
 	if controller != null and controller.has_method("set_board_timer_text"):
@@ -295,14 +295,14 @@ func _set_planning_timer_status(text: String, active: bool) -> void:
 
 func _phase_status_text(game_state: Variant, phase_value: int) -> String:
 	if game_state == null:
-		return "Plan --"
+		return "PREP --"
 	if int(phase_value) == int(game_state.GamePhase.COMBAT):
 		return "Combat"
 	if int(phase_value) == int(game_state.GamePhase.POST_COMBAT):
 		return "Review"
 	if int(phase_value) == int(game_state.GamePhase.MENU):
 		return "Menu"
-	return "Plan --"
+	return "PREP --"
 
 ## Ally sprite direct drag removed
 
@@ -387,9 +387,9 @@ func _apply_responsive_layout() -> void:
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(150.0 if compact else 296.0, 118.0 if compact else 164.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(150.0 if compact else 296.0, 254.0 if compact else 398.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, 54.0 if compact else 88.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 140.0 if compact else 152.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(900.0 if compact else 1120.0, 128.0 if compact else 152.0))
 	var opening_shop: bool = shop_grid != null and bool(shop_grid.get_meta("opening_fight_empty", false))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, 92.0 if compact else 108.0) if opening_shop else Vector2(900.0 if compact else 1120.0, 88.0 if compact else 108.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, 84.0 if compact else 108.0) if opening_shop else Vector2(900.0 if compact else 1120.0, 80.0 if compact else 108.0))
 	if shop_grid != null:
 		shop_grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if opening_shop else Control.SIZE_EXPAND_FILL
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow", Vector2(900.0 if compact else 1120.0, 42.0 if compact else 56.0))
@@ -441,7 +441,7 @@ func _set_box_separation(path: String, separation: int) -> void:
 		box.add_theme_constant_override("separation", separation)
 
 func _apply_shop_compact_layout(compact: bool) -> void:
-	var card_size: Vector2 = Vector2(120.0, 94.0) if compact else Vector2(144.0, 124.0)
+	var card_size: Vector2 = Vector2(112.0, 84.0) if compact else Vector2(144.0, 124.0)
 	if shop_grid != null:
 		shop_grid.add_theme_constant_override("h_separation", 10 if compact else 16)
 		shop_grid.add_theme_constant_override("v_separation", 6 if compact else 10)
@@ -449,7 +449,7 @@ func _apply_shop_compact_layout(compact: bool) -> void:
 			var control: Control = child as Control
 			if control != null:
 				if bool(control.get_meta("opening_fight_placeholder", false)):
-					control.custom_minimum_size = Vector2(560.0, 88.0 if compact else 104.0)
+					control.custom_minimum_size = Vector2(560.0, 80.0 if compact else 104.0)
 					control.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				else:
 					control.custom_minimum_size = card_size
@@ -469,16 +469,16 @@ func _apply_action_bar_layout(action_bar: HBoxContainer, compact: bool) -> void:
 	if action_bar == null:
 		return
 	action_bar.custom_minimum_size = Vector2(900.0 if compact else 1120.0, 40.0 if compact else 54.0)
-	action_bar.add_theme_constant_override("separation", 8 if compact else 16)
+	action_bar.add_theme_constant_override("separation", 7 if compact else 16)
 	for child: Node in action_bar.get_children():
 		var button: Button = child as Button
 		if button != null:
 			if button.name == "ContinueButton":
-				button.custom_minimum_size = Vector2(142.0 if compact else 224.0, 34.0 if compact else 48.0)
-				button.add_theme_font_size_override("font_size", 15 if compact else 20)
+				button.custom_minimum_size = Vector2(176.0 if compact else 224.0, 38.0 if compact else 48.0)
+				button.add_theme_font_size_override("font_size", 17 if compact else 20)
 			else:
-				button.custom_minimum_size = Vector2(78.0 if compact else 96.0, 34.0 if compact else 40.0)
-				button.add_theme_font_size_override("font_size", 13 if compact else 15)
+				button.custom_minimum_size = Vector2(72.0 if compact else 96.0, 32.0 if compact else 40.0)
+				button.add_theme_font_size_override("font_size", 12 if compact else 15)
 			continue
 		var label: Label = child as Label
 		if label != null:

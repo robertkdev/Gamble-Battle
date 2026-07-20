@@ -112,3 +112,61 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle Sprint 1 readability"
+  - id: sprint2-hierarchy
+    title: Sprint 2 planning hierarchy, shop, portraits, and tooltips
+    adapter: godot
+    objective: Verify the 1280x720 player-facing planning screen prioritizes the battlefield and Start Battle action, keeps the shop fully readable and in bounds, uses progressively quieter supporting surfaces, normalizes portrait crops, and presents shop, item, and trait tooltip content in concise grouped sections without concealing the battlefield.
+    required_groups: [overview, tooltip]
+    runtime_provenance:
+      entrypoint: "Godot editor game framebuffer"
+      scene: "res://tests/visual/Sprint2VisualCapture.tscn"
+      build: "codex/019f7d5d-592-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [planning, shop_tooltip, item_tooltip, trait_tooltip]
+      required_viewports: [compact-1280x720]
+      required_events: [planning_ready, tooltip_open]
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 600
+    captures:
+      - path: "outputs/visual_iter/sprint2/01_planning_shop_1280x720.png"
+        label: "Planning hierarchy and shop at 1280x720"
+        group: overview
+        role: actual
+        state: planning
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: planning_ready
+      - path: "outputs/visual_iter/sprint2/02_shop_tooltip_1280x720.png"
+        label: "Grouped shop unit tooltip"
+        group: tooltip
+        role: actual
+        state: shop_tooltip
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: tooltip_open
+      - path: "outputs/visual_iter/sprint2/03_item_tooltip_1280x720.png"
+        label: "Grouped item tooltip"
+        group: tooltip
+        role: actual
+        state: item_tooltip
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: tooltip_open
+      - path: "outputs/visual_iter/sprint2/04_trait_tooltip_1280x720.png"
+        label: "Grouped trait tooltip"
+        group: tooltip
+        role: actual
+        state: trait_tooltip
+        viewport: compact-1280x720
+        camera: player
+        layer: final
+        event: tooltip_open
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Sprint 2 visual hierarchy"

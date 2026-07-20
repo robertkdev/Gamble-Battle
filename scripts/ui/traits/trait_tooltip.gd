@@ -73,17 +73,31 @@ func _apply_style() -> void:
 	if _state_label != null:
 		_state_label.add_theme_font_size_override("font_size", 12)
 		_state_label.add_theme_color_override("font_color", COLOR_GREEN if is_active else COLOR_MUTED)
+		_state_label.add_theme_stylebox_override("normal", _make_section_style(COLOR_BORDER_ACTIVE if is_active else COLOR_BORDER))
 	if _threshold_label != null:
 		_threshold_label.visible = false
 		_threshold_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _description_label != null:
-		_description_label.add_theme_font_size_override("font_size", 15)
+		_description_label.add_theme_font_size_override("font_size", 14)
 		_description_label.add_theme_color_override("font_color", COLOR_TEXT)
 		_description_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_description_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.52, 0.33, 0.20, 0.74)))
 	if _footer_label != null:
-		_footer_label.add_theme_font_size_override("font_size", 14)
-		_footer_label.add_theme_color_override("font_color", COLOR_MUTED)
+		_footer_label.add_theme_font_size_override("font_size", 13)
+		_footer_label.add_theme_color_override("font_color", Color(0.78, 0.68, 0.54, 1.0) if is_active else COLOR_MUTED)
 		_footer_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_footer_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.34, 0.29, 0.25, 0.66)))
+
+func _make_section_style(accent: Color) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.052, 0.042, 0.057, 0.72)
+	style.border_color = accent
+	style.border_width_left = 2
+	style.content_margin_left = 8.0
+	style.content_margin_right = 6.0
+	style.content_margin_top = 5.0
+	style.content_margin_bottom = 5.0
+	return style
 
 func set_trait(id: String) -> void:
 	trait_id = String(id)
@@ -148,11 +162,12 @@ func _update_labels() -> void:
 	if def != null and def.description != null:
 		description = String(def.description)
 	if _description_label:
-		_description_label.text = description
+		_description_label.text = "EFFECT\n%s" % description
 		_description_label.visible = description.strip_edges() != ""
 	if _footer_label:
-		_footer_label.text = _format_footer(def)
-		_footer_label.visible = _footer_label.text.strip_edges() != ""
+		var footer_text: String = _format_footer(def)
+		_footer_label.text = ("ACTIVE BONUS\n%s" if is_active else "NEXT STEP\n%s") % footer_text
+		_footer_label.visible = footer_text.strip_edges() != ""
 	_sync_size()
 	queue_redraw()
 

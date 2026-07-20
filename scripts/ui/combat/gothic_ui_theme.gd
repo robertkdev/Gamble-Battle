@@ -125,15 +125,15 @@ static func _apply_named_nodes(root: Control) -> void:
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicEnemyPlate", _style(Color(0.050, 0.024, 0.024, 0.070), Color(0.42, 0.22, 0.16, 0.26), 1, 4), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlayerPlate", _style(Color(0.026, 0.038, 0.036, 0.070), Color(0.34, 0.31, 0.22, 0.26), 1, 4), -5)
 	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", "GothicStatsAreaPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(Color(0.86, 0.80, 0.76, 0.94)), _style(Color(0.034, 0.029, 0.038, 0.94), Color(0.34, 0.27, 0.27, 0.90), 1, 6)), 0, 8.0)
-	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", "GothicItemsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.item_storage_panel_style(Color(0.94, 0.86, 0.78, 0.94)), _style(Color(0.030, 0.026, 0.034, 0.88), Color(0.20, 0.18, 0.20, 0.84), 1, 6)), 0, 8.0)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", "GothicTraitsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.traits_panel_style(Color(0.90, 0.82, 0.76, 0.94)), _style(Color(0.026, 0.023, 0.031, 0.94), Color(0.38, 0.28, 0.26, 0.86), 1, 6)), -2)
+	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", "GothicItemsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.item_storage_panel_style(Color(0.68, 0.62, 0.60, 0.78)), _style(Color(0.024, 0.022, 0.029, 0.80), Color(0.18, 0.16, 0.18, 0.62), 1, 6)), 0, 6.0)
+	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", "GothicTraitsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.traits_panel_style(Color(0.66, 0.60, 0.58, 0.80)), _style(Color(0.022, 0.020, 0.027, 0.84), Color(0.27, 0.22, 0.22, 0.66), 1, 6)), -2)
 	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BenchArea/BenchGrid", "GothicBenchPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.status_strip_style(Color(0.72, 0.68, 0.58, 0.72)), _style(Color(0.026, 0.023, 0.030, 0.78), Color(0.34, 0.27, 0.18, 0.58), 1, 5)), 0, 8.0)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", "GothicGoldPlate", _style(Color(0.085, 0.061, 0.033, 0.74), Color(0.78, 0.48, 0.20, 0.72), 1, 4), -5)
 	_ensure_backplate_by_name(root, "GoldLabel", "GothicGoldPlate", _style(Color(0.085, 0.061, 0.033, 0.76), Color(0.78, 0.48, 0.20, 0.76), 1, 4), -5)
 	if opening_shop:
 		_hide_named_control(root, "GothicShopPlate")
 	else:
-		_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BottomStorageArea", "GothicShopPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _style(Color(0.026, 0.022, 0.030, 0.96), Color(0.39, 0.29, 0.25, 0.90), 1, 6)), 0, 10.0)
+		_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BottomStorageArea", "GothicShopPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(Color(0.82, 0.76, 0.72, 0.88)), _style(Color(0.024, 0.021, 0.029, 0.90), Color(0.32, 0.25, 0.23, 0.76), 1, 6)), 0, 8.0)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaVignette", GothicUIAssets.style_or_fallback(GothicUIAssets.arena_frame_style(Color(0.82, 0.76, 0.68, 0.70)), _style(Color(0.0, 0.0, 0.0, 0.040), Color(0.56, 0.34, 0.18, 0.30), 1, 4)), -5)
 	_remove_named_child(root, "GothicTimerPlate")
 
@@ -569,6 +569,7 @@ static func _ensure_backplate_on_control(control: Control, plate_name: String, s
 		existing.offset_right = 0.0
 		existing.offset_bottom = 0.0
 	existing.add_theme_stylebox_override("panel", style)
+	existing.set_meta("surface_tier", _surface_tier_for_plate(plate_name))
 
 static func _ensure_external_backplate(root: Control, path: String, plate_name: String, style: StyleBox, z_value: int, pad: float) -> void:
 	var control: Control = root.get_node_or_null(path) as Control
@@ -594,12 +595,20 @@ static func _ensure_external_backplate_on_control(root: Control, control: Contro
 	existing.set_meta("target_path", root.get_path_to(control))
 	existing.set_meta("pad", pad)
 	existing.add_theme_stylebox_override("panel", style)
+	existing.set_meta("surface_tier", _surface_tier_for_plate(plate_name))
 	var resize_callback: Callable = Callable(GothicUITheme, "_position_external_backplate").bind(root, existing)
 	if not control.is_connected("resized", resize_callback):
 		control.resized.connect(resize_callback)
 	if not root.is_connected("resized", resize_callback):
 		root.resized.connect(resize_callback)
 	_position_external_backplate(root, existing)
+
+static func _surface_tier_for_plate(plate_name: String) -> int:
+	if plate_name in ["GothicBattlePlate", "GothicEnemyPlate", "GothicPlayerPlate", "GothicArenaVignette"]:
+		return 1
+	if plate_name in ["GothicShopPlate", "GothicBenchPlate", "GothicGoldPlate"]:
+		return 2
+	return 3
 
 static func _position_external_backplate(root: Control, plate: Panel) -> void:
 	if root == null or plate == null or not is_instance_valid(root) or not is_instance_valid(plate):

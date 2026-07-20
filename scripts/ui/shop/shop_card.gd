@@ -242,32 +242,54 @@ func _set_approach_tags(approaches: Array) -> void:
 func _build_tooltip_lines(display_role: String, display_goal: String, approaches: Array, alt_goals: Array, traits: Array) -> Array[String]:
 	var lines: Array[String] = []
 	var trait_text: String = _format_list(traits, 4)
+	if trait_text != "" or display_role != "" or display_goal != "":
+		lines.append("TEAM FIT")
 	if trait_text != "":
-		lines.append("Traits: %s" % trait_text)
+		lines.append("Traits  %s" % trait_text)
 	if display_role != "":
-		lines.append("Role: %s" % display_role)
+		lines.append("Role  %s" % display_role)
 	if display_goal != "":
-		lines.append("Goal: %s" % display_goal)
+		lines.append("Best use  %s" % display_goal)
 	var approach_text: String = _format_list(approaches, 4)
 	if approach_text != "":
-		lines.append("Approaches: %s" % approach_text)
+		lines.append("Approaches  %s" % approach_text)
 	var alt_text: String = _format_list(alt_goals, 3)
 	if alt_text != "":
-		lines.append("Alt Goals: %s" % alt_text)
+		lines.append("Also fits  %s" % alt_text)
 	var preview_unit: Unit = UnitFactory.spawn_at_level(offer_id, _package_level) if offer_id.strip_edges() != "" else null
 	var attack_text: String = _format_attack_info(preview_unit)
+	var attack_targeting_text: String = UnitTargetingText.attack_targeting_line(preview_unit)
+	if attack_text != "" or attack_targeting_text != "":
+		lines.append("COMBAT PROFILE")
 	if attack_text != "":
 		lines.append(attack_text)
-	var attack_targeting_text: String = UnitTargetingText.attack_targeting_line(preview_unit)
 	if attack_targeting_text != "":
-		lines.append(attack_targeting_text)
+		lines.append(_compact_targeting_line(attack_targeting_text))
 	var ability_text: String = _format_ability_info(preview_unit)
+	var ability_targeting_text: String = UnitTargetingText.ability_targeting_line(preview_unit)
+	if ability_text != "" or ability_targeting_text != "":
+		lines.append("ABILITY")
 	if ability_text != "":
 		lines.append(ability_text)
-	var ability_targeting_text: String = UnitTargetingText.ability_targeting_line(preview_unit)
 	if ability_targeting_text != "":
-		lines.append(ability_targeting_text)
+		lines.append(_compact_targeting_line(ability_targeting_text))
 	return lines
+
+func _compact_targeting_line(value: String) -> String:
+	var clean: String = value.strip_edges()
+	var colon_index: int = clean.find(":")
+	if colon_index >= 0:
+		clean = clean.substr(colon_index + 1).strip_edges()
+	var detail_index: int = clean.find(";")
+	if detail_index >= 0:
+		clean = clean.substr(0, detail_index).strip_edges()
+	return "Targeting  %s" % clean
+
+func _truncate_tooltip_text(value: String, max_length: int) -> String:
+	var clean: String = value.strip_edges()
+	if clean.length() <= max_length:
+		return clean
+	return "%s…" % clean.substr(0, max_length - 1).strip_edges()
 
 func _format_attack_info(unit: Unit) -> String:
 	if unit == null:
@@ -300,7 +322,7 @@ func _format_ability_info(unit: Unit) -> String:
 		prefix += " (%d mana)" % int(ability_def.base_cost)
 	var description: String = String(ability_def.description).strip_edges()
 	if description != "":
-		return "%s - %s" % [prefix, description]
+		return "%s - %s" % [prefix, _truncate_tooltip_text(description, 112)]
 	return prefix
 
 func _make_tag_style() -> StyleBoxFlat:
@@ -326,7 +348,7 @@ func _apply_static_style() -> void:
 	tooltip_text = ""
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var compact: bool = viewport_size.y <= 760.0 or viewport_size.x <= 1400.0
-	custom_minimum_size = Vector2(120.0, 94.0) if compact else Vector2(150.0, 138.0)
+	custom_minimum_size = Vector2(112.0, 84.0) if compact else Vector2(150.0, 138.0)
 	add_theme_stylebox_override("normal", _make_card_style(false, false))
 	add_theme_stylebox_override("hover", _make_card_style(false, true))
 	add_theme_stylebox_override("pressed", _make_card_style(true, true))
@@ -340,10 +362,11 @@ func _apply_static_style() -> void:
 	if _icon:
 		_icon.z_index = 2
 		_icon.modulate = Color(1.0, 0.93, 0.82, 1.0)
-		_icon.anchor_left = 0.12
-		_icon.anchor_top = 0.21
-		_icon.anchor_right = 0.88
-		_icon.anchor_bottom = 0.78
+		_icon.clip_contents = true
+		_icon.anchor_left = 0.16
+		_icon.anchor_top = 0.18
+		_icon.anchor_right = 0.84
+		_icon.anchor_bottom = 0.69
 		_icon.offset_left = 0.0
 		_icon.offset_top = 0.0
 		_icon.offset_right = 0.0
@@ -372,13 +395,19 @@ func _apply_static_style() -> void:
 		_goal_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _name_label:
 		_name_label.z_index = 6
-		_name_label.add_theme_font_size_override("font_size", 13)
+		_name_label.anchor_right = 0.68
+		_name_label.custom_minimum_size.x = 0.0
+		_name_label.clip_text = true
+		_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		_name_label.add_theme_font_size_override("font_size", 14)
 		_name_label.add_theme_color_override("font_color", COLOR_TEXT)
 		_name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_name_label.add_theme_constant_override("outline_size", 1)
 	if _price_label:
 		_price_label.z_index = 6
-		_price_label.add_theme_font_size_override("font_size", 13)
+		_price_label.anchor_left = 0.68
+		_price_label.custom_minimum_size.x = 0.0
+		_price_label.add_theme_font_size_override("font_size", 14)
 		_price_label.add_theme_color_override("font_color", COLOR_GOLD)
 		_price_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		_price_label.add_theme_constant_override("outline_size", 1)
@@ -455,9 +484,12 @@ func _apply_hover_motion(active: bool) -> void:
 	if highlight:
 		if _icon != null:
 			_icon.modulate = Color(1.0, 0.93, 0.78, 1.0)
+			_icon.pivot_offset = _icon.size * 0.5
+			_icon.scale = Vector2(1.10, 1.10)
 	else:
 		if _icon != null:
 			_icon.modulate = Color(0.96, 0.91, 0.84, 1.0)
+			_icon.scale = Vector2.ONE
 
 func _show_tooltip() -> void:
 	_clear_tooltip()
@@ -486,8 +518,9 @@ func _show_tooltip() -> void:
 	if _tooltip_subtitle.strip_edges() != "":
 		_add_tooltip_label(box, _tooltip_subtitle, 12, COLOR_MUTED)
 	for line: String in lines:
-		var color: Color = Color(0.92, 0.76, 0.58, 1.0) if line == _status_tip and _status_tip != "" else COLOR_TEXT
-		_add_tooltip_label(box, line, 13, color)
+		var is_heading: bool = line in ["TEAM FIT", "COMBAT PROFILE", "ABILITY"]
+		var color: Color = COLOR_GOLD if is_heading else (Color(0.92, 0.76, 0.58, 1.0) if line == _status_tip and _status_tip != "" else COLOR_TEXT)
+		_add_tooltip_label(box, line, 11 if is_heading else 13, color, is_heading)
 	tree.root.add_child(tooltip)
 	_tooltip = tooltip
 	_sync_tooltip_size()
@@ -504,7 +537,7 @@ func _current_tooltip_lines() -> Array[String]:
 			lines.append(line)
 	return lines
 
-func _add_tooltip_label(parent: VBoxContainer, text: String, font_size: int, color: Color) -> void:
+func _add_tooltip_label(parent: VBoxContainer, text: String, font_size: int, color: Color, section_heading: bool = false) -> void:
 	var label: Label = Label.new()
 	label.text = String(text)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -513,8 +546,21 @@ func _add_tooltip_label(parent: VBoxContainer, text: String, font_size: int, col
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.75))
 	label.add_theme_constant_override("outline_size", 1)
+	if section_heading:
+		label.add_theme_stylebox_override("normal", _make_tooltip_section_style())
+		label.add_theme_constant_override("line_spacing", 2)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(label)
+
+func _make_tooltip_section_style() -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.16, 0.09, 0.055, 0.56)
+	style.border_color = Color(0.68, 0.40, 0.18, 0.72)
+	style.border_width_left = 2
+	style.content_margin_left = 7.0
+	style.content_margin_top = 3.0
+	style.content_margin_bottom = 3.0
+	return style
 
 func _move_tooltip(viewport_pos: Vector2) -> void:
 	if _tooltip == null or not is_instance_valid(_tooltip):
@@ -536,6 +582,8 @@ func _clamped_tooltip_position(raw_position: Vector2) -> Vector2:
 		return raw_position
 	var viewport_size: Vector2 = viewport.get_visible_rect().size
 	var next_position: Vector2 = raw_position
+	if raw_position.y > viewport_size.y * 0.72:
+		next_position.x = TOOLTIP_EDGE_PADDING
 	if next_position.x + _tooltip.size.x + TOOLTIP_EDGE_PADDING > viewport_size.x:
 		next_position.x = raw_position.x - _tooltip.size.x - TOOLTIP_CURSOR_OFFSET.x * 1.5
 	if next_position.y + _tooltip.size.y + TOOLTIP_EDGE_PADDING > viewport_size.y:

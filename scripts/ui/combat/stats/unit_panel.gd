@@ -259,6 +259,9 @@ func _apply_static_styles() -> void:
         header.custom_minimum_size = Vector2(0.0, 78.0)
     if portrait != null:
         portrait.custom_minimum_size = Vector2(72.0, 72.0)
+        portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+        portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+        portrait.clip_contents = true
         portrait.modulate = Color(0.96, 0.91, 0.84, 1.0)
     if name_label != null:
         name_label.add_theme_font_size_override("font_size", 18)

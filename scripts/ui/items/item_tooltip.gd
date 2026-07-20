@@ -102,14 +102,30 @@ func _apply_style() -> void:
 		_type_label.add_theme_color_override("font_color", COLOR_MUTED)
 	if _stats_label != null:
 		_stats_label.add_theme_color_override("font_color", COLOR_TEXT)
+		_stats_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.50, 0.34, 0.20, 0.72)))
 	if _effects_label != null:
 		_effects_label.add_theme_color_override("font_color", Color(0.88, 0.78, 0.65, 1.0))
+		_effects_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.58, 0.26, 0.18, 0.72)))
 	if _components_label != null:
 		_components_label.add_theme_color_override("font_color", COLOR_STEEL)
+		_components_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.32, 0.38, 0.44, 0.68)))
 	if _tags_label != null:
 		_tags_label.add_theme_color_override("font_color", COLOR_MUTED)
+		_tags_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.34, 0.28, 0.22, 0.62)))
 	if _footer_label != null:
 		_footer_label.add_theme_color_override("font_color", COLOR_BLOOD)
+		_footer_label.add_theme_stylebox_override("normal", _make_section_style(Color(0.46, 0.18, 0.18, 0.66)))
+
+func _make_section_style(accent: Color) -> StyleBoxFlat:
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.055, 0.045, 0.060, 0.72)
+	style.border_color = accent
+	style.border_width_left = 2
+	style.content_margin_left = 8.0
+	style.content_margin_right = 6.0
+	style.content_margin_top = 5.0
+	style.content_margin_bottom = 5.0
+	return style
 
 func _update_labels() -> void:
 	var def: ItemDef = ItemCatalog.get_def(item_id)
@@ -130,7 +146,7 @@ func _update_labels() -> void:
 	_set_label(_effects_label, effects_text, not effects_text.is_empty())
 	_set_label(_components_label, components_text, not components_text.is_empty())
 	_set_label(_tags_label, tags_text, not tags_text.is_empty())
-	_set_label(_footer_label, _footer_text(def), true)
+	_set_label(_footer_label, "HOW TO USE\n%s" % _footer_text(def), true)
 	_sync_size()
 
 func _set_empty_slot() -> void:
@@ -182,7 +198,7 @@ func _format_stats(def: ItemDef) -> String:
 		keys.append(String(key_variant))
 	keys.sort()
 	var lines: PackedStringArray = PackedStringArray()
-	lines.append("Stats")
+	lines.append("STAT CHANGES")
 	for key: String in keys:
 		lines.append("%s %s" % [_format_stat_value(key, mods[key]), _stat_name(key)])
 	return "\n".join(lines)
@@ -216,7 +232,7 @@ func _format_effects(def: ItemDef) -> String:
 	var effects: PackedStringArray = PackedStringArray()
 	for effect_id: String in def.effects:
 		effects.append(_humanize_id(effect_id))
-	return "Effect: %s" % ", ".join(effects)
+	return "EFFECT\n%s" % ", ".join(effects)
 
 func _format_components(def: ItemDef) -> String:
 	if def.components.is_empty():
@@ -228,7 +244,7 @@ func _format_components(def: ItemDef) -> String:
 			names.append(_display_name(component_def))
 		else:
 			names.append(_humanize_id(component_id))
-	return "Recipe: %s" % " + ".join(names)
+	return "COMBINATION PATH\n%s" % " + ".join(names)
 
 func _format_tags(def: ItemDef) -> String:
 	if def.tags.is_empty():
@@ -236,7 +252,7 @@ func _format_tags(def: ItemDef) -> String:
 	var tags: PackedStringArray = PackedStringArray()
 	for tag: String in def.tags:
 		tags.append(_humanize_id(tag))
-	return "Best for: %s" % ", ".join(tags)
+	return "BEST USE\n%s" % ", ".join(tags)
 
 func _footer_text(def: ItemDef) -> String:
 	if String(def.id) == "remover" and not PhaseRules.can_remove():
