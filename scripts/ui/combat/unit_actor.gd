@@ -52,10 +52,15 @@ var _presentation_alpha: float = 1.0
 var _shadow_action_scale: Vector2 = Vector2.ONE
 var _shadow_alpha: float = 1.0
 var _applied_interface_alpha: float = -1.0
+var _bar_layout_offset: Vector2 = Vector2.ZERO
 
 const IDLE_AMPLITUDE_PX: float = 1.35
 const IDLE_PERIOD_S: float = 2.8
 const MAX_PRESENTATION_OFFSET_PX: float = 22.0
+const BAR_PLATE_LEFT: float = 2.0
+const BAR_PLATE_TOP: float = -30.0
+const BAR_PLATE_RIGHT: float = -2.0
+const BAR_PLATE_BOTTOM: float = -4.0
 
 static var diagnostics_enabled: bool = false
 static var diagnostic_update_bars_calls: int = 0
@@ -112,6 +117,18 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_idle_clock += maxf(0.0, delta)
 	_apply_presentation_transform()
+
+func _draw() -> void:
+	if _bar_layout_offset.is_zero_approx():
+		return
+	var actor_anchor: Vector2 = Vector2(size_px.x * 0.5, 2.0)
+	var bar_anchor: Vector2 = Vector2(
+		size_px.x * 0.5 + _bar_layout_offset.x,
+		BAR_PLATE_BOTTOM + _bar_layout_offset.y
+	)
+	var leader_color: Color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.74)
+	draw_line(actor_anchor, bar_anchor, Color(0.0, 0.0, 0.0, 0.72), 3.0, true)
+	draw_line(actor_anchor, bar_anchor, leader_color, 1.15, true)
 
 func _exit_tree() -> void:
 	if _knockup_tween != null and is_instance_valid(_knockup_tween):
@@ -285,20 +302,17 @@ func _ensure_bar_plate() -> void:
 	bar_plate.anchor_top = 0.0
 	bar_plate.anchor_right = 1.0
 	bar_plate.anchor_bottom = 0.0
-	bar_plate.offset_left = -6.0
-	bar_plate.offset_top = -32.0
-	bar_plate.offset_right = 6.0
-	bar_plate.offset_bottom = -5.0
 	bar_plate.z_index = 7
 	add_child(bar_plate)
 	_apply_bar_plate_style()
+	_apply_bar_layout()
 
 func _apply_bar_plate_style() -> void:
 	if bar_plate == null:
 		return
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.018, 0.015, 0.021, 0.82)
-	style.border_color = Color(0.44, 0.32, 0.20, 0.72)
+	style.border_color = Color(_team_tint.r, _team_tint.g, _team_tint.b, 0.88)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -443,6 +457,67 @@ func _ensure_bars() -> void:
 			shield_ticks.minor_color = Color(0.85, 0.95, 1.0, 0.55)
 			shield_ticks.major_color = Color(1.0, 1.0, 1.0, 0.75)
 			shield_ticks.rtl = true
+	_apply_bar_layout()
+
+func _apply_bar_layout() -> void:
+	var offset: Vector2 = _bar_layout_offset
+	if bar_plate != null and is_instance_valid(bar_plate):
+		bar_plate.offset_left = BAR_PLATE_LEFT + offset.x
+		bar_plate.offset_top = BAR_PLATE_TOP + offset.y
+		bar_plate.offset_right = BAR_PLATE_RIGHT + offset.x
+		bar_plate.offset_bottom = BAR_PLATE_BOTTOM + offset.y
+	if hp_bar != null and is_instance_valid(hp_bar):
+		hp_bar.offset_left = 6.0 + offset.x
+		hp_bar.offset_top = -25.0 + offset.y
+		hp_bar.offset_right = -6.0 + offset.x
+		hp_bar.offset_bottom = -17.0 + offset.y
+	if hp_ticks != null and is_instance_valid(hp_ticks):
+		hp_ticks.offset_left = 6.0 + offset.x
+		hp_ticks.offset_top = -25.0 + offset.y
+		hp_ticks.offset_right = -6.0 + offset.x
+		hp_ticks.offset_bottom = -17.0 + offset.y
+	if mana_bar != null and is_instance_valid(mana_bar):
+		mana_bar.offset_left = 6.0 + offset.x
+		mana_bar.offset_top = -15.0 + offset.y
+		mana_bar.offset_right = -6.0 + offset.x
+		mana_bar.offset_bottom = -10.0 + offset.y
+	if mana_ticks != null and is_instance_valid(mana_ticks):
+		mana_ticks.offset_left = 6.0 + offset.x
+		mana_ticks.offset_top = -15.0 + offset.y
+		mana_ticks.offset_right = -6.0 + offset.x
+		mana_ticks.offset_bottom = -10.0 + offset.y
+	if shield_bar != null and is_instance_valid(shield_bar):
+		shield_bar.offset_left = 6.0 + offset.x
+		shield_bar.offset_top = -29.0 + offset.y
+		shield_bar.offset_right = -6.0 + offset.x
+		shield_bar.offset_bottom = -24.0 + offset.y
+	if shield_ticks != null and is_instance_valid(shield_ticks):
+		shield_ticks.offset_left = 6.0 + offset.x
+		shield_ticks.offset_top = -29.0 + offset.y
+		shield_ticks.offset_right = -6.0 + offset.x
+		shield_ticks.offset_bottom = -24.0 + offset.y
+	queue_redraw()
+
+func set_bar_layout_offset(offset: Vector2) -> void:
+	if _bar_layout_offset.is_equal_approx(offset):
+		return
+	_bar_layout_offset = offset
+	_apply_bar_layout()
+
+func get_bar_layout_offset() -> Vector2:
+	return _bar_layout_offset
+
+func bar_global_rect_for_offset(offset: Vector2) -> Rect2:
+	return Rect2(
+		global_position + Vector2(BAR_PLATE_LEFT, BAR_PLATE_TOP) + offset,
+		Vector2(maxf(1.0, size_px.x + BAR_PLATE_RIGHT - BAR_PLATE_LEFT), BAR_PLATE_BOTTOM - BAR_PLATE_TOP)
+	)
+
+func bar_layout_snapshot() -> Dictionary[String, Variant]:
+	return {
+		"offset": _bar_layout_offset,
+		"rect": bar_global_rect_for_offset(_bar_layout_offset),
+	}
 
 func set_unit(u: Unit) -> void:
 	unit = u
@@ -611,6 +686,8 @@ func set_team_tint(color: Color) -> void:
 	_team_tint = color
 	_ensure_focus_plate()
 	_ensure_team_rim()
+	_apply_bar_plate_style()
+	queue_redraw()
 
 func play_attack_motion(target_global: Vector2, style: Dictionary = {}) -> void:
 	if _presentation_death_in_progress:

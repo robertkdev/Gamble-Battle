@@ -74,7 +74,8 @@ func _update_identity() -> void:
 	name_label.text = unit_name
 
 func _apply_visual_style() -> void:
-	custom_minimum_size.y = max(custom_minimum_size.y, 54.0)
+	var compact: bool = _is_compact_row()
+	custom_minimum_size.y = 44.0 if compact else 50.0
 	var player_side: bool = team != "enemy"
 	var fill_color: Color = Color(0.20, 0.38, 0.40, 0.96) if player_side else Color(0.62, 0.07, 0.10, 0.96)
 	var bg_color: Color = Color(0.020, 0.018, 0.024, 0.96)
@@ -85,19 +86,19 @@ func _apply_visual_style() -> void:
 	if bar_fill != null:
 		bar_fill.color = Color(fill_color.r + 0.06, fill_color.g + 0.05, fill_color.b + 0.04, 1.0) if _hovered else fill_color
 	if name_label != null:
-		name_label.add_theme_font_size_override("font_size", 14)
+		name_label.add_theme_font_size_override("font_size", 11 if compact else 12)
 		name_label.add_theme_color_override("font_color", Color(0.96, 0.90, 0.78, 1.0) if _hovered else Color(0.88, 0.84, 0.76, 1.0))
 		name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
 		name_label.add_theme_constant_override("outline_size", 1)
 	if value_label != null:
-		value_label.add_theme_font_size_override("font_size", 15)
+		value_label.add_theme_font_size_override("font_size", 12 if compact else 13)
 		value_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.50, 1.0) if _hovered else Color(0.95, 0.75, 0.42, 1.0))
 		value_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
 		value_label.add_theme_constant_override("outline_size", 1)
 		value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		value_label.clip_text = true
 	if portrait != null:
-		portrait.custom_minimum_size = Vector2(42.0, 42.0)
+		portrait.custom_minimum_size = Vector2(30.0, 30.0) if compact else Vector2(34.0, 34.0)
 		portrait.modulate = Color.WHITE
 
 func _ensure_layout() -> void:
@@ -113,31 +114,36 @@ func _ensure_layout() -> void:
 		_frame.offset_top = 0.0
 		_frame.offset_right = 0.0
 		_frame.offset_bottom = 0.0
+	var compact: bool = _is_compact_row()
 	if hbox != null:
 		hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-		hbox.offset_left = 8.0
-		hbox.offset_top = 6.0
-		hbox.offset_right = -8.0
-		hbox.offset_bottom = -6.0
-		hbox.add_theme_constant_override("separation", 8)
+		hbox.offset_left = 4.0 if compact else 5.0
+		hbox.offset_top = 5.0 if compact else 6.0
+		hbox.offset_right = -4.0 if compact else -5.0
+		hbox.offset_bottom = -5.0 if compact else -6.0
+		hbox.add_theme_constant_override("separation", 4 if compact else 5)
 	if content_box != null:
-		content_box.custom_minimum_size = Vector2(0.0, 42.0)
+		content_box.custom_minimum_size = Vector2(0.0, 34.0 if compact else 38.0)
 		_ensure_value_well()
 	if name_label != null:
 		name_label.anchor_left = 0.0
 		name_label.anchor_right = 1.0
 		name_label.anchor_top = 0.0
 		name_label.anchor_bottom = 1.0
-		name_label.offset_left = 10.0
-		name_label.offset_right = -84.0
+		name_label.offset_left = 4.0 if compact else 6.0
+		name_label.offset_right = -42.0 if compact else -54.0
 		name_label.clip_text = true
 	if value_label != null:
 		value_label.anchor_left = 1.0
 		value_label.anchor_right = 1.0
 		value_label.anchor_top = 0.0
 		value_label.anchor_bottom = 1.0
-		value_label.offset_left = -76.0
-		value_label.offset_right = -10.0
+		value_label.offset_left = -38.0 if compact else -48.0
+		value_label.offset_right = -4.0 if compact else -5.0
+
+func _is_compact_row() -> bool:
+	var viewport_width: float = get_viewport_rect().size.x
+	return viewport_width > 0.0 and viewport_width <= 1366.0
 
 func _make_row_style(player_side: bool, hovered: bool = false) -> StyleBox:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -168,7 +174,8 @@ func _ensure_value_well() -> void:
 	_value_well.anchor_right = 1.0
 	_value_well.anchor_top = 0.0
 	_value_well.anchor_bottom = 1.0
-	_value_well.offset_left = -82.0
+	var compact: bool = _is_compact_row()
+	_value_well.offset_left = -42.0 if compact else -54.0
 	_value_well.offset_right = 0.0
 	_value_well.offset_top = 3.0
 	_value_well.offset_bottom = -3.0

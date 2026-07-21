@@ -212,7 +212,16 @@ func _draw_tie_signature(center: Vector2, ring_radius: float, color: Color) -> v
 
 func _draw_boss_signature(center: Vector2, ring_radius: float, color: Color) -> void:
 	var outer_radius: float = ring_radius + 34.0 + 12.0 * _pulse
+	var aura_color: Color = Color(color.r, color.g, color.b, color.a * 0.16)
+	draw_circle(center, outer_radius * 1.32, aura_color)
 	draw_arc(center, outer_radius, 0.0, TAU, 112, Color(color.r, color.g, color.b, color.a * 0.68), 2.2, true)
+	draw_arc(center, outer_radius + 16.0, -PI * 0.82, -PI * 0.18, 48, Color(color.r, color.g, color.b, color.a * 0.82), 2.0, true)
+	for ray_index: int in range(12):
+		var ray_angle: float = float(ray_index) * TAU / 12.0
+		var ray_direction: Vector2 = Vector2(cos(ray_angle), sin(ray_angle))
+		var ray_start: Vector2 = center + ray_direction * (outer_radius + 8.0)
+		var ray_length: float = 18.0 + (12.0 if ray_index % 3 == 0 else 4.0) + 10.0 * _pulse
+		draw_line(ray_start, ray_start + ray_direction * ray_length, Color(color.r, color.g, color.b, color.a * 0.72), 1.4, true)
 	for point_index: int in range(4):
 		var angle: float = -PI * 0.5 + float(point_index) * PI * 0.5
 		var direction: Vector2 = Vector2(cos(angle), sin(angle))
@@ -225,3 +234,14 @@ func _draw_boss_signature(center: Vector2, ring_radius: float, color: Color) -> 
 			point - tangent * 4.0,
 		])
 		draw_colored_polygon(diamond, color)
+	var crown_y: float = center.y - outer_radius - 30.0
+	var crown: PackedVector2Array = PackedVector2Array([
+		Vector2(center.x - 30.0, crown_y + 18.0),
+		Vector2(center.x - 23.0, crown_y - 2.0),
+		Vector2(center.x - 8.0, crown_y + 10.0),
+		Vector2(center.x, crown_y - 12.0 - 5.0 * _pulse),
+		Vector2(center.x + 8.0, crown_y + 10.0),
+		Vector2(center.x + 23.0, crown_y - 2.0),
+		Vector2(center.x + 30.0, crown_y + 18.0),
+	])
+	draw_polyline(crown, Color(color.r, color.g, color.b, color.a * 0.92), 2.2, true)

@@ -15,6 +15,10 @@ var tile_size: int = 72
 var player_actors: Array[UnitActor] = []
 var enemy_actors: Array[UnitActor] = []
 
+const BAR_COLLISION_PADDING: float = 3.0
+const BAR_OVERLAP_PENALTY: float = 10000.0
+const BAR_OUTSIDE_PENALTY: float = 50000.0
+
 func configure(_arena_container: Control, _arena_units: Control, _player_grid_helper: BoardGrid, _enemy_grid_helper: BoardGrid, _unit_actor_class: Script, _tile_size: int) -> void:
     arena_container = _arena_container
     arena_units = _arena_units
@@ -64,6 +68,7 @@ func enter_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotV
         enemy_actors.append(actor2)
     if not enemy_summary.is_empty():
         Debug.log("Arena", "Enemy positions %s" % [Strings.join(enemy_summary, ", ")])
+    refresh_bar_layout()
     Trace.step("ArenaController.enter_arena: done")
 
 func sync_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
@@ -100,6 +105,7 @@ func sync_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotVi
             actor2.sync_alive_visibility(ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
         Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
+    refresh_bar_layout()
 
 func sync_arena_with_positions(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView], player_positions: Array, enemy_positions: Array) -> void:
     # Prefer engine-provided positions when available; fall back to grid centers
@@ -140,6 +146,77 @@ func sync_arena_with_positions(player_views: Array[UnitSlotView], enemy_views: A
             actor2.sync_alive_visibility(ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
         Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
+    refresh_bar_layout()
+
+func refresh_bar_layout() -> void:
+    var actors: Array[UnitActor] = _visible_actors_for_bar_layout()
+    if actors.is_empty():
+        return
+    actors.sort_custom(Callable(self, "_actor_bar_sort"))
+    var placed_rects: Array[Rect2] = []
+    var bounds: Rect2 = arena_units.get_global_rect() if arena_units != null and is_instance_valid(arena_units) else Rect2()
+    var candidates: Array[Vector2] = _bar_offset_candidates()
+    for actor: UnitActor in actors:
+        actor.set_bar_layout_offset(Vector2.ZERO)
+        var best_offset: Vector2 = Vector2.ZERO
+        var best_rect: Rect2 = actor.bar_global_rect_for_offset(best_offset)
+        var best_score: float = _bar_candidate_score(best_rect, best_offset, bounds, placed_rects)
+        for candidate: Vector2 in candidates:
+            var candidate_rect: Rect2 = actor.bar_global_rect_for_offset(candidate)
+            var candidate_score: float = _bar_candidate_score(candidate_rect, candidate, bounds, placed_rects)
+            if candidate_score + 0.001 < best_score:
+                best_score = candidate_score
+                best_offset = candidate
+                best_rect = candidate_rect
+        actor.set_bar_layout_offset(best_offset)
+        placed_rects.append(best_rect.grow(BAR_COLLISION_PADDING))
+
+func bar_layout_snapshot() -> Array[Dictionary]:
+    var snapshot: Array[Dictionary] = []
+    for actor: UnitActor in _visible_actors_for_bar_layout():
+        snapshot.append(actor.bar_layout_snapshot())
+    return snapshot
+
+func _visible_actors_for_bar_layout() -> Array[UnitActor]:
+    var actors: Array[UnitActor] = []
+    for actor: UnitActor in player_actors:
+        if actor != null and is_instance_valid(actor) and actor.visible:
+            actors.append(actor)
+    for actor: UnitActor in enemy_actors:
+        if actor != null and is_instance_valid(actor) and actor.visible:
+            actors.append(actor)
+    return actors
+
+func _actor_bar_sort(a: UnitActor, b: UnitActor) -> bool:
+    if not is_equal_approx(a.global_position.y, b.global_position.y):
+        return a.global_position.y < b.global_position.y
+    if not is_equal_approx(a.global_position.x, b.global_position.x):
+        return a.global_position.x < b.global_position.x
+    return a.get_instance_id() < b.get_instance_id()
+
+func _bar_offset_candidates() -> Array[Vector2]:
+    return [
+        Vector2.ZERO,
+        Vector2(-72.0, 0.0), Vector2(72.0, 0.0),
+        Vector2(0.0, -32.0),
+        Vector2(-72.0, -32.0), Vector2(72.0, -32.0),
+        Vector2(0.0, -64.0),
+        Vector2(-72.0, -64.0), Vector2(72.0, -64.0),
+        Vector2(0.0, -96.0),
+        Vector2(-72.0, -96.0), Vector2(72.0, -96.0),
+    ]
+
+func _bar_candidate_score(rect: Rect2, offset: Vector2, bounds: Rect2, placed_rects: Array[Rect2]) -> float:
+    var score: float = offset.length_squared() * 0.02
+    for placed: Rect2 in placed_rects:
+        if not rect.intersects(placed):
+            continue
+        score += BAR_OVERLAP_PENALTY + rect.intersection(placed).get_area() * 12.0
+    if bounds.size.x > 1.0 and bounds.size.y > 1.0 and not bounds.encloses(rect):
+        var overflow_x: float = maxf(0.0, bounds.position.x - rect.position.x) + maxf(0.0, rect.end.x - bounds.end.x)
+        var overflow_y: float = maxf(0.0, bounds.position.y - rect.position.y) + maxf(0.0, rect.end.y - bounds.end.y)
+        score += BAR_OUTSIDE_PENALTY + (overflow_x + overflow_y) * 1000.0
+    return score
 
 func exit_arena() -> void:
     _clear()

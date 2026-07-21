@@ -19,6 +19,7 @@ const EconomyUI := preload("res://scripts/ui/combat/economy_ui.gd")
 const IntermissionController := preload("res://scripts/ui/combat/intermission_controller.gd")
 const BattleResultFlourish := preload("res://scripts/ui/combat/battle_result_flourish.gd")
 const BattlefieldAtmosphere: GDScript = preload("res://scripts/ui/combat/battlefield_atmosphere.gd")
+const BattlePhaseStinger: GDScript = preload("res://scripts/ui/combat/battle_phase_stinger.gd")
 const ShopPresenter := preload("res://scripts/ui/shop/shop_presenter.gd")
 const SellZone := preload("res://scripts/ui/shop/sell_zone.gd") # legacy; no longer used visually
 const SelectionService := preload("res://scripts/ui/combat/stats/selection_service.gd")
@@ -159,9 +160,11 @@ var _result_banner: PanelContainer = null
 var _result_flourish: BattleResultFlourish = null
 var _planning_atmosphere: BattlefieldAtmosphere = null
 var _arena_atmosphere: BattlefieldAtmosphere = null
+var _phase_stinger: BattlePhaseStinger = null
 var _encounter_banner: PanelContainer = null
 var _encounter_banner_label: Label = null
 var _encounter_banner_tween: Tween = null
+var _result_hidden_enemy_actors: Array[Control] = []
 var _bottom_combat_visibility_state: int = -1
 var _layout_tile_size: int = UI.TILE_SIZE
 var _active_run_save_pending: bool = false
@@ -224,6 +227,7 @@ func teardown() -> void:
 	_auto_loop_running = false
 	_end_combat_resolving_feedback()
 	_free_battlefield_atmosphere()
+	_free_phase_stinger()
 	_disconnect_controller_signals()
 	var shop_node: Node = _shop_singleton()
 	if shop_node != null:
@@ -542,6 +546,7 @@ func initialize() -> void:
 	arena_bridge = ArenaBridge.new()
 	arena_bridge.configure(arena_container, arena_units, planning_area, arena_background, player_grid_helper, enemy_grid_helper, preload("res://scripts/ui/combat/unit_actor.gd"), _layout_tile_size)
 	_ensure_battlefield_atmosphere()
+	_ensure_phase_stinger()
 
 	projectile_bridge = ProjectileBridge.new()
 	projectile_bridge.configure(parent, arena_bridge, player_grid_helper, enemy_grid_helper, manager, view_rng)
@@ -1448,7 +1453,8 @@ func _show_contract_market() -> void:
 		]
 		button.custom_minimum_size = Vector2(880.0, 118.0)
 		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		button.add_theme_font_size_override("font_size", 15)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		_style_contract_button(button, String(offer.get("family", "contract")))
 		button.disabled = bool(offer.get("exhausted", false))
 		button.pressed.connect(Callable(self, "_on_contract_choice_pressed").bind(index))
 		_contract_choices.add_child(button)
@@ -1456,7 +1462,7 @@ func _show_contract_market() -> void:
 	pass_button.name = "ContractPass"
 	pass_button.text = "PASS — keep your gold and accept no new obligation"
 	pass_button.custom_minimum_size = Vector2(880.0, 48.0)
-	pass_button.add_theme_font_size_override("font_size", 15)
+	_style_contract_button(pass_button, "pass")
 	pass_button.pressed.connect(_on_contract_pass_pressed)
 	_contract_choices.add_child(pass_button)
 	if _contract_status != null:
@@ -1488,6 +1494,7 @@ func _ensure_contract_market_ui() -> void:
 	_contract_overlay.add_child(center)
 	var panel: PanelContainer = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(980.0, 680.0)
+	panel.add_theme_stylebox_override("panel", GothicUIAssets.wide_panel_style(Color(0.92, 0.82, 0.70, 1.0)))
 	center.add_child(panel)
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 28)
@@ -1498,19 +1505,64 @@ func _ensure_contract_market_ui() -> void:
 	var stack: VBoxContainer = VBoxContainer.new()
 	stack.add_theme_constant_override("separation", 12)
 	margin.add_child(stack)
+	var eyebrow: Label = Label.new()
+	eyebrow.text = "COVENANT MARKET  •  ONE OBLIGATION"
+	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	eyebrow.add_theme_color_override("font_color", GothicUIAssets.COLOR_GOLD)
+	GothicUIAssets.apply_type(eyebrow, &"meta")
+	stack.add_child(eyebrow)
 	var title: Label = Label.new()
 	title.text = "Chapter Contracts"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT)
+	title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.90))
+	title.add_theme_constant_override("outline_size", 2)
+	GothicUIAssets.apply_type(title, &"display")
 	stack.add_child(title)
+	var title_rule: ColorRect = ColorRect.new()
+	title_rule.custom_minimum_size = Vector2(0.0, 2.0)
+	title_rule.color = Color(GothicUIAssets.COLOR_GOLD.r, GothicUIAssets.COLOR_GOLD.g, GothicUIAssets.COLOR_GOLD.b, 0.64)
+	stack.add_child(title_rule)
 	_contract_status = Label.new()
 	_contract_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_contract_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_contract_status.add_theme_font_size_override("font_size", 16)
+	_contract_status.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT_MUTED)
+	GothicUIAssets.apply_type(_contract_status, &"body")
 	stack.add_child(_contract_status)
 	_contract_choices = VBoxContainer.new()
 	_contract_choices.add_theme_constant_override("separation", 10)
 	stack.add_child(_contract_choices)
+
+func _style_contract_button(button: Button, family: String) -> void:
+	if button == null:
+		return
+	var accent: Color = GothicUIAssets.COLOR_GOLD
+	var material: StringName = &"leather"
+	match family.strip_edges().to_lower():
+		"champion":
+			accent = Color(0.88, 0.26, 0.18, 1.0)
+			material = &"blood"
+		"stable":
+			accent = Color(0.36, 0.72, 0.78, 1.0)
+			material = &"arcane"
+		"pit":
+			accent = Color(0.94, 0.48, 0.12, 1.0)
+			material = &"stone"
+		"pass":
+			accent = Color(0.62, 0.58, 0.52, 1.0)
+			material = &"iron"
+	button.add_theme_stylebox_override("normal", GothicUIAssets.material_surface_style(material, accent, false))
+	button.add_theme_stylebox_override("hover", GothicUIAssets.material_surface_style(material, accent.lightened(0.18), true))
+	button.add_theme_stylebox_override("pressed", GothicUIAssets.material_surface_style(material, accent.darkened(0.12), true))
+	button.add_theme_stylebox_override("disabled", GothicUIAssets.material_surface_style(&"void", Color(0.30, 0.28, 0.27, 0.72), false))
+	button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, accent, 2))
+	button.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT)
+	button.add_theme_color_override("font_hover_color", Color.WHITE)
+	button.add_theme_color_override("font_pressed_color", Color(1.0, 0.88, 0.70, 1.0))
+	button.add_theme_color_override("font_disabled_color", GothicUIAssets.COLOR_TEXT_MUTED.darkened(0.25))
+	button.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.88))
+	button.add_theme_constant_override("outline_size", 1)
+	GothicUIAssets.apply_type(button, &"body")
 
 func _on_contract_choice_pressed(index: int) -> void:
 	var shop_node: Node = _autoload_node("Shop")
@@ -1795,6 +1847,7 @@ func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 	Trace.step("CombatView._on_battle_started: enter arena")
 	_enter_combat_arena()
 	_set_battlefield_atmosphere_state(BattlefieldAtmosphere.STATE_COMBAT)
+	_play_battle_phase_stinger(_stage)
 	# Optional: add layout prints here when debugging sizes
 	# Ensure economy UI reflects combat lock state immediately
 	if economy_ui:
@@ -2393,14 +2446,10 @@ func _on_vfx_knockup(team: String, index: int, duration: float) -> void:
 func _on_encounter_escalated(_phase_id: String, label: String, _champion_index: int, revived_indices: Array[int], _affected_player_indices: Array[int], _pulse_damage: int, intensity: int) -> void:
 	if _arena_atmosphere != null and is_instance_valid(_arena_atmosphere):
 		_arena_atmosphere.pulse_escalation(intensity)
+	_hide_combat_event_banner()
+	if _phase_stinger != null and is_instance_valid(_phase_stinger):
+		_phase_stinger.play(label, "BOSS PHASE  |  %d REINFORCEMENT%s" % [revived_indices.size(), "" if revived_indices.size() == 1 else "S"], Color(0.88, 0.18, 0.14, 1.0), true, 0.88)
 	_show_reinforcement_callouts(revived_indices, intensity)
-	var text: String = "%s\n%d REINFORCEMENT%s RETURN" % [
-		label,
-		revived_indices.size(),
-		"" if revived_indices.size() == 1 else "S",
-	]
-	var accent: Color = Color(0.95, 0.23, 0.14, 1.0) if intensity >= 2 else Color(0.96, 0.55, 0.16, 1.0)
-	_show_combat_event_banner(text, accent)
 
 func _on_contract_battle_event(event_type: String, label: String, _affected_player_indices: Array[int], _affected_enemy_indices: Array[int], value: int, intensity: int) -> void:
 	var text: String = "%s\n%d TOTAL EFFECT" % [label, max(0, value)]
@@ -2489,6 +2538,13 @@ func _show_combat_event_banner(text: String, accent: Color) -> void:
 	_encounter_banner_tween.tween_property(banner, "modulate:a", 0.0, 0.42)
 	_encounter_banner_tween.tween_callback(func() -> void: banner.visible = false)
 
+func _hide_combat_event_banner() -> void:
+	if _encounter_banner_tween != null and _encounter_banner_tween.is_valid():
+		_encounter_banner_tween.kill()
+	_encounter_banner_tween = null
+	if _encounter_banner != null and is_instance_valid(_encounter_banner):
+		_encounter_banner.visible = false
+
 func _show_reinforcement_callouts(revived_indices: Array[int], intensity: int) -> void:
 	if arena_bridge == null:
 		return
@@ -2542,6 +2598,14 @@ func _show_reinforcement_callouts(revived_indices: Array[int], intensity: int) -
 		tween.tween_interval(1.55)
 		tween.tween_property(callout, "modulate:a", 0.0, 0.35)
 		tween.tween_callback(callout.queue_free)
+
+func _hide_reinforcement_callouts() -> void:
+	if arena_container == null or not is_instance_valid(arena_container):
+		return
+	var callouts: Array[Node] = arena_container.find_children("ReinforcementCallout", "Label", true, false)
+	for callout: Node in callouts:
+		if callout is Control:
+			(callout as Control).visible = false
 
 func _ensure_encounter_banner() -> PanelContainer:
 	if parent == null:
@@ -2629,6 +2693,35 @@ func _set_battlefield_atmosphere_state(state: StringName) -> void:
 	if _arena_atmosphere != null and is_instance_valid(_arena_atmosphere):
 		_arena_atmosphere.set_state(state, false)
 
+func _ensure_phase_stinger() -> void:
+	if parent == null:
+		return
+	if _phase_stinger != null and is_instance_valid(_phase_stinger):
+		return
+	_phase_stinger = BattlePhaseStinger.new() as BattlePhaseStinger
+	_phase_stinger.name = "BattlePhaseStinger"
+	parent.add_child(_phase_stinger)
+
+func _play_battle_phase_stinger(resolved_stage: int) -> void:
+	_ensure_phase_stinger()
+	if _phase_stinger == null:
+		return
+	var chapter: int = max(1, int(GameState.chapter)) if (Engine.has_singleton("GameState") or parent.has_node("/root/GameState")) else 1
+	var chapter_stage: int = max(1, int(GameState.stage_in_chapter)) if (Engine.has_singleton("GameState") or parent.has_node("/root/GameState")) else max(1, resolved_stage)
+	var wager: int = max(0, int(Economy.current_bet)) if (Engine.has_singleton("Economy") or parent.has_node("/root/Economy")) else 0
+	_phase_stinger.play_round(chapter_stage, chapter, wager, RosterUtils.is_boss_stage(chapter_stage))
+
+func _free_phase_stinger() -> void:
+	if _phase_stinger == null or not is_instance_valid(_phase_stinger):
+		_phase_stinger = null
+		return
+	_phase_stinger.cancel()
+	if _phase_stinger.is_inside_tree():
+		_phase_stinger.queue_free()
+	else:
+		_phase_stinger.free()
+	_phase_stinger = null
+
 func _free_battlefield_atmosphere() -> void:
 	_free_atmosphere_node(_planning_atmosphere)
 	_free_atmosphere_node(_arena_atmosphere)
@@ -2693,6 +2786,10 @@ func _set_root_control_visible(node_name: String, visible_state: bool) -> void:
 		control.visible = visible_state
 
 func _show_result_banner(title: String, detail: String, accent_color: Color, title_color: Color) -> void:
+	if _phase_stinger != null and is_instance_valid(_phase_stinger):
+		_phase_stinger.cancel()
+	_hide_combat_event_banner()
+	_hide_reinforcement_callouts()
 	var banner: PanelContainer = _ensure_result_banner()
 	if banner == null:
 		return
@@ -2707,15 +2804,32 @@ func _show_result_banner(title: String, detail: String, accent_color: Color, tit
 		detail_label.text = detail
 	if accent_rule != null:
 		accent_rule.color = Color(accent_color.r, accent_color.g, accent_color.b, 0.86)
+	var outcome: String = title.strip_edges().to_lower()
+	if outcome == "victory" and detail.contains("BOSS DEFEATED"):
+		outcome = "boss_victory"
 	if card != null:
 		card.add_theme_stylebox_override("panel", _make_result_card_style(accent_color))
-	banner.add_theme_stylebox_override("panel", _make_result_scrim_style())
+	banner.add_theme_stylebox_override("panel", _make_result_scrim_style(outcome == "boss_victory"))
 	banner.visible = true
+	_set_result_enemy_visibility(outcome != "boss_victory")
 	if _result_flourish != null and is_instance_valid(_result_flourish) and card != null:
-		var outcome: String = title.strip_edges().to_lower()
-		if outcome == "victory" and detail.contains("BOSS DEFEATED"):
-			outcome = "boss_victory"
 		_result_flourish.play(outcome, accent_color, card, 1.95)
+
+func _set_result_enemy_visibility(visible_state: bool) -> void:
+	if visible_state:
+		for actor: Control in _result_hidden_enemy_actors:
+			if actor != null and is_instance_valid(actor):
+				actor.visible = true
+		_result_hidden_enemy_actors.clear()
+		return
+	_result_hidden_enemy_actors.clear()
+	if arena_bridge == null or arena_bridge.arena == null:
+		return
+	for actor_node: Variant in arena_bridge.arena.enemy_actors:
+		var actor: Control = actor_node as Control
+		if actor != null and is_instance_valid(actor) and actor.visible:
+			_result_hidden_enemy_actors.append(actor)
+			actor.visible = false
 
 func _build_result_detail(outcome: String, resolved_stage: int) -> String:
 	var chapter: int = 1
@@ -2749,6 +2863,7 @@ func _build_result_detail(outcome: String, resolved_stage: int) -> String:
 			return "CHAPTER %d — STAGE %d RESOLVED" % [chapter, chapter_stage]
 
 func _hide_result_banner() -> void:
+	_set_result_enemy_visibility(true)
 	if _result_flourish != null and is_instance_valid(_result_flourish):
 		_result_flourish.cancel()
 	if _result_banner != null and is_instance_valid(_result_banner):
@@ -2842,9 +2957,9 @@ func _ensure_result_banner() -> PanelContainer:
 	parent.add_child(_result_banner)
 	return _result_banner
 
-func _make_result_scrim_style() -> StyleBoxFlat:
+func _make_result_scrim_style(boss_victory: bool = false) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.006, 0.005, 0.008, 0.46)
+	style.bg_color = Color(0.006, 0.007, 0.005, 0.82) if boss_victory else Color(0.006, 0.005, 0.008, 0.46)
 	return style
 
 func _make_result_card_style(accent_color: Color) -> StyleBox:

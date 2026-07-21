@@ -313,6 +313,7 @@ func _on_manager_position_updated(team: String, index: int, x: float, y: float) 
         return
     actor.set_screen_position(Vector2(x, y))
     actor.sync_alive_visibility(actor.unit != null and actor.unit.is_alive())
+    arena.refresh_bar_layout()
 
 func _sync_actor_visibility(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
     if arena == null:

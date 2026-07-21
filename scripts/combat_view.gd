@@ -363,14 +363,15 @@ func _apply_visual_theme_deferred() -> void:
 func _apply_responsive_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var compact: bool = viewport_size.y <= 760.0 or viewport_size.x <= 1400.0
+	var compact_tight: bool = compact and viewport_size.y <= 720.0
 	# The board is the hero surface.  These widths keep the authored inventory
 	# rail intact while making the live metrics rail a compact contextual ledger.
 	# At the supported 1280, 1366 and 1920 widths this leaves roughly 70% or more
 	# of the viewport for the battlefield instead of the previous ~62-64%.
-	var outer_margin: int = 6 if compact else 12
+	var outer_margin: int = 4 if compact_tight else (6 if compact else 12)
 	var rail_gap: int = 8 if compact else 12
 	var left_rail_width: float = 196.0 if compact else 296.0
-	var stats_rail_width: float = 160.0 if compact else 216.0
+	var stats_rail_width: float = 184.0 if compact else 216.0
 	var stats_inner_width: float = stats_rail_width - (12.0 if compact else 16.0)
 	var board_width: float = maxf(
 		720.0,
@@ -380,27 +381,31 @@ func _apply_responsive_layout() -> void:
 	var margin: MarginContainer = get_node_or_null("MarginContainer") as MarginContainer
 	if margin != null:
 		margin.add_theme_constant_override("margin_left", outer_margin)
-		margin.add_theme_constant_override("margin_top", 6 if compact else 10)
+		margin.add_theme_constant_override("margin_top", 4 if compact_tight else (6 if compact else 10))
 		margin.add_theme_constant_override("margin_right", outer_margin)
-		margin.add_theme_constant_override("margin_bottom", 6 if compact else 12)
+		margin.add_theme_constant_override("margin_bottom", 4 if compact_tight else (6 if compact else 12))
 	_set_minimum_size("MarginContainer/VBoxContainer/PlanningTimerLabel", Vector2(0.0, 0.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, 408.0 if compact else 604.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(stats_rail_width, 408.0 if compact else 596.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel", Vector2(stats_rail_width, 372.0 if compact else 560.0))
+	var compact_battle_height: float = 392.0 if compact_tight else 408.0
+	var compact_stats_height: float = 356.0 if compact_tight else 372.0
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea", Vector2(0.0, compact_battle_height if compact else 604.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", Vector2(stats_rail_width, compact_battle_height if compact else 596.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel", Vector2(stats_rail_width, compact_stats_height if compact else 560.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/MetricTabs", Vector2(stats_inner_width, 42.0 if compact else 48.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard", Vector2(stats_inner_width, 304.0 if compact else 430.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(left_rail_width, 408.0 if compact else 596.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(176.0 if compact else 296.0, 200.0 if compact else 164.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(left_rail_width, 196.0 if compact else 398.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, 60.0 if compact else 88.0))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(board_width, 126.0 if compact else 184.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard", Vector2(stats_inner_width, (288.0 if compact_tight else 304.0) if compact else 430.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(left_rail_width, compact_battle_height if compact else 596.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(176.0 if compact else 296.0, (184.0 if compact_tight else 200.0) if compact else 164.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(left_rail_width, (190.0 if compact_tight else 196.0) if compact else 398.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BenchArea/BenchGrid", Vector2(0.0, (54.0 if compact_tight else 60.0) if compact else 88.0))
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea", Vector2(board_width, (116.0 if compact_tight else 126.0) if compact else 184.0))
 	var opening_shop: bool = shop_grid != null and bool(shop_grid.get_meta("opening_fight_empty", false))
-	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, 108.0) if opening_shop else Vector2(board_width, 82.0 if compact else 108.0))
+	var opening_height: float = 92.0 if compact_tight else 108.0
+	var live_shop_height: float = 78.0 if compact_tight else (82.0 if compact else 108.0)
+	_set_minimum_size("MarginContainer/VBoxContainer/BottomStorageArea/ShopGrid", Vector2(560.0, opening_height) if opening_shop else Vector2(board_width, live_shop_height))
 	if shop_grid != null:
 		shop_grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow", Vector2(board_width, 42.0 if compact else 56.0))
 	_set_minimum_size("MarginContainer/VBoxContainer/ActionsRow/BetRow", Vector2(190.0 if compact else 226.0, 36.0 if compact else 46.0))
-	_set_box_separation("MarginContainer/VBoxContainer", 4 if compact else 6)
+	_set_box_separation("MarginContainer/VBoxContainer", 3 if compact_tight else (4 if compact else 6))
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow", rail_gap)
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", 8 if compact else 10)
 	_set_box_separation("MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn", 6 if compact else 8)
@@ -460,7 +465,7 @@ func _apply_side_rail_layout(compact: bool) -> void:
 	if metric_tabs != null:
 		var metric_row: HBoxContainer = metric_tabs.get_child(0) as HBoxContainer if metric_tabs.get_child_count() > 0 else null
 		if metric_row != null:
-			metric_row.add_theme_constant_override("separation", 4 if compact else 8)
+			metric_row.add_theme_constant_override("separation", 2 if compact else 8)
 			for child: Node in metric_row.get_children():
 				var button: Button = child as Button
 				if button == null:
@@ -469,15 +474,15 @@ func _apply_side_rail_layout(compact: bool) -> void:
 					button.set_meta("full_label", button.text)
 				var full_label: String = String(button.get_meta("full_label", button.text))
 				button.text = _compact_metric_label(full_label) if compact else full_label
-				button.custom_minimum_size = Vector2(40.0 if compact else 60.0, 28.0 if compact else 30.0)
-				button.add_theme_font_size_override("font_size", 11 if compact else 12)
+				button.custom_minimum_size = Vector2(32.0 if compact else 60.0, 28.0 if compact else 30.0)
+				button.add_theme_font_size_override("font_size", 9 if compact else 12)
 	var stats_header: HBoxContainer = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Header") as HBoxContainer
 	if stats_header != null:
 		stats_header.add_theme_constant_override("separation", 3 if compact else 5)
 		for child: Node in stats_header.get_children():
 			var window_button: Button = child as Button
 			if window_button != null:
-				window_button.custom_minimum_size = Vector2(32.0 if compact else 36.0, 28.0 if compact else 30.0)
+				window_button.custom_minimum_size = Vector2(28.0 if compact else 36.0, 28.0 if compact else 30.0)
 				window_button.add_theme_font_size_override("font_size", 10 if compact else 11)
 	var stats_title: Label = get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Header/Title") as Label
 	if stats_title != null:
@@ -509,7 +514,7 @@ func _apply_shop_compact_layout(compact: bool) -> void:
 			var control: Control = child as Control
 			if control != null:
 				if bool(control.get_meta("opening_fight_placeholder", false)):
-					control.custom_minimum_size = Vector2(560.0, 104.0)
+					control.custom_minimum_size = Vector2(560.0, 92.0 if compact else 104.0)
 					control.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 				else:
 					control.custom_minimum_size = card_size

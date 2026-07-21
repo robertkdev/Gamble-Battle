@@ -120,3 +120,27 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle Phase 5 atmosphere"
+  - id: stage6-vertical-slice
+    title: Premium vertical slice, compact containment, and cinematic handoffs
+    adapter: godot
+    objective: Verify the complete title-to-next-planning visual journey, collision-resolved health HUD, non-blocking cinematic stingers, boss escalation and victory ceremony, and 1280x720 containment in the player-facing Godot runtime.
+    capture_command: ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "Tools/Build-Stage6VerticalSliceManifest.ps1"]
+    capture_manifest: "outputs/visual_debug/stage6_vertical_slice/captures.json"
+    required_groups: [entry, decision, combat, temporal, consequence, compact]
+    runtime_provenance:
+      entrypoint: "Godot editor game framebuffer"
+      scene: "res://tests/visual/Stage6VerticalSliceCapture.tscn"
+      build: "codex/019f80d9-676-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [planning, battle_intro, combat, boss_victory]
+      required_viewports: [desktop-1920x1080, compact-1280x720]
+      required_events: [boss_phase]
+      min_temporal_frames: 3
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 300
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Stage 6 premium vertical slice"

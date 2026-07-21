@@ -144,3 +144,42 @@ packet is `outputs/visual_debug/vdh_runs/phase5-final-5/packet/`, including the
 three-frame escalation sequence and its repair comparison board. A fresh
 clean-context visual juror passed the final desktop and compact packet with no
 Stage 5 blocker.
+
+## Stage 6: premium vertical slice and cinematic handoffs
+
+Stage 6 closes the six-stage visual overhaul with a player-facing journey from
+title entrance through the next planning decision. It concentrates on final
+containment, combat readability, and presentation handoffs rather than changing
+simulation rules.
+
+- The 1280x720 combat layout uses tighter outer margins, a narrower metrics
+  rail, compact shop/footer geometry, and smaller metric controls so the live
+  decision footer and right-side instrumentation remain fully contained.
+- Health, shield, and mana plates are narrower and use deterministic
+  collision-resolved offsets in dense formations. Team-colored leader lines
+  preserve actor ownership when a plate must move away from its unit.
+- Round starts use an input-transparent `BOSS CONTRACT` or `BATTLE N` stinger
+  that states chapter and locked wager without pausing combat or covering the
+  result layer.
+- Boss escalation reuses the same cinematic language and preserves the
+  localized Phase 5 pulse. The older duplicate escalation banner is suppressed,
+  and stale escalation copy and reinforcement tags are cleared before the
+  result ceremony.
+- Boss victory adds a crown, authored rays, and a secondary ritual arc behind
+  the Phase 4 result card. A deep result blackout suppresses defeated actors
+  and their status plates so the victory ceremony owns the frame.
+- The next chapter-contract decision now arrives inside a wide Gothic covenant
+  frame with a gold rule and distinct blood, arcane, stone, and iron card
+  families. Compact scoreboard rows preserve full unit names without clipping.
+
+Authoritative Stage 6 checks are `Stage6PresentationSmoke`,
+`CompactViewportVisualAuditSmoke`, `CombatMotionPresentationSmoke`,
+`PostCombatPlanningBeatSmoke`, and `Stage6VerticalSliceCapture` (14 real editor
+framebuffer captures across 1920x1080 and 1280x720), all with no Godot errors.
+The source captures are under
+`outputs/visual_iter/stage6_vertical_slice_pass/`; the complete VDH packet is
+`outputs/visual_debug/vdh_runs/stage6-vertical-slice-27a76bfcd5/packet/` and
+contains the synchronized state/viewport matrix plus the three-frame boss-phase
+temporal sheet. A final clean-context visual juror inspected all 9 packet boards
+and all 14 authoritative runtime frames at original size and passed Stage 6
+with no blocking defect.
