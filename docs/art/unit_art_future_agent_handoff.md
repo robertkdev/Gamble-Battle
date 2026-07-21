@@ -11,13 +11,13 @@ Use this when a new Codex agent has no conversation history and needs to continu
 - Later passing/current proofs are narrow coverage examples only. Do not average them into the target style.
 - Every serious candidate must also get a Vellum-first pairwise audit sheet and a reference-ladder sheet with Vellum, Paisley, token, and the candidate in the same row; pooled passing images are not enough.
 - Candidate triage has a `prompt_context_status` column. Rows marked `blocked_*` are quarantined from prompt/style context until fresh Vellum-first review clears them or the user explicitly promotes/reclassifies them. Grint is accepted as narrow proof history but currently blocked from prompt influence until Vellum pairwise review clears the concern.
-- The current Creep pass is a revision candidate only: `creep_builtin_revision_candidate_v5_2026_07_01`.
-- Do not generate Veyra or broader roster batches until a new Creep revision resolves the active smooth-alien / Vellum-level matte-detail request.
+- Creep v5 is the explicitly approved live Creep: `creep_smooth_alien_matte_v5_live`. It is a narrow horror reference only; Vellum remains the primary material/detail anchor and Paisley remains the secondary contrast anchor.
+- The old Creep revision gate is closed. Do not regenerate, demote, or replace Creep v5 unless the user explicitly reverses the approval.
 - Later user-directed continuation produced pre-ledger research artifacts for Creep v8, Veyra v1, and Cashmere v1 in `docs/art/vellum_alignment_continuation_2026-07-01.md`. These do not resolve the Creep gate and do not count as accepted proofs.
 - Cashmere's roster prompt identity was corrected to match the live source image: platinum-blond formal occult businesswoman with glasses and a long black coat, not a bald mogul.
 - User supplied a stronger world/lore target: the units come from an evil folklore world of endless suffering, famine, tragedy, occult bargains, demons, corruption, and collapsed sacred order. Every unit now needs a survival-psychology read on the face/body, not just Vellum-like matte material. Read `docs/art/unit_art_lore_style_gate_2026-07-01.md` before further generation.
 - Totem lore-alignment research produced v26 as the current best Totem direction: `outputs/art_pipeline/style_validation/totem_lore_alignment_2026_07_01/totem_lore_alignment_v26_raw_candidate.png`. It is not accepted or live, but it shows the new lore gate improves Totem by replacing clean tree/blue-eye fantasy with exhausted oath-bound dead-root endurance.
-- Do not replace any live `assets/units/*.png` file without explicit user approval.
+- Do not replace any live `assets/units/*.png` file without explicit user approval. Phase 3 runtime framing uses `scripts/ui/unit_art_presentation.gd` and does not authorize portrait swaps.
 
 ## First Files To Read
 
@@ -34,7 +34,7 @@ Read these in order:
 9. `docs/art/creep_review_decision_packet_2026-07-01.md`
 10. `docs/art/creep_review_decision_packet_2026-07-01_scorecard_template.json`
 11. `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md`
-12. `docs/art/creep_builtin_revision_candidate_v5_2026-07-01.md`
+12. `docs/art/creep_builtin_revision_candidate_v5_2026-07-01.md` and `docs/art/creep_live_promotion_and_hybrid_research_2026-07-02.md`
 13. `docs/art/creep_builtin_revision_candidate_v4_2026-07-01.md`
 14. `docs/art/creep_builtin_revision_candidate_v3_2026-07-01.md`
 15. `docs/art/vellum_alignment_continuation_2026-07-01.md`
@@ -70,7 +70,7 @@ Do not promote a proof into a broader style anchor unless the user explicitly sa
 
 ## Current Next Gate
 
-The next gate is a Creep revision, not Veyra or broad roster generation. Use `docs/art/creep_revision_prompt_packet_2026_07_01/creep.md` as the current generation packet.
+The current gate is consistent runtime presentation plus human review of the remaining unapproved roster candidates. Use `docs/art/unit_art_runtime_presentation_contract_2026-07-20.md` for live framing. Do not treat this as permission to promote candidate portraits.
 
 The previous candidate evidence is:
 
@@ -89,7 +89,7 @@ The previous candidate evidence is:
 
 The Creep candidate improves the under-detailed smooth-creature failure, but it is not accepted and is not a live replacement. Its current failure is specific: it needs the original smooth alien head/body and uninterrupted gray-blue skin restored harder while keeping Vellum-level matte dry richness. The next prompt must not use segmented armor tendrils, mechanical black tube tendrils, talisman clutter, or shiny blade highlights as a substitute for surface detail.
 
-Current best pre-ledger follow-up candidate: `docs/art/creep_builtin_revision_candidate_v5_2026-07-01.md` records the latest built-in Creep pass with flatter matte scythe-ribbon tendrils, clean standalone orange-fringe audit, readable board preview, safer raw margins, and Vellum-range detail proxy. It supersedes v4 because it removes the orange flecks from the black scythe-ribbons and fixes the tight ring-margin risk without losing the matte gothic direction. It remains pre-ledger and unaccepted pending human review of scale/presence, smooth alien face/skin fidelity, and board-scale richness.
+Approved live result: `docs/art/creep_builtin_revision_candidate_v5_2026-07-01.md` records the accepted Creep pass with flatter matte scythe-ribbon tendrils, clean standalone orange-fringe audit, readable board preview, safer raw margins, and Vellum-range detail proxy. `docs/art/creep_live_promotion_and_hybrid_research_2026-07-02.md` records the explicit user approval and live promotion. Preserve it as a narrow horror reference, not a global anchor.
 
 Prior pre-ledger follow-up candidate: `docs/art/creep_builtin_revision_candidate_v4_2026-07-01.md` reduced body/limb anatomical striation while preserving the flat scythe-ring fix, but still had orange flecks on the black scythe-ribbons and tighter ring margins than v5.
 

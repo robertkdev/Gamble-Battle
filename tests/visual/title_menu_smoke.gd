@@ -29,6 +29,8 @@ func _run() -> void:
 		_expect(title_label != null, "GameTitle missing", failures)
 		if title_label != null:
 			_expect(title_label.get_theme_font_size("font_size") >= 54, "GameTitle is not visually prioritized", failures)
+			var title_font: Font = title_label.get_theme_font("font")
+			_expect(title_font != ThemeDB.fallback_font, "GameTitle should use the custom display font", failures)
 		var hero: TextureRect = title_menu.get_node_or_null("TitleHero") as TextureRect
 		_expect(hero == null, "TitleHero should not render a background unit over the menu", failures)
 		var content_panel: PanelContainer = title_menu.get_node_or_null("ContentPanel") as PanelContainer
@@ -127,6 +129,10 @@ func _run() -> void:
 		var start_button: Button = title_menu.get_node_or_null("Center/VBox/StartButton") as Button
 		_expect(start_button != null, "StartButton missing", failures)
 		if start_button != null:
+			var body_font: Font = start_button.get_theme_font("font")
+			var display_font: Font = title_label.get_theme_font("font") if title_label != null else null
+			_expect(body_font != ThemeDB.fallback_font, "Title buttons should use the custom UI font", failures)
+			_expect(display_font != null and body_font != display_font, "Display and body roles should use different fonts", failures)
 			_expect(start_button.custom_minimum_size.x >= 300.0, "StartButton is not visually prioritized", failures)
 			var start_style: StyleBox = start_button.get_theme_stylebox("normal")
 			_expect(start_style is StyleBoxTexture, "Title StartButton should use the generated primary button asset", failures)

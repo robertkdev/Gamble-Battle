@@ -52,6 +52,17 @@ const KEY_GREEN_AUDIT_PATHS: Array[String] = [
 	GothicUIAssets.BUTTON_SMALL,
 	GothicUIAssets.BUTTON_PRIMARY,
 ]
+const FONT_PATHS: Array[String] = [
+	GothicUIAssets.FONT_CINZEL,
+	GothicUIAssets.FONT_BODY_REGULAR,
+	GothicUIAssets.FONT_BODY_SEMIBOLD,
+	GothicUIAssets.FONT_BODY_BOLD,
+]
+const FONT_LICENSE_PATHS: Array[String] = [
+	"res://assets/fonts/cinzel/OFL.txt",
+	"res://assets/fonts/source_sans_3/LICENSE.md",
+	"res://docs/licenses/fonts.md",
+]
 
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -101,6 +112,28 @@ func _ready() -> void:
 			"runtime_texture_load_ok": runtime_import_ok,
 			"key_green_audited": KEY_GREEN_AUDIT_PATHS.has(path),
 		})
+	var font_records: Array[Dictionary] = []
+	for path: String in FONT_PATHS:
+		var source_exists: bool = FileAccess.file_exists(path)
+		var resource_exists: bool = ResourceLoader.exists(path, "Font")
+		var loaded_font: Font = ResourceLoader.load(path, "Font") as Font if resource_exists else null
+		if not source_exists or loaded_font == null:
+			failures.append("font import failed %s" % path)
+		font_records.append({
+			"path": path,
+			"source_exists": source_exists,
+			"resource_loader_exists": resource_exists,
+			"runtime_font_load_ok": loaded_font != null,
+		})
+	for license_path: String in FONT_LICENSE_PATHS:
+		if not FileAccess.file_exists(license_path):
+			failures.append("font license missing %s" % license_path)
+	var wordmark_font: Font = GothicUIAssets.type_font(&"wordmark")
+	var body_font: Font = GothicUIAssets.type_font(&"body")
+	if wordmark_font == ThemeDB.fallback_font or body_font == ThemeDB.fallback_font:
+		failures.append("custom type system fell back to the engine font")
+	if wordmark_font == body_font:
+		failures.append("wordmark and body roles resolved to the same font")
 	var fallback_style: StyleBoxFlat = StyleBoxFlat.new()
 	var resolved_fallback: StyleBox = GothicUIAssets.style_or_fallback(null, fallback_style)
 	var style_fallback_ok: bool = resolved_fallback == fallback_style
@@ -110,7 +143,7 @@ func _ready() -> void:
 		failures.append("style_or_fallback did not return the supplied fallback")
 	if not texture_fallback_ok:
 		failures.append("TextureUtils missing-path fallback did not produce the expected 16x16 texture")
-	_write_identity_manifest(asset_records, all_imports_clean, style_fallback_ok, texture_fallback_ok, failures)
+	_write_identity_manifest(asset_records, font_records, all_imports_clean, style_fallback_ok, texture_fallback_ok, failures)
 	if failures.size() > 0:
 		for failure: String in failures:
 			push_error("GothicUIAssetAudit: " + failure)
@@ -119,20 +152,20 @@ func _ready() -> void:
 	print("GothicUIAssetAudit: OK assets=%d visible_green=%d transparent_green=%d" % [ASSET_PATHS.size(), visible_green_total, transparent_green_total])
 	get_tree().quit(0)
 
-func _write_identity_manifest(asset_records: Array[Dictionary], all_imports_clean: bool, style_fallback_ok: bool, texture_fallback_ok: bool, failures: Array[String]) -> void:
+func _write_identity_manifest(asset_records: Array[Dictionary], font_records: Array[Dictionary], all_imports_clean: bool, style_fallback_ok: bool, texture_fallback_ok: bool, failures: Array[String]) -> void:
 	var manifest_path: String = "%s/identity_manifest.json" % OUTPUT_DIR
 	var file: FileAccess = FileAccess.open(manifest_path, FileAccess.WRITE)
 	if file == null:
 		failures.append("could not write identity manifest")
 		return
-	var custom_font_assets: Array[String] = []
 	var manifest: Dictionary[String, Variant] = {
 		"runtime": "Godot ResourceLoader audit",
 		"scene": "res://tests/visual/GothicUIAssetAudit.tscn",
 		"font_identity": {
-			"policy": "engine_default_theme",
-			"custom_font_assets": custom_font_assets,
+			"policy": "cinzel_display_source_sans_3_ui",
+			"custom_font_assets": font_records,
 			"semantic_sizes": {
+				"wordmark": GothicUIAssets.FONT_WORDMARK,
 				"display": GothicUIAssets.FONT_DISPLAY,
 				"title": GothicUIAssets.FONT_TITLE,
 				"heading": GothicUIAssets.FONT_HEADING,

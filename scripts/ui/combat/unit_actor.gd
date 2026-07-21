@@ -5,6 +5,7 @@ const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const UnitEffectPlayer := preload("res://scripts/ui/vfx/unit_effect_player.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_presentation.gd")
 
 var unit: Unit
 var focus_plate: Panel
@@ -166,7 +167,7 @@ func _update_actor_visual_layout() -> void:
 		sprite.offset_top = -visual_margin * 1.45
 		sprite.offset_right = visual_margin
 		sprite.offset_bottom = visual_margin * 0.45
-		sprite.modulate = Color(1.0, 0.97, 0.91, 1.0)
+		sprite.modulate = Color.WHITE
 	if team_rim != null:
 		team_rim.offset_left = -visual_margin * 0.55
 		team_rim.offset_top = -visual_margin * 0.85
@@ -416,7 +417,8 @@ func _update_texture() -> void:
 	if sprite_path != "":
 		if diagnostics_enabled:
 			diagnostic_texture_load_attempts += 1
-		tex = TextureUtils.try_load_texture(sprite_path)
+		var unit_id: String = String(unit.id) if unit != null else ""
+		tex = UnitArtPresentation.texture_for(unit_id, sprite_path)
 	if tex == null:
 		var img: Image = Image.create(int(size_px.x), int(size_px.y), false, Image.FORMAT_RGBA8)
 		img.fill(Color(0, 0, 0, 0))

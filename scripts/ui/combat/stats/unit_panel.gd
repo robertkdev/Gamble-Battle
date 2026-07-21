@@ -6,6 +6,7 @@ const UIBars := preload("res://scripts/ui/combat/ui_bars.gd")
 const AbilityCatalog := preload("res://scripts/game/abilities/ability_catalog.gd")
 const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_presentation.gd")
 const UnitFactory: GDScript = preload("res://scripts/unit_factory.gd")
 
 const COLOR_PANEL: Color = Color(0.026, 0.022, 0.030, 0.92)
@@ -280,7 +281,7 @@ func _apply_static_styles() -> void:
         header.custom_minimum_size = Vector2(0.0, 78.0)
     if portrait != null:
         portrait.custom_minimum_size = Vector2(72.0, 72.0)
-        portrait.modulate = Color(0.96, 0.91, 0.84, 1.0)
+        portrait.modulate = Color.WHITE
     if name_label != null:
         name_label.add_theme_font_size_override("font_size", 18)
         name_label.add_theme_color_override("font_color", COLOR_TEXT)
@@ -305,11 +306,11 @@ func _apply_static_styles() -> void:
 func _refresh_header() -> void:
     var tex: Texture2D = null
     if unit_ref != null and String(unit_ref.sprite_path) != "":
-        tex = TextureUtils.try_load_texture(unit_ref.sprite_path)
+        tex = UnitArtPresentation.texture_for(String(unit_ref.id), String(unit_ref.sprite_path))
     if tex == null:
         tex = TextureUtils.make_circle_texture(Color(0.7, 0.7, 0.9), 64)
     portrait.texture = tex
-    portrait.modulate = Color(0.92, 0.86, 0.78, 1.0) if team == "enemy" else Color(0.98, 0.93, 0.84, 1.0)
+    portrait.modulate = Color.WHITE
     name_label.text = (unit_ref.name if unit_ref != null else "Unit")
 
     var primary_role: String = ""

@@ -14,11 +14,11 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	DisplayServer.window_set_size(Vector2i(2560, 1440))
 	var window: Window = get_window()
 	if window != null:
-		window.size = Vector2i(1920, 1080)
-		window.content_scale_size = Vector2i(1920, 1080)
+		window.size = Vector2i(2560, 1440)
+		window.content_scale_size = Vector2i(2560, 1440)
 
 	_view = UNIT_SELECT_SCENE.instantiate() as UnitSelect
 	_view.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -56,7 +56,9 @@ func _run() -> void:
 			_expect(_selected_marker() != null and _selected_marker().visible, "selected marker should persist while inspecting another unit")
 			_expect(_selected_marker() != null and String(_selected_marker().text).contains("SELECTED"), "persistent marker should name the committed starter state")
 			var selected_name_label: Label = first_button.get_parent().get_node_or_null("UnitName") as Label
-			_expect(selected_name_label != null and String(selected_name_label.text).begins_with("[X] "), "selected grid card should keep a non-color check marker")
+			var selected_crest: TextureRect = first_button.get_node_or_null("SelectedCrest") as TextureRect
+			_expect(selected_name_label != null and not String(selected_name_label.text).contains("[X]"), "selected grid card should not expose debug marker notation")
+			_expect(selected_crest != null and selected_crest.visible, "selected grid card should keep an authored non-color crest marker")
 			_save_capture("03b_selected_while_inspecting.png")
 		_view.set_transition_pending(true)
 		await _settle_frames(2)

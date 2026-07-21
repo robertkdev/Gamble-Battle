@@ -4,6 +4,7 @@ class_name UnitView
 const UI = preload("res://scripts/constants/ui_constants.gd")
 const TextureUtils = preload("res://scripts/util/texture_utils.gd")
 const UnitEffectPlayer = preload("res://scripts/ui/vfx/unit_effect_player.gd")
+const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_presentation.gd")
 
 var unit
 var sprite
@@ -238,10 +239,12 @@ func _refresh_sprite(force: bool = false) -> void:
 	if sprite_path != "":
 		if diagnostics_enabled:
 			diagnostic_texture_load_attempts += 1
-		tex = TextureUtils.try_load_texture(sprite_path)
+		var unit_id: String = String(unit.id)
+		tex = UnitArtPresentation.texture_for(unit_id, sprite_path)
 	if tex == null:
 		tex = TextureUtils.make_circle_texture(Color(0.8, 0.8, 0.8), 96)
 	sprite.texture = tex
+	sprite.modulate = Color.WHITE
 	_sprite_path_cache = sprite_path
 
 func _refresh_bars() -> void:

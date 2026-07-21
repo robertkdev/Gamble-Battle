@@ -10,11 +10,16 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	DisplayServer.window_set_size(Vector2i(2560, 1440))
 	var window: Window = get_window()
 	if window != null:
-		window.size = Vector2i(1920, 1080)
-		window.content_scale_size = Vector2i(1920, 1080)
+		window.size = Vector2i(2560, 1440)
+		await get_tree().process_frame
+		# On a 125% DPI desktop a 2560x1440 physical fullscreen reports a
+		# 2048x1152 logical client.  Match that logical client so Godot scales
+		# it across the full framebuffer instead of leaving an L-shaped gutter.
+		window.content_scale_size = window.size
+		print("PostShopLayoutCapture: framebuffer_request=2560x1440 logical_window=%s content_scale=%s" % [window.size, window.content_scale_size])
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_main = MAIN_SCENE.instantiate() as Control
 	_main.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -22,6 +27,7 @@ func _run() -> void:
 	await _settle_frames(5)
 	_build_post_shop_state()
 	await _settle_frames(12)
+	_assert_metrics_rail_bounds()
 	_capture("01_post_shop_layout.png")
 	_finish()
 
@@ -101,6 +107,34 @@ func _is_framebuffer_unavailable() -> bool:
 	var display_name: String = DisplayServer.get_name().to_lower()
 	var driver_name: String = RenderingServer.get_current_rendering_driver_name().to_lower()
 	return display_name == "headless" or display_name == "server" or display_name == "dummy" or driver_name.contains("dummy")
+
+func _assert_metrics_rail_bounds() -> void:
+	var combat: Control = _main.get_node_or_null("CombatView") as Control
+	if combat == null:
+		return
+	var rail: Control = combat.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea") as Control
+	var panel: Control = combat.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel") as Control
+	var tabs: Control = combat.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/MetricTabs") as Control
+	var scoreboard: Control = combat.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea/StatsPanel/VBox/Body/Scoreboard") as Control
+	_expect(rail != null and panel != null and tabs != null and scoreboard != null, "metrics rail controls missing")
+	if rail == null or panel == null or tabs == null or scoreboard == null:
+		return
+	var rail_rect: Rect2 = rail.get_global_rect()
+	var panel_rect: Rect2 = panel.get_global_rect()
+	var tabs_rect: Rect2 = tabs.get_global_rect()
+	var scoreboard_rect: Rect2 = scoreboard.get_global_rect()
+	print("PostShopLayoutCapture: rail=%s panel=%s tabs=%s scoreboard=%s" % [rail_rect, panel_rect, tabs_rect, scoreboard_rect])
+	_expect(_rect_inside(rail_rect, panel_rect), "stats panel escaped metrics rail")
+	_expect(_rect_inside(rail_rect, tabs_rect), "metric tabs escaped metrics rail")
+	_expect(_rect_inside(rail_rect, scoreboard_rect), "scoreboard escaped metrics rail")
+
+func _rect_inside(outer: Rect2, inner: Rect2, tolerance: float = 1.0) -> bool:
+	return (
+		inner.position.x >= outer.position.x - tolerance
+		and inner.position.y >= outer.position.y - tolerance
+		and inner.end.x <= outer.end.x + tolerance
+		and inner.end.y <= outer.end.y + tolerance
+	)
 
 func _settle_frames(count: int) -> void:
 	for frame_index: int in range(count):

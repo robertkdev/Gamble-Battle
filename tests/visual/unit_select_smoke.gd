@@ -33,6 +33,7 @@ func _run() -> void:
 	_expect(heading != null, "Heading missing", failures)
 	if heading != null:
 		_expect(heading.get_theme_font_size("font_size") >= 36, "Heading is not visually prioritized", failures)
+		_expect(heading.get_theme_font("font") != ThemeDB.fallback_font, "Heading should use the custom display font", failures)
 	var start_button: Button = view.get_node_or_null("Center/HBox/Right/StartButton") as Button
 	_expect(start_button != null, "StartButton missing", failures)
 	if start_button != null:
@@ -71,7 +72,7 @@ func _run() -> void:
 		if first_tag != null:
 			_expect_texture_style(first_tag, "normal", "Sari preview approach tag should use a generated texture frame", failures)
 		_expect(details_label != null and String(details_label.text).find("Identity summary above") < 0, "Sari preview should not show identity placeholder copy", failures)
-		_expect(details_label != null and String(details_label.text).find("Traits:") >= 0, "Sari preview should show readable traits/identity tags", failures)
+		_expect(details_label != null and String(details_label.text).to_upper().find("TRAITS") >= 0, "Sari preview should show readable traits/identity tags", failures)
 		_expect(details_label != null and String(details_label.text).find("Attack:") >= 0, "Starter preview should show attack details", failures)
 		_expect(details_label != null and String(details_label.text).find("Attack Targeting:") >= 0, "Starter preview should show attack targeting", failures)
 		_expect(details_label != null and String(details_label.text).find("Ability:") >= 0, "Starter preview should show ability details", failures)
@@ -91,6 +92,9 @@ func _run() -> void:
 		await get_tree().process_frame
 		_expect(not start_button.disabled, "StartButton did not enable after unit selection", failures)
 		_expect(selected_label != null and selected_label.text != "No champion chosen", "Selection label did not update", failures)
+		_expect(not first_button.text.contains("[X]"), "Selected starter card should use an authored crest instead of debug notation", failures)
+		var selected_crest: TextureRect = first_button.find_child("SelectedCrest", true, false) as TextureRect
+		_expect(selected_crest != null and selected_crest.visible, "Selected starter card should expose a persistent selected crest", failures)
 		var art: TextureRect = view.get_node_or_null("Center/HBox/Right/Preview/ArtWrap/Art") as TextureRect
 		_expect(art != null and art.texture != null, "Preview art did not load", failures)
 		view.reset_selection()

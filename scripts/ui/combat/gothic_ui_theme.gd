@@ -37,7 +37,8 @@ static func clear_runtime() -> void:
 static func _get_theme() -> Theme:
 	if _theme != null:
 		return _theme
-	_theme = Theme.new()
+	var font_base: Theme = GothicUIAssets.font_theme()
+	_theme = font_base.duplicate(true) as Theme
 	_theme.default_base_scale = 1.0
 	_theme.set_color("font_color", "Label", COLOR_TEXT)
 	_theme.set_color("font_shadow_color", "Label", Color(0.0, 0.0, 0.0, 0.65))
@@ -46,21 +47,21 @@ static func _get_theme() -> Theme:
 	_theme.set_color("font_hover_color", "Button", Color(1.0, 0.92, 0.82, 1.0))
 	_theme.set_color("font_pressed_color", "Button", Color(1.0, 0.84, 0.68, 1.0))
 	_theme.set_color("font_disabled_color", "Button", Color(0.62, 0.58, 0.52, 1.0))
-	_theme.set_stylebox("normal", "Button", _style(COLOR_PANEL_SOFT, COLOR_IRON, 1, 5))
-	_theme.set_stylebox("hover", "Button", _hover_style(Color(0.15, 0.10, 0.11, 0.98), COLOR_GOLD_HOT, 1, 5))
-	_theme.set_stylebox("pressed", "Button", _style(COLOR_PANEL_DEEP, COLOR_BLOOD_HOT, 1, 5))
-	_theme.set_stylebox("disabled", "Button", _style(Color(0.035, 0.032, 0.039, 0.82), Color(0.18, 0.17, 0.19, 0.86), 1, 5))
+	_theme.set_stylebox("normal", "Button", GothicUIAssets.material_surface_style(&"iron", COLOR_IRON, false))
+	_theme.set_stylebox("hover", "Button", GothicUIAssets.material_surface_style(&"arcane", COLOR_GOLD_HOT, true))
+	_theme.set_stylebox("pressed", "Button", GothicUIAssets.material_surface_style(&"blood", COLOR_BLOOD_HOT, true))
+	_theme.set_stylebox("disabled", "Button", GothicUIAssets.material_surface_style(&"void", COLOR_IRON_DIM, false))
 	_theme.set_stylebox("focus", "Button", _focus_outline(5))
 	_theme.set_color("font_color", "LineEdit", COLOR_TEXT)
 	_theme.set_color("font_placeholder_color", "LineEdit", COLOR_TEXT_MUTED)
-	_theme.set_stylebox("normal", "LineEdit", _style(COLOR_PANEL_DEEP, COLOR_IRON_DIM, 1, 4))
-	_theme.set_stylebox("focus", "LineEdit", _style(COLOR_PANEL, COLOR_GOLD, 1, 4))
-	_theme.set_stylebox("read_only", "LineEdit", _style(COLOR_PANEL_DEEP, COLOR_IRON_DIM, 1, 4))
+	_theme.set_stylebox("normal", "LineEdit", GothicUIAssets.material_surface_style(&"parchment", COLOR_IRON_DIM, false))
+	_theme.set_stylebox("focus", "LineEdit", GothicUIAssets.material_surface_style(&"parchment", COLOR_GOLD, true))
+	_theme.set_stylebox("read_only", "LineEdit", GothicUIAssets.material_surface_style(&"void", COLOR_IRON_DIM, false))
 	_theme.set_color("font_color", "TextEdit", COLOR_TEXT)
-	_theme.set_stylebox("normal", "TextEdit", _style(COLOR_PANEL_DEEP, COLOR_IRON_DIM, 1, 4))
-	_theme.set_stylebox("focus", "TextEdit", _style(COLOR_PANEL, COLOR_GOLD, 1, 4))
-	_theme.set_stylebox("panel", "Panel", _style(COLOR_PANEL, COLOR_IRON_DIM, 1, 6))
-	_theme.set_stylebox("panel", "PanelContainer", _style(COLOR_PANEL, COLOR_IRON_DIM, 1, 6))
+	_theme.set_stylebox("normal", "TextEdit", GothicUIAssets.material_surface_style(&"parchment", COLOR_IRON_DIM, false))
+	_theme.set_stylebox("focus", "TextEdit", GothicUIAssets.material_surface_style(&"parchment", COLOR_GOLD, true))
+	_theme.set_stylebox("panel", "Panel", GothicUIAssets.material_surface_style(&"stone", COLOR_IRON_DIM, false))
+	_theme.set_stylebox("panel", "PanelContainer", GothicUIAssets.material_surface_style(&"leather", COLOR_IRON, true))
 	_theme.set_stylebox("grabber_area", "HSlider", _style(COLOR_BLOOD, Color(0.0, 0.0, 0.0, 0.0), 0, 3))
 	_theme.set_stylebox("grabber_area_highlight", "HSlider", _style(COLOR_BLOOD_HOT, Color(0.0, 0.0, 0.0, 0.0), 0, 3))
 	_theme.set_stylebox("slider", "HSlider", _style(COLOR_IRON_DIM, Color(0.0, 0.0, 0.0, 0.0), 0, 3))
@@ -70,21 +71,15 @@ static func _get_theme() -> Theme:
 
 static func _apply_root(root: Control) -> void:
 	root.add_theme_color_override("font_color", COLOR_TEXT)
-	var margin: MarginContainer = root.get_node_or_null("MarginContainer") as MarginContainer
-	if margin != null:
-		margin.add_theme_constant_override("margin_left", 20)
-		margin.add_theme_constant_override("margin_top", 14)
-		margin.add_theme_constant_override("margin_right", 20)
-		margin.add_theme_constant_override("margin_bottom", 18)
 
 static func _apply_named_nodes(root: Control) -> void:
 	_apply_screen_backdrop(root)
 	_configure_combat_layout(root)
 	_ensure_combat_vfx_installer(root)
 	_clear_battlefield_rect(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer/ArenaBackground")
-	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(0.94, 0.91, 0.86, 0.95))
-	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(0.92, 0.94, 0.90, 0.95))
-	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaSurface", GothicUIAssets.battlefield_texture(), -8, Color(1.16, 1.10, 1.04, 1.0))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicPlanningTopSurface", GothicUIAssets.battlefield_top_texture(), -8, Color(1.18, 1.10, 1.04, 1.0))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlanningBottomSurface", GothicUIAssets.battlefield_bottom_texture(), -8, Color(1.12, 1.18, 1.10, 1.0))
+	_ensure_texture_backdrop(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaSurface", GothicUIAssets.battlefield_texture(), -8, Color(1.26, 1.18, 1.10, 1.0))
 	_style_label(root, "MarginContainer/VBoxContainer/StageLabel", 34, COLOR_TEXT, true)
 	_style_label(root, "MarginContainer/VBoxContainer/PlanningTimerLabel", 18, COLOR_GOLD, true)
 	_style_label(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", 22, COLOR_GOLD, true)
@@ -101,9 +96,11 @@ static func _apply_named_nodes(root: Control) -> void:
 	_set_min_size(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea", Vector2(296.0, 596.0))
 	_set_min_size(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", Vector2(296.0, 164.0))
 	_set_min_size(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", Vector2(296.0, 398.0))
-	_set_min_size_by_name(root, "StatsPanel", Vector2(316.0, 560.0))
-	_set_min_size_by_name(root, "Scoreboard", Vector2(294.0, 430.0))
-	_set_min_size_by_name(root, "MetricTabs", Vector2(294.0, 52.0))
+	# Vertical floors keep standalone harnesses legible; horizontal sizing is
+	# owned by CombatView's responsive 160/216px metrics rail.
+	_set_min_size_by_name(root, "StatsPanel", Vector2(0.0, 560.0))
+	_set_min_size_by_name(root, "Scoreboard", Vector2(0.0, 430.0))
+	_set_min_size_by_name(root, "MetricTabs", Vector2(0.0, 52.0))
 	_set_min_size(root, "MarginContainer/VBoxContainer/PlanningTimerLabel", Vector2(0.0, 0.0))
 	_set_min_size(root, "MarginContainer/VBoxContainer/ActionsRow", Vector2(1120.0, 56.0))
 	_set_min_size(root, "MarginContainer/VBoxContainer/ActionsRow/BetRow", Vector2(226.0, 46.0))
@@ -124,17 +121,17 @@ static func _apply_named_nodes(root: Control) -> void:
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea", "GothicBattlePlate", _style(Color(0.016, 0.013, 0.018, 0.38), Color(0.23, 0.19, 0.18, 0.42), 1, 6), -20)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/TopArea", "GothicEnemyPlate", _style(Color(0.050, 0.024, 0.024, 0.070), Color(0.42, 0.22, 0.16, 0.26), 1, 4), -5)
 	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/BoardColumn/PlanningArea/BottomArea", "GothicPlayerPlate", _style(Color(0.026, 0.038, 0.036, 0.070), Color(0.34, 0.31, 0.22, 0.26), 1, 4), -5)
-	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", "GothicStatsAreaPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(Color(0.86, 0.80, 0.76, 0.94)), _style(Color(0.034, 0.029, 0.038, 0.94), Color(0.34, 0.27, 0.27, 0.90), 1, 6)), 0, 8.0)
-	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", "GothicItemsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.item_storage_panel_style(Color(0.94, 0.86, 0.78, 0.94)), _style(Color(0.030, 0.026, 0.034, 0.88), Color(0.20, 0.18, 0.20, 0.84), 1, 6)), 0, 8.0)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", "GothicTraitsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.traits_panel_style(Color(0.90, 0.82, 0.76, 0.94)), _style(Color(0.026, 0.023, 0.031, 0.94), Color(0.38, 0.28, 0.26, 0.86), 1, 6)), -2)
-	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BenchArea/BenchGrid", "GothicBenchPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.status_strip_style(Color(0.72, 0.68, 0.58, 0.72)), _style(Color(0.026, 0.023, 0.030, 0.78), Color(0.34, 0.27, 0.18, 0.58), 1, 5)), 0, 8.0)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", "GothicGoldPlate", _style(Color(0.085, 0.061, 0.033, 0.74), Color(0.78, 0.48, 0.20, 0.72), 1, 4), -5)
-	_ensure_backplate_by_name(root, "GoldLabel", "GothicGoldPlate", _style(Color(0.085, 0.061, 0.033, 0.76), Color(0.78, 0.48, 0.20, 0.76), 1, 4), -5)
+	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/StatsArea", "GothicStatsAreaPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.grid_panel_style(Color(0.78, 0.74, 0.70, 0.88)), GothicUIAssets.material_surface_style(&"parchment", COLOR_GOLD, true)), 0, 6.0)
+	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/ItemStorageGrid", "GothicItemsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.item_storage_panel_style(Color(0.82, 0.82, 0.80, 0.88)), GothicUIAssets.material_surface_style(&"iron", COLOR_IRON, true)), 0, 6.0)
+	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ContentRow/LeftItemArea/TraitsPanel", "GothicTraitsPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.traits_panel_style(Color(0.84, 0.76, 0.68, 0.88)), GothicUIAssets.material_surface_style(&"leather", COLOR_GOLD, true)), -2)
+	_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BenchArea/BenchGrid", "GothicBenchPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.status_strip_style(Color(0.76, 0.74, 0.68, 0.78)), GothicUIAssets.material_surface_style(&"iron", COLOR_GOLD, false)), 0, 6.0)
+	_ensure_backplate(root, "MarginContainer/VBoxContainer/ActionsRow/GoldLabel", "GothicGoldPlate", GothicUIAssets.material_surface_style(&"blood", COLOR_GOLD, true), -5)
+	_ensure_backplate_by_name(root, "GoldLabel", "GothicGoldPlate", GothicUIAssets.material_surface_style(&"blood", COLOR_GOLD, true), -5)
 	if opening_shop:
 		_hide_named_control(root, "GothicShopPlate")
 	else:
-		_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BottomStorageArea", "GothicShopPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _style(Color(0.026, 0.022, 0.030, 0.96), Color(0.39, 0.29, 0.25, 0.90), 1, 6)), 0, 10.0)
-	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaVignette", GothicUIAssets.style_or_fallback(GothicUIAssets.arena_frame_style(Color(0.82, 0.76, 0.68, 0.70)), _style(Color(0.0, 0.0, 0.0, 0.040), Color(0.56, 0.34, 0.18, 0.30), 1, 4)), -5)
+		_ensure_external_backplate(root, "MarginContainer/VBoxContainer/BottomStorageArea", "GothicShopPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(Color(0.92, 0.82, 0.72, 0.96)), GothicUIAssets.material_surface_style(&"leather", COLOR_GOLD, true)), 0, 8.0)
+	_ensure_backplate(root, "MarginContainer/VBoxContainer/BattleArea/ArenaContainer", "GothicArenaVignette", GothicUIAssets.style_or_fallback(GothicUIAssets.arena_frame_style(Color(0.94, 0.86, 0.76, 0.82)), GothicUIAssets.material_surface_style(&"stone", COLOR_GOLD, false)), -5)
 	_remove_named_child(root, "GothicTimerPlate")
 
 static func _apply_tree(node: Node) -> void:
@@ -166,6 +163,7 @@ static func _apply_tree(node: Node) -> void:
 
 static func _apply_button_node(button: Button) -> void:
 	_mark_interactive(button)
+	GothicUIAssets.apply_type(button, &"button")
 	if button.name.begins_with("TileP_"):
 		_apply_tile(button, true)
 		return
@@ -202,18 +200,23 @@ static func _apply_label_node(label: Label) -> void:
 	if not label.has_theme_color_override("font_color"):
 		label.add_theme_color_override("font_color", COLOR_TEXT)
 	if label.name == "Title":
+		GothicUIAssets.apply_type(label, &"heading")
 		label.add_theme_font_size_override("font_size", 20)
 		label.add_theme_color_override("font_color", COLOR_GOLD)
 	elif label.name == "Role" or label.name == "RoleBadge":
+		GothicUIAssets.apply_type(label, &"meta")
 		label.add_theme_font_size_override("font_size", 13)
 		label.add_theme_color_override("font_color", Color(0.78, 0.73, 0.66, 1.0))
 	elif label.name == "Name":
+		GothicUIAssets.apply_type(label, &"body_bold")
 		label.add_theme_font_size_override("font_size", 15)
 		label.add_theme_color_override("font_color", COLOR_TEXT)
 	elif label.name == "Price":
+		GothicUIAssets.apply_type(label, &"meta")
 		label.add_theme_font_size_override("font_size", 14)
 		label.add_theme_color_override("font_color", COLOR_GOLD)
 	elif label.name == "GoalLabel":
+		GothicUIAssets.apply_type(label, &"micro")
 		label.add_theme_font_size_override("font_size", 12)
 		label.add_theme_color_override("font_color", COLOR_TEXT_MUTED)
 	elif label.name == "GoldLabel":
@@ -243,6 +246,7 @@ static func _apply_label_node(label: Label) -> void:
 			_style_label_node(label, 14, COLOR_TEXT, false)
 
 static func _apply_rich_text(text: RichTextLabel) -> void:
+	GothicUIAssets.apply_type(text, &"body")
 	text.add_theme_color_override("default_color", COLOR_TEXT_MUTED)
 	text.add_theme_font_size_override("normal_font_size", 14)
 	text.scroll_following = true
@@ -266,7 +270,7 @@ static func _apply_vbox_container(box: VBoxContainer) -> void:
 		box.add_theme_constant_override("separation", 10)
 	elif box.name == "Scoreboard":
 		box.add_theme_constant_override("separation", 10)
-		box.custom_minimum_size = Vector2(max(box.custom_minimum_size.x, 294.0), max(box.custom_minimum_size.y, 430.0))
+		box.custom_minimum_size = Vector2(0.0, max(box.custom_minimum_size.y, 430.0))
 	elif box.name == "PlayerColumn" or box.name == "EnemyColumn":
 		box.add_theme_constant_override("separation", 8)
 	elif box.name == "TraitsVBox":
@@ -361,7 +365,7 @@ static func _style_shop_action_button(button: Button) -> void:
 
 static func _style_metric_button(button: Button) -> void:
 	var is_small_expand: bool = button.name == "ExpandButton"
-	button.custom_minimum_size = Vector2(48.0, 36.0) if is_small_expand else Vector2(76.0, 36.0)
+	button.custom_minimum_size = Vector2(42.0, 34.0) if is_small_expand else Vector2(52.0, 34.0)
 	button.add_theme_font_size_override("font_size", 14)
 	button.add_theme_stylebox_override("normal", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(), _style(Color(0.044, 0.038, 0.048, 0.96), Color(0.28, 0.25, 0.28, 0.92), 1, 4)))
 	button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _hover_style(Color(0.12, 0.073, 0.085, 0.99), COLOR_GOLD_HOT, 1, 4)))
@@ -371,7 +375,10 @@ static func _style_metric_button(button: Button) -> void:
 	button.add_theme_stylebox_override("disabled", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.48, 0.46, 0.43, 0.72)), _style(Color(0.028, 0.026, 0.030, 0.76), Color(0.18, 0.17, 0.17, 0.64), 1, 4)))
 
 static func _apply_metric_tabs(tabs: Control) -> void:
-	tabs.custom_minimum_size = Vector2(max(tabs.custom_minimum_size.x, 294.0), 52.0)
+	# Width belongs to the responsive combat layout.  The old 294px floor
+	# pushed this strip outside the authored 160/216px metrics rail.
+	tabs.custom_minimum_size = Vector2(0.0, 52.0)
+	tabs.clip_contents = true
 	tabs.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	for child: Node in tabs.get_children():
 		var row: HBoxContainer = child as HBoxContainer
@@ -383,7 +390,7 @@ static func _apply_metric_tabs(tabs: Control) -> void:
 		row.offset_right = 0.0
 		row.offset_bottom = -4.0
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_theme_constant_override("separation", 8)
+		row.add_theme_constant_override("separation", 6)
 		for button_node: Node in row.get_children():
 			if button_node is Button:
 				_style_metric_button(button_node as Button)
@@ -461,7 +468,7 @@ static func _apply_screen_backdrop(root: Control) -> void:
 	backdrop.texture = texture
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_SCALE
-	backdrop.modulate = Color(0.52, 0.50, 0.48, 0.78)
+	backdrop.modulate = Color(0.66, 0.64, 0.62, 0.86)
 
 static func _configure_combat_layout(root: Control) -> void:
 	var arena: Control = root.get_node_or_null("MarginContainer/VBoxContainer/BattleArea/ArenaContainer") as Control

@@ -236,7 +236,7 @@ REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS = [
     "prompt_context_status",
     "Grint is accepted as narrow proof history but currently blocked from prompt influence",
     "reference-ladder sheet",
-    "Do not generate Veyra or broader roster batches",
+    "The old Creep revision gate is closed",
     "Do not replace any live `assets/units/*.png` file",
     "Board-scale decision sheet",
     "Vellum can veto any candidate",
@@ -989,6 +989,7 @@ CURRENT_PROOF_STATUSES = {"accepted", "current_candidate"}
 VALID_REFERENCE_ROLES = {
     "secondary_contrast_anchor",
     "small_asset_material_reference",
+    "narrow_horror_anchor_live",
     "narrow_proof_only",
     "review_candidate_not_anchor",
     "negative_example",
@@ -1620,6 +1621,8 @@ def main() -> int:
     if not isinstance(secondary_anchor_ids, list) or not secondary_anchor_ids:
         fail("reference_policy.secondary_anchor_proof_ids must be a non-empty list", failures)
         secondary_anchor_ids = []
+    elif secondary_anchor_ids != ["paisley_goth_bubble_refit"]:
+        fail("reference_policy.secondary_anchor_proof_ids must contain only the Paisley contrast anchor", failures)
     if not isinstance(small_asset_reference_ids, list) or not small_asset_reference_ids:
         fail("reference_policy.small_asset_reference_proof_ids must be a non-empty list", failures)
         small_asset_reference_ids = []

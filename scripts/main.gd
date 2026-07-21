@@ -12,6 +12,11 @@ const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const RosterCatalog := preload("res://scripts/game/progression/roster_catalog.gd")
 const RunStateStore := preload("res://scripts/game/run/run_state_store.gd")
 const TITLE_SIGIL: Texture2D = preload("res://assets/ui/gold icon.png")
+const ICON_START: Texture2D = preload("res://assets/ui/icons/icon_start.svg")
+const ICON_CODEX: Texture2D = preload("res://assets/ui/icons/icon_codex.svg")
+const ICON_SETTINGS: Texture2D = preload("res://assets/ui/icons/icon_settings.svg")
+const ICON_QUIT: Texture2D = preload("res://assets/ui/icons/icon_quit.svg")
+const ICON_SELECTED: Texture2D = preload("res://assets/ui/icons/icon_selected.svg")
 
 const DEBUG_AUTO_START := false
 const DEBUG_TRACE := true
@@ -217,6 +222,7 @@ func _build_system_menu() -> void:
 	_system_menu_button.offset_bottom = 56.0
 	_system_menu_button.pressed.connect(_open_system_menu)
 	_apply_button_style(_system_menu_button, true)
+	_apply_button_icon(_system_menu_button, ICON_SETTINGS, 18)
 	_system_layer.add_child(_system_menu_button)
 
 	_system_overlay = Control.new()
@@ -261,9 +267,9 @@ func _build_system_menu() -> void:
 
 	var title: Label = Label.new()
 	title.name = "Title"
-	title.text = "System"
+	title.text = "SYSTEM"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 30)
+	_apply_brand_type(title, &"title")
 	title.add_theme_color_override("font_color", Color(0.94, 0.84, 0.66))
 	stack.add_child(title)
 
@@ -272,19 +278,19 @@ func _build_system_menu() -> void:
 	rule.custom_minimum_size = Vector2(0.0, 18.0)
 	stack.add_child(rule)
 
-	_resume_button = _make_menu_button("ResumeButton", "Resume")
+	_resume_button = _make_menu_button("ResumeButton", "Resume", ICON_START)
 	_resume_button.pressed.connect(_close_system_menu)
 	stack.add_child(_resume_button)
 
-	_new_run_button = _make_menu_button("NewRunButton", "New Run")
+	_new_run_button = _make_menu_button("NewRunButton", "New Run", ICON_SELECTED)
 	_new_run_button.pressed.connect(request_new_run)
 	stack.add_child(_new_run_button)
 
-	_return_title_button = _make_menu_button("ReturnTitleButton", "Return to Title")
+	_return_title_button = _make_menu_button("ReturnTitleButton", "Return to Title", ICON_CODEX)
 	_return_title_button.pressed.connect(request_return_to_title)
 	stack.add_child(_return_title_button)
 
-	_quit_game_button = _make_menu_button("QuitGameButton", "Quit Game")
+	_quit_game_button = _make_menu_button("QuitGameButton", "Quit Game", ICON_QUIT)
 	_quit_game_button.pressed.connect(_on_quit)
 	stack.add_child(_quit_game_button)
 
@@ -329,20 +335,23 @@ func _build_title_page() -> void:
 	stack.custom_minimum_size = Vector2(720.0, 0.0)
 	stack.add_theme_constant_override("separation", 16)
 	center.add_child(stack)
+	var compact_title: bool = get_viewport_rect().size.x <= 1366.0
 	var title: Label = Label.new()
 	title.name = "GameTitle"
-	title.text = "Gamble Battle"
+	title.text = "GAMBLE BATTLE"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 76)
+	_apply_brand_type(title, &"wordmark", compact_title)
 	title.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT)
 	title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.82))
-	title.add_theme_constant_override("outline_size", 5)
+	title.add_theme_constant_override("outline_size", 2)
 	stack.add_child(title)
+	stack.add_child(_make_title_ornament("TitleOrnament", 360.0 if compact_title else 460.0))
 	var subtitle: Label = Label.new()
 	subtitle.name = "Subtitle"
-	subtitle.text = "Blood. Gold. Consequence."
+	subtitle.text = "BLOOD · GOLD · CONSEQUENCE"
 	subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	subtitle.add_theme_font_size_override("font_size", 20)
+	_apply_brand_type(subtitle, &"meta")
+	subtitle.add_theme_font_size_override("font_size", 16 if compact_title else 18)
 	subtitle.add_theme_color_override("font_color", GothicUIAssets.COLOR_TEXT_MUTED)
 	stack.add_child(subtitle)
 	var enter_button: Button = Button.new()
@@ -351,6 +360,7 @@ func _build_title_page() -> void:
 	enter_button.custom_minimum_size = Vector2(260.0, 58.0)
 	enter_button.focus_mode = Control.FOCUS_ALL
 	_apply_button_style(enter_button, false)
+	_apply_button_icon(enter_button, ICON_START, 22)
 	enter_button.pressed.connect(_dismiss_title_page)
 	stack.add_child(enter_button)
 	_title_page.gui_input.connect(_on_title_page_gui_input)
@@ -392,17 +402,19 @@ func _disable_embedded_menu_buttons() -> void:
 	embedded_combat_menu.visible = false
 	embedded_combat_menu.disabled = true
 
-func _make_menu_button(node_name: String, label: String) -> Button:
+func _make_menu_button(node_name: String, label: String, icon_texture: Texture2D = null) -> Button:
 	var button: Button = Button.new()
 	button.name = node_name
 	button.text = label
 	button.focus_mode = Control.FOCUS_ALL
 	button.custom_minimum_size = Vector2(320.0, 52.0)
 	_apply_button_style(button, false)
+	_apply_button_icon(button, icon_texture, 20)
 	return button
 
 func _apply_button_style(button: Button, compact: bool) -> void:
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_apply_brand_type(button, &"button", compact)
 	button.add_theme_stylebox_override("normal", _make_system_button_style(compact, Color.WHITE))
 	button.add_theme_stylebox_override("hover", _make_system_button_style(compact, Color(1.18, 1.08, 0.90, 1.0)))
 	button.add_theme_stylebox_override("pressed", _make_system_button_style(compact, Color(0.86, 0.72, 0.68, 1.0)))
@@ -415,6 +427,52 @@ func _apply_button_style(button: Button, compact: bool) -> void:
 	# adjacent HUD when hovered. Full-size modal actions keep their subtle scale.
 	if not compact:
 		_wire_system_button_hover(button, compact)
+
+func _apply_brand_type(control: Control, role: StringName, compact: bool = false) -> void:
+	if control == null or not GothicUIAssets.has_method("apply_type"):
+		return
+	GothicUIAssets.apply_type(control, role, compact)
+
+func _apply_button_icon(button: Button, icon_texture: Texture2D, max_width: int) -> void:
+	if button == null or icon_texture == null:
+		return
+	button.icon = icon_texture
+	button.expand_icon = true
+	button.add_theme_constant_override("icon_max_width", max_width)
+	button.add_theme_color_override("icon_normal_color", Color(0.88, 0.76, 0.58, 0.96))
+	button.add_theme_color_override("icon_hover_color", Color(1.0, 0.86, 0.58, 1.0))
+	button.add_theme_color_override("icon_pressed_color", Color(0.88, 0.48, 0.34, 1.0))
+	button.add_theme_color_override("icon_disabled_color", Color(0.42, 0.39, 0.36, 0.72))
+
+func _make_title_ornament(node_name: String, minimum_width: float) -> HBoxContainer:
+	var ornament: HBoxContainer = HBoxContainer.new()
+	ornament.name = node_name
+	ornament.alignment = BoxContainer.ALIGNMENT_CENTER
+	ornament.custom_minimum_size = Vector2(minimum_width, 22.0)
+	ornament.add_theme_constant_override("separation", 10)
+	var left_rule: ColorRect = ColorRect.new()
+	left_rule.name = "LeftRule"
+	left_rule.color = Color(0.66, 0.40, 0.19, 0.88)
+	left_rule.custom_minimum_size = Vector2(96.0, 1.0)
+	left_rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ornament.add_child(left_rule)
+	var seal: TextureRect = TextureRect.new()
+	seal.name = "Seal"
+	seal.texture = ICON_SELECTED
+	seal.custom_minimum_size = Vector2(20.0, 20.0)
+	seal.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	seal.modulate = Color(0.90, 0.65, 0.34, 0.92)
+	ornament.add_child(seal)
+	var right_rule: ColorRect = ColorRect.new()
+	right_rule.name = "RightRule"
+	right_rule.color = left_rule.color
+	right_rule.custom_minimum_size = Vector2(96.0, 1.0)
+	right_rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ornament.add_child(right_rule)
+	return ornament
 
 func _make_system_button_style(compact: bool, modulate: Color) -> StyleBox:
 	var fallback: StyleBoxFlat = StyleBoxFlat.new()

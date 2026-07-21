@@ -458,8 +458,8 @@ def assert_proof_policy(report: list[str]) -> None:
         raise RuntimeError("primary anchor id is not vellum_raw_anchor")
     if not primary_path.exists():
         raise RuntimeError(f"primary anchor path missing: {rel(primary_path)}")
-    if "paisley_goth_bubble_refit" not in policy["secondary_anchor_proof_ids"]:
-        raise RuntimeError("Paisley missing from secondary anchor proof ids")
+    if policy["secondary_anchor_proof_ids"] != ["paisley_goth_bubble_refit"]:
+        raise RuntimeError("Paisley must remain the only secondary contrast anchor")
     if "ability_token_contract_mark" not in policy["small_asset_reference_proof_ids"]:
         raise RuntimeError("contract token missing from small asset reference proof ids")
     if "character palette" not in str(policy.get("small_asset_rule", "")):
@@ -475,7 +475,7 @@ def assert_proof_policy(report: list[str]) -> None:
     report.append("## Proof Reference Policy")
     report.append("")
     report.append(f"- PASS primary anchor `{primary['id']}` exists at `{primary['path']}`.")
-    report.append("- PASS Paisley/token remain the only promoted secondary/small-asset references.")
+    report.append("- PASS Paisley remains the only secondary contrast anchor; Creep v5 remains a narrow live horror reference.")
     report.append("- PASS The token is fenced as small-asset material context, not a character palette/style anchor.")
     report.append("")
 

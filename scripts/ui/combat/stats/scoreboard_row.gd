@@ -2,6 +2,7 @@ extends Control
 class_name ScoreboardRow
 
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
+const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_presentation.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 
 var team: String = "player"
@@ -45,7 +46,7 @@ func _refresh() -> void:
 func _update_portrait() -> void:
 	var tex: Texture2D = null
 	if unit_ref != null and String(unit_ref.sprite_path) != "":
-		tex = TextureUtils.try_load_texture(unit_ref.sprite_path)
+		tex = UnitArtPresentation.texture_for(String(unit_ref.id), String(unit_ref.sprite_path))
 	if tex == null:
 		tex = TextureUtils.make_circle_texture(Color(0.6, 0.65, 0.75), 32)
 	portrait.texture = tex
@@ -97,7 +98,7 @@ func _apply_visual_style() -> void:
 		value_label.clip_text = true
 	if portrait != null:
 		portrait.custom_minimum_size = Vector2(42.0, 42.0)
-		portrait.modulate = Color(1.0, 0.94, 0.80, 1.0) if _hovered else Color(0.95, 0.90, 0.82, 1.0)
+		portrait.modulate = Color.WHITE
 
 func _ensure_layout() -> void:
 	if _frame == null:

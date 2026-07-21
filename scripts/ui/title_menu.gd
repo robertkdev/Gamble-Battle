@@ -11,6 +11,11 @@ const UnitFactoryScript: GDScript = preload("res://scripts/unit_factory.gd")
 const UnitTargetingText: GDScript = preload("res://scripts/ui/unit_targeting_text.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
 const UserSettingsScript: GDScript = preload("res://scripts/game/settings/user_settings.gd")
+const ICON_START: Texture2D = preload("res://assets/ui/icons/icon_start.svg")
+const ICON_CODEX: Texture2D = preload("res://assets/ui/icons/icon_codex.svg")
+const ICON_SETTINGS: Texture2D = preload("res://assets/ui/icons/icon_settings.svg")
+const ICON_QUIT: Texture2D = preload("res://assets/ui/icons/icon_quit.svg")
+const ICON_SELECTED: Texture2D = preload("res://assets/ui/icons/icon_selected.svg")
 
 const SECTION_HOME: String = "home"
 const SECTION_GUIDE: String = "guide"
@@ -49,7 +54,7 @@ var _shade: ColorRect = null
 var _hero: TextureRect = null
 var _sigil: TextureRect = null
 var _subtitle: Label = null
-var _rule: ColorRect = null
+var _rule: HBoxContainer = null
 var _content_panel: PanelContainer = null
 var _content_stack: VBoxContainer = null
 var _content_body: VBoxContainer = null
@@ -253,6 +258,10 @@ func _build_approach_entries() -> void:
 		})
 
 func _apply_gothic_layout() -> void:
+	if GothicUIAssets.has_method("font_theme"):
+		var brand_theme: Theme = GothicUIAssets.font_theme()
+		if brand_theme != null:
+			theme = brand_theme
 	if background != null:
 		background.color = COLOR_VOID
 	if bg_rect != null:
@@ -280,13 +289,14 @@ func _apply_gothic_layout() -> void:
 		center_vbox.custom_minimum_size = Vector2(350.0, 0.0)
 		center_vbox.add_theme_constant_override("separation", 13)
 	if title_label != null:
-		title_label.text = "Gamble Battle"
-		title_label.add_theme_font_size_override("font_size", 64)
+		title_label.text = "GAMBLE\nBATTLE"
+		_apply_brand_type(title_label, &"wordmark", true)
 		title_label.add_theme_color_override("font_color", COLOR_TEXT)
 		title_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.78))
-		title_label.add_theme_constant_override("outline_size", 5)
+		title_label.add_theme_constant_override("outline_size", 2)
+		title_label.add_theme_constant_override("line_spacing", -7)
 		title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_ensure_title_panel()
 	_ensure_shade()
 	_remove_hero()
@@ -301,10 +311,16 @@ func _build_navigation() -> void:
 	_ensure_nav_button("SettingsButton", "Settings", SECTION_SETTINGS)
 	if start_button != null:
 		start_button.text = "Start Run"
+		_apply_menu_icon(start_button, ICON_START, 22)
 	if quit_button != null:
 		quit_button.text = "Quit"
+		_apply_menu_icon(quit_button, ICON_QUIT, 18)
 	for nav_button: Button in _nav_buttons:
 		_style_menu_button(nav_button, false)
+	var guide_button: Button = center_vbox.get_node_or_null("GuideButton") as Button
+	var settings_button: Button = center_vbox.get_node_or_null("SettingsButton") as Button
+	_apply_menu_icon(guide_button, ICON_CODEX, 20)
+	_apply_menu_icon(settings_button, ICON_SETTINGS, 20)
 
 func _ensure_nav_button(node_name: String, button_text: String, section: String) -> Button:
 	var button: Button = center_vbox.get_node_or_null(node_name) as Button
@@ -347,6 +363,7 @@ func _ensure_guide_tab(node_name: String, button_text: String, section: String) 
 	button.toggle_mode = true
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.custom_minimum_size = Vector2(120.0, 40.0)
+	_apply_brand_type(button, &"button", true)
 	button.add_theme_font_size_override("font_size", GothicUIAssets.FONT_META)
 	button.add_theme_color_override("font_color", COLOR_TEXT)
 	button.add_theme_color_override("font_hover_color", COLOR_GOLD)
@@ -435,21 +452,24 @@ func _ensure_subtitle() -> void:
 		_subtitle.name = "Subtitle"
 		center_vbox.add_child(_subtitle)
 		center_vbox.move_child(_subtitle, min(1, center_vbox.get_child_count() - 1))
-	_subtitle.text = "Blood. Gold. Consequence."
+	_subtitle.text = "BLOOD · GOLD · CONSEQUENCE"
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_subtitle.add_theme_font_size_override("font_size", 17)
+	_subtitle.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_apply_brand_type(_subtitle, &"meta")
+	_subtitle.add_theme_font_size_override("font_size", 15)
 	_subtitle.add_theme_color_override("font_color", COLOR_MUTED)
 	_subtitle.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
-	_subtitle.add_theme_constant_override("outline_size", 2)
-	_rule = center_vbox.get_node_or_null("TitleRule") as ColorRect
+	_subtitle.add_theme_constant_override("outline_size", 1)
+	var existing_rule: Node = center_vbox.get_node_or_null("TitleRule")
+	if existing_rule != null and not existing_rule is HBoxContainer:
+		center_vbox.remove_child(existing_rule)
+		existing_rule.queue_free()
+	_rule = center_vbox.get_node_or_null("TitleRule") as HBoxContainer
 	if _rule == null:
-		_rule = ColorRect.new()
+		_rule = _make_title_ornament()
 		_rule.name = "TitleRule"
 		center_vbox.add_child(_rule)
 		center_vbox.move_child(_rule, min(2, center_vbox.get_child_count() - 1))
-	_rule.custom_minimum_size = Vector2(240.0, 2.0)
-	_rule.color = Color(0.70, 0.42, 0.22, 0.86)
 
 func _ensure_content_panel() -> void:
 	_content_panel = get_node_or_null("ContentPanel") as PanelContainer
@@ -498,6 +518,7 @@ func _ensure_content_panel() -> void:
 		_section_title = Label.new()
 		_section_title.name = "SectionTitle"
 		header.add_child(_section_title)
+	_apply_brand_type(_section_title, &"title")
 	_section_title.add_theme_font_size_override("font_size", 30)
 	_section_title.add_theme_color_override("font_color", Color(0.96, 0.84, 0.62, 1.0))
 	_section_title.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))
@@ -520,6 +541,7 @@ func _ensure_content_panel() -> void:
 		header.add_child(_search_field)
 	_search_field.custom_minimum_size = Vector2(0.0, 40.0)
 	_search_field.clear_button_enabled = true
+	_apply_brand_type(_search_field, &"body")
 	_search_field.add_theme_font_size_override("font_size", 17)
 	_search_field.add_theme_color_override("font_color", COLOR_TEXT)
 	_search_field.add_theme_color_override("font_placeholder_color", Color(0.62, 0.57, 0.50, 0.82))
@@ -868,6 +890,8 @@ func _add_heading(text: String) -> void:
 	if _search_query() != "":
 		return
 	var label: Label = _make_label(text, 22, Color(0.94, 0.72, 0.45, 1.0), false)
+	_apply_brand_type(label, &"heading")
+	label.add_theme_font_size_override("font_size", 22)
 	label.custom_minimum_size = Vector2(0.0, 36.0)
 	_content_body.add_child(label)
 
@@ -1032,6 +1056,7 @@ func _make_card_container(node_name: String, bg: Color, border: Color, border_wi
 func _make_label(text: String, font_size: int, color: Color, wrap: bool) -> Label:
 	var label: Label = Label.new()
 	label.text = text
+	_apply_brand_type(label, &"body")
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap else TextServer.AUTOWRAP_OFF
@@ -1085,6 +1110,7 @@ func _style_menu_button(button: Button, primary: bool, tertiary: bool = false) -
 		return
 	button.custom_minimum_size = Vector2(320.0, 42.0 if tertiary else 48.0)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_apply_brand_type(button, &"button", tertiary)
 	button.add_theme_font_size_override("font_size", GothicUIAssets.FONT_HEADING if primary else (GothicUIAssets.FONT_META if tertiary else GothicUIAssets.FONT_BODY))
 	button.add_theme_color_override("font_color", COLOR_MUTED if tertiary else COLOR_TEXT)
 	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.72, 1.0))
@@ -1104,6 +1130,51 @@ func _style_menu_button(button: Button, primary: bool, tertiary: bool = false) -
 		button.add_theme_stylebox_override("hover", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.14, 1.05, 0.92, 1.0)), _make_button_style(Color(0.120, 0.078, 0.090, 0.99), Color(1.0, 0.80, 0.43, 1.0), 1)))
 		button.add_theme_stylebox_override("pressed", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(0.86, 0.72, 0.68, 1.0)), _make_button_style(Color(0.20, 0.026, 0.044, 1.0), COLOR_GOLD, 2)))
 		button.add_theme_stylebox_override("focus", GothicUIAssets.style_or_fallback(GothicUIAssets.small_button_style(Color(1.10, 1.02, 0.88, 1.0)), _make_button_style(Color(0.12, 0.07, 0.08, 1.0), COLOR_GOLD, 2)))
+
+func _apply_brand_type(control: Control, role: StringName, compact: bool = false) -> void:
+	if control == null or not GothicUIAssets.has_method("apply_type"):
+		return
+	GothicUIAssets.apply_type(control, role, compact)
+
+func _apply_menu_icon(button: Button, icon_texture: Texture2D, max_width: int) -> void:
+	if button == null or icon_texture == null:
+		return
+	button.icon = icon_texture
+	button.expand_icon = true
+	button.add_theme_constant_override("icon_max_width", max_width)
+	button.add_theme_color_override("icon_normal_color", Color(0.86, 0.75, 0.58, 0.96))
+	button.add_theme_color_override("icon_hover_color", Color(1.0, 0.87, 0.60, 1.0))
+	button.add_theme_color_override("icon_pressed_color", Color(0.88, 0.48, 0.34, 1.0))
+	button.add_theme_color_override("icon_disabled_color", Color(0.40, 0.38, 0.35, 0.72))
+
+func _make_title_ornament() -> HBoxContainer:
+	var ornament: HBoxContainer = HBoxContainer.new()
+	ornament.alignment = BoxContainer.ALIGNMENT_CENTER
+	ornament.custom_minimum_size = Vector2(250.0, 20.0)
+	ornament.add_theme_constant_override("separation", 9)
+	var left_rule: ColorRect = ColorRect.new()
+	left_rule.name = "LeftRule"
+	left_rule.color = Color(0.70, 0.42, 0.22, 0.86)
+	left_rule.custom_minimum_size = Vector2(70.0, 1.0)
+	left_rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left_rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ornament.add_child(left_rule)
+	var seal: TextureRect = TextureRect.new()
+	seal.name = "Seal"
+	seal.texture = ICON_SELECTED
+	seal.custom_minimum_size = Vector2(18.0, 18.0)
+	seal.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	seal.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	seal.modulate = Color(0.90, 0.65, 0.34, 0.92)
+	ornament.add_child(seal)
+	var right_rule: ColorRect = ColorRect.new()
+	right_rule.name = "RightRule"
+	right_rule.color = left_rule.color
+	right_rule.custom_minimum_size = Vector2(70.0, 1.0)
+	right_rule.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_rule.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	ornament.add_child(right_rule)
+	return ornament
 
 func _update_nav_state() -> void:
 	for nav_button: Button in _nav_buttons:

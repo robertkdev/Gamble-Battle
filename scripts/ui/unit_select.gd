@@ -10,6 +10,8 @@ const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const UnitFactory := preload("res://scripts/unit_factory.gd")
 const TextureUtils := preload("res://scripts/util/texture_utils.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_presentation.gd")
+const SELECTED_CREST_TEXTURE: Texture2D = preload("res://assets/ui/icons/icon_selected.svg")
 
 const COLOR_VOID: Color = GothicUIAssets.COLOR_VOID
 const COLOR_PANEL: Color = GothicUIAssets.COLOR_SURFACE
@@ -171,6 +173,7 @@ func _ensure_preview_panel() -> void:
 	right.move_child(start_button, right.get_child_count() - 1)
 
 func _apply_gothic_layout() -> void:
+	theme = GothicUIAssets.font_theme()
 	if background:
 		background.color = COLOR_VOID
 		if background.material is ShaderMaterial:
@@ -192,6 +195,7 @@ func _apply_gothic_layout() -> void:
 		_right_plate = _ensure_float_plate(right_column, "GothicPreviewPlate", GothicUIAssets.style_or_fallback(GothicUIAssets.wide_panel_style(), _make_panel_style(Color(0.030, 0.025, 0.034, 0.96), Color(0.48, 0.34, 0.25, 0.88), 1, 7)), -2, 10.0)
 	if heading_label:
 		heading_label.text = "Choose Your Starting Unit"
+		heading_label.add_theme_font_override("font", GothicUIAssets.type_font(&"title"))
 		heading_label.add_theme_font_size_override("font_size", 38)
 		heading_label.add_theme_color_override("font_color", COLOR_TEXT)
 		heading_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.76))
@@ -213,6 +217,7 @@ func _apply_gothic_layout() -> void:
 	if selected_label:
 		selected_label.custom_minimum_size = Vector2(560.0, 58.0)
 		selected_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		selected_label.add_theme_font_override("font", GothicUIAssets.type_font(&"title"))
 		selected_label.add_theme_font_size_override("font_size", 32)
 		selected_label.add_theme_color_override("font_color", COLOR_TEXT)
 		selected_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.70))
@@ -234,7 +239,7 @@ func _apply_gothic_layout() -> void:
 	if preview_art:
 		preview_art.custom_minimum_size = Vector2(280.0, 280.0)
 		preview_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		preview_art.modulate = Color(0.92, 0.88, 0.82, 1.0)
+		preview_art.modulate = Color.WHITE
 	var art_wrap: Control = right_column.get_node_or_null("Preview/ArtWrap") as Control
 	if art_wrap:
 		art_wrap.custom_minimum_size = Vector2(560.0, 280.0)
@@ -412,9 +417,20 @@ func _populate_units() -> void:
 		btn.set_meta("unit_id", uid2)
 		var sp: String = String(it.get("sprite_path", ""))
 		if sp != "":
-			var icon: Texture2D = TextureUtils.try_load_texture(sp)
-			if icon:
-				btn.icon = icon
+			UnitArtPresentation.apply_button_icon(btn, uid2, sp)
+		var selected_crest: TextureRect = TextureRect.new()
+		selected_crest.name = "SelectedCrest"
+		selected_crest.texture = SELECTED_CREST_TEXTURE
+		selected_crest.custom_minimum_size = Vector2(30.0, 30.0)
+		selected_crest.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		selected_crest.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		selected_crest.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		selected_crest.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+		selected_crest.position = Vector2(-36.0, 7.0)
+		selected_crest.size = Vector2(30.0, 30.0)
+		selected_crest.z_index = 8
+		selected_crest.visible = false
+		btn.add_child(selected_crest)
 		var name_label: Label = Label.new()
 		name_label.name = "UnitName"
 		name_label.text = String(it.get("name", ""))
@@ -533,7 +549,9 @@ func _update_preview(id: String, is_selected: bool = false) -> void:
 	_set_identity_summary(role_text, goal_text, approach_arr, ability_summary, is_selected)
 	var sp: String = String(it.get("sprite_path", ""))
 	if preview_art:
-		preview_art.texture = TextureUtils.try_load_texture(sp) if sp != "" else null
+		preview_art.texture = null
+		if sp != "":
+			UnitArtPresentation.apply_texture_rect(preview_art, id, sp)
 	if details_label:
 		var lines: Array[String] = _build_detail_lines(id, it)
 		details_label.text = "\n".join(lines)
@@ -910,7 +928,8 @@ func _style_unit_cards() -> void:
 			continue
 		var unit_id: String = String(button.get_meta("unit_id")) if button.has_meta("unit_id") else ""
 		var hovered: bool = unit_id != "" and unit_id == _hovered_id
-		_style_unit_card(tile, button, name_label, role_label, button.button_pressed, hovered)
+		var selected: bool = unit_id != "" and unit_id == selected_id
+		_style_unit_card(tile, button, name_label, role_label, selected, hovered)
 
 func _style_unit_card(tile: VBoxContainer, button: Button, name_label: Label, role_label: Label, selected: bool, hovered: bool = false) -> void:
 	var compact: bool = _is_compact_layout()
@@ -922,9 +941,13 @@ func _style_unit_card(tile: VBoxContainer, button: Button, name_label: Label, ro
 	button.add_theme_stylebox_override("pressed", _make_unit_button_style(true, true))
 	button.add_theme_stylebox_override("focus", GothicUIAssets.focus_outline_style(5, COLOR_GOLD))
 	button.add_theme_stylebox_override("disabled", _make_unit_button_style(false, false))
+	var selected_crest: TextureRect = button.get_node_or_null("SelectedCrest") as TextureRect
+	if selected_crest != null:
+		selected_crest.visible = selected
 	if name_label:
 		var display_name: String = String(name_label.get_meta("display_name", name_label.text))
-		name_label.text = ("[X] %s" % display_name) if selected else display_name
+		name_label.text = display_name
+		name_label.add_theme_font_override("font", GothicUIAssets.type_font(&"meta"))
 		name_label.add_theme_font_size_override("font_size", 14 if compact else 16)
 		name_label.add_theme_color_override("font_color", COLOR_TEXT if selected or hovered else Color(0.82, 0.78, 0.70, 1.0))
 		name_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.72))

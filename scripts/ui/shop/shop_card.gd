@@ -8,6 +8,7 @@ const UnitFactory := preload("res://scripts/unit_factory.gd")
 const UnitTargetingText := preload("res://scripts/ui/unit_targeting_text.gd")
 const UnitUpgradePaths := preload("res://scripts/game/units/unit_upgrade_paths.gd")
 const GothicUIAssets: GDScript = preload("res://scripts/ui/gothic_ui_assets.gd")
+const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_presentation.gd")
 
 const COLOR_TEXT: Color = Color(0.91, 0.87, 0.78, 1.0)
 const COLOR_MUTED: Color = Color(0.66, 0.60, 0.52, 1.0)
@@ -95,10 +96,11 @@ func set_data(props: Dictionary) -> void:
 	if _icon:
 		var tex: Texture2D = null
 		if img_path != "":
-			tex = TextureUtils.try_load_texture(img_path)
+			tex = UnitArtPresentation.texture_for(offer_id, img_path)
 		if tex == null:
 			tex = TextureUtils.make_circle_texture(Color(0.75, 0.75, 0.75), 96)
 		_icon.texture = tex
+		_icon.modulate = Color.WHITE
 
 	_update_identity_panel(display_role, display_goal, approaches)
 	_set_traits(traits)

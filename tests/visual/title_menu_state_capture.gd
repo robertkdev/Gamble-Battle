@@ -13,11 +13,11 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	DisplayServer.window_set_size(Vector2i(1920, 1080))
+	DisplayServer.window_set_size(Vector2i(2560, 1440))
 	var window: Window = get_window()
 	if window != null:
-		window.size = Vector2i(1920, 1080)
-		window.content_scale_size = Vector2i(1920, 1080)
+		window.size = Vector2i(2560, 1440)
+		window.content_scale_size = Vector2i(2560, 1440)
 	_main = MAIN_SCENE.instantiate() as Control
 	_main.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_main.offset_left = 0.0
@@ -42,7 +42,7 @@ func _run() -> void:
 			enter_button.emit_signal("pressed")
 		await _settle_seconds(0.85)
 
-	await _capture("01_overview", ["GAMBLE BATTLE", "COMMAND MENU", "OPENING LOOP"])
+	await _capture("01_overview", ["GAMBLE", "BATTLE", "COMMAND MENU", "OPENING LOOP"])
 	await _open_section("GuideButton")
 	await _open_guide_tab("HowToPlayTab")
 	await _set_search("combine")

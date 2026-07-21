@@ -36,6 +36,9 @@ var metrics_by_category: Dictionary[String, Array] = {
 var category: String = "damage"
 var selected_metric: String = "damage"
 var _buttons: Dictionary[String, Button] = {}
+var _secondary_keys: Array[String] = []
+var _secondary_labels: Dictionary[String, String] = {}
+var _secondary_menu: MenuButton = null
 
 func _ready() -> void:
     mouse_filter = Control.MOUSE_FILTER_PASS
@@ -64,6 +67,9 @@ func get_selected_metric() -> String:
 
 func _build_for(cat: String) -> void:
     _buttons.clear()
+    _secondary_keys.clear()
+    _secondary_labels.clear()
+    _secondary_menu = null
     _clear_children()
     mouse_filter = Control.MOUSE_FILTER_PASS
     custom_minimum_size = Vector2(0.0, 34.0)
@@ -88,7 +94,15 @@ func _build_for(cat: String) -> void:
     var first_key: String = String(list[0].get("key", "damage"))
     if not _has_key(list, selected_metric):
         selected_metric = first_key
-    for m: Dictionary in list:
+    var primary_metrics: Array[Dictionary] = []
+    var secondary_metrics: Array[Dictionary] = []
+    for metric_index: int in range(list.size()):
+        var metric: Dictionary = list[metric_index] as Dictionary
+        if list.size() <= 3 or metric_index < 2:
+            primary_metrics.append(metric)
+        else:
+            secondary_metrics.append(metric)
+    for m: Dictionary in primary_metrics:
         var k: String = String(m.get("key", ""))
         if k == "":
             continue
@@ -98,15 +112,42 @@ func _build_for(cat: String) -> void:
         b.mouse_filter = Control.MOUSE_FILTER_STOP
         b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
         b.focus_mode = Control.FOCUS_ALL
-        b.custom_minimum_size = Vector2(58.0, 30.0)
+        b.custom_minimum_size = Vector2(44.0, 30.0)
         b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         b.toggle_mode = true
         _apply_button_style(b)
         b.pressed.connect(func(): set_selected_metric(k))
         row.add_child(b)
         _buttons[k] = b
+    if not secondary_metrics.is_empty():
+        _secondary_menu = MenuButton.new()
+        _secondary_menu.name = "SecondaryMetricsButton"
+        _secondary_menu.text = "More"
+        _secondary_menu.mouse_filter = Control.MOUSE_FILTER_STOP
+        _secondary_menu.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+        _secondary_menu.focus_mode = Control.FOCUS_ALL
+        _secondary_menu.custom_minimum_size = Vector2(52.0, 30.0)
+        _secondary_menu.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        _apply_button_style(_secondary_menu)
+        row.add_child(_secondary_menu)
+        var popup: PopupMenu = _secondary_menu.get_popup()
+        for metric_index: int in range(secondary_metrics.size()):
+            var metric: Dictionary = secondary_metrics[metric_index]
+            var key: String = String(metric.get("key", ""))
+            if key == "":
+                continue
+            var label: String = String(metric.get("label", key.capitalize()))
+            _secondary_keys.append(key)
+            _secondary_labels[key] = label
+            popup.add_item(label, _secondary_keys.size() - 1)
+        popup.id_pressed.connect(_on_secondary_metric_selected)
     _update_states()
     metric_changed.emit(selected_metric)
+
+func _on_secondary_metric_selected(item_id: int) -> void:
+    if item_id < 0 or item_id >= _secondary_keys.size():
+        return
+    set_selected_metric(_secondary_keys[item_id])
 
 func _has_key(list: Array, k: String) -> bool:
     for m in list:
@@ -119,6 +160,10 @@ func _update_states() -> void:
         var b: Button = _buttons[k]
         if b:
             b.button_pressed = (String(k) == String(selected_metric))
+    if _secondary_menu != null:
+        var secondary_selected: bool = _secondary_labels.has(selected_metric)
+        _secondary_menu.text = "%s ▾" % _secondary_labels[selected_metric] if secondary_selected else "More ▾"
+        _secondary_menu.add_theme_color_override("font_color", Color(1.0, 0.74, 0.48, 1.0) if secondary_selected else Color(0.90, 0.82, 0.68, 1.0))
 
 func _clear_children() -> void:
     for child: Node in get_children():
