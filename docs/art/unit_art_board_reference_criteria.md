@@ -277,13 +277,18 @@ A concept is not approved with any failed criterion. Final Board approval requir
 ### Machine-readable review enforcement
 
 - Start each unit review from `docs/art/unit_art_board_review_template.json`. It contains exactly three independently attributable seats, the full verdict set, visible-face evidence, benchmark-calibrated professional judgments, cross-examination records, derived aggregate fields, and final user-approval provenance.
-- Record `sex_design_category`, `is_frontliner`, `visual_lane`, and `deliberately_horrific` explicitly. Conditional female-attractiveness, protection, horror-exception, and Blessed gates are derived from those facts; reviewers may not mark them `NOT_APPLICABLE` arbitrarily.
+- Record `sex_design_category`, `is_frontliner`, `visual_lane`, and `deliberately_horrific` explicitly. Conditional female-attractiveness, protection, horror-exception, and Blessed applicability is derived from those facts; reviewers may not mark an applicable gate `NOT_APPLICABLE`. An applicable gate may honestly return `PASS` or `FAIL`, and any `FAIL` makes that review `NOT_READY`.
+- `deliberately_horrific=true` is valid only with the deliberately horrific humanoid or monster/alien/creature-horror lane. It cannot be used beside an ordinary peak-condition lane to bypass female attractiveness.
 - Bind the criteria, selected master, face enlargement, 96 px check, Board records, and comparison artifacts with SHA-256 provenance. Face and 96 px derivative records must name the selected master's exact hash in `source_master_sha256` and the allowed deterministic derivation method.
+- With `--check-files`, every visual artifact must be a distinct valid PNG, the board check must actually be 96 by 96 pixels, the criteria hash must match the canonical criteria bytes, and all six round-one/cross-examination records must be distinct nonempty JSON artifacts.
+- Each reviewer records all frozen critical professional dimensions with evidence and benchmark comparison. The overall professional band equals the lowest critical dimension; `LOW` evidence confidence cannot support `READY`.
+- Cross-examination uses an explicit `CLEARED` or `BLOCKER_RETAINED` verdict plus a surviving-blocker list. Retained blockers prevent `READY`; prose cannot claim clearance while the structured verdict retains dissent.
+- Final user approval uses structured thread, turn, timestamp, and approval-text-hash provenance. Sentinel text such as `NONE`, `TBD`, or `x` is not approval evidence.
 - Validate the blank template and adversarial controls with:
   `python tools/art/validate_unit_art_board_review.py --template docs/art/unit_art_board_review_template.json --self-test`
 - Validate every completed record with:
   `python tools/art/validate_unit_art_board_review.py --record <record.json> --check-files`
-- The semantic validator rejects invalid enum values, missing psychology or visual evidence, duplicate reviewer identities, false applicability, derivative/source mismatches, failed gates paired with `READY`, manually false unanimity, unresolved blockers paired with approval, and user approval without a ready Board.
+- The semantic validator rejects invalid enum values, missing or placeholder psychology and visual evidence, duplicate reviewer identities or evidence records, false applicability, horror-lane mismatch, derivative/source mismatch, wrong criteria bytes, non-image visual evidence, failed gates paired with `READY`, manually false unanimity, unresolved cross-examination or blockers paired with approval, unsupported professional bands, and user approval without a ready Board and structured provenance.
 - The template is one auditable three-seat Board record. Do not collapse three reviewers into one self-attested summary or manually assert aggregate approval.
 
 ## 18. Supersession notice

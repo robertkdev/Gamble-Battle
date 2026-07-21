@@ -39,6 +39,7 @@
     "silhouette_triptych": {
       "path": null,
       "sha256": null,
+      "media_type": "image/png",
       "option_labels": [
         "A",
         "B",
@@ -48,17 +49,20 @@
     },
     "selected_full_body_master": {
       "path": null,
-      "sha256": null
+      "sha256": null,
+      "media_type": "image/png"
     },
     "derived_face_enlargement": {
       "path": null,
       "sha256": null,
+      "media_type": "image/png",
       "source_master_sha256": null,
       "derivation_method": "crop_and_scale_only"
     },
     "derived_96px_check": {
       "path": null,
       "sha256": null,
+      "media_type": "image/png",
       "source_master_sha256": null,
       "derivation_method": "deterministic_containment_only",
       "width": 96,
@@ -66,7 +70,8 @@
     },
     "vellum_first_comparison": {
       "path": null,
-      "sha256": null
+      "sha256": null,
+      "media_type": "image/png"
     },
     "three_nearest_neighbors": [],
     "roster_comparison_boards": []
@@ -77,7 +82,8 @@
       "reviewer_id": null,
       "independent_round_one_record": {
         "path": null,
-        "sha256": null
+        "sha256": null,
+        "media_type": "application/json"
       },
       "verdicts": {
         "peak_age_fighter": null,
@@ -117,6 +123,9 @@
       "cross_examination": {
         "record_path": null,
         "record_sha256": null,
+        "record_media_type": "application/json",
+        "verdict": null,
+        "surviving_blockers": [],
         "outcome": null,
         "protected_dissent": null
       }
@@ -126,7 +135,8 @@
       "reviewer_id": null,
       "independent_round_one_record": {
         "path": null,
-        "sha256": null
+        "sha256": null,
+        "media_type": "application/json"
       },
       "verdicts": {
         "peak_age_fighter": null,
@@ -166,6 +176,9 @@
       "cross_examination": {
         "record_path": null,
         "record_sha256": null,
+        "record_media_type": "application/json",
+        "verdict": null,
+        "surviving_blockers": [],
         "outcome": null,
         "protected_dissent": null
       }
@@ -175,7 +188,8 @@
       "reviewer_id": null,
       "independent_round_one_record": {
         "path": null,
-        "sha256": null
+        "sha256": null,
+        "media_type": "application/json"
       },
       "verdicts": {
         "peak_age_fighter": null,
@@ -215,6 +229,9 @@
       "cross_examination": {
         "record_path": null,
         "record_sha256": null,
+        "record_media_type": "application/json",
+        "verdict": null,
+        "surviving_blockers": [],
         "outcome": null,
         "protected_dissent": null
       }
@@ -227,6 +244,6 @@
     "blocker_ledger": [],
     "board_status": null,
     "user_approved": null,
-    "user_approval_locator": null
+    "user_approval_provenance": null
   }
 }
