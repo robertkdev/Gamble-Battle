@@ -4,11 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import sys
 from pathlib import Path
+from types import ModuleType
 from typing import Any
+
+from PIL import Image
 
 
 REQUIRED_TRAITS = [
@@ -57,6 +61,7 @@ REQUIRED_TRAIT_FIELDS = [
 ]
 
 REQUIRED_REFERENCE_FIELDS = ["form", "surface", "motion", "cost_mark"]
+REQUIRED_VISUAL_SPEC_FIELDS = ["form", "surface", "motion", "cost", "do", "dont"]
 PROP_DEPENDENCY_WORDS = {
     "armor",
     "axe",
@@ -95,6 +100,21 @@ def _parse_args() -> argparse.Namespace:
         default="data/traits",
         help="Live trait-resource directory used for catalog parity.",
     )
+    parser.add_argument(
+        "--renderer",
+        default="tools/art/render_trait_visual_bible.py",
+        help="Renderer containing the abstract visual grammar and collision studies.",
+    )
+    parser.add_argument(
+        "--atlas",
+        default="docs/art/trait_visual_bible_phase1.png",
+        help="Rendered all-traits calibration atlas.",
+    )
+    parser.add_argument(
+        "--collision-atlas",
+        default="docs/art/trait_visual_bible_phase1_collision_atlas.png",
+        help="Rendered representative collision atlas.",
+    )
     return parser.parse_args()
 
 
@@ -123,6 +143,91 @@ def _nonempty_string_list(value: Any, minimum: int) -> bool:
         and len(value) >= minimum
         and all(_nonempty_string(item) for item in value)
     )
+
+
+def _load_renderer(path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location("trait_visual_renderer", path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load renderer module from {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _validate_renderer(module: ModuleType) -> list[str]:
+    errors: list[str] = []
+    visual_specs = getattr(module, "VISUAL_SPECS", None)
+    if not isinstance(visual_specs, dict):
+        return ["renderer VISUAL_SPECS must be an object"]
+    if list(visual_specs.keys()) != REQUIRED_TRAITS:
+        errors.append("renderer visual-spec order/catalog must match all 22 live traits")
+    for trait in REQUIRED_TRAITS:
+        entry = visual_specs.get(trait)
+        if not isinstance(entry, dict):
+            errors.append(f"{trait}: renderer visual spec must be an object")
+            continue
+        for field in REQUIRED_VISUAL_SPEC_FIELDS:
+            if not _nonempty_string(entry.get(field)):
+                errors.append(f"{trait}: renderer visual spec {field} is missing")
+    for field in ["form", "surface", "motion", "cost"]:
+        values = [visual_specs[name].get(field) for name in REQUIRED_TRAITS if isinstance(visual_specs.get(name), dict)]
+        if len(set(values)) != len(REQUIRED_TRAITS):
+            errors.append(f"renderer visual channel {field} must remain distinct across all 22 traits")
+
+    studies = getattr(module, "COLLISION_STUDIES", None)
+    if not isinstance(studies, list) or len(studies) < 8:
+        return errors + ["renderer must include at least eight representative collision studies"]
+    study_ids: set[str] = set()
+    study_trait_sets: list[set[str]] = []
+    for study in studies:
+        if not isinstance(study, dict):
+            errors.append("every collision study must be an object")
+            continue
+        study_id = study.get("id")
+        if not _nonempty_string(study_id) or study_id in study_ids:
+            errors.append("collision studies require unique non-empty ids")
+        else:
+            study_ids.add(study_id)
+        traits = study.get("traits")
+        if not isinstance(traits, list) or len(traits) not in (2, 3):
+            errors.append(f"{study_id}: collision study must contain two or three traits")
+            continue
+        unknown = sorted(set(traits) - set(REQUIRED_TRAITS))
+        if unknown:
+            errors.append(f"{study_id}: unknown collision traits {unknown}")
+        study_trait_sets.append(set(traits))
+        for field in ["title", "channels", "pass", "fail"]:
+            if not _nonempty_string(study.get(field)):
+                errors.append(f"{study_id}: collision study {field} is missing")
+
+    required_families = [
+        {"Aegis", "Bulwark", "Fortified"},
+        {"Arcanist", "Scholar", "Mentor"},
+        {"Cartel", "Mogul", "Trader"},
+        {"Executioner", "Striker", "Vindicator"},
+        {"Blessed", "Titan", "Fortified"},
+        {"Kaleidoscope", "Liaison", "Catalyst"},
+        {"Sanguine", "Blessed"},
+    ]
+    for family in required_families:
+        if family not in study_trait_sets:
+            errors.append(f"missing representative collision family {sorted(family)}")
+    return errors
+
+
+def _validate_image(path: Path, label: str, minimum_width: int, minimum_height: int) -> list[str]:
+    if not path.exists():
+        return [f"{label} is missing: {path}"]
+    try:
+        with Image.open(path) as image:
+            image.verify()
+        with Image.open(path) as image:
+            width, height = image.size
+    except Exception as error:
+        return [f"{label} is unreadable: {error}"]
+    if width < minimum_width or height < minimum_height:
+        return [f"{label} is too small for review: {width}x{height}"]
+    return []
 
 
 def validate(data: dict[str, Any], traits_dir: Path) -> list[str]:
@@ -223,13 +328,17 @@ def main() -> int:
     bible_path = Path(args.bible).resolve()
     traits_dir = Path(args.traits_dir).resolve()
     errors = validate(_load_json(bible_path), traits_dir)
+    renderer = _load_renderer(Path(args.renderer).resolve())
+    errors.extend(_validate_renderer(renderer))
+    errors.extend(_validate_image(Path(args.atlas).resolve(), "trait calibration atlas", 2000, 5000))
+    errors.extend(_validate_image(Path(args.collision_atlas).resolve(), "collision calibration atlas", 2000, 3500))
     if errors:
         print("Trait visual bible validation: FAIL")
         for error in errors:
             print(f"- {error}")
         return 1
     print("Trait visual bible validation: PASS")
-    print(f"traits={len(REQUIRED_TRAITS)} catalog_parity=22/22 prop_free_exit_gate=22/22")
+    print("traits=22 catalog_parity=22/22 prop_free_exit_gate=22/22 visual_channels=22/22 collision_studies=8")
     return 0
 
 

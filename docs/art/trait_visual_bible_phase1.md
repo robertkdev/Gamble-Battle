@@ -1,10 +1,12 @@
-# Gamble Battle — Phase 1 World and Trait Visual Bible
+# Gamble Battle - Phase 1 World and Trait Visual Bible
 
 > Status: **Phase 1 concept-art authority.** This document defines visual grammar only. It creates no unit design and authorizes no shop card, headshot, sprite sheet, animation sheet, or VFX asset.
 
-![Non-production trait reference atlas](trait_visual_bible_phase1.png)
+![Abstract trait visual-calibration atlas](trait_visual_bible_phase1.png)
 
-The atlas is a review diagram of palette, form, surface, motion, and cost. It is not a trait icon sheet or production art.
+![Representative abstract trait-collision studies](trait_visual_bible_phase1_collision_atlas.png)
+
+These are non-production review diagrams. The first atlas visually calibrates palette roles, form, surface, motion, supernatural cost and do/don't boundaries for all 22 traits. The second pressure-tests representative high-risk combinations without depicting a roster unit.
 
 ## Authority and sources
 
@@ -12,6 +14,13 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Live trait resources: `data/traits/*.tres` (22/22 catalog parity).
 - Historical art attempts are evidence for failure modes, not authority over current mechanics.
 - Runtime and repository data remain authoritative when mechanics change.
+
+## Professional calibration anchors
+
+- [Valve - Dota 2 Workshop Character Art Guide](https://help.steampowered.com/en/faqs/view/0688-7692-4D5A-1935) - Silhouette, value hierarchy, patterning, color, areas of rest and evaluation in gameplay context.
+- [Riot Games - Clarity in League](https://www.leagueoflegends.com/en-us/news/dev/clarity-in-league/) - Primary/secondary/tertiary silhouette hierarchy, established shape language and visual-noise control.
+- [Riot Games - Before There's Splash Art, There's Feeney Art](https://www.leagueoflegends.com/en-gb/news/dev/before-there-s-splash-art-there-s-feeney-art/) - Simple placeholder depiction as a gut check for distinct character identity before finished art.
+- [GDC - Creating Compelling Characters](https://media.gdcvault.com/gdc2017/Presentations/Lyons_Creating%20Compelling%20Characters.pdf) - Key visual, shape language and personality-led character design calibration.
 
 ## World system
 
@@ -86,7 +95,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Scar lattices and calcified growth that record every absorbed impact
 - Membranous or shell-like nonhuman enclosures
 
-**Palette:** salt gray `#AAA59B`; oxidized teal `#476C68`; smoke violet `#61546B`; bruised blue `#3F5267`; tarnished silver `#787B78`.
+**Palette roles:** dominant: salt gray `#AAA59B`; support: oxidized teal `#476C68`; accent: smoke violet `#61546B`; shadow: bruised blue `#3F5267`; cost: tarnished silver `#787B78`.
 
 **Patterns:** concentric closures, threshold bands, stress-line lattices.
 
@@ -105,7 +114,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - alien chamber-organism
 - architectural beast
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - royal paladin
 - clean blue force bubble
@@ -126,6 +135,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: salt efflorescence crossed by stained-glass stress lines
 - Motion: successive planes folding toward an impact
 - Cost mark: calcified joints and sensation-dead skin
+- Visual pass: protected void inside closing mass
+- Visual fail: clean shield badge
 
 **Prop-free definition:** A possessive defense that survives by enclosing bodies and slowly turning them into the prison itself.
 
@@ -149,7 +160,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Black-glass or scarred anatomical inserts
 - Alien mathematical bodies organized around impossible ratios
 
-**Palette:** black glass `#17171D`; ink blue `#25354D`; smoke violet `#594762`; acid chalk `#C9C6A1`; old vellum `#A88F6A`.
+**Palette roles:** dominant: black glass `#17171D`; support: ink blue `#25354D`; accent: smoke violet `#594762`; shadow: acid chalk `#C9C6A1`; cost: old vellum `#A88F6A`.
 
 **Patterns:** palimpsest erasure, branching syntax, interrupted marginal grids.
 
@@ -168,7 +179,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - alien logician
 - illiterate vessel of living syntax
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - generic purple wizard
 - floating page cloud
@@ -189,6 +200,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: palimpsest ink over smoke-dark glass
 - Motion: marks writing inward, burning away, then repeating
 - Cost mark: lost speech and anatomy reorganized as notation
+- Visual pass: one precise locus of illegal notation
+- Visual fail: purple wizard stars
 
 **Prop-free definition:** Illegal knowledge becomes living syntax that sharpens power while rewriting memory, language and flesh.
 
@@ -212,7 +225,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Failed-saint bodies marked by repeated restoration
 - Nonhuman organisms forced to exude protective secretions
 
-**Palette:** corpse ivory `#C8BFAE`; dirty wax `#B8A274`; tarnished gold `#8B7043`; bruised lavender `#776476`; soot blood `#4A2C2C`.
+**Palette roles:** dominant: corpse ivory `#C8BFAE`; support: dirty wax `#B8A274`; accent: tarnished gold `#8B7043`; shadow: bruised lavender `#776476`; cost: soot blood `#4A2C2C`.
 
 **Patterns:** broken radiance, penance tally scars, molt and burn gradients.
 
@@ -232,7 +245,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - nonhuman penance organism
 - bitter martyr
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - clean holy hero
 - radiant paladin
@@ -255,6 +268,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: dirty wax, cracked gilding and bruised scar tissue
 - Motion: reluctant light transferring wounds toward its source
 - Cost mark: shame posture and fresh evidence of borrowed pain
+- Visual pass: disgrace and weight before radiance
+- Visual fail: clean halo hero
 
 **Prop-free definition:** Unwanted grace preserves others by humiliating, exposing and physically degrading the being forced to channel it.
 
@@ -278,7 +293,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Repair webbing that records repeated containment
 - Bodies shaped by cages, institutional restraint or crushing environments without depicting the object itself
 
-**Palette:** iron gray `#55595A`; prison green `#596754`; old linen `#A39A83`; rust `#7C4A36`; bruise plum `#5D4658`.
+**Palette roles:** dominant: iron gray `#55595A`; support: prison green `#596754`; accent: old linen `#A39A83`; shadow: rust `#7C4A36`; cost: bruise plum `#5D4658`.
 
 **Patterns:** compression bands, snapped rhythm, dense cross-bracing.
 
@@ -297,7 +312,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - panic-frozen aristocrat
 - carapaced alien
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - ordinary knight tank
 - sports blocker
@@ -318,6 +333,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: quilted density crossed by old pressure scars
 - Motion: long stillness followed by one snapped release
 - Cost mark: locked joints, flattened breath and reopened bands
+- Visual pass: stored force in compressed mass
+- Visual fail: ordinary castle plate
 
 **Prop-free definition:** A compressed survivor stores the memory of restraint until attempted control triggers a violent bodily release.
 
@@ -341,7 +358,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Segmented nonhuman colonies governed by rank
 - Bodies branded, altered or weighted according to value
 
-**Palette:** oxblood `#6E2F32`; patinated jade `#466B5A`; jaundiced ivory `#B5A67D`; cigarette gray `#6B6861`; tarnished brass `#80633D`.
+**Palette roles:** dominant: oxblood `#6E2F32`; support: patinated jade `#466B5A`; accent: jaundiced ivory `#B5A67D`; shadow: cigarette gray `#6B6861`; cost: tarnished brass `#80633D`.
 
 **Patterns:** account grids, shared cut marks, ranked serial repetition.
 
@@ -361,7 +378,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - labor conspiracy
 - ritual protection racket
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - clean modern suit
 - mafia costume
@@ -383,6 +400,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: repaired luxury carrying multiple ownership scars
 - Motion: pressure and advantage passing through a closed network
 - Cost mark: identity branded as group collateral
+- Visual pass: rank and ownership made structural
+- Visual fail: coin-covered merchant
 
 **Prop-free definition:** A closed criminal network converts rank, price and belonging into shared power while mortgaging every member's identity.
 
@@ -406,7 +425,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Industrial bodies shaped by reaction chambers without gadget clutter
 - Textiles and skin permanently changed along a visible reaction front
 
-**Palette:** heat copper `#9B603E`; furnace black `#242122`; bone ceramic `#C1B79E`; opal oil `#6D746B`; chemical green `#6D7C48`.
+**Palette roles:** dominant: heat copper `#9B603E`; support: furnace black `#242122`; accent: bone ceramic `#C1B79E`; shadow: opal oil `#6D746B`; cost: chemical green `#6D7C48`.
 
 **Patterns:** reaction fronts, crystallization gradients, fused asymmetry.
 
@@ -426,7 +445,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - industrial reaction body
 - ceramic transmuter
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - generic steampunk inventor
 - potion belt
@@ -448,6 +467,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: heat bloom crossing ceramic, slag and tissue
 - Motion: a reaction front traveling from one contact point
 - Cost mark: permanent fusion and incompatible growth
+- Visual pass: two incompatible systems forced together
+- Visual fail: sparkle alchemist
 
 **Prop-free definition:** Contact triggers irreversible material and bodily change, making usefulness inseparable from contamination and lost original form.
 
@@ -471,7 +492,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Faded duelist, laborer, court and nomadic constructions from incompatible periods
 - Larval, fossil and senescent nonhuman stages coexisting
 
-**Palette:** smoke blue `#566A78`; faded lavender `#817487`; nicotine ivory `#B5A77D`; oxidized pewter `#6A706F`; dead rose `#7C555E`.
+**Palette roles:** dominant: smoke blue `#566A78`; support: faded lavender `#817487`; accent: nicotine ivory `#B5A77D`; shadow: oxidized pewter `#6A706F`; cost: dead rose `#7C555E`.
 
 **Patterns:** ghost repetition, interrupted stripes, uneven sun fading.
 
@@ -491,7 +512,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - accelerated beast
 - future-haunted laborer
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - floating clocks
 - gear collage
@@ -513,6 +534,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: faded layers aging at different rates
 - Motion: early afterimage, delayed impact, brief reverse dust
 - Cost mark: unequal age and memories out of sequence
+- Visual pass: offset cadence visible in repeated intervals
+- Visual fail: clock-face costume
 
 **Prop-free definition:** Time is redistributed across one life, accelerating allies while leaving age, injury and memory permanently out of order.
 
@@ -536,7 +559,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Insect, avian or machine-like predation organized around one final stroke
 - Bodies scarred by repetitive authorized killing
 
-**Palette:** iron black `#222225`; bone `#B9AE97`; dried red `#6F3031`; execution green `#4E5B4C`; ash `#77716C`.
+**Palette roles:** dominant: iron black `#222225`; support: bone `#B9AE97`; accent: dried red `#6F3031`; shadow: execution green `#4E5B4C`; cost: ash `#77716C`.
 
 **Patterns:** termination bars, tally gaps, single descending diagonals.
 
@@ -556,7 +579,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - industrial termination body
 - silent civic killer
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - hooded axe stereotype
 - generic assassin
@@ -578,6 +601,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: broad iron, bone and dried termination marks
 - Motion: compression followed by an abrupt final stop
 - Cost mark: stiffened procedure and victim traces that remain
+- Visual pass: single decisive threshold and follow-through
+- Visual fail: skull-and-axe emblem
 
 **Prop-free definition:** Death becomes a calm authorized procedure expressed through descending force, severed continuity and a body losing mercy.
 
@@ -601,7 +626,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Separated or socially absent anatomy
 - Nonhuman castoffs with incomplete colony, pack or hive morphology
 
-**Palette:** road dust `#8B7D6A`; storm blue `#4D6170`; faded heraldry `#76545C`; rust `#7D4C36`; bone gray `#AAA79D`.
+**Palette roles:** dominant: road dust `#8B7D6A`; support: storm blue `#4D6170`; accent: faded heraldry `#76545C`; shadow: rust `#7D4C36`; cost: bone gray `#AAA79D`.
 
 **Patterns:** interrupted borders, blank identity patches, stitched route fragments.
 
@@ -621,7 +646,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - packless beast
 - institutional escapee
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - generic hooded rogue
 - lone samurai
@@ -643,6 +668,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: incompatible repairs with erased identity patches
 - Motion: drifting parts that align only at exact moments
 - Cost mark: names, features and belonging worn away
+- Visual pass: asymmetric absence that resists reunion
+- Visual fail: hooded wanderer
 
 **Prop-free definition:** Power comes from permanent unbelonging, with identity and bodily continuity eroded each time isolation becomes useful.
 
@@ -666,7 +693,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Squat, columnar, quadruped and low-spread body plans
 - Soft bodies made stable through tension, packing or interlock
 
-**Palette:** terracotta `#8C5944`; slate `#555E62`; lichen `#68705A`; mortar `#A49A87`; oxidized iron `#604B43`.
+**Palette roles:** dominant: terracotta `#8C5944`; support: slate `#555E62`; accent: lichen `#68705A`; shadow: mortar `#A49A87`; cost: oxidized iron `#604B43`.
 
 **Patterns:** masonry bonds, compression cracks, stratified repair layers.
 
@@ -686,7 +713,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - soft-tissue tension organism
 - civic survivor
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - clean knight protection
 - generic rock golem
@@ -708,6 +735,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: masonry bonds and layered field repairs
 - Motion: impact traveling downward and dispersing through strata
 - Cost mark: the individual buried beneath accumulated structure
+- Visual pass: load-bearing density and low movement
+- Visual fail: generic stone wall
 
 **Prop-free definition:** A living load-bearing structure survives by redistributing impact until repair layers bury mobility, sensation and selfhood.
 
@@ -731,7 +760,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Symbiotic or conjoined nonhuman bodies
 - Group forms organized by spacing and cadence rather than matching appearance
 
-**Palette:** ivory `#C3B9A4`; oxidized teal `#4E746E`; dead rose `#805D68`; charcoal `#36383B`; bruised mauve `#675365`.
+**Palette roles:** dominant: ivory `#C3B9A4`; support: oxidized teal `#4E746E`; accent: dead rose `#805D68`; shadow: charcoal `#36383B`; cost: bruised mauve `#675365`.
 
 **Patterns:** dyads, interference waves, synchronized imperfection.
 
@@ -751,7 +780,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - ritual chorus
 - two-culture survivor
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - cheerful bard
 - musical-note clutter
@@ -773,6 +802,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: paired rhythms producing interference instead of decoration
 - Motion: breath and shadow locking to an exact count
 - Cost mark: private emotion forced into public synchronization
+- Visual pass: two unequal rhythms briefly align
+- Visual fail: heart-shaped friendship
 
 **Prop-free definition:** Exact shared rhythm creates power by suppressing individual timing, making concord beautiful, coercive and physically dangerous.
 
@@ -796,7 +827,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Fungal, carnival-decay, court and monastic sensory-survivor families
 - Nonhuman bodies whose outline changes with viewing angle
 
-**Palette:** smoked magenta `#873F69`; acid teal `#3F8B83`; bruised amber `#A06E32`; ultramarine `#394D82`; soot `#27262B`.
+**Palette roles:** dominant: smoked magenta `#873F69`; support: acid teal `#3F8B83`; accent: bruised amber `#A06E32`; shadow: ultramarine `#394D82`; cost: soot `#27262B`.
 
 **Patterns:** moiré interference, false contours, chromatic misregistration, warped checker fields.
 
@@ -816,7 +847,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - diseased stained-glass organism
 - psychedelic predator
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - glossy rainbow crystal
 - prism mage
@@ -839,6 +870,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: weathered moiré and smoky chromatic misregistration
 - Motion: local afterimages breathing out of phase
 - Cost mark: fractured vision and unstable bodily registration
+- Visual pass: weathered perception fracture with dark rest
+- Visual fail: glossy rainbow crystal
 
 **Prop-free definition:** Perception fractures into weathered chromatic multiplicity, granting power while location, identity and sensory truth become unreliable.
 
@@ -862,7 +895,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Diplomatic, parasitic, ritual and communal-survivor garment families
 - Networked nonhuman organisms with visibly unequal nodes
 
-**Palette:** rust `#8B503C`; bond teal `#4B7472`; ivory `#BFB4A0`; oxblood `#682F37`; slate `#525A63`.
+**Palette roles:** dominant: rust `#8B503C`; support: bond teal `#4B7472`; accent: ivory `#BFB4A0`; shadow: oxblood `#682F37`; cost: slate `#525A63`.
 
 **Patterns:** crossing paths, unequal knots, triangular transfer rhythms.
 
@@ -882,7 +915,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - hostage negotiator
 - symbiotic survivor
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - romance symbols
 - friendship beam
@@ -904,6 +937,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: unlike materials joined by unequal living seams
 - Motion: consequence traveling the shortest relational path
 - Cost mark: boundaries left porous after connection ends
+- Visual pass: relationship shown by stressed intervals
+- Visual fail: decorative chain links
 
 **Prop-free definition:** Unlike beings gain power by sharing consequence until wounds, emotion and personal boundaries can no longer remain separate.
 
@@ -927,7 +962,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Pupil-like secondary anatomy that is similar but deliberately incomplete
 - Alien imprint organisms and coercive brood bodies
 
-**Palette:** chalk `#C1B8A4`; ink `#2B3440`; iron `#55595C`; old plum `#654A5F`; tobacco `#76543C`.
+**Palette roles:** dominant: chalk `#C1B8A4`; support: ink `#2B3440`; accent: iron `#55595C`; shadow: old plum `#654A5F`; cost: tobacco `#76543C`.
 
 **Patterns:** correction marks, graded stripes, repetition with one deviation.
 
@@ -947,7 +982,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - craft disciplinarian
 - failed prodigy reproducing harm
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - kind elderly wizard
 - school uniform shorthand
@@ -969,6 +1004,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: graded marks and scars of repeated correction
 - Motion: strength transferring as posture tightens
 - Cost mark: source hollowing as imposed identity spreads
+- Visual pass: visible unequal transfer and dependence
+- Visual fail: kindly teacher robe
 
 **Prop-free definition:** Authority transfers strength by correcting another body until discipline, injury and identity become inherited together.
 
@@ -992,7 +1029,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Hoarding beasts and alien resource organs
 - Famine aristocrats physically invaded by precious materials
 
-**Palette:** emerald black `#233C34`; tobacco `#745139`; cream `#C1B28F`; bronze `#7B5B36`; dried burgundy `#623840`.
+**Palette roles:** dominant: emerald black `#233C34`; support: tobacco `#745139`; accent: cream `#C1B28F`; shadow: bronze `#7B5B36`; cost: dried burgundy `#623840`.
 
 **Patterns:** account grids, heavy borders, layered valuation marks.
 
@@ -1012,7 +1049,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - vault organism
 - survivor who monetizes everyone
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - coin rain
 - jovial top-hat capitalist
@@ -1034,6 +1071,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: worn luxury compressed into dense storage strata
 - Motion: survival making nearby matter heavier and darker
 - Cost mark: flesh replaced by collateral and owned value
+- Visual pass: survival accumulates into top-heavy mass
+- Visual fail: gold coin king
 
 **Prop-free definition:** Survival accumulates as physical and social weight until wealth occupies the body and displaces empathy, mobility and self.
 
@@ -1057,7 +1096,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Ceramic insulation and carbonized tissue bodies
 - Nonhuman organisms built around irregular discharge cycles
 
-**Palette:** storm blue `#405F76`; hazard orange `#A45B2F`; copper green `#52756A`; burned black `#252426`; nerve white `#C7C0AE`.
+**Palette roles:** dominant: storm blue `#405F76`; support: hazard orange `#A45B2F`; accent: copper green `#52756A`; shadow: burned black `#252426`; cost: nerve white `#C7C0AE`.
 
 **Patterns:** broken cadence, branching burns, alternating dead gaps.
 
@@ -1077,7 +1116,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - alien conductor
 - executed power vessel
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - neon superhero
 - lightning crown
@@ -1099,6 +1138,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: burned insulation and copper-green discharge paths
 - Motion: irregular surge, complete snap, sudden dead drop
 - Cost mark: tremor, sensory loss and muscles fighting joints
+- Visual pass: pressure outruns its failing container
+- Visual fail: electric orb aura
 
 **Prop-free definition:** Power skips normal buildup and discharges completely through a body that accumulates burn, tremor and sensory collapse.
 
@@ -1122,7 +1163,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Predatory elegance built from posture and depletion rather than exposure
 - Bodies marked by borrowed circulation and remembered wounds
 
-**Palette:** dried oxblood `#672E34`; plum `#59354F`; liver black `#241C21`; pallor `#B9AAA0`; bruised mauve `#765762`.
+**Palette roles:** dominant: dried oxblood `#672E34`; support: plum `#59354F`; accent: liver black `#241C21`; shadow: pallor `#B9AAA0`; cost: bruised mauve `#765762`.
 
 **Patterns:** capillary maps, clot marbling, tide marks of depletion.
 
@@ -1143,7 +1184,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - blood-memory aristocrat
 - grotesque overfilled beast
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - one Dracula stereotype
 - red opera uniform
@@ -1166,6 +1207,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: dried oxblood, clot marbling and borrowed veins
 - Motion: vitality drawn inward and packed beneath the skin
 - Cost mark: borrowed memories and cycles of emptiness and overfill
+- Visual pass: circulation, appetite and repair share one path
+- Visual fail: single vampire stereotype
 
 **Prop-free definition:** Predatory hunger steals vitality and memory, sustaining the body while making emptiness, contamination and borrowed identity permanent.
 
@@ -1189,7 +1232,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Alien recorder bodies and collective-memory organisms
 - Bodies partially overwritten by the material they study
 
-**Palette:** parchment `#B6A47E`; navy `#303F54`; ash `#77716C`; ink black `#25262A`; faded ochre `#92713E`.
+**Palette roles:** dominant: parchment `#B6A47E`; support: navy `#303F54`; accent: ash `#77716C`; shadow: ink black `#25262A`; cost: faded ochre `#92713E`.
 
 **Patterns:** marginal cross-reference, burnt indexing, compressed knowledge grids.
 
@@ -1209,7 +1252,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - battle researcher
 - memory cannibal
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - floating book
 - loose page storm
@@ -1231,6 +1274,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: burned indexing, absorbed ink and memory scars
 - Motion: information compressing before one deliberate pulse
 - Cost mark: the archive preserving facts while erasing its owner
+- Visual pass: knowledge stored in ordered bodily layers
+- Visual fail: book-and-mortarboard
 
 **Prop-free definition:** Knowledge becomes metabolic fuel, increasing capacity while memory, sleep and personal identity are overwritten by the living archive.
 
@@ -1254,7 +1299,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Scar systems aligned with repeated motion
 - Bodies whose old injuries have become mechanical advantages
 
-**Palette:** faded mustard `#9A7837`; red brown `#78453B`; oxidized teal `#4E716C`; concrete `#777570`; bone `#B5AA91`.
+**Palette roles:** dominant: faded mustard `#9A7837`; support: red brown `#78453B`; accent: oxidized teal `#4E716C`; shadow: concrete `#777570`; cost: bone `#B5AA91`.
 
 **Patterns:** impact rings, forward chevrons, accumulated strike marks.
 
@@ -1274,7 +1319,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - labor bruiser
 - predatory dancer
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - superhero brawler
 - glowing oversized fists
@@ -1296,6 +1341,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: old impacts aligned into functional scar patterns
 - Motion: each hit tightening the next committed vector
 - Cost mark: deformed joints and collapse when momentum stops
+- Visual pass: forward commitment with little retreat mass
+- Visual fail: generic sword fighter
 
 **Prop-free definition:** Successful impact compounds into forward power while joints, pain and old injuries make stopping increasingly catastrophic.
 
@@ -1319,7 +1366,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Shipwreck, burial, root and compacted-community construction
 - Human-scale carriers enlarged by accumulated burden rather than muscle
 
-**Palette:** clay `#8B6047`; lichen `#69705A`; burial gray `#77746E`; peat `#3D352E`; oxidized copper `#55746A`.
+**Palette roles:** dominant: clay `#8B6047`; support: lichen `#69705A`; accent: burial gray `#77746E`; shadow: peat `#3D352E`; cost: oxidized copper `#55746A`.
 
 **Patterns:** strata, cairn stacking, growth rings, embedded life traces.
 
@@ -1339,7 +1386,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - skeletal carrier
 - quadruped burden beast
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - generic stone golem
 - clean giant protection
@@ -1361,6 +1408,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: clay, burial layers and traces of former lives
 - Motion: new mass settling after each exertion
 - Cost mark: selfhood buried until the body becomes a place
+- Visual pass: scale with internal biological consequence
+- Visual fail: healthy heroic giant
 
 **Prop-free definition:** An immense communal body endures by accumulating lives and burdens until the original self becomes landscape, monument and memory.
 
@@ -1384,7 +1433,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Hands, eyes or sensory arrays specialized for comparison
 - Bodies visibly patched with parts or histories acquired through trade
 
-**Palette:** faded turquoise `#4F827B`; sand `#B09668`; rust `#8B5036`; tobacco `#6E503C`; bruised coral `#8F5E5D`.
+**Palette roles:** dominant: faded turquoise `#4F827B`; support: sand `#B09668`; accent: rust `#8B5036`; shadow: tobacco `#6E503C`; cost: bruised coral `#8F5E5D`.
 
 **Patterns:** route stripes, worn probability marks, replaceable patch grids.
 
@@ -1404,7 +1453,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - desert route tyrant
 - body-part negotiator
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - cheerful merchant
 - shop mascot
@@ -1426,6 +1475,8 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: patched histories from incompatible places
 - Motion: possibilities fanning, swapping and hardening into one
 - Cost mark: origin erased by too many successful exchanges
+- Visual pass: reciprocal flow with visible loss each cycle
+- Visual fail: market-arrow logo
 
 **Prop-free definition:** Adaptation replaces bad possibilities through exchange, but every favorable bargain trades away another piece of origin and identity.
 
@@ -1449,7 +1500,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Immune-hunter and prey-specialist nonhuman forms
 - Surfaces progressively stripped of protective layers
 
-**Palette:** ash gray `#77716D`; slate `#4E5963`; dried burgundy `#6B3D43`; old parchment `#AB9972`; cold iron `#4B5052`.
+**Palette roles:** dominant: ash gray `#77716D`; support: slate `#4E5963`; accent: dried burgundy `#6B3D43`; shadow: old parchment `#AB9972`; cost: cold iron `#4B5052`.
 
 **Patterns:** strike-throughs, verdict diagonals, erased seals.
 
@@ -1469,7 +1520,7 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - obsessive investigator
 - prey-specialist beast
 
-**Forbidden clichés:**
+**Forbidden cliches:**
 
 - righteous paladin
 - holy avenger
@@ -1491,8 +1542,92 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 - Surface: layers scored, struck through and progressively erased
 - Motion: each contact carving closer to an exposed core
 - Cost mark: the accuser corroded into one permanent grievance
+- Visual pass: all pressure narrows toward one condemned point
+- Visual fail: angry revenge eye
 
 **Prop-free definition:** Obsessive judgment strips away every defense while reducing the accuser's body, nuance and identity to one grievance.
+
+## Representative collision studies
+
+### DEF-01 - Defensive family: enclosure / compression / settlement
+
+**Traits:** Aegis, Bulwark, Fortified.
+
+**Channel arbitration:** Aegis owns enclosing form; Bulwark owns pressure seams and rebound cadence; Fortified owns low-value settled surface and compacted cost.
+
+**Pass condition:** Three defensive signals remain separable without adding shields, armor sets, or blue bubbles.
+
+**Failure condition:** One generic plated tank silhouette carrying three defensive ornaments.
+
+### KNW-01 - Knowledge family: transgression / storage / transfer
+
+**Traits:** Arcanist, Scholar, Mentor.
+
+**Channel arbitration:** Arcanist owns tapered edited form; Scholar owns layered archive surface; Mentor owns unequal transfer rhythm and drained cost.
+
+**Pass condition:** Illegal notation, accumulated memory and dependency read as different operations.
+
+**Failure condition:** Three robed academics differentiated only by glyph color.
+
+### ECO-01 - Economy family: ownership / accumulation / exchange
+
+**Traits:** Cartel, Mogul, Trader.
+
+**Channel arbitration:** Cartel owns ranked hierarchy; Mogul owns top-heavy survivor accumulation; Trader owns reciprocal wear and depletion rhythm.
+
+**Pass condition:** Power structure, hoarded survival and transaction remain visually distinct without coin clutter.
+
+**Failure condition:** Three merchants in the same luxury clothing aisle.
+
+### LTH-01 - Lethality family: threshold / commitment / condemnation
+
+**Traits:** Executioner, Striker, Vindicator.
+
+**Channel arbitration:** Executioner owns the severing threshold; Striker owns forward thrust; Vindicator owns converging erosion and self-loss.
+
+**Pass condition:** Kill logic is distinguished by timing and direction rather than weapon class.
+
+**Failure condition:** Three angry black-clad assassins with blades and red accents.
+
+### BLS-01 - Blessed under mass: disgrace / scale / endurance
+
+**Traits:** Blessed, Titan, Fortified.
+
+**Channel arbitration:** Blessed stays art-primary and owns bowed burden; Titan expands internal scale; Fortified settles and compacts the surface without correcting the shame posture.
+
+**Pass condition:** A failed miracle made larger and harder to escape.
+
+**Failure condition:** Radiant armored paladin or decorative black-wing colossus.
+
+### CHR-01 - Chromatic relation: perception / connection / fusion
+
+**Traits:** Kaleidoscope, Liaison, Catalyst.
+
+**Channel arbitration:** Kaleidoscope owns fractured dark-rest form; Liaison owns stressed links; Catalyst owns one irreversible seam rather than extra orbiting color.
+
+**Pass condition:** Damaged perception, relationship and fusion occupy separate channels.
+
+**Failure condition:** Glossy rainbow crystal surrounded by floating nodes.
+
+### HEAL-01 - Healing collision: circulation / compulsory mercy
+
+**Traits:** Sanguine, Blessed.
+
+**Channel arbitration:** Sanguine owns returning circulation and appetite; Blessed owns shame posture and transferred wounds. Red is not sufficient evidence for either trait.
+
+**Pass condition:** One system feeds and repairs; the other is forced to receive suffering.
+
+**Failure condition:** Pretty sad vampire angel with a blood halo.
+
+### TIME-01 - Timing collision: enclosure / desynchronization
+
+**Traits:** Aegis, Chronomancer.
+
+**Channel arbitration:** Aegis owns the closing protected void; Chronomancer owns staggered intervals, age marks and asynchronous closure timing.
+
+**Pass condition:** The prison closes out of sequence while remaining recognizably enclosing.
+
+**Failure condition:** A shield with a clock face or floating hourglasses.
 
 ## Combination quick rules
 
@@ -1517,4 +1652,4 @@ The atlas is a review diagram of palette, form, surface, motion, and cost. It is
 
 ## Phase boundary
 
-Phase 1 stops here. Silhouettes for actual roster units, full-body masters, face enlargements, and 96px unit checks begin only in Phase 2.
+Phase 1 stops here. The calibration marks and collision studies are abstract review notation, not unit concepts or production assets. Silhouettes for actual roster units, full-body masters, face enlargements and 96px unit checks begin only in Phase 2.
