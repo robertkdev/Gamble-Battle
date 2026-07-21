@@ -96,3 +96,27 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle Phase 4 combat presentation"
+  - id: phase5-atmosphere
+    title: Authored battlefield lighting, ambient motion, and consequence color
+    adapter: godot
+    objective: Verify that planning, combat, boss escalation, victory, and defeat have distinct authored color states; ambient motion remains restrained; unit silhouettes stay readable; and the compact frame preserves the battlefield hierarchy.
+    capture_command: ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "Tools/Build-Phase5AtmosphereVisualManifest.ps1"]
+    capture_manifest: "outputs/visual_debug/phase5_atmosphere/captures.json"
+    required_groups: [planning, combat, temporal, consequence, compact]
+    runtime_provenance:
+      entrypoint: "Godot editor game framebuffer"
+      scene: "res://tests/visual/Phase5AtmosphereCapture.tscn"
+      build: "codex/019f80d9-676-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [planning, combat, escalation, victory, defeat]
+      required_viewports: [desktop-1920x1080, compact-1280x720]
+      required_events: [02_boss_escalation, 07_compact_escalation]
+      min_temporal_frames: 3
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 300
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Phase 5 atmosphere"

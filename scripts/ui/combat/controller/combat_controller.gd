@@ -18,6 +18,7 @@ const ProjectileBridge := preload("res://scripts/ui/combat/projectile_bridge.gd"
 const EconomyUI := preload("res://scripts/ui/combat/economy_ui.gd")
 const IntermissionController := preload("res://scripts/ui/combat/intermission_controller.gd")
 const BattleResultFlourish := preload("res://scripts/ui/combat/battle_result_flourish.gd")
+const BattlefieldAtmosphere: GDScript = preload("res://scripts/ui/combat/battlefield_atmosphere.gd")
 const ShopPresenter := preload("res://scripts/ui/shop/shop_presenter.gd")
 const SellZone := preload("res://scripts/ui/shop/sell_zone.gd") # legacy; no longer used visually
 const SelectionService := preload("res://scripts/ui/combat/stats/selection_service.gd")
@@ -156,6 +157,8 @@ var _combat_resolving_watchdog_seen: bool = false
 var _hud_snapshot_signature: String = ""
 var _result_banner: PanelContainer = null
 var _result_flourish: BattleResultFlourish = null
+var _planning_atmosphere: BattlefieldAtmosphere = null
+var _arena_atmosphere: BattlefieldAtmosphere = null
 var _encounter_banner: PanelContainer = null
 var _encounter_banner_label: Label = null
 var _encounter_banner_tween: Tween = null
@@ -220,6 +223,7 @@ func teardown() -> void:
 	_teardown_done = true
 	_auto_loop_running = false
 	_end_combat_resolving_feedback()
+	_free_battlefield_atmosphere()
 	_disconnect_controller_signals()
 	var shop_node: Node = _shop_singleton()
 	if shop_node != null:
@@ -537,6 +541,7 @@ func initialize() -> void:
 	# Arena + projectiles
 	arena_bridge = ArenaBridge.new()
 	arena_bridge.configure(arena_container, arena_units, planning_area, arena_background, player_grid_helper, enemy_grid_helper, preload("res://scripts/ui/combat/unit_actor.gd"), _layout_tile_size)
+	_ensure_battlefield_atmosphere()
 
 	projectile_bridge = ProjectileBridge.new()
 	projectile_bridge.configure(parent, arena_bridge, player_grid_helper, enemy_grid_helper, manager, view_rng)
@@ -1789,6 +1794,7 @@ func _on_battle_started(_stage: int, _enemy: Unit) -> void:
 		player_views = grid_placement.get_player_views()
 	Trace.step("CombatView._on_battle_started: enter arena")
 	_enter_combat_arena()
+	_set_battlefield_atmosphere_state(BattlefieldAtmosphere.STATE_COMBAT)
 	# Optional: add layout prints here when debugging sizes
 	# Ensure economy UI reflects combat lock state immediately
 	if economy_ui:
@@ -2031,6 +2037,7 @@ func _on_victory(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "victory"
+	_set_battlefield_atmosphere_state(BattlefieldAtmosphere.STATE_VICTORY)
 	_show_result_banner("VICTORY", _build_result_detail("victory", _stage), Color(0.58, 0.72, 0.38, 1.0), Color(0.86, 0.94, 0.74, 1.0))
 	_auto_loop_running = false
 	_start_intermission(2.0)
@@ -2040,6 +2047,7 @@ func _on_defeat(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "defeat"
+	_set_battlefield_atmosphere_state(BattlefieldAtmosphere.STATE_DEFEAT)
 	_show_result_banner("DEFEAT", _build_result_detail("defeat", _stage), Color(0.74, 0.20, 0.16, 1.0), Color(1.0, 0.69, 0.60, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
@@ -2049,6 +2057,7 @@ func _on_tie(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "tie"
+	_set_battlefield_atmosphere_state(BattlefieldAtmosphere.STATE_TIE)
 	_show_result_banner("STALEMATE", _build_result_detail("tie", _stage), Color(0.48, 0.38, 0.66, 1.0), Color(0.90, 0.84, 1.0, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
@@ -2382,6 +2391,8 @@ func _on_vfx_knockup(team: String, index: int, duration: float) -> void:
 		actor.play_knockup(duration)
 
 func _on_encounter_escalated(_phase_id: String, label: String, _champion_index: int, revived_indices: Array[int], _affected_player_indices: Array[int], _pulse_damage: int, intensity: int) -> void:
+	if _arena_atmosphere != null and is_instance_valid(_arena_atmosphere):
+		_arena_atmosphere.pulse_escalation(intensity)
 	_show_reinforcement_callouts(revived_indices, intensity)
 	var text: String = "%s\n%d REINFORCEMENT%s RETURN" % [
 		label,
@@ -2601,6 +2612,36 @@ func _sync_arena_units() -> void:
 
 func _exit_combat_arena() -> void:
 	arena_bridge.exit_arena()
+	if _planning_atmosphere != null and is_instance_valid(_planning_atmosphere):
+		_planning_atmosphere.set_state(BattlefieldAtmosphere.STATE_PLANNING, false)
+
+func _ensure_battlefield_atmosphere() -> void:
+	if planning_area != null and is_instance_valid(planning_area):
+		_planning_atmosphere = BattlefieldAtmosphere.new() as BattlefieldAtmosphere
+		_planning_atmosphere.name = "PlanningAtmosphere"
+		_planning_atmosphere.configure(planning_area, BattlefieldAtmosphere.STATE_PLANNING)
+	if arena_container != null and is_instance_valid(arena_container):
+		_arena_atmosphere = BattlefieldAtmosphere.new() as BattlefieldAtmosphere
+		_arena_atmosphere.name = "ArenaAtmosphere"
+		_arena_atmosphere.configure(arena_container, BattlefieldAtmosphere.STATE_COMBAT)
+
+func _set_battlefield_atmosphere_state(state: StringName) -> void:
+	if _arena_atmosphere != null and is_instance_valid(_arena_atmosphere):
+		_arena_atmosphere.set_state(state, false)
+
+func _free_battlefield_atmosphere() -> void:
+	_free_atmosphere_node(_planning_atmosphere)
+	_free_atmosphere_node(_arena_atmosphere)
+	_planning_atmosphere = null
+	_arena_atmosphere = null
+
+func _free_atmosphere_node(atmosphere: BattlefieldAtmosphere) -> void:
+	if atmosphere == null or not is_instance_valid(atmosphere):
+		return
+	if atmosphere.is_inside_tree():
+		atmosphere.queue_free()
+	else:
+		atmosphere.free()
 
 func _configure_engine_arena() -> void:
 	if not manager:

@@ -112,3 +112,35 @@ errors. The final evidence packet is under
 `outputs/visual_debug/vdh_runs/phase4-final-4/packet/`; source captures are under
 `outputs/visual_iter/attack_visuals_pass/` and
 `outputs/visual_iter/post_combat_planning_beat_pass/`.
+
+## Phase 5: authored battlefield atmosphere
+
+Phase 5 gives the battlefield a state-driven lighting and motion script without
+changing simulation timing or globally lifting exposure.
+
+- Planning keeps a restrained red-enemy / blue-player split so placement lanes
+  read before combat begins.
+- Combat deepens the opposing color fields and adds a deterministic, bounded
+  ember drift plus subtle ritual geometry behind units. The layer is input
+  transparent and remains below actors, health bars, projectiles, and impacts.
+- Boss escalation produces a localized enemy-side blood-red pulse driven by the
+  existing escalation event. Its authored envelope rises from a restrained
+  onset to a 120 ms crest, then decays by 520 ms without erasing the cool
+  player-side field.
+- Victory, defeat, and stalemate each transition to a distinct consequence
+  palette behind the Phase 4 result ceremony: gold-green recovery, blood-red
+  loss, or violet deadlock.
+- Ambient motion is deterministic, can be disabled independently, and uses a
+  fixed 14-mote planning/result budget or 22-mote combat budget.
+- The same authored light remains inside the arena frame at 1280x720 without
+  washing out silhouettes, health bars, the scoreboard, or the result card.
+
+Authoritative Phase 5 checks are `BattlefieldAtmospherePresentationSmoke` and
+`Phase5AtmosphereCapture` (planning, combat, boss escalation, victory, and
+defeat at both 1920x1080 and 1280x720). Runtime evidence is under
+`outputs/visual_iter/phase5_atmosphere_pass/`; the VDH packet is generated from
+the `phase5-atmosphere` scenario in `visual-harness.yaml`. The final acceptance
+packet is `outputs/visual_debug/vdh_runs/phase5-final-5/packet/`, including the
+three-frame escalation sequence and its repair comparison board. A fresh
+clean-context visual juror passed the final desktop and compact packet with no
+Stage 5 blocker.
