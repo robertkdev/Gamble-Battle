@@ -81,8 +81,13 @@
   ],
   "missing_groups": [],
   "missing_evidence": [],
-  "verdict": "pass",
-  "findings": [],
+  "verdict": "superseded_reopened",
+  "historical_verdict": "pass",
+  "current_status": "REOPENED_UNDER_2026-07-21-v1",
+  "superseded_by": "docs/art/unit_art_board_reference_criteria.md",
+  "findings": [
+    "Historical packet only. Re-review every unit under the locked 2026-07-21 Board criteria."
+  ],
   "metadata": {
     "capture_started_utc": "2026-07-21T19:38:42.942151+00:00",
     "runtime_provenance": {

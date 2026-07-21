@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -32,6 +34,48 @@ COMPLETION_AUDIT_PATH = ROOT / "docs" / "art" / "unit_art_workflow_completion_au
 REVIEW_QUEUE_PATH = ROOT / "docs" / "art" / "unit_art_review_queue_2026-06-30.md"
 FUTURE_AGENT_HANDOFF_PATH = ROOT / "docs" / "art" / "unit_art_future_agent_handoff.md"
 CREEP_REVISION_PROMPT_PACKET_PATH = ROOT / "docs" / "art" / "creep_revision_prompt_packet_2026_07_01" / "creep.md"
+BOARD_CRITERIA_PATH = ROOT / "docs" / "art" / "unit_art_board_reference_criteria.md"
+BOARD_REVIEW_TEMPLATE_PATH = ROOT / "docs" / "art" / "unit_art_board_review_template.json"
+BOARD_REVIEW_VALIDATOR_PATH = ROOT / "tools" / "art" / "validate_unit_art_board_review.py"
+PHASE2_HISTORICAL_REVIEW_PATH = ROOT / "baselines" / "phase2-real-unit-calibration" / "phase2-repair-cut-v3" / "independent-review.json"
+PHASE2_HISTORICAL_MANIFEST_PATH = ROOT / "baselines" / "phase2-real-unit-calibration" / "phase2-repair-cut-v3" / "run-manifest.json"
+
+REQUIRED_BOARD_CRITERIA_SNIPPETS = [
+    "LOCKED CANONICAL STANDARD",
+    "Peak-age and physical-condition gate",
+    "Female attractiveness standard",
+    "Heavy-powerful",
+    "Armor is never mandatory",
+    "Required survival-psychology record",
+    "Core wound",
+    "Private want",
+    "Primary fear",
+    "Survival strategy",
+    "Villainous distortion",
+    "Current emotional state",
+    "Emotional contradiction",
+    "Face direction",
+    "Pose direction",
+    "Forbidden read",
+    "Face-readable psychology gate",
+    "Changing the facial expression without changing the pose",
+    "Dissociated / stone-cold",
+    "Evil / manipulative / demonic",
+    "Feral / animalistic",
+    "Winnie the Pooh",
+    "divine favor experienced as disgrace",
+    "Work one unit at a time",
+    "PEAK-AGE FIGHTER",
+    "HOT ADULT WOMAN",
+    "LEAN/TONED/FEMININE",
+    "FRONTLINE PROTECTION EXPLAINED",
+    "DELIBERATE HORROR EXCEPTION",
+    "The earlier Phase 2 approval is reopened",
+    "Machine-readable review enforcement",
+    "exactly three independently attributable seats",
+    "source_master_sha256",
+    "semantic validator rejects",
+]
 
 REQUIRED_DOC_SNIPPETS = [
     "Current Best Anchor",
@@ -1086,6 +1130,16 @@ def main() -> int:
         fail(f"Missing future agent handoff: {FUTURE_AGENT_HANDOFF_PATH}", failures)
     if not CREEP_REVISION_PROMPT_PACKET_PATH.exists():
         fail(f"Missing Creep revision prompt packet: {CREEP_REVISION_PROMPT_PACKET_PATH}", failures)
+    if not BOARD_CRITERIA_PATH.exists():
+        fail(f"Missing canonical Board criteria: {BOARD_CRITERIA_PATH}", failures)
+    if not BOARD_REVIEW_TEMPLATE_PATH.exists():
+        fail(f"Missing Board review template: {BOARD_REVIEW_TEMPLATE_PATH}", failures)
+    if not BOARD_REVIEW_VALIDATOR_PATH.exists():
+        fail(f"Missing semantic Board review validator: {BOARD_REVIEW_VALIDATOR_PATH}", failures)
+    if not PHASE2_HISTORICAL_REVIEW_PATH.exists():
+        fail(f"Missing Phase 2 historical review record: {PHASE2_HISTORICAL_REVIEW_PATH}", failures)
+    if not PHASE2_HISTORICAL_MANIFEST_PATH.exists():
+        fail(f"Missing Phase 2 historical run manifest: {PHASE2_HISTORICAL_MANIFEST_PATH}", failures)
     if failures:
         for item in failures:
             print(f"FAIL: {item}")
@@ -1144,6 +1198,45 @@ def main() -> int:
     for snippet in REQUIRED_FUTURE_AGENT_HANDOFF_SNIPPETS:
         if snippet.lower() not in future_agent_handoff_lower:
             fail(f"future agent handoff missing required snippet: {snippet}", failures)
+
+    board_criteria = BOARD_CRITERIA_PATH.read_text(encoding="utf-8")
+    board_criteria_lower = board_criteria.lower()
+    for snippet in REQUIRED_BOARD_CRITERIA_SNIPPETS:
+        if snippet.lower() not in board_criteria_lower:
+            fail(f"canonical Board criteria missing required snippet: {snippet}", failures)
+
+    board_validation = subprocess.run(
+        [
+            sys.executable,
+            str(BOARD_REVIEW_VALIDATOR_PATH),
+            "--template",
+            str(BOARD_REVIEW_TEMPLATE_PATH),
+            "--self-test",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if board_validation.returncode != 0:
+        output = (board_validation.stdout + board_validation.stderr).strip()
+        fail(f"semantic Board review validation failed: {output}", failures)
+
+    for label, path in {
+        "Phase 2 historical review": PHASE2_HISTORICAL_REVIEW_PATH,
+        "Phase 2 historical manifest": PHASE2_HISTORICAL_MANIFEST_PATH,
+    }.items():
+        try:
+            historical = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            fail(f"{label} is invalid JSON: {exc}", failures)
+            continue
+        if historical.get("verdict") != "superseded_reopened":
+            fail(f"{label} must expose verdict superseded_reopened", failures)
+        if historical.get("historical_verdict") != "pass":
+            fail(f"{label} must preserve historical_verdict pass", failures)
+        if historical.get("superseded_by") != "docs/art/unit_art_board_reference_criteria.md":
+            fail(f"{label} must point to canonical superseding criteria", failures)
 
     creep_revision_prompt_packet = CREEP_REVISION_PROMPT_PACKET_PATH.read_text(encoding="utf-8")
     creep_revision_prompt_packet_lower = creep_revision_prompt_packet.lower()

@@ -15,6 +15,7 @@ Concise, enforceable rules for working in this Godot 4.5 project. Scope: entire 
 - For game terminology, units, roles, stats, traits, items, tests, goals, and design-framework decisions, consult the live Google Doc before inventing new behavior or changing game content.
 - The doc requires the user's signed-in Chrome/Google session; anonymous fetch/export may fail with `401 Unauthorized`.
 - If the live doc conflicts with repo code or local docs, surface the conflict and treat the Google Doc as the product/design authority unless the user says otherwise.
+- The user-confirmed `docs/art/unit_art_board_reference_criteria.md` is that explicit exception for unit concept-art design and review. It supersedes older/conflicting unit-art direction in the Google Doc while the Google Doc remains authoritative for gameplay and roster facts. Only a later explicit user decision may replace the locked criteria version.
 - The brain source note for this document is `Sources/Gamble Battle Google Design Doc.md`.
 
 ## Project Overview
@@ -23,6 +24,17 @@ Concise, enforceable rules for working in this Godot 4.5 project. Scope: entire 
 - Autoloads: `GameState`, `Economy`, `Roster`, `Shop`, `Items` (see `project.godot`)
 - Languages: Typed GDScript, Godot `.tscn`/`.tres`
 - Base combat stats live in `data/identity/primary_role_profiles/*.tres`; unit defs under `data/units/` carry identity/kit/economy only and must stay stat-free.
+
+## Unit Concept Art Authority
+- Before generating, revising, or reviewing any unit concept, read `docs/art/unit_art_board_reference_criteria.md` and use `docs/art/unit_art_board_review_template.json`.
+- That criteria document supersedes conflicting older prompts, approvals, packets, and roster notes. No prior concept is grandfathered past it.
+- Work one unit at a time. Produce three silhouette possibilities, one selected full-body master, and only face/96 px derivatives from that same master during concept work.
+- Human and humanoid units must read as mature peak-condition fighters; no ordinary children, teens, elderly people, or frail civilian lanes. Deliberate horror exceptions require explicit Board approval.
+- Unless deliberately horrific, female units must pass the hot-adult-woman and lean/toned/feminine gates. Do not use heavy-powerful, bodybuilder, overly buff, masculinized, childlike, or elderly female builds.
+- Armor is optional and must be justified by role and identity. Female frontliners need visible protection logic through fitting armor, shield architecture, reinforced clothing, protective nonhuman skin, anatomy, or supernatural defense—not bulky male-coded mass.
+- Psychology must be visible in the face and reinforced by pose. Generic labels such as angry, sad, evil, or confident are not an acceptable psychology record.
+- A Board vote is invalid without the canonical evidence packet and explicit verdict fields. The user retains final approval authority.
+- Use the three-seat JSON record and run `python tools/art/validate_unit_art_board_review.py --record <record.json> --check-files` before accepting any Board verdict. Do not self-assert unanimity or conditional `NOT_APPLICABLE` values.
 
 Top-level layout
 - `scripts/` � gameplay code (combat, shop, items, UI helpers, utilities)

@@ -1,5 +1,7 @@
 # Phase 2 — Real-Unit Calibration Concepts
 
+> **PROVISIONAL / REOPENED — 2026-07-21:** The masters and records in this packet predate `docs/art/unit_art_board_reference_criteria.md`. The old age/body lanes—including young, elderly, old-woman, old-man, and heavy female directions—are invalid. Every unit must be re-reviewed against the canonical peak-age, attractiveness, armor/protection, detailed facial-psychology, horror, and individuality gates before Phase 2 can be approved again. Use `docs/art/unit_art_board_review_template.json`; no concept is grandfathered.
+
 ## Purpose and acceptance envelope
 
 This packet stress-tests the Phase 1 trait system on twelve real roster units. It is concept art only: one rough silhouette triptych and one definitive full-body master concept per unit. The only derivative is a deterministic 96 px board-read check cropped from that same master. No shop cards, headshots, sprite sheets, animation sheets, or VFX assets are in scope.

@@ -2,6 +2,10 @@
 
 This guide is the locked workflow for recreating existing Gamble Battle units and making new unit or gameplay assets that align with the current premium gothic direction.
 
+> **Concept-design authority:** `docs/art/unit_art_board_reference_criteria.md` governs age, peak fighting condition, female attractiveness, body builds, armor/protection logic, face-readable psychology, horror, individuality, evidence, and Board approval. Use `docs/art/unit_art_board_review_template.json` for each unit. This production/style workflow cannot override those criteria. The earlier Phase 2 approval is reopened under that standard.
+
+The Board record is semantically enforced by `tools/art/validate_unit_art_board_review.py`. Before approval, run it with `--record <record.json> --check-files`; JSON parseability or required-key presence alone is not evidence of a valid review.
+
 It is intentionally stricter than a normal prompt note. Future runs should start from this document, `docs/art/unit_art_prompt_cases.json`, and the proof ledger at `docs/art/unit_art_proof_matrix.json`, then record any new accepted or rejected proof before claiming the workflow is stronger.
 
 ## Current Best Anchor

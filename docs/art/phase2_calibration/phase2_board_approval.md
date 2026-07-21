@@ -1,6 +1,8 @@
 # Phase 2 Board Approval
 
-Final status: **READY / PROFESSIONAL / blocker ledger NONE**
+> **SUPERSEDED / REOPENED — 2026-07-21:** This is a historical review record, not a current approval. It omitted or contradicted the canonical peak-age fighter, hot-adult-woman, lean/toned/feminine, armor-only-when-justified, and face-readable psychology gates now locked in `docs/art/unit_art_board_reference_criteria.md`. All twelve concepts require re-review and, where necessary, redesign using `docs/art/unit_art_board_review_template.json`.
+
+Historical status at the time: **READY / PROFESSIONAL / blocker ledger NONE**
 
 Approved review cut: `phase2-repair-cut-v3`
 
@@ -36,4 +38,4 @@ Three new clean-context reviewers each voted `READY`, rated the cut `PROFESSIONA
 - Preserve Malachor's four-support square body and the open gap between the clamp jaws.
 - The common dry dark finish is world coherence, not permission to converge later human units into the same coat or leather family.
 
-This approval closes Phase 2 concept calibration only. It does not authorize shop cards, headshots, sprite sheets, animation sheets, standalone VFX, or other production assets.
+This historical approval no longer closes Phase 2. It never authorized shop cards, headshots, sprite sheets, animation sheets, standalone VFX, or other production assets.
