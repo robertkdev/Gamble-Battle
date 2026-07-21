@@ -72,3 +72,27 @@ scenarios:
     output_root: "outputs/visual_debug/vdh_runs"
     max_iterations: 3
     telegram_context: "Gamble Battle unit upgrades"
+  - id: phase4-combat-presentation
+    title: Premium combat motion, impact families, and consequence ceremony
+    adapter: godot
+    objective: Verify grounded actor motion, readable attack-family contacts, exact visual-arrival causality, restrained outcome ceremony, and compact-frame stability in the player-facing Godot runtime.
+    capture_command: ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "Tools/Build-Phase4CombatVisualManifest.ps1"]
+    capture_manifest: "outputs/visual_debug/phase4_combat_presentation/captures.json"
+    required_groups: [temporal, attack_family, consequence, compact]
+    runtime_provenance:
+      entrypoint: "Godot editor game framebuffer"
+      scene: "res://tests/visual/AttackVisualSignatureCapture.tscn + res://tests/visual/PostCombatPlanningBeatSmoke.tscn"
+      build: "codex/019f80d9-676-task"
+    evidence:
+      required_cameras: [player]
+      required_layers: [final]
+      required_states: [impact]
+      required_viewports: [desktop-1920x1080, compact-1280x720, compact-1366x768]
+      required_events: [00_attack]
+      min_temporal_frames: 3
+      require_runtime_provenance: true
+      required_runtime_fields: [entrypoint, scene, build]
+      max_source_age_seconds: 300
+    output_root: "outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Phase 4 combat presentation"

@@ -312,7 +312,7 @@ func _on_manager_position_updated(team: String, index: int, x: float, y: float) 
     if actor == null or not is_instance_valid(actor):
         return
     actor.set_screen_position(Vector2(x, y))
-    actor.visible = (actor.unit != null and actor.unit.is_alive())
+    actor.sync_alive_visibility(actor.unit != null and actor.unit.is_alive())
 
 func _sync_actor_visibility(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotView]) -> void:
     if arena == null:
@@ -321,12 +321,12 @@ func _sync_actor_visibility(player_views: Array[UnitSlotView], enemy_views: Arra
         var player_actor: UnitActor = arena.get_player_actor(i)
         if player_actor != null and is_instance_valid(player_actor):
             var player_view: UnitSlotView = player_views[i]
-            player_actor.visible = (player_view.unit != null and player_view.unit.is_alive())
+            player_actor.sync_alive_visibility(player_view.unit != null and player_view.unit.is_alive())
     for j in range(min(enemy_views.size(), arena.enemy_actors.size())):
         var enemy_actor: UnitActor = arena.get_enemy_actor(j)
         if enemy_actor != null and is_instance_valid(enemy_actor):
             var enemy_view: UnitSlotView = enemy_views[j]
-            enemy_actor.visible = (enemy_view.unit != null and enemy_view.unit.is_alive())
+            enemy_actor.sync_alive_visibility(enemy_view.unit != null and enemy_view.unit.is_alive())
 
 func _log_start_positions_and_targets(manager: CombatManager) -> void:
     if manager == null:

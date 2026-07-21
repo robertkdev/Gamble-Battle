@@ -7,7 +7,7 @@ const INSTALLER_NAME: String = "CombatVfxInstaller"
 const BRIDGE_NAME: String = "CombatVfxBridge"
 const PLAYER_IDS: Array[String] = ["saffron"]
 const ENEMY_IDS: Array[String] = ["brute"]
-const EXPECTED_READABILITY_MODULATE: Color = Color(0.74, 0.62, 0.54, 0.42)
+const EXPECTED_READABILITY_MODULATE: Color = Color(0.92, 0.90, 0.96, 0.78)
 const MAX_EXPECTED_ACTIVE_LINES: int = 10
 const MAX_EXPECTED_ACTIVE_BURSTS: int = 16
 

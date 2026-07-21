@@ -80,7 +80,7 @@ func sync_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotVi
             actor.set_screen_position(pos)
             # Keep actor bars in sync with the latest Unit state
             actor.update_bars(pv.unit)
-            actor.visible = (pv.unit != null and pv.unit.is_alive())
+            actor.sync_alive_visibility(pv.unit != null and pv.unit.is_alive())
     if not player_summary.is_empty():
         Debug.log("ArenaSync", "Player %s" % [Strings.join(player_summary, ", ")])
 
@@ -97,7 +97,7 @@ func sync_arena(player_views: Array[UnitSlotView], enemy_views: Array[UnitSlotVi
             actor2.set_screen_position(pos2)
             # Keep actor bars in sync with the latest Unit state
             actor2.update_bars(ev.unit)
-            actor2.visible = (ev.unit != null and ev.unit.is_alive())
+            actor2.sync_alive_visibility(ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
         Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
 
@@ -118,7 +118,7 @@ func sync_arena_with_positions(player_views: Array[UnitSlotView], enemy_views: A
         if actor and is_instance_valid(actor):
             actor.set_screen_position(pos)
             # Bars update through stat/team-stat signals; position sync only moves actors.
-            actor.visible = (pv.unit != null and pv.unit.is_alive())
+            actor.sync_alive_visibility(pv.unit != null and pv.unit.is_alive())
     if not player_summary.is_empty():
         Debug.log("ArenaSync", "Player %s" % [Strings.join(player_summary, ", ")])
 
@@ -137,7 +137,7 @@ func sync_arena_with_positions(player_views: Array[UnitSlotView], enemy_views: A
         if actor2 and is_instance_valid(actor2):
             actor2.set_screen_position(pos2)
             # Bars update through stat/team-stat signals; position sync only moves actors.
-            actor2.visible = (ev.unit != null and ev.unit.is_alive())
+            actor2.sync_alive_visibility(ev.unit != null and ev.unit.is_alive())
     if not enemy_summary.is_empty():
         Debug.log("ArenaSync", "Enemy %s" % [Strings.join(enemy_summary, ", ")])
 

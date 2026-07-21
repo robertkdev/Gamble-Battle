@@ -12,16 +12,103 @@ static func style_for(unit: Unit, source_team: String, crit: bool) -> Dictionary
 
 	var style: Dictionary[String, Variant] = _role_fallback(primary_role, approaches)
 	_apply_unit_override(style, unit_id)
+	var attack_family: String = _attack_family_for(primary_role, approaches, String(style.get("shape", "orb")))
+	var impact_profile: Dictionary[String, Variant] = _impact_profile_for(attack_family)
+	for profile_key: String in impact_profile.keys():
+		style[profile_key] = impact_profile[profile_key]
+	style["attack_family"] = attack_family
 	style["unit_id"] = unit_id
 	style["source_team"] = source_team
 	if crit:
 		style["radius_scale"] = float(style.get("radius_scale", 1.0)) * 1.28
 		style["trail_width"] = float(style.get("trail_width", 3.0)) * 1.20
 		style["impact_radius"] = float(style.get("impact_radius", 24.0)) * 1.22
+		style["impact_strength"] = min(1.65, float(style.get("impact_strength", 1.0)) * 1.20)
+		style["flash_hold"] = min(0.09, float(style.get("flash_hold", 0.05)) * 1.15)
+		style["recoil_px"] = min(6.0, float(style.get("recoil_px", 3.0)) * 1.15)
 		style["crit"] = true
 	else:
 		style["crit"] = false
 	return style
+
+static func _attack_family_for(primary_role: String, approaches: Array[String], shape: String) -> String:
+	var normalized_shape: String = shape.strip_edges().to_lower()
+	match normalized_shape:
+		"shield", "hammer", "stone":
+			return "blunt"
+		"slash", "crescent", "scythe", "blood", "chain", "thorn":
+			return "cleave"
+		"needle", "bolt", "star", "spark":
+			return "precision"
+		"rune", "ember", "glyph", "orb":
+			return "arcane"
+		"ring", "ribbon", "bubble", "paper", "card", "coin":
+			return "support"
+	if approaches.has("execute"):
+		return "precision"
+	if approaches.has("dot") or approaches.has("zone"):
+		return "arcane"
+	match primary_role:
+		"tank":
+			return "blunt"
+		"brawler":
+			return "cleave"
+		"assassin", "marksman":
+			return "precision"
+		"mage":
+			return "arcane"
+		"support":
+			return "support"
+		_:
+			return "arcane"
+
+static func _impact_profile_for(attack_family: String) -> Dictionary[String, Variant]:
+	match attack_family:
+		"blunt":
+			return {
+				"impact_radius": 44.0,
+				"impact_duration": 0.34,
+				"impact_strength": 1.18,
+				"impact_shards": 8,
+				"flash_hold": 0.07,
+				"recoil_px": 5.0,
+			}
+		"cleave":
+			return {
+				"impact_radius": 40.0,
+				"impact_duration": 0.26,
+				"impact_strength": 1.05,
+				"impact_shards": 6,
+				"flash_hold": 0.055,
+				"recoil_px": 4.5,
+			}
+		"precision":
+			return {
+				"impact_radius": 38.0,
+				"impact_duration": 0.28,
+				"impact_strength": 1.02,
+				"impact_shards": 4,
+				"flash_hold": 0.045,
+				"recoil_px": 3.0,
+			}
+		"support":
+			return {
+				"impact_radius": 44.0,
+				"impact_duration": 0.50,
+				"impact_strength": 0.86,
+				"impact_shards": 8,
+				"flash_hold": 0.05,
+				"recoil_px": 2.5,
+			}
+		_:
+			return {
+				"impact_radius": 46.0,
+				"impact_duration": 0.48,
+				"impact_strength": 1.0,
+				"impact_shards": 7,
+				"flash_hold": 0.065,
+				"recoil_px": 3.5,
+			}
 
 static func _make_style(
 		shape: String,

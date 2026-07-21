@@ -112,11 +112,15 @@ func _assert_result_card() -> void:
 	var title_label: Label = card.get_node_or_null("CardMargin/Content/OutcomeLabel") as Label
 	var detail_label: Label = card.get_node_or_null("CardMargin/Content/DetailLabel") as Label
 	var kicker_label: Label = card.get_node_or_null("CardMargin/Content/KickerLabel") as Label
+	var intermission_bar: ProgressBar = card.get_node_or_null("CardMargin/Content/GothicIntermissionBar") as ProgressBar
+	var flourish: Control = banner.get_node_or_null("BattleResultFlourish") as Control
 	_expect(title_label != null and title_label.text == "VICTORY", "post-win result title should read VICTORY")
 	_expect(detail_label != null and detail_label.text.contains("WAGER"), "post-win result detail should expose the resolved wager")
 	_expect(detail_label != null and detail_label.text.contains("RETURN"), "post-win result detail should expose the return")
 	_expect(detail_label != null and detail_label.text.contains("CHAPTER"), "post-win result detail should expose the run consequence")
 	_expect(kicker_label != null and kicker_label.text == "BATTLE OUTCOME", "post-win result card should include its outcome context")
+	_expect(intermission_bar != null and intermission_bar.visible, "intermission progress rail should be integrated inside the result card")
+	_expect(flourish != null and flourish.visible, "result card should include its animated consequence flourish")
 	var card_rect: Rect2 = card.get_global_rect()
 	var viewport: Viewport = get_viewport()
 	var viewport_size: Vector2 = viewport.get_visible_rect().size if viewport != null else Vector2.ZERO
@@ -130,16 +134,18 @@ func _assert_shared_result_variants() -> void:
 	_expect(controller != null and controller.has_method("_show_result_banner"), "result controller should expose the shared banner builder")
 	if controller == null or not controller.has_method("_show_result_banner"):
 		return
+	var saved_time_scale: float = Engine.time_scale
+	Engine.time_scale = 1.0
 	controller.call("_show_result_banner", "DEFEAT", "Round lost. Resolving the aftermath.", Color(0.72, 0.18, 0.16, 1.0), Color(1.0, 0.66, 0.60, 1.0))
 	_expect_result_copy("DEFEAT", "aftermath")
-	await _settle_frames(2)
+	await get_tree().create_timer(0.22).timeout
 	_expect_result_card_visible("DEFEAT")
-	_save_capture("01a_post_defeat_intermission_card.png")
+	_save_capture("01a_post_defeat_impact_ceremony.png")
 	controller.call("_show_result_banner", "STALEMATE", "Wager returned. Preparing your next decision.", Color(0.76, 0.62, 0.32, 1.0), Color(0.98, 0.85, 0.58, 1.0))
 	_expect_result_copy("STALEMATE", "Wager returned")
-	await _settle_frames(2)
+	await get_tree().create_timer(0.22).timeout
 	_expect_result_card_visible("STALEMATE")
-	_save_capture("01b_post_stalemate_intermission_card.png")
+	_save_capture("01b_post_stalemate_impact_ceremony.png")
 	var saved_chapter: int = int(GameState.chapter)
 	var saved_stage: int = int(GameState.stage_in_chapter)
 	GameState.set_chapter_and_stage(1, 4)
@@ -147,13 +153,17 @@ func _assert_shared_result_variants() -> void:
 	_expect(boss_detail.contains("BOSS DEFEATED"), "boss victory detail should state that the boss was defeated")
 	_expect(boss_detail.contains("CHAPTER 1 CLEARED"), "boss victory detail should state the chapter consequence")
 	controller.call("_show_result_banner", "VICTORY", boss_detail, Color(0.58, 0.72, 0.38, 1.0), Color(0.86, 0.94, 0.74, 1.0))
-	await _settle_frames(2)
+	await get_tree().create_timer(0.48).timeout
 	_expect_result_card_visible("VICTORY")
-	_save_capture("01c_boss_victory_chapter_cleared.png")
+	_save_capture("01c_boss_victory_consequence_hold.png")
 	GameState.set_chapter_and_stage(saved_chapter, saved_stage)
 	controller.call("_show_result_banner", "VICTORY", "Round secured. Preparing your next decision.", Color(0.42, 0.78, 0.24, 1.0), Color(0.82, 1.0, 0.66, 1.0))
 	_expect_result_copy("VICTORY", "Preparing")
+	await get_tree().create_timer(0.48).timeout
+	_expect_result_card_visible("VICTORY")
+	_save_capture("01d_post_victory_consequence_hold.png")
 	controller.call("_hide_result_banner")
+	Engine.time_scale = saved_time_scale
 
 func _expect_result_copy(expected_title: String, detail_token: String) -> void:
 	var banner: PanelContainer = _main.find_child("BattleResultBanner", true, false) as PanelContainer

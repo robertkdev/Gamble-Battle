@@ -10,6 +10,7 @@ signal projectile_visual_arrived(source_team: String, source_index: int, target_
 
 const DEBUG_RECENT_LIMIT: int = 12
 const IMPACT_DURATION: float = 0.46
+const MAX_ACTIVE_IMPACTS: int = 24
 
 var _projectiles: Array[Dictionary] = []
 var _impacts: Array[Dictionary] = []
@@ -55,6 +56,8 @@ func debug_snapshot() -> Dictionary:
 	return {
 		"active_count": _projectiles.size(),
 		"impact_count": _impacts.size(),
+		"impact_cap": MAX_ACTIVE_IMPACTS,
+		"impact_families": _impact_family_counts(),
 		"fired": _debug_fired.duplicate(),
 		"hits": _debug_hits.duplicate(),
 		"culled": _debug_culled.duplicate(),
@@ -130,6 +133,7 @@ func fire_basic(
 	_debug_remember({
 		"event": "fire",
 		"team": source_team,
+		"attack_family": String(visual_style.get("attack_family", "arcane")),
 		"source_index": int(source_index),
 		"target_index": int(target_index),
 		"start": _format_vector(start_pos),
@@ -200,6 +204,7 @@ func _process(delta: float) -> void:
 			_debug_remember({
 				"event": "hit",
 				"team": String(p.get("source_team", "player")),
+				"attack_family": String((p.get("style", {}) as Dictionary).get("attack_family", "arcane")),
 				"source_index": int(p.get("source_index", -1)),
 				"target_index": int(p.get("target_index", -1)),
 				"pos": _format_vector(p["pos"] as Vector2),
@@ -326,20 +331,109 @@ func _draw_impact(impact: Dictionary) -> void:
 	var t: float = clamp(elapsed / duration, 0.0, 1.0)
 	var inv: float = 1.0 - t
 	var pos: Vector2 = _to_local_canvas(impact.get("pos", Vector2.ZERO) as Vector2)
-	var radius: float = float(impact.get("radius", 24.0))
+	var strength: float = clampf(float(impact.get("strength", 1.0)), 0.5, 1.8)
+	var radius: float = float(impact.get("radius", 24.0)) * lerpf(0.88, 1.08, (strength - 0.5) / 1.3)
 	var edge_color: Color = _style_color(style, "edge_color", Color(1.0, 1.0, 1.0, 0.9))
 	var accent_color: Color = _style_color(style, "accent_color", Color(1.0, 0.9, 0.4, 0.9))
 	var core_color: Color = _style_color(style, "core_color", Color(0.7, 0.9, 1.0, 0.9))
+	var direction: Vector2 = impact.get("direction", Vector2.RIGHT) as Vector2
+	if direction.length_squared() <= 0.0001:
+		direction = Vector2.RIGHT
+	direction = direction.normalized()
+	var attack_family: String = String(impact.get("attack_family", style.get("attack_family", "arcane")))
+	match attack_family:
+		"blunt":
+			_draw_blunt_impact(pos, radius, t, inv, elapsed, strength, core_color, edge_color, accent_color)
+		"cleave":
+			_draw_cleave_impact(pos, direction, radius, t, inv, strength, core_color, edge_color, accent_color)
+		"precision":
+			_draw_precision_impact(pos, direction, radius, t, inv, strength, core_color, edge_color, accent_color)
+		"support":
+			_draw_support_impact(pos, radius, t, inv, elapsed, core_color, edge_color, accent_color)
+		"arcane":
+			_draw_arcane_impact(pos, radius, t, inv, elapsed, strength, core_color, edge_color, accent_color)
+		_:
+			_draw_generic_impact(pos, radius, t, inv, elapsed, int(style.get("impact_shards", 6)), core_color, edge_color, accent_color)
+
+func _draw_blunt_impact(pos: Vector2, radius: float, t: float, inv: float, elapsed: float, strength: float, core: Color, edge: Color, accent: Color) -> void:
+	var compression: float = sin(t * PI)
+	var ring_radius: float = lerpf(radius * 0.18, radius * 1.04, t)
+	draw_circle(pos, radius * (0.48 + compression * 0.12), Color(core.r, core.g, core.b, 0.32 * inv))
+	draw_arc(pos, ring_radius, 0.0, TAU, 48, Color(edge.r, edge.g, edge.b, 0.94 * inv), max(1.0, 6.4 * strength * inv), true)
+	draw_arc(pos, ring_radius * 0.62, 0.0, TAU, 36, Color(accent.r, accent.g, accent.b, 0.72 * inv), max(1.0, 3.8 * inv), true)
+	for index: int in range(8):
+		var angle: float = TAU * float(index) / 8.0 + elapsed * 0.8
+		var ray: Vector2 = Vector2(cos(angle), sin(angle))
+		var inner: Vector2 = pos + ray * ring_radius * 0.38
+		var outer: Vector2 = pos + ray * ring_radius * (0.72 + 0.16 * strength)
+		draw_line(inner, outer, Color(accent.r, accent.g, accent.b, 0.62 * inv), max(1.0, 3.2 * strength * inv), true)
+
+func _draw_cleave_impact(pos: Vector2, direction: Vector2, radius: float, t: float, inv: float, strength: float, core: Color, edge: Color, accent: Color) -> void:
+	var perpendicular: Vector2 = Vector2(-direction.y, direction.x)
+	var sweep: float = lerpf(0.50, 1.18, t)
+	var center: Vector2 = pos + direction * radius * (t - 0.35) * 0.34
+	var start_a: Vector2 = center - direction * radius * sweep - perpendicular * radius * 0.44
+	var end_a: Vector2 = center + direction * radius * sweep + perpendicular * radius * 0.44
+	var start_b: Vector2 = center - direction * radius * sweep + perpendicular * radius * 0.38
+	var end_b: Vector2 = center + direction * radius * sweep - perpendicular * radius * 0.38
+	draw_line(start_a, end_a, Color(edge.r, edge.g, edge.b, 0.96 * inv), max(1.0, radius * 0.18 * strength * inv), true)
+	draw_line(start_b, end_b, Color(accent.r, accent.g, accent.b, 0.78 * inv), max(1.0, radius * 0.10 * inv), true)
+	draw_circle(pos, radius * 0.28 * inv, Color(core.r, core.g, core.b, 0.30 * inv))
+
+func _draw_precision_impact(pos: Vector2, direction: Vector2, radius: float, t: float, inv: float, strength: float, core: Color, edge: Color, accent: Color) -> void:
+	var perpendicular: Vector2 = Vector2(-direction.y, direction.x)
+	var entry_start: Vector2 = pos - direction * radius * (1.55 - 0.35 * t)
+	var entry_end: Vector2 = pos + direction * radius * (0.72 + 0.48 * t)
+	draw_line(entry_start, entry_end, Color(edge.r, edge.g, edge.b, 0.92 * inv), max(1.0, 3.0 * strength * inv), true)
+	draw_line(pos - direction * radius * 0.65, pos + direction * radius * 0.42, Color(core.r, core.g, core.b, 1.0 * inv), max(1.0, 1.5 * inv), true)
+	var cross_radius: float = radius * (0.42 + t * 0.34)
+	draw_arc(pos, cross_radius, 0.0, TAU, 32, Color(accent.r, accent.g, accent.b, 0.92 * inv), max(1.0, 3.2 * inv), true)
+	draw_line(pos - perpendicular * cross_radius * 1.15, pos + perpendicular * cross_radius * 1.15, Color(core.r, core.g, core.b, 0.88 * inv), max(1.0, 2.4 * inv), true)
+	draw_line(pos - direction * cross_radius * 1.15, pos + direction * cross_radius * 1.15, Color(edge.r, edge.g, edge.b, 0.88 * inv), max(1.0, 2.4 * inv), true)
+	for side: int in range(-2, 3):
+		if side == 0:
+			continue
+		var shard_dir: Vector2 = (direction * 0.40 + perpendicular * float(side) * 0.34).normalized()
+		var shard_start: Vector2 = pos + shard_dir * radius * 0.18
+		var shard_end: Vector2 = pos + shard_dir * radius * (0.46 + t * 0.46)
+		draw_line(shard_start, shard_end, Color(accent.r, accent.g, accent.b, 0.68 * inv), max(1.0, 1.8 * inv), true)
+
+func _draw_arcane_impact(pos: Vector2, radius: float, t: float, inv: float, elapsed: float, strength: float, core: Color, edge: Color, accent: Color) -> void:
+	var outer_radius: float = lerpf(radius * 0.28, radius * 1.08, t)
+	var spin: float = elapsed * 4.8
+	draw_circle(pos, radius * 0.70 * inv, Color(core.r, core.g, core.b, 0.32 * inv))
+	draw_arc(pos, outer_radius, spin, spin + PI * 1.58, 42, Color(edge.r, edge.g, edge.b, 0.92 * inv), max(1.0, 4.2 * strength * inv), true)
+	draw_arc(pos, outer_radius * 0.68, -spin, -spin + PI * 1.45, 34, Color(accent.r, accent.g, accent.b, 0.82 * inv), max(1.0, 2.8 * inv), true)
+	for index: int in range(6):
+		var angle: float = spin * 0.35 + TAU * float(index) / 6.0
+		var glyph_pos: Vector2 = pos + Vector2(cos(angle), sin(angle)) * outer_radius * 0.72
+		draw_circle(glyph_pos, max(1.0, radius * 0.065) * inv, Color(core.r, core.g, core.b, 0.88 * inv))
+
+func _draw_support_impact(pos: Vector2, radius: float, t: float, inv: float, elapsed: float, core: Color, edge: Color, accent: Color) -> void:
+	var pulse: float = 0.5 + 0.5 * sin(elapsed * 8.0)
+	var outer_radius: float = lerpf(radius * 0.36, radius * 1.18, t)
+	draw_circle(pos, radius * (0.42 + pulse * 0.08), Color(core.r, core.g, core.b, 0.14 * inv))
+	draw_arc(pos, outer_radius, 0.0, TAU, 48, Color(edge.r, edge.g, edge.b, 0.66 * inv), max(1.0, 3.4 * inv), true)
+	draw_arc(pos, outer_radius * 0.72, PI * 0.15, PI * 1.85, 40, Color(accent.r, accent.g, accent.b, 0.72 * inv), max(1.0, 2.2 * inv), true)
+	var cross_span: float = outer_radius * 0.42
+	draw_line(pos - Vector2(cross_span, 0.0), pos + Vector2(cross_span, 0.0), Color(accent.r, accent.g, accent.b, 0.92 * inv), max(1.0, 4.0 * inv), true)
+	draw_line(pos - Vector2(0.0, cross_span), pos + Vector2(0.0, cross_span), Color(core.r, core.g, core.b, 0.92 * inv), max(1.0, 4.0 * inv), true)
+	for index: int in range(8):
+		var angle: float = TAU * float(index) / 8.0 + elapsed * 1.2
+		var mote_pos: Vector2 = pos + Vector2(cos(angle), sin(angle)) * outer_radius * 0.82
+		draw_circle(mote_pos, max(1.0, radius * 0.045) * inv, Color(accent.r, accent.g, accent.b, 0.64 * inv))
+
+func _draw_generic_impact(pos: Vector2, radius: float, t: float, inv: float, elapsed: float, shard_count: int, core: Color, edge: Color, accent: Color) -> void:
 	var ring_radius: float = lerp(radius * 0.25, radius, t)
-	draw_circle(pos, radius * 0.52 * inv, Color(core_color.r, core_color.g, core_color.b, 0.32 * inv))
-	draw_arc(pos, ring_radius, 0.0, TAU, 48, Color(edge_color.r, edge_color.g, edge_color.b, 0.90 * inv), max(1.0, 4.6 * inv), true)
-	draw_arc(pos, ring_radius * 0.62, 0.0, TAU, 36, Color(accent_color.r, accent_color.g, accent_color.b, 0.72 * inv), max(1.0, 2.8 * inv), true)
-	var shards: int = 6
+	draw_circle(pos, radius * 0.52 * inv, Color(core.r, core.g, core.b, 0.32 * inv))
+	draw_arc(pos, ring_radius, 0.0, TAU, 48, Color(edge.r, edge.g, edge.b, 0.90 * inv), max(1.0, 4.6 * inv), true)
+	draw_arc(pos, ring_radius * 0.62, 0.0, TAU, 36, Color(accent.r, accent.g, accent.b, 0.72 * inv), max(1.0, 2.8 * inv), true)
+	var shards: int = clampi(shard_count, 3, 12)
 	for i in range(shards):
 		var angle: float = (TAU * float(i) / float(shards)) + elapsed * 3.0
 		var inner: Vector2 = pos + Vector2(cos(angle), sin(angle)) * ring_radius * 0.40
 		var outer: Vector2 = pos + Vector2(cos(angle), sin(angle)) * ring_radius * 0.92
-		draw_line(inner, outer, Color(accent_color.r, accent_color.g, accent_color.b, 0.56 * inv), max(1.0, 2.8 * inv), true)
+		draw_line(inner, outer, Color(accent.r, accent.g, accent.b, 0.56 * inv), max(1.0, 2.8 * inv), true)
 
 func _draw_orb(pos: Vector2, radius: float, core: Color, edge: Color, accent: Color) -> void:
 	draw_circle(pos, radius * 1.05, edge)
@@ -546,13 +640,28 @@ func _spawn_impact(p: Dictionary, target_rect: Rect2) -> void:
 	if target_rect.size != Vector2.ZERO:
 		pos = target_rect.get_center()
 	var impact_radius: float = max(8.0, float(style.get("impact_radius", 24.0)))
+	var impact_duration: float = clampf(float(style.get("impact_duration", IMPACT_DURATION)), 0.12, 0.75)
+	var impact_strength: float = clampf(float(style.get("impact_strength", 1.0)), 0.5, 1.8)
+	var attack_family: String = String(style.get("attack_family", "arcane"))
 	_impacts.append({
 		"pos": pos,
 		"style": style.duplicate(true),
+		"attack_family": attack_family,
+		"direction": _projectile_dir(p),
 		"radius": impact_radius,
+		"strength": impact_strength,
 		"elapsed": 0.0,
-		"duration": IMPACT_DURATION,
+		"duration": impact_duration,
 	})
+	while _impacts.size() > MAX_ACTIVE_IMPACTS:
+		_impacts.pop_front()
+
+func _impact_family_counts() -> Dictionary[String, int]:
+	var counts: Dictionary[String, int] = {}
+	for impact: Dictionary in _impacts:
+		var family: String = String(impact.get("attack_family", "arcane"))
+		counts[family] = int(counts.get(family, 0)) + 1
+	return counts
 
 func _history_points(p: Dictionary) -> Array[Vector2]:
 	var raw_history: Variant = p.get("history", [])

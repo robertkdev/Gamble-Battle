@@ -8,6 +8,8 @@ const ImpactRing: GDScript = preload("res://scripts/ui/vfx/level_up_vfx.gd")
 
 var host: Control
 var sprite: TextureRect
+var ring_parent: Control = null
+var flash_parent: Control = null
 var flash_color: Color = Color(1.8, 0.0, 1.8, 1.0)
 var fade_duration: float = 0.22
 var hold_duration: float = 0.06
@@ -25,6 +27,12 @@ func configure(payload: Dictionary) -> void:
 		sprite = maybe_sprite
 	elif host is TextureRect:
 		sprite = host
+	var maybe_ring_parent: Variant = payload.get("ring_parent") if payload.has("ring_parent") else null
+	if maybe_ring_parent is Control:
+		ring_parent = maybe_ring_parent
+	var maybe_flash_parent: Variant = payload.get("flash_parent") if payload.has("flash_parent") else null
+	if maybe_flash_parent is Control:
+		flash_parent = maybe_flash_parent
 
 	var maybe_color: Variant = payload.get("flash_color") if payload.has("flash_color") else flash_color
 	if maybe_color is Color:
@@ -88,6 +96,7 @@ func play() -> void:
 func _spawn_impact_ring() -> void:
 	if host == null:
 		return
+	var parent: Control = ring_parent if ring_parent != null and is_instance_valid(ring_parent) else host
 	var ring: LevelUpVfx = ImpactRing.new() as LevelUpVfx
 	ring.name = "HitImpactRing"
 	ring.color = ring_color
@@ -97,7 +106,7 @@ func _spawn_impact_ring() -> void:
 	ring.line_width = 3.0
 	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ring.z_index = max(sprite.z_index if sprite != null else 0, 0) + 2
-	host.add_child(ring)
+	parent.add_child(ring)
 	ring.set_anchors_preset(Control.PRESET_FULL_RECT)
 	ring.offset_left = 0.0
 	ring.offset_top = 0.0
@@ -106,7 +115,7 @@ func _spawn_impact_ring() -> void:
 
 func _spawn_overlay() -> void:
 	# Create a TextureRect overlaid above the sprite, with matching stretch/expand.
-	var parent: Control = host
+	var parent: Control = flash_parent if flash_parent != null and is_instance_valid(flash_parent) else host
 	if parent == null:
 		return
 	_overlay = TextureRect.new()

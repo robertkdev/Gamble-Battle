@@ -17,6 +17,7 @@ const MoveRouter := preload("res://scripts/ui/combat/move_router.gd")
 const ProjectileBridge := preload("res://scripts/ui/combat/projectile_bridge.gd")
 const EconomyUI := preload("res://scripts/ui/combat/economy_ui.gd")
 const IntermissionController := preload("res://scripts/ui/combat/intermission_controller.gd")
+const BattleResultFlourish := preload("res://scripts/ui/combat/battle_result_flourish.gd")
 const ShopPresenter := preload("res://scripts/ui/shop/shop_presenter.gd")
 const SellZone := preload("res://scripts/ui/shop/sell_zone.gd") # legacy; no longer used visually
 const SelectionService := preload("res://scripts/ui/combat/stats/selection_service.gd")
@@ -154,6 +155,7 @@ var _combat_resolving_last_second: int = -1
 var _combat_resolving_watchdog_seen: bool = false
 var _hud_snapshot_signature: String = ""
 var _result_banner: PanelContainer = null
+var _result_flourish: BattleResultFlourish = null
 var _encounter_banner: PanelContainer = null
 var _encounter_banner_label: Label = null
 var _encounter_banner_tween: Tween = null
@@ -293,6 +295,7 @@ func teardown() -> void:
 	if _result_banner != null and is_instance_valid(_result_banner):
 		_result_banner.queue_free()
 	_result_banner = null
+	_result_flourish = null
 	if _encounter_banner_tween != null and _encounter_banner_tween.is_valid():
 		_encounter_banner_tween.kill()
 	_encounter_banner_tween = null
@@ -2062,7 +2065,10 @@ func _start_intermission(seconds: float = 5.0) -> void:
 			projectile_bridge.clear()
 	if intermission == null:
 		intermission = IntermissionController.new()
-		intermission.configure(parent)
+	var rail_host: Control = null
+	if _result_banner != null and is_instance_valid(_result_banner):
+		rail_host = _result_banner.get_node_or_null("Center/BattleResultCard/CardMargin/Content") as Control
+	intermission.configure(parent, rail_host)
 	intermission.start(seconds, Callable(self, "_on_intermission_finished"))
 
 func _on_intermission_finished() -> void:
@@ -2664,6 +2670,11 @@ func _show_result_banner(title: String, detail: String, accent_color: Color, tit
 		card.add_theme_stylebox_override("panel", _make_result_card_style(accent_color))
 	banner.add_theme_stylebox_override("panel", _make_result_scrim_style())
 	banner.visible = true
+	if _result_flourish != null and is_instance_valid(_result_flourish) and card != null:
+		var outcome: String = title.strip_edges().to_lower()
+		if outcome == "victory" and detail.contains("BOSS DEFEATED"):
+			outcome = "boss_victory"
+		_result_flourish.play(outcome, accent_color, card, 1.95)
 
 func _build_result_detail(outcome: String, resolved_stage: int) -> String:
 	var chapter: int = 1
@@ -2697,6 +2708,8 @@ func _build_result_detail(outcome: String, resolved_stage: int) -> String:
 			return "CHAPTER %d — STAGE %d RESOLVED" % [chapter, chapter_stage]
 
 func _hide_result_banner() -> void:
+	if _result_flourish != null and is_instance_valid(_result_flourish):
+		_result_flourish.cancel()
 	if _result_banner != null and is_instance_valid(_result_banner):
 		_result_banner.visible = false
 
@@ -2723,6 +2736,15 @@ func _ensure_result_banner() -> PanelContainer:
 	_result_banner.offset_right = 0.0
 	_result_banner.offset_top = 0.0
 	_result_banner.offset_bottom = 0.0
+	_result_flourish = BattleResultFlourish.new() as BattleResultFlourish
+	_result_flourish.name = "BattleResultFlourish"
+	_result_flourish.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_result_flourish.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_result_flourish.offset_left = 0.0
+	_result_flourish.offset_top = 0.0
+	_result_flourish.offset_right = 0.0
+	_result_flourish.offset_bottom = 0.0
+	_result_banner.add_child(_result_flourish)
 	var center: CenterContainer = CenterContainer.new()
 	center.name = "Center"
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE

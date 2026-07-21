@@ -84,3 +84,31 @@ and Phase 2 PASS after the persistent selection and temporal arc repairs. The
 skeptical juror then re-audited the expanded result/decision matrix, compact
 temporal cells, player-facing overlay states, and runtime identity manifest and
 returned Phase 1 PASS / Phase 2 PASS with no acceptance blocker remaining.
+
+## Phase 4: premium combat presentation
+
+Phase 4 adds presentation-only weight to the existing combat simulation; damage,
+targeting, projectile arrival, and round timing remain gameplay-authoritative.
+
+- Combat portraits now sit on grounded contact shadows and use deterministic,
+  asynchronous idle motion instead of moving in lockstep.
+- Attack events drive a bounded anticipation, strike, and recovery pose. Exact
+  projectile arrival drives directional hit recoil or a staged lethal collapse,
+  and arena visibility waits for the death reaction to finish.
+- Hit flashes follow the moving portrait while the impact ring remains grounded
+  to the actor footprint.
+- Blunt, cleave, precision, arcane, and support attacks use stable family profiles
+  with different contact geometry, color, spread, and persistence. The renderer
+  caps simultaneous impact accents so large fights remain legible.
+- Victory, defeat, stalemate, and boss victory use a restrained cue-driven
+  consequence ceremony. Its progress rail is part of the result card rather than
+  a detached HUD element, and the normal planning layout is restored afterward.
+
+Authoritative Phase 4 runtime checks passed: `CombatMotionPresentationSmoke`,
+`CombatVfxReadabilitySmoke`, `AttackVisualSignatureCapture` (four attack groups,
+two compact resolutions, 24 framebuffer captures), and
+`PostCombatPlanningBeatSmoke` (six consequence captures), all with no Godot
+errors. The final evidence packet is under
+`outputs/visual_debug/vdh_runs/phase4-final-4/packet/`; source captures are under
+`outputs/visual_iter/attack_visuals_pass/` and
+`outputs/visual_iter/post_combat_planning_beat_pass/`.

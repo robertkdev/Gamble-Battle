@@ -9,18 +9,22 @@ const GROUPS: Array[Dictionary] = [
 	{
 		"name": "opening_frontline",
 		"units": ["axiom", "berebell", "bo", "bonko", "brute", "cashmere"],
+		"source_index": 1,
 	},
 	{
 		"name": "engage_arcane",
 		"units": ["grint", "hexeon", "korath", "kythera", "luna", "morrak"],
+		"source_index": 3,
 	},
 	{
 		"name": "blood_precision",
 		"units": ["mortem", "nyxa", "paisley", "repo", "sari", "teller"],
+		"source_index": 1,
 	},
 	{
 		"name": "support_voltage",
 		"units": ["totem", "veyra", "volt", "vykos"],
+		"source_index": 1,
 	},
 ]
 
@@ -84,14 +88,37 @@ func _run_group(group: Dictionary, filename_suffix: String, expected_viewport: V
 	_make_team_durable(manager.player_team)
 	_make_team_durable(manager.enemy_team)
 	await _settle(0.12)
-	_save_capture("%s%s_01_anticipation_t000.png" % [label, filename_suffix], label, "anticipation", 0, expected_viewport)
-	var source_index: int = mini(1, manager.player_team.size() - 1)
+	var source_index: int = clampi(int(group.get("source_index", 1)), 0, manager.player_team.size() - 1)
 	var target_index: int = mini(1, manager.enemy_team.size() - 1)
-	manager.emit_signal("ability_cast", "player", source_index, "visual_audit_%s" % label, "enemy", target_index, Vector2.ZERO)
+	var controller: Variant = view.get("controller")
+	var bridge: Variant = controller.get("projectile_bridge") if controller != null else null
+	var projectile_manager: ProjectileManager = bridge.get("projectile_manager") as ProjectileManager if bridge != null else null
+	if projectile_manager == null:
+		push_error("AttackVisualSignatureCapture: projectile manager missing for %s" % label)
+		view.queue_free()
+		return false
+	var arrival_state: Dictionary[String, Variant] = {"arrived": false}
+	projectile_manager.projectile_visual_arrived.connect(func(_team: String, _source: int, _target: int, _crit: bool, _style: Dictionary) -> void:
+		arrival_state["arrived"] = true
+	, CONNECT_ONE_SHOT)
+	var capture_started_ms: int = Time.get_ticks_msec()
+	manager.emit_signal("projectile_fired", "player", source_index, target_index, 1, false)
+	await _settle(0.04)
+	_save_capture("%s%s_01_anticipation_t040.png" % [label, filename_suffix], label, "anticipation", Time.get_ticks_msec() - capture_started_ms, expected_viewport)
 	await _settle(0.08)
-	_save_capture("%s%s_02_impact_t080.png" % [label, filename_suffix], label, "impact", 80, expected_viewport)
+	_save_capture("%s%s_02_release_t120.png" % [label, filename_suffix], label, "release", Time.get_ticks_msec() - capture_started_ms, expected_viewport)
+	var arrival_deadline_ms: int = Time.get_ticks_msec() + 1600
+	while not bool(arrival_state.get("arrived", false)) and Time.get_ticks_msec() < arrival_deadline_ms:
+		await get_tree().process_frame
+	if not bool(arrival_state.get("arrived", false)):
+		push_error("AttackVisualSignatureCapture: projectile arrival timeout for %s" % label)
+		view.queue_free()
+		return false
+	if not _is_framebuffer_unavailable():
+		await RenderingServer.frame_post_draw
+	_save_capture("%s%s_03_impact_arrival.png" % [label, filename_suffix], label, "impact", Time.get_ticks_msec() - capture_started_ms, expected_viewport)
 	await _settle(0.28)
-	_save_capture("%s%s_03_recovery_t360.png" % [label, filename_suffix], label, "recovery", 360, expected_viewport)
+	_save_capture("%s%s_04_recovery.png" % [label, filename_suffix], label, "recovery", Time.get_ticks_msec() - capture_started_ms, expected_viewport)
 	view.queue_free()
 	await _settle(0.12)
 	return true
@@ -161,7 +188,7 @@ func _write_temporal_manifest() -> void:
 	var manifest: Dictionary[String, Variant] = {
 		"runtime": "Godot player-facing framebuffer",
 		"scene": "res://tests/visual/AttackVisualSignatureCapture.tscn",
-		"capture_contract": "event-synchronized anticipation / impact / recovery",
+		"capture_contract": "event-synchronized anticipation / release / projectile arrival impact / recovery",
 		"events": _manifest_events,
 	}
 	file.store_string(JSON.stringify(manifest, "\t"))

@@ -9,8 +9,10 @@ const UnitArtPresentation: GDScript = preload("res://scripts/ui/unit_art_present
 
 var unit: Unit
 var focus_plate: Panel
+var contact_shadow: Panel
 var team_rim: Panel
 var bar_plate: Panel
+var portrait_motion_root: Control
 var sprite: TextureRect
 var hp_bar: ProgressBar
 var mana_bar: ProgressBar
@@ -36,6 +38,24 @@ var knockup_offset_y: float:
 		_effect_offset.y = value
 		_update_screen_position()
 var _knockup_tween: Tween = null
+var _presentation_tween: Tween = null
+var _idle_clock: float = 0.0
+var _idle_phase: float = 0.0
+var _presentation_state: String = "idle"
+var _presentation_hidden_by_death: bool = false
+var _presentation_death_in_progress: bool = false
+var _last_hit_reaction_msec: int = -1000
+var _presentation_offset: Vector2 = Vector2.ZERO
+var _presentation_scale: Vector2 = Vector2.ONE
+var _presentation_rotation: float = 0.0
+var _presentation_alpha: float = 1.0
+var _shadow_action_scale: Vector2 = Vector2.ONE
+var _shadow_alpha: float = 1.0
+var _applied_interface_alpha: float = -1.0
+
+const IDLE_AMPLITUDE_PX: float = 1.35
+const IDLE_PERIOD_S: float = 2.8
+const MAX_PRESENTATION_OFFSET_PX: float = 22.0
 
 static var diagnostics_enabled: bool = false
 static var diagnostic_update_bars_calls: int = 0
@@ -80,21 +100,97 @@ func _ready() -> void:
 	size = size_px
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ensure_focus_plate()
+	_ensure_contact_shadow()
 	_ensure_sprite()
 	_update_actor_visual_layout()
 	_ensure_bars()
 	_ensure_effect_player()
 	_update_effect_player_sprite()
 	_update_visuals()
+	set_process(true)
+
+func _process(delta: float) -> void:
+	_idle_clock += maxf(0.0, delta)
+	_apply_presentation_transform()
 
 func _exit_tree() -> void:
 	if _knockup_tween != null and is_instance_valid(_knockup_tween):
 		_knockup_tween.kill()
 	_knockup_tween = null
+	_kill_presentation_tween()
 	if _effect_player != null and is_instance_valid(_effect_player) and _effect_player.has_method("dispose"):
 		_effect_player.dispose()
 	_effect_player = null
 	unit = null
+
+func _ensure_contact_shadow() -> void:
+	if contact_shadow != null and is_instance_valid(contact_shadow):
+		if contact_shadow.get_parent() != self:
+			contact_shadow.reparent(self)
+		_apply_contact_shadow_style()
+		_apply_contact_shadow_layout()
+		return
+	contact_shadow = Panel.new()
+	contact_shadow.name = "ContactShadow"
+	contact_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	contact_shadow.z_index = 1
+	add_child(contact_shadow)
+	_apply_contact_shadow_style()
+	_apply_contact_shadow_layout()
+
+func _apply_contact_shadow_style() -> void:
+	if contact_shadow == null:
+		return
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.005, 0.004, 0.008, 0.54)
+	style.corner_radius_top_left = 64
+	style.corner_radius_top_right = 64
+	style.corner_radius_bottom_left = 64
+	style.corner_radius_bottom_right = 64
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.38)
+	style.shadow_size = 8
+	contact_shadow.add_theme_stylebox_override("panel", style)
+
+func _apply_contact_shadow_layout() -> void:
+	if contact_shadow == null:
+		return
+	var shadow_width: float = maxf(28.0, size_px.x * 0.68)
+	var shadow_height: float = maxf(9.0, size_px.y * 0.15)
+	contact_shadow.anchor_left = 0.5
+	contact_shadow.anchor_top = 0.78
+	contact_shadow.anchor_right = 0.5
+	contact_shadow.anchor_bottom = 0.78
+	contact_shadow.offset_left = -shadow_width * 0.5
+	contact_shadow.offset_top = -shadow_height * 0.5
+	contact_shadow.offset_right = shadow_width * 0.5
+	contact_shadow.offset_bottom = shadow_height * 0.5
+	contact_shadow.pivot_offset = Vector2(shadow_width * 0.5, shadow_height * 0.5)
+
+func _ensure_portrait_motion_root() -> void:
+	if portrait_motion_root != null and is_instance_valid(portrait_motion_root):
+		if portrait_motion_root.get_parent() != self:
+			portrait_motion_root.reparent(self)
+		_update_portrait_motion_root_layout()
+		return
+	portrait_motion_root = Control.new()
+	portrait_motion_root.name = "PortraitMotionRoot"
+	portrait_motion_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	portrait_motion_root.z_index = 4
+	add_child(portrait_motion_root)
+	_update_portrait_motion_root_layout()
+
+func _update_portrait_motion_root_layout() -> void:
+	if portrait_motion_root == null:
+		return
+	portrait_motion_root.anchor_left = 0.0
+	portrait_motion_root.anchor_top = 0.0
+	portrait_motion_root.anchor_right = 1.0
+	portrait_motion_root.anchor_bottom = 1.0
+	portrait_motion_root.offset_left = 0.0
+	portrait_motion_root.offset_top = 0.0
+	portrait_motion_root.offset_right = 0.0
+	portrait_motion_root.offset_bottom = 0.0
+	portrait_motion_root.pivot_offset = size_px * 0.5
 
 func _ensure_focus_plate() -> void:
 	if focus_plate and is_instance_valid(focus_plate):
@@ -162,6 +258,8 @@ func _apply_team_rim_style() -> void:
 
 func _update_actor_visual_layout() -> void:
 	var visual_margin: float = max(5.0, min(size_px.x, size_px.y) * 0.09)
+	_update_portrait_motion_root_layout()
+	_apply_contact_shadow_layout()
 	if sprite != null:
 		sprite.offset_left = -visual_margin
 		sprite.offset_top = -visual_margin * 1.45
@@ -214,9 +312,10 @@ func _apply_bar_plate_style() -> void:
 	bar_plate.add_theme_stylebox_override("panel", style)
 
 func _ensure_sprite() -> void:
+	_ensure_portrait_motion_root()
 	if sprite and is_instance_valid(sprite):
-		if sprite.get_parent() != self:
-			add_child(sprite)
+		if sprite.get_parent() != portrait_motion_root:
+			sprite.reparent(portrait_motion_root)
 		return
 	sprite = TextureRect.new()
 	sprite.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -229,8 +328,8 @@ func _ensure_sprite() -> void:
 	sprite.offset_top = 0.0
 	sprite.offset_right = 0.0
 	sprite.offset_bottom = 0.0
-	sprite.z_index = 4
-	add_child(sprite)
+	sprite.z_index = 0
+	portrait_motion_root.add_child(sprite)
 	_update_effect_player_sprite()
 
 func _ensure_bars() -> void:
@@ -347,7 +446,9 @@ func _ensure_bars() -> void:
 
 func set_unit(u: Unit) -> void:
 	unit = u
+	_refresh_idle_phase()
 	_ensure_focus_plate()
+	_ensure_contact_shadow()
 	_ensure_sprite()
 	_update_actor_visual_layout()
 	_ensure_bars()
@@ -360,6 +461,12 @@ func play_hit_flash(opts: Dictionary = {}) -> void:
 	_update_effect_player_sprite()
 	var payload: Dictionary = opts.duplicate(true)
 	_effect_player.play(UnitEffectPlayer.EFFECT_HIT, payload)
+	if not bool(payload.get("suppress_motion", false)) and not _presentation_death_in_progress:
+		var source_global: Vector2 = _fallback_source_global()
+		var source_value: Variant = payload.get("source_global", payload.get("source_position", source_global))
+		if source_value is Vector2:
+			source_global = source_value as Vector2
+		play_hit_reaction(source_global, payload)
 
 func update_bars(updated_unit: Unit = null) -> void:
 	if updated_unit:
@@ -387,10 +494,12 @@ func _ensure_effect_player() -> void:
 	_effect_player.name = "UnitEffectPlayer"
 	add_child(_effect_player)
 	_effect_player.configure(self, sprite)
+	_effect_player.set_default_overlay_parents(self, portrait_motion_root)
 
 func _update_effect_player_sprite() -> void:
 	if _effect_player and is_instance_valid(_effect_player):
 		_effect_player.set_sprite(sprite)
+		_effect_player.set_default_overlay_parents(self, portrait_motion_root)
 
 func _update_screen_position() -> void:
 	global_position = _base_screen_pos - size * 0.5 + _effect_offset
@@ -496,11 +605,296 @@ func set_size_px(new_size: Vector2) -> void:
 	_update_actor_visual_layout()
 	_update_visuals()
 	_update_screen_position()
+	_apply_presentation_transform()
 
 func set_team_tint(color: Color) -> void:
 	_team_tint = color
 	_ensure_focus_plate()
 	_ensure_team_rim()
+
+func play_attack_motion(target_global: Vector2, style: Dictionary = {}) -> void:
+	if _presentation_death_in_progress:
+		return
+	_ensure_portrait_motion_root()
+	_ensure_contact_shadow()
+	_kill_presentation_tween()
+	var direction: Vector2 = _direction_from_global_point(target_global, _default_attack_direction())
+	var shape: String = String(style.get("shape", "orb")).strip_edges().to_lower()
+	var profile: Dictionary[String, Variant] = _attack_motion_profile(shape)
+	var lunge: float = minf(MAX_PRESENTATION_OFFSET_PX, float(profile.get("lunge", 9.0)))
+	var lift: float = float(profile.get("lift", 0.0))
+	var anticipation_s: float = float(profile.get("anticipation_s", 0.06))
+	var strike_s: float = float(profile.get("strike_s", 0.08))
+	var recovery_s: float = float(profile.get("recovery_s", 0.18))
+	var tilt: float = float(profile.get("tilt", 0.045)) * _rotation_sign(direction)
+	var anticipation_offset: Vector2 = -direction * minf(4.0, lunge * 0.30) + Vector2(0.0, lift * 0.35)
+	var strike_offset: Vector2 = direction * lunge + Vector2(0.0, lift)
+	_set_presentation_state("anticipation")
+	_presentation_tween = create_tween()
+	_presentation_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_presentation_tween.tween_property(self, "presentation_offset", anticipation_offset, anticipation_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", profile.get("anticipation_scale", Vector2(0.96, 1.04)), anticipation_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_rotation", -tilt * 0.55, anticipation_s)
+	_presentation_tween.tween_callback(Callable(self, "_set_presentation_state").bind("strike"))
+	_presentation_tween.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	_presentation_tween.tween_property(self, "presentation_offset", strike_offset, strike_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", profile.get("strike_scale", Vector2(1.06, 0.96)), strike_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_rotation", tilt, strike_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_action_scale", Vector2(1.18, 0.82), strike_s)
+	_presentation_tween.tween_callback(Callable(self, "_set_presentation_state").bind("recovery"))
+	_presentation_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_presentation_tween.tween_property(self, "presentation_offset", Vector2.ZERO, recovery_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", Vector2.ONE, recovery_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_rotation", 0.0, recovery_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_action_scale", Vector2.ONE, recovery_s)
+	_presentation_tween.tween_callback(Callable(self, "_complete_presentation_action"))
+
+func play_hit_reaction(source_global: Vector2, opts: Dictionary = {}) -> void:
+	if _presentation_death_in_progress:
+		return
+	var now_msec: int = Time.get_ticks_msec()
+	if now_msec - _last_hit_reaction_msec < 20:
+		return
+	_last_hit_reaction_msec = now_msec
+	_kill_presentation_tween()
+	var away: Vector2 = _direction_from_global_point(source_global, _default_hit_direction()) * -1.0
+	var crit: bool = bool(opts.get("crit", false))
+	var strength: float = 9.0 if crit else 6.0
+	var strike_s: float = 0.075 if crit else 0.06
+	var recovery_s: float = 0.18 if crit else 0.14
+	_set_presentation_state("hit")
+	_presentation_tween = create_tween()
+	_presentation_tween.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	_presentation_tween.tween_property(self, "presentation_offset", away * strength, strike_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", Vector2(1.06, 0.90), strike_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_rotation", _rotation_sign(away) * (0.085 if crit else 0.055), strike_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_action_scale", Vector2(1.22, 0.76), strike_s)
+	_presentation_tween.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_presentation_tween.tween_property(self, "presentation_offset", Vector2.ZERO, recovery_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", Vector2.ONE, recovery_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_rotation", 0.0, recovery_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_action_scale", Vector2.ONE, recovery_s)
+	_presentation_tween.tween_callback(Callable(self, "_complete_presentation_action"))
+
+func queue_death_reaction(source_global: Vector2, opts: Dictionary = {}) -> void:
+	play_death_reaction(source_global, opts)
+
+func play_death_reaction(source_global: Vector2, opts: Dictionary = {}) -> void:
+	if _presentation_death_in_progress or _presentation_hidden_by_death:
+		return
+	_kill_presentation_tween()
+	visible = true
+	_presentation_death_in_progress = true
+	var away: Vector2 = _direction_from_global_point(source_global, _default_hit_direction()) * -1.0
+	var duration_scale: float = clampf(float(opts.get("duration_scale", 1.0)), 0.25, 2.0)
+	var collapse_s: float = 0.16 * duration_scale
+	var fade_s: float = 0.30 * duration_scale
+	_set_presentation_state("death")
+	_presentation_tween = create_tween()
+	_presentation_tween.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_presentation_tween.tween_property(self, "presentation_offset", away * 5.0 + Vector2(0.0, 4.0), collapse_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", Vector2(1.08, 0.80), collapse_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_rotation", _rotation_sign(away) * 0.12, collapse_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_action_scale", Vector2(1.34, 0.72), collapse_s)
+	_presentation_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_presentation_tween.tween_property(self, "presentation_offset", away * 7.0 + Vector2(0.0, 12.0), fade_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_scale", Vector2(1.12, 0.68), fade_s)
+	_presentation_tween.parallel().tween_property(self, "presentation_alpha", 0.0, fade_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_action_scale", Vector2(1.58, 0.60), fade_s)
+	_presentation_tween.parallel().tween_property(self, "shadow_alpha", 0.0, fade_s)
+	_presentation_tween.tween_callback(Callable(self, "_complete_death_reaction"))
+
+func sync_alive_visibility(alive: bool) -> void:
+	if alive:
+		if _presentation_hidden_by_death or not visible:
+			_reset_presentation_visuals()
+		visible = true
+		_presentation_hidden_by_death = false
+		_presentation_death_in_progress = false
+		_set_presentation_state("idle")
+		return
+	if _presentation_death_in_progress:
+		visible = true
+		return
+	if _presentation_hidden_by_death:
+		visible = false
+		return
+	play_death_reaction(_fallback_source_global())
+
+func is_death_in_progress() -> bool:
+	return _presentation_death_in_progress
+
+func presentation_snapshot() -> Dictionary[String, Variant]:
+	return {
+		"state": _presentation_state,
+		"offset": _presentation_offset,
+		"scale": _presentation_scale,
+		"rotation": _presentation_rotation,
+		"alpha": _presentation_alpha,
+		"shadow_scale": _shadow_action_scale,
+		"shadow_alpha": _shadow_alpha,
+		"idle_phase": _idle_phase,
+		"portrait_position": portrait_motion_root.position if portrait_motion_root != null else Vector2.ZERO,
+		"has_motion_root": portrait_motion_root != null and is_instance_valid(portrait_motion_root),
+		"has_contact_shadow": contact_shadow != null and is_instance_valid(contact_shadow),
+		"sprite_parent_is_motion_root": sprite != null and sprite.get_parent() == portrait_motion_root,
+		"death_in_progress": _presentation_death_in_progress,
+		"hidden_by_death": _presentation_hidden_by_death,
+		"visible": visible,
+	}
+
+var presentation_offset: Vector2:
+	get:
+		return _presentation_offset
+	set(value):
+		_presentation_offset = value.limit_length(MAX_PRESENTATION_OFFSET_PX)
+		_apply_presentation_transform()
+
+var presentation_scale: Vector2:
+	get:
+		return _presentation_scale
+	set(value):
+		_presentation_scale = value
+		_apply_presentation_transform()
+
+var presentation_rotation: float:
+	get:
+		return _presentation_rotation
+	set(value):
+		_presentation_rotation = value
+		_apply_presentation_transform()
+
+var presentation_alpha: float:
+	get:
+		return _presentation_alpha
+	set(value):
+		_presentation_alpha = clampf(value, 0.0, 1.0)
+		_apply_presentation_transform()
+
+var shadow_action_scale: Vector2:
+	get:
+		return _shadow_action_scale
+	set(value):
+		_shadow_action_scale = value
+		_apply_presentation_transform()
+
+var shadow_alpha: float:
+	get:
+		return _shadow_alpha
+	set(value):
+		_shadow_alpha = clampf(value, 0.0, 1.0)
+		_apply_presentation_transform()
+
+func _apply_presentation_transform() -> void:
+	if portrait_motion_root == null or not is_instance_valid(portrait_motion_root):
+		return
+	var idle_weight: float = 1.0 if _presentation_state == "idle" else 0.12
+	var idle_angle: float = _idle_phase + (_idle_clock / IDLE_PERIOD_S) * TAU
+	var idle_y: float = sin(idle_angle) * IDLE_AMPLITUDE_PX * idle_weight
+	var idle_scale_delta: float = sin(idle_angle) * 0.008 * idle_weight
+	portrait_motion_root.position = _presentation_offset + Vector2(0.0, idle_y)
+	portrait_motion_root.scale = _presentation_scale * (1.0 + idle_scale_delta)
+	portrait_motion_root.rotation = _presentation_rotation
+	portrait_motion_root.modulate.a = _presentation_alpha
+	_set_interface_alpha(_presentation_alpha)
+	if contact_shadow != null and is_instance_valid(contact_shadow):
+		var lift_ratio: float = clampf(maxf(0.0, -_presentation_offset.y) / MAX_PRESENTATION_OFFSET_PX, 0.0, 1.0)
+		contact_shadow.scale = _shadow_action_scale * Vector2(1.0 - lift_ratio * 0.12, 1.0 - lift_ratio * 0.18)
+		contact_shadow.modulate.a = _shadow_alpha * (1.0 - lift_ratio * 0.38)
+
+func _set_interface_alpha(alpha: float) -> void:
+	if is_equal_approx(_applied_interface_alpha, alpha):
+		return
+	_applied_interface_alpha = alpha
+	var interface_nodes: Array[CanvasItem] = []
+	if focus_plate != null:
+		interface_nodes.append(focus_plate)
+	if team_rim != null:
+		interface_nodes.append(team_rim)
+	if bar_plate != null:
+		interface_nodes.append(bar_plate)
+	if hp_bar != null:
+		interface_nodes.append(hp_bar)
+	if mana_bar != null:
+		interface_nodes.append(mana_bar)
+	if shield_bar != null:
+		interface_nodes.append(shield_bar)
+	if hp_ticks != null:
+		interface_nodes.append(hp_ticks)
+	if mana_ticks != null:
+		interface_nodes.append(mana_ticks)
+	if shield_ticks != null:
+		interface_nodes.append(shield_ticks)
+	for item: CanvasItem in interface_nodes:
+		if item != null and is_instance_valid(item):
+			item.modulate.a = alpha
+
+func _refresh_idle_phase() -> void:
+	var identity: String = String(unit.id) if unit != null else str(get_instance_id())
+	_idle_phase = (float(posmod(identity.hash(), 1000)) / 1000.0) * TAU
+
+func _attack_motion_profile(shape: String) -> Dictionary[String, Variant]:
+	if ["hammer", "shield", "stone", "blood"].has(shape):
+		return {"lunge": 20.0, "lift": 1.0, "anticipation_s": 0.085, "strike_s": 0.10, "recovery_s": 0.22, "tilt": 0.085, "anticipation_scale": Vector2(1.10, 0.86), "strike_scale": Vector2(1.16, 0.86)}
+	if ["needle", "bolt", "card", "paper"].has(shape):
+		return {"lunge": 13.0, "lift": -1.0, "anticipation_s": 0.045, "strike_s": 0.065, "recovery_s": 0.15, "tilt": 0.055, "anticipation_scale": Vector2(0.93, 1.06), "strike_scale": Vector2(1.10, 0.94)}
+	if ["rune", "ring", "glyph", "bubble", "star", "crescent", "orb"].has(shape):
+		return {"lunge": 11.0, "lift": -10.0, "anticipation_s": 0.075, "strike_s": 0.10, "recovery_s": 0.22, "tilt": 0.095, "anticipation_scale": Vector2(0.90, 0.90), "strike_scale": Vector2(1.15, 1.15)}
+	return {"lunge": 16.0, "lift": -1.0, "anticipation_s": 0.06, "strike_s": 0.08, "recovery_s": 0.18, "tilt": 0.075, "anticipation_scale": Vector2(0.92, 1.07), "strike_scale": Vector2(1.13, 0.91)}
+
+func _direction_from_global_point(global_point: Vector2, fallback: Vector2) -> Vector2:
+	var origin: Vector2 = get_global_rect().get_center()
+	var direction: Vector2 = global_point - origin
+	if direction.length_squared() <= 0.001:
+		return fallback.normalized()
+	return direction.normalized()
+
+func _default_attack_direction() -> Vector2:
+	return Vector2(0.0, -1.0) if _is_player_team() else Vector2(0.0, 1.0)
+
+func _default_hit_direction() -> Vector2:
+	return _default_attack_direction() * -1.0
+
+func _fallback_source_global() -> Vector2:
+	return get_global_rect().get_center() - _default_hit_direction() * 100.0
+
+func _is_player_team() -> bool:
+	return _team_tint.b >= _team_tint.r
+
+func _rotation_sign(direction: Vector2) -> float:
+	if absf(direction.x) > 0.05:
+		return signf(direction.x)
+	return -1.0 if _is_player_team() else 1.0
+
+func _set_presentation_state(next_state: String) -> void:
+	_presentation_state = next_state
+
+func _complete_presentation_action() -> void:
+	_presentation_tween = null
+	_set_presentation_state("idle")
+	_apply_presentation_transform()
+
+func _complete_death_reaction() -> void:
+	_presentation_tween = null
+	_presentation_death_in_progress = false
+	_presentation_hidden_by_death = true
+	visible = false
+	_reset_presentation_visuals()
+	_set_presentation_state("dead")
+
+func _reset_presentation_visuals() -> void:
+	_presentation_offset = Vector2.ZERO
+	_presentation_scale = Vector2.ONE
+	_presentation_rotation = 0.0
+	_presentation_alpha = 1.0
+	_shadow_action_scale = Vector2.ONE
+	_shadow_alpha = 1.0
+	_apply_presentation_transform()
+
+func _kill_presentation_tween() -> void:
+	if _presentation_tween != null and is_instance_valid(_presentation_tween):
+		_presentation_tween.kill()
+	_presentation_tween = null
 
 func play_knockup(duration_s: float) -> void:
 	# Simple up-then-down bounce using a vertical effect offset; non-intrusive to arena positioning.

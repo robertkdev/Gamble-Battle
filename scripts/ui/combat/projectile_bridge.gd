@@ -138,6 +138,8 @@ func on_projectile_fired(source_team: String, source_index: int, target_index: i
         color = Color(1.0, 0.4, 0.2)
 
     var style: Dictionary[String, Variant] = AttackVisualCatalog.style_for(source_unit, source_team, crit)
+    if src_control != null and is_instance_valid(src_control) and src_control.has_method("play_attack_motion"):
+        src_control.call("play_attack_motion", end_pos, style)
     var speed: float = G.PROJECTILE_SPEED
     var radius: float = G.PROJECTILE_RADIUS
     var arc_curve: float = 0.0
@@ -182,11 +184,22 @@ func _connect_projectile_manager() -> void:
     if not projectile_manager.is_connected("projectile_visual_arrived", visual_cb):
         projectile_manager.projectile_visual_arrived.connect(_on_projectile_visual_arrived)
 
-func _on_projectile_visual_arrived(source_team: String, _source_index: int, target_index: int, crit: bool, style: Dictionary) -> void:
+func _on_projectile_visual_arrived(source_team: String, source_index: int, target_index: int, crit: bool, style: Dictionary) -> void:
     var target_team: String = "enemy" if source_team == "player" else "player"
     var actor: UnitActor = arena_bridge.get_actor(target_team, target_index) if arena_bridge != null else null
     var opts: Dictionary = _impact_flash_options(style, crit)
+    opts["suppress_motion"] = true
+    var source_position: Vector2 = _visual_source_position(source_team, source_index)
+    var target_unit: Unit = _unit_for_team(target_team, target_index)
+    var lethal: bool = target_unit != null and not target_unit.is_alive()
     if actor != null and is_instance_valid(actor) and actor.has_method("play_hit_flash"):
+        var motion_payload: Dictionary = style.duplicate(true)
+        motion_payload["crit"] = crit
+        motion_payload["impact_strength"] = float(style.get("impact_strength", 1.0))
+        if lethal and actor.has_method("queue_death_reaction"):
+            actor.call("queue_death_reaction", source_position, motion_payload)
+        elif actor.has_method("play_hit_reaction"):
+            actor.call("play_hit_reaction", source_position, motion_payload)
         actor.play_hit_flash(opts)
         return
     var target_view: Control = _get_enemy_sprite_by_index(target_index) if target_team == "enemy" else _get_player_sprite_by_index(target_index)
@@ -196,13 +209,44 @@ func _on_projectile_visual_arrived(source_team: String, _source_index: int, targ
 func _impact_flash_options(style: Dictionary, crit: bool) -> Dictionary:
     var color_value: Variant = style.get("edge_color", Color(1.0, 1.0, 1.0, 1.0))
     var color: Color = color_value if color_value is Color else Color(1.0, 1.0, 1.0, 1.0)
+    var ring_value: Variant = style.get("accent_color", color)
+    var ring_color: Color = ring_value if ring_value is Color else color
+    var attack_family: String = String(style.get("attack_family", "neutral"))
+    match attack_family:
+        "cleave":
+            color = Color(1.0, 0.18, 0.10, 1.0)
+            ring_color = Color(1.0, 0.62, 0.22, 0.96)
+        "precision":
+            color = Color(1.0, 0.94, 0.48, 1.0)
+            ring_color = Color(1.0, 0.24, 0.68, 0.98)
+        "arcane":
+            color = Color(0.82, 0.42, 1.0, 1.0)
+            ring_color = Color(0.42, 0.94, 1.0, 0.98)
+        "support":
+            color = Color(0.76, 1.0, 0.38, 1.0)
+            ring_color = Color(1.0, 0.82, 0.20, 0.98)
     if crit:
         color = Color(1.0, 0.96, 0.54, 1.0)
+        ring_color = Color(1.0, 0.74, 0.24, 0.96)
     return {
         "flash_color": color,
-        "hold_duration": 0.05 if not crit else 0.08,
-        "fade_duration": 0.20 if not crit else 0.28,
+        "hold_duration": float(style.get("flash_hold", 0.05 if not crit else 0.08)),
+        "fade_duration": float(style.get("flash_fade", 0.20 if not crit else 0.28)),
+        "ring_color": ring_color,
+        "ring_duration": float(style.get("impact_duration", 0.24 if not crit else 0.30)),
+        "attack_family": attack_family,
+        "impact_strength": float(style.get("impact_strength", 1.0)),
     }
+
+func _visual_source_position(team: String, index: int) -> Vector2:
+    if arena_bridge != null:
+        var actor: UnitActor = arena_bridge.get_actor(team, index)
+        if actor != null and is_instance_valid(actor):
+            return actor.get_global_rect().get_center()
+    var position_result: Dictionary[String, Variant] = _combat_position(team, index)
+    if bool(position_result.get("found", false)):
+        return position_result.get("position", Vector2.ZERO) as Vector2
+    return Vector2.ZERO
 
 func _unit_for_team(team: String, index: int) -> Unit:
     if manager == null or index < 0:

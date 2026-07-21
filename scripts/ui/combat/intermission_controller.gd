@@ -7,12 +7,16 @@ const COLOR_GOLD: Color = Color(0.88, 0.56, 0.22, 0.88)
 const COLOR_BORDER: Color = Color(0.34, 0.24, 0.20, 0.86)
 
 var _parent: Node = null
+var _rail_host: Control = null
 var _bar: ProgressBar = null
 var _tween: Tween = null
 var _finished_callback: Callable = Callable()
 
-func configure(parent: Node) -> void:
+func configure(parent: Node, rail_host: Control = null) -> void:
     _parent = parent
+    _rail_host = rail_host
+    if _bar != null and is_instance_valid(_bar):
+        _attach_bar_to_preferred_host()
 
 func _ensure_bar() -> void:
     if _bar and is_instance_valid(_bar):
@@ -21,15 +25,8 @@ func _ensure_bar() -> void:
         return
     _bar = ProgressBar.new()
     _bar.name = "GothicIntermissionBar"
-    _parent.add_child(_bar)
-    _bar.anchor_left = 0.5
-    _bar.anchor_top = 0.0
-    _bar.anchor_right = 0.5
-    _bar.anchor_bottom = 0.0
-    _bar.offset_left = -240.0
-    _bar.offset_right = 240.0
-    _bar.offset_top = 142.0
-    _bar.offset_bottom = 148.0
+    _preferred_bar_parent().add_child(_bar)
+    _layout_bar()
     _bar.z_index = 150
     _bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
     _bar.min_value = 0.0
@@ -39,6 +36,50 @@ func _ensure_bar() -> void:
     _bar.add_theme_stylebox_override("background", _make_bar_background_style())
     _bar.add_theme_stylebox_override("fill", _make_bar_fill_style())
     _bar.visible = false
+
+func _preferred_bar_parent() -> Node:
+    if _rail_host != null and is_instance_valid(_rail_host):
+        return _rail_host
+    return _parent
+
+func _attach_bar_to_preferred_host() -> void:
+    if _bar == null or not is_instance_valid(_bar):
+        return
+    var target: Node = _preferred_bar_parent()
+    if target == null:
+        return
+    if _bar.get_parent() != target:
+        var was_visible: bool = _bar.visible
+        var old_parent: Node = _bar.get_parent()
+        if old_parent != null:
+            old_parent.remove_child(_bar)
+        target.add_child(_bar)
+        _bar.visible = was_visible
+    _layout_bar()
+
+func _layout_bar() -> void:
+    if _bar == null or not is_instance_valid(_bar):
+        return
+    var hosted_in_card: bool = _rail_host != null and is_instance_valid(_rail_host) and _bar.get_parent() == _rail_host
+    if hosted_in_card:
+        _bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+        _bar.offset_left = 0.0
+        _bar.offset_top = 0.0
+        _bar.offset_right = 0.0
+        _bar.offset_bottom = 0.0
+        _bar.custom_minimum_size = Vector2(0.0, 6.0)
+        _bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        return
+    _bar.custom_minimum_size = Vector2.ZERO
+    _bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+    _bar.anchor_left = 0.5
+    _bar.anchor_top = 0.0
+    _bar.anchor_right = 0.5
+    _bar.anchor_bottom = 0.0
+    _bar.offset_left = -240.0
+    _bar.offset_right = 240.0
+    _bar.offset_top = 142.0
+    _bar.offset_bottom = 148.0
 
 func _make_bar_background_style() -> StyleBoxFlat:
     var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -115,6 +156,7 @@ func teardown() -> void:
         else:
             _bar.free()
     _bar = null
+    _rail_host = null
     _parent = null
 
 func _clear_tween() -> void:
