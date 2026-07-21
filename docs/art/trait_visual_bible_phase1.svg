@@ -1,0 +1,469 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2428" height="3968" viewBox="0 0 2428 3968">
+<rect width="100%" height="100%" fill="#18171A"/>
+<style>text{font-family:Arial,sans-serif}.title{font-size:48px;font-weight:700;fill:#F2E9DA}.sub{font-size:22px;fill:#BFAE9D}.name{font-size:30px;font-weight:700;fill:#F3E8D8}.label{font-size:17px;font-weight:700;fill:#A99A8E}.body{font-size:17px;fill:#E3D9D1}.small{font-size:15px;fill:#9D9397}</style>
+<text x="60" y="70" class="title">Gamble Battle — Phase 1 Trait Reference Atlas</text>
+<text x="60" y="112" class="sub">NON-PRODUCTION REVIEW DIAGRAM • palette / form / surface / motion / supernatural cost</text>
+<text x="60" y="146" class="small">No unit concepts, trait icons, shop cards, portraits, sprites, animation sheets, or VFX assets.</text>
+<rect x="60" y="170" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="212" class="name">Aegis</text>
+<text x="84" y="242" class="label">ENCIRCLE • INTERLOCK • BRACE</text>
+<rect x="84" y="262" width="112" height="28" rx="6" fill="#AAA59B" stroke="#6B6268"/>
+<text x="140" y="311" class="small" text-anchor="middle">salt gray</text>
+<rect x="210" y="262" width="112" height="28" rx="6" fill="#476C68" stroke="#6B6268"/>
+<text x="266" y="311" class="small" text-anchor="middle">oxidized teal</text>
+<rect x="336" y="262" width="112" height="28" rx="6" fill="#61546B" stroke="#6B6268"/>
+<text x="392" y="311" class="small" text-anchor="middle">smoke violet</text>
+<rect x="462" y="262" width="112" height="28" rx="6" fill="#3F5267" stroke="#6B6268"/>
+<text x="518" y="311" class="small" text-anchor="middle">bruised blue</text>
+<rect x="588" y="262" width="112" height="28" rx="6" fill="#787B78" stroke="#6B6268"/>
+<text x="644" y="311" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">tarnished silver</text>
+<text x="84" y="352" class="label">FORM</text>
+<text x="190" y="352" class="body">nested alcoves and closing shells</text>
+<text x="84" y="378" class="label">SURFACE</text>
+<text x="190" y="378" class="body">salt efflorescence crossed by stained-glass stress lines</text>
+<text x="84" y="404" class="label">MOTION</text>
+<text x="190" y="404" class="body">successive planes folding toward an impact</text>
+<text x="84" y="430" class="label">COST</text>
+<text x="190" y="430" class="body">calcified joints and sensation-dead skin</text>
+<rect x="1228" y="170" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="212" class="name">Arcanist</text>
+<text x="1252" y="242" class="label">TAPER • INSCRIBE • SUSPEND</text>
+<rect x="1252" y="262" width="112" height="28" rx="6" fill="#17171D" stroke="#6B6268"/>
+<text x="1308" y="311" class="small" text-anchor="middle">black glass</text>
+<rect x="1378" y="262" width="112" height="28" rx="6" fill="#25354D" stroke="#6B6268"/>
+<text x="1434" y="311" class="small" text-anchor="middle">ink blue</text>
+<rect x="1504" y="262" width="112" height="28" rx="6" fill="#594762" stroke="#6B6268"/>
+<text x="1560" y="311" class="small" text-anchor="middle">smoke violet</text>
+<rect x="1630" y="262" width="112" height="28" rx="6" fill="#C9C6A1" stroke="#6B6268"/>
+<text x="1686" y="311" class="small" text-anchor="middle">acid chalk</text>
+<rect x="1756" y="262" width="112" height="28" rx="6" fill="#A88F6A" stroke="#6B6268"/>
+<text x="1812" y="311" class="small" text-anchor="middle">old vellum</text>
+<text x="1252" y="352" class="label">FORM</text>
+<text x="1358" y="352" class="body">tensioned verticals interrupted like edited sentences</text>
+<text x="1252" y="378" class="label">SURFACE</text>
+<text x="1358" y="378" class="body">palimpsest ink over smoke-dark glass</text>
+<text x="1252" y="404" class="label">MOTION</text>
+<text x="1358" y="404" class="body">marks writing inward, burning away, then repeating</text>
+<text x="1252" y="430" class="label">COST</text>
+<text x="1358" y="430" class="body">lost speech and anatomy reorganized as notation</text>
+<rect x="60" y="508" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="550" class="name">Blessed</text>
+<text x="84" y="580" class="label">BOW • MOLT • BURDEN</text>
+<rect x="84" y="600" width="112" height="28" rx="6" fill="#C8BFAE" stroke="#6B6268"/>
+<text x="140" y="649" class="small" text-anchor="middle">corpse ivory</text>
+<rect x="210" y="600" width="112" height="28" rx="6" fill="#B8A274" stroke="#6B6268"/>
+<text x="266" y="649" class="small" text-anchor="middle">dirty wax</text>
+<rect x="336" y="600" width="112" height="28" rx="6" fill="#8B7043" stroke="#6B6268"/>
+<text x="392" y="649" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">tarnished gold</text>
+<rect x="462" y="600" width="112" height="28" rx="6" fill="#776476" stroke="#6B6268"/>
+<text x="518" y="649" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">bruised lavender</text>
+<rect x="588" y="600" width="112" height="28" rx="6" fill="#4A2C2C" stroke="#6B6268"/>
+<text x="644" y="649" class="small" text-anchor="middle">soot blood</text>
+<text x="84" y="690" class="label">FORM</text>
+<text x="190" y="690" class="body">inward-folded weight and failed upward growth</text>
+<text x="84" y="716" class="label">SURFACE</text>
+<text x="190" y="716" class="body">dirty wax, cracked gilding and bruised scar tissue</text>
+<text x="84" y="742" class="label">MOTION</text>
+<text x="190" y="742" class="body">reluctant light transferring wounds toward its source</text>
+<text x="84" y="768" class="label">COST</text>
+<text x="190" y="768" class="body">shame posture and fresh evidence of borrowed pain</text>
+<rect x="1228" y="508" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="550" class="name">Bulwark</text>
+<text x="1252" y="580" class="label">COMPRESS • LOCK • SQUARE</text>
+<rect x="1252" y="600" width="112" height="28" rx="6" fill="#55595A" stroke="#6B6268"/>
+<text x="1308" y="649" class="small" text-anchor="middle">iron gray</text>
+<rect x="1378" y="600" width="112" height="28" rx="6" fill="#596754" stroke="#6B6268"/>
+<text x="1434" y="649" class="small" text-anchor="middle">prison green</text>
+<rect x="1504" y="600" width="112" height="28" rx="6" fill="#A39A83" stroke="#6B6268"/>
+<text x="1560" y="649" class="small" text-anchor="middle">old linen</text>
+<rect x="1630" y="600" width="112" height="28" rx="6" fill="#7C4A36" stroke="#6B6268"/>
+<text x="1686" y="649" class="small" text-anchor="middle">rust</text>
+<rect x="1756" y="600" width="112" height="28" rx="6" fill="#5D4658" stroke="#6B6268"/>
+<text x="1812" y="649" class="small" text-anchor="middle">bruise plum</text>
+<text x="1252" y="690" class="label">FORM</text>
+<text x="1358" y="690" class="body">compressed blocks with almost no loose negative space</text>
+<text x="1252" y="716" class="label">SURFACE</text>
+<text x="1358" y="716" class="body">quilted density crossed by old pressure scars</text>
+<text x="1252" y="742" class="label">MOTION</text>
+<text x="1358" y="742" class="body">long stillness followed by one snapped release</text>
+<text x="1252" y="768" class="label">COST</text>
+<text x="1358" y="768" class="body">locked joints, flattened breath and reopened bands</text>
+<rect x="60" y="846" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="888" class="name">Cartel</text>
+<text x="84" y="918" class="label">CLUSTER • ANGLE • CLOSE</text>
+<rect x="84" y="938" width="112" height="28" rx="6" fill="#6E2F32" stroke="#6B6268"/>
+<text x="140" y="987" class="small" text-anchor="middle">oxblood</text>
+<rect x="210" y="938" width="112" height="28" rx="6" fill="#466B5A" stroke="#6B6268"/>
+<text x="266" y="987" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">patinated jade</text>
+<rect x="336" y="938" width="112" height="28" rx="6" fill="#B5A67D" stroke="#6B6268"/>
+<text x="392" y="987" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">jaundiced ivory</text>
+<rect x="462" y="938" width="112" height="28" rx="6" fill="#6B6861" stroke="#6B6268"/>
+<text x="518" y="987" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">cigarette gray</text>
+<rect x="588" y="938" width="112" height="28" rx="6" fill="#80633D" stroke="#6B6268"/>
+<text x="644" y="987" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">tarnished brass</text>
+<text x="84" y="1028" class="label">FORM</text>
+<text x="190" y="1028" class="body">inward angles and ranked proximity</text>
+<text x="84" y="1054" class="label">SURFACE</text>
+<text x="190" y="1054" class="body">repaired luxury carrying multiple ownership scars</text>
+<text x="84" y="1080" class="label">MOTION</text>
+<text x="190" y="1080" class="body">pressure and advantage passing through a closed network</text>
+<text x="84" y="1106" class="label">COST</text>
+<text x="190" y="1106" class="body">identity branded as group collateral</text>
+<rect x="1228" y="846" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="888" class="name">Catalyst</text>
+<text x="1252" y="918" class="label">FUSE • BLOOM • SPLIT</text>
+<rect x="1252" y="938" width="112" height="28" rx="6" fill="#9B603E" stroke="#6B6268"/>
+<text x="1308" y="987" class="small" text-anchor="middle">heat copper</text>
+<rect x="1378" y="938" width="112" height="28" rx="6" fill="#242122" stroke="#6B6268"/>
+<text x="1434" y="987" class="small" text-anchor="middle">furnace black</text>
+<rect x="1504" y="938" width="112" height="28" rx="6" fill="#C1B79E" stroke="#6B6268"/>
+<text x="1560" y="987" class="small" text-anchor="middle">bone ceramic</text>
+<rect x="1630" y="938" width="112" height="28" rx="6" fill="#6D746B" stroke="#6B6268"/>
+<text x="1686" y="987" class="small" text-anchor="middle">opal oil</text>
+<rect x="1756" y="938" width="112" height="28" rx="6" fill="#6D7C48" stroke="#6B6268"/>
+<text x="1812" y="987" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">chemical green</text>
+<text x="1252" y="1028" class="label">FORM</text>
+<text x="1358" y="1028" class="body">one body split between prior and transformed states</text>
+<text x="1252" y="1054" class="label">SURFACE</text>
+<text x="1358" y="1054" class="body">heat bloom crossing ceramic, slag and tissue</text>
+<text x="1252" y="1080" class="label">MOTION</text>
+<text x="1358" y="1080" class="body">a reaction front traveling from one contact point</text>
+<text x="1252" y="1106" class="label">COST</text>
+<text x="1358" y="1106" class="body">permanent fusion and incompatible growth</text>
+<rect x="60" y="1184" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="1226" class="name">Chronomancer</text>
+<text x="84" y="1256" class="label">LAG • REPEAT • TAPER</text>
+<rect x="84" y="1276" width="112" height="28" rx="6" fill="#566A78" stroke="#6B6268"/>
+<text x="140" y="1325" class="small" text-anchor="middle">smoke blue</text>
+<rect x="210" y="1276" width="112" height="28" rx="6" fill="#817487" stroke="#6B6268"/>
+<text x="266" y="1325" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">faded lavender</text>
+<rect x="336" y="1276" width="112" height="28" rx="6" fill="#B5A77D" stroke="#6B6268"/>
+<text x="392" y="1325" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">nicotine ivory</text>
+<rect x="462" y="1276" width="112" height="28" rx="6" fill="#6A706F" stroke="#6B6268"/>
+<text x="518" y="1325" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">oxidized pewter</text>
+<rect x="588" y="1276" width="112" height="28" rx="6" fill="#7C555E" stroke="#6B6268"/>
+<text x="644" y="1325" class="small" text-anchor="middle">dead rose</text>
+<text x="84" y="1366" class="label">FORM</text>
+<text x="190" y="1366" class="body">one contour repeated at unequal intervals</text>
+<text x="84" y="1392" class="label">SURFACE</text>
+<text x="190" y="1392" class="body">faded layers aging at different rates</text>
+<text x="84" y="1418" class="label">MOTION</text>
+<text x="190" y="1418" class="body">early afterimage, delayed impact, brief reverse dust</text>
+<text x="84" y="1444" class="label">COST</text>
+<text x="190" y="1444" class="body">unequal age and memories out of sequence</text>
+<rect x="1228" y="1184" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="1226" class="name">Executioner</text>
+<text x="1252" y="1256" class="label">DESCEND • SEVER • FINALIZE</text>
+<rect x="1252" y="1276" width="112" height="28" rx="6" fill="#222225" stroke="#6B6268"/>
+<text x="1308" y="1325" class="small" text-anchor="middle">iron black</text>
+<rect x="1378" y="1276" width="112" height="28" rx="6" fill="#B9AE97" stroke="#6B6268"/>
+<text x="1434" y="1325" class="small" text-anchor="middle">bone</text>
+<rect x="1504" y="1276" width="112" height="28" rx="6" fill="#6F3031" stroke="#6B6268"/>
+<text x="1560" y="1325" class="small" text-anchor="middle">dried red</text>
+<rect x="1630" y="1276" width="112" height="28" rx="6" fill="#4E5B4C" stroke="#6B6268"/>
+<text x="1686" y="1325" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">execution green</text>
+<rect x="1756" y="1276" width="112" height="28" rx="6" fill="#77716C" stroke="#6B6268"/>
+<text x="1812" y="1325" class="small" text-anchor="middle">ash</text>
+<text x="1252" y="1366" class="label">FORM</text>
+<text x="1358" y="1366" class="body">top weight collapsing into one downward line</text>
+<text x="1252" y="1392" class="label">SURFACE</text>
+<text x="1358" y="1392" class="body">broad iron, bone and dried termination marks</text>
+<text x="1252" y="1418" class="label">MOTION</text>
+<text x="1358" y="1418" class="body">compression followed by an abrupt final stop</text>
+<text x="1252" y="1444" class="label">COST</text>
+<text x="1358" y="1444" class="body">stiffened procedure and victim traces that remain</text>
+<rect x="60" y="1522" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="1564" class="name">Exile</text>
+<text x="84" y="1594" class="label">DRIFT • DETACH • MISALIGN</text>
+<rect x="84" y="1614" width="112" height="28" rx="6" fill="#8B7D6A" stroke="#6B6268"/>
+<text x="140" y="1663" class="small" text-anchor="middle">road dust</text>
+<rect x="210" y="1614" width="112" height="28" rx="6" fill="#4D6170" stroke="#6B6268"/>
+<text x="266" y="1663" class="small" text-anchor="middle">storm blue</text>
+<rect x="336" y="1614" width="112" height="28" rx="6" fill="#76545C" stroke="#6B6268"/>
+<text x="392" y="1663" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">faded heraldry</text>
+<rect x="462" y="1614" width="112" height="28" rx="6" fill="#7D4C36" stroke="#6B6268"/>
+<text x="518" y="1663" class="small" text-anchor="middle">rust</text>
+<rect x="588" y="1614" width="112" height="28" rx="6" fill="#AAA79D" stroke="#6B6268"/>
+<text x="644" y="1663" class="small" text-anchor="middle">bone gray</text>
+<text x="84" y="1704" class="label">FORM</text>
+<text x="190" y="1704" class="body">a continuous body interrupted by deliberate absence</text>
+<text x="84" y="1730" class="label">SURFACE</text>
+<text x="190" y="1730" class="body">incompatible repairs with erased identity patches</text>
+<text x="84" y="1756" class="label">MOTION</text>
+<text x="190" y="1756" class="body">drifting parts that align only at exact moments</text>
+<text x="84" y="1782" class="label">COST</text>
+<text x="190" y="1782" class="body">names, features and belonging worn away</text>
+<rect x="1228" y="1522" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="1564" class="name">Fortified</text>
+<text x="1252" y="1594" class="label">ANCHOR • TERRACE • INTERLOCK</text>
+<rect x="1252" y="1614" width="112" height="28" rx="6" fill="#8C5944" stroke="#6B6268"/>
+<text x="1308" y="1663" class="small" text-anchor="middle">terracotta</text>
+<rect x="1378" y="1614" width="112" height="28" rx="6" fill="#555E62" stroke="#6B6268"/>
+<text x="1434" y="1663" class="small" text-anchor="middle">slate</text>
+<rect x="1504" y="1614" width="112" height="28" rx="6" fill="#68705A" stroke="#6B6268"/>
+<text x="1560" y="1663" class="small" text-anchor="middle">lichen</text>
+<rect x="1630" y="1614" width="112" height="28" rx="6" fill="#A49A87" stroke="#6B6268"/>
+<text x="1686" y="1663" class="small" text-anchor="middle">mortar</text>
+<rect x="1756" y="1614" width="112" height="28" rx="6" fill="#604B43" stroke="#6B6268"/>
+<text x="1812" y="1663" class="small" text-anchor="middle">oxidized iron</text>
+<text x="1252" y="1704" class="label">FORM</text>
+<text x="1358" y="1704" class="body">terraced load paths settling into a broad base</text>
+<text x="1252" y="1730" class="label">SURFACE</text>
+<text x="1358" y="1730" class="body">masonry bonds and layered field repairs</text>
+<text x="1252" y="1756" class="label">MOTION</text>
+<text x="1358" y="1756" class="body">impact traveling downward and dispersing through strata</text>
+<text x="1252" y="1782" class="label">COST</text>
+<text x="1358" y="1782" class="body">the individual buried beneath accumulated structure</text>
+<rect x="60" y="1860" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="1902" class="name">Harmony</text>
+<text x="84" y="1932" class="label">MIRROR • PAIR • PHASE</text>
+<rect x="84" y="1952" width="112" height="28" rx="6" fill="#C3B9A4" stroke="#6B6268"/>
+<text x="140" y="2001" class="small" text-anchor="middle">ivory</text>
+<rect x="210" y="1952" width="112" height="28" rx="6" fill="#4E746E" stroke="#6B6268"/>
+<text x="266" y="2001" class="small" text-anchor="middle">oxidized teal</text>
+<rect x="336" y="1952" width="112" height="28" rx="6" fill="#805D68" stroke="#6B6268"/>
+<text x="392" y="2001" class="small" text-anchor="middle">dead rose</text>
+<rect x="462" y="1952" width="112" height="28" rx="6" fill="#36383B" stroke="#6B6268"/>
+<text x="518" y="2001" class="small" text-anchor="middle">charcoal</text>
+<rect x="588" y="1952" width="112" height="28" rx="6" fill="#675365" stroke="#6B6268"/>
+<text x="644" y="2001" class="small" text-anchor="middle">bruised mauve</text>
+<text x="84" y="2042" class="label">FORM</text>
+<text x="190" y="2042" class="body">near-symmetry with one deliberate disagreement</text>
+<text x="84" y="2068" class="label">SURFACE</text>
+<text x="190" y="2068" class="body">paired rhythms producing interference instead of decoration</text>
+<text x="84" y="2094" class="label">MOTION</text>
+<text x="190" y="2094" class="body">breath and shadow locking to an exact count</text>
+<text x="84" y="2120" class="label">COST</text>
+<text x="190" y="2120" class="body">private emotion forced into public synchronization</text>
+<rect x="1228" y="1860" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="1902" class="name">Kaleidoscope</text>
+<text x="1252" y="1932" class="label">FLARE • REFRACT • OSCILLATE</text>
+<rect x="1252" y="1952" width="112" height="28" rx="6" fill="#873F69" stroke="#6B6268"/>
+<text x="1308" y="2001" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">smoked magenta</text>
+<rect x="1378" y="1952" width="112" height="28" rx="6" fill="#3F8B83" stroke="#6B6268"/>
+<text x="1434" y="2001" class="small" text-anchor="middle">acid teal</text>
+<rect x="1504" y="1952" width="112" height="28" rx="6" fill="#A06E32" stroke="#6B6268"/>
+<text x="1560" y="2001" class="small" text-anchor="middle">bruised amber</text>
+<rect x="1630" y="1952" width="112" height="28" rx="6" fill="#394D82" stroke="#6B6268"/>
+<text x="1686" y="2001" class="small" text-anchor="middle">ultramarine</text>
+<rect x="1756" y="1952" width="112" height="28" rx="6" fill="#27262B" stroke="#6B6268"/>
+<text x="1812" y="2001" class="small" text-anchor="middle">soot</text>
+<text x="1252" y="2042" class="label">FORM</text>
+<text x="1358" y="2042" class="body">flared contours occupying several false positions</text>
+<text x="1252" y="2068" class="label">SURFACE</text>
+<text x="1358" y="2068" class="body">weathered moiré and smoky chromatic misregistration</text>
+<text x="1252" y="2094" class="label">MOTION</text>
+<text x="1358" y="2094" class="body">local afterimages breathing out of phase</text>
+<text x="1252" y="2120" class="label">COST</text>
+<text x="1358" y="2120" class="body">fractured vision and unstable bodily registration</text>
+<rect x="60" y="2198" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="2240" class="name">Liaison</text>
+<text x="84" y="2270" class="label">BRIDGE • CROSS • REACH</text>
+<rect x="84" y="2290" width="112" height="28" rx="6" fill="#8B503C" stroke="#6B6268"/>
+<text x="140" y="2339" class="small" text-anchor="middle">rust</text>
+<rect x="210" y="2290" width="112" height="28" rx="6" fill="#4B7472" stroke="#6B6268"/>
+<text x="266" y="2339" class="small" text-anchor="middle">bond teal</text>
+<rect x="336" y="2290" width="112" height="28" rx="6" fill="#BFB4A0" stroke="#6B6268"/>
+<text x="392" y="2339" class="small" text-anchor="middle">ivory</text>
+<rect x="462" y="2290" width="112" height="28" rx="6" fill="#682F37" stroke="#6B6268"/>
+<text x="518" y="2339" class="small" text-anchor="middle">oxblood</text>
+<rect x="588" y="2290" width="112" height="28" rx="6" fill="#525A63" stroke="#6B6268"/>
+<text x="644" y="2339" class="small" text-anchor="middle">slate</text>
+<text x="84" y="2380" class="label">FORM</text>
+<text x="190" y="2380" class="body">cross-body lines reaching toward an absent counterpart</text>
+<text x="84" y="2406" class="label">SURFACE</text>
+<text x="190" y="2406" class="body">unlike materials joined by unequal living seams</text>
+<text x="84" y="2432" class="label">MOTION</text>
+<text x="190" y="2432" class="body">consequence traveling the shortest relational path</text>
+<text x="84" y="2458" class="label">COST</text>
+<text x="190" y="2458" class="body">boundaries left porous after connection ends</text>
+<rect x="1228" y="2198" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="2240" class="name">Mentor</text>
+<text x="1252" y="2270" class="label">CORRECT • LOOM • DIRECT</text>
+<rect x="1252" y="2290" width="112" height="28" rx="6" fill="#C1B8A4" stroke="#6B6268"/>
+<text x="1308" y="2339" class="small" text-anchor="middle">chalk</text>
+<rect x="1378" y="2290" width="112" height="28" rx="6" fill="#2B3440" stroke="#6B6268"/>
+<text x="1434" y="2339" class="small" text-anchor="middle">ink</text>
+<rect x="1504" y="2290" width="112" height="28" rx="6" fill="#55595C" stroke="#6B6268"/>
+<text x="1560" y="2339" class="small" text-anchor="middle">iron</text>
+<rect x="1630" y="2290" width="112" height="28" rx="6" fill="#654A5F" stroke="#6B6268"/>
+<text x="1686" y="2339" class="small" text-anchor="middle">old plum</text>
+<rect x="1756" y="2290" width="112" height="28" rx="6" fill="#76543C" stroke="#6B6268"/>
+<text x="1812" y="2339" class="small" text-anchor="middle">tobacco</text>
+<text x="1252" y="2380" class="label">FORM</text>
+<text x="1358" y="2380" class="body">one looming posture directing an incomplete echo</text>
+<text x="1252" y="2406" class="label">SURFACE</text>
+<text x="1358" y="2406" class="body">graded marks and scars of repeated correction</text>
+<text x="1252" y="2432" class="label">MOTION</text>
+<text x="1358" y="2432" class="body">strength transferring as posture tightens</text>
+<text x="1252" y="2458" class="label">COST</text>
+<text x="1358" y="2458" class="body">source hollowing as imposed identity spreads</text>
+<rect x="60" y="2536" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="2578" class="name">Mogul</text>
+<text x="84" y="2608" class="label">WEIGH • WIDEN • OCCUPY</text>
+<rect x="84" y="2628" width="112" height="28" rx="6" fill="#233C34" stroke="#6B6268"/>
+<text x="140" y="2677" class="small" text-anchor="middle">emerald black</text>
+<rect x="210" y="2628" width="112" height="28" rx="6" fill="#745139" stroke="#6B6268"/>
+<text x="266" y="2677" class="small" text-anchor="middle">tobacco</text>
+<rect x="336" y="2628" width="112" height="28" rx="6" fill="#C1B28F" stroke="#6B6268"/>
+<text x="392" y="2677" class="small" text-anchor="middle">cream</text>
+<rect x="462" y="2628" width="112" height="28" rx="6" fill="#7B5B36" stroke="#6B6268"/>
+<text x="518" y="2677" class="small" text-anchor="middle">bronze</text>
+<rect x="588" y="2628" width="112" height="28" rx="6" fill="#623840" stroke="#6B6268"/>
+<text x="644" y="2677" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">dried burgundy</text>
+<text x="84" y="2718" class="label">FORM</text>
+<text x="190" y="2718" class="body">central weight expanding beyond personal space</text>
+<text x="84" y="2744" class="label">SURFACE</text>
+<text x="190" y="2744" class="body">worn luxury compressed into dense storage strata</text>
+<text x="84" y="2770" class="label">MOTION</text>
+<text x="190" y="2770" class="body">survival making nearby matter heavier and darker</text>
+<text x="84" y="2796" class="label">COST</text>
+<text x="190" y="2796" class="body">flesh replaced by collateral and owned value</text>
+<rect x="1228" y="2536" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="2578" class="name">Overload</text>
+<text x="1252" y="2608" class="label">ARC • SPASM • SPLIT</text>
+<rect x="1252" y="2628" width="112" height="28" rx="6" fill="#405F76" stroke="#6B6268"/>
+<text x="1308" y="2677" class="small" text-anchor="middle">storm blue</text>
+<rect x="1378" y="2628" width="112" height="28" rx="6" fill="#A45B2F" stroke="#6B6268"/>
+<text x="1434" y="2677" class="small" text-anchor="middle">hazard orange</text>
+<rect x="1504" y="2628" width="112" height="28" rx="6" fill="#52756A" stroke="#6B6268"/>
+<text x="1560" y="2677" class="small" text-anchor="middle">copper green</text>
+<rect x="1630" y="2628" width="112" height="28" rx="6" fill="#252426" stroke="#6B6268"/>
+<text x="1686" y="2677" class="small" text-anchor="middle">burned black</text>
+<rect x="1756" y="2628" width="112" height="28" rx="6" fill="#C7C0AE" stroke="#6B6268"/>
+<text x="1812" y="2677" class="small" text-anchor="middle">nerve white</text>
+<text x="1252" y="2718" class="label">FORM</text>
+<text x="1358" y="2718" class="body">branching tension interrupted by failed joints</text>
+<text x="1252" y="2744" class="label">SURFACE</text>
+<text x="1358" y="2744" class="body">burned insulation and copper-green discharge paths</text>
+<text x="1252" y="2770" class="label">MOTION</text>
+<text x="1358" y="2770" class="body">irregular surge, complete snap, sudden dead drop</text>
+<text x="1252" y="2796" class="label">COST</text>
+<text x="1358" y="2796" class="body">tremor, sensory loss and muscles fighting joints</text>
+<rect x="60" y="2874" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="2916" class="name">Sanguine</text>
+<text x="84" y="2946" class="label">STALK • HOLLOW • DRAW</text>
+<rect x="84" y="2966" width="112" height="28" rx="6" fill="#672E34" stroke="#6B6268"/>
+<text x="140" y="3015" class="small" text-anchor="middle">dried oxblood</text>
+<rect x="210" y="2966" width="112" height="28" rx="6" fill="#59354F" stroke="#6B6268"/>
+<text x="266" y="3015" class="small" text-anchor="middle">plum</text>
+<rect x="336" y="2966" width="112" height="28" rx="6" fill="#241C21" stroke="#6B6268"/>
+<text x="392" y="3015" class="small" text-anchor="middle">liver black</text>
+<rect x="462" y="2966" width="112" height="28" rx="6" fill="#B9AAA0" stroke="#6B6268"/>
+<text x="518" y="3015" class="small" text-anchor="middle">pallor</text>
+<rect x="588" y="2966" width="112" height="28" rx="6" fill="#765762" stroke="#6B6268"/>
+<text x="644" y="3015" class="small" text-anchor="middle">bruised mauve</text>
+<text x="84" y="3056" class="label">FORM</text>
+<text x="190" y="3056" class="body">starved mass pulling inward around a predatory center</text>
+<text x="84" y="3082" class="label">SURFACE</text>
+<text x="190" y="3082" class="body">dried oxblood, clot marbling and borrowed veins</text>
+<text x="84" y="3108" class="label">MOTION</text>
+<text x="190" y="3108" class="body">vitality drawn inward and packed beneath the skin</text>
+<text x="84" y="3134" class="label">COST</text>
+<text x="190" y="3134" class="body">borrowed memories and cycles of emptiness and overfill</text>
+<rect x="1228" y="2874" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="2916" class="name">Scholar</text>
+<text x="1252" y="2946" class="label">HUNCH • INDEX • ACCUMULATE</text>
+<rect x="1252" y="2966" width="112" height="28" rx="6" fill="#B6A47E" stroke="#6B6268"/>
+<text x="1308" y="3015" class="small" text-anchor="middle">parchment</text>
+<rect x="1378" y="2966" width="112" height="28" rx="6" fill="#303F54" stroke="#6B6268"/>
+<text x="1434" y="3015" class="small" text-anchor="middle">navy</text>
+<rect x="1504" y="2966" width="112" height="28" rx="6" fill="#77716C" stroke="#6B6268"/>
+<text x="1560" y="3015" class="small" text-anchor="middle">ash</text>
+<rect x="1630" y="2966" width="112" height="28" rx="6" fill="#25262A" stroke="#6B6268"/>
+<text x="1686" y="3015" class="small" text-anchor="middle">ink black</text>
+<rect x="1756" y="2966" width="112" height="28" rx="6" fill="#92713E" stroke="#6B6268"/>
+<text x="1812" y="3015" class="small" text-anchor="middle">faded ochre</text>
+<text x="1252" y="3056" class="label">FORM</text>
+<text x="1358" y="3056" class="body">one overworked side shaped around storage and retrieval</text>
+<text x="1252" y="3082" class="label">SURFACE</text>
+<text x="1358" y="3082" class="body">burned indexing, absorbed ink and memory scars</text>
+<text x="1252" y="3108" class="label">MOTION</text>
+<text x="1358" y="3108" class="body">information compressing before one deliberate pulse</text>
+<text x="1252" y="3134" class="label">COST</text>
+<text x="1358" y="3134" class="body">the archive preserving facts while erasing its owner</text>
+<rect x="60" y="3212" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="3254" class="name">Striker</text>
+<text x="84" y="3284" class="label">DRIVE • RECOIL • ACCUMULATE</text>
+<rect x="84" y="3304" width="112" height="28" rx="6" fill="#9A7837" stroke="#6B6268"/>
+<text x="140" y="3353" class="small" text-anchor="middle">faded mustard</text>
+<rect x="210" y="3304" width="112" height="28" rx="6" fill="#78453B" stroke="#6B6268"/>
+<text x="266" y="3353" class="small" text-anchor="middle">red brown</text>
+<rect x="336" y="3304" width="112" height="28" rx="6" fill="#4E716C" stroke="#6B6268"/>
+<text x="392" y="3353" class="small" text-anchor="middle">oxidized teal</text>
+<rect x="462" y="3304" width="112" height="28" rx="6" fill="#777570" stroke="#6B6268"/>
+<text x="518" y="3353" class="small" text-anchor="middle">concrete</text>
+<rect x="588" y="3304" width="112" height="28" rx="6" fill="#B5AA91" stroke="#6B6268"/>
+<text x="644" y="3353" class="small" text-anchor="middle">bone</text>
+<text x="84" y="3394" class="label">FORM</text>
+<text x="190" y="3394" class="body">forward-loaded mass with an asymmetric recoil line</text>
+<text x="84" y="3420" class="label">SURFACE</text>
+<text x="190" y="3420" class="body">old impacts aligned into functional scar patterns</text>
+<text x="84" y="3446" class="label">MOTION</text>
+<text x="190" y="3446" class="body">each hit tightening the next committed vector</text>
+<text x="84" y="3472" class="label">COST</text>
+<text x="190" y="3472" class="body">deformed joints and collapse when momentum stops</text>
+<rect x="1228" y="3212" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="3254" class="name">Titan</text>
+<text x="1252" y="3284" class="label">LOOM • ROOT • CARRY</text>
+<rect x="1252" y="3304" width="112" height="28" rx="6" fill="#8B6047" stroke="#6B6268"/>
+<text x="1308" y="3353" class="small" text-anchor="middle">clay</text>
+<rect x="1378" y="3304" width="112" height="28" rx="6" fill="#69705A" stroke="#6B6268"/>
+<text x="1434" y="3353" class="small" text-anchor="middle">lichen</text>
+<rect x="1504" y="3304" width="112" height="28" rx="6" fill="#77746E" stroke="#6B6268"/>
+<text x="1560" y="3353" class="small" text-anchor="middle">burial gray</text>
+<rect x="1630" y="3304" width="112" height="28" rx="6" fill="#3D352E" stroke="#6B6268"/>
+<text x="1686" y="3353" class="small" text-anchor="middle">peat</text>
+<rect x="1756" y="3304" width="112" height="28" rx="6" fill="#55746A" stroke="#6B6268"/>
+<text x="1812" y="3353" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">oxidized copper</text>
+<text x="1252" y="3394" class="label">FORM</text>
+<text x="1358" y="3394" class="body">immense overhangs carrying visible accumulated strata</text>
+<text x="1252" y="3420" class="label">SURFACE</text>
+<text x="1358" y="3420" class="body">clay, burial layers and traces of former lives</text>
+<text x="1252" y="3446" class="label">MOTION</text>
+<text x="1358" y="3446" class="body">new mass settling after each exertion</text>
+<text x="1252" y="3472" class="label">COST</text>
+<text x="1358" y="3472" class="body">selfhood buried until the body becomes a place</text>
+<rect x="60" y="3550" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="84" y="3592" class="name">Trader</text>
+<text x="84" y="3622" class="label">PIVOT • FAN • BARGAIN</text>
+<rect x="84" y="3642" width="112" height="28" rx="6" fill="#4F827B" stroke="#6B6268"/>
+<text x="140" y="3691" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">faded turquoise</text>
+<rect x="210" y="3642" width="112" height="28" rx="6" fill="#B09668" stroke="#6B6268"/>
+<text x="266" y="3691" class="small" text-anchor="middle">sand</text>
+<rect x="336" y="3642" width="112" height="28" rx="6" fill="#8B5036" stroke="#6B6268"/>
+<text x="392" y="3691" class="small" text-anchor="middle">rust</text>
+<rect x="462" y="3642" width="112" height="28" rx="6" fill="#6E503C" stroke="#6B6268"/>
+<text x="518" y="3691" class="small" text-anchor="middle">tobacco</text>
+<rect x="588" y="3642" width="112" height="28" rx="6" fill="#8F5E5D" stroke="#6B6268"/>
+<text x="644" y="3691" class="small" text-anchor="middle">bruised coral</text>
+<text x="84" y="3732" class="label">FORM</text>
+<text x="190" y="3732" class="body">asymmetric layers able to pivot into several routes</text>
+<text x="84" y="3758" class="label">SURFACE</text>
+<text x="190" y="3758" class="body">patched histories from incompatible places</text>
+<text x="84" y="3784" class="label">MOTION</text>
+<text x="190" y="3784" class="body">possibilities fanning, swapping and hardening into one</text>
+<text x="84" y="3810" class="label">COST</text>
+<text x="190" y="3810" class="body">origin erased by too many successful exchanges</text>
+<rect x="1228" y="3550" width="1140" height="310" rx="18" fill="#242126" stroke="#5A5057" stroke-width="2"/>
+<text x="1252" y="3592" class="name">Vindicator</text>
+<text x="1252" y="3622" class="label">AIM • ACCUSE • PIERCE</text>
+<rect x="1252" y="3642" width="112" height="28" rx="6" fill="#77716D" stroke="#6B6268"/>
+<text x="1308" y="3691" class="small" text-anchor="middle">ash gray</text>
+<rect x="1378" y="3642" width="112" height="28" rx="6" fill="#4E5963" stroke="#6B6268"/>
+<text x="1434" y="3691" class="small" text-anchor="middle">slate</text>
+<rect x="1504" y="3642" width="112" height="28" rx="6" fill="#6B3D43" stroke="#6B6268"/>
+<text x="1560" y="3691" class="small" text-anchor="middle" textLength="108" lengthAdjust="spacingAndGlyphs">dried burgundy</text>
+<rect x="1630" y="3642" width="112" height="28" rx="6" fill="#AB9972" stroke="#6B6268"/>
+<text x="1686" y="3691" class="small" text-anchor="middle">old parchment</text>
+<rect x="1756" y="3642" width="112" height="28" rx="6" fill="#4B5052" stroke="#6B6268"/>
+<text x="1812" y="3691" class="small" text-anchor="middle">cold iron</text>
+<text x="1252" y="3732" class="label">FORM</text>
+<text x="1358" y="3732" class="body">one narrowed diagonal committing the whole body</text>
+<text x="1252" y="3758" class="label">SURFACE</text>
+<text x="1358" y="3758" class="body">layers scored, struck through and progressively erased</text>
+<text x="1252" y="3784" class="label">MOTION</text>
+<text x="1358" y="3784" class="body">each contact carving closer to an exposed core</text>
+<text x="1252" y="3810" class="label">COST</text>
+<text x="1358" y="3810" class="body">the accuser corroded into one permanent grievance</text>
+</svg>
