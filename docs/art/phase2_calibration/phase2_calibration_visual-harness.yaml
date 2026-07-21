@@ -1,0 +1,27 @@
+version: 1
+project: Gamble Battle
+scenarios:
+  - id: phase2-real-unit-calibration
+    title: Phase 2 real-unit calibration concepts
+    adapter: generic
+    objective: Verify that twelve real roster units each have three materially different rough silhouette options, one definitive full-body master concept, explicit trait-channel separation, visible villain survival psychology and supernatural cost, one dominant prop or anatomical idea, and an unchanged 96px board read; verify all 22 traits and six combat roles without one shared costume, body, face, material, prop, or emotion family; apply the stricter disgraced-Blessed gate to Korath.
+    capture_command: ["python", "../../../tools/art/render_phase2_calibration_packet.py", "--capture-manifest", "../../../outputs/visual_debug/phase2_calibration/captures.json"]
+    capture_manifest: "../../../outputs/visual_debug/phase2_calibration/captures.json"
+    required_groups: [overview, board_read]
+    runtime_provenance:
+      runtime: "Deterministic Pillow review packet"
+      source: "docs/art/phase2_calibration/phase2_calibration_manifest.json"
+      source_sha256: "ab3d47901380b85f35708ebe6b69adbaca2e215d838f4ddb989292ac92852210"
+      build: "codex/019f858f-005-phase1-trait-bible-repair"
+    evidence:
+      required_cameras: [document]
+      required_layers: [final]
+      required_states: [all_masters_and_silhouettes, derived_board_read]
+      required_viewports: [review-board]
+      required_events: [phase2_contact_sheet, phase2_96px_board]
+      require_runtime_provenance: true
+      required_runtime_fields: [runtime, source, source_sha256, build]
+      max_source_age_seconds: 600
+    output_root: "../../../outputs/visual_debug/vdh_runs"
+    max_iterations: 3
+    telegram_context: "Gamble Battle Phase 2 calibration"

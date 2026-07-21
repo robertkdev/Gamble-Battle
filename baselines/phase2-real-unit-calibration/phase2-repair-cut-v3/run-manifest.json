@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "run_id": "phase2-repair-cut-v3",
+  "project": "Gamble Battle",
+  "scenario_id": "phase2-real-unit-calibration",
+  "title": "Phase 2 real-unit calibration concepts",
+  "objective": "Verify that twelve real roster units each have three materially different rough silhouette options, one definitive full-body master concept, explicit trait-channel separation, visible villain survival psychology and supernatural cost, one dominant prop or anatomical idea, and an unchanged 96px board read; verify all 22 traits and six combat roles without one shared costume, body, face, material, prop, or emotion family; apply the stricter disgraced-Blessed gate to Korath.",
+  "adapter": "generic",
+  "created_utc": "2026-07-21T19:38:51.760438+00:00",
+  "source_root": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\docs\\art\\phase2_calibration",
+  "run_root": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3",
+  "panels": [
+    {
+      "id": "P001",
+      "label": "Phase 2 masters and silhouette options",
+      "group": "overview",
+      "path": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\captures\\P001.png",
+      "sha256": "66c012ac6ba62eeaddafa01d766cb0fe84e4f132374d32547bfa981e58d6730d",
+      "width": 1760,
+      "height": 2038,
+      "pair": null,
+      "role": "frame",
+      "state": "all_masters_and_silhouettes",
+      "viewport": "review-board",
+      "camera": "document",
+      "layer": "final",
+      "variant": null,
+      "event": "phase2_contact_sheet",
+      "timestamp_ms": null,
+      "source_path": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\phase2_calibration\\staged\\phase2_calibration_contact_sheet.png",
+      "source_mtime_utc": "2026-07-21T19:38:50.798577+00:00",
+      "captured_utc": "2026-07-21T19:38:51.732403+00:00",
+      "metadata": {
+        "runtime": "Deterministic Pillow review packet",
+        "source": "docs/art/phase2_calibration/phase2_calibration_manifest.json",
+        "source_sha256": "ab3d47901380b85f35708ebe6b69adbaca2e215d838f4ddb989292ac92852210",
+        "build": "codex/019f858f-005-phase1-trait-bible-repair",
+        "capture_manifest": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\phase2_calibration\\captures.json",
+        "changed_by_capture_command": true,
+        "capture_manifest_changed": true
+      }
+    },
+    {
+      "id": "P002",
+      "label": "Unchanged masters contained at 96 pixels",
+      "group": "board_read",
+      "path": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\captures\\P002.png",
+      "sha256": "de2c4de80b1e1d54c35c6cbcf2f2f900538e739c4c0a0f22483a42739d0cb57a",
+      "width": 1080,
+      "height": 558,
+      "pair": null,
+      "role": "frame",
+      "state": "derived_board_read",
+      "viewport": "review-board",
+      "camera": "document",
+      "layer": "final",
+      "variant": null,
+      "event": "phase2_96px_board",
+      "timestamp_ms": null,
+      "source_path": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\phase2_calibration\\staged\\phase2_calibration_96px_board.png",
+      "source_mtime_utc": "2026-07-21T19:38:51.541302+00:00",
+      "captured_utc": "2026-07-21T19:38:51.759438+00:00",
+      "metadata": {
+        "runtime": "Deterministic Pillow review packet",
+        "source": "docs/art/phase2_calibration/phase2_calibration_manifest.json",
+        "source_sha256": "ab3d47901380b85f35708ebe6b69adbaca2e215d838f4ddb989292ac92852210",
+        "build": "codex/019f858f-005-phase1-trait-bible-repair",
+        "capture_manifest": "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\phase2_calibration\\captures.json",
+        "changed_by_capture_command": true,
+        "capture_manifest_changed": true
+      }
+    }
+  ],
+  "packet_images": [
+    "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\packet\\00-agent-review-instructions.png",
+    "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\packet\\01-overview-board-01.png",
+    "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\packet\\03-camera-layer-matrix.png",
+    "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\packet\\03-state-viewport-matrix.png",
+    "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\packet\\07-review-acceptance.png",
+    "C:\\Users\\Flipm\\.codex\\continuity\\worktrees\\810803c9e723dc16\\019f858f-005e-77a2-ad04-4d8888019935\\outputs\\visual_debug\\vdh_runs\\phase2-repair-cut-v3\\packet\\99-final-verdict-board.png"
+  ],
+  "missing_groups": [],
+  "missing_evidence": [],
+  "verdict": "pass",
+  "findings": [],
+  "metadata": {
+    "capture_started_utc": "2026-07-21T19:38:42.942151+00:00",
+    "runtime_provenance": {
+      "runtime": "Deterministic Pillow review packet",
+      "source": "docs/art/phase2_calibration/phase2_calibration_manifest.json",
+      "source_sha256": "ab3d47901380b85f35708ebe6b69adbaca2e215d838f4ddb989292ac92852210",
+      "build": "codex/019f858f-005-phase1-trait-bible-repair"
+    },
+    "evidence_profile": {
+      "required_groups": [],
+      "required_cameras": [
+        "document"
+      ],
+      "required_layers": [
+        "final"
+      ],
+      "required_states": [
+        "all_masters_and_silhouettes",
+        "derived_board_read"
+      ],
+      "required_viewports": [
+        "review-board"
+      ],
+      "required_events": [
+        "phase2_contact_sheet",
+        "phase2_96px_board"
+      ],
+      "required_pairs": {},
+      "required_combinations": [],
+      "min_temporal_frames": 0,
+      "max_source_age_seconds": 600,
+      "require_runtime_provenance": true,
+      "required_runtime_fields": [
+        "runtime",
+        "source",
+        "source_sha256",
+        "build"
+      ]
+    }
+  }
+}

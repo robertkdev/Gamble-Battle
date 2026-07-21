@@ -1,0 +1,128 @@
+{
+  "phase": 2,
+  "title": "Real-unit calibration concepts",
+  "status": "candidate",
+  "authority": {
+    "design_doc_id": "1OCS4jfjMIiw-2-VQbLPaeDxsmzZMKEAFKb6BHvkMa7I",
+    "design_doc_revision": "ALtnJHwVO7G76JsUnkVIkVyHLKuse48SHx1Pk0B9i1FHjMLgxeswS59muBXlBSbeQVko1B2fa1PG06v52UK-fHA",
+    "trait_bible": "docs/art/trait_visual_bible_phase1.json"
+  },
+  "constraints": {
+    "master_concepts_per_unit": 1,
+    "silhouette_options_per_unit": 3,
+    "derived_review_size_px": 96,
+    "forbidden_assets": ["shop_card", "headshot", "sprite_sheet", "animation_sheet", "vfx_asset"]
+  },
+  "units": [
+    {
+      "id": "korath", "role": "Tank", "traits": ["Titan", "Blessed"], "art_primary": "Blessed",
+      "secondary_channels": {"Titan": "immense load-bearing body mass and ground pressure"},
+      "selected_silhouette": "A", "silhouettes": ["broken processional arch fused through shoulders", "kneeling reliquary hunch", "bell-shaped stone penitent"],
+      "survival_psychology": "He steals allied wounds because suffering is the only proof his failed miracle still needs him.",
+      "villain_read": "coercive martyr who makes allies indebted to his pain", "primary_prop": "fused penitential yoke-reliquary beam",
+      "supernatural_cost": "redirected wounds calcify as stone blooms and goldless stigmata while sensation collapses",
+      "body_lane": "huge bowed middle-aged once-human masculine penitent", "aesthetic_lane": "disgraced grotesque",
+      "board_survival": ["bowed head below horizontal yoke", "giant planted feet", "one pale cracked chest wound"],
+      "special_gates": ["disgraced before angel", "shame in face and posture", "miracle cost physically visible", "no clean holy hero", "no radiant paladin", "no decorative black-wing demon", "no pretty sad angel"]
+    },
+    {
+      "id": "veyra", "role": "Tank", "traits": ["Aegis", "Bulwark"], "art_primary": "Aegis",
+      "secondary_channels": {"Bulwark": "compressed square buttresses and locking joints"},
+      "selected_silhouette": "C", "silhouettes": ["tall folding gate", "low six-limbed bastion", "cocoon torso on pillar legs"],
+      "survival_psychology": "She seals every injury behind another layer until protection becomes imprisonment.",
+      "villain_read": "possessive protector that treats allies as contents", "primary_prop": "none; nested rib-cocoon anatomy",
+      "supernatural_cost": "each hardening fuses a joint and deadens a sensory slit", "body_lane": "sexless alien shell-organism", "aesthetic_lane": "nonhuman architectural",
+      "board_survival": ["two pillar legs", "huge oval torso", "tiny off-center sensory aperture"]
+    },
+    {
+      "id": "cashmere", "role": "Mage", "traits": ["Arcanist", "Mogul"], "art_primary": "Mogul",
+      "secondary_channels": {"Arcanist": "measured diagram cuts and one controlled ledger casting line"},
+      "selected_silhouette": "B", "silhouettes": ["high ledger mantle column", "soft triangular drape around ledger", "top-heavy counting-frame torso"],
+      "survival_psychology": "She prices uncertainty so that people and spells can be owned.",
+      "villain_read": "patient warm acquisition", "primary_prop": "one cracked arcane ledger",
+      "supernatural_cost": "paid kills erase memories and print them as tax-script through fingers and throat", "body_lane": "older broad-bodied woman", "aesthetic_lane": "attractive mature menace",
+      "board_survival": ["broad asymmetric drape", "rectangular ledger", "ink-dark casting arm"]
+    },
+    {
+      "id": "pilfer", "role": "Assassin", "traits": ["Catalyst", "Cartel"], "art_primary": "Catalyst",
+      "secondary_channels": {"Cartel": "repeated cut marks and closed-angle posture"},
+      "selected_silhouette": "B", "silhouettes": ["reagent-sleeve wedge", "split-tailed runner with siphon hand", "crouch beneath triangular hood-sack"],
+      "survival_psychology": "They become whatever a room rewards before anyone can decide what they are.",
+      "villain_read": "ingratiating identity thief", "primary_prop": "elongated ampoule-finger siphon hand",
+      "supernatural_cost": "each theft chemically mismatches skin, fur, voice, and limb temperature", "body_lane": "young nonbinary wiry ratfolk-elf", "aesthetic_lane": "small opportunist",
+      "board_survival": ["low sprint wedge", "split tail", "one long siphon arm"]
+    },
+    {
+      "id": "nyxa", "role": "Marksman", "traits": ["Sanguine", "Chronomancer"], "art_primary": "Chronomancer",
+      "secondary_channels": {"Sanguine": "clotted bowstring, predatory apertures, and blood-for-arrows exchange"},
+      "selected_silhouette": "A", "silhouettes": ["elderly batlike spine-bow archer", "four-armed age tower", "membrane mantle bow"],
+      "survival_psychology": "She hoards possible futures as ammunition rather than admit the unchosen lives are dead.",
+      "villain_read": "ecstatic timeline predator", "primary_prop": "asymmetrical time-bow grown from spine and wing finger",
+      "supernatural_cost": "each extra arrow ages one side of her face and drains blood into older scars", "body_lane": "elderly batlike woman", "aesthetic_lane": "feral ranged predator",
+      "board_survival": ["long diagonal bow", "folded bat hunch", "one pale ancient half-face"]
+    },
+    {
+      "id": "creep", "role": "Assassin", "traits": ["Exile", "Executioner"], "art_primary": "Exile",
+      "secondary_channels": {"Executioner": "matte scythe-ribbon anatomy and collapsing arc"},
+      "selected_silhouette": "A", "silhouettes": ["crouch in broken blade ring", "needle body under guillotine ribbons", "four-point crawl with crescent"],
+      "survival_psychology": "It removes every trace that could let a group claim or reject it, then hunts the weakest witness.",
+      "villain_read": "vacant procedural predation", "primary_prop": "broken ring of matte scythe-ribbons grown from spine",
+      "supernatural_cost": "each chain execution erases facial contour and identity marks", "body_lane": "ageless thin gray-blue alien", "aesthetic_lane": "feral nonhuman",
+      "board_survival": ["hollow eyes", "low triangular crouch", "broken black blade ring"]
+    },
+    {
+      "id": "knoll", "role": "Support", "traits": ["Trader", "Harmony"], "art_primary": "Trader",
+      "secondary_channels": {"Harmony": "paired counterweights and measured intervals"},
+      "selected_silhouette": "A", "silhouettes": ["short magistrate with branding iron", "paired-sleeve scale body", "arched abacus-back clerk"],
+      "survival_psychology": "He makes every relationship transactional before affection can become leverage.",
+      "villain_read": "courteous bureaucratic destroyer", "primary_prop": "one receipt-branding iron used as cane",
+      "supernatural_cost": "marks add paired eyelid scars and shorten depth perception", "body_lane": "short stocky elderly goblin man", "aesthetic_lane": "administrative villain",
+      "board_survival": ["short square body", "vertical iron", "paired sleeve weights", "squinting face"]
+    },
+    {
+      "id": "quillith", "role": "Support", "traits": ["Scholar", "Overload", "Mentor"], "art_primary": "Mentor",
+      "secondary_channels": {"Scholar": "notation woven into support harness", "Overload": "frayed nerves and crowded script at head and hands"},
+      "selected_silhouette": "A", "silhouettes": ["arthritic teacher fused to lectern brace", "seated triangular examiner", "narrow body beneath crooked grading arm"],
+      "survival_psychology": "She keeps pupils dependent because being surpassed would invalidate her sacrifices.",
+      "villain_read": "punitive control disguised as instruction", "primary_prop": "one fused lectern-brace",
+      "supernatural_cost": "forced recasts burn lessons into exposed nerves and make speech leak annotations", "body_lane": "disabled elderly gaunt woman", "aesthetic_lane": "severe controller",
+      "board_survival": ["tall tilted frame", "tiny severe head", "long correcting arm", "triangular base"]
+    },
+    {
+      "id": "kett", "role": "Brawler", "traits": ["Striker", "Cartel"], "art_primary": "Striker",
+      "secondary_channels": {"Cartel": "stamped ownership scars and closed triangular stance"},
+      "selected_silhouette": "A", "silhouettes": ["dockworker with triple-jointed stamp fist", "charging ram forearm", "upright nested-knuckle enforcer"],
+      "survival_psychology": "He makes every humiliation simple enough to solve in three blows.",
+      "villain_read": "controlled labor rage", "primary_prop": "one wage-stamp prosthetic fist with three plates",
+      "supernatural_cost": "each punch embosses debt coin reliefs into bone and reduces finger motion", "body_lane": "heavy middle-aged male worker", "aesthetic_lane": "brutal human",
+      "board_survival": ["huge forward fist", "barrel torso", "small trailing hand", "three knuckle steps"]
+    },
+    {
+      "id": "luna", "role": "Mage", "traits": ["Liaison", "Kaleidoscope"], "art_primary": "Liaison",
+      "secondary_channels": {"Kaleidoscope": "muted separated refractor panels in garment and face"},
+      "selected_silhouette": "B", "silhouettes": ["counterweighted mediator veils", "split-train beam duelist", "wide robe with empty horizontal channel"],
+      "survival_psychology": "She makes herself indispensable between enemies and controls what each side may perceive.",
+      "villain_read": "seductive triangulator", "primary_prop": "none; split refractor train connecting forearms to heels",
+      "supernatural_cost": "beams fracture facial expressions into incompatible eye colors and ages", "body_lane": "tall attractive adult woman", "aesthetic_lane": "color-preserving manipulator",
+      "board_survival": ["tall narrow body", "split colored train", "straight casting line"]
+    },
+    {
+      "id": "malachor", "role": "Tank", "traits": ["Titan", "Fortified", "Sanguine"], "art_primary": "Sanguine",
+      "secondary_channels": {"Fortified": "interlocked skin masonry and rib buttresses", "Titan": "colossal ground occupation"},
+      "selected_silhouette": "C", "silhouettes": ["flesh keep with central pinning arm", "many-backed tower crawler", "square rib-buttress trap"],
+      "survival_psychology": "He makes other bodies pay the maintenance cost of his impossible continuity.",
+      "villain_read": "panicked entitlement inside a siege body", "primary_prop": "mortised clamp hand",
+      "supernatural_cost": "healing steals tissue from embedded debtors while a flesh clock tightens", "body_lane": "colossal nonhuman flesh architecture", "aesthetic_lane": "grotesque monster",
+      "board_survival": ["square colossal torso", "clamp hand", "rib corners", "chest clock"]
+    },
+    {
+      "id": "sable", "role": "Marksman", "traits": ["Vindicator", "Scholar"], "art_primary": "Vindicator",
+      "secondary_channels": {"Scholar": "proof-strips laminated along weapon and sleeve"},
+      "selected_silhouette": "A", "silhouettes": ["long leaning rifle triangle", "upright witness-stand firearm", "low mantis shooter"],
+      "survival_psychology": "They turn every grievance into evidence and every person into a target that can confirm it.",
+      "villain_read": "cold self-righteous certainty", "primary_prop": "one extremely long footnote rifle",
+      "supernatural_cost": "shots erase words from memory and burn citation scars across the aiming eye", "body_lane": "lean androgynous middle-aged human", "aesthetic_lane": "precision villain",
+      "board_survival": ["long diagonal rifle", "forward wedge", "pale eye scar", "short rear counterweight"]
+    }
+  ]
+}
