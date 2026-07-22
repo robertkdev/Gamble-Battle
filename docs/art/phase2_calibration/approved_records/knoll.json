@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "knoll",
+    "name": "Knoll",
+    "combat_role": "Support",
+    "is_frontliner": false,
+    "sex_design_category": "male",
+    "visual_lane": "peak_condition_humanoid",
+    "deliberately_horrific": false,
+    "art_primary_trait": "Trader",
+    "secondary_trait_channels": [
+      "Harmony"
+    ],
+    "gameplay_identity": "Support calibration unit carrying Trader, Harmony through one decisive combat silhouette.",
+    "strongest_preserved_hook": "one palm-length pear-handled stamp contacting one large pale flexible receipt strip",
+    "dominant_prop_or_anatomy": "one palm-length pear-handled stamp contacting one large pale flexible receipt strip",
+    "protection_logic": "not_applicable",
+    "supernatural_cost": "marks add paired eyelid scars and shorten depth perception",
+    "villain_emotion_family": "evil_manipulative_demonic"
+  },
+  "psychology": {
+    "core_wound": "The first person he loved used affection to create an unpayable obligation and then collected it publicly.",
+    "private_want": "He wants one relationship that cannot be converted into leverage, though he no longer believes such a thing exists.",
+    "primary_fear": "Unpriced care will place him in someone else's debt and leave him unable to control the terms.",
+    "survival_strategy": "He makes every relationship transactional before affection can become leverage.",
+    "villainous_distortion": "He brands people into reciprocal obligations and destroys anyone who refuses the exchange.",
+    "current_emotional_state": "Courteous welcome while deciding the exact pain of collection.",
+    "emotional_contradiction": "A service smile versus clinical predatory measurement.",
+    "face_direction": "A controlled smile addresses the viewer while one narrowed eye measures the branding site; paired eyelid scars compress depth focus and the jaw stays ready.",
+    "pose_direction": "Compact athletic weight bears down behind one enlarged palm-length pear-handled stamp in visible contact with a long pale flexible receipt; one hand grips the isolated handle while the other supports the receipt outside the stamp silhouette.",
+    "forbidden_read": "No elderly merchant, grandfather, cane user, harmless shopkeeper, child goblin, comic miser, accountant NPC, or generic assassin."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+      "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "B"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+      "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+      "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+      "media_type": "image/png",
+      "source_master_sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+      "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+      "media_type": "image/png",
+      "source_master_sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "cashmere",
+      "quillith",
+      "kett"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Courteous welcome while deciding the exact pain of collection.",
+        "want": "The visible intent supports this private want: He wants one relationship that cannot be converted into leverage, though he no longer believes such a thing exists.",
+        "fear_or_concealment": "The face visibly guards against this fear: Unpriced care will place him in someone else's debt and leave him unable to control the terms.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He makes every relationship transactional before affection can become leverage.",
+        "villainous_read": "The visible behavior expresses this distortion: He brands people into reciprocal obligations and destroys anyone who refuses the exchange.",
+        "cited_visual_cues": "Face cue: A controlled smile addresses the viewer while one narrowed eye measures the branding site; paired eyelid scars compress depth focus and the jaw stays ready. Pose cue: Compact athletic weight bears down behind one enlarged palm-length pear-handled stamp in visible contact with a long pale flexible receipt; one hand grips the isolated handle while the other supports the receipt outside the stamp silhouette."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares knoll directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: He reads as an athletic adult goblin combat bureaucrat, not an elderly merchant or NPC.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Dry wood, metal rings, receipt paper, skin, and layered cloth are materially separated.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: The stamp-on-receipt action leads; measuring face and service posture support transaction.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Office-stamp execution imagery, compact goblin build, and eyelid tallies remain roster-specific.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Changed master and exact derivative match their hashes and deterministic source lineage.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: At native 96px the handle, wider base, pale receipt, and downward contact remain readable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Service smile, narrowed measuring eye, ready jaw, and controlled press show courteous predation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Trader stamp action dominates; Harmony is confined to paired fixed counterweights and intervals.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Courteous welcome while deciding the exact pain of collection.",
+        "want": "The visible intent supports this private want: He wants one relationship that cannot be converted into leverage, though he no longer believes such a thing exists.",
+        "fear_or_concealment": "The face visibly guards against this fear: Unpriced care will place him in someone else's debt and leave him unable to control the terms.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He makes every relationship transactional before affection can become leverage.",
+        "villainous_read": "The visible behavior expresses this distortion: He brands people into reciprocal obligations and destroys anyone who refuses the exchange.",
+        "cited_visual_cues": "Face cue: A controlled smile addresses the viewer while one narrowed eye measures the branding site; paired eyelid scars compress depth focus and the jaw stays ready. Pose cue: Compact athletic weight bears down behind one enlarged palm-length pear-handled stamp in visible contact with a long pale flexible receipt; one hand grips the isolated handle while the other supports the receipt outside the stamp silhouette."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares knoll directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Peak-condition bureaucratic predator reads as combat support, not merchant NPC.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for knoll: Wood, oxidized metal, receipt paper, skin, and layered cloth are materially convincing.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Face-to-hand-to-stamp-to-receipt forms a clean downward action chain.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for knoll: Execution-clerk stamping action has no roster duplicate.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Master resolves grip, base, paper contact, body lane, costume, and action mechanics.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: The exact 96px stamp action survives; receipt and broad base remain visibly separate.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: P003 shows courteous smile, measuring eye, and predatory focus reinforced by pressing weight.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Trader owns the stamp action; Harmony remains paired fixed counterweights and measured intervals.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Courteous welcome while deciding the exact pain of collection.",
+        "want": "The visible intent supports this private want: He wants one relationship that cannot be converted into leverage, though he no longer believes such a thing exists.",
+        "fear_or_concealment": "The face visibly guards against this fear: Unpriced care will place him in someone else's debt and leave him unable to control the terms.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He makes every relationship transactional before affection can become leverage.",
+        "villainous_read": "The visible behavior expresses this distortion: He brands people into reciprocal obligations and destroys anyone who refuses the exchange.",
+        "cited_visual_cues": "Face cue: A controlled smile addresses the viewer while one narrowed eye measures the branding site; paired eyelid scars compress depth focus and the jaw stays ready. Pose cue: Compact athletic weight bears down behind one enlarged palm-length pear-handled stamp in visible contact with a long pale flexible receipt; one hand grips the isolated handle while the other supports the receipt outside the stamp silhouette."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares knoll directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: The compact athletic adult goblin, measuring eye, service smile, and forceful stamp action read as a villainous combat support.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Hands, pear handle, tiered base, continuous receipt, legs, and dry layered garments are mechanically and materially coherent.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Both hands and the pale receipt direct attention to one central stamp-contact action.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: The execution-clerk stamp silhouette remains distinct from Cashmere's ledger, Quillith's slate, and Kett's prosthetic fist.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Three action-distinct roughs, definitive master, face crop, native exact-96 derivative, and psychology record are complete and hash-valid.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Native 96x96 preserves the pear handle, broad tiered base, pale receipt, contact point, and compact goblin stance without forbidden alternate reads.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Controlled smile, narrowed measuring eye, prepared jaw, and deliberate downward pressure communicate courteous predatory valuation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for knoll: Trader is embodied by the stamp/receipt action; Harmony remains in paired intervals and fixed counterweight details without another prop.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, knoll meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

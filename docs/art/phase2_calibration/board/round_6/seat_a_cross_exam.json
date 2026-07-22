@@ -1,0 +1,62 @@
+{
+  "reviewer_id": "phase2_round6_contract_evidence",
+  "role": "Contract and Evidence Auditor",
+  "round": "cross_examination",
+  "independent_verdict": "READY",
+  "challenges": [
+    {
+      "target_reviewer_id": "phase2_round6_character_art",
+      "claim_tested": "Knoll has a positive first read as an office stamp contacting one receipt.",
+      "evidence_checked": "Native 96x96 image, full master, and exact-96 derivative lineage.",
+      "outcome": "SUSTAINED",
+      "rationale": "Pear handle, tiered broad base, visible paper contact, and one continuous pale curling receipt remain separable; downward stamping reads before writing or generic handling."
+    },
+    {
+      "target_reviewer_id": "phase2_round6_red_team",
+      "claim_tested": "Knoll avoids forbidden hammer, anvil, table, block, staff, and cane reads.",
+      "evidence_checked": "Native 96x96 silhouette and full-resolution hand/prop anatomy.",
+      "outcome": "SUSTAINED",
+      "rationale": "The compact handle has no shaft or striking head, the base rests directly on flexible paper, and no hard work surface or separate block exists."
+    },
+    {
+      "target_reviewer_id": "phase2_round6_character_art",
+      "claim_tested": "Knoll's exact-96 asset is an unchanged same-master derivative.",
+      "evidence_checked": "Master SHA-256, derivative SHA-256, declared source hash, dimensions, and independent in-memory LANCZOS reconstruction.",
+      "outcome": "SUSTAINED",
+      "rationale": "The source hash matches the master, dimensions are exactly 96x96, and regenerated pixels match the frozen derivative exactly."
+    },
+    {
+      "target_reviewer_id": "phase2_round6_red_team",
+      "claim_tested": "P006 uses the approved matte Vellum authority without shiny BiRefNet substitution.",
+      "evidence_checked": "Approved raw and display-cutout files, SHA-256 values, and frozen Vellum-first comparison.",
+      "outcome": "SUSTAINED",
+      "rationale": "Raw hash 824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18 and cutout hash 6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0 match; P006 shows the hard-matte cutout."
+    },
+    {
+      "target_reviewer_id": "phase2_round6_character_art",
+      "claim_tested": "The frozen cut shows no concrete visible regression among the eleven unchanged units.",
+      "evidence_checked": "Independent reports plus frozen master, face, exact-96, convergence, and Vellum boards.",
+      "outcome": "SUSTAINED",
+      "rationale": "No report identifies a regression, failed professional dimension, anatomy failure, or newly ambiguous exact-96 read."
+    }
+  ],
+  "response_to_peer_evidence": {
+    "phase2_round6_character_art": "Decisive Knoll, lineage, Vellum, and no-regression claims withstand direct evidence checks.",
+    "phase2_round6_red_team": "Adversarial checks of alternate prop reads, anatomy coherence, matte authority, and roster integrity withstand reinspection."
+  },
+  "knoll_final_status": {
+    "test_id": "R5-CARRIED-KNOLL-96-STAMP",
+    "status": "CLOSED",
+    "result": "PASS",
+    "rationale": "The native exact-96 stamp action is positive, mechanically coherent, lineage-valid, and free of forbidden alternate reads."
+  },
+  "vellum_final_status": {
+    "status": "VERIFIED",
+    "raw_hash_match": true,
+    "display_cutout_hash_match": true,
+    "forbidden_shiny_variant_used": false
+  },
+  "surviving_blockers": [],
+  "professional_band": "PROFESSIONAL",
+  "final_readiness": "READY"
+}

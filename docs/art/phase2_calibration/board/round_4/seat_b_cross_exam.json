@@ -1,0 +1,290 @@
+{
+  "reviewer_id": "P2R4-SEAT-B-ART",
+  "reviewer_role": "senior character art director",
+  "round": 4,
+  "cross_exam_number": 1,
+  "final_verdict": "NOT_READY",
+  "professional_standard_band": "BELOW PROFESSIONAL",
+  "blocker_adjudications": [
+    {
+      "blocker_id": "P2R4-KNOLL-001",
+      "originating_reviewer_id": "P2R4-SEAT-B-ART",
+      "unit": "knoll",
+      "disposition": "REFUTED",
+      "survives": false,
+      "criterion": "Receipt-stamp contact must read before hammer, staff, or cane, and selected rough B must correspond.",
+      "adjudication": "The immutable master shows a two-handed downward press with the one-ended tool already planted on the marked receipt plate. The body is upright, the tool never enters a raised or traveling swing arc, and selected rough B preserves that same planted contact column. The exact 96px derivative loses engraved micro-detail but retains the figure, block, short exposed tool segment, and contact posture rather than an attack pose. Seat A independently identified stamp contact and no swing, and Seat C independently identified a flat emblem stamp pressed into a marked receipt plate. That direct master/action evidence outweighs the residual square-head/long-handle resemblance cited by Seat B.",
+      "seat_a_ready_evidence_weight": "CONTROLLING. Seat A's no-blocker evidence is corroborated by Seat C and by the visible planted contact in the master and exact 96px derivative.",
+      "evidence": [
+        {
+          "locator": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+          "observation": "Both hands apply downward pressure to a one-ended stamp already touching a marked receipt plate; there is no swing arc or attack wind-up."
+        },
+        {
+          "locator": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+          "observation": "Selected B corresponds to the master's upright execution-clerk column and planted contact mechanic."
+        },
+        {
+          "locator": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+          "observation": "The exact derivative preserves contact at the block and does not turn the action into a raised hammer strike, staff, or cane posture."
+        }
+      ],
+      "closure_test_disposition": "CLOSED_PASS"
+    },
+    {
+      "blocker_id": "P2R4-MALACHOR-001",
+      "originating_reviewer_id": "P2R4-SEAT-B-ART",
+      "unit": "malachor",
+      "disposition": "RETAINED",
+      "survives": true,
+      "criterion": "Entitled payment demand and collapse panic must share one lower-right target with the clamp.",
+      "adjudication": "Seat A and Seat C correctly establish that the face communicates panicked entitlement, the hand grips the chest clock, and the attached clamp is readable. They do not establish the criterion's required shared lower-right target. In the immutable master, the central head and demanding mouth address the frontal field while the pupils converge centrally/downward around the face-clock axis; the clamp opens toward a separate lower-right field. The same-master face crop contains no lower-right target cue, and the comparison-scale master retains two focal vectors. A coherent maintenance theme is not equivalent to one coherent target line, so the production-direction ambiguity remains.",
+      "seat_a_ready_evidence_weight": "SUBSTANTIAL BUT NONCONTROLLING. It proves emotion, attachment, and action-family coherence, but not visible convergence on the required lower-right target.",
+      "evidence": [
+        {
+          "locator": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+          "observation": "The face/clock axis remains central-frontal while the articulated clamp opens into the lower-right, producing separate target vectors."
+        },
+        {
+          "locator": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+          "observation": "The crop clearly shows demanding panic and clock clutching but does not direct head, pupils, or mouth toward the lower-right clamp target."
+        },
+        {
+          "locator": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+          "panel_id": "P004",
+          "observation": "At equal comparison scale, the central facial confrontation and lower-right clamp remain independently readable focal vectors."
+        }
+      ],
+      "closure_test": "On a replacement immutable cut, head angle, primary pupils, demanding mouth, chest-clock clutch, and clamp opening must visibly converge on one lower-right target in the native master, same-master face crop, and exact 96px derivative, with no competing frontal target.",
+      "closure_test_disposition": "OPEN"
+    },
+    {
+      "blocker_id": "P2R4-C-VEYRA-001",
+      "originating_reviewer_id": "P2R4-SEAT-C-REDTEAM",
+      "unit": "veyra",
+      "disposition": "NARROWED",
+      "survives": true,
+      "criterion": "Active asymmetric hostile enclosure and prey selection must read before egg or armadillo, with a dry shell.",
+      "adjudication": "Seat A and Seat B supply stronger evidence against the objection's external-target requirement: the bound humanoid core is already the selected prey, the purple slit bears on that prey, the unequal inward plates act as closing jaws, and the shell is visibly dry. Requiring a second external target would expand the locked closure test and is therefore removed. The objection survives only at the first-read hierarchy gate. In the exact 96px derivative and role lineup, the near-oval plated mass on paired pillar legs reads as egg/armadillo before the enclosed victim and active asymmetric closure become legible. Because the locked test explicitly requires hostile enclosure before egg/armadillo, that visible hierarchy failure remains production-blocking.",
+      "seat_a_ready_evidence_weight": "PARTIALLY CONTROLLING. It refutes the demand for an external target and confirms prey selection, plate hostility, and dry material, but it does not overcome the exact-96px egg/armadillo first read.",
+      "narrowed_claim": "At exact 96px, Veyra's passive egg/armadillo silhouette still precedes the active asymmetric hostile-enclosure read. No external prey or forward attack vector is required for closure.",
+      "evidence": [
+        {
+          "locator": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+          "observation": "The master contains a visibly bound prey core, a target-bearing purple slit, unequal inward plates, and dry shell treatment, refuting the external-target portion of the original objection."
+        },
+        {
+          "locator": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+          "observation": "At the exact derivative, the dominant first read is an upright oval armadillo/egg mass on paired legs; active plate closure and prey selection are secondary."
+        },
+        {
+          "locator": "docs/art/phase2_calibration/comparisons/phase2_96px_lineup.png",
+          "panel_id": "P005",
+          "observation": "The role-grouped inspection preserves the oval plated shell as the leading silhouette before hostile enclosure behavior."
+        }
+      ],
+      "closure_test": "On a replacement immutable cut, an unlabeled read of the native master and exact unchanged 96px derivative must identify the existing captive as selected prey and the unequal plates as an actively closing hostile organism before a generic egg or armadillo silhouette, while retaining selected-C cocoon identity and dry shell material.",
+      "closure_test_disposition": "OPEN_NARROWED"
+    },
+    {
+      "blocker_id": "P2R4-C-KETT-001",
+      "originating_reviewer_id": "P2R4-SEAT-C-REDTEAM",
+      "unit": "kett",
+      "disposition": "RETAINED",
+      "survives": true,
+      "criterion": "Grievance and restraint must include visible anticipated relief while the one-target fist line remains preserved.",
+      "adjudication": "Seat A and Seat B correctly identify targeted grievance, rigid restraint, one dominant wage fist, and a coherent one-target body line. Their proposed slight asymmetric cheek release is not independently legible as anticipated relief. In the same-master face crop, the brows and eyes remain hard, both mouth corners are compressed/downturned, and the jaw and visible cheek stay loaded rather than releasing. The full pose reinforces controlled impact readiness but adds no separate relief cue. The emotional contradiction therefore still depends on psychology text rather than concrete facial acting.",
+      "seat_a_ready_evidence_weight": "SUBSTANTIAL BUT NONCONTROLLING. It proves grievance, restraint, and one-target action, but the named cheek release is too slight and ambiguous to make anticipated relief visible without prose.",
+      "evidence": [
+        {
+          "locator": "assets/concepts/phase2_calibration/kett/kett_face.png",
+          "observation": "Hard eyes, compressed/downturned mouth, set jaw, and loaded cheek communicate grievance and restraint but no independently nameable anticipation of relief."
+        },
+        {
+          "locator": "assets/concepts/phase2_calibration/kett/kett_master.png",
+          "observation": "The oversized forward fist and planted body preserve one target, but the pose does not add a release or pleasure cue."
+        },
+        {
+          "locator": "docs/art/phase2_calibration/phase2_face_board.png",
+          "panel_id": "P003",
+          "observation": "At batch-comparison scale, Kett remains a controlled stern bruiser; anticipated relief is not visibly separable from generic grievance."
+        }
+      ],
+      "closure_test": "On a replacement immutable cut, the same-master face crop must retain targeted grievance and rigid restraint while a concrete cheek, mouth-corner, eyelid, or jaw-release cue makes anticipated physical relief independently nameable; the master and exact 96px derivative must preserve one dominant forward fist and avoid cheerful, superhero, or mindless-rage drift.",
+      "closure_test_disposition": "OPEN"
+    }
+  ],
+  "surviving_blockers": [
+    {
+      "blocker_id": "P2R4-MALACHOR-001",
+      "unit": "malachor",
+      "disposition": "RETAINED",
+      "criterion": "Face, panic-demand, chest clock, and clamp do not yet share one lower-right target.",
+      "closure_test": "Converge head, pupils, mouth, clock clutch, and clamp on one lower-right target with no competing frontal vector."
+    },
+    {
+      "blocker_id": "P2R4-C-VEYRA-001",
+      "unit": "veyra",
+      "disposition": "NARROWED",
+      "criterion": "At exact 96px, egg/armadillo still reads before active hostile enclosure.",
+      "closure_test": "Make existing-prey selection and active asymmetric plate closure precede generic egg/armadillo at master and exact 96px scale; no external target is required."
+    },
+    {
+      "blocker_id": "P2R4-C-KETT-001",
+      "unit": "kett",
+      "disposition": "RETAINED",
+      "criterion": "Anticipated relief remains text-dependent rather than visibly encoded in the face or pose.",
+      "closure_test": "Add a concrete, independently nameable release cue while preserving grievance, restraint, and one-target fist direction."
+    }
+  ],
+  "refuted_blockers": [
+    {
+      "blocker_id": "P2R4-KNOLL-001",
+      "unit": "knoll",
+      "disposition": "REFUTED",
+      "reason": "The planted two-hand stamp contact, marked receipt plate, no-swing pose, selected-B correspondence, exact-96 contact silhouette, and independent corroboration from Seats A and C outweigh the residual hammer/anvil resemblance."
+    }
+  ],
+  "protected_dissent": [
+    {
+      "reviewer_id": "P2R4-SEAT-A-CONTRACT",
+      "position": "READY with no blockers and a PROFESSIONAL floor across all eight dimensions.",
+      "protected_basis": "Seat A's contract/evidence findings remain authoritative for cut completeness, exact derivation, hash integrity, provenance, dry Vellum alignment, and absence of missing deliverables. Its direct no-swing/contact evidence controls the Knoll refutation, and its evidence that Veyra's captive is valid selected prey controls the narrowing of that objection.",
+      "why_not_final": "Its Kett cheek-release and Malachor shared-target interpretations are not sufficiently visible under specialist character-acting and action-direction scrutiny, and its Veyra 96px evidence describes cocoon recognition without proving hostile enclosure reads before egg/armadillo."
+    },
+    {
+      "reviewer_id": "P2R4-SEAT-B-ART",
+      "position": "Knoll's square-headed contact tool and block can still evoke hammer/anvil at rough and 96px scale.",
+      "protected_basis": "This is a legitimate downstream-polish concern about prop-class silhouette and may guide later refinement.",
+      "why_not_final": "It is nonblocking because the immutable master, selected B, exact derivative, and two independent seats establish planted receipt-stamp contact before an attack action."
+    }
+  ],
+  "per_unit_final_disposition": [
+    {
+      "unit": "korath",
+      "disposition": "READY",
+      "professional_band": "EXCELLENT",
+      "controlling_blocker_ids": [],
+      "rationale": "No independent blocker or new evidence reopens prior closure; burden, coercive protection, Titan scale, Blessed cost, anatomy, and 96px silhouette remain production-clear."
+    },
+    {
+      "unit": "veyra",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "controlling_blocker_ids": [
+        "P2R4-C-VEYRA-001"
+      ],
+      "rationale": "The captive is valid selected prey and the dry asymmetric plates are hostile at master scale, but exact 96px still reads egg/armadillo before active enclosure."
+    },
+    {
+      "unit": "cashmere",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "controlling_blocker_ids": [],
+      "rationale": "Proprietary warmth, concealed panic, ledger authority, anatomy, and exact-96 identity remain closed and unchallenged."
+    },
+    {
+      "unit": "pilfer",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "controlling_blocker_ids": [],
+      "rationale": "No new evidence reopens the adult ratfolk, ingratiating theft, siphon-hand, dash, or 96px closure."
+    },
+    {
+      "unit": "nyxa",
+      "disposition": "READY",
+      "professional_band": "EXCELLENT",
+      "controlling_blocker_ids": [],
+      "rationale": "The bat predator, deliberate split-age horror, grown bow mechanism, psychology, and exact-96 crescent silhouette remain definitive."
+    },
+    {
+      "unit": "creep",
+      "disposition": "READY",
+      "professional_band": "EXCELLENT",
+      "controlling_blocker_ids": [],
+      "rationale": "Faceless witness fixation, alien crouch, body-grown blade ring, anatomy, and exact-96 read remain singular and closed."
+    },
+    {
+      "unit": "knoll",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "controlling_blocker_ids": [],
+      "rationale": "P2R4-KNOLL-001 is refuted: planted two-hand stamp contact, marked plate, no swing, selected-B correspondence, and exact-96 contact posture close the carried test."
+    },
+    {
+      "unit": "quillith",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "controlling_blocker_ids": [],
+      "rationale": "Favored-pupil approval, ownership, fear, nerve pain, side-held instructional slate, and exact-96 nonweapon read remain closed and unchallenged."
+    },
+    {
+      "unit": "kett",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "controlling_blocker_ids": [
+        "P2R4-C-KETT-001"
+      ],
+      "rationale": "Grievance, restraint, and one-target fist direction pass, but anticipated relief is not independently visible in the face or pose."
+    },
+    {
+      "unit": "luna",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "controlling_blocker_ids": [],
+      "rationale": "Two gaze pairs, invitation/surveillance tension, fear of comparison, exactly one ligament, and exact-96 diagonal remain closed and unchallenged."
+    },
+    {
+      "unit": "malachor",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "controlling_blocker_ids": [
+        "P2R4-MALACHOR-001"
+      ],
+      "rationale": "Panicked entitlement, clock, fortress body, attached clamp, and 96px mass pass, but the face/clock axis and lower-right clamp do not share one visible target."
+    },
+    {
+      "unit": "sable",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "controlling_blocker_ids": [],
+      "rationale": "Cold moral satisfaction, suppressed doubt, coherent rifle anatomy, proof-strip identity, and exact-96 marksman line remain closed and unchallenged."
+    }
+  ],
+  "vellum_anchor_confirmation": {
+    "confirmed": true,
+    "approved_raw_anchor_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+    "approved_raw_anchor_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "verified_raw_anchor_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "display_cutout_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_final.png",
+    "display_cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+    "comparison_board_path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+    "comparison_board_sha256": "1043f4839554e9c270cf6aaddc1788d64a9eca4a08a5b0ef65d8d439ffc422d9",
+    "approved_anchor_is_hard_matte_10pct_real_deshined_raw": true,
+    "shiny_birefnet_output_used": false,
+    "confirmation": "The live SHA-256 values match the immutable Round 4 authority. The reviewed Vellum path is the approved hard-matte 10%-real deshined raw and its approved same-art display cutout, never the shiny BiRefNet output."
+  },
+  "summary": {
+    "decision": "NOT_READY",
+    "controlling_reason": "Three production blockers survive cross-examination: Malachor's split target direction, Veyra's narrowed exact-96 egg/armadillo-first hierarchy, and Kett's text-dependent anticipated-relief cue. Under the Board rule, any one would prevent READY.",
+    "seat_a_no_blocker_ready_evidence": "Seat A's READY case was weighed blocker by blocker rather than averaged. It controls the Knoll refutation and the removal of Veyra's unsupported external-target demand; it does not visibly close Veyra's exact-96 first-read hierarchy, Kett's missing relief cue, or Malachor's one-lower-right-target requirement.",
+    "objection_outcomes": {
+      "RETAINED": 2,
+      "REFUTED": 1,
+      "MERGED": 0,
+      "NARROWED": 1
+    },
+    "ready_units": 9,
+    "not_ready_units": 3,
+    "surviving_blocker_ids": [
+      "P2R4-MALACHOR-001",
+      "P2R4-C-VEYRA-001",
+      "P2R4-C-KETT-001"
+    ],
+    "refuted_blocker_ids": [
+      "P2R4-KNOLL-001"
+    ],
+    "new_blockers_introduced": 0,
+    "cross_exam_complete": true
+  }
+}

@@ -1,0 +1,707 @@
+{
+  "reviewer_id": "phase2_round5_fresh_failure_adoption_red_team",
+  "role": "Failure and Adoption Red Team",
+  "contract_verdict": "UNMET",
+  "professional_standard_verdict": {
+    "band": "BELOW_PROFESSIONAL",
+    "evidence_confidence": "HIGH",
+    "reason": "Eleven units meet the professional floor, but Knoll's carried exact-96 closure condition remains visibly unsatisfied. At native 96x96 the pale receipt survives, while the pear-handled office stamp and its contact action collapse into the hands and cannot be distinguished from generic writing or paper handling. Critical dimensions are not averaged.",
+    "lowest_critical_dimension": "silhouette_and_96px_readability"
+  },
+  "overall_readiness": "REJECT",
+  "immutable_cut_verification": {
+    "status": "VERIFIED",
+    "revalidated_at": "2026-07-22T02:19:48.4971643-06:00",
+    "packet_files_checked": 11,
+    "packet_files_matched": 11,
+    "unit_artifacts_checked": 48,
+    "unit_artifacts_matched": 48,
+    "face_derivatives_pixel_exact": "12/12",
+    "exact_96_derivatives_pixel_exact": "12/12",
+    "mismatches": [],
+    "packet_hashes": {
+      "docs/art/unit_art_board_reference_criteria.md": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+      "docs/art/phase2_calibration/phase2_calibration_bible.md": "3ea4205bec0209596e29befb48ee07a974f361ce28cbdc6d4df98aa693dcfacd",
+      "docs/art/phase2_calibration/phase2_calibration_manifest.json": "4174c7e4bbbf6815c2c9b073acf37ac85c78564ee261e14cf02aeac00fecef8b",
+      "docs/art/phase2_calibration/phase2_unit_psychology_records.json": "d859151a420693198fed8b1d9e6d72ac4680ef781a8a4e899f54e65a5174fac9",
+      "docs/art/phase2_calibration/phase2_review_evidence_manifest.json": "cc84f8d73966e5c9f80117975f3545c52137ce43f412fa21d2d5a5d1a44a66c4",
+      "docs/art/phase2_calibration/phase2_calibration_contact_sheet.png": "10904c2bfa1c86fd149aa2ca816f377d23eef73b38a199de46ab8ff6e840baa1",
+      "docs/art/phase2_calibration/phase2_calibration_96px_board.png": "0c1b891e2696f898402ba17c384e47b5cbb94d44cdb6d3cf8d111970f130b683",
+      "docs/art/phase2_calibration/phase2_face_board.png": "8368e27469482bbc263eecaa4ad17b9cc85348a44ef2f528f3c91e79e4507474",
+      "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png": "78eba9b7800049b3580217c9fee12487df86406d705b307c761b7ee684ddcfaf",
+      "docs/art/phase2_calibration/comparisons/phase2_96px_lineup.png": "21c67d7b735fc1b4c38449ce3bab4180af1f84b50288a37345c36fd498fc86f7",
+      "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png": "fd8261417f7bb8b192d2bb9dd88469a1bc9d5bf6b52782904455b748529a25da"
+    }
+  },
+  "vellum_hash_verification": {
+    "status": "VERIFIED",
+    "raw_hard_matte": {
+      "expected": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "actual": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "match": true
+    },
+    "display_cutout": {
+      "expected": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+      "actual": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+      "match": true
+    },
+    "approved_hard_matte_visually_inspected": true,
+    "forbidden_shiny_birefnet_used": false
+  },
+  "contract_coverage": [
+    {
+      "criterion": "Exactly twelve definitive full-body masters",
+      "status": "MET",
+      "decisive_evidence": "All twelve masters exist, match manifest hashes, and were individually inspected."
+    },
+    {
+      "criterion": "Three materially distinct rough silhouette options per unit",
+      "status": "MET",
+      "decisive_evidence": "All twelve triptychs contain three differentiated body, pose, or dominant-shape proposals and match the selected letters recorded in the packet."
+    },
+    {
+      "criterion": "Explicit trait-channel assignment covering all 22 traits",
+      "status": "MET",
+      "decisive_evidence": "Manifest and bible assign one art-primary channel plus separated secondary channels across all 22 traits; masters visibly preserve the dominant assignments."
+    },
+    {
+      "criterion": "Gameplay role and recognizable hook preserved",
+      "status": "MET",
+      "decisive_evidence": "Tank mass, assassin movement, support apparatus, marksman axes, mage casting, and Kett's brawler fist are visible across the batch."
+    },
+    {
+      "criterion": "Peak-condition fighter age and body policy",
+      "status": "MET",
+      "decisive_evidence": "Humanoids read as mature combat-capable adults; Nyxa reads as a dangerous batlike temporal predator before ordinary age or frailty."
+    },
+    {
+      "criterion": "Applicable women are attractive, adult, lean, toned, feminine, and combat-capable",
+      "status": "MET",
+      "decisive_evidence": "Cashmere, Quillith, and Luna visibly meet the adult, lean/toned, feminine lane; Nyxa's deliberate-horror nonhuman exception is visually justified."
+    },
+    {
+      "criterion": "Armor and protection appear only with role/design logic",
+      "status": "MET",
+      "decisive_evidence": "Frontliners use calcification, shell, flesh-fortress anatomy, or industrial protection; non-frontliners remain unarmored or lightly equipped."
+    },
+    {
+      "criterion": "Psychology visible in face and posture rather than prose alone",
+      "status": "MET",
+      "decisive_evidence": "Same-master face crops show differentiated shame, appraisal, ingratiation, feral fixation, bureaucratic predation, corrective ownership, anticipated relief, split surveillance, demand, and cold certainty."
+    },
+    {
+      "criterion": "Scary or villainous without universal generic anger",
+      "status": "MET",
+      "decisive_evidence": "The batch spans coercive martyrdom, possessive enclosure, acquisition, identity theft, temporal predation, dissociation, administrative cruelty, controlling mentorship, labor rage, triangulation, tissue entitlement, and vindication."
+    },
+    {
+      "criterion": "One dominant prop or anatomical idea per unit",
+      "status": "MET",
+      "decisive_evidence": "Each master has a controlled primary read: yoke, clamp, ledger, siphon hand, time-bow, blade ring, stamp/receipt, slate, fist, ligament, flesh clamp, or rifle."
+    },
+    {
+      "criterion": "Supernatural cost visibly embodied",
+      "status": "MET",
+      "decisive_evidence": "Costs are carried through calcification, fused shell, tax-script, chemical mismatch, temporal aging, erased identity, eyelid scars, exposed nerves, ossified debt, split eyes, debtor tissue, and citation scarring."
+    },
+    {
+      "criterion": "No anatomy, hand, or prop-integration failure",
+      "status": "MET",
+      "decisive_evidence": "Full-resolution masters show traceable limbs, grasp/contact logic, and integrated dominant anatomy without a material production-breaking discontinuity."
+    },
+    {
+      "criterion": "No convergence into one costume, face, body, garment, palette, or demon family",
+      "status": "MET",
+      "decisive_evidence": "Contact and role boards show strongly separated body plans and dominant shapes; recurring dark dry rendering does not erase unit identity."
+    },
+    {
+      "criterion": "Same-master exact-96 readability for every unit",
+      "status": "UNMET",
+      "decisive_evidence": "Eleven exact derivatives preserve their dominant hook. Knoll's native 96x96 derivative preserves a pale paper strip but not a recognizable pear-handled office stamp visibly contacting it."
+    },
+    {
+      "criterion": "Veyra Round 4 closure test",
+      "status": "MET",
+      "decisive_evidence": "Selected-C rough, master, and exact 96 all show an open sideways jaw/clamp advancing on braced legs."
+    },
+    {
+      "criterion": "Knoll Round 4 closure test",
+      "status": "UNMET",
+      "decisive_evidence": "The selected-B rough and master pass, but the office-stamp subtype and contact action are not legible at native 96x96."
+    },
+    {
+      "criterion": "Kett Round 4 closure test",
+      "status": "MET",
+      "decisive_evidence": "Face crop shows tight grievance plus a restrained one-corner lift; master preserves the single fist and forward impact line."
+    },
+    {
+      "criterion": "Malachor Round 4 closure test",
+      "status": "MET",
+      "decisive_evidence": "Head angle and pupils visibly track down-right toward the clamp while the mouth demands rather than addresses the viewer frontally."
+    },
+    {
+      "criterion": "Approved hard-matte Vellum finish authority",
+      "status": "MET",
+      "decisive_evidence": "Both approved Vellum hashes match; Phase 2 masters broadly retain dry, grounded, separated materials without shiny BiRefNet drift."
+    },
+    {
+      "criterion": "Evidence provenance and same-master derivation",
+      "status": "MET",
+      "decisive_evidence": "48/48 artifact hashes match; 12/12 face crops and 12/12 exact-96 derivatives reproduce pixel-exactly from their recorded masters and operations."
+    }
+  ],
+  "units": [
+    {
+      "id": "korath",
+      "audience_and_intent_fit": {
+        "band": "EXCELLENT",
+        "evidence": "Immediate disgraced tank and coercive martyr read."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Controlled dry stone, flesh, linen, and calcification finish."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Bow, yoke, open demand hand, and wound mass reinforce one hierarchy."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Broken processional yoke and asymmetric calcified body are roster-specific."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Rough, master, face, psychology, and exact derivative form a usable concept package."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Arch/yoke, bowed head, giant feet, and pale wound survive at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Bowed shame, fixed eye, tight jaw, and demanding hand read as resentful compulsory service."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Blessed disgrace and Titan mass are separated and actionable."
+      },
+      "exact_96px_read": "Broken arch/yoke and giant bowed tank read immediately.",
+      "anatomy_prop_coherence": "Fused shoulder yoke is structurally traceable; hands and unequal calcified anatomy remain coherent.",
+      "psychology_villain_read": "Exhausted shame sharpened into accusation, not heroic sacrifice.",
+      "trait_cost_read": "Calcified transferred wounds and collapsed pale side visibly embody the miracle's price.",
+      "verdict": "READY"
+    },
+    {
+      "id": "veyra",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Active enclosure-tank and possessive protection read."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Dry shell plates, tendon seams, and sensory slit are resolved."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "All plates, legs, and slit converge on one closing prey vector."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Living sideways clamp body is unique in the roster."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Body mechanics and trait channels are clear enough for downstream modeling."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Open lateral jaws and braced lunge survive at native 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Narrow slit, trapped center, and closing plates communicate possessive predation."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Aegis enclosure dominates while Bulwark remains structural."
+      },
+      "exact_96px_read": "Active two-legged sideways clamp before egg, armadillo, or passive shield.",
+      "anatomy_prop_coherence": "Shell jaws and load-bearing legs form one integrated enclosure organism.",
+      "psychology_villain_read": "Focused possessive closure is visible through slit direction and jaw advance.",
+      "trait_cost_read": "Nested fused joints and deadened slit mechanism visibly support permanent hardening.",
+      "verdict": "READY"
+    },
+    {
+      "id": "cashmere",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Adult acquisitive mage with controlled authority is legible."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Paper, cloth, ink, skin, and worn leather remain materially separated."
+      },
+      "coherence_and_hierarchy": {
+        "band": "PROFESSIONAL",
+        "evidence": "Ledger shield and inked casting hand form a clear two-channel hierarchy."
+      },
+      "distinctiveness": {
+        "band": "PROFESSIONAL",
+        "evidence": "Legal-shield ledger and memory tax-script distinguish her from the other women."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Master and records specify body, prop, spell channel, and cost."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Tall authority shape, rectangular ledger, and raised cast survive at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Appraising side-eye, controlled mouth, and ownership posture show proprietary calculation."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Mogul ledger remains primary and Arcanist ink channel secondary."
+      },
+      "exact_96px_read": "Tall ledger-bearing caster with one raised inked hand.",
+      "anatomy_prop_coherence": "Ledger-supporting arm and casting arm are completely traceable.",
+      "psychology_villain_read": "Cold acquisition and concealed uncertainty read without generic rage.",
+      "trait_cost_read": "Tax-script through hand, arms, and throat visibly embodies erased memory.",
+      "verdict": "READY"
+    },
+    {
+      "id": "pilfer",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Wiry opportunistic assassin reads immediately."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Fur, chemically mismatched skin, cloth, and ampoule fingers are controlled."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Loaded wedge, ingratiating bow, long hand, and split tail support one theft action."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Ratfolk identity thief with ampoule fingertips is highly specific."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Movement axis and dominant anatomy are production-readable."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Long siphon arm, crouched wedge, and tail survive at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Please-like-me smile and already-extended theft hand create visible contradiction."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Catalyst body mismatch dominates; Cartel cuts remain secondary."
+      },
+      "exact_96px_read": "Low advancing thief with one disproportionate chemical hand.",
+      "anatomy_prop_coherence": "Elongated arm and ampoule fingers integrate cleanly with the dash posture.",
+      "psychology_villain_read": "Ingratiating vigilance over active predation reads clearly.",
+      "trait_cost_read": "Mismatched fur, skin, scarring, and finger chemistry visibly embody repeated theft.",
+      "verdict": "READY"
+    },
+    {
+      "id": "nyxa",
+      "audience_and_intent_fit": {
+        "band": "EXCELLENT",
+        "evidence": "Adult-targeted temporal predator and marksman threat are immediate."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Membrane, fur, aged flesh, bow anatomy, and blood strings are resolved."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Crouch, firing axis, time-split face, and grown bow all align."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Batlike temporal age split avoids generic vampire or demon anatomy."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Deliberate-horror exception and ranged anatomy are sufficiently specific."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Huge asymmetric bow, ears, and crouched predator remain unmistakable at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "EXCELLENT",
+        "evidence": "Targeted eyes, asymmetric mouth, and compressed firing posture show predatory delight under pain."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Chronomancer age split controls; Sanguine blood exchange supports it."
+      },
+      "exact_96px_read": "Batlike monster archer with a huge asymmetric organic bow.",
+      "anatomy_prop_coherence": "Spine/wing-finger bow is integrated with the firing hand and crouch.",
+      "psychology_villain_read": "Feral delight and temporal pain are visible rather than prose-dependent.",
+      "trait_cost_read": "Split-aged face and blood-string exchange clearly embody the cost.",
+      "verdict": "READY"
+    },
+    {
+      "id": "creep",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Alien execution assassin and threat are legible."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Dry gray skin and matte blade ribbons are cleanly separated."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Low body and broken ring close around a procedural attack arc."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Erased face and grown scythe ribbons form a singular roster identity."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Alien anatomy and execution movement are actionable."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Pale head, low triangular body, and black blade ring survive at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Hollow eyes, head cant, and low fixation create nonhuman procedural predation."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Exile erasure and Executioner ribbons remain separate but mutually reinforcing."
+      },
+      "exact_96px_read": "Pale faceless croucher inside a broken black blade ring.",
+      "anatomy_prop_coherence": "Ribbons visibly originate at the spine and respect the attack arc.",
+      "psychology_villain_read": "Vacant fixation and witness-removal threat are visible without a human expression.",
+      "trait_cost_read": "Erased facial contours and cut identity marks physically show the price.",
+      "verdict": "READY"
+    },
+    {
+      "id": "knoll",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "At master scale he reads as an athletic administrative predator."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Goblin anatomy, receipt paper, stamp, scars, and garment finish are controlled."
+      },
+      "coherence_and_hierarchy": {
+        "band": "PROFESSIONAL",
+        "evidence": "Master-scale hands, stamp, receipt, stance, and measuring gaze support one action."
+      },
+      "distinctiveness": {
+        "band": "PROFESSIONAL",
+        "evidence": "Receipt-stamping combat support is a specific concept at full resolution."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "BELOW_PROFESSIONAL",
+        "evidence": "Required final-use exact-96 evidence does not preserve the concept's dominant prop subtype."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "BELOW_PROFESSIONAL",
+        "evidence": "The receipt survives, but the office stamp/contact action does not at native 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Service smile, narrowed measuring eye, and pressing posture convey courteous predation."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "BELOW_PROFESSIONAL",
+        "evidence": "Trader identity depends on a stamp action that becomes generic paper handling at the mandated use size."
+      },
+      "exact_96px_read": "FAIL: pale receipt reads, but the tiny dark stamp merges with both hands and is not identifiable as a pear-handled office stamp in visible contact.",
+      "anatomy_prop_coherence": "PASS at master scale: both hands are traceable and the small stamp contacts one flexible receipt.",
+      "psychology_villain_read": "Courteous administrative cruelty reads from smile, narrowed eye, and controlled press.",
+      "trait_cost_read": "Paired eyelid scars are visible in the face crop; depth-perception cost is conceptually supported.",
+      "verdict": "NOT_READY"
+    },
+    {
+      "id": "quillith",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Attractive adult punitive mentor/support reads."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Skin, exposed nerve tracery, slate, cloth, and metal are resolved."
+      },
+      "coherence_and_hierarchy": {
+        "band": "PROFESSIONAL",
+        "evidence": "Slate, approval hand, gaze, and nerve crown support controlled instruction."
+      },
+      "distinctiveness": {
+        "band": "PROFESSIONAL",
+        "evidence": "Correction slate and burned lesson anatomy distinguish her from other casters."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Body lane, apparatus, psychology, and trait channels are explicit."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Tall woman, side slate, crown, and extended hand remain readable at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Raised brow, controlled approval, pinned gaze, and directive hand show ownership disguised as care."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Mentor dominates; Scholar slate and Overload nerves occupy separate channels."
+      },
+      "exact_96px_read": "Directive support with a side slate and corrective gesture.",
+      "anatomy_prop_coherence": "Slate is clearly held as an instructional support, not aimed like a weapon.",
+      "psychology_villain_read": "Intimate approval and superiority conceal punitive dependency.",
+      "trait_cost_read": "Glowing lesson burns and head/neck nerve damage visibly embody overload.",
+      "verdict": "READY"
+    },
+    {
+      "id": "kett",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Industrial brawler and imminent three-stage impact read immediately."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Fist plates, scarred flesh, workwear, and metal are resolved."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Single fist, small trailing hand, stance, head, and eyes align on one impact vector."
+      },
+      "distinctiveness": {
+        "band": "PROFESSIONAL",
+        "evidence": "Wage-stamp prosthesis and labor-debt surface language avoid generic superhero treatment."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Dominant limb, impact stages, cost, and facial contradiction are actionable."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Massive stepped fist dominates at native 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Grievance eyes, compressed control, and one-corner relief lift satisfy the carried test."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Striker fist controls; Cartel ownership marks remain secondary."
+      },
+      "exact_96px_read": "Front-loaded brawler dominated by one enormous stepped fist.",
+      "anatomy_prop_coherence": "Oversized prosthetic arm remains shoulder-connected and the secondary hand is subordinate.",
+      "psychology_villain_read": "Restrained grievance with anticipated relief reads beyond generic anger.",
+      "trait_cost_read": "Embedded debt plates and reduced finger articulation are visible in the fist.",
+      "verdict": "READY"
+    },
+    {
+      "id": "luna",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Attractive adult manipulator and line-based mage read."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Skin, fibrous ligament, fitted cloth, and muted refraction are controlled."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Palm, opposite heel, body split, and gaze pairs form one connective diagonal."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Palm-to-heel ligament and split gaze pairs are roster-specific."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Connection anatomy, color channel, and social psychology are explicit."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Long diagonal ligament and split stance survive clearly at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Different eye pairs monitor separate parties while the open palm performs invitation."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Liaison ligament dominates; Kaleidoscope remains muted inside it and the skin."
+      },
+      "exact_96px_read": "Lean line-caster built around one bright palm-to-heel diagonal.",
+      "anatomy_prop_coherence": "Ligament visibly originates and terminates on the body without becoming detached VFX.",
+      "psychology_villain_read": "Performed invitation plus divided surveillance visibly communicates triangulation.",
+      "trait_cost_read": "Extra gaze pair and stressed skin seams show the bodily price of connection.",
+      "verdict": "READY"
+    },
+    {
+      "id": "malachor",
+      "audience_and_intent_fit": {
+        "band": "EXCELLENT",
+        "evidence": "Colossal flesh fortress, priority pin, and adult horror read immediately."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Flesh masonry, embedded debtors, mechanisms, clock, and clamp are densely resolved."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Fortress mass, face, clock, supporting limbs, and clamp form one maintenance demand."
+      },
+      "distinctiveness": {
+        "band": "EXCELLENT",
+        "evidence": "Once-human flesh architecture avoids generic golem, armor, or vampire design."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Load-bearing anatomy, clamp action, target relation, and cost are actionable."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Square fortress, face, feet, clock mass, and open clamp survive at 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Down-right pupils, tilted head, demand mouth, and clutching clock show panicked entitlement."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Sanguine tissue debt controls; Fortified masonry and Titan scale remain secondary."
+      },
+      "exact_96px_read": "Flesh-fortress tank with a large open side clamp.",
+      "anatomy_prop_coherence": "Mortised clamp is visibly attached through articulated supports and points toward its target.",
+      "psychology_villain_read": "Head, pupils, and demand expression track the lower-right clamp target, satisfying the carried test.",
+      "trait_cost_read": "Embedded debtor faces and held flesh clock visibly embody stolen maintenance.",
+      "verdict": "READY"
+    },
+    {
+      "id": "sable",
+      "audience_and_intent_fit": {
+        "band": "PROFESSIONAL",
+        "evidence": "Androgynous adult precision marksman and evidentiary fixation read."
+      },
+      "craft_and_finish": {
+        "band": "PROFESSIONAL",
+        "evidence": "Rifle, proof strips, layered cloth, scar, and worn metal are resolved."
+      },
+      "coherence_and_hierarchy": {
+        "band": "EXCELLENT",
+        "evidence": "Whole body, eyes, hands, and garments converge on one rifle line."
+      },
+      "distinctiveness": {
+        "band": "PROFESSIONAL",
+        "evidence": "Footnote rifle and proof-strip archive distinguish the concept from a generic sniper."
+      },
+      "completeness_and_downstream_usability": {
+        "band": "PROFESSIONAL",
+        "evidence": "Weapon, pose, identity lane, psychology, and cost are production-readable."
+      },
+      "silhouette_and_96px_readability": {
+        "band": "EXCELLENT",
+        "evidence": "Extreme horizontal rifle and forward stance survive at native 96."
+      },
+      "psychology_and_villain_read": {
+        "band": "PROFESSIONAL",
+        "evidence": "Aiming fixation, compressed mouth, and side-eye convey cold moral satisfaction."
+      },
+      "production_feasibility_and_trait_clarity": {
+        "band": "PROFESSIONAL",
+        "evidence": "Vindicator line dominates; Scholar proof strips remain integrated."
+      },
+      "exact_96px_read": "Precision shooter with an unmistakably extreme rifle line.",
+      "anatomy_prop_coherence": "Both hands, shoulder, cheek, and sight line connect credibly to the rifle.",
+      "psychology_villain_read": "Cold self-righteous certainty reads without theatrical rage.",
+      "trait_cost_read": "Citation scar and disappearing proof language are visibly represented.",
+      "verdict": "READY"
+    }
+  ],
+  "carried_blocker_adjudication": {
+    "Veyra": {
+      "status": "CLOSED",
+      "evidence_class": "OBSERVED",
+      "exact_evidence": "Selected-C rough f9856e173468a9cf31b8ea4dd11d4c74d9fe0dfdffbe30089457748b6b4a209e, master 71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd, and exact 96 05774223a24582665c4376cd435c85b9a328b2f509e9d702f9793b3126171cc2 all show open lateral jaws, forward plate vectors, and braced lunge legs.",
+      "closure_condition_result": "The active sideways living-clamp read precedes egg, armadillo, shell, and passive-shield alternatives."
+    },
+    "Knoll": {
+      "status": "OPEN",
+      "evidence_class": "OBSERVED",
+      "exact_evidence": "Selected-B rough c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294 and master cc466a2420e77fe75d100d43440e2c5c6e6a40b6b3c578ce6c8331ce0bb0c254 show a small pear-handled stamp contacting a long receipt. In exact 96 6d13a255cdd09af3cdfd0c33deba66b3d06878ad4f2cc6a1de1fb426db0a29a7, the receipt remains visible but the stamp head and handle merge with the hands.",
+      "closure_condition_result": "Failed at the mandated exact-96 surface.",
+      "testable_closure_condition": "A replacement same-master exact 96x96 derivative, viewed natively without label or zoom, must make an independent observer identify a small pear-handled office stamp visibly contacting one long pale flexible receipt before writing, generic paper handling, hammer, anvil, table, block, staff, or cane."
+    },
+    "Kett": {
+      "status": "CLOSED",
+      "evidence_class": "OBSERVED",
+      "exact_evidence": "Face 3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af shows grievance in the eyes and brow, compressed control, and a restrained one-corner lift. Master 53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426 preserves the dominant fist and aligned target vector.",
+      "closure_condition_result": "Grievance, restraint, and anticipated relief visibly coexist while the single-fist hierarchy remains intact."
+    },
+    "Malachor": {
+      "status": "CLOSED",
+      "evidence_class": "OBSERVED",
+      "exact_evidence": "Master d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954 and face 43027fe259865ef5bbe85742cf5eba63df567b2d7704c4b530d28b67430a9489 show the head tipped and pupils directed down-right toward the open clamp; the demand mouth is not a frontal viewer address.",
+      "closure_condition_result": "Head, pupils, and demand expression visibly track the clamp target."
+    }
+  },
+  "findings": [
+    {
+      "id": "R5-FAR-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "claim": "Knoll's dominant Trader action is not legible at the required native 96x96 use size.",
+      "exact_evidence": "The master cc466a2420e77fe75d100d43440e2c5c6e6a40b6b3c578ce6c8331ce0bb0c254 clearly shows a pear-handled stamp contacting a flexible receipt. In the pixel-exact derivative 6d13a255cdd09af3cdfd0c33deba66b3d06878ad4f2cc6a1de1fb426db0a29a7, the pale receipt survives but the stamp becomes an indistinct dark mass between the hands. Compared with Kett's fist, Sable's rifle, Luna's ligament, and Veyra's clamp on the same 96 lineup, Knoll loses the prop subtype carrying his unit identity.",
+      "impact": "At the mandated board size, players can read a goblin handling paper but not the specific administrative marking attack. This fails the carried closure test, exact-96 contract, trait clarity, and downstream adoption requirement.",
+      "falsification": "Show a same-master native 96x96 derivative in which an independent observer identifies a small office stamp in visible contact with one long receipt before generic writing, paper handling, hammer, block, staff, cane, table, or anvil."
+    }
+  ],
+  "rejection_case": {
+    "case": "A demanding art director should reject the batch because the repaired cut explicitly promised closure of four known blockers, yet Knoll still requires the label, full-resolution master, or prior knowledge to recover the office-stamp action at the mandated use size.",
+    "controlling_evidence": "Knoll exact 96 hash 6d13a255cdd09af3cdfd0c33deba66b3d06878ad4f2cc6a1de1fb426db0a29a7.",
+    "consequence": "The batch cannot truthfully claim every unit's dominant identity survives unchanged at 96px."
+  },
+  "excellence_gap": [
+    "Vellum remains ahead in controlled focal hierarchy and material storytelling density; several Phase 2 humanoids rely on a shared dark studio presentation and repeated fine etched surface treatment.",
+    "Cashmere, Quillith, Luna, and Sable are sufficiently distinct for the professional floor, but stronger excellence would widen garment, lighting, and facial-attitude separation further.",
+    "Several psychological contradictions are clear in face crops but become naturally unavailable at board size; excellent downstream presentation would pair the strong silhouettes with equally specific larger-card facial reads.",
+    "Some rough triptychs explore pose more than radically different construction logic; they satisfy the present contract but do not consistently reach category-leading breadth."
+  ],
+  "weak_proof": [
+    "The visual-harness report's zero evidence failures proves artifact availability, not correct first read.",
+    "Labeled contact sheets prime the intended trait and prop interpretation before the viewer evaluates the image.",
+    "Three-times enlarged nearest-neighbor displays are useful diagnostics but cannot substitute for inspecting the literal native 96x96 pixels.",
+    "Psychology prose can explain a face after the fact and therefore cannot independently prove that the expression communicates unaided.",
+    "Hash and pixel-lineage success prove immutability and derivation, not professional quality."
+  ],
+  "missed_detection_causes": [
+    "Reviewing Knoll's master immediately before the 96 derivative supplies the missing stamp interpretation through memory.",
+    "The high-contrast receipt survives reduction and creates a misleading impression that the entire stamp action survived with it.",
+    "Board labels explicitly state Trader and describe the stamp, masking the native first-read ambiguity.",
+    "Zoomed comparison boards make a sub-96 feature appear more legible than it is at the required native size.",
+    "Structural validators cannot test semantic recognition of a tiny prop subtype."
+  ],
+  "strongest_counterargument": {
+    "argument": "Knoll's full-resolution master and selected rough unmistakably show an office stamp on a receipt, while the exact 96 still shows two hands over one bright paper strip; role recognition may not require the precise stamp subtype.",
+    "evidence": "Master cc466a2420e77fe75d100d43440e2c5c6e6a40b6b3c578ce6c8331ce0bb0c254 and rough c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294 are coherent and professionally finished.",
+    "survives": false,
+    "reason": "The carried closure test explicitly requires the exact 96 derivative itself to read as a small office stamp visibly contacting one long receipt before alternate interpretations. General paper handling is not the recorded closure condition."
+  },
+  "unknowns": []
+}

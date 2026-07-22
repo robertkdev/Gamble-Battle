@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "cashmere",
+    "name": "Cashmere",
+    "combat_role": "Mage",
+    "is_frontliner": false,
+    "sex_design_category": "female",
+    "visual_lane": "hot_adult_woman",
+    "deliberately_horrific": false,
+    "art_primary_trait": "Mogul",
+    "secondary_trait_channels": [
+      "Arcanist"
+    ],
+    "gameplay_identity": "Mage calibration unit carrying Arcanist, Mogul through one decisive combat silhouette.",
+    "strongest_preserved_hook": "one huge pale cracked arcane ledger",
+    "dominant_prop_or_anatomy": "one huge pale cracked arcane ledger",
+    "protection_logic": "not_applicable",
+    "supernatural_cost": "paid kills erase memories and print them as tax-script through fingers and throat",
+    "villain_emotion_family": "evil_manipulative_demonic"
+  },
+  "psychology": {
+    "core_wound": "The first paid kill erased a beloved person's face from her memory, and profit made the intimate loss feel orderly.",
+    "private_want": "She wants to own enough people, knowledge, and possible outcomes that nothing important can disappear beyond retrieval again.",
+    "primary_fear": "An unpriced uncertainty will expose that she no longer knows what she sacrificed, whom she loved, or why any acquisition matters.",
+    "survival_strategy": "Price, classify, contract, and own every danger before it can surprise or abandon her.",
+    "villainous_distortion": "She treats people as assets and spends their lives, choices, and memories as expendable capital.",
+    "current_emotional_state": "Pleasurable certainty while closing an acquisition she believes is already hers.",
+    "emotional_contradiction": "Inviting proprietary warmth over concealed panic about the blank memory she cannot price.",
+    "face_direction": "One eye sharply appraises the viewer while the other is fractionally unfocused; a tiny asymmetrical brow pinch and tight jaw betray fear beneath one inviting mouth corner.",
+    "pose_direction": "The pale ledger crosses her center like a legal shield, held by a completely traceable arm, while the opposite ink-dark hand offers a precise contract-cast.",
+    "forbidden_read": "No generic aristocratic smirk, neutral beauty model, friendly merchant, angry executive, sad sorceress, older woman, or merely pretty occult accountant."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+      "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "B"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+      "sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+      "sha256": "296c9ec5977675c0f9039d57c191fd64728406aae909049ad01f02bbd78d547e",
+      "media_type": "image/png",
+      "source_master_sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+      "sha256": "d99ba1c6b7e3bfb0db8aac5a45d9726f4fc714abe0c76f5b0ca68efeae397194",
+      "media_type": "image/png",
+      "source_master_sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "luna",
+      "sable",
+      "paisley"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "PASS",
+        "lean_toned_feminine": "PASS",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Pleasurable certainty while closing an acquisition she believes is already hers.",
+        "want": "The visible intent supports this private want: She wants to own enough people, knowledge, and possible outcomes that nothing important can disappear beyond retrieval again.",
+        "fear_or_concealment": "The face visibly guards against this fear: An unpriced uncertainty will expose that she no longer knows what she sacrificed, whom she loved, or why any acquisition matters.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: Price, classify, contract, and own every danger before it can surprise or abandon her.",
+        "villainous_read": "The visible behavior expresses this distortion: She treats people as assets and spends their lives, choices, and memories as expendable capital.",
+        "cited_visual_cues": "Face cue: One eye sharply appraises the viewer while the other is fractionally unfocused; a tiny asymmetrical brow pinch and tight jaw betray fear beneath one inviting mouth corner. Pose cue: The pale ledger crosses her center like a legal shield, held by a completely traceable arm, while the opposite ink-dark hand offers a precise contract-cast."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares cashmere directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: She reads as a mature, lean, attractive acquisitive villain and combat-capable mage.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Paper, velvet, worn cloth, skin, ink, and metal maintain dry premium separation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: The ledger-as-legal-shield leads; the raised black hand supplies the arcane channel.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Ledger geometry, proprietary posture, asymmetric face, and narrow tailoring avoid roster duplication.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: All required concept, psychology, face, 96px, and deterministic lineage evidence is supplied.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Ledger rectangle, narrow stance, split drape, and raised hand survive exact scale.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: One appraising eye, one unfocused eye, pinched brow, and tight mouth show ownership over panic.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Mogul ownership dominates; Arcanist remains confined to script and the casting hand.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "PASS",
+        "lean_toned_feminine": "PASS",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Pleasurable certainty while closing an acquisition she believes is already hers.",
+        "want": "The visible intent supports this private want: She wants to own enough people, knowledge, and possible outcomes that nothing important can disappear beyond retrieval again.",
+        "fear_or_concealment": "The face visibly guards against this fear: An unpriced uncertainty will expose that she no longer knows what she sacrificed, whom she loved, or why any acquisition matters.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: Price, classify, contract, and own every danger before it can surprise or abandon her.",
+        "villainous_read": "The visible behavior expresses this distortion: She treats people as assets and spends their lives, choices, and memories as expendable capital.",
+        "cited_visual_cues": "Face cue: One eye sharply appraises the viewer while the other is fractionally unfocused; a tiny asymmetrical brow pinch and tight jaw betray fear beneath one inviting mouth corner. Pose cue: The pale ledger crosses her center like a legal shield, held by a completely traceable arm, while the opposite ink-dark hand offers a precise contract-cast."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares cashmere directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Adult acquisitive mage reads as elegant, dangerous, and combat-capable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for cashmere: Paper, worn cloth, inked skin, and subdued metal approach Vellum-level material separation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Ledger shield and black casting hand create a controlled two-part hierarchy.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Legal-ledger ownership language separates her from Luna, Quillith, and Sable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Costume, prop, casting channel, face, and full-body proportions are clearly resolved.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Ledger rectangle and raised hand persist despite the narrow silhouette.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: P003 shows appraising asymmetry, controlled invitation, and concealed strain rather than generic anger.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Mogul owns posture and ledger; Arcanist remains localized to the ink-dark casting hand.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "PASS",
+        "lean_toned_feminine": "PASS",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Pleasurable certainty while closing an acquisition she believes is already hers.",
+        "want": "The visible intent supports this private want: She wants to own enough people, knowledge, and possible outcomes that nothing important can disappear beyond retrieval again.",
+        "fear_or_concealment": "The face visibly guards against this fear: An unpriced uncertainty will expose that she no longer knows what she sacrificed, whom she loved, or why any acquisition matters.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: Price, classify, contract, and own every danger before it can surprise or abandon her.",
+        "villainous_read": "The visible behavior expresses this distortion: She treats people as assets and spends their lives, choices, and memories as expendable capital.",
+        "cited_visual_cues": "Face cue: One eye sharply appraises the viewer while the other is fractionally unfocused; a tiny asymmetrical brow pinch and tight jaw betray fear beneath one inviting mouth corner. Pose cue: The pale ledger crosses her center like a legal shield, held by a completely traceable arm, while the opposite ink-dark hand offers a precise contract-cast."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares cashmere directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: She reads as a mature, lean, attractive combat mage whose proprietary gaze and ledger establish acquisitive menace.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Ledger grip, casting hand, limbs, clothing, paper, ink-black skin, and dry materials remain coherently finished.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: The pale ledger block and raised ink hand create a clear ownership/casting hierarchy without accessory competition.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Her ledger-shield silhouette, tax-script body cost, and vertical authority distinguish her from Luna, Quillith, and Sable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Three materially different options, full master, face crop, exact 96px image, and detailed psychology are usable downstream.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: The narrow stance, rectangular ledger, and raised dark hand survive at exact 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Asymmetric eye focus, pinched brow, tight jaw, slight invitation, and claiming pose show controlled acquisition over anxiety.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for cashmere: Mogul authority resides in the ledger and stance; Arcanist activity remains confined to script and casting hand.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, cashmere meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

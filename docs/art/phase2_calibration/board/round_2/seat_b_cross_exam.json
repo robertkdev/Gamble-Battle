@@ -1,0 +1,163 @@
+{
+  "seat": "B",
+  "reviewer_id": "seat_b_professional_concept_art_director_round_2_cross_exam",
+  "meeting_round": 1,
+  "independent_reports_reviewed": [
+    "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+    "docs/art/phase2_calibration/board/round_2/seat_b_independent.json",
+    "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+  ],
+  "adjudication_note": "No new blocker was introduced. Where seats reused one ID for different effects, only the evidence-backed surviving effect is retained.",
+  "challenges_to_other_seats": [
+    {
+      "seats": ["A"],
+      "blocker_ids": ["P2R2-KORATH-001", "P2R2-KORATH-002"],
+      "challenge": "Blessed/correspondence and villain failures overreach the frozen image. Selected A's bowed burden, open debt-demand hand, calcification, disgrace, and giant planted Tank read are visible.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/korath/korath_silhouettes.png", "assets/concepts/phase2_calibration/korath/korath_master.png", "assets/concepts/phase2_calibration/korath/korath_face.png"]
+    },
+    {
+      "seats": ["A"],
+      "blocker_ids": ["P2R2-PILFER-001"],
+      "challenge": "Generic-thief-only is refuted by the half-hidden face, reward-scanning eye, adaptive smile, deferential crouch, and hand already invading the target's space.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/pilfer/pilfer_face.png", "assets/concepts/phase2_calibration/pilfer/pilfer_master.png"]
+    },
+    {
+      "seats": ["A"],
+      "blocker_ids": ["P2R2-CREEP-001"],
+      "challenge": "The cost is not merely decorative: erased mouth/contours and scored identity marks visibly embody loss, while skin and blade ribbons remain matte enough against the approved anchor.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/creep/creep_face.png", "assets/concepts/phase2_calibration/creep/creep_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"]
+    },
+    {
+      "seats": ["A", "C"],
+      "blocker_ids": ["P2R2-GROUP-002"],
+      "challenge": "This ID duplicates emotion convergence already retained under GROUP-001 or overstates two local leather repairs as a roster-wide failure. Cashmere and Kett remain locally blocked; GROUP-002 is cleared.",
+      "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"]
+    },
+    {
+      "seats": ["A", "C"],
+      "blocker_ids": ["P2R2-MALACHOR-002"],
+      "challenge": "The side clamp remains visible at master and 96 px, and localized organic sheen does not independently prove a hard-matte failure. The face/pose blocker remains sufficient and defensible.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/malachor/malachor_master.png", "assets/concepts/phase2_calibration/malachor/malachor_96px.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"]
+    },
+    {
+      "seats": ["A"],
+      "blocker_ids": ["P2R2-SABLE-001", "P2R2-SABLE-002"],
+      "challenge": "The androgynous-lane/roster-collision claim is unsupported, and SABLE-002 duplicates the psychology/villain failure already retained under SABLE-001.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/sable/sable_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"]
+    },
+    {
+      "seats": ["A"],
+      "blocker_ids": ["P2R2-KETT-001", "P2R2-KETT-002", "P2R2-LUNA-001", "P2R2-MALACHOR-001", "P2R2-SABLE-001"],
+      "challenge": "REDESIGN is disproportionate. Each unit retains a professional core silhouette, dominant idea, and usable role read; the surviving failures are repairable face/pose, hierarchy, or finish issues.",
+      "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P005.png"]
+    }
+  ],
+  "concessions": [
+    {
+      "to_seats": ["C"],
+      "blocker_ids_cleared": ["P2R2-KORATH-001", "P2R2-KORATH-002"],
+      "concession": "Seat C's cue-specific reading refutes my earlier Korath psychology blocker; the frozen face and open-hand pose carry coercive martyrdom adequately."
+    },
+    {
+      "to_seats": ["A", "C"],
+      "blocker_ids_surviving": ["P2R2-NYXA-001", "P2R2-NYXA-002"],
+      "concession": "At native face scale, elderly elf/goblin reads before batlike predator, so the bypass is unearned. The separately gripped bow also fails the declared grown spine/wing-finger correspondence. The face-contradiction portion of A's NYXA-002 is not retained."
+    },
+    {
+      "to_seats": ["A", "C"],
+      "blocker_ids_surviving": ["P2R2-CASHMERE-003"],
+      "concession": "P006 supports a local Cashmere hard-matte/material-individuality repair: broad polished black leather approaches the Vellum costume/material lane."
+    },
+    {
+      "to_seats": ["A", "C"],
+      "blocker_ids_surviving": ["P2R2-GROUP-003"],
+      "concession": "The role board shows a defensible repeated long split-drape/one-leg-emphasis pattern across Cashmere, Quillith, and Luna."
+    },
+    {
+      "to_seats": ["A", "C"],
+      "blocker_ids_cleared": ["P2R2-LUNA-002"],
+      "concession": "My separate Luna role/96 blocker was overreach; the diagonal bridge and Mage identity remain legible enough. The psychology/villain blocker survives."
+    },
+    {
+      "to_seats": ["A", "C"],
+      "blocker_ids_surviving": ["P2R2-QUILLITH-002"],
+      "concession": "My crossbow/96-role claim was too broad, but the same ID survives for the independently supported decorative-not-causal supernatural cost and weak Overload channel."
+    },
+    {
+      "to_seats": ["A", "C"],
+      "blocker_ids_surviving": ["P2R2-KNOLL-001"],
+      "concession": "My cane/role framing was too broad. The ID survives on the shared, narrower finding that concealed fear and the service-smile contradiction are not face-readable."
+    }
+  ],
+  "cleared_blocker_ids": [
+    "P2R2-CREEP-001",
+    "P2R2-GROUP-002",
+    "P2R2-KORATH-001",
+    "P2R2-KORATH-002",
+    "P2R2-LUNA-002",
+    "P2R2-MALACHOR-002",
+    "P2R2-PILFER-001",
+    "P2R2-SABLE-002"
+  ],
+  "surviving_blocker_ids": [
+    "P2R2-CASHMERE-001",
+    "P2R2-CASHMERE-002",
+    "P2R2-CASHMERE-003",
+    "P2R2-GROUP-001",
+    "P2R2-GROUP-003",
+    "P2R2-KETT-001",
+    "P2R2-KETT-002",
+    "P2R2-KNOLL-001",
+    "P2R2-LUNA-001",
+    "P2R2-MALACHOR-001",
+    "P2R2-NYXA-001",
+    "P2R2-NYXA-002",
+    "P2R2-QUILLITH-001",
+    "P2R2-QUILLITH-002",
+    "P2R2-SABLE-001",
+    "P2R2-VEYRA-001",
+    "P2R2-VEYRA-002"
+  ],
+  "protected_dissent": [
+    {
+      "blocker_ids": ["P2R2-NYXA-001", "P2R2-NYXA-002"],
+      "position": "Nyxa's age bypass and body-grown-bow correspondence remain unresolved against the frozen master and therefore block READY.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/nyxa/nyxa_face.png", "assets/concepts/phase2_calibration/nyxa/nyxa_master.png", "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png"]
+    },
+    {
+      "blocker_ids": ["P2R2-VEYRA-001", "P2R2-VEYRA-002"],
+      "position": "Blood and enclosure do not substitute for target-directed nonhuman psychology; passive egg/armadillo remains the first read.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/veyra/veyra_master.png", "assets/concepts/phase2_calibration/veyra/veyra_face.png", "assets/concepts/phase2_calibration/veyra/veyra_96px.png"]
+    },
+    {
+      "blocker_ids": ["P2R2-CASHMERE-001"],
+      "position": "Cashmere's three roughs remain one upright ledger/drape envelope rather than three genuinely different silhouette hypotheses.",
+      "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png"]
+    },
+    {
+      "blocker_ids": ["P2R2-GROUP-001"],
+      "position": "P003 still converges multiple humanoids into stern brows, tight mouths, smirks, or scowls; written contradiction labels cannot clear visible convergence.",
+      "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"]
+    }
+  ],
+  "final_unit_dispositions": [
+    {"unit": "Korath", "disposition": "PASS", "surviving_blocker_ids": []},
+    {"unit": "Veyra", "disposition": "REDESIGN", "surviving_blocker_ids": ["P2R2-VEYRA-001", "P2R2-VEYRA-002"]},
+    {"unit": "Cashmere", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-CASHMERE-001", "P2R2-CASHMERE-002", "P2R2-CASHMERE-003"]},
+    {"unit": "Pilfer", "disposition": "PASS", "surviving_blocker_ids": []},
+    {"unit": "Nyxa", "disposition": "REDESIGN", "surviving_blocker_ids": ["P2R2-NYXA-001", "P2R2-NYXA-002"]},
+    {"unit": "Creep", "disposition": "PASS", "surviving_blocker_ids": []},
+    {"unit": "Knoll", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-KNOLL-001"]},
+    {"unit": "Quillith", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-QUILLITH-001", "P2R2-QUILLITH-002"]},
+    {"unit": "Kett", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-KETT-001", "P2R2-KETT-002"]},
+    {"unit": "Luna", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-LUNA-001"]},
+    {"unit": "Malachor", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-MALACHOR-001"]},
+    {"unit": "Sable", "disposition": "REPAIR", "surviving_blocker_ids": ["P2R2-SABLE-001"]}
+  ],
+  "group_disposition": {
+    "verdict": "BLOCKER_RETAINED",
+    "surviving_blocker_ids": ["P2R2-GROUP-001", "P2R2-GROUP-003"],
+    "summary": "Emotion-family convergence and repeated split-drape feminine costuming survive. Roster-wide black-leather failure is cleared as duplicate/overbroad; local Cashmere and Kett material blockers remain."
+  },
+  "final_readiness": "NOT_READY"
+}

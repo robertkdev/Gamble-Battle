@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "nyxa",
+    "name": "Nyxa",
+    "combat_role": "Marksman",
+    "is_frontliner": false,
+    "sex_design_category": "female",
+    "visual_lane": "deliberately_horrific_humanoid",
+    "deliberately_horrific": true,
+    "art_primary_trait": "Chronomancer",
+    "secondary_trait_channels": [
+      "Sanguine"
+    ],
+    "gameplay_identity": "Marksman calibration unit carrying Sanguine, Chronomancer through one decisive combat silhouette.",
+    "strongest_preserved_hook": "asymmetrical time-bow grown from spine and wing finger",
+    "dominant_prop_or_anatomy": "asymmetrical time-bow grown from spine and wing finger",
+    "protection_logic": "not_applicable",
+    "supernatural_cost": "each extra arrow ages one side of her face and drains blood into older scars",
+    "villain_emotion_family": "feral_animalistic"
+  },
+  "psychology": {
+    "core_wound": "Choosing one future forced every other possible life to die in her memory at once.",
+    "private_want": "She wants every possible future to remain available as ammunition so no choice can ever become final.",
+    "primary_fear": "A single irreversible timeline will trap her in one aging body and prove the unchosen lives are gone.",
+    "survival_strategy": "She hoards possible futures and fires them as parallel attacks.",
+    "villainous_distortion": "Other lives become expendable timelines she consumes to avoid accepting her own ending.",
+    "current_emotional_state": "Ecstatic predatory delight at making several deaths coexist.",
+    "emotional_contradiction": "Ancient grief over lost futures versus feral pleasure in spending them.",
+    "face_direction": "The asymmetric aged face narrows both eyes on the target; one mouth corner curls with delight while the other side is pulled tight by temporal pain.",
+    "pose_direction": "A clawed crouch compresses behind the spinal membrane bow, body split into incompatible ages along the firing axis.",
+    "forbidden_read": "No ordinary old woman, generic crone, glamorous vampire, fragile elder, decorative bat archer, or age-as-the-only-horror."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+      "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "A"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+      "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+      "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+      "media_type": "image/png",
+      "source_master_sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+      "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+      "media_type": "image/png",
+      "source_master_sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "creep",
+      "pilfer",
+      "sable"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Ecstatic predatory delight at making several deaths coexist.",
+        "want": "The visible intent supports this private want: She wants every possible future to remain available as ammunition so no choice can ever become final.",
+        "fear_or_concealment": "The face visibly guards against this fear: A single irreversible timeline will trap her in one aging body and prove the unchosen lives are gone.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: She hoards possible futures and fires them as parallel attacks.",
+        "villainous_read": "The visible behavior expresses this distortion: Other lives become expendable timelines she consumes to avoid accepting her own ending.",
+        "cited_visual_cues": "Face cue: The asymmetric aged face narrows both eyes on the target; one mouth corner curls with delight while the other side is pulled tight by temporal pain. Pose cue: A clawed crouch compresses behind the spinal membrane bow, body split into incompatible ages along the firing axis."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares nyxa directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Batlike temporal predator reads before age, supporting the deliberate-horror exception.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Dry membrane, fur, bone, scars, and clotted string retain detailed material control.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: The asymmetrical time-bow and age-split face share one ranged predatory axis.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Her wing-spine bow and compressed bat anatomy do not overlap other marksmen or monsters.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Exception record, triptych, master, face, exact derivative, and source lineage are complete.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Long bow arc and folded batlike body remain highly recognizable at 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Predatory eye lock, asymmetric pain, delighted mouth, and clawed crouch show ecstatic cruelty.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Chronomancer age displacement leads; Sanguine is confined to blood exchange and string.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Ecstatic predatory delight at making several deaths coexist.",
+        "want": "The visible intent supports this private want: She wants every possible future to remain available as ammunition so no choice can ever become final.",
+        "fear_or_concealment": "The face visibly guards against this fear: A single irreversible timeline will trap her in one aging body and prove the unchosen lives are gone.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: She hoards possible futures and fires them as parallel attacks.",
+        "villainous_read": "The visible behavior expresses this distortion: Other lives become expendable timelines she consumes to avoid accepting her own ending.",
+        "cited_visual_cues": "Face cue: The asymmetric aged face narrows both eyes on the target; one mouth corner curls with delight while the other side is pulled tight by temporal pain. Pose cue: A clawed crouch compresses behind the spinal membrane bow, body split into incompatible ages along the firing axis."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares nyxa directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Temporal ranged predator reads before elderly humanoid, satisfying the horror exception.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Membrane, bone, fur, clotted string, and aged flesh are convincingly separated.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: The asymmetrical time-bow frames the predatory head and firing axis.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Age-split bat anatomy avoids conventional vampire and archer families.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Creature anatomy and weapon growth are resolved enough for modeling exploration.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Bow arc, folded body, and head wedge remain highly recognizable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: P003 visibly combines feral delight, ancient pain, and target fixation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Chronomancer controls age asymmetry; Sanguine is localized to blood-string exchange.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Ecstatic predatory delight at making several deaths coexist.",
+        "want": "The visible intent supports this private want: She wants every possible future to remain available as ammunition so no choice can ever become final.",
+        "fear_or_concealment": "The face visibly guards against this fear: A single irreversible timeline will trap her in one aging body and prove the unchosen lives are gone.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: She hoards possible futures and fires them as parallel attacks.",
+        "villainous_read": "The visible behavior expresses this distortion: Other lives become expendable timelines she consumes to avoid accepting her own ending.",
+        "cited_visual_cues": "Face cue: The asymmetric aged face narrows both eyes on the target; one mouth corner curls with delight while the other side is pulled tight by temporal pain. Pose cue: A clawed crouch compresses behind the spinal membrane bow, body split into incompatible ages along the firing axis."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares nyxa directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Batlike anatomy, predatory crouch, and weaponized temporal aging establish deliberate creature horror before elderly-human coding.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Clawed hands and feet, membrane bow, string paths, asymmetrical face, and crouched anatomy remain coherent.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: The enormous spine-bow and compressed firing posture dominate; age split and blood strings reinforce that axis.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: The wing-finger time-bow and bilateral temporal decay avoid generic vampire, horned demon, and ordinary archer reads.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Three distinct body-plan roughs, definitive master, face crop, exact derivative, and explicit horror exception are complete.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: The tall crescent bow, bat ears, folded crouch, and pale facial half remain strong at exact 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for nyxa: Target fixation, asymmetric pain, exposed teeth, and compressed predatory posture read as ecstatic expenditure of lives.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for nyxa: Chronomancer age splitting and Sanguine bow-string cost are visibly separated within one anatomical weapon system.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, nyxa meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

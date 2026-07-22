@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "creep",
+    "name": "Creep",
+    "combat_role": "Assassin",
+    "is_frontliner": false,
+    "sex_design_category": "sexless_nonhuman",
+    "visual_lane": "monster_alien_creature_horror",
+    "deliberately_horrific": true,
+    "art_primary_trait": "Exile",
+    "secondary_trait_channels": [
+      "Executioner"
+    ],
+    "gameplay_identity": "Assassin calibration unit carrying Exile, Executioner through one decisive combat silhouette.",
+    "strongest_preserved_hook": "broken ring of matte scythe-ribbons grown from spine",
+    "dominant_prop_or_anatomy": "broken ring of matte scythe-ribbons grown from spine",
+    "protection_logic": "not_applicable",
+    "supernatural_cost": "each chain execution erases facial contour and identity marks",
+    "villain_emotion_family": "nonhuman_individual_psychology"
+  },
+  "psychology": {
+    "core_wound": "Its first attempt to join a group ended with every identifying mark used to isolate and reject it.",
+    "private_want": "It wants to approach others without ever being named, claimed, or rejected again.",
+    "primary_fear": "Recognition will let a group define a boundary and cast it outside once more.",
+    "survival_strategy": "It erases every trace that could support recognition, then removes witnesses.",
+    "villainous_distortion": "The wish to avoid rejection becomes procedural extermination of anyone capable of remembering it.",
+    "current_emotional_state": "Vacant fixation on the weakest witness.",
+    "emotional_contradiction": "Residual longing to approach versus absolute refusal to be known.",
+    "face_direction": "The smooth erased face and hollow eye apertures are the facial mechanism; no mouth appears, and the slight head cant fixes the weakest witness without human emotion.",
+    "pose_direction": "Low loaded limbs point toward the target while the broken blade-ring closes the only escape arc.",
+    "forbidden_read": "No cute alien, generic gray, neutral mannequin, decorative tentacle dancer, masked ninja, or merely sad outsider."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+      "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "A"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/creep/creep_master.png",
+      "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/creep/creep_face.png",
+      "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4",
+      "media_type": "image/png",
+      "source_master_sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+      "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+      "media_type": "image/png",
+      "source_master_sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "pilfer",
+      "nyxa",
+      "veyra"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Vacant fixation on the weakest witness.",
+        "want": "The visible intent supports this private want: It wants to approach others without ever being named, claimed, or rejected again.",
+        "fear_or_concealment": "The face visibly guards against this fear: Recognition will let a group define a boundary and cast it outside once more.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: It erases every trace that could support recognition, then removes witnesses.",
+        "villainous_read": "The visible behavior expresses this distortion: The wish to avoid rejection becomes procedural extermination of anyone capable of remembering it.",
+        "cited_visual_cues": "Face cue: The smooth erased face and hollow eye apertures are the facial mechanism; no mouth appears, and the slight head cant fixes the weakest witness without human emotion. Pose cue: Low loaded limbs point toward the target while the broken blade-ring closes the only escape arc."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares creep directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: The image reads as procedural alien predation, not a mascot, dancer, or masked humanoid.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Matte ribbons, dry gray skin, scars, and eye voids are restrained and materially clear.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Erased face and incomplete blade ring reinforce one identity-removal concept.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Faceless alien anatomy and broken scythe-ring have no roster collision.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Silhouettes, master, nonhuman face evidence, and exact 96px derivative are complete.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: The pale head and black broken ring preserve identity and role at exact scale.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Hollow eye fixation, slight head cant, loaded limbs, and closing arc show vacant hunting.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Exile erasure leads; Executioner is localized to one integrated blade-ring system.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Vacant fixation on the weakest witness.",
+        "want": "The visible intent supports this private want: It wants to approach others without ever being named, claimed, or rejected again.",
+        "fear_or_concealment": "The face visibly guards against this fear: Recognition will let a group define a boundary and cast it outside once more.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: It erases every trace that could support recognition, then removes witnesses.",
+        "villainous_read": "The visible behavior expresses this distortion: The wish to avoid rejection becomes procedural extermination of anyone capable of remembering it.",
+        "cited_visual_cues": "Face cue: The smooth erased face and hollow eye apertures are the facial mechanism; no mouth appears, and the slight head cant fixes the weakest witness without human emotion. Pose cue: Low loaded limbs point toward the target while the broken blade-ring closes the only escape arc."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares creep directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Procedural alien assassin threat reads without costume or weapon clich\u00e9.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Dry gray-blue skin and matte black ribbons retain strong material contrast.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Erased face and broken ring form one focused identity system.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Faceless alien crouch is unmistakable against every roster neighbor.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Body plan, attack envelope, material split, and identity mechanism are explicit.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: P005 preserves the white head and black broken-ring signature.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Head cant, empty apertures, and loaded limbs communicate vacant witness-hunting fixation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Exile controls erasure and incomplete outline; Executioner controls blade anatomy.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Vacant fixation on the weakest witness.",
+        "want": "The visible intent supports this private want: It wants to approach others without ever being named, claimed, or rejected again.",
+        "fear_or_concealment": "The face visibly guards against this fear: Recognition will let a group define a boundary and cast it outside once more.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: It erases every trace that could support recognition, then removes witnesses.",
+        "villainous_read": "The visible behavior expresses this distortion: The wish to avoid rejection becomes procedural extermination of anyone capable of remembering it.",
+        "cited_visual_cues": "Face cue: The smooth erased face and hollow eye apertures are the facial mechanism; no mouth appears, and the slight head cant fixes the weakest witness without human emotion. Pose cue: Low loaded limbs point toward the target while the broken blade-ring closes the only escape arc."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares creep directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: The low alien assassin reads hostile, procedural, and nonhuman rather than cute, masked, or merely strange.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Long limbs, planted hands, erased face, and spine-grown blade ribbons integrate cleanly.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: The pale hollow face anchors a low body enclosed by one broken black execution ring.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: Its faceless gray anatomy and matte scythe-ribbon orbit remain unlike every humanoid, tank, and other assassin.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Three distinct silhouettes, landscape master, nonhuman face crop, exact derivative, and psychology record are present.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for creep: The bright head, low triangular crouch, and broken black ring retain exceptional exact-96px recognition.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Hollow eye apertures, slight head cant, loaded limbs, and enclosing blades communicate vacant witness-hunting.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for creep: Exile erasure and Executioner blade anatomy remain separate but mutually reinforcing channels.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, creep meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

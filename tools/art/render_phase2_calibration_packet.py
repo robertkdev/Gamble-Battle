@@ -11,6 +11,9 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+from render_phase2_comparison_boards import render as render_comparison_boards
+from render_phase2_face_board import render as render_face_board
+
 
 ROOT = Path(__file__).resolve().parents[2]
 PACKET = ROOT / "docs" / "art" / "phase2_calibration"
@@ -18,6 +21,11 @@ ASSETS = ROOT / "assets" / "concepts" / "phase2_calibration"
 MANIFEST = PACKET / "phase2_calibration_manifest.json"
 CONTACT_SHEET = PACKET / "phase2_calibration_contact_sheet.png"
 BOARD_96 = PACKET / "phase2_calibration_96px_board.png"
+FACE_BOARD = PACKET / "phase2_face_board.png"
+COMPARISONS = PACKET / "comparisons"
+MASTER_COMPARISON = COMPARISONS / "phase2_master_comparison.png"
+ROLE_96_LINEUP = COMPARISONS / "phase2_96px_lineup.png"
+VELLUM_COMPARISON = COMPARISONS / "phase2_vellum_first_comparison.png"
 BACKGROUND = (22, 20, 23)
 PANEL = (34, 31, 35)
 INK = (234, 225, 211)
@@ -73,6 +81,10 @@ def write_capture_manifest(path: Path) -> None:
     definitions = [
         (CONTACT_SHEET, "phase2_contact_sheet", "all_masters_and_silhouettes", "overview", "Phase 2 masters and silhouette options"),
         (BOARD_96, "phase2_96px_board", "derived_board_read", "board_read", "Unchanged masters contained at 96 pixels"),
+        (FACE_BOARD, "phase2_face_psychology_board", "same_master_face_psychology", "face_psychology", "Same-master face crops against the survival-psychology records"),
+        (MASTER_COMPARISON, "phase2_master_comparison", "role_grouped_master_convergence", "convergence", "Role-grouped full-body master comparison"),
+        (ROLE_96_LINEUP, "phase2_role_96px_lineup", "role_grouped_96px_convergence", "convergence", "Role-grouped exact 96 pixel lineup"),
+        (VELLUM_COMPARISON, "phase2_approved_vellum_comparison", "approved_vellum_first_style_check", "style_anchor", "Approved hard-matte Vellum anchor against the twelve calibration masters"),
     ]
     for source, event, state, group, label in definitions:
         shutil.copy2(source, staged / source.name)
@@ -152,6 +164,8 @@ def render(capture_manifest: Path | None = None) -> None:
         primary = f'PRIMARY: {unit["art_primary"]}'
         bdraw.text((x + 126, y + 99), primary, fill=INK, font=font(11, True))
     board.save(BOARD_96, optimize=True)
+    render_face_board(FACE_BOARD)
+    render_comparison_boards(COMPARISONS)
     if capture_manifest is not None:
         write_capture_manifest(capture_manifest)
 

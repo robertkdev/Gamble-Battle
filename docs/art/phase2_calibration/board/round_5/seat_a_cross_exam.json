@@ -1,0 +1,150 @@
+{
+  "reviewer_id": "phase2-r5-contract-evidence-fresh-01",
+  "own_label": "Reviewer A â€” Contract and Evidence Prosecutor",
+  "revised_contract_verdict": "UNMET",
+  "revised_professional_standard_verdict": {
+    "band": "BELOW_PROFESSIONAL",
+    "evidence_confidence": "HIGH",
+    "reason": "The unchanged cut is intact and eleven units meet the professional floor, but Knoll's carried exact-96 closure test is conjunctive and remains unsatisfied. The receipt survives; the pear-handled office stamp and its contact with the receipt do not independently survive at native 96px. Critical dimensions are not averaged.",
+    "lowest_critical_dimension": "silhouette_and_exact_96px_legibility"
+  },
+  "revised_overall_readiness": "REJECT",
+  "cut_revalidation": {
+    "status": "VERIFIED_UNCHANGED",
+    "frozen_hash_result": "All 11 packet artifacts, all 48 unit artifacts, and both approved Vellum artifacts matched their frozen SHA-256 values.",
+    "derivative_provenance": "All 12 submitted 96px files remain pixel-exact nearest-neighbor derivatives of their frozen masters.",
+    "decisive_knoll_artifacts": {
+      "selected_rough_sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "master_sha256": "cc466a2420e77fe75d100d43440e2c5c6e6a40b6b3c578ce6c8331ce0bb0c254",
+      "exact_96px_sha256": "6d13a255cdd09af3cdfd0c33deba66b3d06878ad4f2cc6a1de1fb426db0a29a7",
+      "exact_96px_lineup_sha256": "21c67d7b735fc1b4c38449ce3bab4180af1f84b50288a37345c36fd498fc86f7"
+    },
+    "vellum": {
+      "raw_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+      "result": "MATCH"
+    }
+  },
+  "challenges": [
+    {
+      "peer": "Reviewer B",
+      "claim": "Knoll remains blocked because the exact-96 image reads as generic paper handling rather than a positive office-stamp action.",
+      "challenge": "I attempted to refute this using the surviving pale receipt, the dark knob above it, the absence of a hammer or weapon, and continuity from the clearly legible rough and master.",
+      "direct_or_comparative_counterevidence": "At native 96px, the pale receipt is clear, but the knob, stamp head, gripping fingers, and contact point merge into one hand cluster. Unlike Kett's fist, Sable's rifle, Luna's ligament, and Veyra's clamp in the same frozen lineup, Knoll's required prop subtype cannot be identified without master-derived priming.",
+      "disposition": "CLAIM_SURVIVES"
+    },
+    {
+      "peer": "Reviewer B",
+      "claim": "All twelve rough triptychs provide materially distinct options and satisfy exploration coverage.",
+      "challenge": "Quillith's options are comparatively conservative, retaining closely related body, costume, and staging language.",
+      "direct_or_comparative_counterevidence": "The three Quillith candidates still change pose, arm configuration, slate presentation, and outer silhouette enough to constitute selectable alternatives under the frozen contract; the weaker breadth is an excellence limitation, not an admissible readiness blocker.",
+      "disposition": "CHARITABLE_PASS_SURVIVES_AT_CONTRACT_FLOOR"
+    },
+    {
+      "peer": "Reviewer C",
+      "claim": "Knoll loses prop subtype at exact 96px relative to other units' signature actions.",
+      "challenge": "The master and selected rough unequivocally show a pear-handled stamp contacting the receipt, and the exact derivative preserves the bright paper plus a compact dark element above it.",
+      "direct_or_comparative_counterevidence": "The closure test explicitly requires the native derivative itself to communicate both office stamp and contact. Direct native inspection does not separate the compact dark element from Knoll's hands or localize a stamp-to-paper contact. Coherent higher-resolution lineage cannot substitute for the failed target-size read.",
+      "disposition": "CLAIM_SURVIVES"
+    },
+    {
+      "peer": "Reviewer C",
+      "claim": "The other eleven units meet the professional floor without an anatomy blocker.",
+      "challenge": "I tested the most charitable interpretation against the dense dark staging, small hand-held props, and partially obscured anatomy visible in the exact-96 lineup.",
+      "direct_or_comparative_counterevidence": "Those units preserve their required primary read through silhouette, value grouping, or recognizable prop geometry; the frozen masters and crops provide coherent limb attachment and intentional exaggeration. No Round-1 or carried critical claim against those eleven withstands direct comparison.",
+      "disposition": "CHARITABLE_PASS_SURVIVES"
+    }
+  ],
+  "surviving_blockers": [
+    {
+      "id": "R5-CARRIED-KNOLL-96-STAMP",
+      "unit": "Knoll",
+      "severity": "P2_BLOCKS_READY",
+      "lineage_status": "CARRIED",
+      "observation": "The native 96px derivative preserves the long pale receipt but collapses the pear handle, stamp head, gripping hand, and contact point into a compact hand cluster.",
+      "comparison": "The selected rough and master positively show stamping, while comparable signature props and actions remain independently identifiable for Kett, Sable, Luna, and Veyra in the exact-96 lineup.",
+      "consequence": "The contractually required office-stamp action is not positively legible at the acceptance size, leaving silhouette/96px legibility and downstream completeness below the professional target.",
+      "closure_condition": "Using a same-master exact native 96px derivative, a blind observer without access to the master or prompt must identify a small pear-handled office stamp and its contact with the receipt before describing the image as generic paper handling, writing, or hand manipulation."
+    }
+  ],
+  "rejected_findings": [
+    {
+      "id": "A-R1-KNOLL-PASS",
+      "claim": "The visible receipt plus absence of a forbidden hammer or weapon was sufficient to close Knoll.",
+      "reason": "Rejected as a primed false positive. The carried condition requires a positive office-stamp/contact read, not merely survival of the receipt or absence of an alternative prop."
+    },
+    {
+      "id": "R4-VEYRA-PASSIVITY",
+      "claim": "Veyra still reads as passively presenting a shell.",
+      "reason": "Rejected: the frozen exact-96 derivative preserves an active clamp/tool relationship and working posture."
+    },
+    {
+      "id": "R4-KETT-GENERICITY",
+      "claim": "Kett remains a generic grinning figure without the required aggressive action.",
+      "reason": "Rejected: the clenched raised fist, forward posture, and confrontational expression survive at exact 96px."
+    },
+    {
+      "id": "R4-MALACHOR-PSYCHOLOGY",
+      "claim": "Malachor lacks the required psychological villain read.",
+      "reason": "Rejected: the master, face crop, and exact derivative retain controlled predatory focus rather than a neutral frontal stare."
+    }
+  ],
+  "revised_standard_matrix": {
+    "audience_and_genre_fit": {
+      "band": "PROFESSIONAL",
+      "reason": "The batch consistently communicates dark villain-first fantasy."
+    },
+    "craft_and_finish": {
+      "band": "PROFESSIONAL",
+      "reason": "Masters are controlled, coherent, and presentation-ready."
+    },
+    "cross_unit_coherence": {
+      "band": "PROFESSIONAL",
+      "reason": "Shared rendering and staging form a coherent roster without erasing identity."
+    },
+    "distinctiveness": {
+      "band": "PROFESSIONAL",
+      "reason": "Unit silhouettes, props, anatomy motifs, and archetypes remain materially differentiated."
+    },
+    "completeness_and_downstream_readiness": {
+      "band": "BELOW_PROFESSIONAL",
+      "reason": "Knoll's required prop-action information does not survive the target derivative."
+    },
+    "silhouette_and_exact_96px_legibility": {
+      "band": "BELOW_PROFESSIONAL",
+      "reason": "Knoll's office stamp and contact point collapse at native 96px."
+    },
+    "psychology_and_villain_read": {
+      "band": "PROFESSIONAL",
+      "reason": "The roster sustains distinct villain psychologies across masters and face crops."
+    },
+    "production_feasibility_and_trait_clarity": {
+      "band": "PROFESSIONAL",
+      "reason": "Anatomy, equipment, trait costs, and implementation cues are otherwise coherent and actionable."
+    }
+  },
+  "common_ground": [
+    "The frozen cut and approved Vellum comparison are hash-valid and unchanged.",
+    "All twelve 96px submissions have valid master-derived pixel provenance.",
+    "Veyra, Kett, and Malachor satisfy their carried closure tests.",
+    "Knoll's rough and master clearly depict the intended office-stamp action.",
+    "Eleven units meet the professional floor.",
+    "No new blocker is introduced in this cross-examination."
+  ],
+  "protected_dissent": [
+    {
+      "claim": "Knoll's native-96 stamp/contact failure controls readiness despite otherwise strong batch quality.",
+      "protection_basis": "The specialist observation, same-lineup comparison, professional consequence, and testable closure condition remain undisproved by higher-resolution continuity or absence-of-alternative arguments."
+    },
+    {
+      "claim": "The visual-harness provenance mismatch remains a nonblocking evidence-hygiene concern.",
+      "protection_basis": "It was present in Reviewer A's independent report, does not alter immutable cut integrity, and is not elevated into a new blocker."
+    }
+  ],
+  "excellence_gap": [
+    "Approved Vellum maintains stronger focal hierarchy and material separation than much of the batch.",
+    "Several units converge on dark brown studio staging and dense etched surface treatment.",
+    "Some rough triptychs, especially Quillith's, explore a narrower pose and composition envelope than excellence-level concept development.",
+    "Some psychological distinctions become substantially clearer in face crops than in the full exact-96 lineup."
+  ]
+}

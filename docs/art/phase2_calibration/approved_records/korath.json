@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "korath",
+    "name": "Korath",
+    "combat_role": "Tank",
+    "is_frontliner": true,
+    "sex_design_category": "male",
+    "visual_lane": "peak_condition_humanoid",
+    "deliberately_horrific": false,
+    "art_primary_trait": "Blessed",
+    "secondary_trait_channels": [
+      "Titan"
+    ],
+    "gameplay_identity": "Tank calibration unit carrying Titan, Blessed through one decisive combat silhouette.",
+    "strongest_preserved_hook": "fused penitential yoke-reliquary beam",
+    "dominant_prop_or_anatomy": "fused penitential yoke-reliquary beam",
+    "protection_logic": "anatomical_fortification",
+    "supernatural_cost": "redirected wounds calcify as stone blooms and goldless stigmata while sensation collapses",
+    "villain_emotion_family": "angry"
+  },
+  "psychology": {
+    "core_wound": "His public miracle failed at the exact moment everyone trusted him, leaving survivors alive only by transferring their wounds into his body.",
+    "private_want": "He wants someone to declare that his suffering made the failed miracle necessary and therefore forgivable.",
+    "primary_fear": "If others can survive without his pain, then his disgrace and continuing penance have no purpose.",
+    "survival_strategy": "He steals allies' wounds and makes himself indispensable through compulsory suffering.",
+    "villainous_distortion": "He converts protection into moral debt and demands obedience from everyone whose pain he carries.",
+    "current_emotional_state": "Exhausted shame sharpened into a low accusatory demand.",
+    "emotional_contradiction": "Compulsory service versus resentment that the protected can walk away.",
+    "face_direction": "Head stays bowed, but one exhausted eye fixes the viewer; mouth and jaw tighten as if swallowing accusation rather than merely grieving.",
+    "pose_direction": "The broken yoke crushes his shoulders while one low open hand demands that the viewer accept the debt; giant feet remain planted for interception.",
+    "forbidden_read": "No clean saint, heroic tank, radiant paladin, decorative demon, pretty sad angel, passive sorrowful giant, or generic rage monster."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+      "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "A"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/korath/korath_master.png",
+      "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/korath/korath_face.png",
+      "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+      "media_type": "image/png",
+      "source_master_sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+      "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+      "media_type": "image/png",
+      "source_master_sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "veyra",
+      "malachor",
+      "kett"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "PASS"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Exhausted shame sharpened into a low accusatory demand.",
+        "want": "The visible intent supports this private want: He wants someone to declare that his suffering made the failed miracle necessary and therefore forgivable.",
+        "fear_or_concealment": "The face visibly guards against this fear: If others can survive without his pain, then his disgrace and continuing penance have no purpose.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He steals allies' wounds and makes himself indispensable through compulsory suffering.",
+        "villainous_read": "The visible behavior expresses this distortion: He converts protection into moral debt and demands obedience from everyone whose pain he carries.",
+        "cited_visual_cues": "Face cue: Head stays bowed, but one exhausted eye fixes the viewer; mouth and jaw tighten as if swallowing accusation rather than merely grieving. Pose cue: The broken yoke crushes his shoulders while one low open hand demands that the viewer accept the debt; giant feet remain planted for interception."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares korath directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: A disgraced coercive martyr reads as an adult villainous tank, not a holy hero.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Dry stone, bruised flesh, linen, and fracture detail remain materially separated.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: The crushing yoke dominates; bowed face and chest wound reinforce compulsory penance.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: The horizontal reliquary burden is unlike every other roster silhouette and prop family.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Three silhouettes, definitive master, same-master face, and verified 96px derivative are present.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: The arch-yoke, lowered head, broad feet, and wound survive exact 96px containment.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Exhausted fixed eye, compressed jaw, bowed load, and demanding open hand show accusatory shame.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Blessed disgrace is primary; Titan mass is secondary without armor or competing effects.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "PASS"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Exhausted shame sharpened into a low accusatory demand.",
+        "want": "The visible intent supports this private want: He wants someone to declare that his suffering made the failed miracle necessary and therefore forgivable.",
+        "fear_or_concealment": "The face visibly guards against this fear: If others can survive without his pain, then his disgrace and continuing penance have no purpose.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He steals allies' wounds and makes himself indispensable through compulsory suffering.",
+        "villainous_read": "The visible behavior expresses this distortion: He converts protection into moral debt and demands obedience from everyone whose pain he carries.",
+        "cited_visual_cues": "Face cue: Head stays bowed, but one exhausted eye fixes the viewer; mouth and jaw tighten as if swallowing accusation rather than merely grieving. Pose cue: The broken yoke crushes his shoulders while one low open hand demands that the viewer accept the debt; giant feet remain planted for interception."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares korath directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: Disgraced coercive martyr and damage-bearing tank read immediately.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: Dry stone, damaged flesh, linen, and calcification are richly separated without gloss.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: Crushing yoke and bowed head dominate before secondary wounds.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: Horizontal penitential architecture is unique within the tank group.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Full body, silhouette variants, face, material logic, and 96px derivative are production-legible.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: Arch-like yoke and giant stance remain unmistakable at exact scale.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: P003 shows shame, exhausted fixation, and withheld accusation reinforced by the burdened pose.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Blessed disgrace leads; Titan is confined to mass and load-bearing anatomy.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "PASS"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Exhausted shame sharpened into a low accusatory demand.",
+        "want": "The visible intent supports this private want: He wants someone to declare that his suffering made the failed miracle necessary and therefore forgivable.",
+        "fear_or_concealment": "The face visibly guards against this fear: If others can survive without his pain, then his disgrace and continuing penance have no purpose.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He steals allies' wounds and makes himself indispensable through compulsory suffering.",
+        "villainous_read": "The visible behavior expresses this distortion: He converts protection into moral debt and demands obedience from everyone whose pain he carries.",
+        "cited_visual_cues": "Face cue: Head stays bowed, but one exhausted eye fixes the viewer; mouth and jaw tighten as if swallowing accusation rather than merely grieving. Pose cue: The broken yoke crushes his shoulders while one low open hand demands that the viewer accept the debt; giant feet remain planted for interception."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares korath directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: Peak-condition tank mass, bowed shame, calcified wounds, and coercive open hand read as a disgraced villainous Blessed fighter.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Dry stone, ruined flesh, cloth, hands, feet, and fused yoke are consistently resolved without visible integration failure.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: The crushing shoulder yoke and bowed head dominate; pale bodily damage remains a subordinate supernatural-cost channel.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: The broken processional arch and asymmetric calcification separate him from Veyra, Malachor, and conventional holy tanks.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Three distinct roughs, definitive master, same-master face crop, exact 96px derivative, and psychology record are present and hash-bound.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: At exact 96px the arch, bowed head, giant feet, and pale damaged side retain the tank/Blessed read.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for korath: The fixed upward eye, compressed mouth, bowed posture, and demanding palm communicate ashamed resentment rather than generic sorrow.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for korath: Blessed disgrace and Titan mass occupy separate, buildable channels with one fused anatomical yoke.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, korath meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

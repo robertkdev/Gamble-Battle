@@ -1,0 +1,185 @@
+{
+  "reviewer_id": "C",
+  "own_label": "Failure and Adoption Red Team",
+  "revised_contract_verdict": "UNMET",
+  "revised_professional_standard_verdict": {
+    "band": "BELOW_PROFESSIONAL",
+    "evidence_confidence": "HIGH",
+    "reason": "The carried Knoll exact-96 stamp-read closure remains unrefuted. The master and selected rough communicate an office stamp, but the decisive native 96px artifact preserves only the pale receipt and a merged hand/tool cluster. Positive stamp identification still depends on larger-source priming. One unresolved critical-scale blocker controls the batch verdict.",
+    "lowest_critical_dimension": "silhouette_and_96px_readability"
+  },
+  "revised_overall_readiness": "REJECT",
+  "cut_revalidation": {
+    "timestamp": "2026-07-22T02:56:00-06:00",
+    "read_only": true,
+    "unchanged_cut_confirmed": true,
+    "manifest_hash_entries_checked": 75,
+    "manifest_hash_failures": [],
+    "packet_table_entries_checked": 9,
+    "packet_hash_failures": [],
+    "vellum_entries_checked": 2,
+    "vellum_hash_failures": [],
+    "decisive_native_artifact": {
+      "path": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+      "dimensions": "96x96",
+      "sha256": "6d13a255cdd09af3cdfd0c33deba66b3d06878ad4f2cc6a1de1fb426db0a29a7",
+      "status": "VERIFIED"
+    },
+    "vellum_verification": {
+      "approved_raw_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "approved_cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+      "approved_comparison_sha256": "fd8261417f7bb8b192d2bb9dd88469a1bc9d5bf6b52782904455b748529a25da",
+      "status": "VERIFIED"
+    },
+    "independent_verdicts": {
+      "Reviewer_A": {
+        "contract_verdict": "MET",
+        "professional_band": "PROFESSIONAL",
+        "overall_readiness": "READY"
+      },
+      "Reviewer_B": {
+        "contract_verdict": "UNMET",
+        "professional_band": "BELOW_PROFESSIONAL",
+        "overall_readiness": "REJECT"
+      },
+      "Reviewer_C": {
+        "contract_verdict": "UNMET",
+        "professional_band": "BELOW_PROFESSIONAL",
+        "overall_readiness": "REJECT"
+      }
+    }
+  },
+  "challenges": [
+    {
+      "peer": "Reviewer_A",
+      "claim": "Knoll closes because the compact goblin, pale curling receipt, contact gesture, and pear-handled stamp survive exact size without forbidden hammer, anvil, table, block, staff, or cane reads.",
+      "challenge": "This substitutes negative exclusion and receipt survival for the carried test's required positive office-stamp first read.",
+      "direct_or_comparative_counterevidence": "Viewed without master priming, knoll_96px.png shows a clear pale receipt but the stamp handle, head, hand, and contact point merge into one dark cluster. Generic writing or paper handling remains an equally plausible first read. In phase2_96px_lineup.png, Knoll loses its prop subtype while Kett's fist, Sable's rifle, Luna's diagonal ligament motif, and Veyra's clamp remain positively identifiable.",
+      "disposition": "REJECTED; the favorable closure claim does not disprove the observation or downstream consequence."
+    },
+    {
+      "peer": "Reviewer_A",
+      "claim": "Every unit retains role or dominant identity at exact 96px and therefore all required dimensions meet the professional floor.",
+      "challenge": "The claim is overbroad for Knoll because goblin-plus-paper is not the contracted Trader stamp identity.",
+      "direct_or_comparative_counterevidence": "The selected B rough and knoll_master.png make the stamp unmistakable, demonstrating that the intended identity exists upstream. Its disappearance specifically in the native derivative is therefore a scale-transfer failure, not an absent design concept.",
+      "disposition": "REJECTED_FOR_KNOLL_ONLY"
+    },
+    {
+      "peer": "Reviewer_B",
+      "claim": "Knoll's exact-96 artifact reads as generic paper manipulation rather than a positive office stamp.",
+      "challenge": "The strongest attempted refutation is that the selected rough and master clearly show a pear-handled stamp, while the native derivative retains the receipt, downward contact gesture, and excludes all forbidden alternate props.",
+      "direct_or_comparative_counterevidence": "Those facts confirm upstream intent but do not restore tool subtype at the decisive scale. In the native 96px artifact, the stamp components remain inseparable from the hands, and the lineup supplies no stronger positive read.",
+      "disposition": "UPHELD_AFTER_REFUTATION_ATTEMPT"
+    },
+    {
+      "peer": "Reviewer_B",
+      "claim": "Knoll's production_feasibility_and_trait_clarity remains PROFESSIONAL despite BELOW_PROFESSIONAL exact-96 readability and completeness.",
+      "challenge": "That is too charitable because the declared production derivative cannot carry the unit's specific Trader prop without larger-source or prose support.",
+      "direct_or_comparative_counterevidence": "The master-to-96 comparison isolates a downstream translation loss: the master has separable handle, stamp head, hand, and paper contact, while the exact derivative collapses them. This is the same carried blocker and consequence, not a new blocker.",
+      "disposition": "REVISED_DOWNWARD_TO_BELOW_PROFESSIONAL"
+    }
+  ],
+  "surviving_blockers": [
+    {
+      "id": "R5-CARRIED-KNOLL-96-STAMP",
+      "alias": "R5-FAR-001",
+      "unit": "Knoll",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "lineage_status": "CARRIED",
+      "observation": "At native 96px, the pale receipt survives but the office stamp does not remain positively distinguishable from Knoll's hands or generic writing/paper handling.",
+      "comparative_evidence": "The stamp is clear in knoll_silhouettes.png selected B and knoll_master.png, proving intended identity, but collapses in knoll_96px.png. The exact-96 lineup shows materially stronger prop or gesture identities for Kett, Sable, Luna, and Veyra.",
+      "consequence": "Knoll's specific Trader identity requires master/prose priming at the declared adoption scale, failing a carried closure condition and reducing downstream UI usability.",
+      "attempted_refutation": "Receipt survival, downward contact gesture, visible master/rough stamp, and absence of forbidden alternate tool silhouettes.",
+      "why_refutation_fails": "These establish context and eliminate some wrong answers but do not make the required stamp the positive first read in the decisive artifact.",
+      "testable_closure_condition": "In a replacement native 96x96 derivative viewed without master, rough, label, or prose priming, the pear handle, stamp head, and paper-contact relationship must be visibly separable enough that an office stamp is the positive first prop read rather than writing or generic paper handling; the same distinction must survive the exact-96 lineup comparison."
+    }
+  ],
+  "rejected_findings": [
+    {
+      "id": "R4-VEYRA-CARRIED",
+      "unit": "Veyra",
+      "disposition": "CLOSED",
+      "reason": "Selected C, master, and exact-96 derivative retain an active clamp interaction rather than passive tool holding."
+    },
+    {
+      "id": "R4-KETT-CARRIED",
+      "unit": "Kett",
+      "disposition": "CLOSED",
+      "reason": "Face evidence retains grievance, restraint, and near-grin psychology while the clenched fist remains legible at exact 96px."
+    },
+    {
+      "id": "R4-MALACHOR-CARRIED",
+      "unit": "Malachor",
+      "disposition": "CLOSED",
+      "reason": "The master and face evidence visibly direct Malachor's attention toward the clamp/subject relationship."
+    },
+    {
+      "id": "A-KNOLL-CLOSURE-PASS",
+      "unit": "Knoll",
+      "disposition": "REJECTED",
+      "reason": "Negative exclusion of forbidden props and survival of the receipt do not satisfy positive stamp identification at native 96px."
+    }
+  ],
+  "revised_standard_matrix": {
+    "audience_and_context_fit": {
+      "band": "PROFESSIONAL",
+      "reason": "The batch broadly supports the intended dark fantasy auto-battler context."
+    },
+    "craft_execution": {
+      "band": "PROFESSIONAL",
+      "reason": "Masters show controlled anatomy, rendering, and prop construction without a surviving craft blocker."
+    },
+    "internal_coherence": {
+      "band": "PROFESSIONAL",
+      "reason": "The roster remains materially and stylistically coherent with the approved hard-matte Vellum anchor."
+    },
+    "distinctiveness": {
+      "band": "PROFESSIONAL",
+      "reason": "The twelve-unit roster is sufficiently differentiated at master scale; no carried convergence blocker survives."
+    },
+    "completeness_and_downstream_usability": {
+      "band": "BELOW_PROFESSIONAL",
+      "reason": "Knoll's required Trader prop identity does not transfer reliably to the frozen exact-96 derivative."
+    },
+    "silhouette_and_96px_readability": {
+      "band": "BELOW_PROFESSIONAL",
+      "reason": "Knoll retains paper but loses positive office-stamp subtype at native size."
+    },
+    "psychology_and_villain_read": {
+      "band": "PROFESSIONAL",
+      "reason": "No carried psychology or villain-read blocker survives; Kett and Malachor closures are visibly supported."
+    },
+    "production_feasibility_and_trait_clarity": {
+      "band": "BELOW_PROFESSIONAL",
+      "reason": "Knoll's specific trait communication currently depends on larger evidence or prose at the declared production scale; this is a consequence of the existing carried blocker."
+    }
+  },
+  "common_ground": [
+    "All frozen manifest, packet-table, Knoll, and approved Vellum hashes revalidate.",
+    "Knoll's selected rough and master clearly contain the intended office-stamp action.",
+    "Knoll's exact-96 artifact clearly retains the pale receipt and does not introduce a forbidden dominant tool silhouette.",
+    "Veyra, Kett, and Malachor satisfy their carried closure tests.",
+    "The other eleven units meet the professional floor with no admissible surviving blocker.",
+    "The decisive disagreement is whether receipt-plus-contact context is sufficient without positive office-stamp identification at native 96px."
+  ],
+  "protected_dissent": [
+    {
+      "reviewer": "Reviewer_A",
+      "position": "MET, PROFESSIONAL, READY",
+      "protected_basis": "The exact derivative retains goblin, receipt, contact gesture, and excludes forbidden alternate props.",
+      "adjudication": "Preserved but not adopted because it does not disprove the missing positive stamp subtype or its downstream consequence."
+    },
+    {
+      "reviewer": "Reviewer_C",
+      "position": "UNMET, BELOW_PROFESSIONAL, REJECT",
+      "protected_basis": "Direct native-96 and lineup comparison show the carried stamp-read failure despite clear upstream intent.",
+      "adjudication": "Maintained independently; agreement with Reviewer_B is not the basis for the verdict."
+    }
+  ],
+  "excellence_gap": [
+    "Resolve Knoll's stamp silhouette and contact separation at the actual 96px derivative rather than relying on contextual paper cues.",
+    "The approved Vellum comparison still has stronger hard-matte material hierarchy and graphic restraint than several darker, microtextured Phase 2 masters.",
+    "Some rough triptychs explore conservative variations rather than strongly distinct silhouette alternatives; this does not create an additional blocker."
+  ]
+}

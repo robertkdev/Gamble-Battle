@@ -1,41 +1,19 @@
 # Phase 2 Board Approval
 
-> **SUPERSEDED / REOPENED — 2026-07-21:** This is a historical review record, not a current approval. It omitted or contradicted the canonical peak-age fighter, hot-adult-woman, lean/toned/feminine, armor-only-when-justified, and face-readable psychology gates now locked in `docs/art/unit_art_board_reference_criteria.md`. All twelve concepts require re-review and, where necessary, redesign using `docs/art/unit_art_board_review_template.json`.
+Status: **BOARD APPROVED / READY / PROFESSIONAL / NO BLOCKERS**
 
-Historical status at the time: **READY / PROFESSIONAL / blocker ledger NONE**
+Approved cut: `phase2-round-6-full-group`
 
-Approved review cut: `phase2-repair-cut-v3`
+The Board reviewed all twelve calibration units as one batch using exactly three fresh independent seats and exactly one cross-examination. All three final seats returned `READY`, every required professional dimension is at least `PROFESSIONAL`, and the blocker ledger is empty.
 
-- Contact sheet SHA-256: `66c012ac6ba62eeaddafa01d766cb0fe84e4f132374d32547bfa981e58d6730d`
-- 96 px board SHA-256: `de2c4de80b1e1d54c35c6cbcf2f2f900538e739c4c0a0f22483a42739d0cb57a`
-- Structural validation: 12 units, all 22 traits, all six roles, two three-trait units, all native images present, all 96 px checks exact deterministic containments, zero errors and zero warnings.
-- Visual harness: fresh provenance-bound packet, required groups/states/viewports present, no evidence failures.
+The decisive final repair was Knoll's stamp: the same-master native 96px derivative now preserves the pear handle, broad tiered base, receipt contact, and one continuous pale receipt as a positive office-stamping read. The prior hammer/cane/generic-paper ambiguity is closed.
 
-## Board loop
+The comparison packet uses the approved matte Vellum files:
 
-### Initial cut
+- Raw: `824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18`
+- Same-art display cutout: `6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0`
+- Shiny BiRefNet variant: forbidden and absent
 
-Three independent clean-context reviewers voted `NOT READY`. After one cross-examination round they unanimously normalized the blocker ledger to:
+Authoritative decision record: `docs/art/phase2_calibration/board/round_6_cross_exam_consolidated.md`
 
-1. `P2-KOR` — Korath lost selected-A's broken processional arch and read as a healthy Titan brute before a disgraced Blessed penitent.
-2. `P2-LUN` — Luna's master resembled option A, while selected-B's narrow four-tail body and physical Liaison bridge were absent.
-3. `P2-MAL` — Malachor lost selected-C's square four-support fortress construction and used an unresolved loop instead of a functional clamp.
-
-Cashmere's 96 px Arcanist read, Veyra's secondary channel, Knoll's Harmony channel, and harness presentation were explicitly withdrawn as blockers.
-
-### Repaired cut
-
-- Korath now carries a broken masonry arch with a severed apex, collapsed shame posture, visible human face, one-sided chalk-white borrowed-wound ruin, and a large physical miracle wound. The special Blessed gate passes without wings, radiant plate, halo disc, gold, or heroic posture.
-- Luna now matches selected B: narrow legible-legged body, exactly four physically attached refractor tails, one taut cuff-to-cuff woven bridge, facial perception cost, and no gown or detached eye-strip effect.
-- Malachor now matches selected C: square flesh-fortress torso, four load-bearing buttress legs, subordinate chest clock, and one side-mounted two-jaw mortised clamp with an open capture gap.
-
-Three new clean-context reviewers each voted `READY`, rated the cut `PROFESSIONAL`, and returned blocker ledger `NONE`. Their single cross-examination round challenged halo adjacency, miniature bridge/clamp readability, human-garment convergence, collateral regression, and forbidden assets. All three retained `READY / PROFESSIONAL / NONE`.
-
-## Preservation advisories
-
-- Preserve Korath's broken apex, bowed head, asymmetrical calcification, and visible wound cavity so Blessed never regresses into a sacred hero.
-- Preserve Luna's cuff-to-cuff physical bridge and the negative space between her four refractor tails during later translation.
-- Preserve Malachor's four-support square body and the open gap between the clamp jaws.
-- The common dry dark finish is world coherence, not permission to converge later human units into the same coat or leather family.
-
-This historical approval no longer closes Phase 2. It never authorized shop cards, headshots, sprite sheets, animation sheets, standalone VFX, or other production assets.
+Approved scope is limited to Phase 2 master-concept calibration and same-master review derivatives. No shop cards, independent headshots, sprite sheets, animation sheets, standalone VFX, or production assets are authorized.

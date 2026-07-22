@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "luna",
+    "name": "Luna",
+    "combat_role": "Mage",
+    "is_frontliner": false,
+    "sex_design_category": "female",
+    "visual_lane": "hot_adult_woman",
+    "deliberately_horrific": false,
+    "art_primary_trait": "Liaison",
+    "secondary_trait_channels": [
+      "Kaleidoscope"
+    ],
+    "gameplay_identity": "Mage calibration unit carrying Liaison, Kaleidoscope through one decisive combat silhouette.",
+    "strongest_preserved_hook": "none; one body-integrated fibrous refractor ligament running from forward palm to opposite heel",
+    "dominant_prop_or_anatomy": "none; one body-integrated fibrous refractor ligament running from forward palm to opposite heel",
+    "protection_logic": "not_applicable",
+    "supernatural_cost": "connections split the eyes into incompatible gaze pairs and add stress-age seams",
+    "villain_emotion_family": "evil_manipulative_demonic"
+  },
+  "psychology": {
+    "core_wound": "Two people she depended on formed a direct bond and excluded her the moment they no longer needed an intermediary.",
+    "private_want": "She wants every relationship to require her presence so exclusion becomes structurally impossible.",
+    "primary_fear": "The two sides will speak directly, compare what she told them, and discover they are safer without her.",
+    "survival_strategy": "She becomes the indispensable translator and controls which version of reality each side receives.",
+    "villainous_distortion": "She fractures perception, manufactures conflict, and offers herself as the only safe bridge through the conflict she created.",
+    "current_emotional_state": "Warm invitation split by cool surveillance of an unseen second party.",
+    "emotional_contradiction": "Performed intimacy versus terror of direct connection that excludes her.",
+    "face_direction": "One gaze pair follows the open inviting palm while the other pair tracks a second party; the mouth offers safety while lower-lid and throat tension expose fear of comparison.",
+    "pose_direction": "A narrow split stance tensions exactly one physical diagonal refractor ligament from forward palm to opposite heel while the free hand remains empty and controls a second social vector.",
+    "forbidden_read": "No neutral model, friendly mediator, generic seductress, rainbow crystal mage, black catsuit, ribbon dancer, gacha heroine, or harmless pretty woman."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+      "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "B"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/luna/luna_master.png",
+      "sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/luna/luna_face.png",
+      "sha256": "009d0af5dfa9151121b38706ac4d2f5b2f94a8bfc3f2ca6e53869beac689a0b5",
+      "media_type": "image/png",
+      "source_master_sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+      "sha256": "5d6ac22e58d220deead5e1fc10c7a04373826b26e366a0287508505b06d5623b",
+      "media_type": "image/png",
+      "source_master_sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "cashmere",
+      "sable",
+      "paisley"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "PASS",
+        "lean_toned_feminine": "PASS",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Warm invitation split by cool surveillance of an unseen second party.",
+        "want": "The visible intent supports this private want: She wants every relationship to require her presence so exclusion becomes structurally impossible.",
+        "fear_or_concealment": "The face visibly guards against this fear: The two sides will speak directly, compare what she told them, and discover they are safer without her.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: She becomes the indispensable translator and controls which version of reality each side receives.",
+        "villainous_read": "The visible behavior expresses this distortion: She fractures perception, manufactures conflict, and offers herself as the only safe bridge through the conflict she created.",
+        "cited_visual_cues": "Face cue: One gaze pair follows the open inviting palm while the other pair tracks a second party; the mouth offers safety while lower-lid and throat tension expose fear of comparison. Pose cue: A narrow split stance tensions exactly one physical diagonal refractor ligament from forward palm to opposite heel while the free hand remains empty and controls a second social vector."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares luna directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: She reads as a mature, lean, attractive manipulative mage rather than a harmless model.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Skin, mineral cloth, tendon fiber, and muted refraction avoid gloss and gacha polish.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: One physical bridge organizes pose, role, gaze split, and line-casting gameplay.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: Palm-to-heel ligament, split gaze, and preserved muted color form a unique roster lane.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Silhouette options, master, face, exact derivative, and lineage evidence are complete.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: The diagonal ligament and wide split stance remain clear at native scale.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Divergent gaze pairs, inviting hand, guarded throat, and controlled second vector show triangulation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Liaison's bridge dominates; Kaleidoscope remains disciplined within skin and ligament planes.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "PASS",
+        "lean_toned_feminine": "PASS",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Warm invitation split by cool surveillance of an unseen second party.",
+        "want": "The visible intent supports this private want: She wants every relationship to require her presence so exclusion becomes structurally impossible.",
+        "fear_or_concealment": "The face visibly guards against this fear: The two sides will speak directly, compare what she told them, and discover they are safer without her.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: She becomes the indispensable translator and controls which version of reality each side receives.",
+        "villainous_read": "The visible behavior expresses this distortion: She fractures perception, manufactures conflict, and offers herself as the only safe bridge through the conflict she created.",
+        "cited_visual_cues": "Face cue: One gaze pair follows the open inviting palm while the other pair tracks a second party; the mouth offers safety while lower-lid and throat tension expose fear of comparison. Pose cue: A narrow split stance tensions exactly one physical diagonal refractor ligament from forward palm to opposite heel while the free hand remains empty and controls a second social vector."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares luna directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Adult seductive manipulator reads as dangerous mage, not harmless model.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Muted mineral cloth and fibrous refractor avoid glossy rainbow-crystal drift.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: One diagonal bridge unifies pose, trait, spell direction, and silhouette.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: Body-spanning liaison ligament creates a unique roster signature.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Attachment points, color channels, adult body lane, and line-cast pose are usable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: Diagonal ligament remains visible and separates her cleanly from Cashmere.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: P003 shows split gaze, inviting mouth, and surveillance tension reinforced by divided vectors.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Liaison controls anatomy; Kaleidoscope stays muted within color planes and ligament.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "PASS",
+        "lean_toned_feminine": "PASS",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Warm invitation split by cool surveillance of an unseen second party.",
+        "want": "The visible intent supports this private want: She wants every relationship to require her presence so exclusion becomes structurally impossible.",
+        "fear_or_concealment": "The face visibly guards against this fear: The two sides will speak directly, compare what she told them, and discover they are safer without her.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: She becomes the indispensable translator and controls which version of reality each side receives.",
+        "villainous_read": "The visible behavior expresses this distortion: She fractures perception, manufactures conflict, and offers herself as the only safe bridge through the conflict she created.",
+        "cited_visual_cues": "Face cue: One gaze pair follows the open inviting palm while the other pair tracks a second party; the mouth offers safety while lower-lid and throat tension expose fear of comparison. Pose cue: A narrow split stance tensions exactly one physical diagonal refractor ligament from forward palm to opposite heel while the free hand remains empty and controls a second social vector."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares luna directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: She reads as a mature, lean, feminine, attractive mage whose invitation and split attention remain manipulative rather than heroic.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Open hands, feet, split gaze, body-integrated ligament, fitted cloth, and dry skin treatment are coherently rendered.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: One palm-to-heel diagonal ligament unifies the entire split stance and establishes the line-cast action.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for luna: The fibrous bridge anatomy and restrained teal, plum, and amber refraction avoid rainbow crystal and generic mage props.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Three distinct connection silhouettes, master, face crop, exact derivative, and psychology record are complete.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: The wide split stance, extended palms, and bright diagonal ligament remain recognizable at exact 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Divergent eyes, inviting mouth, tense throat, and two-vector hand pose communicate performed intimacy under surveillance.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for luna: Liaison is the structural ligament; Kaleidoscope stays in restrained internal refraction and facial planes.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, luna meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

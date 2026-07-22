@@ -1,0 +1,611 @@
+{
+  "reviewer_id": "P2R3-SEAT-B-ART",
+  "reviewer_role": "senior character art director",
+  "phase": 2,
+  "round": 3,
+  "cross_exam_number": 1,
+  "final_verdict": "NOT_READY",
+  "professional_standard_band": "BELOW PROFESSIONAL",
+  "professional_dimensions_final": {
+    "audience_and_intent_fit": "BELOW PROFESSIONAL",
+    "craft_and_finish": "PROFESSIONAL",
+    "coherence_and_hierarchy": "BELOW PROFESSIONAL",
+    "distinctiveness": "PROFESSIONAL",
+    "completeness_and_downstream_usability": "BELOW PROFESSIONAL",
+    "silhouette_and_96px_readability": "PROFESSIONAL",
+    "psychology_and_villain_read": "BELOW PROFESSIONAL",
+    "production_feasibility_and_trait_clarity": "BELOW PROFESSIONAL"
+  },
+  "blocker_adjudications": [
+    {
+      "blocker_id": "P2R3-A-VEYRA-001",
+      "source_reviewer_id": "P2R3-SEAT-A-CONTRACT",
+      "unit": "veyra",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-A-VEYRA-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "The full-size evidence remains a bilateral cocoon around a passive bound figure: the centered slit and plates do not visibly select or close on a target, so egg, armadillo, or passive protector reads before hostile possessive enclosure. The exact 96px cut preserves a tank silhouette but does not cure that first-read failure.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-A-CASHMERE-001",
+      "source_reviewer_id": "P2R3-SEAT-A-CONTRACT",
+      "unit": "cashmere",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-A-CASHMERE-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_unit_psychology_records.json"
+      ],
+      "reasoning": "All three seats independently identify the same production issue: knitted brow, narrowed eyes, and a compressed mouth produce severe appraisal or a faint proprietary smirk, but neither inviting proprietary warmth nor concealed panic over missing memory is visibly recoverable. This is a psychology-direction failure, not a finish issue.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-A-QUILLITH-001",
+      "source_reviewer_id": "P2R3-SEAT-A-CONTRACT",
+      "unit": "quillith",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-A-QUILLITH-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_unit_psychology_records.json"
+      ],
+      "reasoning": "The serene side-eye can read as quiet approval, but the approved psychology requires fear-driven ownership and painful restraint around Overload. Those motives are not materially embodied in the face or pose. Seat C's acceptance does not refute the direct acting evidence.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-A-KETT-001",
+      "source_reviewer_id": "P2R3-SEAT-A-CONTRACT",
+      "unit": "kett",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-A-KETT-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/kett/kett_master.png",
+        "assets/concepts/phase2_calibration/kett/kett_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_unit_psychology_records.json"
+      ],
+      "reasoning": "All seats converge that Kett's compressed brow, eyes, lips, and jaw produce a generalized grievance scowl. The body, gaze, and wage-stamp fist now share one target, but no facial release cue makes anticipated relief coexist with grievance and restraint.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-A-SABLE-001",
+      "source_reviewer_id": "P2R3-SEAT-A-CONTRACT",
+      "unit": "sable",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-A-SABLE-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/sable/sable_master.png",
+        "assets/concepts/phase2_calibration/sable/sable_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_unit_psychology_records.json"
+      ],
+      "reasoning": "All seats converge that Sable's knitted brows, hard target fixation, and tight downturned mouth read anger, revenge, or ordinary tactical concentration. Cold moral satisfaction and the controlled leak of doubt are not separately visible.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-CONV-FACE-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "batch",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-CASHMERE-001",
+        "P2R3-A-KETT-001",
+        "P2R3-A-SABLE-001"
+      ],
+      "evidence": [
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "The same-master face board is valid comparative evidence, but convergence is the batch-level consequence of specific psychology failures rather than an additional independent blocker. It is merged into the canonical Cashmere, Kett, and Sable blockers to avoid double counting.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-VEYRA-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "veyra",
+      "disposition": "NARROWED",
+      "survives_as": [
+        "P2R3-A-VEYRA-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_96px.png"
+      ],
+      "reasoning": "The passive enclosure and missing selected target remain blocking at full size and merge into the Seat A finding. The earlier implication that the exact 96px cut must independently carry all psychology is removed: it preserves a readable tank silhouette, although its passive egg or armadillo first read remains corroborating evidence.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-CASHMERE-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "cashmere",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-CASHMERE-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "This is the same material observation and closure condition as P2R3-A-CASHMERE-001. It is merged to one canonical surviving blocker.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-KNOLL-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "knoll",
+      "disposition": "NARROWED",
+      "survives_as": [
+        "P2R3-C-003"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+        "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+        "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png"
+      ],
+      "reasoning": "The master and exact 96px cut read the square-headed iron as a compact aggressive marking tool, so the earlier broad prop-legibility claim is too strong. The surviving issue is narrowed to the manifest-selected rough B, where the planted vertical handling reads as cane or staff and contradicts the approved master. That packet issue is assigned to P2R3-C-003.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-B-QUILLITH-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "quillith",
+      "disposition": "NARROWED",
+      "survives_as": [
+        "P2R3-A-QUILLITH-001",
+        "P2R3-C-004"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png"
+      ],
+      "reasoning": "The earlier standalone claim that the 96px master reads as an ordinary shield is not sufficiently strong and is removed. Two narrower issues survive: the master lacks fear-driven ownership and painful restraint, and the manifest-selected rough A presents a weapon or crossbow-like silhouette that conflicts with the master prop language.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-B-KETT-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "kett",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-KETT-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/kett/kett_master.png",
+        "assets/concepts/phase2_calibration/kett/kett_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "This is the same acting failure identified by the other seats and is merged into P2R3-A-KETT-001.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-LUNA-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "luna",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-B-LUNA-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/luna/luna_master.png",
+        "assets/concepts/phase2_calibration/luna/luna_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png",
+        "docs/art/phase2_calibration/phase2_unit_psychology_records.json"
+      ],
+      "reasoning": "Seats A and C pass Luna, but neither report refutes the visible evidence: both eye clusters track the same side, so the approved simultaneous two-audience social calculation and fear of comparison are not independently legible. Under the Board contract, this evidence-backed minority blocker is protected rather than voted away.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-B-MALACHOR-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "malachor",
+      "disposition": "REFUTED",
+      "survives_as": [],
+      "evidence": [
+        "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+        "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+        "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "The full-pose evidence is stronger than the isolated face concern. Wide eyes, open mouth, reaching hand, chest clock, and embedded debtor imagery collectively communicate collapse panic and entitlement. The contiguous chest apparatus reaches the same frontal zone as the hand, and no miniature scale figure is present. Seats A and C therefore provide sufficient direct evidence to refute the blocker.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-SABLE-001",
+      "source_reviewer_id": "P2R3-SEAT-B-ART",
+      "unit": "sable",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-SABLE-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/sable/sable_master.png",
+        "assets/concepts/phase2_calibration/sable/sable_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "This duplicates the cross-seat consensus that cold moral satisfaction and a controlled leak of doubt are absent behind the severe revenge-like stare and is merged into P2R3-A-SABLE-001.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-C-001",
+      "source_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "unit": "veyra",
+      "disposition": "NARROWED",
+      "survives_as": [
+        "P2R3-A-VEYRA-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_96px.png"
+      ],
+      "reasoning": "The passive enclosure and missing target are retained and merged into P2R3-A-VEYRA-001. The separate porcelain or gloss veto is not retained as production-blocking on this cut: the shell preserves cracked tactile material, and the other two seats found the craft and finish professional. Material polish should be watched in final production, but it is not an independent Round 3 blocker.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-C-002",
+      "source_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "unit": "cashmere",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-CASHMERE-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "This is the same missing proprietary warmth and concealed memory-panic contradiction identified by Seats A and B and is merged into one canonical blocker.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-C-003",
+      "source_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "unit": "knoll",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-C-003"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+        "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+        "docs/art/phase2_calibration/phase2_calibration_manifest.json"
+      ],
+      "reasoning": "The master is acceptable, but the immutable manifest selects rough B, where the marking iron is planted and handled like a cane or staff. That downstream packet contradiction can send production toward the wrong prop language, so it survives as a narrowly scoped lineage blocker despite Seat A's master-level pass.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-C-004",
+      "source_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "unit": "quillith",
+      "disposition": "RETAINED",
+      "survives_as": [
+        "P2R3-C-004"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "docs/art/phase2_calibration/phase2_calibration_manifest.json"
+      ],
+      "reasoning": "The immutable manifest selects rough A, whose large weapon or crossbow-like read conflicts with the master silhouette and prop language. This is a concrete downstream lineage contradiction and remains independently blocking.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-C-005",
+      "source_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "unit": "kett",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-KETT-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/kett/kett_master.png",
+        "assets/concepts/phase2_calibration/kett/kett_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "This duplicates the unanimous Kett acting finding and is merged into P2R3-A-KETT-001.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-C-006",
+      "source_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "unit": "sable",
+      "disposition": "MERGED",
+      "survives_as": [
+        "P2R3-A-SABLE-001"
+      ],
+      "evidence": [
+        "assets/concepts/phase2_calibration/sable/sable_master.png",
+        "assets/concepts/phase2_calibration/sable/sable_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "This duplicates the unanimous Sable plan-failure acting finding and is merged into P2R3-A-SABLE-001.",
+      "protected_dissent": false
+    }
+  ],
+  "surviving_blockers": [
+    {
+      "blocker_id": "P2R3-A-VEYRA-001",
+      "unit": "veyra",
+      "criterion": "Hostile possessive enclosure and target fixation must read before passive egg, armadillo, shield, or captive-protector interpretations.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+        "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "closure_test": "On a frozen same-master full-body, face, and exact-96 packet, a blind reviewer must identify an actively selected target from the slit and closing plate vectors and reject egg, armadillo, passive shield, and captive-protector as the first read.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-A-CASHMERE-001",
+      "unit": "cashmere",
+      "criterion": "Cashmere's face must visibly combine proprietary invitation or warmth with concealed panic over missing memory, rather than collapse to severe executive appraisal, angry sorceress, or neutral beauty modeling.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "closure_test": "A name-free same-master face and full-body blind read must independently identify warm possessive acquisition and concealed memory panic from distinct eye, brow, mouth, jaw, ledger, and gesture cues.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-C-003",
+      "unit": "knoll",
+      "criterion": "The manifest-selected rough must preserve the approved master prop language and must not recast the marking iron as a cane or staff.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+        "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+        "docs/art/phase2_calibration/phase2_calibration_manifest.json"
+      ],
+      "closure_test": "Replace or revise the selected Knoll rough so the iron is unmistakably handheld and used as an aggressive marking tool, then confirm the manifest selection and master agree without prose.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-A-QUILLITH-001",
+      "unit": "quillith",
+      "criterion": "Quillith's approved psychology must communicate fear-driven ownership and painful restraint around Overload, not only calm approval.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "closure_test": "A revised master and same-master face crop must show clenched ownership, fear, and painful Overload restraint without captions while preserving Quillith's silhouette and identity at exact 96px.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-C-004",
+      "unit": "quillith",
+      "criterion": "The manifest-selected rough and approved master must describe the same prop family and combat silhouette.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "docs/art/phase2_calibration/phase2_calibration_manifest.json"
+      ],
+      "closure_test": "Replace or revise selected rough A so its prop silhouette matches the approved master and no longer reads as a crossbow or unrelated weapon, then confirm the manifest lineage is internally consistent.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-A-KETT-001",
+      "unit": "kett",
+      "criterion": "Kett's face must visibly combine directed grievance, restraint, and anticipated relief at impact rather than collapse to generic anger.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/kett/kett_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "closure_test": "A face-only blind read must identify controlled grievance and expected relief at impact from distinct cheek, lip, eyelid, or jaw evidence while the master preserves the one-target face, body, and wage-stamp-fist line.",
+      "protected_dissent": false
+    },
+    {
+      "blocker_id": "P2R3-B-LUNA-001",
+      "unit": "luna",
+      "criterion": "Luna's four-eye design must visibly support simultaneous social calculation toward two audiences and the fear that those audiences will compare notes.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/luna/luna_master.png",
+        "assets/concepts/phase2_calibration/luna/luna_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "closure_test": "A revised same-master face crop must make two distinct audience vectors and the resulting comparison anxiety legible without captions, while preserving Luna's identity and exact 96px readability.",
+      "protected_dissent": true
+    },
+    {
+      "blocker_id": "P2R3-A-SABLE-001",
+      "unit": "sable",
+      "criterion": "Sable must read as cold self-righteous moral satisfaction with one controlled leak of doubt, not generic anger, revenge, ordinary tactical concentration, or righteous heroism.",
+      "evidence": [
+        "assets/concepts/phase2_calibration/sable/sable_face.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "closure_test": "A name-free same-master face and full-body blind read must identify cold moral satisfaction plus one controlled sign of doubt and reject anger, revenge, ordinary soldier, and righteous hero as the first emotional read.",
+      "protected_dissent": false
+    }
+  ],
+  "refuted_blockers": [
+    {
+      "blocker_id": "P2R3-B-MALACHOR-001",
+      "unit": "malachor",
+      "evidence": [
+        "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+        "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+        "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+        "docs/art/phase2_calibration/phase2_face_board.png"
+      ],
+      "reasoning": "The full figure supplies the contextual acting missing from the isolated face read: collapse panic, reaching entitlement, clock pressure, and embedded debtors are legible together. No miniature figure or scale contradiction is present, so the issue is not production-blocking."
+    }
+  ],
+  "protected_dissent": [
+    {
+      "blocker_id": "P2R3-B-LUNA-001",
+      "dissenting_reviewer_id": "P2R3-SEAT-B-ART",
+      "majority_position": "Seats A and C passed Luna.",
+      "final_treatment": "RETAINED",
+      "reasoning": "The two-audience requirement is directly testable in the face evidence. Both eye clusters follow one direction, and neither passing report supplies visual evidence of a second audience vector. The minority finding therefore remains evidence-backed and unrefuted."
+    },
+    {
+      "blocker_id": "P2R3-C-003",
+      "dissenting_reviewer_id": "P2R3-SEAT-C-REDTEAM",
+      "majority_position": "Seat A passed Knoll and Seat B's broad master-prop objection was narrowed.",
+      "final_treatment": "RETAINED",
+      "reasoning": "The protected issue is not the approved master; it is the manifest-selected rough B. The planted cane or staff handling visibly contradicts the master and creates a downstream lineage hazard."
+    },
+    {
+      "blocker_id": "P2R3-A-QUILLITH-001",
+      "dissenting_reviewer_id": "P2R3-SEAT-A-CONTRACT",
+      "majority_position": "Seat C passed Quillith's master psychology.",
+      "final_treatment": "RETAINED",
+      "reasoning": "Seat B independently observed the same missing fear and painful restraint. Calm side-eye can communicate approval but does not establish the approved fear-driven ownership contradiction, so the blocker is not refuted by the technical pass."
+    }
+  ],
+  "per_unit_final_disposition": [
+    {
+      "unit": "korath",
+      "disposition": "READY",
+      "professional_standard_band": "PROFESSIONAL",
+      "surviving_blocker_ids": [],
+      "reasoning": "Clear hooked-shield silhouette, strong hierarchy, usable exact-96 read, and no surviving psychology or lineage contradiction."
+    },
+    {
+      "unit": "veyra",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-A-VEYRA-001"
+      ],
+      "reasoning": "Professional craft and a recognizable tank silhouette do not cure the passive egg or armadillo enclosure and missing hostile target fixation."
+    },
+    {
+      "unit": "cashmere",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-A-CASHMERE-001"
+      ],
+      "reasoning": "Inviting proprietary warmth and concealed panic over missing memory are not legible; the face reads as severe appraisal with at most a faint proprietary smirk."
+    },
+    {
+      "unit": "pilfer",
+      "disposition": "READY",
+      "professional_standard_band": "PROFESSIONAL",
+      "surviving_blocker_ids": [],
+      "reasoning": "Distinctive predatory silhouette, coherent prop language, clear psychology, and strong downstream readability."
+    },
+    {
+      "unit": "nyxa",
+      "disposition": "READY",
+      "professional_standard_band": "PROFESSIONAL",
+      "surviving_blocker_ids": [],
+      "reasoning": "The collector-surprise beat, identity, and silhouette remain coherent at full size and exact 96px."
+    },
+    {
+      "unit": "knoll",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-C-003"
+      ],
+      "reasoning": "The master is usable, but the selected rough B contradicts its marking-tool language and makes the production packet unsafe."
+    },
+    {
+      "unit": "quillith",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-A-QUILLITH-001",
+        "P2R3-C-004"
+      ],
+      "reasoning": "The master lacks fear-driven ownership and painful restraint, and the selected rough presents a conflicting weapon silhouette."
+    },
+    {
+      "unit": "kett",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-A-KETT-001"
+      ],
+      "reasoning": "The one-target attack line is usable, but the face remains a generic grievance scowl without a distinct cue of anticipated relief."
+    },
+    {
+      "unit": "luna",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-B-LUNA-001"
+      ],
+      "reasoning": "The four-eye acting does not visibly split between two audiences, leaving the approved fear-of-comparison contradiction unproven."
+    },
+    {
+      "unit": "creep",
+      "disposition": "READY",
+      "professional_standard_band": "PROFESSIONAL",
+      "surviving_blocker_ids": [],
+      "reasoning": "Strong material restraint, clean silhouette, clear creature identity, and no psychology or packet contradiction."
+    },
+    {
+      "unit": "malachor",
+      "disposition": "READY",
+      "professional_standard_band": "PROFESSIONAL",
+      "surviving_blocker_ids": [],
+      "reasoning": "The full pose, clock apparatus, debtors, and reaching panic collectively satisfy the approved collapse-and-payment beat; the isolated Seat B concern is refuted."
+    },
+    {
+      "unit": "sable",
+      "disposition": "NOT_READY",
+      "professional_standard_band": "BELOW PROFESSIONAL",
+      "surviving_blocker_ids": [
+        "P2R3-A-SABLE-001"
+      ],
+      "reasoning": "The face reads as anger, revenge, or tactical concentration rather than cold moral satisfaction with a controlled leak of doubt."
+    }
+  ],
+  "vellum_anchor_confirmation": {
+    "confirmed": true,
+    "approved_raw_anchor_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+    "approved_raw_anchor_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "observed_raw_anchor_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "display_cutout_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_final.png",
+    "display_cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+    "observed_display_cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+    "anchor_identity": "approved hard-matte 10%-real deshined raw Vellum benchmark",
+    "shiny_birefnet_output_used": false,
+    "reasoning": "The immutable brief, source manifest, and evidence manifest resolve to the approved deshined raw anchor and its display cutout. No shiny BiRefNet output is used as the benchmark."
+  },
+  "summary": {
+    "decision": "NOT_READY",
+    "reasoning": "Eight canonical production blockers survive the one permitted cross-examination. The batch has professional craft, finish, distinctiveness, and exact-96 silhouette readability, but seven units remain unsafe because of unresolved psychology acting or selected-rough lineage contradictions. Under the Board contract, any surviving blocker requires NOT_READY.",
+    "adjudication_counts": {
+      "RETAINED": 8,
+      "REFUTED": 1,
+      "MERGED": 7,
+      "NARROWED": 4
+    },
+    "surviving_blocker_count": 8,
+    "ready_unit_count": 5,
+    "not_ready_unit_count": 7,
+    "new_blockers_introduced": 0,
+    "cross_examination_complete": true,
+    "further_debate_authorized": false
+  }
+}

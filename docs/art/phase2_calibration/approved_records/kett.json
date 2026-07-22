@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "kett",
+    "name": "Kett",
+    "combat_role": "Brawler",
+    "is_frontliner": true,
+    "sex_design_category": "male",
+    "visual_lane": "peak_condition_humanoid",
+    "deliberately_horrific": false,
+    "art_primary_trait": "Striker",
+    "secondary_trait_channels": [
+      "Cartel"
+    ],
+    "gameplay_identity": "Brawler calibration unit carrying Striker, Cartel through one decisive combat silhouette.",
+    "strongest_preserved_hook": "one wage-stamp prosthetic fist with three plates",
+    "dominant_prop_or_anatomy": "one wage-stamp prosthetic fist with three plates",
+    "protection_logic": "reinforced_clothing",
+    "supernatural_cost": "each punch embosses debt coin reliefs into bone and reduces finger motion",
+    "villain_emotion_family": "angry"
+  },
+  "psychology": {
+    "core_wound": "A cartel made his labor, debt, and public humiliation indistinguishable until violence was the only action they acknowledged.",
+    "private_want": "He wants one impact powerful enough to restore the dignity he cannot ask for directly.",
+    "primary_fear": "A complex problem will expose him as helpless and return him to public humiliation.",
+    "survival_strategy": "He reduces every injury and insult to a sequence of three solvable blows.",
+    "villainous_distortion": "He makes other bodies absorb every humiliation he cannot name or negotiate.",
+    "current_emotional_state": "Controlled labor rage with anticipatory relief at the coming impact.",
+    "emotional_contradiction": "Rigid restraint versus desperate desire to feel simple physical release.",
+    "face_direction": "Eyes hold a grievance rather than generic anger; lips stay compressed, one cheek twitches toward relief, and the jaw aligns behind the loaded fist.",
+    "pose_direction": "The wage-stamp fist owns the forward mass while the smaller hand and trailing body remain deliberately subordinate.",
+    "forbidden_read": "No generic bruiser, cheerful worker, superhero fist, armored tank, mindless rage, or ornamental coin-and-chain gangster."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+      "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "A"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/kett/kett_master.png",
+      "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/kett/kett_face.png",
+      "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+      "media_type": "image/png",
+      "source_master_sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+      "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+      "media_type": "image/png",
+      "source_master_sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "korath",
+      "knoll",
+      "sable"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Controlled labor rage with anticipatory relief at the coming impact.",
+        "want": "The visible intent supports this private want: He wants one impact powerful enough to restore the dignity he cannot ask for directly.",
+        "fear_or_concealment": "The face visibly guards against this fear: A complex problem will expose him as helpless and return him to public humiliation.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He reduces every injury and insult to a sequence of three solvable blows.",
+        "villainous_read": "The visible behavior expresses this distortion: He makes other bodies absorb every humiliation he cannot name or negotiate.",
+        "cited_visual_cues": "Face cue: Eyes hold a grievance rather than generic anger; lips stay compressed, one cheek twitches toward relief, and the jaw aligns behind the loaded fist. Pose cue: The wage-stamp fist owns the forward mass while the smaller hand and trailing body remain deliberately subordinate."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares kett directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: A mature industrial brawler and controlled villain read instantly without superhero polish.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Tarred cloth, oxidized metal, bruised skin, and workwear retain grounded dry texture.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: The wage-stamp fist owns the composition; every body angle supports the coming impact.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Industrial debt-fist construction separates him from tanks, goblins, and conventional bruisers.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Triptych, master, face, exact derivative, and manifest lineage are complete.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: The disproportionate fist and barrel body remain among the clearest exact-96 silhouettes.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Fixed grievance, compressed lips, loaded jaw, and restrained stance show purposeful labor rage.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Striker's three-stage fist leads; Cartel appears through ownership scars without accessories.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Controlled labor rage with anticipatory relief at the coming impact.",
+        "want": "The visible intent supports this private want: He wants one impact powerful enough to restore the dignity he cannot ask for directly.",
+        "fear_or_concealment": "The face visibly guards against this fear: A complex problem will expose him as helpless and return him to public humiliation.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He reduces every injury and insult to a sequence of three solvable blows.",
+        "villainous_read": "The visible behavior expresses this distortion: He makes other bodies absorb every humiliation he cannot name or negotiate.",
+        "cited_visual_cues": "Face cue: Eyes hold a grievance rather than generic anger; lips stay compressed, one cheek twitches toward relief, and the jaw aligns behind the loaded fist. Pose cue: The wage-stamp fist owns the forward mass while the smaller hand and trailing body remain deliberately subordinate."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares kett directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: Heavy industrial brawler and controlled labor rage read immediately.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: Workwear, bruised skin, iron, leather, and stamped plates are richly tactile.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: Oversized wage-stamp fist decisively controls mass and action.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: Triple-stage industrial striking arm has no competing roster analogue.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Impact staging, prosthetic construction, weight distribution, and materials are explicit.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: Forward fist remains readable before face or costume at exact scale.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: P003 shows grievance, compressed restraint, and anticipated relief rather than mindless rage.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Striker owns the arm stages; Cartel remains stamped scars and stance.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "NOT_APPLICABLE",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Controlled labor rage with anticipatory relief at the coming impact.",
+        "want": "The visible intent supports this private want: He wants one impact powerful enough to restore the dignity he cannot ask for directly.",
+        "fear_or_concealment": "The face visibly guards against this fear: A complex problem will expose him as helpless and return him to public humiliation.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: He reduces every injury and insult to a sequence of three solvable blows.",
+        "villainous_read": "The visible behavior expresses this distortion: He makes other bodies absorb every humiliation he cannot name or negotiate.",
+        "cited_visual_cues": "Face cue: Eyes hold a grievance rather than generic anger; lips stay compressed, one cheek twitches toward relief, and the jaw aligns behind the loaded fist. Pose cue: The wage-stamp fist owns the forward mass while the smaller hand and trailing body remain deliberately subordinate."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares kett directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: The peak-condition industrial brawler reads dangerous, directed, and villainous rather than heroic or mindlessly enraged.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Prosthetic fist, nested plates, shoulder connection, trailing hand, stance, and workwear remain mechanically credible.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: The immense forward fist owns the composition; every body line supports its impact vector.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: The wage-stamp prosthetic and laborer mass avoid shield-tank, superhero, and gangster-costume clich\u00e9s.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Three materially different fist/pose silhouettes, master, face crop, exact derivative, and records are available.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for kett: The huge stepped fist, barrel torso, wide boots, and subordinate trailing arm remain immediate at exact 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Focused eyes, compressed mouth, cheek tension, and fist-aligned jaw show grievance and anticipated relief.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for kett: Striker owns the three-stage prosthetic; Cartel remains in stamped scars without adding props or wardrobe clich\u00e9.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, kett meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

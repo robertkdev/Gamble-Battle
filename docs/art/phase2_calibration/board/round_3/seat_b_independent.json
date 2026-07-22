@@ -1,0 +1,375 @@
+{
+  "schema_version": "1.0.0",
+  "reviewer_id": "P2R3-SEAT-B-ART",
+  "reviewer_role": "senior character art director",
+  "phase": 2,
+  "round": 3,
+  "independent_pass": true,
+  "review_scope": {
+    "unit_count": 12,
+    "units": [
+      "Korath",
+      "Veyra",
+      "Cashmere",
+      "Pilfer",
+      "Nyxa",
+      "Creep",
+      "Knoll",
+      "Quillith",
+      "Kett",
+      "Luna",
+      "Malachor",
+      "Sable"
+    ],
+    "brief": "docs/art/phase2_calibration/board/round_3_full_group_review_brief.md",
+    "immutable_cut_verified": true,
+    "evidence_hashes_verified": true,
+    "per_unit_asset_hashes_checked": 48,
+    "per_unit_asset_hash_mismatches": 0
+  },
+  "overall_verdict": "NOT_READY",
+  "professional_standard_band": "BELOW PROFESSIONAL",
+  "evidence_confidence": {
+    "level": "HIGH",
+    "reason": "All twelve masters, twelve silhouette triptychs, twelve same-master face crops, twelve exact 96x96 derivatives, all six packet and comparison boards, the psychology records, criteria, calibration manifest, evidence manifest, and the approved raw Vellum anchor were inspected directly at original resolution; every supplied hash matched."
+  },
+  "professional_dimensions": {
+    "audience_and_intent_fit": {
+      "critical": true,
+      "band": "BELOW PROFESSIONAL",
+      "evidence": "The batch is visibly adult, hostile, and valuable, but Veyra, Cashmere, Quillith, Kett, Luna, Malachor, and Sable do not yet communicate their required active psychological contradiction without prose.",
+      "benchmark_comparison": "Vellum's face, hand, and prop relationship communicates manipulative control immediately; the failing units rely on their written psychology record to supply fear, doubt, entitlement, or target fixation.",
+      "consequence": "A downstream art team would inherit attractive or horrific surfaces without the decisive acting direction that differentiates these villains."
+    },
+    "craft_and_finish": {
+      "critical": true,
+      "band": "PROFESSIONAL",
+      "evidence": "Rendering, value control, edge finish, material wear, and full-body presentation are consistently resolved; no gross limb discontinuity or unusable weapon construction was observed.",
+      "benchmark_comparison": "The cut generally reaches the approved Vellum anchor's dry, premium density, although several masters are more uniformly smoky and studio-photoreal than Vellum's authored illustration hierarchy.",
+      "consequence": "The images are polished enough for concept review, but polish cannot close missing character acting or prop semantics."
+    },
+    "coherence_and_hierarchy": {
+      "critical": true,
+      "band": "BELOW PROFESSIONAL",
+      "evidence": "Most units have one dominant silhouette idea, but Veyra's enclosure hierarchy collapses into a static egg at small scale, Knoll's marking iron reads as a hammer, and Quillith's correction slate reads as a shield-like slab.",
+      "benchmark_comparison": "Vellum separates face, dominant tool, paper, and body gesture into an immediately legible hierarchy; these three units require label support to recover the intended hierarchy.",
+      "consequence": "Primary gameplay and psychology channels would be miscalled during production handoff."
+    },
+    "distinctiveness": {
+      "critical": true,
+      "band": "PROFESSIONAL",
+      "evidence": "The batch sustains materially different tank, assassin, marksman, mage, support, and brawler silhouettes; the former Cashmere, Quillith, and Luna split-drape family is no longer a roster-level collision.",
+      "benchmark_comparison": "The concepts remain distinct from Vellum rather than copying her corsetry, orbiting paper, coat, or proportions, while still sharing the dry gothic world.",
+      "consequence": "Roster recognition is broadly credible, though the repeated severe facial acting remains a separate psychology convergence failure."
+    },
+    "completeness_and_downstream_usability": {
+      "critical": true,
+      "band": "BELOW PROFESSIONAL",
+      "evidence": "The packet is complete and provenance-safe, but seven unit masters still fail carried visual closure conditions and Knoll and Quillith do not provide production-safe prop semantics at exact 96px.",
+      "benchmark_comparison": "A professional concept lock must let modeling, animation, and marketing teams recover intent from the approved image itself, as the Vellum benchmark does, rather than from corrective prose.",
+      "consequence": "Locking the batch now would propagate ambiguous acting and prop behavior into later assets."
+    },
+    "silhouette_and_96px_readability": {
+      "critical": true,
+      "band": "BELOW PROFESSIONAL",
+      "evidence": "Nine units retain decisive silhouettes at exact 96px. Veyra reads as an egg-like shell without target action; Knoll reads as a hammer fighter rather than a marking support; Quillith reads as a shield-bearing combatant rather than a directive mentor.",
+      "benchmark_comparison": "The accepted bar requires unchanged-master role and identity at 96px, not merely a distinct outline.",
+      "consequence": "Three units would be identifiable by shape but misidentified by function or intent."
+    },
+    "psychology_and_villain_read": {
+      "critical": true,
+      "band": "BELOW PROFESSIONAL",
+      "evidence": "The same-master face board still shows unsupported contradictions: Cashmere lacks memory panic, Quillith lacks fear of being surpassed, Kett lacks anticipated relief, Luna lacks split-party surveillance and comparison fear, Malachor lacks a payment demand, and Sable lacks moral satisfaction plus leaked doubt.",
+      "benchmark_comparison": "Vellum's exhausted control is visible through eye focus, mouth restraint, directed hand, and prop ownership. The failing faces settle for severity, serenity, a smirk, or a scream.",
+      "consequence": "These units remain generic emotional types rather than production-locked individuals."
+    },
+    "production_feasibility_and_trait_clarity": {
+      "critical": true,
+      "band": "BELOW PROFESSIONAL",
+      "evidence": "Body and weapon mechanics are generally traceable, but Veyra's action state, Knoll's receipt-branding function, and Quillith's instructional slate function are not unambiguous in the master-to-96px chain.",
+      "benchmark_comparison": "Vellum's quill, scroll, and directing pose retain stable function across scale; these three designs need interpretive relabeling.",
+      "consequence": "Animation and VFX teams could build the wrong interaction language despite technically polished art."
+    }
+  },
+  "per_unit": [
+    {
+      "unit": "Korath",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "frontline_protection_explained": "PASS", "blessed_special_gate": "PASS"},
+      "evidence": "Bowed eye contact, debt-demanding open hand, calcified asymmetry, fused yoke silhouette, and exact 96px burden read remain coherent and distinct.",
+      "blocker_ids": []
+    },
+    {
+      "unit": "Veyra",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "FAIL", "trait_channels": "PASS", "read_96px": "FAIL", "roster_distinct": "PASS", "frontline_protection_explained": "PASS", "deliberate_horror_exception": "PASS"},
+      "evidence": "The bound center and blooded plates establish coercive enclosure at full size, but the centered slit, bilateral stance, and exact 96px oval remain static and egg-like rather than target-fixing or closing on prey.",
+      "blocker_ids": ["P2R3-B-VEYRA-001"]
+    },
+    {
+      "unit": "Cashmere",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "PASS", "lean_toned_feminine": "PASS"},
+      "evidence": "The ledger, raised ink hand, attractive peak-condition lane, and selected-B correspondence read cleanly; the face resolves as a severe appraising smirk, not proprietary warmth over concealed memory panic.",
+      "blocker_ids": ["P2R3-B-CONV-FACE-001", "P2R3-B-CASHMERE-001"]
+    },
+    {
+      "unit": "Pilfer",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS"},
+      "evidence": "The ingratiating half-smile, reward-scanning eye, deferential loaded crouch, split tail, and already-intruding ampoule hand form one readable opportunistic theft action.",
+      "blocker_ids": []
+    },
+    {
+      "unit": "Nyxa",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "deliberate_horror_exception": "PASS"},
+      "evidence": "Bat anatomy and the loaded grown bow read before age; the split aged face, asymmetric eye tension, tooth-bared pleasure, and compressed firing pose support temporal pain plus predatory delight.",
+      "blocker_ids": []
+    },
+    {
+      "unit": "Creep",
+      "disposition": "READY",
+      "professional_band": "PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "deliberate_horror_exception": "PASS"},
+      "evidence": "The erased face, hollow apertures, low target-loaded limbs, and broken scythe-ring retain the approved dissociated execution identity without new clutter or regression.",
+      "blocker_ids": []
+    },
+    {
+      "unit": "Knoll",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "FAIL", "trait_channels": "PASS", "read_96px": "FAIL", "roster_distinct": "PASS"},
+      "evidence": "Peak-condition body, measured smile, and scarred measuring eye pass, and the prop is no longer a cane; however its long shaft, two-handed hold, and heavy square toothed head read as a warhammer rather than a receipt-branding instrument in action, especially at 96px.",
+      "blocker_ids": ["P2R3-B-KNOLL-001"]
+    },
+    {
+      "unit": "Quillith",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "FAIL", "trait_channels": "PASS", "read_96px": "FAIL", "roster_distinct": "PASS", "hot_adult_woman": "PASS", "lean_toned_feminine": "PASS"},
+      "evidence": "She is attractive, peak-condition, and visibly nerve-scarred, but the calm sidelong smile shows approval without ownership fear; the ground-length slab reads as shield-like at 96px and does not preserve the selected-A instructional silhouette clearly.",
+      "blocker_ids": ["P2R3-B-QUILLITH-001"]
+    },
+    {
+      "unit": "Kett",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "frontline_protection_explained": "PASS"},
+      "evidence": "The wage-stamp fist dominates the dry workwear and shares the forward target with the body; the face remains a generic compressed scowl with no visible cheek release or anticipated relief.",
+      "blocker_ids": ["P2R3-B-CONV-FACE-001", "P2R3-B-KETT-001"]
+    },
+    {
+      "unit": "Luna",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "FAIL", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "PASS", "lean_toned_feminine": "PASS"},
+      "evidence": "The attractive adult lane, split stance, muted color, and single multi-fiber palm-to-opposite-heel ligament read clearly; both eyes travel together and the small smile lacks a second-party surveillance cue or fear of comparison, leaving a benign confident mediator read.",
+      "blocker_ids": ["P2R3-B-LUNA-001"]
+    },
+    {
+      "unit": "Malachor",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "frontline_protection_explained": "PASS", "deliberate_horror_exception": "PASS"},
+      "evidence": "The fortress body, chest clock, embedded debtors, and attached clamp are legible and there is no separate scale figure; the primary face is a generic open scream, not an entitled demand for payment, and the clamp's target is not reinforced by the face.",
+      "blocker_ids": ["P2R3-B-MALACHOR-001"]
+    },
+    {
+      "unit": "Sable",
+      "disposition": "NOT_READY",
+      "professional_band": "BELOW PROFESSIONAL",
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS"},
+      "evidence": "The long rifle, aiming wedge, proof strips, and eye scar read cleanly; the face remains one severe revenge-like stare with compressed lips, without visible moral satisfaction or a controlled leak of doubt.",
+      "blocker_ids": ["P2R3-B-CONV-FACE-001", "P2R3-B-SABLE-001"]
+    }
+  ],
+  "blockers": [
+    {
+      "id": "P2R3-B-CONV-FACE-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["docs/art/phase2_calibration/phase2_face_board.png", "assets/concepts/phase2_calibration/cashmere/cashmere_face.png", "assets/concepts/phase2_calibration/kett/kett_face.png", "assets/concepts/phase2_calibration/sable/sable_face.png"],
+      "visible_observation": "Cashmere, Kett, and Sable still converge on brow compression, narrowed forward gaze, and restrained unsmiling mouths; their required warmth/panic, anticipated relief, and satisfaction/doubt do not separate the faces.",
+      "criterion": "unit_art_board_reference_criteria.md sections 8, 9, and 15: face-readable psychology, distributed emotion families, and no universal anger/severe stare.",
+      "closure_test": "Run an image-only blind read on the same-master face board. Reviewers must independently identify Cashmere's warmth plus panic, Kett's grievance plus anticipated relief, and Sable's satisfaction plus leaked doubt without names or prose, while no two are summarized as the same severe/scowling family."
+    },
+    {
+      "id": "P2R3-B-VEYRA-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/veyra/veyra_master.png", "assets/concepts/phase2_calibration/veyra/veyra_face.png", "assets/concepts/phase2_calibration/veyra/veyra_96px.png"],
+      "visible_observation": "The full-size enclosure is coercive, but the centered eye slit, bilateral plates, and planted stance do not visibly fix or advance on a target; at exact 96px the first read is a passive egg/armadillo shell.",
+      "criterion": "Round 2 Veyra lineage and criteria sections 8, 11, 14, and 17: hostile possessive enclosure and target fixation must precede passive egg, with gameplay identity surviving at 96px.",
+      "closure_test": "Without labels, the unchanged master and exact 96px derivative must be read first as a hostile enclosure actively closing on a chosen target; no reviewer may lead with egg, armadillo, passive shell, or neutral tank object."
+    },
+    {
+      "id": "P2R3-B-CASHMERE-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "assets/concepts/phase2_calibration/cashmere/cashmere_face.png", "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png"],
+      "visible_observation": "The silhouette options and ledger anatomy are now usable, but the face communicates severe appraisal with a faint proprietary smirk; no eye, jaw, or mouth cue visibly exposes concealed memory panic or inviting warmth.",
+      "criterion": "Round 2 Cashmere lineage and criteria sections 7, 8, and 17: proprietary warmth and memory panic must be visible from the same-master face and reinforced by pose.",
+      "closure_test": "In a name-free face-and-master blind read, reviewers must identify an inviting acquisition layered over fear of a blank memory, citing separate eye, brow, mouth, and jaw cues rather than repeating the written record."
+    },
+    {
+      "id": "P2R3-B-KNOLL-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/knoll/knoll_master.png", "assets/concepts/phase2_calibration/knoll/knoll_96px.png", "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png"],
+      "visible_observation": "The prop is no longer a cane, but its long haft, two-handed hold, and massive square toothed head read as a fantasy warhammer; there is no visible marking contact or target relationship, and the 96px read reinforces hammer-fighter rather than Trader support.",
+      "criterion": "Round 2 Knoll lineage and criteria sections 14 and 17: the dominant iron must read as a hostile marking instrument in action and preserve gameplay identity at 96px.",
+      "closure_test": "Blind viewers of the unchanged master and exact 96px derivative must identify a receipt-branding or marking action before hammer, mace, staff, or cane, and must cite a visible target/contact mechanic."
+    },
+    {
+      "id": "P2R3-B-QUILLITH-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/quillith/quillith_master.png", "assets/concepts/phase2_calibration/quillith/quillith_face.png", "assets/concepts/phase2_calibration/quillith/quillith_96px.png", "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png"],
+      "visible_observation": "The face offers calm approval but not fear of being surpassed or possessive ownership; the giant slab is non-crossbow at full size yet reads shield-like at 96px, and it diverges materially from selected rough A's lectern/correction-frame mechanics.",
+      "criterion": "Round 2 Quillith lineage and criteria sections 8, 14, and 17: care, approval, ownership, fear, painful Overload, selected-master correspondence, support instruction, and 96px identity must coexist.",
+      "closure_test": "A name-free master, face, selected-A rough, and 96px review must yield favored-pupil approval plus fear-driven ownership, visible Overload pain, and an instructional support slate rather than shield, crossbow, or weapon; the master must preserve selected A's defining construction."
+    },
+    {
+      "id": "P2R3-B-KETT-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/kett/kett_master.png", "assets/concepts/phase2_calibration/kett/kett_face.png"],
+      "visible_observation": "Fist, body, and gaze share a forward target and the wage-stamp fist dominates; the face is still a generic grievance scowl with compressed brow and mouth, without the specified cheek release or anticipated relief.",
+      "criterion": "Round 2 Kett lineage and criteria sections 8, 9, and 17: grievance, restraint, and anticipated relief must coexist and avoid generic anger.",
+      "closure_test": "A face-only blind read must identify controlled grievance and the expectation of relief at impact, citing a visible release cue in cheek, lip, eyelid, or jaw while the master keeps fist, body, and gaze on one target."
+    },
+    {
+      "id": "P2R3-B-LUNA-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/luna/luna_master.png", "assets/concepts/phase2_calibration/luna/luna_face.png", "assets/concepts/phase2_calibration/luna/luna_96px.png"],
+      "visible_observation": "The single palm-to-opposite-heel ligament is clear, but both eyes track the same side and the small smile reads as calm confidence; there is no visible warm-party/cool-party split or fear that the parties compare notes.",
+      "criterion": "Round 2 Luna lineage and criteria sections 8 and 17: warm invitation, surveillance of another party, and comparison fear must coexist visibly.",
+      "closure_test": "A face-only blind read must identify two simultaneous social targets and fear of their direct connection, with distinct gaze, eyelid, mouth-corner, and jaw evidence; the master must retain exactly one palm-to-opposite-heel ligament."
+    },
+    {
+      "id": "P2R3-B-MALACHOR-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/malachor/malachor_master.png", "assets/concepts/phase2_calibration/malachor/malachor_face.png", "assets/concepts/phase2_calibration/malachor/malachor_96px.png"],
+      "visible_observation": "The clock, debtor faces, fortress mass, and attached clamp are clear and no scale figure exists, but the primary face is an undirected generic scream; payment demand and shared face-clamp target are not visible.",
+      "criterion": "Round 2 Malachor lineage and criteria sections 8 and 17: the primary face must demand payment through collapse panic and body plus clamp must share that target.",
+      "closure_test": "A blind read must describe entitled demand rather than helpless screaming, and independently trace the primary eyes, mouth, body lean, and clamp opening to the same tissue-debtor target; no separate scale figure may appear."
+    },
+    {
+      "id": "P2R3-B-SABLE-001",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "evidence_class": "OBSERVED",
+      "lineage_status": "CARRIED",
+      "evidence": ["assets/concepts/phase2_calibration/sable/sable_master.png", "assets/concepts/phase2_calibration/sable/sable_face.png"],
+      "visible_observation": "The rifle line and aiming body are production-usable, but the face remains a severe revenge-like stare with compressed lips; moral satisfaction and the controlled leak of doubt are not separately visible.",
+      "criterion": "Round 2 Sable lineage and criteria sections 8, 9, and 17: cold moral satisfaction plus suppressed doubt must replace generic rage or revenge scowling.",
+      "closure_test": "A face-only blind read must identify satisfaction in the judgment and doubt about the evidence, citing different eye, cheek, mouth, and jaw cues; generic angry sniper, revenge stare, or righteous hero must not be the first read."
+    }
+  ],
+  "round_2_lineage": [
+    {"lineage_id": "R2-GROUP-FACE-EMOTION", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-CONV-FACE-001"], "basis": "The roster now contains more emotional families, but Cashmere, Kett, and Sable remain materially converged severe-stare variants and their required contradictions are not visible."},
+    {"lineage_id": "R2-GROUP-CASHMERE-QUILLITH-LUNA-CLOTHING", "disposition": "CLEARED", "blocker_ids": [], "basis": "Cashmere uses a ledger-dominated long split drape, Quillith uses a compact tunic/trouser examiner lane with a side slab, and Luna uses an athletic fitted wrap/pant lane with body ligament; the repeated leg-reveal family is gone."},
+    {"lineage_id": "R2-VEYRA-HOSTILE-ENCLOSURE", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-VEYRA-001"], "basis": "Coercive enclosure improved at full size, but target fixation and active closure do not precede the passive egg read at 96px."},
+    {"lineage_id": "R2-CASHMERE-ROUGH-PSYCHOLOGY-ANATOMY", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-CASHMERE-001"], "basis": "Three roughs, selected-B correspondence, and hand-ledger anatomy are acceptable; proprietary warmth over memory panic remains unproven visually."},
+    {"lineage_id": "R2-NYXA-TEMPORAL-PREDATION", "disposition": "CLEARED", "blocker_ids": [], "basis": "Batlike predation reads before age, and the half-aged face plus asymmetric grin/tension visibly combines temporal pain and predatory pleasure."},
+    {"lineage_id": "R2-KNOLL-MARKING-IRON", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-KNOLL-001"], "basis": "The prop is not a cane, but it reads as a warhammer rather than a hostile marking instrument in action."},
+    {"lineage_id": "R2-QUILLITH-PUPIL-SLATE-OVERLOAD", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-QUILLITH-001"], "basis": "Approval and Overload scarring are present, but fear-driven ownership is not visible and the slate becomes shield-like at 96px."},
+    {"lineage_id": "R2-KETT-TARGET-GRIEVANCE-RELIEF", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-KETT-001"], "basis": "Target alignment and fist dominance close; anticipated relief does not appear in the face."},
+    {"lineage_id": "R2-LUNA-TRIANGULATION-LIGAMENT", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-LUNA-001"], "basis": "Exactly one palm-to-opposite-heel ligament is present; two-party triangulation and fear of comparison are not visible in the face."},
+    {"lineage_id": "R2-MALACHOR-PAYMENT-PANIC-CLAMP", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-MALACHOR-001"], "basis": "No scale figure and the clamp is body-attached, but the primary face is a generic scream rather than a payment demand and target unity is weak."},
+    {"lineage_id": "R2-SABLE-SATISFACTION-DOUBT", "disposition": "BLOCKER_RETAINED", "blocker_ids": ["P2R3-B-SABLE-001"], "basis": "The master remains a severe aiming stare without separately readable satisfaction and doubt."},
+    {"lineage_id": "R2-KORATH-CLOSED", "disposition": "CLOSED_NO_REGRESSION", "blocker_ids": [], "basis": "No new production-blocking evidence in the Round 3 pixels."},
+    {"lineage_id": "R2-PILFER-CLOSED", "disposition": "CLOSED_NO_REGRESSION", "blocker_ids": [], "basis": "No new production-blocking evidence in the Round 3 pixels."},
+    {"lineage_id": "R2-CREEP-CLOSED", "disposition": "CLOSED_NO_REGRESSION", "blocker_ids": [], "basis": "No new production-blocking evidence in the Round 3 pixels."}
+  ],
+  "vellum_anchor_confirmation": {
+    "confirmed": true,
+    "approved_raw_anchor_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+    "approved_raw_anchor_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "verified_raw_anchor_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "display_cutout_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_final.png",
+    "display_cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+    "comparison_board_path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+    "comparison_board_sha256": "0a464cdbed5143b032711c3773c995c89a197ff943a0c626a6d7112d7c067a58",
+    "benchmark_used": "approved hard-matte 10%-real deshined raw anchor",
+    "shiny_birefnet_output_used": false,
+    "confirmation_basis": "The raw and display file hashes match the immutable brief, and the Vellum-first comparison explicitly embeds the same raw path and hash."
+  },
+  "anatomy_prop_audit": [
+    {"unit": "Korath", "status": "PASS", "observation": "Both arms and hands are traceable; the asymmetric calcified body and shoulder yoke form one load-bearing idea."},
+    {"unit": "Veyra", "status": "PASS_WITH_ACTION_BLOCKER", "observation": "Pillar legs, nested plates, bound center, and eye slit are coherent; the failure is action/target semantics, not construction."},
+    {"unit": "Cashmere", "status": "PASS", "observation": "Raised ink hand and ledger-holding arm are traceable with plausible digit count and grip; the ledger remains the single dominant prop."},
+    {"unit": "Pilfer", "status": "PASS", "observation": "Elongated ampoule fingers, normal support arm, digitigrade feet, and split tails are coherent and subordinate to one siphon-hand idea."},
+    {"unit": "Nyxa", "status": "PASS", "observation": "The grown wing-finger bow, membrane limb, string web, drawing hand, and crouched body form a readable fantasy load path without a second weapon."},
+    {"unit": "Creep", "status": "PASS", "observation": "Nonhuman hands and feet are readable; scythe ribbons clearly grow from the spine and form one broken attack ring."},
+    {"unit": "Knoll", "status": "FAIL_PROP_SEMANTICS", "observation": "Grip and haft are mechanically plausible, but the head and action read as warhammer use rather than receipt branding or hostile marking."},
+    {"unit": "Quillith", "status": "FAIL_PROP_SEMANTICS", "observation": "Hands and limbs are anatomically traceable, but the ground-length slab reads as shield-like and its instructional hinge/use is not demonstrated."},
+    {"unit": "Kett", "status": "PASS", "observation": "The oversized prosthetic fist continues cleanly into the arm, the trailing fist is subordinate, and no competing shield or weapon remains."},
+    {"unit": "Luna", "status": "PASS", "observation": "Hands and feet are coherent; one multi-fiber ligament bundle runs from the forward palm to the opposite heel without a duplicate body connection."},
+    {"unit": "Malachor", "status": "PASS_WITH_TARGET_BLOCKER", "observation": "Four support masses, embedded faces, chest clock, hinge, and clamp are body-integrated; the unresolved issue is shared target direction."},
+    {"unit": "Sable", "status": "PASS", "observation": "Trigger hand, support hand, stock, scope, long barrel, and laminated proof strips are mechanically readable and form one weapon system."}
+  ],
+  "exact_96px_audit": {
+    "method": "Each manifest-bound 96x96 PNG was inspected directly at original 96x96 resolution and cross-checked against phase2_96px_lineup.png.",
+    "pass_units": ["Korath", "Cashmere", "Pilfer", "Nyxa", "Creep", "Kett", "Luna", "Malachor", "Sable"],
+    "fail_units": ["Veyra", "Knoll", "Quillith"],
+    "results": [
+      {"unit": "Korath", "verdict": "PASS", "observation": "Bowed titan, horizontal yoke, planted feet, and pale wound survive."},
+      {"unit": "Veyra", "verdict": "FAIL", "observation": "Distinct oval tank silhouette survives, but hostile closure and target fixation collapse into a passive egg-like shell."},
+      {"unit": "Cashmere", "verdict": "PASS", "observation": "Tall mage, ledger block, and raised ink hand survive."},
+      {"unit": "Pilfer", "verdict": "PASS", "observation": "Low runner, split tail, and oversized siphon hand survive."},
+      {"unit": "Nyxa", "verdict": "PASS", "observation": "Bat crouch and grown bow dominate the marksman read."},
+      {"unit": "Creep", "verdict": "PASS", "observation": "Low alien body, pale head, and broken blade ring remain unique."},
+      {"unit": "Knoll", "verdict": "FAIL", "observation": "Compact fighter survives, but the dominant prop reads as hammer rather than marking support."},
+      {"unit": "Quillith", "verdict": "FAIL", "observation": "Woman and large slab survive, but the slab reads shield-like and Mentor/Scholar support identity does not."},
+      {"unit": "Kett", "verdict": "PASS", "observation": "Forward wage-stamp fist and brawler mass remain decisive."},
+      {"unit": "Luna", "verdict": "PASS", "observation": "Split stance and single bright diagonal ligament remain clear."},
+      {"unit": "Malachor", "verdict": "PASS", "observation": "Square fortress, face, chest clock, and clamp remain readable."},
+      {"unit": "Sable", "verdict": "PASS", "observation": "Long rifle and narrow aiming body remain distinct."}
+    ]
+  },
+  "convergence_audit": {
+    "overall": "FAIL",
+    "face_emotion_families": {"verdict": "FAIL", "evidence": "Cashmere, Kett, and Sable remain severe narrowed-gaze variants; Malachor also falls back to a generic scream. Other families are now materially varied."},
+    "cashmere_quillith_luna_clothing_family": {"verdict": "PASS", "evidence": "The three now occupy materially different ledger-drape, examiner-tunic, and athletic ligament lanes."},
+    "body_plan_and_species": {"verdict": "PASS", "evidence": "Human, goblin, ratfolk, alien, bat predator, shell organism, flesh fortress, and titan silhouettes do not collapse into one body template."},
+    "dominant_props_and_anatomy": {"verdict": "PASS_WITH_UNIT_FAILURES", "evidence": "No roster-wide prop-class collision exists, but Knoll and Quillith have unit-level semantic failures."},
+    "palette_and_material": {"verdict": "PASS", "evidence": "The batch is coherently dry and worn while retaining chalk shell, carmine membrane, gray-blue alien skin, teal/plum cloth, oxblood flesh, paper, wood, and industrial metal lanes."},
+    "silhouette": {"verdict": "PASS_WITH_UNIT_FAILURES", "evidence": "All twelve are mutually distinguishable, but Veyra, Knoll, and Quillith do not preserve intended action or role semantics at 96px."}
+  },
+  "summary": {
+    "decision": "NOT_READY",
+    "controlling_reason": "Multiple carried Round 2 production blockers remain directly visible, and the lowest critical professional dimensions are below professional.",
+    "ready_units": ["Korath", "Pilfer", "Nyxa", "Creep"],
+    "not_ready_units": ["Veyra", "Cashmere", "Knoll", "Quillith", "Kett", "Luna", "Malachor", "Sable"],
+    "surviving_blocker_count": 9,
+    "strongest_acceptance_case": "The batch is polished, provenance-complete, stylistically aligned to the approved deshined Vellum anchor, anatomically usable in most cases, and substantially more varied in clothing, species, and silhouette than the prior cut.",
+    "why_acceptance_case_fails": "Professional concept lock requires the image itself to carry the specified psychology, prop function, and 96px role read. Those failures remain observable and are not refuted by the complete packet or high rendering finish.",
+    "excellence_gap": "Beyond blocker closure, the batch would need more authored facial micro-acting, less repeated smoky studio treatment, more unit-specific value/color hierarchy, and prop actions that demonstrate function rather than pose beside it to approach EXCELLENT.",
+    "approval_rule_applied": "Any unrefuted production-blocking issue yields NOT_READY."
+  }
+}

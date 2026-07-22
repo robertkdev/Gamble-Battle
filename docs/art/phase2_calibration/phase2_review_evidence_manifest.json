@@ -1,0 +1,979 @@
+{
+  "schema_version": 1,
+  "phase": 2,
+  "title": "Real-unit calibration review evidence",
+  "generator": "tools/art/validate_phase2_review_evidence.py",
+  "cut": [
+    "korath",
+    "veyra",
+    "cashmere",
+    "pilfer",
+    "nyxa",
+    "creep",
+    "knoll",
+    "quillith",
+    "kett",
+    "luna",
+    "malachor",
+    "sable"
+  ],
+  "unit_count": 12,
+  "asset_count": 48,
+  "criteria_and_review_docs": [
+    {
+      "path": "docs/art/unit_art_board_reference_criteria.md",
+      "sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+      "bytes": 22005
+    },
+    {
+      "path": "docs/art/trait_visual_bible_phase1.json",
+      "sha256": "5eaafd2dc2ab2db406491931bfe67aec93c894221d6b9d9cd3660cf37cdbcb3b",
+      "bytes": 78156
+    },
+    {
+      "path": "docs/art/unit_art_proof_matrix.json",
+      "sha256": "d9443076b4463e7d85f17f3d5be0770f2fab9678db4d1b20162103efe3f9d89f",
+      "bytes": 80175
+    },
+    {
+      "path": "docs/art/unit_art_roster_prompt_matrix.json",
+      "sha256": "5ede34f387942c7004d19e53bd914657c9bd8bded1e8d03c48dbc43e4f379e3f",
+      "bytes": 31061
+    },
+    {
+      "path": "docs/art/unit_art_style_workflow.md",
+      "sha256": "049dafde9729105c532bb42c5ca7cd14090ea131011436712740dbaa6c0ef35b",
+      "bytes": 46603
+    },
+    {
+      "path": "docs/art/vellum_alignment_continuation_2026-07-01.md",
+      "sha256": "7ff73b750917f1f4664a3afdaa20a89aa39f3d7fb1193c41e606920285b928d4",
+      "bytes": 5471
+    },
+    {
+      "path": "docs/art/phase2_calibration/phase2_calibration_bible.md",
+      "sha256": "2d8cc44999616e71234bf63c2fd348689834e7f41bfcc0d248eea0ba23accc50",
+      "bytes": 27201
+    },
+    {
+      "path": "docs/art/phase2_calibration/phase2_calibration_manifest.json",
+      "sha256": "d31dc7f920809fd929c73500b58a08f84be2c6ee1ba2945df6cd6568e32ac83b",
+      "bytes": 14906
+    },
+    {
+      "path": "docs/art/phase2_calibration/phase2_unit_psychology_records.json",
+      "sha256": "5423f380bb01252fb63dd14eaba5554b6e3f014a32fa43e8d48665b92b49effc",
+      "bytes": 22354
+    },
+    {
+      "path": "docs/art/phase2_calibration/board/round_1_full_group_review_brief.md",
+      "sha256": "8b87e2a0d6d2fa2f291751c9d1666c89e8504ecb898105b98256a8c5df296f68",
+      "bytes": 4023
+    },
+    {
+      "path": "docs/art/phase2_calibration/board/round_1_cross_exam_consolidated.md",
+      "sha256": "d0bfbe10c01f0ec37ddd33cb41da676de796875cba115971b596d746d6a92fda",
+      "bytes": 4453
+    }
+  ],
+  "render_sources": [
+    {
+      "path": "tools/art/render_phase2_unit_derivatives.py",
+      "sha256": "cc58ffe0b9adcfa12f3c70c231bb202fee53003ccbf13ebb1b9ca7df95cd9ed6",
+      "bytes": 1937
+    },
+    {
+      "path": "tools/art/render_phase2_calibration_packet.py",
+      "sha256": "26858619a0fd2f6c8aca7fc2e78010c278281c0180cd58a1da3745296b641561",
+      "bytes": 8332
+    },
+    {
+      "path": "tools/art/render_phase2_face_board.py",
+      "sha256": "7c6c6bcb7b936c8e852e5d3e43938f1ff8a5988f3dab508c498c0fb85aecb9fc",
+      "bytes": 5959
+    },
+    {
+      "path": "tools/art/render_phase2_comparison_boards.py",
+      "sha256": "4dff0be422217482e78c3652ed012c2859b9dfe3534a5042a477c4d3942add0f",
+      "bytes": 16464
+    }
+  ],
+  "units": [
+    {
+      "id": "korath",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+          "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+          "dimensions": [
+            1717,
+            916
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/korath/korath_master.png",
+          "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+          "dimensions": [
+            1024,
+            1536
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/korath/korath_face.png",
+          "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+          "dimensions": [
+            380,
+            430
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+          "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/korath/korath_master.png",
+          "source_master_sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+          "crop_xywh": [
+            330,
+            210,
+            380,
+            430
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/korath/korath_master.png",
+          "source_master_sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/korath.md",
+        "sha256": "f292270260acb925371ae4763ced71c9e325eaea4eb3fe425c3e02ca18da0525",
+        "bytes": 1181
+      }
+    },
+    {
+      "id": "veyra",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+          "sha256": "f9856e173468a9cf31b8ea4dd11d4c74d9fe0dfdffbe30089457748b6b4a209e",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+          "sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+          "dimensions": [
+            1122,
+            1402
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+          "sha256": "45fddc11d5b580f9848a42a929b71bf381f8d672df9f069f456a8a6f8b611179",
+          "dimensions": [
+            500,
+            580
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+          "sha256": "05774223a24582665c4376cd435c85b9a328b2f509e9d702f9793b3126171cc2",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+          "source_master_sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+          "crop_xywh": [
+            430,
+            180,
+            500,
+            580
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+          "source_master_sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/veyra.md",
+        "sha256": "9be431f71e43289561e4acbd13c154b460d817f5715dc7485657daad2514fd9b",
+        "bytes": 1330
+      }
+    },
+    {
+      "id": "cashmere",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+          "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+          "sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+          "dimensions": [
+            1024,
+            1536
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+          "sha256": "296c9ec5977675c0f9039d57c191fd64728406aae909049ad01f02bbd78d547e",
+          "dimensions": [
+            340,
+            390
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+          "sha256": "d99ba1c6b7e3bfb0db8aac5a45d9726f4fc714abe0c76f5b0ca68efeae397194",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+          "source_master_sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+          "crop_xywh": [
+            350,
+            35,
+            340,
+            390
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+          "source_master_sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/cashmere.md",
+        "sha256": "3b6a04caf0db1a4ea0cda8893f5d378b9dae33829533ba318289d374d26d8eb9",
+        "bytes": 2551
+      }
+    },
+    {
+      "id": "pilfer",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png",
+          "sha256": "98716689371e417fba0f680ee0d3fa232e3bf654faa0e311d1b86ef5b0acb1cb",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+          "sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+          "dimensions": [
+            1023,
+            1537
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+          "sha256": "aa48197d9fc697c652093c00abbcd83b48facf57c4e81306f18dbfd0a1214ebe",
+          "dimensions": [
+            470,
+            500
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png",
+          "sha256": "c5134b66c07e0c757df155848e10d3f8b2327fe6af7afb60184586b25638f138",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+          "source_master_sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+          "crop_xywh": [
+            100,
+            70,
+            470,
+            500
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+          "source_master_sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/pilfer.md",
+        "sha256": "2501ee3483f5e39fc35da231035e83033461d8fa28e4dcb157fda080d8584063",
+        "bytes": 1199
+      }
+    },
+    {
+      "id": "nyxa",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+          "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+          "dimensions": [
+            1625,
+            968
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+          "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+          "dimensions": [
+            1024,
+            1536
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+          "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+          "dimensions": [
+            420,
+            430
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+          "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+          "source_master_sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+          "crop_xywh": [
+            310,
+            390,
+            420,
+            430
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+          "source_master_sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/nyxa.md",
+        "sha256": "9d84920a926bdd168831f54c33646317b55cf3a707d2bbe82a46e9b6874fb7cf",
+        "bytes": 2130
+      }
+    },
+    {
+      "id": "creep",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+          "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+          "dimensions": [
+            1721,
+            914
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/creep/creep_master.png",
+          "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/creep/creep_face.png",
+          "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4",
+          "dimensions": [
+            360,
+            420
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+          "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/creep/creep_master.png",
+          "source_master_sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+          "crop_xywh": [
+            760,
+            220,
+            360,
+            420
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/creep/creep_master.png",
+          "source_master_sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/creep.md",
+        "sha256": "58d24922e5c083d827c42b3383f8420f09bbe043d40ff4ab414229919c818677",
+        "bytes": 1751
+      }
+    },
+    {
+      "id": "knoll",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+          "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+          "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+          "dimensions": [
+            1024,
+            1536
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+          "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+          "dimensions": [
+            380,
+            420
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+          "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+          "source_master_sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+          "crop_xywh": [
+            300,
+            60,
+            380,
+            420
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+          "source_master_sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/knoll.md",
+        "sha256": "0a77a14bb8889417f84a39538e873639c3c05595043f4ba5b9e912db9013eb2a",
+        "bytes": 2009
+      }
+    },
+    {
+      "id": "quillith",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+          "sha256": "fa8eb63759096ac0848511ecfa1fac9238223c2d8499c15c2facfa74d57c1fd0",
+          "dimensions": [
+            1692,
+            930
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+          "sha256": "317bd83f272bb25e0e6e1500f9c6e2f735bed52e23091d7a301bbee3725aac72",
+          "dimensions": [
+            1023,
+            1537
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+          "sha256": "a64afdd7b5e58efa022f4865cecc9338d44b4dcf874797ec5915b527cbcc8278",
+          "dimensions": [
+            380,
+            420
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+          "sha256": "f577c9a1a0e184e4c5cdc2fde6a5a2c2257c4684b964ab70d271a3d0dfbb1679",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+          "source_master_sha256": "317bd83f272bb25e0e6e1500f9c6e2f735bed52e23091d7a301bbee3725aac72",
+          "crop_xywh": [
+            330,
+            45,
+            380,
+            420
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+          "source_master_sha256": "317bd83f272bb25e0e6e1500f9c6e2f735bed52e23091d7a301bbee3725aac72",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/quillith.md",
+        "sha256": "446af43b6163f7cd6b03a75719646a3554d49aab3ce44772ddb3008102a9e403",
+        "bytes": 1668
+      }
+    },
+    {
+      "id": "kett",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+          "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+          "dimensions": [
+            1774,
+            887
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/kett/kett_master.png",
+          "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+          "dimensions": [
+            1023,
+            1537
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/kett/kett_face.png",
+          "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+          "dimensions": [
+            360,
+            390
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+          "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/kett/kett_master.png",
+          "source_master_sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+          "crop_xywh": [
+            360,
+            60,
+            360,
+            390
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/kett/kett_master.png",
+          "source_master_sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/kett.md",
+        "sha256": "d282462c25807252e068d27e4c10f922547c41cdb4e85716b29e8fc7aba276cb",
+        "bytes": 1764
+      }
+    },
+    {
+      "id": "luna",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+          "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+          "dimensions": [
+            1693,
+            929
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/luna/luna_master.png",
+          "sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+          "dimensions": [
+            1024,
+            1536
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/luna/luna_face.png",
+          "sha256": "009d0af5dfa9151121b38706ac4d2f5b2f94a8bfc3f2ca6e53869beac689a0b5",
+          "dimensions": [
+            360,
+            420
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+          "sha256": "5d6ac22e58d220deead5e1fc10c7a04373826b26e366a0287508505b06d5623b",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/luna/luna_master.png",
+          "source_master_sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+          "crop_xywh": [
+            340,
+            45,
+            360,
+            420
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/luna/luna_master.png",
+          "source_master_sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/luna.md",
+        "sha256": "7ce5834e2ad2997a5b4c2645bb8025158274c141346a3b81b398ada0ce963918",
+        "bytes": 1654
+      }
+    },
+    {
+      "id": "malachor",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
+          "sha256": "8e81dd01595c6bc9b008c1d208c6f42c299516e8dc57cf7b16c1d472c01d9be9",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+          "sha256": "d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954",
+          "dimensions": [
+            1254,
+            1254
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+          "sha256": "43027fe259865ef5bbe85742cf5eba63df567b2d7704c4b530d28b67430a9489",
+          "dimensions": [
+            500,
+            570
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+          "sha256": "94c8efea97c9bd8d8062746df11da736c6964806d06dd3bf3384ac9f43bd423a",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+          "source_master_sha256": "d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954",
+          "crop_xywh": [
+            300,
+            180,
+            500,
+            570
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+          "source_master_sha256": "d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/malachor.md",
+        "sha256": "9de806d7973762f9e4b909952a6ef06ece69c051297a28f7c60068de4033a872",
+        "bytes": 1692
+      }
+    },
+    {
+      "id": "sable",
+      "assets": {
+        "silhouette": {
+          "path": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png",
+          "sha256": "2e993051ed5896dcba336a8d1223b335bb26d88cfee7ec1e6e8c42cbc1928fac",
+          "dimensions": [
+            1536,
+            1024
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/sable/sable_master.png",
+          "sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+          "dimensions": [
+            1024,
+            1536
+          ],
+          "mode": "RGB"
+        },
+        "face": {
+          "path": "assets/concepts/phase2_calibration/sable/sable_face.png",
+          "sha256": "e458e5ade5faef9e53d89fa8b4c8ab7f8d4f6f9ce7fec586ab5a8f13c0ad2f50",
+          "dimensions": [
+            420,
+            450
+          ],
+          "mode": "RGB"
+        },
+        "board_96px": {
+          "path": "assets/concepts/phase2_calibration/sable/sable_96px.png",
+          "sha256": "80300a8eafa13238354b89354d5be267c8c40698af2666d29093d70027b3f923",
+          "dimensions": [
+            96,
+            96
+          ],
+          "mode": "RGB"
+        }
+      },
+      "derivations": {
+        "face": {
+          "source_master_path": "assets/concepts/phase2_calibration/sable/sable_master.png",
+          "source_master_sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+          "crop_xywh": [
+            190,
+            70,
+            420,
+            450
+          ],
+          "operation": "RGB crop, then Pillow thumbnail 768x768 LANCZOS"
+        },
+        "board_96px": {
+          "source_master_path": "assets/concepts/phase2_calibration/sable/sable_master.png",
+          "source_master_sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+          "canvas": [
+            96,
+            96
+          ],
+          "background_rgb": [
+            22,
+            20,
+            23
+          ],
+          "operation": "RGB ImageOps.contain 96x96 LANCZOS, centered"
+        }
+      },
+      "prompt": {
+        "path": "docs/art/phase2_calibration/prompts/sable.md",
+        "sha256": "8c152afe0b414edea641b927924d1207a8df9f4f5b395459a540d60bdb9a1874",
+        "bytes": 1086
+      }
+    }
+  ]
+}

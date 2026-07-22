@@ -1,0 +1,196 @@
+{
+  "reviewer_id": "phase2_round5_fresh_professional_standards_seat",
+  "own_label": "Reviewer B â€” Professional Standards Director",
+  "revised_contract_verdict": "UNMET",
+  "revised_professional_standard_verdict": {
+    "band": "BELOW_PROFESSIONAL",
+    "evidence_confidence": "HIGH",
+    "reason": "Eleven units meet the professional target, but Knoll still fails the carried exact-96 closure test. The receipt survives, while the pear handle, stamp base, and visible receipt contact collapse into the hand cluster. This critical downstream-readability failure cannot be averaged away.",
+    "lowest_critical_dimension": "silhouette_and_96px_readability"
+  },
+  "revised_overall_readiness": "REJECT",
+  "cut_revalidation": {
+    "status": "VERIFIED_UNCHANGED",
+    "read_only": true,
+    "git_head": "bb6db9f89a0ea124bd92f45f5d84eaba0219d3f3",
+    "revalidated_utc": "2026-07-22T08:52:51.0048181Z",
+    "frozen_files_rehashed": 61,
+    "frozen_hash_mismatches": 0,
+    "report_files_rehashed": 3,
+    "report_hashes": {
+      "Reviewer_A": "cb447ac57fe0d9949141c4f12bc06c97fc1204fde8796cfb5353f1b05fef2ad7",
+      "Reviewer_B": "df9ef9e7b540b81a4a345b82012e154ff7e096cf527673fcb1e2eef4f105393d",
+      "Reviewer_C": "de5615e0231f50374f35cf96c514e3873083f90a0367b294b1fc17b5e642db87"
+    },
+    "knoll_hashes": {
+      "selected_rough_triptych": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "master": "cc466a2420e77fe75d100d43440e2c5c6e6a40b6b3c578ce6c8331ce0bb0c254",
+      "native_96px": "6d13a255cdd09af3cdfd0c33deba66b3d06878ad4f2cc6a1de1fb426db0a29a7",
+      "exact_96px_lineup": "21c67d7b735fc1b4c38449ce3bab4180af1f84b50288a37345c36fd498fc86f7"
+    },
+    "vellum_hashes": {
+      "raw_hard_matte": {
+        "sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+        "match": true
+      },
+      "display_cutout": {
+        "sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+        "match": true
+      },
+      "forbidden_shiny_anchor_used": false
+    },
+    "direct_knoll_observation": "The master and selected B rough clearly show a pear-handled office stamp contacting a long pale receipt. In the unchanged native 96px derivative, the receipt remains conspicuous, but the handle, base, and contact point merge with Knoll's hands into a generic dark manipulation cluster.",
+    "independent_report_verdicts": {
+      "Reviewer_A": {
+        "contract": "MET",
+        "professional_band": "PROFESSIONAL",
+        "overall": "READY"
+      },
+      "Reviewer_B": {
+        "contract": "UNMET",
+        "professional_band": "BELOW_PROFESSIONAL",
+        "overall": "REJECT"
+      },
+      "Reviewer_C": {
+        "contract": "UNMET",
+        "professional_band": "BELOW_PROFESSIONAL",
+        "overall": "REJECT"
+      }
+    }
+  },
+  "challenges": [
+    {
+      "peer": "Reviewer A",
+      "claim": "Knoll passes exact 96px because a small stamp visibly contacts the pale receipt and no forbidden hammer, block, staff, or cane reads first.",
+      "challenge": "This substitutes absence of forbidden alternatives for positive proof of the required stamp subtype and contact. The carried test requires the image to read as a small pear-handled office stamp visibly contacting the receipt.",
+      "direct_or_comparative_counterevidence": "At native 96px, the pale receipt is clear, but the pear handle and round base are not independently separable from the overlapping hands, and the contact point is not visibly resolved. In the same exact-96 lineup, Kett's fist, Sable's rifle, Veyra's clamp, and Luna's stretched ligament retain their defining subtype more clearly.",
+      "disposition": "REJECTED; the charitable pass does not disprove the observed loss of positive prop identity or its downstream consequence."
+    },
+    {
+      "peer": "Reviewer B",
+      "claim": "The closure condition should require blind inspection to identify Knoll's stamp, contact, and receipt.",
+      "challenge": "A formal blind-panel requirement is not stated in the frozen carried test and would add scope.",
+      "direct_or_comparative_counterevidence": "The packet requires that the master, selected B rough, and exact 96px derivative read as the specified stamp action. Direct native-size inspection is sufficient; no invented blind-panel protocol is necessary.",
+      "disposition": "QUALIFIED; the blind-panel embellishment is withdrawn, but the blocker survives because the frozen positive-read requirement itself remains unmet."
+    },
+    {
+      "peer": "Reviewer C",
+      "claim": "Knoll is below professional in production feasibility and trait clarity.",
+      "challenge": "That downgrade is broader than the observed failure.",
+      "direct_or_comparative_counterevidence": "Knoll's master and selected B rough clearly establish a feasible pose, coherent hands, pear-handled stamp, flexible receipt, and Trader concept. The failure is specifically the same-master exact-96 prop subtype and contact read.",
+      "disposition": "PARTIALLY_REJECTED; production feasibility and full-scale trait clarity return to PROFESSIONAL, while the exact-96 blocker and rejection remain."
+    }
+  ],
+  "surviving_blockers": [
+    {
+      "id": "R5-CARRIED-KNOLL-96-STAMP",
+      "unit": "Knoll",
+      "severity": "P2",
+      "standard_effect": "BLOCKS_READY",
+      "lineage_status": "CARRIED",
+      "source_reports": [
+        "Reviewer B",
+        "Reviewer C"
+      ],
+      "observation": "The native exact-96 derivative preserves Knoll and the pale flexible receipt, but the pear handle, stamp base, and visible contact merge into the hand cluster.",
+      "comparative_evidence": "Kett's fist, Sable's rifle, Veyra's clamp, and Luna's ligament retain their defining action or prop subtype more distinctly in the same exact-96 lineup.",
+      "consequence": "Knoll's specific Trader hook degrades into generic paper handling at the contractually required downstream size.",
+      "attempted_refutations": [
+        {
+          "counterevidence": "The master and selected B rough resolve the stamp and receipt unambiguously.",
+          "result": "INSUFFICIENT; those views do not cure the required exact-96 derivative."
+        },
+        {
+          "counterevidence": "The exact-96 derivative retains the pale receipt and a small dark central knob.",
+          "result": "INSUFFICIENT; the knob does not resolve into the required pear handle, round office-stamp base, and visible receipt contact."
+        },
+        {
+          "counterevidence": "No hammer, anvil, table, block, staff, or cane clearly reads first.",
+          "result": "INSUFFICIENT; avoiding forbidden alternatives does not positively establish the required office-stamp action."
+        }
+      ],
+      "why_survives": "Neither peer evidence nor direct reinspection disproves the observation, the weaker same-lineup comparison, or the downstream identity consequence.",
+      "testable_closure_condition": "In a same-master native 96px derivative, the small pear-handled office stamp, its base, and its visible contact with one long pale flexible receipt must read directly, while none of the forbidden alternative props reads first."
+    }
+  ],
+  "rejected_findings": [
+    {
+      "source": "Reviewer A",
+      "claim": "All four carried blockers are closed.",
+      "reason": "Knoll's native exact-96 artifact does not positively resolve the required stamp subtype and visible contact."
+    },
+    {
+      "source": "Reviewer C",
+      "claim": "Knoll's production feasibility and trait clarity are below professional.",
+      "reason": "The master and selected B rough demonstrate feasible anatomy, action, prop construction, and Trader trait clarity; the surviving defect is narrower and scale-specific."
+    }
+  ],
+  "revised_standard_matrix": {
+    "audience_and_intent_fit": {
+      "band": "PROFESSIONAL",
+      "critical": true,
+      "reason": "The batch consistently presents villain-first, gameplay-oriented character concepts."
+    },
+    "craft_and_finish": {
+      "band": "PROFESSIONAL",
+      "critical": true,
+      "reason": "Masters are controlled and anatomically coherent, with no batch-wide finish failure."
+    },
+    "coherence_and_hierarchy": {
+      "band": "PROFESSIONAL",
+      "critical": true,
+      "reason": "Dominant anatomy, props, and role ideas remain organized across the batch."
+    },
+    "distinctiveness": {
+      "band": "PROFESSIONAL",
+      "critical": true,
+      "reason": "The twelve units avoid material convergence in body, silhouette, costume, prop, and supernatural-cost channels."
+    },
+    "completeness_and_downstream_usability": {
+      "band": "BELOW_PROFESSIONAL",
+      "critical": true,
+      "reason": "Knoll's required exact-96 deliverable does not preserve the defining stamp action."
+    },
+    "silhouette_and_96px_readability": {
+      "band": "BELOW_PROFESSIONAL",
+      "critical": true,
+      "reason": "Knoll loses required prop subtype and contact information at native 96px; this is the controlling dimension."
+    },
+    "psychology_and_villain_read": {
+      "band": "PROFESSIONAL",
+      "critical": true,
+      "reason": "Faces and postures generally communicate differentiated predatory, coercive, obsessive, or corrupted psychology beyond generic anger."
+    },
+    "production_feasibility_and_trait_clarity": {
+      "band": "PROFESSIONAL",
+      "critical": true,
+      "reason": "The masters and roughs provide usable anatomy, prop integration, role identity, and trait channels; Knoll's problem is derivative readability rather than concept feasibility."
+    }
+  },
+  "common_ground": {
+    "all_reviewers": [
+      "The reviewed cut and approved hard-matte Vellum references are hash-valid and unchanged.",
+      "All twelve masters, rough triptychs, face crops, and native exact-96 derivatives are present with valid lineage.",
+      "Veyra, Kett, and Malachor close their carried Round 4 tests.",
+      "Knoll's master and selected B rough clearly depict the intended stamp-and-receipt action.",
+      "Knoll has the batch's weakest surplus exact-96 prop legibility.",
+      "The batch is otherwise professionally strong and materially distinctive."
+    ],
+    "carried_blocker_ledger": {
+      "Veyra": "CLOSED",
+      "Knoll": "OPEN",
+      "Kett": "CLOSED",
+      "Malachor": "CLOSED"
+    }
+  },
+  "protected_dissent": {
+    "dissent": "Reviewer A's READY/MET conclusion is not adopted.",
+    "basis": "Its Knoll pass relies on contextual inference, the surviving receipt, and absence of forbidden reads. Those points do not disprove the specialist observation that the required pear-handled stamp and visible contact disappear at native 96px.",
+    "independence_statement": "The revised verdict follows direct and comparative evidence, not the two-to-one vote distribution."
+  },
+  "excellence_gap": {
+    "batch": "The cut is close to professional approval but not excellent: several facial contradictions become crop-dependent, dark charcoal-brown values sometimes compress internal hierarchy, and multiple selected roughs remain conservative rather than strongly exploratory.",
+    "knoll": "The stamp action needs materially greater surplus legibility so its handle, base, receipt, and contact survive reduction as clearly as the strongest peer hooks.",
+    "vellum_comparison": "The approved Vellum benchmark retains stronger material separation and focal hierarchy with less dependence on fine tonal detail."
+  }
+}

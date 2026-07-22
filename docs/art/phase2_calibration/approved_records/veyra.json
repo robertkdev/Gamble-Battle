@@ -1,0 +1,432 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "BOARD_REVIEWED",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "board_lineage_id": "phase2-round-6-full-group",
+  "unit": {
+    "id": "veyra",
+    "name": "Veyra",
+    "combat_role": "Tank",
+    "is_frontliner": true,
+    "sex_design_category": "sexless_nonhuman",
+    "visual_lane": "monster_alien_creature_horror",
+    "deliberately_horrific": true,
+    "art_primary_trait": "Aegis",
+    "secondary_trait_channels": [
+      "Bulwark"
+    ],
+    "gameplay_identity": "Tank calibration unit carrying Aegis, Bulwark through one decisive combat silhouette.",
+    "strongest_preserved_hook": "none; off-center sensory slit and asymmetrical lateral shell jaws form one living C-clamp",
+    "dominant_prop_or_anatomy": "none; off-center sensory slit and asymmetrical lateral shell jaws form one living C-clamp",
+    "protection_logic": "shield_architecture",
+    "supernatural_cost": "each hardening fuses a joint and deadens a sensory slit",
+    "villain_emotion_family": "nonhuman_individual_psychology"
+  },
+  "psychology": {
+    "core_wound": "An early breach exposed its vulnerable center and taught it that anything not enclosed will be taken.",
+    "private_want": "It wants a perfectly sealed world in which nothing it values can move beyond its walls.",
+    "primary_fear": "An opening, independent motion, or uncontained ally will recreate the original breach.",
+    "survival_strategy": "It seals each injury and uncertainty behind another nested layer.",
+    "villainous_distortion": "Protection becomes possession; allies are treated as contents to be locked inside it.",
+    "current_emotional_state": "Focused predatory closure around a newly chosen target.",
+    "emotional_contradiction": "Protective enclosure versus annihilation of the protected subject's freedom.",
+    "face_direction": "The off-center sensory slit narrows and angles toward the target; the newly deadened slit and pinched seam act as the nonhuman facial mechanism.",
+    "pose_direction": "Foremost plates advance asymmetrically like closing jaws while the oval mass leans forward on planted pillar legs.",
+    "forbidden_read": "No neutral egg, harmless armadillo, passive shield, robot, carried armor, cute creature, or generic stone golem."
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+      "sha256": "f9856e173468a9cf31b8ea4dd11d4c74d9fe0dfdffbe30089457748b6b4a209e",
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": "C"
+    },
+    "selected_full_body_master": {
+      "path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+      "sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+      "sha256": "45fddc11d5b580f9848a42a929b71bf381f8d672df9f069f456a8a6f8b611179",
+      "media_type": "image/png",
+      "source_master_sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+      "sha256": "05774223a24582665c4376cd435c85b9a328b2f509e9d702f9793b3126171cc2",
+      "media_type": "image/png",
+      "source_master_sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "ffc2b9f009511e84c549b6925ce50aeb50761007ccd4641eca5b5777331f71d1",
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [
+      "korath",
+      "malachor",
+      "creep"
+    ],
+    "roster_comparison_boards": [
+      {
+        "path": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "73b2bdf638422b1cf263edd4bf2ad4343f0c4359d935d2de79f247b98673c2d1",
+        "media_type": "image/png"
+      }
+    ]
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": "phase2_round6_contract_evidence",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_a_independent.json",
+        "sha256": "1c1fa38399154727a50b4b106818902a22b41a9ab09900f7cd0b1026ee88cd4a",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Focused predatory closure around a newly chosen target.",
+        "want": "The visible intent supports this private want: It wants a perfectly sealed world in which nothing it values can move beyond its walls.",
+        "fear_or_concealment": "The face visibly guards against this fear: An opening, independent motion, or uncontained ally will recreate the original breach.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: It seals each injury and uncertainty behind another nested layer.",
+        "villainous_read": "The visible behavior expresses this distortion: Protection becomes possession; allies are treated as contents to be locked inside it.",
+        "cited_visual_cues": "Face cue: The off-center sensory slit narrows and angles toward the target; the newly deadened slit and pinched seam act as the nonhuman facial mechanism. Pose cue: Foremost plates advance asymmetrically like closing jaws while the oval mass leans forward on planted pillar legs."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares veyra directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: It reads as a hostile possessive enclosure-tank rather than an egg or passive shield.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Chalky shell, tendon, seams, and sensory slit have controlled dry material separation.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Closing lateral jaws dominate while the vulnerable center explains defensive compulsion.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: The living architectural C-clamp has no costume, body-plan, or prop collision.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Triptych, master, nonhuman face mechanism, and exact derivative are complete and lineage-bound.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Its asymmetrical shell-jaw profile and attack vector remain unmistakable at 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Narrowed slit, pinched seams, and forward closure visibly convert protection into possession.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Aegis enclosure is primary; Bulwark appears through joints and buttresses without a shield.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_a_cross_exam.json",
+        "record_sha256": "3f9738d2b56316d7c7572f5fb78e725440145591593cd8e2fa88d98871bb73e3",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": "phase2_round6_character_art",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_b_independent.json",
+        "sha256": "00c0ca14d910aa630cb7c918ff52d5a6cf114e44dca1e9f98585df6bb3e1530c",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Focused predatory closure around a newly chosen target.",
+        "want": "The visible intent supports this private want: It wants a perfectly sealed world in which nothing it values can move beyond its walls.",
+        "fear_or_concealment": "The face visibly guards against this fear: An opening, independent motion, or uncontained ally will recreate the original breach.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: It seals each injury and uncertainty behind another nested layer.",
+        "villainous_read": "The visible behavior expresses this distortion: Protection becomes possession; allies are treated as contents to be locked inside it.",
+        "cited_visual_cues": "Face cue: The off-center sensory slit narrows and angles toward the target; the newly deadened slit and pinched seam act as the nonhuman facial mechanism. Pose cue: Foremost plates advance asymmetrically like closing jaws while the oval mass leans forward on planted pillar legs."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares veyra directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Possessive enclosure reads as hostile tank behavior rather than passive protection.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Ceramic shell, tendon, seams, and sensory slit retain dry material distinction.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: The closing C-clamp anatomy controls every secondary detail.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Alien enclosure plan is unlike every humanoid and other tank.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Body mechanics, target vector, shell hierarchy, and derivative reads are actionable.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Open sideways clamp and pillar legs remain exceptionally clear.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Narrowed slit and forward-closing plates visibly communicate predatory possession.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Aegis is enclosure; Bulwark remains structural buttressing with no competing shield.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_b_cross_exam.json",
+        "record_sha256": "8ecd0e00bb3dc672b8ee408c835aa7cdaedf03bcef6c4f2f0d4091a5fe20de7b",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": "phase2_round6_red_team",
+      "independent_round_one_record": {
+        "path": "docs/art/phase2_calibration/board/round_6/seat_c_independent.json",
+        "sha256": "903dca14deee2a2531d83968838e5b3625f4cbfe6282065fccda593e86b832b0",
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": "PASS",
+        "psychology_reads_from_face": "PASS",
+        "face_and_pose_agree": "PASS",
+        "villain": "PASS",
+        "horror_threat": "PASS",
+        "supernatural_cost": "PASS",
+        "gameplay_identity": "PASS",
+        "trait_channels": "PASS",
+        "read_96px": "PASS",
+        "roster_distinct": "PASS",
+        "hot_adult_woman": "NOT_APPLICABLE",
+        "lean_toned_feminine": "NOT_APPLICABLE",
+        "frontline_protection_explained": "NOT_APPLICABLE",
+        "deliberate_horror_exception": "PASS",
+        "blessed_special_gate": "NOT_APPLICABLE"
+      },
+      "visible_face_evidence": {
+        "feeling": "Current feeling is visible as Focused predatory closure around a newly chosen target.",
+        "want": "The visible intent supports this private want: It wants a perfectly sealed world in which nothing it values can move beyond its walls.",
+        "fear_or_concealment": "The face visibly guards against this fear: An opening, independent motion, or uncontained ally will recreate the original breach.",
+        "active_survival_strategy": "Face and posture enact this survival strategy: It seals each injury and uncertainty behind another nested layer.",
+        "villainous_read": "The visible behavior expresses this distortion: Protection becomes possession; allies are treated as contents to be locked inside it.",
+        "cited_visual_cues": "Face cue: The off-center sensory slit narrows and angles toward the target; the newly deadened slit and pinched seam act as the nonhuman facial mechanism. Pose cue: Foremost plates advance asymmetrically like closing jaws while the oval mass leans forward on planted pillar legs."
+      },
+      "professional_standard": {
+        "band": "PROFESSIONAL",
+        "evidence_confidence": "HIGH",
+        "benchmark_comparison": "The immutable Round 6 evidence compares veyra directly with approved matte Vellum and all eleven calibration peers at master, face, and exact-96 scales.",
+        "critical_dimensions": [
+          {
+            "dimension": "audience_and_intent_fit",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: The lunging enclosure organism reads as an active possessive tank, not a passive shield or harmless creature.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for audience_and_intent_fit."
+          },
+          {
+            "dimension": "craft_and_finish",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Nested shell, tendon, slit, enclosed humanoid anatomy, and planted legs remain materially consistent and mechanically credible.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for craft_and_finish."
+          },
+          {
+            "dimension": "coherence_and_hierarchy",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: The lateral C-clamp is the dominant read; the off-center slit and fused joints support its closing vector.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for coherence_and_hierarchy."
+          },
+          {
+            "dimension": "distinctiveness",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: Its asymmetrical living enclosure avoids Korath's vertical burden and Malachor's square fortress construction.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for distinctiveness."
+          },
+          {
+            "dimension": "completeness_and_downstream_usability",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: The three rough body plans, master, nonhuman face mechanism, exact derivative, and records form a complete production packet.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for completeness_and_downstream_usability."
+          },
+          {
+            "dimension": "silhouette_and_96px_readability",
+            "critical": true,
+            "band": "EXCELLENT",
+            "evidence": "Board-observed evidence for veyra: The open sideways clamp, two braced legs, and forward shell points remain unmistakable at exact 96px.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for silhouette_and_96px_readability."
+          },
+          {
+            "dimension": "psychology_and_villain_read",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Narrowed sensory slit, trapped center, and converging jaws visibly express protection becoming possession.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for psychology_and_villain_read."
+          },
+          {
+            "dimension": "production_feasibility_and_trait_clarity",
+            "critical": true,
+            "band": "PROFESSIONAL",
+            "evidence": "Board-observed evidence for veyra: Aegis enclosure and Bulwark buttressing are distinct anatomical channels without a competing carried prop.",
+            "benchmark_comparison": "Against the approved hard-matte Vellum anchor and the full role-grouped roster boards, veyra meets or exceeds the professional floor for production_feasibility_and_trait_clarity."
+          }
+        ],
+        "rejection_case": "The strongest honest rejection case was tested against the native evidence, derivative lineage, anatomy, trait channels, and roster comparisons and did not survive cross-examination.",
+        "excellence_gap": "Later production may further refine micro-material transitions, but no gap falls below the professional concept-art floor or weakens the locked identity."
+      },
+      "blockers": [],
+      "readiness": "READY",
+      "cross_examination": {
+        "record_path": "docs/art/phase2_calibration/board/round_6/seat_c_cross_exam.json",
+        "record_sha256": "84d17672ec8ccda620617244c711268bad0e6a2f922c5a6584e1d76c90788cf1",
+        "record_media_type": "application/json",
+        "verdict": "CLEARED",
+        "surviving_blockers": [],
+        "outcome": "All decisive claims survived the one permitted cross-examination; no unrefuted blocker remains.",
+        "protected_dissent": "No protected dissent remained."
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": true,
+    "derived_unanimous_ready": true,
+    "derived_unanimous_professional": true,
+    "blocker_ledger": [],
+    "board_status": "READY",
+    "user_approved": false,
+    "user_approval_provenance": null
+  }
+}

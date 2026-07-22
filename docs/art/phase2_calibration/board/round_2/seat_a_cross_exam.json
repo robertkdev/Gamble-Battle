@@ -1,0 +1,387 @@
+{
+  "seat": "A",
+  "reviewer_id": "seat-a-contract-evidence-auditor",
+  "meeting_round": 1,
+  "challenges_to_other_seats": [
+    {
+      "target_seat": "B",
+      "blocker_ids": [
+        "P2R2-NYXA-001"
+      ],
+      "challenge": "PASS relies on lethal intent to earn the age bypass; the contract requires nonhuman horror before apparent age.",
+      "adjudication": "BLOCKER_SURVIVES_AS_PROTECTED_DISSENT",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+        "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+        "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png"
+      ]
+    },
+    {
+      "target_seat": "B",
+      "blocker_ids": [
+        "P2R2-KNOLL-001"
+      ],
+      "challenge": "Gameplay-role, selected-correspondence, and blanket 96 px failures overreach the evidence; selected B and the brand remain visible.",
+      "adjudication": "NARROWED_TO_FACE_PSYCHOLOGY_AND_VISIBLE_COST",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+        "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+        "assets/concepts/phase2_calibration/knoll/knoll_96px.png"
+      ]
+    },
+    {
+      "target_seat": "B",
+      "blocker_ids": [
+        "P2R2-QUILLITH-002"
+      ],
+      "challenge": "Trait-channel and gameplay-role failure is not established; the correction plane, notation, and nerve crown are separated. Cost readability remains unresolved.",
+      "adjudication": "NARROWED_TO_SUPERNATURAL_COST;_96PX_ROLE_DISSENT_PROTECTED",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_96px.png"
+      ]
+    },
+    {
+      "target_seat": "B",
+      "blocker_ids": [
+        "P2R2-LUNA-002"
+      ],
+      "challenge": "The exact 96 px image preserves a mage stance and dominant palm-to-heel line; role failure is not sufficiently supported.",
+      "adjudication": "CLEARED",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/luna/luna_master.png",
+        "assets/concepts/phase2_calibration/luna/luna_96px.png"
+      ]
+    },
+    {
+      "target_seat": "B",
+      "blocker_ids": [
+        "P2R2-GROUP-002",
+        "P2R2-GROUP-003"
+      ],
+      "challenge": "B correctly rejects a whole-roster uniform claim, but C's narrower Cashmere/Kett leather and Cashmere/Quillith/Luna split-drape findings remain visually arguable.",
+      "adjudication": "NARROWED_AND_PROTECTED",
+      "evidence_paths": [
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"
+      ]
+    },
+    {
+      "target_seat": "C",
+      "blocker_ids": [
+        "P2R2-NYXA-002"
+      ],
+      "challenge": "The bow is traceable and selected A's firing silhouette corresponds broadly; the narrower body-grown spine/wing-finger claim is not visibly established.",
+      "adjudication": "BLOCKER_SURVIVES_NARROWED_TO_DECLARED_ANATOMY_AND_TRAIT_CLARITY",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+        "assets/concepts/phase2_calibration/nyxa/nyxa_master.png"
+      ]
+    },
+    {
+      "target_seat": "C",
+      "blocker_ids": [
+        "P2R2-CASHMERE-003"
+      ],
+      "challenge": "Local finish drift duplicates the surviving group material blocker and should not create a second closure obligation.",
+      "adjudication": "CLEARED_AS_DUPLICATE",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"
+      ]
+    },
+    {
+      "target_seat": "A",
+      "blocker_ids": [
+        "P2R2-KORATH-001",
+        "P2R2-SABLE-001",
+        "P2R2-GROUP-001"
+      ],
+      "challenge": "A overextended Korath into Blessed/correspondence failure, inferred Sable's identity lane too aggressively, and framed material drift as all-cut.",
+      "adjudication": "CLAIMS_NARROWED;_IDS_RETAINED_ONLY_FOR_CORROBORATED_FACE_OR_GROUP_FINDINGS",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/korath/korath_master.png",
+        "assets/concepts/phase2_calibration/sable/sable_master.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"
+      ]
+    }
+  ],
+  "concessions": [
+    {
+      "blocker_ids": [
+        "P2R2-KORATH-001",
+        "P2R2-KORATH-002"
+      ],
+      "concession": "Korath's selected A correspondence, protection, cost, and Blessed disgrace are adequate; only the disputed face-specific coercive-debt read remains under P2R2-KORATH-001.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+        "assets/concepts/phase2_calibration/korath/korath_master.png",
+        "assets/concepts/phase2_calibration/korath/korath_face.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-PILFER-001"
+      ],
+      "concession": "B and C refute Seat A's overstrict face finding; the adaptive smirk, scanning eye, forward theft posture, and siphon hand support the recorded strategy.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+        "assets/concepts/phase2_calibration/pilfer/pilfer_master.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-CREEP-001"
+      ],
+      "concession": "The erased face is itself the visible cost and valid nonhuman psychology mechanism; isolated sheen is insufficient for a unit blocker.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/creep/creep_face.png",
+        "assets/concepts/phase2_calibration/creep/creep_master.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-KETT-001",
+        "P2R2-KETT-002"
+      ],
+      "concession": "Kett needs repair, not redesign; the fist, brawler role, and supernatural cost remain production-usable beneath the psychology/trait/material failures.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/kett/kett_master.png",
+        "assets/concepts/phase2_calibration/kett/kett_96px.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-LUNA-001",
+        "P2R2-LUNA-002"
+      ],
+      "concession": "Luna's silhouette, traits, cost, and 96 px read pass; only villain/threat/face psychology remains blocked, so disposition drops to REPAIR.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/luna/luna_master.png",
+        "assets/concepts/phase2_calibration/luna/luna_face.png",
+        "assets/concepts/phase2_calibration/luna/luna_96px.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-MALACHOR-001",
+        "P2R2-MALACHOR-002"
+      ],
+      "concession": "Malachor's overall villain/horror, tank identity, and fortress anatomy are strong enough for repair rather than redesign; face psychology and finish/action clarity remain.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+        "assets/concepts/phase2_calibration/malachor/malachor_face.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-SABLE-001",
+        "P2R2-SABLE-002"
+      ],
+      "concession": "Seat A withdraws identity inference and roster-distinct failure. Sable remains blocked only for generic scowl/insufficient villain psychology under P2R2-SABLE-001.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/sable/sable_face.png",
+        "assets/concepts/phase2_calibration/sable/sable_master.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-GROUP-002",
+        "P2R2-GROUP-003"
+      ],
+      "concession": "The group does not share one costume or body template. Material convergence is narrowed to Cashmere/Kett, and split-drape dissent to Cashmere/Quillith/Luna.",
+      "evidence_paths": [
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"
+      ]
+    }
+  ],
+  "cleared_blocker_ids": [
+    "P2R2-KORATH-002",
+    "P2R2-CASHMERE-003",
+    "P2R2-PILFER-001",
+    "P2R2-CREEP-001",
+    "P2R2-LUNA-002",
+    "P2R2-SABLE-002"
+  ],
+  "surviving_blocker_ids": [
+    "P2R2-GROUP-001",
+    "P2R2-GROUP-002",
+    "P2R2-GROUP-003",
+    "P2R2-KORATH-001",
+    "P2R2-VEYRA-001",
+    "P2R2-VEYRA-002",
+    "P2R2-CASHMERE-001",
+    "P2R2-CASHMERE-002",
+    "P2R2-NYXA-001",
+    "P2R2-NYXA-002",
+    "P2R2-KNOLL-001",
+    "P2R2-QUILLITH-001",
+    "P2R2-QUILLITH-002",
+    "P2R2-KETT-001",
+    "P2R2-KETT-002",
+    "P2R2-LUNA-001",
+    "P2R2-MALACHOR-001",
+    "P2R2-MALACHOR-002",
+    "P2R2-SABLE-001"
+  ],
+  "protected_dissent": [
+    {
+      "blocker_ids": [
+        "P2R2-KORATH-001"
+      ],
+      "issue": "C passes Korath while A/B find the coercive-debt face read insufficient.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/korath/korath_face.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-NYXA-001"
+      ],
+      "issue": "B finds monster-before-age; A/C find elderly humanoid before batlike anatomy. The bypass remains unresolved.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+        "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+        "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-QUILLITH-002"
+      ],
+      "issue": "B reads the 96 px plane as a ranged weapon; A/C accept the support apparatus. Cost readability independently survives.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_96px.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-GROUP-002"
+      ],
+      "issue": "B rejects group-wide leather convergence; A/C support the narrower Cashmere/Kett material collision.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "assets/concepts/phase2_calibration/kett/kett_master.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"
+      ]
+    },
+    {
+      "blocker_ids": [
+        "P2R2-GROUP-003"
+      ],
+      "issue": "B finds the three female garment families distinct; A/C find repeated long split-drape/leg-reveal construction.",
+      "evidence_paths": [
+        "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "assets/concepts/phase2_calibration/luna/luna_master.png",
+        "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"
+      ]
+    }
+  ],
+  "final_unit_dispositions": [
+    {
+      "unit": "Korath",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-KORATH-001"
+      ]
+    },
+    {
+      "unit": "Veyra",
+      "disposition": "REDESIGN",
+      "surviving_blocker_ids": [
+        "P2R2-VEYRA-001",
+        "P2R2-VEYRA-002"
+      ]
+    },
+    {
+      "unit": "Cashmere",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-CASHMERE-001",
+        "P2R2-CASHMERE-002"
+      ]
+    },
+    {
+      "unit": "Pilfer",
+      "disposition": "PASS",
+      "surviving_blocker_ids": []
+    },
+    {
+      "unit": "Nyxa",
+      "disposition": "REDESIGN",
+      "surviving_blocker_ids": [
+        "P2R2-NYXA-001",
+        "P2R2-NYXA-002"
+      ]
+    },
+    {
+      "unit": "Creep",
+      "disposition": "PASS",
+      "surviving_blocker_ids": []
+    },
+    {
+      "unit": "Knoll",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-KNOLL-001"
+      ]
+    },
+    {
+      "unit": "Quillith",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-QUILLITH-001",
+        "P2R2-QUILLITH-002"
+      ]
+    },
+    {
+      "unit": "Kett",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-KETT-001",
+        "P2R2-KETT-002"
+      ]
+    },
+    {
+      "unit": "Luna",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-LUNA-001"
+      ]
+    },
+    {
+      "unit": "Malachor",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-MALACHOR-001",
+        "P2R2-MALACHOR-002"
+      ]
+    },
+    {
+      "unit": "Sable",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": [
+        "P2R2-SABLE-001"
+      ]
+    }
+  ],
+  "group_disposition": {
+    "disposition": "REPAIR",
+    "surviving_blocker_ids": [
+      "P2R2-GROUP-001",
+      "P2R2-GROUP-002",
+      "P2R2-GROUP-003"
+    ],
+    "evidence_paths": [
+      "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png",
+      "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png",
+      "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"
+    ]
+  },
+  "final_readiness": "NOT_READY"
+}

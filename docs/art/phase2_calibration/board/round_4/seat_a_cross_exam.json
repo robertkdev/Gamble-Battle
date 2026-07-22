@@ -1,0 +1,218 @@
+{
+  "reviewer_id": "P2R4-SEAT-A-CONTRACT",
+  "reviewer_role": "Contract and Evidence Auditor",
+  "round": 4,
+  "cross_exam_number": 1,
+  "final_verdict": "NOT_READY",
+  "professional_standard_band": "BELOW PROFESSIONAL",
+  "blocker_adjudications": [
+    {
+      "blocker_id": "P2R4-KNOLL-001",
+      "originating_reviewer_id": "P2R4-SEAT-B-ART",
+      "adjudication": "NARROWED",
+      "survives": true,
+      "seat_a_ready_evidence_weighed": "Seat A correctly observed that the original-resolution master contains a marked plate, an emblem-faced tool in visible contact, and a pressing rather than backswing pose. Those details support receipt-stamp semantics at close master scale.",
+      "cross_exam_challenge_to_objection": "Seat B's claim is too broad where it characterizes the detailed master itself as an unqualified hammer/anvil substitution; the engraved contact surface and press action are contrary direct evidence.",
+      "controlling_evidence": [
+        "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png: selected B reduces to a long vertical handle, square head, and pedestal, so the conventional hammer/anvil class wins without detail.",
+        "assets/concepts/phase2_calibration/knoll/knoll_96px.png: the exact native derivative preserves the long handle, square head, and block but not a reliably identifiable receipt-stamp relationship.",
+        "docs/art/phase2_calibration/comparisons/phase2_96px_lineup.png: at board scale the Trader/Harmony action remains dependent on explanation rather than first-read pixels."
+      ],
+      "criterion": "Round 3 closure test: visible receipt-stamp contact must read before hammer, staff, or cane, and selected B must correspond; exact-96px gameplay identity and trait-channel readability are required.",
+      "narrowed_scope": "The master-scale contact detail passes. The surviving failure is confined to the selected-B rough silhouette and exact native 96px first read, where hammer/anvil precedes receipt stamp.",
+      "closure_test": "In an unlabeled review of a revised selected rough, original-resolution master, and exact unchanged 96x96 derivative, a short one-ended receipt stamp contacting a portable marked judgment block must be identified before hammer, anvil, staff, or cane without relying on engraved text."
+    },
+    {
+      "blocker_id": "P2R4-MALACHOR-001",
+      "originating_reviewer_id": "P2R4-SEAT-B-ART",
+      "adjudication": "RETAINED",
+      "survives": true,
+      "seat_a_ready_evidence_weighed": "Seat A correctly observed demanding entitlement, clock-focused collapse panic, a throat brace, and a lower-right clamp. These establish the required emotional ingredients and prop function.",
+      "cross_exam_challenge_to_objection": "The objection was tested against Seat A's one-maintenance-target interpretation and Seat C's CLOSED disposition, but neither supplies stronger visual evidence that the head and pupils address the clamp target.",
+      "controlling_evidence": [
+        "assets/concepts/phase2_calibration/malachor/malachor_master.png: the head and primary pupils address the frontal viewer while the clamp opens toward a separate lower-right vector.",
+        "assets/concepts/phase2_calibration/malachor/malachor_face.png: the same-master crop confirms panic and demand but keeps the gaze frontal rather than lower-right.",
+        "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png: face and clamp remain competing target vectors at equal comparison scale."
+      ],
+      "criterion": "Round 3 closure test: entitled payment demand and collapse panic must share one lower-right target with the clamp; FACE AND POSE AGREE.",
+      "retention_reason": "Seat A's evidence proves the two emotions but not their required common target. The observed split vector is direct, production-consequential, and not refuted.",
+      "closure_test": "Revise head angle, both primary pupils, demanding mouth, chest-clock clutch, and clamp opening so they visibly converge on one lower-right target; verify unlabeled at master, same-master face crop, and exact 96px scale with no competing frontal target."
+    },
+    {
+      "blocker_id": "P2R4-C-VEYRA-001",
+      "originating_reviewer_id": "P2R4-SEAT-C-REDTEAM",
+      "adjudication": "NARROWED",
+      "survives": true,
+      "seat_a_ready_evidence_weighed": "Seat A correctly observed dry low-sheen shell material, asymmetric overlapping plate detail, an off-center sensory slit, inward points, and a visibly enclosed humanoid. Those cues establish hostility and enclosure at close master scale.",
+      "cross_exam_challenge_to_objection": "Seat C's statement that there is no hostile targeting evidence is overbroad: the slit and inward converging plates are visible hostile cues, and the bound captive supplies a target relationship.",
+      "controlling_evidence": [
+        "assets/concepts/phase2_calibration/veyra/veyra_master.png: the dominant outer contour is a stationary upright oval on near-parallel legs; the captive humanoid remains the most legible actor while no external advance vector is visible.",
+        "assets/concepts/phase2_calibration/veyra/veyra_96px.png: the exact native derivative reads first as a static egg/armadillo enclosure, before active asymmetric prey selection.",
+        "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png: selected C correspondence preserves the upright oval and long legs but does not supply an active prey-directed action."
+      ],
+      "criterion": "Round 3 closure test: active asymmetric hostile enclosure and prey selection must read before egg/armadillo, with dry shell retained.",
+      "narrowed_scope": "Dry shell, hostile aperture, enclosure, and selected-C correspondence pass. The surviving failure is only the required first-read hierarchy: active prey-selecting action does not precede the static egg/armadillo read, especially at exact 96px.",
+      "closure_test": "In unlabeled master, same-master face/detail crop, and exact 96px review, the shell organism must visibly advance or close asymmetrically on a selected target so active hostile enclosure reads before egg/armadillo while the dry shell and selected-C lineage remain intact."
+    },
+    {
+      "blocker_id": "P2R4-C-KETT-001",
+      "originating_reviewer_id": "P2R4-SEAT-C-REDTEAM",
+      "adjudication": "RETAINED",
+      "survives": true,
+      "seat_a_ready_evidence_weighed": "Seat A correctly observed grievance-focused eyes, restraint, a loaded jaw, and one dominant three-stage wage fist. The one-target action line and core labor grievance are production-clear.",
+      "cross_exam_challenge_to_objection": "The objection was tested against Seat A's claimed slight cheek release and Seat B's READY disposition, but the crop does not provide a separately nameable release cue strong enough to establish anticipated relief.",
+      "controlling_evidence": [
+        "assets/concepts/phase2_calibration/kett/kett_face.png: brows, eyes, cheeks, jaw, and downturned compressed mouth maintain one uniformly hard grievance/restraint state without visible pleasure or relief.",
+        "assets/concepts/phase2_calibration/kett/kett_master.png: the oversized forward fist and restrained trailing hand preserve the one-target action, but the body does not add a distinct relief cue."
+      ],
+      "criterion": "Round 3 closure test: grievance and restraint must include visible anticipated relief while the one-target fist line is preserved; PSYCHOLOGY READS FROM FACE and FACE AND POSE AGREE.",
+      "retention_reason": "The passing grievance, restraint, anatomy, fist line, and 96px silhouette do not substitute for the explicitly required contradictory relief cue. The missing cue is directly visible and production-consequential.",
+      "closure_test": "Retain grievance, restraint, and the single forward fist line while adding a concrete cheek, mouth-corner, eyelid, or jaw release that an unlabeled face-crop reviewer can independently name as anticipated relief; verify the cue agrees with the master pose."
+    }
+  ],
+  "surviving_blockers": [
+    {
+      "blocker_id": "P2R4-KNOLL-001",
+      "adjudication": "NARROWED",
+      "unit": "Knoll",
+      "surviving_scope": "Selected-B rough and exact-96px prop-class read favors hammer/anvil before receipt stamp."
+    },
+    {
+      "blocker_id": "P2R4-MALACHOR-001",
+      "adjudication": "RETAINED",
+      "unit": "Malachor",
+      "surviving_scope": "Frontal face/pupil target conflicts with the lower-right clamp target."
+    },
+    {
+      "blocker_id": "P2R4-C-VEYRA-001",
+      "adjudication": "NARROWED",
+      "unit": "Veyra",
+      "surviving_scope": "Active prey-selecting action does not read before static egg/armadillo enclosure, especially at exact 96px."
+    },
+    {
+      "blocker_id": "P2R4-C-KETT-001",
+      "adjudication": "RETAINED",
+      "unit": "Kett",
+      "surviving_scope": "The required visible anticipated-relief cue is absent from the face and unsupported by the pose."
+    }
+  ],
+  "refuted_blockers": [],
+  "protected_dissent": [
+    {
+      "source_reviewer_id": "P2R4-SEAT-A-CONTRACT",
+      "position": "READY with no blockers",
+      "protected_scope": "Seat A's hash, provenance, derivative, anatomy/prop, and close-master observations remain valid: all immutable evidence matches; Knoll has real stamp-contact detail; Malachor contains demand and panic; Veyra has dry hostile enclosure cues; Kett has grievance, restraint, and one dominant fist.",
+      "controlling_effect": "NONCONTROLLING. Those facts limit the scope of the objections but do not refute the four criterion-specific first-read or target/psychology failures."
+    },
+    {
+      "source_reviewer_id": "P2R4-SEAT-B-ART",
+      "position": "Veyra and Kett READY",
+      "protected_scope": "Veyra's dry shell and enclosure identity and Kett's grievance/restraint, one-target fist, anatomy, and 96px silhouette are accepted as passing subclaims.",
+      "controlling_effect": "NONCONTROLLING. The narrower Round 3 requirements for action-before-egg hierarchy and visible anticipated relief remain unsatisfied."
+    },
+    {
+      "source_reviewer_id": "P2R4-SEAT-C-REDTEAM",
+      "position": "Knoll and Malachor Round 3 closures CLOSED",
+      "protected_scope": "Knoll's detailed master contact and Malachor's emotional ingredients are accepted as passing subclaims.",
+      "controlling_effect": "NONCONTROLLING. Native rough/96px prop-class evidence and the master/face split target are stronger criterion-specific contrary evidence."
+    }
+  ],
+  "per_unit_final_disposition": [
+    {
+      "unit": "Korath",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Prior closure remains preserved; no independent blocker or new regression evidence."
+    },
+    {
+      "unit": "Veyra",
+      "disposition": "NOT_READY",
+      "blocker_ids": [
+        "P2R4-C-VEYRA-001"
+      ],
+      "basis": "Dry hostile enclosure cues pass, but active prey selection does not read before egg/armadillo at first read and exact 96px."
+    },
+    {
+      "unit": "Cashmere",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Proprietary warmth and concealed memory panic coexist from face and pose; no independent blocker survives."
+    },
+    {
+      "unit": "Pilfer",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Prior closure remains preserved; no independent blocker or new regression evidence."
+    },
+    {
+      "unit": "Nyxa",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Prior closure remains preserved; no independent blocker or new regression evidence."
+    },
+    {
+      "unit": "Creep",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Prior closure remains preserved; no independent blocker or new regression evidence."
+    },
+    {
+      "unit": "Knoll",
+      "disposition": "NOT_READY",
+      "blocker_ids": [
+        "P2R4-KNOLL-001"
+      ],
+      "basis": "Master contact detail passes, but the selected rough and exact native 96px read hammer/anvil before receipt stamp."
+    },
+    {
+      "unit": "Quillith",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Required psychology coexists, selected A corresponds, and the small slate remains instructional rather than weapon-like."
+    },
+    {
+      "unit": "Kett",
+      "disposition": "NOT_READY",
+      "blocker_ids": [
+        "P2R4-C-KETT-001"
+      ],
+      "basis": "Grievance, restraint, and the one-target fist pass; visible anticipated relief does not."
+    },
+    {
+      "unit": "Luna",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Invitation, surveillance, fear of comparison, and exactly one ligament are visibly resolved."
+    },
+    {
+      "unit": "Malachor",
+      "disposition": "NOT_READY",
+      "blocker_ids": [
+        "P2R4-MALACHOR-001"
+      ],
+      "basis": "Demand and collapse panic pass individually, but the frontal face/pupils do not share the clamp's lower-right target."
+    },
+    {
+      "unit": "Sable",
+      "disposition": "READY",
+      "blocker_ids": [],
+      "basis": "Cold moral satisfaction and suppressed doubt replace revenge/tactical concentration; no independent blocker survives."
+    }
+  ],
+  "vellum_anchor_confirmation": {
+    "status": "CONFIRMED",
+    "approved_raw_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+    "approved_raw_sha256_expected": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "approved_raw_sha256_observed": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+    "display_cutout_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_final.png",
+    "display_cutout_sha256_expected": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+    "display_cutout_sha256_observed": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+    "comparison_board_path": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+    "comparison_board_sha256_expected": "1043f4839554e9c270cf6aaddc1788d64a9eca4a08a5b0ef65d8d439ffc422d9",
+    "comparison_board_sha256_observed": "1043f4839554e9c270cf6aaddc1788d64a9eca4a08a5b0ef65d8d439ffc422d9",
+    "approved_hard_matte_10pct_real_deshined_raw_used": true,
+    "shiny_birefnet_output_used": false,
+    "confirmation": "The approved hard-matte 10%-real deshined raw and matching same-art display cutout are hash-exact; the forbidden shiny BiRefNet output is not in the reviewed path."
+  },
+  "summary": "Seat A's independent READY evidence was re-tested against all four objections and the hash-exact immutable cut. It remains valid for provenance, derivative integrity, close-view craft, and the passing subclaims identified in protected dissent, but it does not refute the criterion-specific failures. P2R4-KNOLL-001 and P2R4-C-VEYRA-001 are NARROWED; P2R4-MALACHOR-001 and P2R4-C-KETT-001 are RETAINED; none is refuted or merged. Four blockers therefore survive, making the 12-unit batch NOT_READY and BELOW PROFESSIONAL under the Board rule that any surviving production blocker rejects the batch. The eight unaffected units remain READY and are not reopened."
+}

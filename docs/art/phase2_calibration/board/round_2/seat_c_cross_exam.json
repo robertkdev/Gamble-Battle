@@ -1,0 +1,294 @@
+{
+  "seat": "C",
+  "reviewer_id": "seat_c_adversarial_failure_and_convergence_red_team",
+  "meeting_round": 1,
+  "challenges_to_other_seats": [
+    {
+      "seat": "A/B",
+      "blocker_id": "P2R2-KORATH-001",
+      "disposition": "CLEARED",
+      "reason": "The selected/master silhouette corresponds, Blessed disgrace is visible through lowered head and ruined regalia, and the fixed eye, compressed brow, and open-hand accusation provide criterion-specific psychology. The contrary findings require a stronger facial exaggeration than the brief requires.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/manifest.json",
+        "docs/art/phase2_calibration/psychology/korath_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json"
+      ]
+    },
+    {
+      "seat": "A",
+      "blocker_id": "P2R2-KORATH-002",
+      "disposition": "CLEARED",
+      "reason": "This duplicates the unsupported Korath psychology escalation under KORATH-001; visible face and hand evidence supports coercive martyr accusation.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/psychology/korath_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json"
+      ]
+    },
+    {
+      "seat": "A",
+      "blocker_id": "P2R2-PILFER-001",
+      "disposition": "CLEARED",
+      "reason": "The ingratiating smile, sidelong eye, forward lean, and invasive reaching hand visibly combine likability with betrayal; calling this merely a generic thief ignores the pose-face contradiction.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/psychology/pilfer_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json"
+      ]
+    },
+    {
+      "seat": "A",
+      "blocker_id": "P2R2-CREEP-001",
+      "disposition": "CLEARED",
+      "reason": "Erased facial contours, hollow eyes, crouched asymmetry, and dissipating anatomy visibly establish nonhuman supernatural cost; the alleged slick finish is not a demonstrated hard-matte failure.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/psychology/creep_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json"
+      ]
+    },
+    {
+      "seat": "A/B",
+      "blocker_id": "P2R2-KNOLL-001",
+      "disposition": "NARROWED_SURVIVES",
+      "reason": "The face lacks the required fear-and-force contradiction, so the ID survives. Claims that the whole role, correspondence, threat, cost, and 96px read all fail are cumulative overreach not needed to sustain it.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/psychology/knoll_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json"
+      ]
+    },
+    {
+      "seat": "C",
+      "blocker_id": "P2R2-CASHMERE-003",
+      "disposition": "CLEARED",
+      "reason": "The frozen master does not establish a hard-matte or professional-finish failure independent of the valid rough-correspondence and face-psychology defects.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/provenance_manifest.json",
+        "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+      ]
+    },
+    {
+      "seat": "B",
+      "blocker_id": "P2R2-LUNA-002",
+      "disposition": "CLEARED",
+      "reason": "The diagonal ligament effect, caster gesture, and silhouette preserve mage/line identity at reduced scale. This is not enough evidence for a separate role-and-96px blocker.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/manifest.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json"
+      ]
+    },
+    {
+      "seat": "A/C",
+      "blocker_id": "P2R2-MALACHOR-002",
+      "disposition": "CLEARED",
+      "reason": "The lateral clamp is visibly present, and localized flesh sheen does not independently violate the approved hard-matte anchor. Malachor remains blocked by the stronger face-pose finding.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/provenance_manifest.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+      ]
+    },
+    {
+      "seat": "A",
+      "blocker_id": "P2R2-SABLE-001",
+      "disposition": "NARROWED_SURVIVES",
+      "reason": "The asserted androgynous-lane/roster-distinctness failure is not a required gate and is unsupported as identity criticism. The same ID survives only for the B/C evidence that the generic righteous scowl fails Sable's villain psychology.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/criteria.json",
+        "docs/art/phase2_calibration/psychology/sable_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json"
+      ]
+    },
+    {
+      "seat": "A/C",
+      "blocker_id": "P2R2-GROUP-001/P2R2-GROUP-002/P2R2-GROUP-003",
+      "disposition": "NARROWED",
+      "reason": "Whole-cut black-leather, gloss, split-drape, and garment-template claims are contradicted by visible variation in body plans, props, supernatural anatomy, and female construction. GROUP-001 survives only for repeated stern/scowling emotional cadence; GROUP-002 is a duplicate of that surviving concern or an unsupported material claim, and GROUP-003 is unsupported garment overreach.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+      ]
+    },
+    {
+      "seat": "B",
+      "blocker_id": "P2R2-NYXA-001/P2R2-NYXA-002",
+      "disposition": "DISPUTED_UNRESOLVED",
+      "reason": "Predator anatomy supports B's pass, but the human-youth first read and the visually held rather than clearly body-grown bow remain plausible frozen-byte readings. Neither side conclusively refutes the other, so dissent is protected.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/criteria.json",
+        "docs/art/phase2_calibration/psychology/nyxa_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+      ]
+    }
+  ],
+  "concessions": [
+    {
+      "blocker_ids": ["P2R2-VEYRA-001", "P2R2-VEYRA-002"],
+      "concession": "A/B evidence confirms that Veyra's passive symmetry and concealed face do not establish hostile closure, target, villain intent, or the horror exception.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/veyra_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-CASHMERE-001", "P2R2-CASHMERE-002"],
+      "concession": "A/B evidence supports that the rough set lacks three genuinely distinct silhouettes and the master face does not visibly carry concealed panic beneath ownership.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/cashmere_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-QUILLITH-001", "P2R2-QUILLITH-002"],
+      "concession": "Quillith's hauteur is visible, but care, ownership, fear, and causal cost are not sufficiently legible; the apparatus remains vulnerable to a weapon-like reduced-scale read.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/quillith_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-KETT-001", "P2R2-KETT-002"],
+      "concession": "Kett remains a generic bruiser in face and pose, while chain, coin, and polished-leather channels create defensible Cartel clutter and material concerns.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/kett_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-LUNA-001"],
+      "concession": "Luna's neutral heroic face does not communicate her required villain psychology despite adequate role readability.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/luna_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-MALACHOR-001"],
+      "concession": "Malachor's central face and pose read trapped and sorrowful rather than entitled panic, so the face-pose psychology blocker survives.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/malachor_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-SABLE-001"],
+      "concession": "B/C evidence sustains the generic righteous-scowl villain-psychology failure after A's unrelated gender-lane claim is removed.",
+      "evidence_paths": ["docs/art/phase2_calibration/psychology/sable_psychology.json"]
+    },
+    {
+      "blocker_ids": ["P2R2-GROUP-001"],
+      "concession": "Repeated stern, scowling, or emotionally neutral faces create a defensible group-level psychology convergence finding.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+      ]
+    }
+  ],
+  "cleared_blocker_ids": [
+    "P2R2-GROUP-002",
+    "P2R2-GROUP-003",
+    "P2R2-KORATH-001",
+    "P2R2-KORATH-002",
+    "P2R2-CASHMERE-003",
+    "P2R2-PILFER-001",
+    "P2R2-CREEP-001",
+    "P2R2-LUNA-002",
+    "P2R2-MALACHOR-002",
+    "P2R2-SABLE-002"
+  ],
+  "surviving_blocker_ids": [
+    "P2R2-GROUP-001",
+    "P2R2-VEYRA-001",
+    "P2R2-VEYRA-002",
+    "P2R2-CASHMERE-001",
+    "P2R2-CASHMERE-002",
+    "P2R2-NYXA-001",
+    "P2R2-NYXA-002",
+    "P2R2-KNOLL-001",
+    "P2R2-QUILLITH-001",
+    "P2R2-QUILLITH-002",
+    "P2R2-KETT-001",
+    "P2R2-KETT-002",
+    "P2R2-LUNA-001",
+    "P2R2-MALACHOR-001",
+    "P2R2-SABLE-001"
+  ],
+  "protected_dissent": [
+    {
+      "blocker_ids": ["P2R2-NYXA-001", "P2R2-NYXA-002"],
+      "dissent": "Seat B reads predator/nonhuman first and accepts the body-grown weapon; Seats A/C read human youth first, and Seat C cannot verify a body-grown connection from the frozen master. The conflict is not refuted by the available bytes and therefore blocks READY.",
+      "evidence_paths": [
+        "docs/art/phase2_calibration/criteria.json",
+        "docs/art/phase2_calibration/psychology/nyxa_psychology.json",
+        "docs/art/phase2_calibration/board/round_2/seat_a_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_b_independent.json",
+        "docs/art/phase2_calibration/board/round_2/seat_c_independent.json"
+      ]
+    }
+  ],
+  "final_unit_dispositions": [
+    {
+      "unit": "Korath",
+      "disposition": "PASS",
+      "surviving_blocker_ids": [],
+      "rationale": "Correspondence, Blessed disgrace, threat, and accusatory psychology are visibly supported."
+    },
+    {
+      "unit": "Veyra",
+      "disposition": "REDESIGN",
+      "surviving_blocker_ids": ["P2R2-VEYRA-001", "P2R2-VEYRA-002"],
+      "rationale": "Hostile closure, target, villain intent, and horror-exception legibility are absent."
+    },
+    {
+      "unit": "Cashmere",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-CASHMERE-001", "P2R2-CASHMERE-002"],
+      "rationale": "Rough silhouettes and selected correspondence need clarification; concealed panic is not face-readable."
+    },
+    {
+      "unit": "Pilfer",
+      "disposition": "PASS",
+      "surviving_blocker_ids": [],
+      "rationale": "Smile, eye line, lean, and invasive hand visibly carry the required contradiction."
+    },
+    {
+      "unit": "Nyxa",
+      "disposition": "REDESIGN",
+      "surviving_blocker_ids": ["P2R2-NYXA-001", "P2R2-NYXA-002"],
+      "rationale": "Protected unresolved dissent remains on age/horror first read and body-grown weapon correspondence."
+    },
+    {
+      "unit": "Creep",
+      "disposition": "PASS",
+      "surviving_blocker_ids": [],
+      "rationale": "Erased face, hollow eyes, crouch, and dissipating anatomy visibly establish the nonhuman cost."
+    },
+    {
+      "unit": "Knoll",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-KNOLL-001"],
+      "rationale": "The required fear-and-force contradiction is not visible in face and pose; broader claimed failures are cleared."
+    },
+    {
+      "unit": "Quillith",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-QUILLITH-001", "P2R2-QUILLITH-002"],
+      "rationale": "Care, ownership, fear, causal cost, and reduced-scale support identity remain insufficiently legible."
+    },
+    {
+      "unit": "Kett",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-KETT-001", "P2R2-KETT-002"],
+      "rationale": "Generic bruiser psychology and localized Cartel-channel clutter/material issues survive."
+    },
+    {
+      "unit": "Luna",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-LUNA-001"],
+      "rationale": "Role readability survives, but the face remains neutral/heroic rather than villain-specific."
+    },
+    {
+      "unit": "Malachor",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-MALACHOR-001"],
+      "rationale": "The face-pose read is trapped sorrow rather than entitled panic; clamp and matte claims are cleared."
+    },
+    {
+      "unit": "Sable",
+      "disposition": "REPAIR",
+      "surviving_blocker_ids": ["P2R2-SABLE-001"],
+      "rationale": "Generic righteous scowling fails villain psychology; gender-lane and duplicate blocker claims are cleared."
+    }
+  ],
+  "group_disposition": {
+    "disposition": "BLOCKER_RETAINED",
+    "surviving_blocker_ids": ["P2R2-GROUP-001"],
+    "rationale": "Only emotional/face convergence survives. Whole-cut material, gloss, garment-template, and split-drape findings are cleared as overreach or duplication."
+  },
+  "final_readiness": "NOT_READY"
+}

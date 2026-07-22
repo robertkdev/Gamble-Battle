@@ -1,11 +1,11 @@
 # Sable generation brief
 
-Use `assets/units/sable.png` to preserve the long-rifle scholar/marksman hook, slate-paper-burgundy palette, and severe precision. Remove the wide hat, black cloak, floating pages, and face-concealing mask.
+Preserve the extreme long-rifle Scholar/Marksman hook and severe precision while explicitly locking Sable as nonbinary and androgynous.
 
 ## Rough silhouettes
 
-Create exactly three distinct full-body black silhouette thumbnails on warm gray paper, evenly spaced, no rendering/environment/effects. A: long leaning triangular marksman built around an extremely long rifle and short rear counterweight. B: upright witness-stand body around a vertical firearm. C: low mantis-like shooter with split elbows. Different posture and negative space. No cloak, hat, floating pages, sidearm, or readable text. Selected direction is A.
+Exactly three distinct full-body black silhouettes on warm gray paper. A: long leaning rifle triangle. B: upright witness-stand firearm. C: low mantis shooter. No cloak, hat, pages, sidearm, or readable text. Selected A.
 
 ## Definitive master
 
-Full-body premium dark tactical-fantasy concept art of Sable, an androgynous middle-aged human marksman and cold self-righteous villain. Selected silhouette A: lean body committed to one long diagonal aiming wedge around an extremely long footnote rifle with a compact rectangular rear counterweight. Vindicator reads through the single accusatory evidence line and forward commitment; Scholar appears as dirty proof-strips laminated flat along barrel and sleeve, never floating. Every shot erases words from memory and burns a burgundy citation scar across the exposed aiming eye. Face visible, severe and certain. Faded slate linen, gunmetal, dirty paper, dried burgundy wax, pale scar tissue. Neutral charcoal studio backdrop, grounded full body, dry matte tactile finish. One prop only. No black cloak/trench coat, wide-brim hat, mask, floating talismans/pages, second gun, glossy leather, magic particles, or text.
+Full-body premium dark tactical-fantasy concept art of Sable, a lean nonbinary androgynous peak-condition adult human marksman, age 30-34, and cold self-righteous villain. Selected A preserves the extreme rifle wedge. Use ash-gray witness cloth, faded rust-red wool, parchment proof-strip lamination, dull blued steel, and scuffed boots instead of fitted black tactical leather. One eye fixes the target as required evidence; the scarred eye and one tense cheek conceal fear of contradiction beneath moral satisfaction. No ordinary soldier uniform, generic scowl, sexualized sniper coding, cloak, hat, mask, floating pages, second gun, gloss, VFX, or text.

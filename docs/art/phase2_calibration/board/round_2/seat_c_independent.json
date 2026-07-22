@@ -1,0 +1,509 @@
+{
+  "schema_version": "1.0.0",
+  "seat": "C",
+  "reviewer_id": "seat-c-adversarial-convergence-red-team",
+  "role": "adversarial failure and convergence red-team",
+  "independent": true,
+  "review_basis": {
+    "frozen_bytes_only": true,
+    "artwork_edits_made": false,
+    "prior_board_conclusions_used_as_authority": false,
+    "authoritative_unit_images_inspected_at_original_resolution": 48,
+    "authoritative_group_images_inspected_at_original_resolution": 6,
+    "approved_vellum_images_inspected_at_original_resolution": 2,
+    "all_manifested_unit_asset_hashes_match": true,
+    "all_brief_document_and_board_hashes_match": true,
+    "approved_vellum_anchor": {
+      "raw_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png",
+      "raw_sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "display_cutout_path": "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_cutout_final.png",
+      "display_cutout_sha256": "6f10ecb18330ec3574a4c5950d8cf89a34fcda466f617d9387de2630607b96a0",
+      "older_shiny_experiment_used": false
+    }
+  },
+  "overall": {
+    "contract_verdict": "NOT_READY",
+    "professional_verdict": "BELOW_PROFESSIONAL",
+    "readiness": "NOT_READY",
+    "reason": "Applicable gate failures, below-professional critical dimensions, and unresolved unit and group blockers survive. The strongest failures are nonhuman threat/psychology in Veyra, Nyxa's unearned age bypass, repeated prose-only facial contradictions, unclear villain reads, and convergence in stern faces, polished dark leather, and split-drape female costuming."
+  },
+  "unit_matrix": [
+    {"unit": "Korath", "verdict": "PASS"},
+    {"unit": "Veyra", "verdict": "REDESIGN"},
+    {"unit": "Cashmere", "verdict": "REPAIR"},
+    {"unit": "Pilfer", "verdict": "PASS"},
+    {"unit": "Nyxa", "verdict": "REDESIGN"},
+    {"unit": "Creep", "verdict": "PASS"},
+    {"unit": "Knoll", "verdict": "REPAIR"},
+    {"unit": "Quillith", "verdict": "REPAIR"},
+    {"unit": "Kett", "verdict": "REPAIR"},
+    {"unit": "Luna", "verdict": "REPAIR"},
+    {"unit": "Malachor", "verdict": "REPAIR"},
+    {"unit": "Sable", "verdict": "REPAIR"}
+  ],
+  "units": [
+    {
+      "unit": "Korath",
+      "role": "Tank",
+      "sex_design_category": "male",
+      "visual_lane": "peak-condition once-human male penitent",
+      "deliberately_horrific": false,
+      "evidence": {
+        "silhouettes": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+        "master": "assets/concepts/phase2_calibration/korath/korath_master.png",
+        "face": "assets/concepts/phase2_calibration/korath/korath_face.png",
+        "read_96px": "assets/concepts/phase2_calibration/korath/korath_96px.png"
+      },
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "PASS", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "PASS"},
+      "visible_face_evidence": {
+        "feeling": "Exhausted shame hardened into resentment.",
+        "want": "The single eye under the bowed brow and the extended open hand demand acknowledgment rather than comfort.",
+        "fear_or_concealment": "Downcast head and compressed mouth conceal the accusation that his suffering may be unnecessary.",
+        "active_survival_strategy": "He presents the calcified body as the burden-bearing object and makes the viewer confront the debt.",
+        "villainous_read": "The demand gesture converts martyrdom into coercion.",
+        "cited_visual_cues": "One fixed eye, deeply compressed brow, closed jaw, bowed head, asymmetric calcified body, palm extended toward viewer, giant planted feet."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "EXCELLENT", "evidence": "Disgraced colossal penitent reads before angel or hero."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "High detail and dry stone/flesh separation, though Vellum has cleaner value hierarchy."},
+          "coherence_and_hierarchy": {"band": "EXCELLENT", "evidence": "Arch burden, bowed head, open hand, and calcification support one coercive-martyr read."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Horizontal broken reliquary and asymmetric wound-body are unique in the cut."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Triptych, master, face derivative, and 96 px identity agree."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Arch, huge feet, and asymmetry remain legible at 96 px."},
+          "psychology_and_villain_read": {"band": "PROFESSIONAL", "evidence": "Accusatory demand is visible without relying only on prose."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Blessed disgrace and Titan mass are separate and buildable."}
+        }
+      },
+      "blocker_ids": [],
+      "verdict": "PASS"
+    },
+    {
+      "unit": "Veyra",
+      "role": "Tank",
+      "sex_design_category": "sexless_nonhuman",
+      "visual_lane": "ageless alien enclosure organism",
+      "deliberately_horrific": true,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png", "master": "assets/concepts/phase2_calibration/veyra/veyra_master.png", "face": "assets/concepts/phase2_calibration/veyra/veyra_face.png", "read_96px": "assets/concepts/phase2_calibration/veyra/veyra_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "FAIL", "horror_threat": "FAIL", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "PASS", "deliberate_horror_exception": "FAIL", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Unreadable beyond wounded closure.",
+        "want": "The shell visually wants to remain shut, but no chosen target or possessive action is visible.",
+        "fear_or_concealment": "The narrow purple slit and bloodied seam imply a breach fear.",
+        "active_survival_strategy": "Layering is visible, but active predatory enclosure is not.",
+        "villainous_read": "Unsupported; the same crop reads as damaged armor or a neutral egg.",
+        "cited_visual_cues": "Centered oval, symmetric planted legs, almost closed sensory slit, one bloodied seam, no directional head angle, no advancing plate asymmetry."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "BELOW_PROFESSIONAL", "evidence": "Reads as passive armadillo/egg before dangerous antagonist."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Shell, seams, wound, and tendon are cleanly rendered and mostly matte."},
+          "coherence_and_hierarchy": {"band": "PROFESSIONAL", "evidence": "Enclosure hierarchy is strong even though the intended action is absent."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Oval cocoon on pillar legs is unique in the roster."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Evidence packet is complete and derivative lineage is sound."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Tank shell remains unmistakable at 96 px."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "No target, intent, possessiveness, or villain action survives the face/master read."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Aegis enclosure and Bulwark buttresses are clearly separated."}
+        }
+      },
+      "blocker_ids": ["P2R2-VEYRA-001", "P2R2-VEYRA-002"],
+      "verdict": "REDESIGN"
+    },
+    {
+      "unit": "Cashmere",
+      "role": "Mage",
+      "sex_design_category": "female",
+      "visual_lane": "hot lean toned feminine peak-condition adult woman",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png", "master": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "face": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png", "read_96px": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "PASS", "lean_toned_feminine": "PASS", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Controlled acquisitive superiority.",
+        "want": "Direct appraisal and one lifted mouth corner communicate that she expects possession.",
+        "fear_or_concealment": "Not reliably visible; the shadowed eye could be lighting rather than a memory-blank panic leak.",
+        "active_survival_strategy": "Ledger shield and precise raised ink hand communicate pricing and contract control.",
+        "villainous_read": "Predatory ownership reads, but the face is close to the forbidden generic aristocratic smirk.",
+        "cited_visual_cues": "One sharp eye, one shadowed eye, compressed brow, slight asymmetric mouth, rigid ledger across torso, beckoning ink hand."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "FAIL", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "FAIL", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "PROFESSIONAL", "evidence": "Adult attractive dangerous mage and acquisitive villain are visible."},
+          "craft_and_finish": {"band": "BELOW_PROFESSIONAL", "evidence": "Broad polished black-leather highlights miss the approved Vellum hard-matte veto."},
+          "coherence_and_hierarchy": {"band": "PROFESSIONAL", "evidence": "Ledger and casting hand dominate cleanly."},
+          "distinctiveness": {"band": "BELOW_PROFESSIONAL", "evidence": "Black high-collar leather, paper authority, and long split drape approach the Vellum costume rather than only its quality."},
+          "completeness_and_downstream_usability": {"band": "BELOW_PROFESSIONAL", "evidence": "The three roughs retain nearly the same upright woman/ledger envelope."},
+          "silhouette_and_96px_readability": {"band": "PROFESSIONAL", "evidence": "Ledger block and raised hand survive at 96 px."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Ownership reads, but concealed panic and the intended contradiction do not."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Mogul ledger and Arcanist hand-script channels are separable."}
+        }
+      },
+      "blocker_ids": ["P2R2-CASHMERE-001", "P2R2-CASHMERE-002", "P2R2-CASHMERE-003"],
+      "verdict": "REPAIR"
+    },
+    {
+      "unit": "Pilfer",
+      "role": "Assassin",
+      "sex_design_category": "nonbinary",
+      "visual_lane": "mature adult wiry ratfolk fighter",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png", "master": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png", "face": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png", "read_96px": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Ingratiating vigilance.",
+        "want": "The exposed eye and adaptive smile ask to be accepted while evaluating reward.",
+        "fear_or_concealment": "Half-hidden face and chemically mismatched skin visibly resist a fixed identity.",
+        "active_survival_strategy": "Deferential crouch and already-invading siphon hand show adaptation preceding theft.",
+        "villainous_read": "The smile distracts while the elongated ampoule fingers enter the target's space.",
+        "cited_visual_cues": "Single tracking amber eye, oblique smile, hair covering half the face, bowed torso, long mismatched arm, ampoule fingertips, split tails."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "EXCELLENT", "evidence": "Predatory opportunist reads without juvenile or cute-rat drift."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Fur, scarred skin, cloth, and ampoule material separate with dry wear."},
+          "coherence_and_hierarchy": {"band": "EXCELLENT", "evidence": "Face, crouch, tails, and one siphon hand produce a unified theft vector."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Chemical ratfolk identity and ampoule fingers have no close roster duplicate."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Triptych-to-master correspondence and derivatives are clear."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Low wedge and gold elongated hand remain readable."},
+          "psychology_and_villain_read": {"band": "PROFESSIONAL", "evidence": "Smile/plea versus invasive theft is visible in face and pose."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Catalyst anatomy dominates while Cartel cuts stay secondary."}
+        }
+      },
+      "blocker_ids": [],
+      "verdict": "PASS"
+    },
+    {
+      "unit": "Nyxa",
+      "role": "Marksman",
+      "sex_design_category": "female_deliberate_horror_exception",
+      "visual_lane": "elderly-appearing batlike temporal predator",
+      "deliberately_horrific": true,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png", "master": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png", "face": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png", "read_96px": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "FAIL", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "FAIL", "lean_toned_feminine": "FAIL", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "FAIL", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Predatory delight strained by temporal pain.",
+        "want": "Narrow target fixation and curled mouth communicate desire to release the shot.",
+        "fear_or_concealment": "The split-aged face and tightened pale side embody fear of one irreversible aging timeline.",
+        "active_survival_strategy": "She is visibly storing multiple ages along the drawn-bow firing axis.",
+        "villainous_read": "The delight is directed at prey rather than presented as ordinary grief.",
+        "cited_visual_cues": "Both eyes narrowed at target, one mouth corner curled, other side taut, half-white aged body, clawed crouch, blood-string bow."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "FAIL", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "BELOW_PROFESSIONAL", "evidence": "At native face scale the first read is elderly elf/goblin archer; batlike nonhuman horror does not clearly precede age."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Age split, membrane, blood string, fur, and bone are materially resolved."},
+          "coherence_and_hierarchy": {"band": "PROFESSIONAL", "evidence": "Bow and split body create a strong firing axis."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Temporal half-aged predator is unique in the cut."},
+          "completeness_and_downstream_usability": {"band": "BELOW_PROFESSIONAL", "evidence": "Recorded grown spine/wing-finger bow is not visibly continuous with the body in the master."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Crouched archer and huge asymmetric bow survive at 96 px."},
+          "psychology_and_villain_read": {"band": "PROFESSIONAL", "evidence": "Delight, target fixation, and temporal pain are visible."},
+          "production_feasibility_and_trait_clarity": {"band": "BELOW_PROFESSIONAL", "evidence": "Chronomancer age split reads, but the declared anatomical bow relationship is visually false."}
+        }
+      },
+      "blocker_ids": ["P2R2-NYXA-001", "P2R2-NYXA-002"],
+      "verdict": "REDESIGN"
+    },
+    {
+      "unit": "Creep",
+      "role": "Assassin",
+      "sex_design_category": "sexless_nonhuman",
+      "visual_lane": "ageless faceless alien deliberate-horror assassin",
+      "deliberately_horrific": true,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png", "master": "assets/concepts/phase2_calibration/creep/creep_master.png", "face": "assets/concepts/phase2_calibration/creep/creep_face.png", "read_96px": "assets/concepts/phase2_calibration/creep/creep_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "PASS", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "PASS", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Vacant fixation.",
+        "want": "The head cant and black apertures lock onto a witness without social invitation.",
+        "fear_or_concealment": "Erased mouth and scored identity marks visibly refuse recognition.",
+        "active_survival_strategy": "The body stays low while the blade ring closes routes around the target.",
+        "villainous_read": "Procedural extermination is communicated by absence of affect plus committed predatory geometry.",
+        "cited_visual_cues": "Smooth erased face, hollow eyes, no mouth, slight cant, low four-point stance, sweeping matte scythe-ribbon ring."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "EXCELLENT", "evidence": "Alien assassin reads as hostile and adult-targeted, never mascot-like."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Dry skin and matte blade ribbons are resolved without ornamental clutter."},
+          "coherence_and_hierarchy": {"band": "EXCELLENT", "evidence": "Erased face, crouch, and broken ring all express exile-to-execution."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Faceless gray body and scythe-ring anatomy are roster-specific."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Triptych, master, face mechanism, and 96 px derivative correspond."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Low body and circular blades remain distinct at 96 px."},
+          "psychology_and_villain_read": {"band": "PROFESSIONAL", "evidence": "Nonhuman absence-of-face mechanism and predatory pose jointly carry refusal and extermination."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Exile erasure and Executioner ribbons remain separate and actionable."}
+        }
+      },
+      "blocker_ids": [],
+      "verdict": "PASS"
+    },
+    {
+      "unit": "Knoll",
+      "role": "Support",
+      "sex_design_category": "male",
+      "visual_lane": "peak-condition adult male goblin combat support",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png", "master": "assets/concepts/phase2_calibration/knoll/knoll_master.png", "face": "assets/concepts/phase2_calibration/knoll/knoll_face.png", "read_96px": "assets/concepts/phase2_calibration/knoll/knoll_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Smug courteous calculation.",
+        "want": "Narrowed eye and service smile imply he wants the viewer to accept his terms.",
+        "fear_or_concealment": "Unpriced-care fear is not visible; scars alone do not reveal the concealed debt anxiety.",
+        "active_survival_strategy": "Branding tool and receipt bands communicate transactional control.",
+        "villainous_read": "The smile is predatory, but close to a generic smug goblin without the record.",
+        "cited_visual_cues": "One narrowed eye, raised cheek, closed smile, vertical scar, paper strips, fixed disks, diagonally held square branding tool."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "PROFESSIONAL", "evidence": "Peak-condition administrative predator avoids elderly merchant drift."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Paper, cloth, wood, skin, and metal are dry and separated."},
+          "coherence_and_hierarchy": {"band": "PROFESSIONAL", "evidence": "Branding tool and receipt clothing unify the valuation read."},
+          "distinctiveness": {"band": "PROFESSIONAL", "evidence": "Goblin clerk silhouette and branding tool are distinct in the cut."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "All four evidence images correspond."},
+          "silhouette_and_96px_readability": {"band": "PROFESSIONAL", "evidence": "Compact support with one diagonal tool survives, though the stamp can read as a hammer."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Transactional smugness reads; private fear and service-smile contradiction do not."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Trader papers/tool and Harmony disks remain separated."}
+        }
+      },
+      "blocker_ids": ["P2R2-KNOLL-001"],
+      "verdict": "REPAIR"
+    },
+    {
+      "unit": "Quillith",
+      "role": "Support",
+      "sex_design_category": "female",
+      "visual_lane": "hot lean toned feminine peak-condition adult woman",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png", "master": "assets/concepts/phase2_calibration/quillith/quillith_master.png", "face": "assets/concepts/phase2_calibration/quillith/quillith_face.png", "read_96px": "assets/concepts/phase2_calibration/quillith/quillith_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "PASS", "lean_toned_feminine": "PASS", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Haughty corrective contempt.",
+        "want": "Head angle and extended hand demand compliance.",
+        "fear_or_concealment": "Fear of being surpassed and genuine care are not visible in the crop.",
+        "active_survival_strategy": "She controls distance through instruction and the giant correction plane.",
+        "villainous_read": "Authority and contempt read, but intimate dependency engineering remains prose-only.",
+        "cited_visual_cues": "Chin raised, eyes looking down the nose, one brow compressed, lips parted without warmth, rigid jaw, long directing arm, nerve pins."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "PROFESSIONAL", "evidence": "Attractive dangerous adult support and punitive authority are visible."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Skin, cloth, wood, iron, and script are dry and legible."},
+          "coherence_and_hierarchy": {"band": "EXCELLENT", "evidence": "Correction plane and directing arm form one strong diagonal command."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Lectern-frame and nerve crown make a unique support silhouette."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Selected C corresponds and derivatives are usable."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Large correction plane and extended arm survive clearly."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Generic hauteur replaces the specified care/ownership/fear contradiction."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Mentor apparatus, Scholar notation, and Overload nerves occupy separate channels."}
+        }
+      },
+      "blocker_ids": ["P2R2-QUILLITH-001"],
+      "verdict": "REPAIR"
+    },
+    {
+      "unit": "Kett",
+      "role": "Brawler",
+      "sex_design_category": "male",
+      "visual_lane": "peak-condition adult male industrial brawler",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png", "master": "assets/concepts/phase2_calibration/kett/kett_master.png", "face": "assets/concepts/phase2_calibration/kett/kett_face.png", "read_96px": "assets/concepts/phase2_calibration/kett/kett_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "FAIL", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "FAIL", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "PASS", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Generic stern readiness.",
+        "want": "The face does not identify a specific want beyond readiness to fight.",
+        "fear_or_concealment": "Humiliation fear and anticipated relief are not visibly differentiated.",
+        "active_survival_strategy": "The oversized fist shows reduction of conflict to impact.",
+        "villainous_read": "Insufficient; he can read as a heroic or neutral industrial bruiser.",
+        "cited_visual_cues": "Raised chin, compressed brows, slightly open mouth, square jaw, upright static stance, giant forward fist, repeated chains and coin reliefs."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "FAIL", "dry_tactile_vellum_finish": "FAIL", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "BELOW_PROFESSIONAL", "evidence": "Threatening brawler reads, but villain specificity does not."},
+          "craft_and_finish": {"band": "BELOW_PROFESSIONAL", "evidence": "Polished black leather and shiny metal miss the approved hard-matte finish."},
+          "coherence_and_hierarchy": {"band": "PROFESSIONAL", "evidence": "The fist remains dominant despite accessory noise."},
+          "distinctiveness": {"band": "PROFESSIONAL", "evidence": "Triple-plate fist is unique, though costume is generic gangster-industrial."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Evidence packet and selected A correspondence are adequate."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Huge fist and barrel body survive at 96 px."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Generic hard-man expression replaces grievance/relief contradiction."},
+          "production_feasibility_and_trait_clarity": {"band": "BELOW_PROFESSIONAL", "evidence": "Cartel is carried by forbidden chains, leather, and coin-gangster shorthand rather than ownership scars alone."}
+        }
+      },
+      "blocker_ids": ["P2R2-KETT-001", "P2R2-KETT-002"],
+      "verdict": "REPAIR"
+    },
+    {
+      "unit": "Luna",
+      "role": "Mage",
+      "sex_design_category": "female",
+      "visual_lane": "hot lean toned feminine peak-condition adult woman",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png", "master": "assets/concepts/phase2_calibration/luna/luna_master.png", "face": "assets/concepts/phase2_calibration/luna/luna_face.png", "read_96px": "assets/concepts/phase2_calibration/luna/luna_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "FAIL", "horror_threat": "FAIL", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "PASS", "lean_toned_feminine": "PASS", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Cool serious surveillance.",
+        "want": "The open palm suggests stopping or controlling a line, not a warm invitation into dependence.",
+        "fear_or_concealment": "Fear of direct comparison is not visible; jaw and mouth remain generically firm.",
+        "active_survival_strategy": "Split gaze and taut ligament indicate management of two sides.",
+        "villainous_read": "Unsupported; she reads as a disciplined heroic or neutral refractor mage.",
+        "cited_visual_cues": "One gold eye and one cool eye, sideward gaze, neutral compressed mouth, raised stop-palm, split stance, taut palm-to-heel ligament."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "BELOW_PROFESSIONAL", "evidence": "Hot adult mage reads, but antagonist, coercion, and adult horror do not."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Dry teal/plum cloth, skin, and fibrous ligament are materially separated."},
+          "coherence_and_hierarchy": {"band": "EXCELLENT", "evidence": "One diagonal ligament controls the entire composition."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Barefoot split stance and physical refractor ligament are unique."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Selected B and derivatives correspond."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Diagonal connection and split stance survive at 96 px."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Neutral surveillance replaces warm invitation, fear of exclusion, and manipulative delight."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Liaison ligament and muted Kaleidoscope refraction are separate and buildable."}
+        }
+      },
+      "blocker_ids": ["P2R2-LUNA-001"],
+      "verdict": "REPAIR"
+    },
+    {
+      "unit": "Malachor",
+      "role": "Tank",
+      "sex_design_category": "sexless_grotesque_once_human",
+      "visual_lane": "colossal deliberate-horror flesh fortress",
+      "deliberately_horrific": true,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png", "master": "assets/concepts/phase2_calibration/malachor/malachor_master.png", "face": "assets/concepts/phase2_calibration/malachor/malachor_face.png", "read_96px": "assets/concepts/phase2_calibration/malachor/malachor_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "FAIL", "villain": "PASS", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "PASS", "deliberate_horror_exception": "PASS", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Trapped exhaustion or sorrow.",
+        "want": "The central face does not visibly demand maintenance; it appears immobilized behind ribs.",
+        "fear_or_concealment": "Collapse fear is suggested by enclosure and clock, not by widened eyes or panic in the face.",
+        "active_survival_strategy": "Embedded debtor faces and clamp body show incorporation of others.",
+        "villainous_read": "The body is villainous, but the primary face reads as victimized rather than entitled.",
+        "cited_visual_cues": "Drooping central eyes, downturned mouth, still head behind rib lattice, clock below face, many subordinate faces, open side clamp."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "FAIL", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "EXCELLENT", "evidence": "Adult body horror and siege-tank danger are immediate."},
+          "craft_and_finish": {"band": "BELOW_PROFESSIONAL", "evidence": "Interior flesh and skin masonry carry a wet specular sheen against the hard-matte Vellum veto."},
+          "coherence_and_hierarchy": {"band": "PROFESSIONAL", "evidence": "Fortress, clock, faces, and clamp cohere, though dense all-over flesh lowers hierarchy."},
+          "distinctiveness": {"band": "EXCELLENT", "evidence": "Flesh keep with clock and clamp has no roster duplicate."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Selected C and derived checks correspond."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Square fortress and side clamp remain clear at 96 px."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Primary face contradicts the recorded panicked entitlement and reads as trapped victim."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Sanguine tissue, Fortified ribs, and Titan mass remain separately legible."}
+        }
+      },
+      "blocker_ids": ["P2R2-MALACHOR-001", "P2R2-MALACHOR-002"],
+      "verdict": "REPAIR"
+    },
+    {
+      "unit": "Sable",
+      "role": "Marksman",
+      "sex_design_category": "nonbinary_androgynous",
+      "visual_lane": "lean androgynous peak-condition adult human marksman",
+      "deliberately_horrific": false,
+      "evidence": {"silhouettes": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png", "master": "assets/concepts/phase2_calibration/sable/sable_master.png", "face": "assets/concepts/phase2_calibration/sable/sable_face.png", "read_96px": "assets/concepts/phase2_calibration/sable/sable_96px.png"},
+      "psychology_record_audit": {"core_wound": "PASS", "private_want": "PASS", "primary_fear": "PASS", "survival_strategy": "PASS", "villainous_distortion": "PASS", "current_emotional_state": "PASS", "emotional_contradiction": "PASS", "face_direction": "PASS", "pose_direction": "PASS", "forbidden_read": "PASS"},
+      "gates": {"peak_age_fighter": "PASS", "psychology_reads_from_face": "FAIL", "face_and_pose_agree": "PASS", "villain": "FAIL", "horror_threat": "PASS", "supernatural_cost": "PASS", "gameplay_identity": "PASS", "trait_channels": "PASS", "read_96px": "PASS", "roster_distinct": "PASS", "hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection_explained": "NOT_APPLICABLE", "deliberate_horror_exception": "NOT_APPLICABLE", "blessed_special_gate": "NOT_APPLICABLE"},
+      "visible_face_evidence": {
+        "feeling": "Angry target fixation.",
+        "want": "The eye line and rifle show a demand for proof through the shot.",
+        "fear_or_concealment": "Suppressed doubt is not visible; both brows and mouth resolve as a generic scowl.",
+        "active_survival_strategy": "Every limb and the rifle converge into one evidentiary firing line.",
+        "villainous_read": "Insufficient; the master can read as a grim righteous sniper or antihero.",
+        "cited_visual_cues": "Both brows lowered, mouth compressed, scarred aiming eye, squared rifle sightline, proof strips on sleeves and barrel, stable wide stance."
+      },
+      "additional_mandatory_audit": {"three_genuinely_distinct_silhouettes": "PASS", "selected_master_correspondence": "PASS", "dominant_prop_or_anatomy": "PASS", "traceable_limbs_hands_props": "PASS", "no_clutter": "PASS", "dry_tactile_vellum_finish": "PASS", "nearest_neighbor_individuality": "PASS"},
+      "professional_standard": {
+        "overall_band": "BELOW_PROFESSIONAL",
+        "critical_dimensions": {
+          "audience_and_intent_fit": {"band": "BELOW_PROFESSIONAL", "evidence": "Androgynous marksman and danger read, but antagonist intent does not separate from a grim hero."},
+          "craft_and_finish": {"band": "PROFESSIONAL", "evidence": "Witness cloth, proof strips, steel, wax-red panels, and scar tissue are dry and separated."},
+          "coherence_and_hierarchy": {"band": "EXCELLENT", "evidence": "Extreme rifle line cleanly controls body and composition."},
+          "distinctiveness": {"band": "PROFESSIONAL", "evidence": "Proof-laminated rifle is specific, though the base sniper archetype is familiar."},
+          "completeness_and_downstream_usability": {"band": "PROFESSIONAL", "evidence": "Triptych, selected A, face, and 96 px derivative correspond."},
+          "silhouette_and_96px_readability": {"band": "EXCELLENT", "evidence": "Long rifle line is unmistakable at 96 px."},
+          "psychology_and_villain_read": {"band": "BELOW_PROFESSIONAL", "evidence": "Generic anger replaces moral satisfaction under doubt."},
+          "production_feasibility_and_trait_clarity": {"band": "PROFESSIONAL", "evidence": "Vindicator aim line and Scholar proof strips remain separate and actionable."}
+        }
+      },
+      "blocker_ids": ["P2R2-SABLE-001"],
+      "verdict": "REPAIR"
+    }
+  ],
+  "group_convergence_findings": {
+    "passes": [
+      {"finding": "The twelve masters do not share one body plan.", "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"]},
+      {"finding": "No roster-wide repeated horns, wings, halos, or generic demon anatomy is present.", "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P001.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"]},
+      {"finding": "Dominant prop/anatomy classes are mostly distinct: arch, cocoon, ledger, siphon hand, bow, blade ring, brand, lectern plane, fist, ligament, flesh clamp, and rifle.", "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"]},
+      {"finding": "Luna preserves a controlled teal/plum color lane without glossy rainbow-crystal drift.", "evidence_paths": ["assets/concepts/phase2_calibration/luna/luna_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"]}
+    ],
+    "failures": [
+      {"blocker_id": "P2R2-GROUP-001", "finding": "Humanoid face reads compress toward hard brows, tight mouths, scowls, or hauteur; the records name varied contradictions, but P003 visibly repeats sternness across Korath, Cashmere, Quillith, Kett, Luna, and Sable.", "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"]},
+      {"blocker_id": "P2R2-GROUP-002", "finding": "Cashmere and Kett materially converge on polished dark leather, straps, and hard specular highlights; this repeats the black-leather aisle the criteria explicitly rejects and misses the hard-matte anchor.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "assets/concepts/phase2_calibration/kett/kett_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"]},
+      {"blocker_id": "P2R2-GROUP-003", "finding": "Cashmere, Quillith, and Luna repeat long split-drape/one-leg-reveal solutions, reducing the intended variety in feminine silhouettes and tease placement.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "assets/concepts/phase2_calibration/quillith/quillith_master.png", "assets/concepts/phase2_calibration/luna/luna_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"]}
+    ]
+  },
+  "blockers": [
+    {"id": "P2R2-VEYRA-001", "unit": "Veyra", "severity": "HARD", "effect": "Fails psychology_reads_from_face, face_and_pose_agree, and villain.", "evidence_paths": ["assets/concepts/phase2_calibration/veyra/veyra_master.png", "assets/concepts/phase2_calibration/veyra/veyra_face.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "A new frozen master and same-master face crop must visibly show a target-directed sensory slit, asymmetric plate closure, possessive intent, and loss-of-freedom villain strategy without psychology prose."},
+    {"id": "P2R2-VEYRA-002", "unit": "Veyra", "severity": "HARD", "effect": "Fails horror_threat and deliberate_horror_exception; passive egg/armadillo read survives.", "evidence_paths": ["assets/concepts/phase2_calibration/veyra/veyra_master.png", "assets/concepts/phase2_calibration/veyra/veyra_96px.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P005.png"], "closure_condition": "The unchanged master must read as hostile enclosing predator before neutral shell in full-size and 96 px blinded inspection while retaining Aegis/Bulwark identity."},
+    {"id": "P2R2-CASHMERE-001", "unit": "Cashmere", "severity": "HARD", "effect": "Fails the mandatory three-genuinely-distinct-roughs requirement.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P001.png"], "closure_condition": "Replace the triptych with three materially different outer envelopes, ledger relationships, weight distributions, and casting vectors, then preserve one selected option exactly in the master."},
+    {"id": "P2R2-CASHMERE-002", "unit": "Cashmere", "severity": "HARD", "effect": "Fails psychology_reads_from_face.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_face.png", "assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "A same-master crop must visibly separate proprietary invitation from memory-blank panic through unequal eye focus, brow asymmetry, jaw tension, and mouth asymmetry rather than a generic aristocratic smirk."},
+    {"id": "P2R2-CASHMERE-003", "unit": "Cashmere", "severity": "HARD", "effect": "Fails the dry hard-matte finish audit and falls below professional in craft/distinctiveness.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png", "C:/Users/Flipm/Documents/gamble-battle/outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png"], "closure_condition": "A frozen Vellum-first comparison must show tobacco velvet, parchment, skin, ink, and metal as dry separated materials with no broad polished black-leather read or Vellum-costume imitation."},
+    {"id": "P2R2-NYXA-001", "unit": "Nyxa", "severity": "HARD", "effect": "Fails peak_age_fighter, deliberate_horror_exception, hot_adult_woman bypass, and lean_toned_feminine bypass.", "evidence_paths": ["assets/concepts/phase2_calibration/nyxa/nyxa_master.png", "assets/concepts/phase2_calibration/nyxa/nyxa_face.png", "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png"], "closure_condition": "A new frozen master must make batlike nonhuman predation and temporal body horror the first unprompted read before apparent age at face, full-body, and 96 px scales; otherwise Nyxa must satisfy the ordinary female lane."},
+    {"id": "P2R2-NYXA-002", "unit": "Nyxa", "severity": "HARD", "effect": "Fails selected-master correspondence and production trait clarity for the declared grown spine/wing-finger bow.", "evidence_paths": ["assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png", "assets/concepts/phase2_calibration/nyxa/nyxa_master.png"], "closure_condition": "The selected-master silhouette must visibly preserve one continuous anatomical connection from Nyxa's spine or wing finger into the time-bow rather than depicting a separately gripped bow."},
+    {"id": "P2R2-KNOLL-001", "unit": "Knoll", "severity": "HARD", "effect": "Fails psychology_reads_from_face.", "evidence_paths": ["assets/concepts/phase2_calibration/knoll/knoll_face.png", "assets/concepts/phase2_calibration/knoll/knoll_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "The same-master crop must visibly show courteous service and clinical collection simultaneously, plus concealed fear of unpriced care, without collapsing to a generic smug goblin."},
+    {"id": "P2R2-QUILLITH-001", "unit": "Quillith", "severity": "HARD", "effect": "Fails psychology_reads_from_face.", "evidence_paths": ["assets/concepts/phase2_calibration/quillith/quillith_face.png", "assets/concepts/phase2_calibration/quillith/quillith_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "A same-master crop and pose must visibly combine intimate approval, corrective ownership, genuine care, and fear of being surpassed rather than only hauteur."},
+    {"id": "P2R2-KETT-001", "unit": "Kett", "severity": "HARD", "effect": "Fails psychology_reads_from_face and villain.", "evidence_paths": ["assets/concepts/phase2_calibration/kett/kett_face.png", "assets/concepts/phase2_calibration/kett/kett_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "The same-master face and body must show grievance held under rigid restraint, visible anticipatory relief at impact, and a target-directed villain strategy that cannot read as a neutral or heroic bruiser."},
+    {"id": "P2R2-KETT-002", "unit": "Kett", "severity": "HARD", "effect": "Fails trait_channels, no-clutter, and dry hard-matte finish audits.", "evidence_paths": ["assets/concepts/phase2_calibration/kett/kett_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"], "closure_condition": "A new frozen master must keep the wage-stamp fist dominant, encode Cartel through stamped ownership scars rather than chain/coin/leather gangster shorthand, and render workwear and metal with dry non-polished material response."},
+    {"id": "P2R2-LUNA-001", "unit": "Luna", "severity": "HARD", "effect": "Fails psychology_reads_from_face, villain, and horror_threat.", "evidence_paths": ["assets/concepts/phase2_calibration/luna/luna_face.png", "assets/concepts/phase2_calibration/luna/luna_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "The same-master face and pose must visibly show warm invitation to one side, surveillance of another, fear of direct comparison, and coercive delight so the first read is manipulative antagonist rather than neutral refractor mage."},
+    {"id": "P2R2-MALACHOR-001", "unit": "Malachor", "severity": "HARD", "effect": "Fails psychology_reads_from_face and face_and_pose_agree.", "evidence_paths": ["assets/concepts/phase2_calibration/malachor/malachor_face.png", "assets/concepts/phase2_calibration/malachor/malachor_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "The central same-master face must visibly show widened collapse panic and a demanding mouth, aligning with the clamp/clock strategy and no longer reading as a trapped sad victim."},
+    {"id": "P2R2-MALACHOR-002", "unit": "Malachor", "severity": "HARD", "effect": "Fails dry hard-matte Vellum finish audit.", "evidence_paths": ["assets/concepts/phase2_calibration/malachor/malachor_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"], "closure_condition": "A frozen Vellum-first comparison must show dried oxblood, smoked sinew, cartilage, scab, and staples with controlled matte response and clearer hierarchy, without wet interior sheen."},
+    {"id": "P2R2-SABLE-001", "unit": "Sable", "severity": "HARD", "effect": "Fails psychology_reads_from_face and villain.", "evidence_paths": ["assets/concepts/phase2_calibration/sable/sable_face.png", "assets/concepts/phase2_calibration/sable/sable_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "The same-master crop must visibly distinguish cold moral satisfaction from a suppressed flicker of doubt, while pose/attention makes people into evidence rather than reading as a grim righteous sniper."},
+    {"id": "P2R2-GROUP-001", "unit": "GROUP", "severity": "HARD", "effect": "Fails emotion-family convergence audit.", "evidence_paths": ["outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P003.png"], "closure_condition": "A fresh same-master face board must let blinded reviewers distinguish each documented emotion family and contradiction without defaulting the affected humanoids to sternness, scowl, or hauteur."},
+    {"id": "P2R2-GROUP-002", "unit": "GROUP", "severity": "HARD", "effect": "Fails shared black-leather and hard-matte convergence audit.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "assets/concepts/phase2_calibration/kett/kett_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P006.png"], "closure_condition": "The Vellum-first board must show Cashmere and Kett as different garment/material families with no shared polished black-leather aisle and no broad hard specular finish."},
+    {"id": "P2R2-GROUP-003", "unit": "GROUP", "severity": "HARD", "effect": "Fails repeated split-drape/leg-reveal convergence audit.", "evidence_paths": ["assets/concepts/phase2_calibration/cashmere/cashmere_master.png", "assets/concepts/phase2_calibration/quillith/quillith_master.png", "assets/concepts/phase2_calibration/luna/luna_master.png", "outputs/visual_debug/vdh_runs/phase2-real-unit-calibration-c0d972a0e4/captures/P004.png"], "closure_condition": "A fresh role-grouped master board must show materially different feminine garment families and appeal placement for Cashmere, Quillith, and Luna rather than repeating long split drapes and one-leg exposure."}
+  ],
+  "rejected_findings": [
+    {"finding": "Korath requires conventional armor to pass as a tank.", "rejected_because": "His giant load-bearing body, calcification, and fused reliquary architecture visibly explain frontline protection; armor is not required."},
+    {"finding": "Veyra fails because it lacks carried armor or a shield.", "rejected_because": "Nested shell anatomy is a valid protection solution; the actual failure is passive non-villainous presentation."},
+    {"finding": "Creep's absent mouth automatically invalidates face psychology.", "rejected_because": "The criteria permits a deliberate nonhuman mechanism; erased face, hollow eyes, head cant, and predatory pose jointly carry the read."},
+    {"finding": "Nyxa is not threatening at all.", "rejected_because": "The lethal bow, clawed crouch, target fixation, and predatory delight pass threat; the narrower failure is that age reads before batlike nonhuman horror, so the bypass is unearned."},
+    {"finding": "Sable must satisfy hot-adult-woman and feminine gates.", "rejected_because": "Sable is explicitly nonbinary androgynous; those gates are not applicable."},
+    {"finding": "Luna needs armor to look combat-capable.", "rejected_because": "Mage role and ligament control do not justify armor; the failure is villain/threat psychology, not protection."},
+    {"finding": "The group repeats horns, wings, halos, or one demon anatomy.", "rejected_because": "The role-grouped master board shows no such roster-wide repetition."},
+    {"finding": "Vellum should be copied as the preferred costume template.", "rejected_because": "The approved hard-matte Vellum is a material/detail benchmark, and copying its leather/paper costume is itself convergence failure."}
+  ],
+  "protected_dissent": [
+    {"finding": "Nyxa's deliberate-horror exception is not earned by the frozen master.", "blocker_ids": ["P2R2-NYXA-001"], "protection_reason": "The face crop's first read is elderly humanoid; lethal intent does not by itself satisfy the stricter monster-before-age condition."},
+    {"finding": "Veyra's slit and wound do not constitute readable active psychology or villain intent.", "blocker_ids": ["P2R2-VEYRA-001", "P2R2-VEYRA-002"], "protection_reason": "The master remains symmetric, static, and sealed, matching the packet's own forbidden neutral-egg/armadillo read."},
+    {"finding": "Cashmere's rough triptych is not three genuinely distinct silhouette possibilities.", "blocker_ids": ["P2R2-CASHMERE-001"], "protection_reason": "All three preserve the same upright feminine body, ledger block, and long split-drape envelope with only placement changes."},
+    {"finding": "Luna does not visibly read as a villain or scary antagonist.", "blocker_ids": ["P2R2-LUNA-001"], "protection_reason": "The stern face, stop-palm, and clean diagonal ligament support a disciplined mage, but not coercive triangulation or fear."},
+    {"finding": "The group face board still converges on sternness despite varied written psychology.", "blocker_ids": ["P2R2-GROUP-001"], "protection_reason": "P003 visibly compresses multiple humanoids into hard brows and tight mouths; prose labels cannot clear that convergence."}
+  ]
+}
