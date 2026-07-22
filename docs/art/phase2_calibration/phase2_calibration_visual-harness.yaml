@@ -10,9 +10,9 @@ scenarios:
     required_groups: [overview, board_read, face_psychology, convergence, style_anchor]
     runtime_provenance:
       runtime: "Deterministic Pillow review packet"
-      source: "docs/art/phase2_calibration/phase2_review_evidence_manifest.json"
-      source_sha256: "12eb9adfdcb648d3f17f3eeef0c98a7047bf558e1dd9d79a153351cdac588019"
-      build: "codex/019f858f-005-phase1-trait-bible-repair"
+      source: "docs/art/phase2_calibration/phase2_calibration_manifest.json"
+      source_sha256: "1ee31caced7c3ce7f5ecb033e15e4c8ee6f1e0ddd364c0107106e9c07ff39fd4"
+      build: "codex/019f8be6-4ca-task@9d03d7c9c67a11200aa77a8ad1ea4dc800db679a"
     evidence:
       required_cameras: [document]
       required_layers: [final]

@@ -1,0 +1,561 @@
+{
+  "schema_version": "board-audit-v2",
+  "record_kind": "audit_authority_context",
+  "lineage_id": "gamble-battle-phase2-round7-upgraded",
+  "objective": {
+    "locator": "thread:019f8be6-4ca5-7213-bfe1-135ae50eb18b:user-request",
+    "verbatim": "Work on phase 2 and use the upgraded board-of-agents. Break if you end up in an endless loop or if you catch the board missing important stuff."
+  },
+  "acceptance_envelope": {
+    "version": "phase2-2026-07-21-v1",
+    "approval_locator": "thread:019f8be6-4ca5-7213-bfe1-135ae50eb18b:user-request",
+    "approval_sha256": "104df6a9a362f7adfe1211c7e5d2c8a3343fcb82b577ce8e14572954e0496f6d",
+    "target_band": "PROFESSIONAL",
+    "audience": "Adult strategy-game players and the user as final creative authority",
+    "phase": "Phase 2 real-unit calibration concept lock",
+    "domain": "VISUAL",
+    "constraints": [
+      "Inspect all 12 units and every frozen artifact, not only the five replaced masters.",
+      "Board approval never replaces explicit final user approval.",
+      "Stop if required authority, evidence, surfaces, or criteria are omitted.",
+      "Do not repeat a review cycle without decision-changing product or evidence changes."
+    ]
+  },
+  "authority_segments": [
+    {
+      "id": "AS01",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-01",
+      "text": "Every unit must read as a fighter at or near peak combat condition.",
+      "criterion_id": "C01"
+    },
+    {
+      "id": "AS02",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-02",
+      "text": "Every unit must read as a villain, dangerous antagonist, or deliberately horrific combat entity.",
+      "criterion_id": "C02"
+    },
+    {
+      "id": "AS03",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-03",
+      "text": "Body, equipment, posture, and protection logic must visibly support the unit's gameplay role without generic fantasy armor.",
+      "criterion_id": "C03"
+    },
+    {
+      "id": "AS04",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-04",
+      "text": "Each unit must have a complete ten-field survival-psychology record that is visibly expressed by face and pose.",
+      "criterion_id": "C04"
+    },
+    {
+      "id": "AS05",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-05",
+      "text": "A visible supernatural price, bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily consequence is mandatory.",
+      "criterion_id": "C05"
+    },
+    {
+      "id": "AS06",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-06",
+      "text": "Each unit must be a unique roster member rather than a reuse of one face, body, costume, anatomy, prop, or emotional template.",
+      "criterion_id": "C06"
+    },
+    {
+      "id": "AS07",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-07",
+      "text": "Every unit must stay inside one permitted adult peak-condition or deliberate-horror visual lane; cute mascots and ordinary vulnerable age lanes are forbidden.",
+      "criterion_id": "C07"
+    },
+    {
+      "id": "AS08",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-08",
+      "text": "A non-horrific female unit must read as an unmistakably adult, conventionally attractive, lean or toned, feminine, combat-capable woman with unit-specific appeal and threat.",
+      "criterion_id": "C08"
+    },
+    {
+      "id": "AS09",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-09",
+      "text": "Female frontliners must visibly explain survivability through unit-specific protection rather than a bulky male-coded body.",
+      "criterion_id": "C09"
+    },
+    {
+      "id": "AS10",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-10",
+      "text": "The same-master face enlargement and body pose must communicate a specific want, fear, contradiction, survival strategy, and villainous intent without lore rescue.",
+      "criterion_id": "C10"
+    },
+    {
+      "id": "AS11",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-11",
+      "text": "Horror and threat must read as hostile, predatory, coercive, alien, spiritually ruined, or dangerously beautiful, never cute, soft, harmless, whimsical, or cartoon-goofy.",
+      "criterion_id": "C11"
+    },
+    {
+      "id": "AS12",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-12",
+      "text": "Finish must be dry, detailed, premium western gothic board-game illustration with grounded realism, rejecting anime, gacha, porcelain, glossy plastic, wet-skin, and clean heroic fantasy drift.",
+      "criterion_id": "C12"
+    },
+    {
+      "id": "AS13",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-13",
+      "text": "Each unit requires three genuinely different silhouettes, one definitive full-body master, and face and 96-pixel derivatives from that unchanged master.",
+      "criterion_id": "C13"
+    },
+    {
+      "id": "AS14",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-14",
+      "text": "The unchanged master must remain identifiable at native 96 pixels and must be compared against its nearest roster neighbors.",
+      "criterion_id": "C14"
+    },
+    {
+      "id": "AS15",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-15",
+      "text": "One art-primary trait, separate secondary channels, one dominant prop or anatomy idea, role silhouette, and supernatural cost must read without floating-effect or accessory clutter.",
+      "criterion_id": "C15"
+    },
+    {
+      "id": "AS16",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-16",
+      "text": "The active roster must avoid convergence in faces, ages, bodies, garments, armor, props, anatomy, palettes, tease placement, and villain emotion families.",
+      "criterion_id": "C16"
+    },
+    {
+      "id": "AS17",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-17",
+      "text": "The evidence packet must include silhouettes, selected masters, same-master face enlargements, deterministic 96-pixel checks, psychology, role and trait construction, Vellum-first style comparison, and roster-neighbor comparisons.",
+      "criterion_id": "C17"
+    },
+    {
+      "id": "AS18",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-18",
+      "text": "No concept may be approved with a failed gate; readiness requires unanimous professional review, no surviving blocker, controlled cross-examination, and later explicit user approval.",
+      "criterion_id": "C18"
+    }
+  ],
+  "surfaces": [
+    {
+      "id": "master_concepts",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "FULL_SIZE"
+      ]
+    },
+    {
+      "id": "silhouette_exploration",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "SILHOUETTE"
+      ]
+    },
+    {
+      "id": "face_psychology",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ]
+    },
+    {
+      "id": "native_96_read",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "NATIVE_96"
+      ]
+    },
+    {
+      "id": "roster_style_convergence",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "SIDE_BY_SIDE"
+      ]
+    }
+  ],
+  "criteria_authority": [
+    {
+      "locator": "docs/art/unit_art_board_reference_criteria.md",
+      "sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+      "criterion_ids": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "C06",
+        "C07",
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18"
+      ],
+      "criteria": [
+        {
+          "id": "C01",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-01",
+          "text": "Every unit must read as a fighter at or near peak combat condition.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS01"
+          ]
+        },
+        {
+          "id": "C02",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-02",
+          "text": "Every unit must read as a villain, dangerous antagonist, or deliberately horrific combat entity.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS02"
+          ]
+        },
+        {
+          "id": "C03",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-03",
+          "text": "Body, equipment, posture, and protection logic must visibly support the unit's gameplay role without generic fantasy armor.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS03"
+          ]
+        },
+        {
+          "id": "C04",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-04",
+          "text": "Each unit must have a complete ten-field survival-psychology record that is visibly expressed by face and pose.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS04"
+          ]
+        },
+        {
+          "id": "C05",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-05",
+          "text": "A visible supernatural price, bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily consequence is mandatory.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS05"
+          ]
+        },
+        {
+          "id": "C06",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-06",
+          "text": "Each unit must be a unique roster member rather than a reuse of one face, body, costume, anatomy, prop, or emotional template.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "roster_style_convergence",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS06"
+          ]
+        },
+        {
+          "id": "C07",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-07",
+          "text": "Every unit must stay inside one permitted adult peak-condition or deliberate-horror visual lane; cute mascots and ordinary vulnerable age lanes are forbidden.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS07"
+          ]
+        },
+        {
+          "id": "C08",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-08",
+          "text": "A non-horrific female unit must read as an unmistakably adult, conventionally attractive, lean or toned, feminine, combat-capable woman with unit-specific appeal and threat.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS08"
+          ]
+        },
+        {
+          "id": "C09",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-09",
+          "text": "Female frontliners must visibly explain survivability through unit-specific protection rather than a bulky male-coded body.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS09"
+          ]
+        },
+        {
+          "id": "C10",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-10",
+          "text": "The same-master face enlargement and body pose must communicate a specific want, fear, contradiction, survival strategy, and villainous intent without lore rescue.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "face_psychology",
+            "master_concepts"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS10"
+          ]
+        },
+        {
+          "id": "C11",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-11",
+          "text": "Horror and threat must read as hostile, predatory, coercive, alien, spiritually ruined, or dangerously beautiful, never cute, soft, harmless, whimsical, or cartoon-goofy.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "native_96_read"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS11"
+          ]
+        },
+        {
+          "id": "C12",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-12",
+          "text": "Finish must be dry, detailed, premium western gothic board-game illustration with grounded realism, rejecting anime, gacha, porcelain, glossy plastic, wet-skin, and clean heroic fantasy drift.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS12"
+          ]
+        },
+        {
+          "id": "C13",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-13",
+          "text": "Each unit requires three genuinely different silhouettes, one definitive full-body master, and face and 96-pixel derivatives from that unchanged master.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "silhouette_exploration",
+            "master_concepts",
+            "face_psychology",
+            "native_96_read"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS13"
+          ]
+        },
+        {
+          "id": "C14",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-14",
+          "text": "The unchanged master must remain identifiable at native 96 pixels and must be compared against its nearest roster neighbors.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "native_96_read",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS14"
+          ]
+        },
+        {
+          "id": "C15",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-15",
+          "text": "One art-primary trait, separate secondary channels, one dominant prop or anatomy idea, role silhouette, and supernatural cost must read without floating-effect or accessory clutter.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "native_96_read"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS15"
+          ]
+        },
+        {
+          "id": "C16",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-16",
+          "text": "The active roster must avoid convergence in faces, ages, bodies, garments, armor, props, anatomy, palettes, tease placement, and villain emotion families.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "roster_style_convergence",
+            "face_psychology",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS16"
+          ]
+        },
+        {
+          "id": "C17",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-17",
+          "text": "The evidence packet must include silhouettes, selected masters, same-master face enlargements, deterministic 96-pixel checks, psychology, role and trait construction, Vellum-first style comparison, and roster-neighbor comparisons.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "face_psychology",
+            "native_96_read",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS17"
+          ]
+        },
+        {
+          "id": "C18",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-18",
+          "text": "No concept may be approved with a failed gate; readiness requires unanimous professional review, no surviving blocker, controlled cross-examination, and later explicit user approval.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "face_psychology",
+            "native_96_read",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS18"
+          ]
+        }
+      ],
+      "records_sha256": "85d7032c8f31a8dc260cb6e3c2e47d9023b0cfacf4421e0c8e51986fc66a1ea7"
+    }
+  ]
+}

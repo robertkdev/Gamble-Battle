@@ -1,0 +1,2339 @@
+{
+  "schema_version": "board-audit-v2",
+  "record_kind": "audit_packet",
+  "lineage_id": "gamble-battle-phase2-round7-upgraded",
+  "objective": {
+    "locator": "thread:019f8be6-4ca5-7213-bfe1-135ae50eb18b:user-request",
+    "verbatim": "Work on phase 2 and use the upgraded board-of-agents. Break if you end up in an endless loop or if you catch the board missing important stuff."
+  },
+  "acceptance_envelope": {
+    "version": "phase2-2026-07-21-v1",
+    "approval_locator": "thread:019f8be6-4ca5-7213-bfe1-135ae50eb18b:user-request",
+    "approval_sha256": "104df6a9a362f7adfe1211c7e5d2c8a3343fcb82b577ce8e14572954e0496f6d",
+    "target_band": "PROFESSIONAL",
+    "audience": "Adult strategy-game players and the user as final creative authority",
+    "phase": "Phase 2 real-unit calibration concept lock",
+    "domain": "VISUAL",
+    "constraints": [
+      "Inspect all 12 units and every frozen artifact, not only the five replaced masters.",
+      "Board approval never replaces explicit final user approval.",
+      "Stop if required authority, evidence, surfaces, or criteria are omitted.",
+      "Do not repeat a review cycle without decision-changing product or evidence changes."
+    ]
+  },
+  "authority_segments": [
+    {
+      "id": "AS01",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-01",
+      "text": "Every unit must read as a fighter at or near peak combat condition.",
+      "criterion_id": "C01"
+    },
+    {
+      "id": "AS02",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-02",
+      "text": "Every unit must read as a villain, dangerous antagonist, or deliberately horrific combat entity.",
+      "criterion_id": "C02"
+    },
+    {
+      "id": "AS03",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-03",
+      "text": "Body, equipment, posture, and protection logic must visibly support the unit's gameplay role without generic fantasy armor.",
+      "criterion_id": "C03"
+    },
+    {
+      "id": "AS04",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-04",
+      "text": "Each unit must have a complete ten-field survival-psychology record that is visibly expressed by face and pose.",
+      "criterion_id": "C04"
+    },
+    {
+      "id": "AS05",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-05",
+      "text": "A visible supernatural price, bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily consequence is mandatory.",
+      "criterion_id": "C05"
+    },
+    {
+      "id": "AS06",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-06",
+      "text": "Each unit must be a unique roster member rather than a reuse of one face, body, costume, anatomy, prop, or emotional template.",
+      "criterion_id": "C06"
+    },
+    {
+      "id": "AS07",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-07",
+      "text": "Every unit must stay inside one permitted adult peak-condition or deliberate-horror visual lane; cute mascots and ordinary vulnerable age lanes are forbidden.",
+      "criterion_id": "C07"
+    },
+    {
+      "id": "AS08",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-08",
+      "text": "A non-horrific female unit must read as an unmistakably adult, conventionally attractive, lean or toned, feminine, combat-capable woman with unit-specific appeal and threat.",
+      "criterion_id": "C08"
+    },
+    {
+      "id": "AS09",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-09",
+      "text": "Female frontliners must visibly explain survivability through unit-specific protection rather than a bulky male-coded body.",
+      "criterion_id": "C09"
+    },
+    {
+      "id": "AS10",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-10",
+      "text": "The same-master face enlargement and body pose must communicate a specific want, fear, contradiction, survival strategy, and villainous intent without lore rescue.",
+      "criterion_id": "C10"
+    },
+    {
+      "id": "AS11",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-11",
+      "text": "Horror and threat must read as hostile, predatory, coercive, alien, spiritually ruined, or dangerously beautiful, never cute, soft, harmless, whimsical, or cartoon-goofy.",
+      "criterion_id": "C11"
+    },
+    {
+      "id": "AS12",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-12",
+      "text": "Finish must be dry, detailed, premium western gothic board-game illustration with grounded realism, rejecting anime, gacha, porcelain, glossy plastic, wet-skin, and clean heroic fantasy drift.",
+      "criterion_id": "C12"
+    },
+    {
+      "id": "AS13",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-13",
+      "text": "Each unit requires three genuinely different silhouettes, one definitive full-body master, and face and 96-pixel derivatives from that unchanged master.",
+      "criterion_id": "C13"
+    },
+    {
+      "id": "AS14",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-14",
+      "text": "The unchanged master must remain identifiable at native 96 pixels and must be compared against its nearest roster neighbors.",
+      "criterion_id": "C14"
+    },
+    {
+      "id": "AS15",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-15",
+      "text": "One art-primary trait, separate secondary channels, one dominant prop or anatomy idea, role silhouette, and supernatural cost must read without floating-effect or accessory clutter.",
+      "criterion_id": "C15"
+    },
+    {
+      "id": "AS16",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-16",
+      "text": "The active roster must avoid convergence in faces, ages, bodies, garments, armor, props, anatomy, palettes, tease placement, and villain emotion families.",
+      "criterion_id": "C16"
+    },
+    {
+      "id": "AS17",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-17",
+      "text": "The evidence packet must include silhouettes, selected masters, same-master face enlargements, deterministic 96-pixel checks, psychology, role and trait construction, Vellum-first style comparison, and roster-neighbor comparisons.",
+      "criterion_id": "C17"
+    },
+    {
+      "id": "AS18",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-18",
+      "text": "No concept may be approved with a failed gate; readiness requires unanimous professional review, no surviving blocker, controlled cross-examination, and later explicit user approval.",
+      "criterion_id": "C18"
+    }
+  ],
+  "cut": {
+    "id": "phase2-cut-9d03d7c",
+    "artifacts": [
+      {
+        "locator": "assets/concepts/phase2_calibration/korath/korath_master.png",
+        "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+        "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/korath/korath_face.png",
+        "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+        "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+        "sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+        "sha256": "03503f19e50fbb4e73b09cc2d8b402750b8cc15d24abe222b7cca8a2b2c11ff7",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+        "sha256": "6f1086f23c977e38724db76d6843c71950739d1a65abf78077f98e4f70c31f86",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+        "sha256": "c06521e2d61dd072f43895bdd1d2b280419670a74a28fe36c058c383d5a20e73",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+        "sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+        "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+        "sha256": "41241e1494145d0ba06019b4098eabd17e132efe7dfcf36a4dff15b6a7475513",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+        "sha256": "85688804cf9550abf5839eb3b6213aa0ca366f68b7048d97ebefe86a4730aa4c",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+        "sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png",
+        "sha256": "98716689371e417fba0f680ee0d3fa232e3bf654faa0e311d1b86ef5b0acb1cb",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+        "sha256": "aa48197d9fc697c652093c00abbcd83b48facf57c4e81306f18dbfd0a1214ebe",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png",
+        "sha256": "c5134b66c07e0c757df155848e10d3f8b2327fe6af7afb60184586b25638f138",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+        "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+        "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+        "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+        "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/creep/creep_master.png",
+        "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+        "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/creep/creep_face.png",
+        "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+        "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+        "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+        "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+        "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+        "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+        "sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+        "sha256": "fa8eb63759096ac0848511ecfa1fac9238223c2d8499c15c2facfa74d57c1fd0",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+        "sha256": "2bfa553e98af2af710b1c723ce3989d181bd4da8f11204764876846c18280837",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+        "sha256": "248ee39174be4cd1e45077c80fc7c2588440f9fd9134efb0df3ee7f2bc86be70",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/kett/kett_master.png",
+        "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+        "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/kett/kett_face.png",
+        "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+        "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/luna/luna_master.png",
+        "sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+        "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/luna/luna_face.png",
+        "sha256": "37f23d9ad7c8c0628c429a129b6bcd37a46c080fc33d36f3a9fae97aaf3e5c24",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+        "sha256": "c814224f662e9563b12f3382522970fcfee4e7a26f85ec81cf2daacae7531369",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/sable/sable_master.png",
+        "sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png",
+        "sha256": "2e993051ed5896dcba336a8d1223b335bb26d88cfee7ec1e6e8c42cbc1928fac",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/sable/sable_face.png",
+        "sha256": "e458e5ade5faef9e53d89fa8b4c8ab7f8d4f6f9ce7fec586ab5a8f13c0ad2f50",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/sable/sable_96px.png",
+        "sha256": "80300a8eafa13238354b89354d5be267c8c40698af2666d29093d70027b3f923",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+        "sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
+        "surfaces": [
+          "master_concepts"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
+        "sha256": "56ce1848f5ad23269aacac4c4e2d6cb62a913c50ee89a35725041124cf6ebeb0",
+        "surfaces": [
+          "silhouette_exploration"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+        "sha256": "66b820d7ffdd5d812a4c59c45eb72cb08289188cc1ece9bfcc8cabc19f64ffb0",
+        "surfaces": [
+          "face_psychology"
+        ]
+      },
+      {
+        "locator": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+        "sha256": "499360ffa361177890e8632c64ecd5ade92d9d45c15b1a74decb3703d7a7d050",
+        "surfaces": [
+          "native_96_read"
+        ]
+      },
+      {
+        "locator": "docs/art/phase2_calibration/phase2_calibration_contact_sheet.png",
+        "sha256": "b53957db4c5e8be5715adb2ce74af201f342d09a29a5643c24ac2871a07cfbf1",
+        "surfaces": [
+          "roster_style_convergence"
+        ]
+      },
+      {
+        "locator": "docs/art/phase2_calibration/phase2_face_board.png",
+        "sha256": "23ae410e7a196095484e422b14d2103bb02bd92bde7d7df88c3b8695aa3b75b8",
+        "surfaces": [
+          "face_psychology",
+          "roster_style_convergence"
+        ]
+      },
+      {
+        "locator": "docs/art/phase2_calibration/phase2_calibration_96px_board.png",
+        "sha256": "62175cf2664e81230ab1b8b0fcb91d32967eda67f0e9b9827a832bd0a22f07be",
+        "surfaces": [
+          "native_96_read",
+          "roster_style_convergence"
+        ]
+      },
+      {
+        "locator": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+        "sha256": "5530e78a4e768ecacced76196ee9812ecf2571b0123c2a86872ae8669831045d",
+        "surfaces": [
+          "roster_style_convergence"
+        ]
+      },
+      {
+        "locator": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+        "sha256": "16fe7e59d589ea3e90ff8716786fd561c95ab13159c851dcdbd53c873fd82ae6",
+        "surfaces": [
+          "roster_style_convergence",
+          "master_concepts"
+        ]
+      }
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "master_concepts",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "FULL_SIZE"
+      ]
+    },
+    {
+      "id": "silhouette_exploration",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "SILHOUETTE"
+      ]
+    },
+    {
+      "id": "face_psychology",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ]
+    },
+    {
+      "id": "native_96_read",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "NATIVE_96"
+      ]
+    },
+    {
+      "id": "roster_style_convergence",
+      "class": "CHARACTER",
+      "critical": true,
+      "required_inspection_modes": [
+        "SIDE_BY_SIDE"
+      ]
+    }
+  ],
+  "criteria": [
+    {
+      "id": "C01",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-01",
+      "text": "Every unit must read as a fighter at or near peak combat condition.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "face_psychology"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C02",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-02",
+      "text": "Every unit must read as a villain, dangerous antagonist, or deliberately horrific combat entity.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "face_psychology",
+        "silhouette_exploration"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C03",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-03",
+      "text": "Body, equipment, posture, and protection logic must visibly support the unit's gameplay role without generic fantasy armor.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C04",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-04",
+      "text": "Each unit must have a complete ten-field survival-psychology record that is visibly expressed by face and pose.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "face_psychology"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C05",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-05",
+      "text": "A visible supernatural price, bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily consequence is mandatory.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "face_psychology"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C06",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-06",
+      "text": "Each unit must be a unique roster member rather than a reuse of one face, body, costume, anatomy, prop, or emotional template.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "roster_style_convergence",
+        "silhouette_exploration"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C07",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-07",
+      "text": "Every unit must stay inside one permitted adult peak-condition or deliberate-horror visual lane; cute mascots and ordinary vulnerable age lanes are forbidden.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C08",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-08",
+      "text": "A non-horrific female unit must read as an unmistakably adult, conventionally attractive, lean or toned, feminine, combat-capable woman with unit-specific appeal and threat.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "face_psychology",
+        "roster_style_convergence"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C09",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-09",
+      "text": "Female frontliners must visibly explain survivability through unit-specific protection rather than a bulky male-coded body.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C10",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-10",
+      "text": "The same-master face enlargement and body pose must communicate a specific want, fear, contradiction, survival strategy, and villainous intent without lore rescue.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "face_psychology",
+        "master_concepts"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C11",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-11",
+      "text": "Horror and threat must read as hostile, predatory, coercive, alien, spiritually ruined, or dangerously beautiful, never cute, soft, harmless, whimsical, or cartoon-goofy.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "native_96_read"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C12",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-12",
+      "text": "Finish must be dry, detailed, premium western gothic board-game illustration with grounded realism, rejecting anime, gacha, porcelain, glossy plastic, wet-skin, and clean heroic fantasy drift.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "roster_style_convergence"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C13",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-13",
+      "text": "Each unit requires three genuinely different silhouettes, one definitive full-body master, and face and 96-pixel derivatives from that unchanged master.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "silhouette_exploration",
+        "master_concepts",
+        "face_psychology",
+        "native_96_read"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C14",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-14",
+      "text": "The unchanged master must remain identifiable at native 96 pixels and must be compared against its nearest roster neighbors.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C15",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-15",
+      "text": "One art-primary trait, separate secondary channels, one dominant prop or anatomy idea, role silhouette, and supernatural cost must read without floating-effect or accessory clutter.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "native_96_read"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C16",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-16",
+      "text": "The active roster must avoid convergence in faces, ages, bodies, garments, armor, props, anatomy, palettes, tease placement, and villain emotion families.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "roster_style_convergence",
+        "face_psychology",
+        "silhouette_exploration"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C17",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-17",
+      "text": "The evidence packet must include silhouettes, selected masters, same-master face enlargements, deterministic 96-pixel checks, psychology, role and trait construction, Vellum-first style comparison, and roster-neighbor comparisons.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    },
+    {
+      "id": "C18",
+      "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-18",
+      "text": "No concept may be approved with a failed gate; readiness requires unanimous professional review, no surviving blocker, controlled cross-examination, and later explicit user approval.",
+      "critical": true,
+      "applicability": "ALWAYS",
+      "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "required_surface_classes": [
+        "CHARACTER"
+      ],
+      "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison."
+    }
+  ],
+  "criteria_authority": [
+    {
+      "locator": "docs/art/unit_art_board_reference_criteria.md",
+      "sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+      "criterion_ids": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "C05",
+        "C06",
+        "C07",
+        "C08",
+        "C09",
+        "C10",
+        "C11",
+        "C12",
+        "C13",
+        "C14",
+        "C15",
+        "C16",
+        "C17",
+        "C18"
+      ],
+      "criteria": [
+        {
+          "id": "C01",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-01",
+          "text": "Every unit must read as a fighter at or near peak combat condition.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS01"
+          ]
+        },
+        {
+          "id": "C02",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-02",
+          "text": "Every unit must read as a villain, dangerous antagonist, or deliberately horrific combat entity.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS02"
+          ]
+        },
+        {
+          "id": "C03",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-03",
+          "text": "Body, equipment, posture, and protection logic must visibly support the unit's gameplay role without generic fantasy armor.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS03"
+          ]
+        },
+        {
+          "id": "C04",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-04",
+          "text": "Each unit must have a complete ten-field survival-psychology record that is visibly expressed by face and pose.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS04"
+          ]
+        },
+        {
+          "id": "C05",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-05",
+          "text": "A visible supernatural price, bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily consequence is mandatory.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS05"
+          ]
+        },
+        {
+          "id": "C06",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-06",
+          "text": "Each unit must be a unique roster member rather than a reuse of one face, body, costume, anatomy, prop, or emotional template.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "roster_style_convergence",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS06"
+          ]
+        },
+        {
+          "id": "C07",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-07",
+          "text": "Every unit must stay inside one permitted adult peak-condition or deliberate-horror visual lane; cute mascots and ordinary vulnerable age lanes are forbidden.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "face_psychology"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS07"
+          ]
+        },
+        {
+          "id": "C08",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-08",
+          "text": "A non-horrific female unit must read as an unmistakably adult, conventionally attractive, lean or toned, feminine, combat-capable woman with unit-specific appeal and threat.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "face_psychology",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS08"
+          ]
+        },
+        {
+          "id": "C09",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-09",
+          "text": "Female frontliners must visibly explain survivability through unit-specific protection rather than a bulky male-coded body.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS09"
+          ]
+        },
+        {
+          "id": "C10",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-10",
+          "text": "The same-master face enlargement and body pose must communicate a specific want, fear, contradiction, survival strategy, and villainous intent without lore rescue.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "face_psychology",
+            "master_concepts"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS10"
+          ]
+        },
+        {
+          "id": "C11",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-11",
+          "text": "Horror and threat must read as hostile, predatory, coercive, alien, spiritually ruined, or dangerously beautiful, never cute, soft, harmless, whimsical, or cartoon-goofy.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "native_96_read"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS11"
+          ]
+        },
+        {
+          "id": "C12",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-12",
+          "text": "Finish must be dry, detailed, premium western gothic board-game illustration with grounded realism, rejecting anime, gacha, porcelain, glossy plastic, wet-skin, and clean heroic fantasy drift.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS12"
+          ]
+        },
+        {
+          "id": "C13",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-13",
+          "text": "Each unit requires three genuinely different silhouettes, one definitive full-body master, and face and 96-pixel derivatives from that unchanged master.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "silhouette_exploration",
+            "master_concepts",
+            "face_psychology",
+            "native_96_read"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS13"
+          ]
+        },
+        {
+          "id": "C14",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-14",
+          "text": "The unchanged master must remain identifiable at native 96 pixels and must be compared against its nearest roster neighbors.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "native_96_read",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS14"
+          ]
+        },
+        {
+          "id": "C15",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-15",
+          "text": "One art-primary trait, separate secondary channels, one dominant prop or anatomy idea, role silhouette, and supernatural cost must read without floating-effect or accessory clutter.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "native_96_read"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS15"
+          ]
+        },
+        {
+          "id": "C16",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-16",
+          "text": "The active roster must avoid convergence in faces, ages, bodies, garments, armor, props, anatomy, palettes, tease placement, and villain emotion families.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "roster_style_convergence",
+            "face_psychology",
+            "silhouette_exploration"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS16"
+          ]
+        },
+        {
+          "id": "C17",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-17",
+          "text": "The evidence packet must include silhouettes, selected masters, same-master face enlargements, deterministic 96-pixel checks, psychology, role and trait construction, Vellum-first style comparison, and roster-neighbor comparisons.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "face_psychology",
+            "native_96_read",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS17"
+          ]
+        },
+        {
+          "id": "C18",
+          "source_locator": "docs/art/unit_art_board_reference_criteria.md#board-criterion-18",
+          "text": "No concept may be approved with a failed gate; readiness requires unanimous professional review, no surviving blocker, controlled cross-examination, and later explicit user approval.",
+          "critical": true,
+          "applicability": "ALWAYS",
+          "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
+          "surfaces": [
+            "master_concepts",
+            "silhouette_exploration",
+            "face_psychology",
+            "native_96_read",
+            "roster_style_convergence"
+          ],
+          "required_surface_classes": [
+            "CHARACTER"
+          ],
+          "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+          "authority_segment_ids": [
+            "AS18"
+          ]
+        }
+      ],
+      "records_sha256": "85d7032c8f31a8dc260cb6e3c2e47d9023b0cfacf4421e0c8e51986fc66a1ea7"
+    }
+  ],
+  "dimensions": [
+    {
+      "id": "D_MASTER_CHARACTER_DESIGN",
+      "critical": true,
+      "surfaces": [
+        "master_concepts"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Definitive character design and visible contract read."
+    },
+    {
+      "id": "D_SILHOUETTE_LANGUAGE",
+      "critical": true,
+      "surfaces": [
+        "silhouette_exploration"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Distinct threat and role silhouette at a glance."
+    },
+    {
+      "id": "D_FACE_PSYCHOLOGY",
+      "critical": true,
+      "surfaces": [
+        "face_psychology"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Specific psychology must survive face enlargement."
+    },
+    {
+      "id": "D_NATIVE_96_LEGIBILITY",
+      "critical": true,
+      "surfaces": [
+        "native_96_read"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Production-scale unit recognition is mandatory."
+    },
+    {
+      "id": "D_ROSTER_CONVERGENCE_CONTROL",
+      "critical": true,
+      "surfaces": [
+        "roster_style_convergence"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "The 12-unit cut must remain individually recognizable and stylistically coherent."
+    },
+    {
+      "id": "U_AUDIENCE_INTENT_FIT",
+      "critical": true,
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Audience and intent fit"
+    },
+    {
+      "id": "U_CRAFT_FINISH",
+      "critical": true,
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Craft and finish"
+    },
+    {
+      "id": "U_COHERENCE_HIERARCHY",
+      "critical": true,
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Coherence and hierarchy"
+    },
+    {
+      "id": "U_DISTINCTIVENESS",
+      "critical": true,
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Distinctiveness"
+    },
+    {
+      "id": "U_COMPLETENESS_DOWNSTREAM_USABILITY",
+      "critical": true,
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "applicability": "APPLICABLE",
+      "applicability_reason": "Completeness and downstream usability"
+    }
+  ],
+  "reviewer_count": 3,
+  "raw_evidence": [
+    {
+      "id": "E001",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_master.png",
+      "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "korath complete full-body master"
+      ]
+    },
+    {
+      "id": "E002",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+      "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "korath three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E003",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_face.png",
+      "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "korath same-master face crop"
+      ]
+    },
+    {
+      "id": "E004",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+      "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "korath exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E005",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+      "sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "veyra complete full-body master"
+      ]
+    },
+    {
+      "id": "E006",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+      "sha256": "03503f19e50fbb4e73b09cc2d8b402750b8cc15d24abe222b7cca8a2b2c11ff7",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "veyra three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E007",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+      "sha256": "6f1086f23c977e38724db76d6843c71950739d1a65abf78077f98e4f70c31f86",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "veyra same-master face crop"
+      ]
+    },
+    {
+      "id": "E008",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+      "sha256": "c06521e2d61dd072f43895bdd1d2b280419670a74a28fe36c058c383d5a20e73",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "veyra exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E009",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+      "sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "cashmere complete full-body master"
+      ]
+    },
+    {
+      "id": "E010",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+      "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "cashmere three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E011",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+      "sha256": "41241e1494145d0ba06019b4098eabd17e132efe7dfcf36a4dff15b6a7475513",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "cashmere same-master face crop"
+      ]
+    },
+    {
+      "id": "E012",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+      "sha256": "85688804cf9550abf5839eb3b6213aa0ca366f68b7048d97ebefe86a4730aa4c",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "cashmere exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E013",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+      "sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "pilfer complete full-body master"
+      ]
+    },
+    {
+      "id": "E014",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png",
+      "sha256": "98716689371e417fba0f680ee0d3fa232e3bf654faa0e311d1b86ef5b0acb1cb",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "pilfer three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E015",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+      "sha256": "aa48197d9fc697c652093c00abbcd83b48facf57c4e81306f18dbfd0a1214ebe",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "pilfer same-master face crop"
+      ]
+    },
+    {
+      "id": "E016",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png",
+      "sha256": "c5134b66c07e0c757df155848e10d3f8b2327fe6af7afb60184586b25638f138",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "pilfer exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E017",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+      "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "nyxa complete full-body master"
+      ]
+    },
+    {
+      "id": "E018",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+      "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "nyxa three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E019",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+      "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "nyxa same-master face crop"
+      ]
+    },
+    {
+      "id": "E020",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+      "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "nyxa exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E021",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_master.png",
+      "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "creep complete full-body master"
+      ]
+    },
+    {
+      "id": "E022",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+      "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "creep three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E023",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_face.png",
+      "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "creep same-master face crop"
+      ]
+    },
+    {
+      "id": "E024",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+      "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "creep exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E025",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+      "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "knoll complete full-body master"
+      ]
+    },
+    {
+      "id": "E026",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+      "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "knoll three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E027",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+      "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "knoll same-master face crop"
+      ]
+    },
+    {
+      "id": "E028",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+      "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "knoll exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E029",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+      "sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "quillith complete full-body master"
+      ]
+    },
+    {
+      "id": "E030",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+      "sha256": "fa8eb63759096ac0848511ecfa1fac9238223c2d8499c15c2facfa74d57c1fd0",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "quillith three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E031",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+      "sha256": "2bfa553e98af2af710b1c723ce3989d181bd4da8f11204764876846c18280837",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "quillith same-master face crop"
+      ]
+    },
+    {
+      "id": "E032",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+      "sha256": "248ee39174be4cd1e45077c80fc7c2588440f9fd9134efb0df3ee7f2bc86be70",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "quillith exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E033",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_master.png",
+      "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "kett complete full-body master"
+      ]
+    },
+    {
+      "id": "E034",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+      "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "kett three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E035",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_face.png",
+      "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "kett same-master face crop"
+      ]
+    },
+    {
+      "id": "E036",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+      "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "kett exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E037",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_master.png",
+      "sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "luna complete full-body master"
+      ]
+    },
+    {
+      "id": "E038",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+      "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "luna three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E039",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_face.png",
+      "sha256": "37f23d9ad7c8c0628c429a129b6bcd37a46c080fc33d36f3a9fae97aaf3e5c24",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "luna same-master face crop"
+      ]
+    },
+    {
+      "id": "E040",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+      "sha256": "c814224f662e9563b12f3382522970fcfee4e7a26f85ec81cf2daacae7531369",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "luna exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E041",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_master.png",
+      "sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "sable complete full-body master"
+      ]
+    },
+    {
+      "id": "E042",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png",
+      "sha256": "2e993051ed5896dcba336a8d1223b335bb26d88cfee7ec1e6e8c42cbc1928fac",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "sable three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E043",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_face.png",
+      "sha256": "e458e5ade5faef9e53d89fa8b4c8ab7f8d4f6f9ce7fec586ab5a8f13c0ad2f50",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "sable same-master face crop"
+      ]
+    },
+    {
+      "id": "E044",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_96px.png",
+      "sha256": "80300a8eafa13238354b89354d5be267c8c40698af2666d29093d70027b3f923",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "sable exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E045",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+      "sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
+      "surface": "master_concepts",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "malachor complete full-body master"
+      ]
+    },
+    {
+      "id": "E046",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
+      "sha256": "56ce1848f5ad23269aacac4c4e2d6cb62a913c50ee89a35725041124cf6ebeb0",
+      "surface": "silhouette_exploration",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "observed_regions": [
+        "malachor three silhouette candidates"
+      ]
+    },
+    {
+      "id": "E047",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+      "sha256": "66b820d7ffdd5d812a4c59c45eb72cb08289188cc1ece9bfcc8cabc19f64ffb0",
+      "surface": "face_psychology",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "malachor same-master face crop"
+      ]
+    },
+    {
+      "id": "E048",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+      "sha256": "499360ffa361177890e8632c64ecd5ade92d9d45c15b1a74decb3703d7a7d050",
+      "surface": "native_96_read",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "observed_regions": [
+        "malachor exact native 96-pixel derivative"
+      ]
+    },
+    {
+      "id": "E049",
+      "locator": "docs/art/phase2_calibration/phase2_calibration_contact_sheet.png",
+      "sha256": "b53957db4c5e8be5715adb2ce74af201f342d09a29a5643c24ac2871a07cfbf1",
+      "surface": "roster_style_convergence",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "SIDE_BY_SIDE"
+      ],
+      "observed_regions": [
+        "all 12 masters and silhouettes"
+      ]
+    },
+    {
+      "id": "E050",
+      "locator": "docs/art/phase2_calibration/phase2_face_board.png",
+      "sha256": "23ae410e7a196095484e422b14d2103bb02bd92bde7d7df88c3b8695aa3b75b8",
+      "surface": "face_psychology",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT",
+        "SIDE_BY_SIDE"
+      ],
+      "observed_regions": [
+        "all 12 face crops"
+      ]
+    },
+    {
+      "id": "E050_roster_style_convergence",
+      "locator": "docs/art/phase2_calibration/phase2_face_board.png#roster_style_convergence",
+      "sha256": "23ae410e7a196095484e422b14d2103bb02bd92bde7d7df88c3b8695aa3b75b8",
+      "surface": "roster_style_convergence",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT",
+        "SIDE_BY_SIDE"
+      ],
+      "observed_regions": [
+        "all 12 face crops"
+      ]
+    },
+    {
+      "id": "E051",
+      "locator": "docs/art/phase2_calibration/phase2_calibration_96px_board.png",
+      "sha256": "62175cf2664e81230ab1b8b0fcb91d32967eda67f0e9b9827a832bd0a22f07be",
+      "surface": "native_96_read",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "NATIVE_96",
+        "SIDE_BY_SIDE"
+      ],
+      "observed_regions": [
+        "all 12 exact 96-pixel derivatives"
+      ]
+    },
+    {
+      "id": "E051_roster_style_convergence",
+      "locator": "docs/art/phase2_calibration/phase2_calibration_96px_board.png#roster_style_convergence",
+      "sha256": "62175cf2664e81230ab1b8b0fcb91d32967eda67f0e9b9827a832bd0a22f07be",
+      "surface": "roster_style_convergence",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "NATIVE_96",
+        "SIDE_BY_SIDE"
+      ],
+      "observed_regions": [
+        "all 12 exact 96-pixel derivatives"
+      ]
+    },
+    {
+      "id": "E052",
+      "locator": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+      "sha256": "5530e78a4e768ecacced76196ee9812ecf2571b0123c2a86872ae8669831045d",
+      "surface": "roster_style_convergence",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "SIDE_BY_SIDE"
+      ],
+      "observed_regions": [
+        "role-grouped master comparison"
+      ]
+    },
+    {
+      "id": "E053",
+      "locator": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "16fe7e59d589ea3e90ff8716786fd561c95ab13159c851dcdbd53c873fd82ae6",
+      "surface": "roster_style_convergence",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "SIDE_BY_SIDE",
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "Vellum-first material and finish comparison"
+      ]
+    },
+    {
+      "id": "E053_master_concepts",
+      "locator": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png#master_concepts",
+      "sha256": "16fe7e59d589ea3e90ff8716786fd561c95ab13159c851dcdbd53c873fd82ae6",
+      "surface": "master_concepts",
+      "kind": "AUTHORITATIVE_CAPTURE",
+      "inspection_modes": [
+        "SIDE_BY_SIDE",
+        "FULL_SIZE"
+      ],
+      "observed_regions": [
+        "Vellum-first material and finish comparison"
+      ]
+    },
+    {
+      "id": "E_PSYCHOLOGY_SPEC",
+      "locator": "docs/art/phase2_calibration/phase2_unit_psychology_records.json",
+      "sha256": "887f210796685f45a1618a6b34d1a29cc598e426a1f0488cd4db297f9222086d",
+      "surface": "face_psychology",
+      "kind": "SPECIFICATION",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "observed_regions": [
+        "all 12 ten-field psychology records"
+      ]
+    }
+  ],
+  "blind_round_exclusions": {
+    "repair_claims": true,
+    "prior_board_verdicts": true,
+    "closure_status": true,
+    "producer_scores": true,
+    "prior_findings": true,
+    "answer_bearing_annotations": true
+  },
+  "benchmarks": [
+    {
+      "id": "B_RIOT_BRIAR",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_briar_shipped.jpg",
+      "sha256": "d5a179d7c908e5bf077bb1ee017813dacbdf015ec2dd357d3d6a08af98a5fd4c",
+      "source_class": "SHIPPED_PEER",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "Shipped villain-woman splash illustration",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "relevance": "Adult female threat, specific restraint device, face attitude, silhouette staging, and release finish.",
+      "constraint_differences": "Wide cinematic splash rather than isolated transparent board-game master; use for professional finish and character-specific threat, not composition matching.",
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ]
+    },
+    {
+      "id": "B_RIOT_BELVETH",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_belveth_shipped.jpg",
+      "sha256": "255ee513034d082a1429e4cc5602e951ac70550455404c1428316dbec9cd1708",
+      "source_class": "INDEPENDENT_PROFESSIONAL",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "Shipped nonhuman villain splash illustration",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "relevance": "Nonhuman majesty, immediately hostile silhouette, embodied anatomy, palette control, and premium finish.",
+      "constraint_differences": "Wide cinematic splash and larger environment contribution; use for nonhuman threat and finish, not exact body-plan or transparent-presentation matching.",
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ]
+    },
+    {
+      "id": "B_RIOT_CAMILLE",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_camille_shipped.jpg",
+      "sha256": "f6e1f6bb9698066bcafa532632f0a1a77cbf86ee6c1dc0bb9fa027514cda424c",
+      "source_class": "ASPIRATIONAL_PEER",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "Shipped adult female villain-action illustration",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "relevance": "Elegant adult femininity, role-specific anatomy and equipment, dangerous intent, clean silhouette, and controlled premium finish.",
+      "constraint_differences": "Action splash with environmental motion rather than neutral full-body board presentation; use as aspirational clarity and craft ceiling.",
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ]
+    },
+    {
+      "id": "B_VELLUM",
+      "locator": "docs/art/phase2_calibration/benchmarks/vellum_user_approved_raw.png",
+      "sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "source_class": "USER_SUPPLIED_REFERENCE",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "User-approved isolated western-gothic character master",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "relevance": "Project veto anchor for dry material, detail density, grounded realism, adult villain presence, and premium board-game illustration.",
+      "constraint_differences": "Single internal style anchor with bright chroma-key background; does not independently establish professional market floor.",
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ]
+    },
+    {
+      "id": "B_MORWEN",
+      "locator": "docs/art/phase2_calibration/benchmarks/morwen_user_approved.png",
+      "sha256": "7d93ca00f9d4a0079bed39867e9429635ffa78a2df879f4aedd2c1443565b8ec",
+      "source_class": "USER_SUPPLIED_REFERENCE",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "User-approved isolated adult female villain master",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "relevance": "Project anchor for hot-adult-woman read, specific predatory psychology, fit feminine body design, and danger without bulky armor.",
+      "constraint_differences": "Single internal female anchor and rear three-quarter pose; must not become a repeated body, tease, or pose template.",
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ]
+    }
+  ],
+  "skill_hashes": {
+    "SKILL.md": "81d3ea3d808b938874167961506763eb5bc024dd3ea170b546a9222eba645abc",
+    "references/review-contract.md": "483e33f5a60788deac597e6ce00d68bf9eba742491f6833c64497d09b4789813",
+    "references/professional-standard.md": "e96b7448ed5f93f0e4f078edef3575f31d2a8affbc50c971589d0c49331c0001",
+    "references/visual-audit.md": "6817c6a062546f98c17b4b3a4266709a7ae5bfae838251d52d34af3483397476",
+    "scripts/validate_audit.py": "ab0ecdde9d2c466d34f84b625d8f5c98316f5880a965fed45f66d6165d0fb528"
+  },
+  "evidence_order": [
+    "E001",
+    "E002",
+    "E003",
+    "E004",
+    "E005",
+    "E006",
+    "E007",
+    "E008",
+    "E009",
+    "E010",
+    "E011",
+    "E012",
+    "E013",
+    "E014",
+    "E015",
+    "E016",
+    "E017",
+    "E018",
+    "E019",
+    "E020",
+    "E021",
+    "E022",
+    "E023",
+    "E024",
+    "E025",
+    "E026",
+    "E027",
+    "E028",
+    "E029",
+    "E030",
+    "E031",
+    "E032",
+    "E033",
+    "E034",
+    "E035",
+    "E036",
+    "E037",
+    "E038",
+    "E039",
+    "E040",
+    "E041",
+    "E042",
+    "E043",
+    "E044",
+    "E045",
+    "E046",
+    "E047",
+    "E048",
+    "E049",
+    "E050",
+    "E050_roster_style_convergence",
+    "E051",
+    "E051_roster_style_convergence",
+    "E052",
+    "E053",
+    "E053_master_concepts",
+    "E_PSYCHOLOGY_SPEC"
+  ],
+  "evidence_transforms": [],
+  "authority_context_sha256": "770babba249b345a6d8b24d8e130ad7009675a961b0db217369be0f04d4c2042"
+}

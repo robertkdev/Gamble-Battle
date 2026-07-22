@@ -1,5 +1,13 @@
 # Phase 2 reapproval triage
 
+## 2026-07-22 upgraded Board stop
+
+The rebuilt 12-unit cut and evidence packet are frozen at `phase2-cut-9d03d7c`, but the upgraded Board did not produce a verdict. Seat A's initial clean-room attempt and one bounded retry both failed with the same backend response-stream disconnect before a primary record could seal. The remaining seats were interrupted under the user's explicit no-loop condition.
+
+The failed run also exposed an important protocol gap: the generic v2 validator verifies the criteria source hash and embedded-record consistency, but not lossless coverage of every material clause in the canonical unit-art standard. See `board/round_7_upgraded/STOP_REPORT.md`.
+
+Current action: preserve the rebuilt candidates and raw evidence; do not claim reapproval. Before another Board run, repair deterministic authority-clause coverage and use a transport/output shape that can return complete sealed records without repeated disconnects. Do not restart art generation merely to create activity while review infrastructure is the blocker.
+
 Status: current repaired cut awaiting a fresh upgraded Board-of-Agents audit under `docs/art/unit_art_board_reference_criteria.md`.
 
 Every Phase 2 unit is open. No master, old Board disposition, or generated replacement is grandfathered. Round 6 is historical evidence only.

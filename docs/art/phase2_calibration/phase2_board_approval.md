@@ -1,5 +1,7 @@
 # Phase 2 Board Approval
 
+> **CURRENT STATUS — 2026-07-22:** `STOPPED / NO BOARD VERDICT`. The upgraded Round 7 Board could not seal its primary records: Seat A's initial attempt and single bounded retry both ended in the same backend stream disconnect. The remaining seats were interrupted when the user's loop brake fired. The Round 7 packet also exposed a material-authority coverage gap described in `board/round_7_upgraded/STOP_REPORT.md`. Phase 2 remains candidate-only and requires explicit user review plus a later functioning Board run; no historical approval below is current.
+
 Current status: **SUPERSEDED / NOT A CURRENT APPROVAL**
 
 The user reopened every Phase 2 unit after this decision and specifically rejected the forced cartoon-face direction on Veyra and Malachor plus the failed tease-test read on the women. The Round 6 result below is retained only as historical evidence of what the earlier Board said; it cannot authorize the current cut or grandfather any unit. A new upgraded Board-of-Agents audit is required.
