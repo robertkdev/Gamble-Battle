@@ -52,18 +52,18 @@
     },
     {
       "path": "docs/art/phase2_calibration/phase2_calibration_bible.md",
-      "sha256": "2d8cc44999616e71234bf63c2fd348689834e7f41bfcc0d248eea0ba23accc50",
-      "bytes": 27201
+      "sha256": "2e2056cdbb9e85a500d1137ec94b1fd2992265e6ab8544bf08a952b7e11795b0",
+      "bytes": 27448
     },
     {
       "path": "docs/art/phase2_calibration/phase2_calibration_manifest.json",
-      "sha256": "d31dc7f920809fd929c73500b58a08f84be2c6ee1ba2945df6cd6568e32ac83b",
-      "bytes": 14906
+      "sha256": "1ee31caced7c3ce7f5ecb033e15e4c8ee6f1e0ddd364c0107106e9c07ff39fd4",
+      "bytes": 15293
     },
     {
       "path": "docs/art/phase2_calibration/phase2_unit_psychology_records.json",
-      "sha256": "5423f380bb01252fb63dd14eaba5554b6e3f014a32fa43e8d48665b92b49effc",
-      "bytes": 22354
+      "sha256": "887f210796685f45a1618a6b34d1a29cc598e426a1f0488cd4db297f9222086d",
+      "bytes": 22546
     },
     {
       "path": "docs/art/phase2_calibration/board/round_1_full_group_review_brief.md",
@@ -84,8 +84,8 @@
     },
     {
       "path": "tools/art/render_phase2_calibration_packet.py",
-      "sha256": "26858619a0fd2f6c8aca7fc2e78010c278281c0180cd58a1da3745296b641561",
-      "bytes": 8332
+      "sha256": "663f8c50690dc35db0562ceab819a912f402608252c2f08ce6b5fd183b318d20",
+      "bytes": 8679
     },
     {
       "path": "tools/art/render_phase2_face_board.py",
@@ -177,7 +177,7 @@
       "assets": {
         "silhouette": {
           "path": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
-          "sha256": "f9856e173468a9cf31b8ea4dd11d4c74d9fe0dfdffbe30089457748b6b4a209e",
+          "sha256": "03503f19e50fbb4e73b09cc2d8b402750b8cc15d24abe222b7cca8a2b2c11ff7",
           "dimensions": [
             1536,
             1024
@@ -186,7 +186,7 @@
         },
         "master": {
           "path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
-          "sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+          "sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
           "dimensions": [
             1122,
             1402
@@ -195,7 +195,7 @@
         },
         "face": {
           "path": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
-          "sha256": "45fddc11d5b580f9848a42a929b71bf381f8d672df9f069f456a8a6f8b611179",
+          "sha256": "6f1086f23c977e38724db76d6843c71950739d1a65abf78077f98e4f70c31f86",
           "dimensions": [
             500,
             580
@@ -204,7 +204,7 @@
         },
         "board_96px": {
           "path": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
-          "sha256": "05774223a24582665c4376cd435c85b9a328b2f509e9d702f9793b3126171cc2",
+          "sha256": "c06521e2d61dd072f43895bdd1d2b280419670a74a28fe36c058c383d5a20e73",
           "dimensions": [
             96,
             96
@@ -215,7 +215,7 @@
       "derivations": {
         "face": {
           "source_master_path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
-          "source_master_sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+          "source_master_sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
           "crop_xywh": [
             430,
             180,
@@ -226,7 +226,7 @@
         },
         "board_96px": {
           "source_master_path": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
-          "source_master_sha256": "71f87981ce087511839c9732714ea51ea7ce57d0bf708a4bb738b5bf91544ebd",
+          "source_master_sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
           "canvas": [
             96,
             96
@@ -241,8 +241,8 @@
       },
       "prompt": {
         "path": "docs/art/phase2_calibration/prompts/veyra.md",
-        "sha256": "9be431f71e43289561e4acbd13c154b460d817f5715dc7485657daad2514fd9b",
-        "bytes": 1330
+        "sha256": "7695a72c44f5b427b13b74fe44da6c8edb969d1cdcccdfe6d677fd1daecacb10",
+        "bytes": 1508
       }
     },
     {
@@ -259,7 +259,7 @@
         },
         "master": {
           "path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
-          "sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+          "sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
           "dimensions": [
             1024,
             1536
@@ -268,7 +268,7 @@
         },
         "face": {
           "path": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
-          "sha256": "296c9ec5977675c0f9039d57c191fd64728406aae909049ad01f02bbd78d547e",
+          "sha256": "41241e1494145d0ba06019b4098eabd17e132efe7dfcf36a4dff15b6a7475513",
           "dimensions": [
             340,
             390
@@ -277,7 +277,7 @@
         },
         "board_96px": {
           "path": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
-          "sha256": "d99ba1c6b7e3bfb0db8aac5a45d9726f4fc714abe0c76f5b0ca68efeae397194",
+          "sha256": "85688804cf9550abf5839eb3b6213aa0ca366f68b7048d97ebefe86a4730aa4c",
           "dimensions": [
             96,
             96
@@ -288,7 +288,7 @@
       "derivations": {
         "face": {
           "source_master_path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
-          "source_master_sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+          "source_master_sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
           "crop_xywh": [
             350,
             35,
@@ -299,7 +299,7 @@
         },
         "board_96px": {
           "source_master_path": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
-          "source_master_sha256": "8c1b8b7d8b2c3cebb337ac730afbdbfb925b93414ffcc0e565e5783700858a21",
+          "source_master_sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
           "canvas": [
             96,
             96
@@ -314,8 +314,8 @@
       },
       "prompt": {
         "path": "docs/art/phase2_calibration/prompts/cashmere.md",
-        "sha256": "3b6a04caf0db1a4ea0cda8893f5d378b9dae33829533ba318289d374d26d8eb9",
-        "bytes": 2551
+        "sha256": "f55611039cb4e5e8f3b9ca49883fb8857b3c7a0daa51adc05a8f37afbdad5057",
+        "bytes": 2487
       }
     },
     {
@@ -624,7 +624,7 @@
         },
         "master": {
           "path": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
-          "sha256": "317bd83f272bb25e0e6e1500f9c6e2f735bed52e23091d7a301bbee3725aac72",
+          "sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
           "dimensions": [
             1023,
             1537
@@ -633,7 +633,7 @@
         },
         "face": {
           "path": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
-          "sha256": "a64afdd7b5e58efa022f4865cecc9338d44b4dcf874797ec5915b527cbcc8278",
+          "sha256": "2bfa553e98af2af710b1c723ce3989d181bd4da8f11204764876846c18280837",
           "dimensions": [
             380,
             420
@@ -642,7 +642,7 @@
         },
         "board_96px": {
           "path": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
-          "sha256": "f577c9a1a0e184e4c5cdc2fde6a5a2c2257c4684b964ab70d271a3d0dfbb1679",
+          "sha256": "248ee39174be4cd1e45077c80fc7c2588440f9fd9134efb0df3ee7f2bc86be70",
           "dimensions": [
             96,
             96
@@ -653,7 +653,7 @@
       "derivations": {
         "face": {
           "source_master_path": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
-          "source_master_sha256": "317bd83f272bb25e0e6e1500f9c6e2f735bed52e23091d7a301bbee3725aac72",
+          "source_master_sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
           "crop_xywh": [
             330,
             45,
@@ -664,7 +664,7 @@
         },
         "board_96px": {
           "source_master_path": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
-          "source_master_sha256": "317bd83f272bb25e0e6e1500f9c6e2f735bed52e23091d7a301bbee3725aac72",
+          "source_master_sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
           "canvas": [
             96,
             96
@@ -679,8 +679,8 @@
       },
       "prompt": {
         "path": "docs/art/phase2_calibration/prompts/quillith.md",
-        "sha256": "446af43b6163f7cd6b03a75719646a3554d49aab3ce44772ddb3008102a9e403",
-        "bytes": 1668
+        "sha256": "d5d108f75d5bbf0fe20ab26d6818ef25d7f69892e953c537e3dc294d67d61750",
+        "bytes": 1997
       }
     },
     {
@@ -770,7 +770,7 @@
         },
         "master": {
           "path": "assets/concepts/phase2_calibration/luna/luna_master.png",
-          "sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+          "sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
           "dimensions": [
             1024,
             1536
@@ -779,7 +779,7 @@
         },
         "face": {
           "path": "assets/concepts/phase2_calibration/luna/luna_face.png",
-          "sha256": "009d0af5dfa9151121b38706ac4d2f5b2f94a8bfc3f2ca6e53869beac689a0b5",
+          "sha256": "37f23d9ad7c8c0628c429a129b6bcd37a46c080fc33d36f3a9fae97aaf3e5c24",
           "dimensions": [
             360,
             420
@@ -788,7 +788,7 @@
         },
         "board_96px": {
           "path": "assets/concepts/phase2_calibration/luna/luna_96px.png",
-          "sha256": "5d6ac22e58d220deead5e1fc10c7a04373826b26e366a0287508505b06d5623b",
+          "sha256": "c814224f662e9563b12f3382522970fcfee4e7a26f85ec81cf2daacae7531369",
           "dimensions": [
             96,
             96
@@ -799,7 +799,7 @@
       "derivations": {
         "face": {
           "source_master_path": "assets/concepts/phase2_calibration/luna/luna_master.png",
-          "source_master_sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+          "source_master_sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
           "crop_xywh": [
             340,
             45,
@@ -810,7 +810,7 @@
         },
         "board_96px": {
           "source_master_path": "assets/concepts/phase2_calibration/luna/luna_master.png",
-          "source_master_sha256": "c65b8e095c735139f2f1aa22ddc664c0dedaedfd68aacc790aad9a394880420d",
+          "source_master_sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
           "canvas": [
             96,
             96
@@ -825,8 +825,8 @@
       },
       "prompt": {
         "path": "docs/art/phase2_calibration/prompts/luna.md",
-        "sha256": "7ce5834e2ad2997a5b4c2645bb8025158274c141346a3b81b398ada0ce963918",
-        "bytes": 1654
+        "sha256": "3c859f02dc00dd5916fa1428b12bf101a5f3e35b42f017152a2c2483de3bf753",
+        "bytes": 1818
       }
     },
     {
@@ -834,25 +834,25 @@
       "assets": {
         "silhouette": {
           "path": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
-          "sha256": "8e81dd01595c6bc9b008c1d208c6f42c299516e8dc57cf7b16c1d472c01d9be9",
+          "sha256": "56ce1848f5ad23269aacac4c4e2d6cb62a913c50ee89a35725041124cf6ebeb0",
+          "dimensions": [
+            1717,
+            916
+          ],
+          "mode": "RGB"
+        },
+        "master": {
+          "path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+          "sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
           "dimensions": [
             1536,
             1024
           ],
           "mode": "RGB"
         },
-        "master": {
-          "path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
-          "sha256": "d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954",
-          "dimensions": [
-            1254,
-            1254
-          ],
-          "mode": "RGB"
-        },
         "face": {
           "path": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
-          "sha256": "43027fe259865ef5bbe85742cf5eba63df567b2d7704c4b530d28b67430a9489",
+          "sha256": "66b820d7ffdd5d812a4c59c45eb72cb08289188cc1ece9bfcc8cabc19f64ffb0",
           "dimensions": [
             500,
             570
@@ -861,7 +861,7 @@
         },
         "board_96px": {
           "path": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
-          "sha256": "94c8efea97c9bd8d8062746df11da736c6964806d06dd3bf3384ac9f43bd423a",
+          "sha256": "499360ffa361177890e8632c64ecd5ade92d9d45c15b1a74decb3703d7a7d050",
           "dimensions": [
             96,
             96
@@ -872,7 +872,7 @@
       "derivations": {
         "face": {
           "source_master_path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
-          "source_master_sha256": "d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954",
+          "source_master_sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
           "crop_xywh": [
             300,
             180,
@@ -883,7 +883,7 @@
         },
         "board_96px": {
           "source_master_path": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
-          "source_master_sha256": "d110e469af8426ad2c4d8369c870b00b03c6f75100affe32eccf6f3bba120954",
+          "source_master_sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
           "canvas": [
             96,
             96
@@ -898,8 +898,8 @@
       },
       "prompt": {
         "path": "docs/art/phase2_calibration/prompts/malachor.md",
-        "sha256": "9de806d7973762f9e4b909952a6ef06ece69c051297a28f7c60068de4033a872",
-        "bytes": 1692
+        "sha256": "ed94a67cbe31499b88503daa4b2b26f29738591bf76a0de5f14d10bfa25a298b",
+        "bytes": 2019
       }
     },
     {

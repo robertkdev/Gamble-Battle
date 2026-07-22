@@ -27,11 +27,11 @@
       "primary_fear": "An opening, independent motion, or uncontained ally will recreate the original breach.",
       "survival_strategy": "It seals each injury and uncertainty behind another nested layer.",
       "villainous_distortion": "Protection becomes possession; allies are treated as contents to be locked inside it.",
-      "current_emotional_state": "Focused predatory closure around a newly chosen target.",
+      "current_emotional_state": "Absolute possessive stillness while the larval core watches through the only permitted opening.",
       "emotional_contradiction": "Protective enclosure versus annihilation of the protected subject's freedom.",
-      "face_direction": "The off-center sensory slit narrows and angles toward the target; the newly deadened slit and pinched seam act as the nonhuman facial mechanism.",
-      "pose_direction": "Foremost plates advance asymmetrically like closing jaws while the oval mass leans forward on planted pillar legs.",
-      "forbidden_read": "No neutral egg, harmless armadillo, passive shield, robot, carried armor, cute creature, or generic stone golem."
+      "face_direction": "There is no imposed face: the off-center plum slit and the bound larval core inside the crack are the only nonhuman attention mechanisms.",
+      "pose_direction": "The blunt sealed egg stands on two short pillar legs while nested plates squeeze the central crack around the chosen contents.",
+      "forbidden_read": "No humanoid head, expressive eyes, grin, cartoon mouth, harmless armadillo, robot, carried armor, cute creature, or generic stone golem."
     },
     "cashmere": {
       "sex_design_category": "female", "age_gate": "PEAK_CONDITION_ADULT_30_32", "visual_lane": "hot lean toned feminine peak-condition adult woman, age 30-32", "deliberately_horrific": false,
@@ -45,7 +45,7 @@
       "current_emotional_state": "Pleasurable certainty while closing an acquisition she believes is already hers.",
       "emotional_contradiction": "Inviting proprietary warmth over concealed panic about the blank memory she cannot price.",
       "face_direction": "One eye sharply appraises the viewer while the other is fractionally unfocused; a tiny asymmetrical brow pinch and tight jaw betray fear beneath one inviting mouth corner.",
-      "pose_direction": "The pale ledger crosses her center like a legal shield, held by a completely traceable arm, while the opposite ink-dark hand offers a precise contract-cast.",
+      "pose_direction": "The ledger is clamped under one outer arm at hip height without hiding her torso while the opposite ink-dark hand reaches into the viewer's space with a precise contract-cast.",
       "forbidden_read": "No generic aristocratic smirk, neutral beauty model, friendly merchant, angry executive, sad sorceress, older woman, or merely pretty occult accountant."
     },
     "pilfer": {
@@ -120,7 +120,7 @@
       "current_emotional_state": "Intimate approval at the instant she imposes a corrective limit.",
       "emotional_contradiction": "Genuine care for potential versus terror-driven ownership of the pupil.",
       "face_direction": "Eyes pin the viewer as a favored pupil; one brow corrects precisely while the other tightens, lips offer quiet approval, and the jaw is rigid with fear of being surpassed.",
-      "pose_direction": "A lean examiner stance anchors one tall correction slate at her side while the free hand offers intimate approval and directs obedience; inflamed nerves reveal the price.",
+      "pose_direction": "A lean examiner stance suspends one tall correction slate from a visibly gripped short handle while the free hand reaches toward the viewer with intimate approval and directed obedience; inflamed nerves reveal the price.",
       "forbidden_read": "No elderly teacher, frail crone, disability-as-hook, kindly mentor, stern schoolmarm, generic witch, bodybuilder, or neutral attractive model."
     },
     "kett": {
@@ -150,11 +150,11 @@
       "current_emotional_state": "Warm invitation split by cool surveillance of an unseen second party.",
       "emotional_contradiction": "Performed intimacy versus terror of direct connection that excludes her.",
       "face_direction": "One gaze pair follows the open inviting palm while the other pair tracks a second party; the mouth offers safety while lower-lid and throat tension expose fear of comparison.",
-      "pose_direction": "A narrow split stance tensions exactly one physical diagonal refractor ligament from forward palm to opposite heel while the free hand remains empty and controls a second social vector.",
+      "pose_direction": "A wide split stance tensions exactly one physical diagonal refractor ligament from forward palm to opposite heel while the empty trailing hand controls a second social vector.",
       "forbidden_read": "No neutral model, friendly mediator, generic seductress, rainbow crystal mage, black catsuit, ribbon dancer, gacha heroine, or harmless pretty woman."
     },
     "malachor": {
-      "sex_design_category": "sexless_grotesque_once_human", "age_gate": "NOT_APPLICABLE_NONHUMAN_HORROR", "visual_lane": "colossal deliberate-horror flesh fortress", "deliberately_horrific": true,
+      "sex_design_category": "sexless_grotesque_once_human", "age_gate": "NOT_APPLICABLE_NONHUMAN_HORROR", "visual_lane": "colossal deliberate-horror circulatory flesh vault", "deliberately_horrific": true,
       "conditional_gates": {"hot_adult_woman": "NOT_APPLICABLE", "lean_toned_feminine": "NOT_APPLICABLE", "frontline_protection": "APPLICABLE_ANATOMICAL_FORTRESS", "deliberate_horror_exception": "APPLICABLE_NONHUMAN"},
       "nearest_neighbors": ["Korath", "Veyra", "Creep"],
       "core_wound": "His body began an irreversible collapse, and the first stolen graft proved other people could pay to postpone it.",
@@ -162,11 +162,11 @@
       "primary_fear": "One unpaid moment will let the fortress disintegrate and reveal the panicked dependent organism inside.",
       "survival_strategy": "He incorporates debtor bodies and makes their tissue maintain his continuity.",
       "villainous_distortion": "Every nearby life becomes replacement material, structural support, and payment for his refusal to end.",
-      "current_emotional_state": "Panicked entitlement demanding immediate maintenance.",
+      "current_emotional_state": "Faceless circulatory hunger demanding immediate maintenance.",
       "emotional_contradiction": "Immovable fortress authority versus frantic certainty that collapse has already begun.",
-      "face_direction": "The central embedded face is the primary locus: eyes widen around the body-clock, mouth demands rather than pleads, while subordinate debtor faces strain in different directions.",
-      "pose_direction": "Four load-bearing supports cage the center as the attached clamp opens to pin the next source of tissue; the clock tightens visibly.",
-      "forbidden_read": "No dumb flesh golem, generic castle monster, sad trapped victim, clean stone fortress, vampire stereotype, or decorative body-horror pile."
+      "face_direction": "There is no humanoid face: the exposed central heart contracts like an entitled alarm while auxiliary hearts and vascular tension reveal the maintenance panic.",
+      "pose_direction": "Many claw supports carry the low circulatory vault as one enormous rib-cage clamp opens to pin the next tissue source; the central heart tightens visibly.",
+      "forbidden_read": "No humanoid eyes or mouth, cartoon face, wood grain, tree-stump legs, dumb flesh golem, generic castle monster, sad trapped victim, vampire stereotype, or decorative body-horror pile."
     },
     "sable": {
       "sex_design_category": "nonbinary_androgynous", "age_gate": "PEAK_CONDITION_ADULT_30_34", "visual_lane": "lean androgynous peak-condition adult human marksman, age 30-34", "deliberately_horrific": false,

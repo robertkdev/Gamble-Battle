@@ -29,11 +29,11 @@
     {
       "id": "veyra", "role": "Tank", "traits": ["Aegis", "Bulwark"], "art_primary": "Aegis",
       "secondary_channels": {"Bulwark": "compressed square buttresses and locking joints"},
-      "selected_silhouette": "C", "silhouettes": ["tall narrow folding gate", "low six-limbed bastion", "forward-lunging C-shaped clamp on two braced legs"],
-      "survival_psychology": "It seals every injury behind another layer until protection becomes imprisonment.",
-      "villain_read": "possessive protector that treats allies as contents", "primary_prop": "none; off-center sensory slit and asymmetrical lateral shell jaws form one living C-clamp",
+      "selected_silhouette": "C", "silhouettes": ["tall sealed shard-shell on two short pillar legs", "low multi-legged opened bastion", "blunt vertical egg-cocoon with one off-center larval crack"],
+      "survival_psychology": "It seals every injury and chosen dependent inside another layer until protection becomes imprisonment.",
+      "villain_read": "possessive protector that treats allies as contents", "primary_prop": "none; nested shell plates, one off-center crack, and a bound larval core form one sealed living egg",
       "supernatural_cost": "each hardening fuses a joint and deadens a sensory slit", "body_lane": "sexless alien shell-organism", "aesthetic_lane": "nonhuman architectural",
-      "board_survival": ["two lunging legs", "open sideways C-clamp", "off-center plum slit", "all plate tips share one prey vector"]
+      "board_survival": ["two short pillar legs", "blunt closed egg-cocoon", "off-center plum slit", "one visible bound larval core"]
     },
     {
       "id": "cashmere", "role": "Mage", "traits": ["Arcanist", "Mogul"], "art_primary": "Mogul",
@@ -52,11 +52,11 @@
         "pose_direction": "The large pale ledger crosses her center-left torso like a legal shield and extends beyond her contour; the opposite ink-dark hand is raised in a precise beckoning cast above a narrow planted stance.",
         "forbidden_read": "Generic aristocratic smirk, neutral beauty model, friendly merchant, angry executive, sad sorceress, or merely pretty occult accountant."
       },
-      "villain_read": "patient warm acquisition that offers ownership as safety while spending people as entries", "primary_prop": "one huge pale cracked arcane ledger",
+      "villain_read": "patient warm acquisition that offers ownership as safety while spending people as entries", "primary_prop": "one huge cracked arcane ledger clamped at the outer hip",
       "supernatural_cost": "paid kills erase memories and print them as tax-script through fingers and throat", "body_lane": "attractive lean toned feminine peak-condition adult woman, age 30-32", "aesthetic_lane": "hot adult acquisitive menace",
       "face_psychology": "one sharp appraising eye, one fractionally unfocused memory-blank eye, asymmetrical brow tension, a tight jaw, and one small proprietary invitation show acquisition over concealed panic",
       "protection_logic": "none; mage role and survival strategy do not justify armor",
-      "board_survival": ["narrow vertical authority silhouette", "rectangular ledger", "raised ink-dark casting arm"]
+      "board_survival": ["narrow vertical authority silhouette", "outer-hip rectangular ledger", "forward ink-dark contract hand"]
     },
     {
       "id": "pilfer", "role": "Assassin", "traits": ["Catalyst", "Cartel"], "art_primary": "Catalyst",
@@ -100,7 +100,7 @@
       "secondary_channels": {"Scholar": "notation cut into one portable correction slate", "Overload": "frayed nerves and crowded script at head and hands"},
       "selected_silhouette": "A", "silhouettes": ["erect examiner in forward lectern frame", "wide adjudication stance with restraint bar", "asymmetric dueling pedagogue with diagonal correction plane"],
       "survival_psychology": "She keeps pupils dependent because being surpassed would invalidate her sacrifices.",
-      "villain_read": "punitive control disguised as instruction", "primary_prop": "one tall hinged portable correction slate with no weapon furniture",
+      "villain_read": "punitive control disguised as instruction", "primary_prop": "one tall portable correction slate suspended from a visibly gripped short handle with no weapon furniture",
       "supernatural_cost": "forced recasts burn lessons into exposed nerves and make speech leak annotations", "body_lane": "hot lean toned feminine peak-condition adult woman, age 30-33", "aesthetic_lane": "punitive intimate controller",
       "board_survival": ["lean directive woman", "one tall side slate", "nerve crown", "extended correcting arm"]
     },
@@ -125,11 +125,11 @@
     {
       "id": "malachor", "role": "Tank", "traits": ["Titan", "Fortified", "Sanguine"], "art_primary": "Sanguine",
       "secondary_channels": {"Fortified": "interlocked skin masonry and rib buttresses", "Titan": "colossal ground occupation"},
-      "selected_silhouette": "C", "silhouettes": ["flesh keep with central pinning arm", "many-backed tower crawler", "square rib-buttress trap"],
+      "selected_silhouette": "B", "silhouettes": ["tall hollow circulatory vault on three needle supports", "many-legged low flesh-vault with exposed central heart and rib-cage clamp", "arched heart reliquary on four narrow supports"],
       "survival_psychology": "He makes other bodies pay the maintenance cost of his impossible continuity.",
-      "villain_read": "panicked entitlement inside a siege body", "primary_prop": "mortised clamp hand",
-      "supernatural_cost": "healing steals tissue from embedded debtors while a flesh clock tightens", "body_lane": "colossal nonhuman flesh architecture", "aesthetic_lane": "grotesque monster",
-      "board_survival": ["square colossal torso", "clamp hand", "rib corners", "chest clock"]
+      "villain_read": "panicked entitlement inside a siege body", "primary_prop": "one enormous rib-cage clamp integrated into the circulatory vault",
+      "supernatural_cost": "healing steals circulatory tissue into embedded auxiliary hearts while the exposed central heart tightens as a debt clock", "body_lane": "colossal nonhuman circulatory flesh architecture", "aesthetic_lane": "grotesque monster",
+      "board_survival": ["wide many-legged vault", "enormous side rib-cage clamp", "exposed central heart", "open circulatory rib lattice"]
     },
     {
       "id": "sable", "role": "Marksman", "traits": ["Vindicator", "Scholar"], "art_primary": "Vindicator",

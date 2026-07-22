@@ -60,18 +60,18 @@ Trait coverage: Aegis, Arcanist, Blessed, Bulwark, Cartel, Catalyst, Chronomance
 - Gameplay identity: converts Aegis stacks into short flat damage reduction, then permanent combat max-health gain.
 - Art-primary trait: **Aegis**, expressed as nested living enclosures folding around a vulnerable center.
 - Secondary channel: **Bulwark** appears in compressed square buttresses and locking joints, never a carried shield.
-- Three silhouette possibilities: **A** tall narrow folding gate; **B** low six-limbed mobile bastion; **C** forward-lunging C-shaped clamp on two braced legs. **Selected: C**, making active possessive closure read before egg or passive cocoon while remaining distinct from Korath's horizontal burden.
+- Three silhouette possibilities: **A** tall sealed shard-shell on two short pillar legs; **B** low multi-legged opened bastion; **C** blunt vertical egg/cocoon with one off-center crack exposing a bound larval core. **Selected: C**, restoring the user's unique closed-egg identity rather than forcing a creature face or generic active clamp.
 - Survival psychology: Veyra survives by sealing every new injury behind another layer until protection becomes imprisonment.
 - Villain read: possessive protector that treats allies as contents, not people.
-- Primary prop/anatomy: no prop; the off-center sensory slit and asymmetrical lateral shell jaws form one living C-clamp around selected prey.
+- Primary prop/anatomy: no prop; nested shell plates, one off-center crack, and the bound worm-like core form one sealed living egg around chosen dependents.
 - Supernatural cost: each hardening permanently fuses one joint and deadens a sensory slit.
 - Palette/material: chalky ceramic shell without shine, blue-gray tendon, oxidized copper seams, dim plum core.
-- 96 px survival: two lunging legs, open sideways C-clamp silhouette, off-center plum sensory slit, all plate tips aimed at one prey vector.
+- 96 px survival: blunt closed egg/cocoon, two short pillar legs, one central crack, and the exposed bound larval core.
 
 ### Cashmere — Arcanist / Mogul — Mage
 
 - Gameplay identity: fires an arcane blast; a kill can pay out gold.
-- Art-primary trait: **Mogul**, expressed through vertical control, claimed space, the ledger-as-legal-shield, and ownership posture.
+- Art-primary trait: **Mogul**, expressed through claimed distance, the ledger carried as owned capital at the outer hip, and proprietary contract-casting posture.
 - Secondary channel: **Arcanist** lives in measured diagram seams and one controlled casting line through the bare inked hand.
 - Three silhouette possibilities: **A** tall asymmetric ledger mantle with exposed casting arm; **B** fitted layered accounting vest and split drape around one huge ledger; **C** split-column garment with severe diagonal ledger block. **Selected: B**, preserving elegant authority while correcting the former elderly broad/soft body lane.
 - Survival-psychology record:
@@ -83,7 +83,7 @@ Trait coverage: Aegis, Arcanist, Blessed, Bulwark, Cartel, Catalyst, Chronomance
   6. **Current emotional state:** pleasurable certainty while closing an acquisition she believes is already hers.
   7. **Emotional contradiction:** inviting proprietary warmth over tightly concealed panic about the blank memory she cannot price.
   8. **Face direction:** one eye sharply appraises the viewer while the other is fractionally unfocused; a tiny asymmetrical brow pinch and tight jaw betray the fear beneath a small proprietary invitation at one mouth corner.
-  9. **Pose direction:** the large pale ledger crosses her center-left torso like a legal shield, its edge claiming space beyond her body; the opposite ink-dark hand is raised in a precise beckoning cast, and her narrow planted stance implies the contract is not optional.
+  9. **Pose direction:** the large ledger is clamped under one outer arm at hip height without hiding her torso; the opposite ink-dark hand reaches into the viewer's space in a precise contract cast, and her planted stance implies the acquisition is already closed.
   10. **Forbidden read:** no generic aristocratic smirk, neutral beauty model, friendly merchant, angry executive, sad sorceress, or merely pretty occult accountant.
 - Villain read: warm, patient acquisition; she offers ownership as safety while spending other people as entries.
 - Primary prop/anatomy: one cracked arcane ledger held vertically like a legal shield.
@@ -154,7 +154,7 @@ Trait coverage: Aegis, Arcanist, Blessed, Bulwark, Cartel, Catalyst, Chronomance
 - Three silhouette possibilities: **A** erect examiner inside a tall forward lectern frame; **B** wide adjudication stance behind a restraint bar; **C** asymmetric dueling pedagogue with one giant diagonal correction plane. **Selected: A**, now realized as a directive examiner beside one tall portable correction slate rather than a weapon-like plane.
 - Survival psychology: Quillith keeps pupils dependent because being surpassed would make every sacrifice of her own body meaningless.
 - Villain read: intimate, punitive control disguised as instruction.
-- Primary prop/anatomy: one tall hinged portable correction slate held at her side as an instructional support apparatus; it has no stock, trigger, bow, or aiming posture.
+- Primary prop/anatomy: one tall portable correction slate hangs low at her side from a short worn handle; the lowered hand visibly grips that handle along one traceable load path, and the slate has no stock, trigger, bow, or aiming posture.
 - Supernatural cost: every forced recast burns another lesson into exposed nerves and makes her own speech leak as overlapping annotations.
 - Body lane: beautiful 30-33-year-old adult woman in peak condition; lean, toned, feminine, attractive, unarmored, and not overly buff or masculine.
 - Palette/material: worn plum wool, fibrous ink-stained linen, chalked wood, oxidized iron, waxed thread, bruised nerve-red; no chains, dangling parts, gloss, or black uniforming.
@@ -178,7 +178,7 @@ Trait coverage: Aegis, Arcanist, Blessed, Bulwark, Cartel, Catalyst, Chronomance
 - Gameplay identity: fires a thin refracted moonlight ray through every enemy in a line.
 - Art-primary trait: **Liaison**, expressed as a body designed around bridging two separated visual masses and maintaining a tense connecting line.
 - Secondary channel: **Kaleidoscope** occupies muted refracted panels in fabric and skin, with disciplined color separation rather than rainbow crystal.
-- Three silhouette possibilities: **A** counterweighted mediator with one taut horizontal bridge; **B** narrow split-stance duelist with one diagonal palm-to-heel refractor ligament; **C** triangular conductor with one curved shoulder-to-wrist bridge. **Selected: B**, preserving the attractive magical lane while making one physical Liaison connection dominate at 96 px.
+- Three silhouette possibilities: **A** counterweighted mediator with one taut horizontal bridge; **B** wide split-stance duelist with one diagonal palm-to-heel refractor ligament; **C** triangular conductor with one curved shoulder-to-wrist bridge. **Selected: B**, preserving the attractive magical lane while making one physical Liaison connection dominate at 96 px.
 - Survival psychology: Luna survives by making herself indispensable between enemies, then controlling what each side is allowed to perceive.
 - Villain read: seductive triangulator—calm, observant, and delighted by mutual dependence.
 - Primary prop/anatomy: no carried prop; one thick body/garment-integrated fibrous refractor ligament runs taut from the forward palm to the opposite heel.
@@ -192,13 +192,13 @@ Trait coverage: Aegis, Arcanist, Blessed, Bulwark, Cartel, Catalyst, Chronomance
 - Gameplay identity: pins a priority enemy, hardens through incoming damage, heals himself, and leaves a flesh-debt clock.
 - Art-primary trait: **Sanguine**, expressed as predatory debt embodied in living tissue rather than vampire fashion.
 - Secondary channels: **Fortified** is the buttressed spine and interlocked skin masonry; **Titan** is colossal load-bearing volume and ground occupation.
-- Three silhouette possibilities: **A** colossal flesh keep with a central pinning arm; **B** many-backed crawler under one tower torso; **C** square standing mass whose rib-buttresses close like a trap. **Selected: C**, a non-armored fortress silhouette distinct from Veyra's cocoon and Korath's burden.
+- Three silhouette possibilities: **A** tall hollow circulatory vault on three needle supports; **B** many-legged low flesh-vault with an exposed central heart and one enormous rib-cage clamp; **C** arched heart reliquary on four narrow supports. **Selected: B**, a faceless circulatory siege organism distinct from Veyra's cocoon and Korath's burden.
 - Survival psychology: Malachor survives by making other bodies pay the maintenance cost of his own impossible continuity.
 - Villain read: panicked entitlement inside a slow, impersonal siege engine.
-- Primary prop/anatomy: one enormous pinning hand shaped like a mortised clamp; no shield or weapon.
-- Supernatural cost: healing steals tissue from embedded debtor faces while a visible flesh clock tightens around the sternum.
+- Primary prop/anatomy: one enormous rib-cage clamp integrated into the circulatory vault; no shield, weapon, humanoid face, or stump-like limb.
+- Supernatural cost: healing steals circulatory tissue into embedded auxiliary hearts while the exposed central heart tightens as the debt clock.
 - Palette/material: dried oxblood, smoked sinew, corpse-ivory cartilage, charcoal scab, rusted surgical staples; no black plate, green cracks, horns, or gothic golem armor.
-- 96 px survival: square colossal torso, clamp hand, rib-buttress corners, circular chest clock.
+- 96 px survival: wide many-legged vault, enormous side clamp, open rib lattice, and exposed central heart.
 
 ### Sable — Vindicator / Scholar — Marksman
 

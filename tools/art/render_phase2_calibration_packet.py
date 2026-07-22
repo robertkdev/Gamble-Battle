@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import shutil
+import subprocess
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -77,6 +78,20 @@ def write_capture_manifest(path: Path) -> None:
     staged = path.parent / "staged"
     staged.mkdir(parents=True, exist_ok=True)
     source_hash = hashlib.sha256(MANIFEST.read_bytes()).hexdigest()
+    branch = subprocess.run(
+        ["git", "branch", "--show-current"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
     captures = []
     definitions = [
         (CONTACT_SHEET, "phase2_contact_sheet", "all_masters_and_silhouettes", "overview", "Phase 2 masters and silhouette options"),
@@ -96,7 +111,7 @@ def write_capture_manifest(path: Path) -> None:
                     "runtime": "Deterministic Pillow review packet",
                     "source": MANIFEST.relative_to(ROOT).as_posix(),
                     "source_sha256": source_hash,
-                    "build": "codex/019f858f-005-phase1-trait-bible-repair",
+                    "build": f"{branch}@{commit}",
                 },
                 "state": state,
                 "label": label,

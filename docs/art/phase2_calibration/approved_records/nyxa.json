@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0.0",
   "record_kind": "unit_art_board_review",
-  "record_status": "BOARD_REVIEWED",
+  "record_status": "SUPERSEDED_USER_REOPEN",
   "authority": "docs/art/unit_art_board_reference_criteria.md",
   "criteria_version": "2026-07-21-v1",
   "criteria_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",

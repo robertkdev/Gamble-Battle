@@ -1,6 +1,10 @@
 # Phase 2 Board Approval
 
-Status: **BOARD APPROVED / READY / PROFESSIONAL / NO BLOCKERS**
+Current status: **SUPERSEDED / NOT A CURRENT APPROVAL**
+
+The user reopened every Phase 2 unit after this decision and specifically rejected the forced cartoon-face direction on Veyra and Malachor plus the failed tease-test read on the women. The Round 6 result below is retained only as historical evidence of what the earlier Board said; it cannot authorize the current cut or grandfather any unit. A new upgraded Board-of-Agents audit is required.
+
+Historical status at the time: **BOARD APPROVED / READY / PROFESSIONAL / NO BLOCKERS**
 
 Approved cut: `phase2-round-6-full-group`
 
