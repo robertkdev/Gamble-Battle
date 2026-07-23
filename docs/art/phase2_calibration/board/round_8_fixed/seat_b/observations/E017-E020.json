@@ -1,0 +1,103 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E017",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+      "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A crouched bat-like humanoid aims or braces an enormous crescent bow grown from veined membrane and hooked bone, with several taut cords converging across the chest and face.",
+        "The body and face split into pale and black halves; two very large unequal ears, a skull-like nose, narrow eyes, bared teeth, fur, clawed hands, and digitigrade feet establish a predatory nonhuman anatomy.",
+        "One lifted knee, a low planted leg, a forward shoulder, and hands engaged with the living bow create compressed attack tension."
+      ],
+      "strengths": [
+        "The asymmetrical black-and-pale body, giant ears, crouched archer posture, and membrane-bone bow combine species and weapon into a singular combat identity.",
+        "Dry fur, leathery membrane, pitted bone, cords, and scarred skin are materially differentiated and avoid clean decorative magic."
+      ],
+      "defects": [
+        "Multiple bow cords cross the mouth, eyes, torso, and arms, obscuring the action mechanics and making the face harder to read at full size.",
+        "The hooked bow occupies much of the outline and can overpower the creature's own body plan, while the dense overlap of limbs, membrane, and strings reduces anatomical clarity.",
+        "The bared teeth and narrowed eyes communicate a familiar monster scowl more clearly than an individual emotional contradiction."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine which hand draws the weapon, what serves as the projectile, or whether the bow is an attached limb, separate organism, or carried tool.",
+        "The split coloration reads clearly, but its biological or supernatural cause is not visually certain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E018",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+      "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black alternatives show a hunched figure working inside a tall recurved bow, a frontal long-robed four-armed creature with clawed hands, and a long-legged side-facing archer extending a large membrane bow.",
+        "The candidates change weapon dependence, arm count, posture, height, locomotion, negative space, and the balance between creature and garment mass."
+      ],
+      "strengths": [
+        "Candidates A and C use the huge bow to create strong open negative space and a clear ranged-action line, while candidate B offers a genuinely different many-armed occult body plan.",
+        "Large pointed ears and clawed extremities keep a nonhuman read across all three options."
+      ],
+      "defects": [
+        "Candidate A folds body and bow into a congested left-heavy cluster, candidate B loses the ranged identity entirely, and candidate C lets the bow rival the body in visual importance.",
+        "The three options do not preserve one stable anatomical premise: limb count, garment mass, and bow integration shift enough to read as different creatures."
+      ],
+      "uncertainties": [
+        "The sheet does not clarify whether the split-color anatomy or living membrane construction was present in each silhouette option."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E019",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+      "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "The pale-and-black face is pitched forward between huge ears, with both narrow eyes fixed toward the viewer, brows compressed, nostril cavity dark, and small sharp teeth exposed in a tight horizontal grin or snarl.",
+        "Taut cords cut diagonally across the forehead, mouth, shoulder, and chest, connecting facial tension directly to the drawn weapon posture."
+      ],
+      "strengths": [
+        "Direct eye fixation, lowered head, tightened mouth, split anatomy, and weapon tension communicate active predatory concentration rather than neutral posing.",
+        "The unequal coloration and ears make the face immediately individual even within a familiar bat-like species family."
+      ],
+      "defects": [
+        "The cords partially mask the eyes and mouth, limiting precise interpretation of asymmetry and expression.",
+        "Narrowed eyes plus exposed teeth resolve mainly as generic feral aggression; no distinct want, fear, restraint, or manipulative relationship is visible beyond imminent attack."
+      ],
+      "uncertainties": [
+        "The mouth could be a grin, snarl, or tension from pulling a cord, and the image does not establish whether the viewer is prey or merely aligned with the weapon aim."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E020",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+      "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the hooked crescent bow, two large ears, low crouch, pale left side, dark right side, and raised knee remain visible.",
+        "The face, teeth, individual cords, fur, claws, exact hand positions, and most internal membrane holes collapse into the overlapping bow-and-body mass."
+      ],
+      "strengths": [
+        "The arcing weapon and tall ears produce a recognizable bat-archer outline with more lateral reach than a standard humanoid figure.",
+        "The pale-dark split survives enough to reinforce asymmetry inside the silhouette."
+      ],
+      "defects": [
+        "Bow, strings, ears, and limbs overlap around the center, making the attack pose difficult to parse at the frozen scale.",
+        "Recognition depends strongly on the oversized bow; the creature's facial threat and specific split anatomy do not remain independently readable."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would perceive an archer preparing a shot or a crouched winged creature enclosed by a large appendage."
+      ],
+      "contamination": []
+    }
+  ]
+}

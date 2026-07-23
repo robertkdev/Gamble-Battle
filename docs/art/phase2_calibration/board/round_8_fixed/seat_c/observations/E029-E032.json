@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E029",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+      "sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A mature curvy woman with long braided hair pinned into a crown-like arrangement stands in fitted black trousers, heeled boots, a sleeveless plum wrap top, and a wide strapped belt.",
+        "Copper-colored cracks or script-like lines spread across her face, neck, chest, and arms; she extends one open hand toward the viewer and carries a rectangular handled board marked with circular diagrams in the other.",
+        "The braided pin crown, copper skin network, board, direct gaze, and stable wide stance create a clear controlled-caster presentation."
+      ],
+      "defects": [
+        "The open inviting hand, relaxed stance, slight smile, and carried diagram board read more as demonstration or recruitment than immediate combat threat.",
+        "The fitted dark trousers, boots, belts, sleeveless wrap, and carried occult reference object follow a familiar dark-caster costume and prop pattern.",
+        "The copper lines could be decorative tattoos or jewelry-like surface design because the body shows no visible pain, deformation, or functional consequence.",
+        "The rectangular board explains study or planning but does not visibly function as weapon, defense, or active supernatural mechanism."
+      ],
+      "uncertainties": [
+        "The image alone does not establish whether the copper network is injury, corruption, power, inscription, or ornament.",
+        "The exact intent of the extended hand is unresolved; it could invite, command, cast, bargain, or simply present.",
+        "The board's diagrams are too small to reveal whether it is a tool, shield, portable map, or decorative identifier."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E030",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+      "sha256": "fa8eb63759096ac0848511ecfa1fac9238223c2d8499c15c2facfa74d57c1fd0",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three labeled candidates show the same pinned braided hairstyle, fitted wrap outfit, trousers, boots, and rectangular diagram board with an open palm, a raised finger while hugging the board, and an extended stop-like palm.",
+        "The poses alter arm reach, board placement, head direction, and stance width while preserving the same overall body and costume."
+      ],
+      "defects": [
+        "The exploration changes gesture and board position but not body plan, garment family, prop class, or core silhouette.",
+        "Fine hair pins and braid strands provide distinct detail but are thin perimeter elements vulnerable to loss at reduced size.",
+        "Each candidate carries the same rectangular board, so the prop repeatedly supplies the main asymmetry rather than a distinct combat action.",
+        "The rendered interior lines make this less legible as a pure outer-contour comparison."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly state which candidate was selected.",
+        "The candidate gestures could be casting, command, refusal, or conversation; no target or effect resolves their action."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E031",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+      "sha256": "2bfa553e98af2af710b1c723ce3989d181bd4da8f11204764876846c18280837",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The head tilts slightly while the eyes look directly toward the viewer beneath mildly asymmetrical brows; the lips form a small closed smile.",
+        "Braids and pins frame a conventionally attractive mature face, and copper crack-like lines cross the forehead, cheeks, neck, chest, and visible arm."
+      ],
+      "defects": [
+        "The head tilt, raised brow, soft eyes, and small smile read primarily as confident friendliness, knowing amusement, or invitation.",
+        "There is little visible jaw, eyelid, mouth, or cheek tension to expose fear, compulsion, pain, hunger, or concealed conflict.",
+        "The face appears unaffected by the extensive copper skin network, which makes that network feel decorative rather than costly.",
+        "The extended hand enters the crop but carries no visible target, effect, or resistance that clarifies the smile's intent."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot distinguish seduction, manipulation, reassurance, command, or ordinary confidence.",
+        "It is unclear whether the copper lines sit on the skin, crack through it, or glow beneath it."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E032",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+      "sha256": "248ee39174be4cd1e45077c80fc7c2588440f9fd9134efb0df3ee7f2bc86be70",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the long dark hair mass, extended arm, narrow waist, wide hips, separated legs, and hanging rectangular board remain visible.",
+        "The open hand and board create the strongest silhouette asymmetry."
+      ],
+      "defects": [
+        "The face, copper skin network, braid pins, garment construction, board diagrams, and hand expression collapse at this size.",
+        "The dark trousers, boots, hair, and background merge through much of the lower and rear body.",
+        "The surviving outline reads as a generic board-carrying caster, with little of the copper-cost or facial identity retained."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and gesture meaning cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

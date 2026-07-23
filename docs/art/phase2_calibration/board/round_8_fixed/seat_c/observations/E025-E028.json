@@ -1,0 +1,103 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E025",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+      "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A dark-skinned pointed-ear humanoid with spiked hair, deeply lined features, and a slight smile stands in a wide stance while pressing a wooden-handled stamp onto a long printed ledger sheet.",
+        "The figure wears dense black and brown layered scale-like clothing, wrapped forearms and shins, pointed shoulder panels, boots, and a medallion.",
+        "The stamping gesture, long receipt-like paper, and layered clerk-warrior clothing create a specific bureaucratic occupation."
+      ],
+      "defects": [
+        "The downward gaze, small smile, careful two-handed stamping action, and absence of a visible weapon read as routine administrative work rather than immediate combat threat.",
+        "Deep forehead, eye, cheek, and mouth lines give the face an older or weathered age read that competes with the otherwise sturdy body.",
+        "The stamp and ledger dominate the action but do not visibly explain an attack, defense, target, or bodily cost.",
+        "Nearly every garment surface is dark, tightly patterned, and similarly valued, causing torso, skirt panels, trousers, wraps, and boots to merge."
+      ],
+      "uncertainties": [
+        "The isolated image does not establish whether stamping the paper has a supernatural or combat consequence.",
+        "The apparent age could come from species anatomy, facial carving, or actual aging; the image provides no separate age cue.",
+        "The eyes appear nearly closed or lowered, making the intended target of attention difficult to determine."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E026",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+      "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three labeled candidates show the same pointed-ear humanoid, layered pointed skirt and shoulders, stamp, and pale curling paper in a left lean, upright frontal stance, and rightward lunge.",
+        "The paper remains unfilled light negative space while the body and stamp are rendered as dark silhouettes."
+      ],
+      "defects": [
+        "The three candidates change weight distribution and paper curve but retain essentially the same body plan, costume outline, prop, and stamping action.",
+        "The pale paper carries much of the readable action yet does not function as part of the black outer silhouette.",
+        "All candidates keep both hands close to the small stamp, producing compact arm shapes with little attack direction or reach."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly state which candidate was selected.",
+        "Because the sheet is shown as interior light space, its edge readability on a dark or complex use background remains unknown."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E027",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+      "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The head tilts slightly down and to one side, with heavily folded eyelids, deep facial creases, a broad nose, closed lips forming a faint smile, long pointed ears, and swept spikes of hair.",
+        "Fine raised or incised patterns cover the forehead and cheeks; the hands and stamp enter the lower edge of the crop."
+      ],
+      "defects": [
+        "The lowered eyes and faint smile read as calm concentration, satisfaction, or gentle amusement rather than hostility.",
+        "Deep creasing around the eyes, forehead, cheeks, and mouth creates a visibly older or fatigued facial impression.",
+        "The eyes are too lowered or closed to establish viewer or target fixation, and the mouth shows little tension.",
+        "The face does not visibly react to the stamp, paper, or any supernatural effect."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether the expression is smug, kind, tired, resigned, or merely focused on the task.",
+        "It is unclear whether the facial lines are age, species structure, scars, or decorative surface pattern."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E028",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+      "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the pointed ears, spiked head, bent arms, wide legs, pale hanging paper, and small stamping gesture remain visible.",
+        "The pale paper is the brightest and most immediately readable element against the dark figure and background."
+      ],
+      "defects": [
+        "The face, eye direction, wrinkles, stamp detail, ledger printing, garment layers, and skin markings collapse at this size.",
+        "Dark clothing, limbs, and background merge into a compact humanoid mass.",
+        "The surviving paper-and-stamp read suggests a clerk or printer more strongly than a combat role or threat."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and the paper's actual visibility cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E029",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+      "sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A mature dark-skinned woman stands tall in fitted black trousers, heeled boots, a wrapped sleeveless top, broad waist straps, and long braided hair pinned with many thin metal needles.",
+        "Copper-orange fissure lines spread across her face, neck, chest, and both arms; one hand reaches open toward the viewer while the other carries a rectangular framed board covered in circular diagrams and writing.",
+        "A raised chin, angled hips, direct sidelong gaze, half-smile, and offered hand create poised invitation and controlled social pressure."
+      ],
+      "strengths": [
+        "The adult face, curvy fit body, assured stance, direct gesture, pinned braids, and luminous skin fissures create a clear feminine presence with authority.",
+        "The board, geometric writing, and visible body-wide cracking link intellectual or occult practice to a physical alteration rather than detached ambient effects.",
+        "Restrained copper accents provide hierarchy within the dark clothing and skin markings."
+      ],
+      "defects": [
+        "The fitted black leather, wrapped neckline, high heels, exposed cleavage, occult diagram board, and glamorous standing pose form a familiar premium-fantasy sorceress vocabulary before they establish a specific culture or combat method.",
+        "The reaching hand reads as invitation, demonstration, or persuasion more strongly than immediate attack, while the carried board reads as equipment or presentation material rather than a threatening tool.",
+        "The copper fissures can be interpreted as decorative body art because they do not visibly deform movement, expression, or anatomy."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the fissures are painful damage, stored power, tattoos, circuitry, or chosen ornament.",
+        "The practical combat function of the board and offered hand is not visually certain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E030",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+      "sha256": "fa8eb63759096ac0848511ecfa1fac9238223c2d8499c15c2facfa74d57c1fd0",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three alternatives show the same tall braided woman with needle-crowned hair, fitted layered clothing, heeled boots, a rectangular diagram board, and one expressive free hand.",
+        "Candidate A offers a low open palm, candidate B cradles the board while pinching or signaling near the face, and candidate C plants a wide stance with one arm extended in a stop or projection gesture."
+      ],
+      "strengths": [
+        "Needle-tipped hair, long braids, board, and outstretched arm provide consistent recognizable cues across all three poses.",
+        "Candidate C creates the strongest lateral action line and Candidate B the clearest intimate calculating gesture."
+      ],
+      "defects": [
+        "The sheet presents three pose variants of one body, outfit, prop, and premise rather than materially different silhouette concepts.",
+        "The rectangular board hangs as a secondary block in each outline, while the exterior body remains a conventional slim or curvy fashion-caster silhouette.",
+        "Needles and braids are thin details that contribute little to the filled outer contour at distance."
+      ],
+      "uncertainties": [
+        "The silhouette evidence does not show whether the board changes form, enters the action, or affects the body outline during combat."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E031",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+      "sha256": "2bfa553e98af2af710b1c723ce3989d181bd4da8f11204764876846c18280837",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "An attractive adult face tilts slightly back and sideways toward the viewer, with one brow raised, the other relaxed, eyelids partly lowered, direct eye contact, and a small asymmetric closed-mouth smile.",
+        "The extended hand enters the crop at right, while copper fissures cross the forehead, cheeks, lips, neck, and upper chest beneath needle-pinned braids."
+      ],
+      "strengths": [
+        "Raised chin, unequal brows, narrowed appraisal, and restrained smile communicate confident evaluation and a controlled invitation rather than blank beauty posing.",
+        "The visible offered hand agrees with the face's socially directed attention toward the viewer."
+      ],
+      "defects": [
+        "The smooth half-smile and lowered lids remain close to a familiar seductive or superior glamour expression, without a visible fear, strain, shame, hunger, or loss of control.",
+        "The fissures do not alter muscle tension or expression, so they read more as surface pattern than as an active psychological cost."
+      ],
+      "uncertainties": [
+        "The unaided read could be recruitment, bargain, seduction, condescension, reassurance, or simple confidence; the intended demand and hidden risk are not decisive."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E032",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+      "sha256": "248ee39174be4cd1e45077c80fc7c2588440f9fd9134efb0df3ee7f2bc86be70",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, a tall feminine figure, long dark hair, extended hand, carried rectangular board, narrow waist, and separated heeled legs remain visible.",
+        "Copper fissures, facial asymmetry, hair needles, board diagrams, layered tailoring, and hand articulation disappear into the dark body and background."
+      ],
+      "strengths": [
+        "The opposition of offered hand and hanging rectangular prop supplies a readable left-right gesture structure.",
+        "Warm skin and small copper accents create limited focal separation around the head and arm."
+      ],
+      "defects": [
+        "The reduced silhouette reads as a conventional dark-clad woman carrying a case or tablet because the fissure mechanism and diagram content do not survive.",
+        "Black clothing, hair, and background merge across the torso and legs, leaving little internal hierarchy or combat information."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would identify the occult board, the skin alteration, or the meaning of the open-hand interaction."
+      ],
+      "contamination": []
+    }
+  ]
+}

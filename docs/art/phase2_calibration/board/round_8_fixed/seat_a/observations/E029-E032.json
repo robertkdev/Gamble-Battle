@@ -1,0 +1,94 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E029",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_master.png",
+      "sha256": "c0ade3bd7b1e1d61363b629123958f0821308eb4d47eeab1167d8d7a1b9abaa7",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature, fit woman stands upright in a sleeveless wrapped plum top, fitted dark trousers, and heeled boots while holding a framed rectangular tablet covered in circular diagrams and script.",
+        "Her viewer-right hand reaches toward the viewer in an open invitation or command; the other arm hangs straight with the heavy tablet.",
+        "Fine orange-lit cracks spread across the face, neck, chest, and both arms, while many thin pins or thorns radiate from the braided hair.",
+        "A tilted head, direct sideward eye contact, lifted cheek, and restrained half-smile create composed social control rather than physical exertion."
+      ],
+      "defects": [
+        "The trousers, belt, boots, hair, and tablet share dark values with the background, reducing separation through the lower body and carried prop.",
+        "The glowing cracks and hair pins are fine, repeated details that contribute little to the outer contour and become visually secondary to the ordinary humanoid stance.",
+        "No target, defensive posture, or contact explains how the open hand and diagram tablet operate in immediate combat."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the skin cracks are a controlled power, spreading injury, restraint, or unavoidable bodily cost.",
+        "The open hand can read as welcome, recruitment, demand, spellcasting, or threat."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E030",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_silhouettes.png",
+      "sha256": "fa8eb63759096ac0848511ecfa1fac9238223c2d8499c15c2facfa74d57c1fd0",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three silhouettes show the same pinned-braid woman with the same rectangular diagram tablet while changing the free hand from open presentation, to a close pinching gesture, to a fully extended stop or casting gesture.",
+        "All three retain a medium-height feminine humanoid body, fitted wrapped clothing, heeled boots, dangling braids, and one carried tablet.",
+        "The left candidate most closely matches the master's narrow stance, low tablet, and open hand."
+      ],
+      "defects": [
+        "The alternatives vary pose and arm extension but do not materially change body plan, prop class, garment family, or primary visual mechanism.",
+        "The radiating hair pins and individual braids are narrow contour features vulnerable to reduction.",
+        "Without internal tablet markings and skin cracks, the silhouette reads primarily as a standing woman holding a rectangle."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E031",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_face.png",
+      "sha256": "2bfa553e98af2af710b1c723ce3989d181bd4da8f11204764876846c18280837",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows a mature conventionally attractive face turned slightly away while the eyes look back toward the viewer under one subtly raised brow.",
+        "Closed lips curve into a small asymmetrical smile; the lifted cheek and backward glance suggest appraisal, confidence, or controlled invitation.",
+        "Orange-lit skin fissures cross the face and neck, while pinned braids and a few loose strands frame the composed expression with visible bodily damage."
+      ],
+      "defects": [
+        "The restrained smile and smooth brow can also read as a polished portrait or beauty-model expression without the extended hand and body context.",
+        "No visible fear response, strain, or break in control specifies what the character refuses to reveal."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot distinguish whether the eye contact seeks trust, submission, complicity, or simple attention."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E032",
+      "locator": "assets/concepts/phase2_calibration/quillith/quillith_96px.png",
+      "sha256": "248ee39174be4cd1e45077c80fc7c2588440f9fd9134efb0df3ee7f2bc86be70",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the upright feminine figure, outward hand, long dark legs, and rectangular tablet remain distinguishable.",
+        "The skin and plum torso provide modest contrast while hair, trousers, boots, and tablet merge toward the dark background.",
+        "Facial expression, glowing fissures, hair pins, braids, tablet diagrams, and garment construction collapse below reliable recognition."
+      ],
+      "defects": [
+        "The supernatural skin-crack treatment is not independently visible at native size.",
+        "The figure reduces to a slim humanoid with one extended arm and one rectangle, leaving little specific role or threat information."
+      ],
+      "uncertainties": [
+        "The thumbnail does not reveal whether the tablet is a spell focus, shield, document, weapon, or carried board."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

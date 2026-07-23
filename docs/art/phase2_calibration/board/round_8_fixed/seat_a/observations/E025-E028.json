@@ -1,0 +1,93 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E025",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+      "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature pointed-eared humanoid leans over a long printed or ruled strip of paper while pressing a large wooden-handled stamp onto it.",
+        "Dark gray ridged skin, spiked black hair, facial seams or markings, layered scale-like shoulder pieces, wrapped bracers, and overlapping tabbed garment strips create a dense administrative-warrior hybrid.",
+        "The broad planted stance and both hands engaged with the stamp and paper make procedural control the immediate action rather than weapon combat.",
+        "The pale curling record is the only large light shape and pulls attention from the nearly monochrome figure to the act of stamping."
+      ],
+      "defects": [
+        "Garment, skin, hair, boots, and shoulder pieces occupy a narrow dark gray-brown range, so torso layers and limb boundaries separate weakly from the background.",
+        "The stamp and paper explain an occupation or ritual, but no visible target, defensive behavior, or imminent attack establishes how the action threatens another character.",
+        "Repeated small rectangular garment tabs and crosshatched materials create even surface density without a strong secondary focal point below the hands."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the stamped record enforces a supernatural effect, logs a transaction, or is ordinary bureaucracy."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E026",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+      "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three silhouettes show the same pointed-eared, spiky-haired figure stamping a long paper strip while shifting between a left lean, an upright centered stance, and a wide right lunge.",
+        "All three retain the same shoulder spikes, layered skirt tabs, boots, hand tool, and curling paper prop.",
+        "The center candidate most closely matches the master's mostly upright stance and centrally held stamp."
+      ],
+      "defects": [
+        "The alternatives vary posture and paper curve but do not materially change body plan, prop class, garment family, or primary action.",
+        "The paper is rendered as unfilled light space rather than part of the black mass, so much of the role cue disappears in a strict outer silhouette read.",
+        "Without the paper interior, all three figures retain a conventional medium-height humanoid outline dominated by pointed ears and ragged coat tails."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E027",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+      "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows the head angled down toward the stamp with heavy upper lids, one eye more narrowed than the other, a lifted cheek, and closed lips pulled into a small asymmetrical smile.",
+        "The eye line appears directed toward the task or someone below frame rather than meeting the viewer, while the curved mouth suggests private satisfaction or calculation.",
+        "Pointed ears, ridged dark skin, etched facial seams, spiked hair, and large fingers create a mature nonhuman identity tied visually to the repetitive armor texture."
+      ],
+      "defects": [
+        "The subtle half-smile and lowered gaze can read as mild amusement as readily as coercion or malice.",
+        "The hands and stamp occupy much of the crop, leaving limited evidence for a more specific fear, pressure, or emotional contradiction in the face."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot distinguish whether the expression reflects satisfaction, smugness, concentration, or restrained contempt."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E028",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+      "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the upright pointed-eared humanoid, broad legs, forward hands, and pale curling paper remain distinguishable.",
+        "The paper is the dominant high-contrast role cue; the figure otherwise reads as a dark compact humanoid against a dark background.",
+        "The stamp shape, printed rows, facial expression, skin ridges, garment tabs, and layered materials collapse below reliable recognition."
+      ],
+      "defects": [
+        "The act of stamping is not independently legible because hands, handle, and paper contact merge into one small cluster.",
+        "The dark clothing and body merge enough that the shoulder, waist, and leg silhouette becomes generic without the pale paper."
+      ],
+      "uncertainties": [
+        "The thumbnail communicates a document-bearing humanoid but not whether the paper is a weapon, spell, receipt, decree, or ordinary record."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

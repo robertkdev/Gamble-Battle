@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E025",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_master.png",
+      "sha256": "5063997597700dd1019625aeadf2e642e6928193972a33d13058f9ea7a3ae70b",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A mature broad-shouldered goblin-like man stands with pointed ears, swept spiky hair, dark patterned skin, layered black scale-and-strap garments, wrapped boots, and a sly closed-mouth expression.",
+        "Both hands operate an oversized wooden stamp above a long printed paper strip, with one hand pressing the handle and the other guiding the document.",
+        "His attention and weight lean into the stamping action, making administrative control or judgment more visually central than a conventional weapon."
+      ],
+      "strengths": [
+        "The stamp-and-ledger mechanism is a specific dominant prop that separates the figure from ordinary swordsmen and ties face, hands, and posture to one action.",
+        "Pointed ears, patterned skin, compact muscular frame, layered shoulder scales, and spiked hair create a mature, physically credible nonhuman individual.",
+        "The dark dry materials, worn paper, wood, and metal rings remain restrained rather than glossy or brightly magical."
+      ],
+      "defects": [
+        "The active pose reads as clerk, tax collector, merchant, or bureaucrat before it reads as combatant because neither the stamp nor paper visibly harms, restrains, or targets anyone.",
+        "Dense repeated black leather scales, crosshatching, straps, and tabs flatten garment hierarchy and merge the torso, skirt, legs, and boots into one dark patterned field.",
+        "No visible wound, corruption, compulsion, or bodily consequence distinguishes the prop's power from ordinary institutional authority."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the stamp is a weapon, magical contract tool, official seal, or mundane comic prop.",
+        "The paper's target, stakes, and effect are not visible within the master."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E026",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_silhouettes.png",
+      "sha256": "c43e8987346c4a6b4f5d6982d726f4e7924d16a5160a848778b5cc4667d4e294",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three alternatives show the same pointed-eared, spiky-haired, layered-skirt humanoid stamping a paper strip from a left lean, a frontal planted stance, and a wide rightward lunge.",
+        "The paper curls differently and the stance changes center of gravity, but body plan, costume mass, prop, hand relationship, and overall role remain constant."
+      ],
+      "strengths": [
+        "Candidate B gives the clearest separate read of head, shoulders, hands, stamp, bright paper, planted legs, and ragged lower garment.",
+        "Candidate C introduces the strongest lateral action and Candidate A the most covert hunched posture."
+      ],
+      "defects": [
+        "The sheet explores three pose variants of one design rather than materially different silhouette concepts; none changes anatomy, prop class, garment family, or dominant visual premise.",
+        "The stamp is small in all three outer contours, leaving a familiar spiky goblin or rogue silhouette until the internal paper shape is inspected."
+      ],
+      "uncertainties": [
+        "The sheet does not show how the paper or stamp alters the exterior silhouette during an actual attack or ability."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E027",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_face.png",
+      "sha256": "0233e517d84d53d25bd97f6480ea7a27bb893c2e6929c0655a6566881c3e799e",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "The mature nonhuman face angles downward toward the stamp with one eye narrowed almost shut, the other shaded beneath a heavy brow, cheeks lifted, and the mouth pulled into a restrained asymmetric smile.",
+        "Both hands remain visible around the large stamp handle, so eye direction, head tilt, and expression are tied to the act of approving or condemning the paper."
+      ],
+      "strengths": [
+        "The half-lidded eye, compressed cheek, crooked smile, and focused hand action communicate private satisfaction and calculating attention rather than a neutral portrait.",
+        "Wrinkled skin, broad nose, pointed ears, scars or engraved facial lines, and distinct hair produce a specific adult face."
+      ],
+      "defects": [
+        "The smile can read as benign craft pride or comic bureaucratic pleasure as readily as coercive intent because the affected person and consequence are absent.",
+        "Eye detail is heavily shadowed and the expression stays close to a familiar sly goblin smirk, limiting a more complex fear or contradiction."
+      ],
+      "uncertainties": [
+        "The unaided face does not establish whether he is amused, greedy, vindictive, meticulous, or simply pleased with completed work."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E028",
+      "locator": "assets/concepts/phase2_calibration/knoll/knoll_96px.png",
+      "sha256": "693970d82d7294d3238561c1716258ebcdb60b21e445af326fa211e36938d918",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, pointed ears, spiked hair, broad shoulders, bent stamping arms, separated legs, and the bright curling paper remain visible.",
+        "The stamp handle is only a small dark knob; facial expression, skin pattern, scales, straps, printed marks, and garment layers collapse into the nearly black body."
+      ],
+      "strengths": [
+        "The white paper supplies a strong action cue and gives the otherwise dark figure an identifiable asymmetric extension.",
+        "The planted legs and compact upper body preserve a stable humanoid shape."
+      ],
+      "defects": [
+        "The figure reads first as a dark goblin holding paper because the stamp and its pressing action are too small to resolve clearly.",
+        "Repeated dark materials merge the torso, arms, skirt, and boots, while the face and sly attention vanish."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would identify an ability involving a stamp or distinguish the paper from a scroll, banner, or loose cloth."
+      ],
+      "contamination": []
+    }
+  ]
+}

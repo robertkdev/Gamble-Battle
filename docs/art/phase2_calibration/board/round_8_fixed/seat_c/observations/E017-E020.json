@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E017",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+      "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A crouched batlike humanoid with enormous upright ears, clawed feet, a fanged face, multiple long limbs, and an asymmetrical black-and-pale fur or skin split draws an organic crescent bow.",
+        "The bow is larger than the body and constructed from spined reddish bone and perforated membrane; several taut cords converge across the face, hand, chest, and extended arm.",
+        "The low stance, target-facing eyes, drawn cords, and loaded bow make the combat action immediately visible."
+      ],
+      "defects": [
+        "Oversized ears, claws, fangs, black fur, and torn membrane combine into a familiar bat-demon vocabulary despite the unusual bow construction.",
+        "The bow frame, membrane holes, cords, limbs, fur, and crouched legs overlap densely through the center, making the exact hand and arm count difficult to parse.",
+        "Multiple cords cross directly over the face and mouth, obscuring whether the mouth is biting, drawing, restrained, or merely behind the weapon.",
+        "The very dark torso and rear body merge into the background while the large bow carries most of the visible design identity."
+      ],
+      "uncertainties": [
+        "The image does not clearly establish whether the bow is a separate weapon, transformed anatomy, or a web grown from the body.",
+        "The pale and black body halves could indicate species patterning, injury, transformation, or lighting; the cause is unresolved.",
+        "The number and attachment points of the upper limbs remain ambiguous because of overlap and foreshortening."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E018",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+      "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates show a hunched side-view archer inside a tall crescent bow, a frontal four-armed robed figure without a visible bow, and a long-legged side-view archer extending a huge membrane bow.",
+        "The candidates vary locomotion, arm count, posture, and weapon integration while retaining pointed ears, claws, and a narrow elongated humanoid frame."
+      ],
+      "defects": [
+        "The two archer candidates are dominated by nearly the same oversized crescent bow, while the center candidate changes into a generic four-armed monster with no equivalent weapon read.",
+        "The thin bowstrings are much less robust than the body and frame contours and would disappear before the weapon action is fully understood.",
+        "In the center candidate, four arms, long dress-like lower mass, and hanging strips merge into a vertically symmetrical shape with little directional threat."
+      ],
+      "uncertainties": [
+        "The image provides no A, B, C labels or explicit selected-candidate marker.",
+        "It is unclear whether the center figure's four arms and the archers' apparent two-arm structures represent the same intended anatomy."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E019",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+      "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The face points toward the viewer with narrowed fixed eyes, a wrinkled nasal opening, exposed small fangs, and a tight tooth-bearing mouth beneath enormous ears.",
+        "Pale fur and skin cover one side while black fur and skin cover the other; taut reddish cords cross diagonally over the forehead, mouth, cheek, and shoulder."
+      ],
+      "defects": [
+        "The narrowed eyes and exposed teeth resolve primarily as a generic predatory snarl rather than a more differentiated emotional state.",
+        "Cord crossings obscure the mouth corners and divide the face into small regions, reducing expression clarity.",
+        "The face provides target fixation but little visible evidence of fear, restraint, conflict, or a want beyond attacking."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether the mouth is pulling a cord, biting it, trapped by it, or simply seen behind it.",
+        "The black-and-pale facial split may be anatomy, corruption, damage, or lighting, and the face shows no unambiguous reaction to it."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E020",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+      "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, two tall ears, a pale crouched leg, the large curved bow frame, several membrane openings, and a compact dark body remain visible.",
+        "The bow crescent and ear pair provide the strongest surviving outline."
+      ],
+      "defects": [
+        "The face, teeth, eye direction, cords, limb count, skin split, claws, and most membrane structure collapse at this size.",
+        "The torso and folded limbs merge into a dark central knot against the background.",
+        "The surviving read is more clearly batlike archer equipment than an individually readable face or body plan."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and weapon readability cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

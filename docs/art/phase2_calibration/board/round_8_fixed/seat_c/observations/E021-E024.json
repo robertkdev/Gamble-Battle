@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E021",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_master.png",
+      "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A hairless pale-gray humanoid crouches on long clawed hands and feet, with a smooth elongated head, two large black eye cavities, no visible mouth, corded neck and chest anatomy, and sparse etched symbols.",
+        "Numerous flat black blade-like tendrils emerge behind the torso and curl around the figure in large hooked arcs.",
+        "The blank face, low many-point stance, and radiating hooked appendages create a specific alien silhouette without clothing or carried equipment."
+      ],
+      "defects": [
+        "The head tilt, lowered body, and still open-handed crouch can read as wary observation or vulnerability rather than an imminent attack.",
+        "The tendrils form a near-even decorative halo around the body and do not visibly contact, target, or manipulate anything.",
+        "The smooth gray skin, black almond eye voids, and narrow humanoid proportions also resemble a familiar generic gray-alien or masked mannequin base.",
+        "Fine surface etchings are isolated decorative marks and do not visibly alter the body or explain the tendril anatomy."
+      ],
+      "uncertainties": [
+        "The image does not establish whether the black appendages are attached anatomy, shadows, blades, or an external effect.",
+        "The empty eye cavities provide head direction but no visible pupil focus, and the absent mouth removes most conventional intent cues.",
+        "The creature's scale and method of attack remain unresolved in the isolated pose."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E022",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+      "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates show a crouched figure encircled by many radiating hooked tendrils, a tall upright figure enclosed by long parallel appendages, and a low sprawling runner under one enormous looping appendage.",
+        "The candidates preserve a small smooth head and long humanoid limbs while changing posture, appendage count, and the spatial relationship between body and tendrils."
+      ],
+      "defects": [
+        "The left candidate's tendrils create a pinwheel or flower-like frame that can overpower the creature's hostile body direction.",
+        "The center candidate is highly symmetrical and closed, with the appendages reading as a cocoon or decorative enclosure rather than active limbs.",
+        "The right candidate reduces the appendage system to one dominant loop, making its relationship to the multi-tendril versions unclear."
+      ],
+      "uncertainties": [
+        "The image provides no A, B, C labels or explicit selected-candidate marker.",
+        "Solid black presentation cannot show whether the apparent appendage-count changes are anatomical alternatives or overlapping views of one structure."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E023",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_face.png",
+      "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The smooth elongated head angles downward and toward the viewer, with two deep black almond-shaped eye cavities, a central seam or scar line, and no visible mouth, brows, nose movement, or ears.",
+        "Corded anatomy runs from the jaw and neck into the shoulder and chest, while black tendrils frame the head from behind."
+      ],
+      "defects": [
+        "The featureless eye voids and absent mouth make attention broadly directional but prevent a specific emotional or interpersonal read.",
+        "The slight head tilt can suggest curiosity, sadness, caution, or predation with equal plausibility.",
+        "The smooth mask-like face remains visually detached from the hooked tendrils because no strain, attachment response, or facial consequence is visible."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine what the creature wants from the viewer, whether it is afraid, or whether it recognizes the viewer at all.",
+        "It is unclear whether the face is skin, a mask, a shell, or scarred anatomy."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E024",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+      "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the pale rounded head, low four-point body, long forearms, and several large black curling appendages remain visible.",
+        "The pale center against the dark tendril ring creates a readable spider-like or alien radial shape."
+      ],
+      "defects": [
+        "The eye cavities, body etchings, claws, chest anatomy, and individual tendril attachments collapse at this size.",
+        "Several black tendrils merge into the background and into one another, reducing their count and direction.",
+        "The surviving radial outline reads more clearly as a generic many-limbed creature than as a specific facial or behavioral identity."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and hostility cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

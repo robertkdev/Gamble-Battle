@@ -1,0 +1,93 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E021",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_master.png",
+      "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A hairless gray humanoid crouches low on long arms and bent legs while numerous black blade-edged tendrils radiate from its back in sweeping arcs.",
+        "The smooth oval head has two deep black eye cavities and no visible mouth or nose; seam-like lines, scratches, and geometric marks continue across the head and body.",
+        "Long fingers and toes end in dark claws, and the planted four-limb stance places the creature close to the ground as if stalking or preparing to spring.",
+        "The pale compact body is surrounded by a much larger dark circular field of tendrils, making separation from the appendages the central visual tension."
+      ],
+      "defects": [
+        "The many similarly curved tendrils overlap and cross behind the body, making their count, attachment points, and individual motion difficult to follow.",
+        "The tendril halo occupies more visual area than the humanoid and can dominate the unit's identity over the body itself.",
+        "The uniformly gray body surface provides limited material separation between skin, mask-like head, muscle, and scar or seam structures."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the oval head is a biological face, a fused mask, or a shell over another face.",
+        "No depicted target or contact establishes whether the tendrils cut, grasp, shield, or propel."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E022",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+      "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three materially different silhouettes are shown: a compact crouched humanoid encircled by many hooked tendrils, a very tall upright figure enclosed by four long vertical blades, and a stretched quadrupedal runner beneath one enormous overhead tail-blade.",
+        "The left candidate matches the master through the low crouch, oval head, long hands, and multiple radial hooked appendages.",
+        "The alternatives change height, locomotion, appendage count, and the relationship between body and blades rather than merely changing pose."
+      ],
+      "defects": [
+        "In the selected left silhouette, several tendrils overlap the crouched limbs and one another, reducing clarity in the center.",
+        "The repeated hooked arcs create a circular emblem-like mass whose outline can be read before the humanoid stance."
+      ],
+      "uncertainties": [
+        "The alternatives are not lettered or marked as selected; resemblance to the master is the only selection cue."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E023",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_face.png",
+      "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows a featureless pale oval face angled toward the viewer with two glossy black eye cavities, a central vertical seam, and fine scratches but no brows, pupils, nose, cheeks, jaw articulation, or mouth.",
+        "The head tilt and direct orientation of both eye cavities create attention toward the viewer even though no conventional expression is available.",
+        "Seam lines continue down the neck into layered cord-like anatomy, visually joining the smooth head to the more fibrous torso."
+      ],
+      "defects": [
+        "The absence of pupils and movable mouth or brow features prevents a precise immediate emotion from being distinguished through the face alone.",
+        "The two eye cavities are nearly symmetrical, so attention direction depends primarily on whole-head angle rather than eye focus."
+      ],
+      "uncertainties": [
+        "The crop supports watchfulness or dissociation but does not unaided resolve desire, fear, or whether an intelligence is visible behind the cavities."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E024",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+      "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the pale oval head, crouched central body, long planted arms, and broad radial tendril halo remain recognizable.",
+        "The pale figure separates clearly from the dark appendages and background, preserving the body-versus-shadow contrast.",
+        "Eye cavities, body seams, symbols, finger claws, tendril serration, and most limb overlap collapse below reliable recognition."
+      ],
+      "defects": [
+        "Individual tendrils merge into a dark circular mass, obscuring their count and functional direction.",
+        "The face reduces to a pale dot or mask shape, so its attention and absence of ordinary features are not independently readable."
+      ],
+      "uncertainties": [
+        "The thumbnail preserves an alien stalker silhouette but not whether the surrounding arcs are weapons, limbs, wings, or effects."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

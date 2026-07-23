@@ -1,0 +1,92 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E017",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_master.png",
+      "sha256": "49041b874855da4855450660db68598f149a424a8fab44d40a0fec08d2e676d1",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A crouched bat-like humanoid creature aims a huge asymmetrical bow constructed from perforated flesh, bone spines, and taut cords.",
+        "Very large pointed ears, split white-and-black fur, a skeletal nose, exposed teeth, long taloned feet, and wing-like membranes establish a predatory nonhuman body plan.",
+        "One bent knee and one planted foot load the body low while the extended weapon arm and cords converging near the mouth create an immediate ranged-attack action.",
+        "The pale viewer-left and dark viewer-right anatomy divide both face and body, echoing the bow's pale and red-brown material sections."
+      ],
+      "defects": [
+        "Weapon limbs, wing membranes, arms, and bow structure overlap so densely that the exact anatomical connection between body and weapon is difficult to trace.",
+        "The many perforations, spines, cords, fur, and skin textures compete for attention around the upper body.",
+        "The dark torso and rear limbs partially merge with the background, leaving ears, face, forward knee, and bow as the clearest forms."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the bow is a separate weapon, transformed anatomy, or a symbiotic organism."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E018",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_silhouettes.png",
+      "sha256": "b0db5983cf166a281e6b4fc0e45dcda0ceb350779287b5febde478b95d5bcd57",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three materially different silhouettes are shown: a hunched side-facing archer with a conventional crescent bow, a tall four-armed figure with a trailing lower-body mass, and a long-limbed archer drawing an oversized perforated crescent bow.",
+        "The right candidate most closely matches the master's giant organic bow, long ears, stretched arm, and widely planted taloned feet, although the master is crouched more deeply.",
+        "The alternatives change limb count, stance, body height, and weapon integration rather than merely rotating one pose."
+      ],
+      "defects": [
+        "In the selected right silhouette, the vast bow occupies nearly as much area as the body and can read as the primary entity.",
+        "The string lines are extremely thin compared with the body and bow, so the drawn-weapon action depends on features vulnerable to reduction."
+      ],
+      "uncertainties": [
+        "The alternatives are not lettered or marked as selected; resemblance to the master is the only selection cue."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E019",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_face.png",
+      "sha256": "0aaaac587e637054b1328e1f852342f6f52d2eeaacf03cfa7dc9d64c2301e882",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows a sharply divided white-and-black face with deeply narrowed eyes fixed forward, compressed brow ridges, a wrinkled skeletal nose, and a mouth opened to expose small pointed teeth.",
+        "Large upright ears and the forward head angle make the creature appear alert and locked onto prey.",
+        "Several taut cords cross directly in front of the mouth and chest, tying the snarling expression to the weapon-draw action."
+      ],
+      "defects": [
+        "The bow cords obscure the mouth corners and lower face, limiting interpretation beyond focused aggression or predation.",
+        "The bilateral white-black split is visually strong, but both eye shapes and brow compression remain similar, so emotional asymmetry is limited."
+      ],
+      "uncertainties": [
+        "The unaided face establishes target fixation but not a distinct private want, fear, or contradiction beyond attack."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E020",
+      "locator": "assets/concepts/phase2_calibration/nyxa/nyxa_96px.png",
+      "sha256": "a3e9efccad6390f946fd6668cc8822410ca869a74003c34635e03b28dd726b86",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the enormous crescent bow, paired pointed ears, low crouch, forward knee, and taloned feet remain recognizable.",
+        "The bow's outer hook and pale facial half provide the strongest contrast against the dark background.",
+        "Facial expression, cords, perforations, fur split, and most limb-to-weapon connections collapse into a compact dark mass."
+      ],
+      "defects": [
+        "The thin bowstrings are not reliably visible, weakening the difference between an aimed bow and a large hooked frame.",
+        "The face and torso merge enough that the immediate emotional state cannot be read at native size."
+      ],
+      "uncertainties": [
+        "The thumbnail preserves ranged-creature identity but not whether the large crescent is held equipment or body anatomy."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

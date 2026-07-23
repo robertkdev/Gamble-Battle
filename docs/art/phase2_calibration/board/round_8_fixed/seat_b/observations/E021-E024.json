@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E021",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_master.png",
+      "sha256": "74914b21f3ce70bf65f323ae4b5315c4f206bb5f0a2386263bb8a1dbfffa3020",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A hairless pale humanoid crouches on long clawed hands and feet while numerous black serrated ribbon-like appendages erupt from the back and curl around the body in broad arcs.",
+        "The smooth elongated head has two deep black almond openings and no visible mouth; stitched seams, carved circular marks, exposed corded neck tissue, and fine scars cover the gray skin.",
+        "A low stalking posture, forward hands, head tilt, and encircling hooked appendages create watchful, invasive pressure around an otherwise slender body."
+      ],
+      "strengths": [
+        "The pale faceless body against multiple black blade-ribbons creates a distinctive alien body plan with strong color and shape separation.",
+        "Scars, sutures, carved marks, and exposed tissue make alteration and bodily consequence visible without relying on clothing or floating symbols.",
+        "The head tilt and asymmetrical crouch introduce an attentive presence rather than a neutral specimen pose."
+      ],
+      "defects": [
+        "The many similarly tapered appendages form an even decorative halo and do not visibly distinguish locomotion, attack, defense, or restraint functions.",
+        "The slender smooth gray humanoid and black eye voids invoke a familiar generic alien or faceless-creature vocabulary before the smaller body marks establish individuality.",
+        "Because no appendage visibly contacts a target, the surrounding arcs can read as display or atmosphere as much as immediate attack."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the black appendages are controlled limbs, parasites, shadows, blades, or a separate organism.",
+        "The body scale, combat method, and purpose of the circular carved marks remain visually uncertain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E022",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_silhouettes.png",
+      "sha256": "62b8649f76673008268a7de5c994e567427aed87d0dd38fdba74d6477f6bba4b",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black alternatives show a crouched humanoid surrounded by many short scything ribbons, a tall upright figure enclosed by four long downward blade-limbs, and a low crawling figure paired with one enormous overhead crescent appendage.",
+        "The candidates materially vary height, number and direction of appendages, center of gravity, negative space, and implied locomotion."
+      ],
+      "strengths": [
+        "Candidate A creates a radial multi-limbed stalker, candidate B a suspended or ceremonial upright entity, and candidate C a fast ground predator with one dominant arc; the silhouettes are genuinely different.",
+        "Candidate A maintains several open gaps between body and ribbons, preserving both the humanoid core and surrounding threat."
+      ],
+      "defects": [
+        "Candidate A has many competing curved tips with no clear primary action line, candidate B is close to a conventional elongated faceless figure, and candidate C lets one appendage overwhelm the small crawling body.",
+        "The alternatives alter appendage count and behavior enough that the underlying species and combat grammar are not stable across the sheet."
+      ],
+      "uncertainties": [
+        "The silhouettes do not reveal whether the appendages attach anatomically or whether their curves represent one frozen motion rather than a resting body plan."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E023",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_face.png",
+      "sha256": "a94404816048e57037e106ac99253ed61edc1a803cc7a8f2670047ae541456b4b",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "A smooth pale head tilts toward the viewer with two large black openings, no mouth, stitched cranial seams, small scars, and a narrow jaw-like lower taper.",
+        "The shoulders and hands stay low beneath the head while black appendages frame it from behind, giving the still face an alert forward attention."
+      ],
+      "strengths": [
+        "The absence of mouth, unblinking voids, tilted head, and surgically marked skin form a coherent nonhuman attention mechanism rather than a hidden humanoid expression.",
+        "The eye openings remain the uncontested focal point and direct the creature toward the viewer."
+      ],
+      "defects": [
+        "Fixed black openings have no pupil direction, lid tension, brow movement, mouth, or asymmetry, so attentive curiosity, dissociation, hunger, fear, and predation remain visually interchangeable.",
+        "The smooth oval head and black eyes are a familiar alien shorthand, while the more individual seams and marks carry little emotional information."
+      ],
+      "uncertainties": [
+        "The unaided crop does not establish whether the head tilt is curious, cautious, wounded, submissive, or preparing to strike."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E024",
+      "locator": "assets/concepts/phase2_calibration/creep/creep_96px.png",
+      "sha256": "79b9943691271b624d984eb53d20a18c45536c53d9c66269fae48a78d3b5400f",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, a small pale crouched body, bright oval head, long front limbs, and a pinwheel of black curved appendages remain visible.",
+        "The eye openings, scars, sutures, carved marks, claws, neck anatomy, and distinctions among individual ribbons collapse into the dark background and circular mass."
+      ],
+      "strengths": [
+        "The pale central body within a black radial appendage field forms an unusual and quickly recognizable icon.",
+        "The low posture and multiple hooked arcs retain a sense of encirclement and nonhuman movement."
+      ],
+      "defects": [
+        "The appendages merge into a decorative swirl, making their count, attachment, and attack direction unreadable.",
+        "The body becomes a small pale center rather than an independently legible creature, and the faceless attention mechanism does not survive."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would read a many-limbed predator, a pale figure inside a vortex, or a static radial emblem."
+      ],
+      "contamination": []
+    }
+  ]
+}
