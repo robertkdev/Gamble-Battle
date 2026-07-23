@@ -6,15 +6,140 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import shutil
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[2]
-ROUND = ROOT / "docs/art/phase2_calibration/board/round_7_upgraded"
+ROUND = ROOT / "docs/art/phase2_calibration/board/round_8_fixed"
 BENCHMARKS = ROOT / "docs/art/phase2_calibration/benchmarks"
 VALIDATOR = Path.home() / ".codex/skills/board-of-agents/scripts/validate_audit.py"
 CRITERIA_PATH = ROOT / "docs/art/unit_art_board_reference_criteria.md"
 UNITS = ("korath", "veyra", "cashmere", "pilfer", "nyxa", "creep", "knoll", "quillith", "kett", "luna", "sable", "malachor")
+
+STRUCTURAL_AUTHORITY_LINES = {
+    "Appeal may come from:",
+    "Reject:",
+    "Fail the concept for:",
+    "For each unit:",
+    "The Board does not vote without:",
+}
+
+SECTION_SURFACES = {
+    0: ["master_concepts", "silhouette_exploration", "face_psychology", "native_96_read", "roster_style_convergence"],
+    1: ["master_concepts", "silhouette_exploration", "face_psychology", "native_96_read", "roster_style_convergence"],
+    2: ["master_concepts", "silhouette_exploration", "face_psychology"],
+    3: ["master_concepts", "face_psychology"],
+    4: ["master_concepts", "face_psychology", "roster_style_convergence"],
+    5: ["master_concepts", "face_psychology", "roster_style_convergence"],
+    6: ["master_concepts", "silhouette_exploration"],
+    7: ["master_concepts", "face_psychology"],
+    8: ["master_concepts", "face_psychology"],
+    9: ["face_psychology", "roster_style_convergence"],
+    10: ["master_concepts", "face_psychology", "roster_style_convergence"],
+    11: ["master_concepts", "silhouette_exploration", "native_96_read"],
+    12: ["master_concepts", "face_psychology"],
+    13: ["master_concepts", "roster_style_convergence"],
+    14: ["master_concepts", "silhouette_exploration", "face_psychology", "native_96_read", "roster_style_convergence"],
+    15: ["master_concepts", "silhouette_exploration", "face_psychology", "roster_style_convergence"],
+    16: ["master_concepts", "silhouette_exploration", "face_psychology", "native_96_read", "roster_style_convergence"],
+    17: ["master_concepts", "silhouette_exploration", "face_psychology", "native_96_read", "roster_style_convergence"],
+    18: ["audit_record_contract"],
+}
+
+
+def authority_line_classification(line_number: int, text: str) -> str:
+    stripped = text.strip()
+    if not stripped:
+        return "BLANK"
+    if stripped.startswith("#"):
+        return "MARKDOWN_HEADING"
+    if line_number in {3, 5}:
+        return "SOURCE_METADATA"
+    if stripped in STRUCTURAL_AUTHORITY_LINES:
+        return "STRUCTURAL_LABEL"
+    return "PACKET_CRITERION"
+
+
+def build_authority_rows() -> list[dict[str, object]]:
+    rows: list[dict[str, object]] = []
+    section = 0
+    for line_number, text in enumerate(CRITERIA_PATH.read_text(encoding="utf-8").splitlines(), 1):
+        stripped = text.strip()
+        if stripped.startswith("## "):
+            try:
+                section = int(stripped.split(".", 1)[0].removeprefix("## "))
+            except ValueError:
+                pass
+        rows.append({
+            "line": line_number,
+            "text": text,
+            "section": section,
+            "classification": authority_line_classification(line_number, text),
+        })
+    return rows
+
+
+def criterion_surfaces(line_number: int, section: int, text: str) -> list[str]:
+    if 279 <= line_number <= 292:
+        return ["audit_record_contract"]
+    if section == 16:
+        if line_number == 241:
+            return ["silhouette_exploration"]
+        if line_number == 242:
+            return ["master_concepts"]
+        if line_number == 243:
+            return ["face_psychology"]
+        if line_number == 244:
+            return ["native_96_read"]
+        if line_number == 245:
+            return ["face_psychology"]
+        if line_number in {248, 249, 250}:
+            return ["roster_style_convergence"]
+    if section == 17:
+        upper = text.upper()
+        if "96PX" in upper or "96 PX" in upper:
+            return ["native_96_read"]
+        if "PSYCHOLOGY" in upper or "FACE AND POSE" in upper:
+            return ["face_psychology", "master_concepts"]
+        if "ROSTER-DISTINCT" in upper:
+            return ["roster_style_convergence"]
+        if "BOARD" in upper or "REVIEW" in upper or "VALIDAT" in upper or "APPROVAL" in upper or "PROVENANCE" in upper or "TEMPLATE" in upper:
+            return ["audit_record_contract"]
+    return list(SECTION_SURFACES.get(section, ["audit_record_contract"]))
+
+
+def criterion_applicability(line_number: int, section: int, text: str) -> tuple[str, str]:
+    lower = text.casefold()
+    if section == 2 and 26 <= line_number <= 29:
+        return "CONDITIONAL", "Applies when at least one reviewed unit is assigned this visual lane."
+    if section == 4:
+        return "CONDITIONAL", "Applies to reviewed female units not assigned a deliberately horrific lane."
+    if section == 5:
+        return "CONDITIONAL", "Applies to reviewed units assigned the hot-adult-woman lane; optional techniques apply only when used."
+    if section == 6 and ("female frontliner" in lower or "female tank" in lower):
+        return "CONDITIONAL", "Applies to reviewed female frontliners."
+    if section == 9 and 139 <= line_number <= 163:
+        return "CONDITIONAL", "Applies when a reviewed humanoid uses this villain emotion family."
+    if section == 10:
+        return "CONDITIONAL", "Applies when the named specificity anchor is used for calibration."
+    if "deliberate horror exception" in lower:
+        return "CONDITIONAL", "Applies when a reviewed unit uses a deliberate horror exception."
+    if "blessed" in lower:
+        return "CONDITIONAL", "Applies to reviewed Blessed units."
+    if line_number in {269, 270}:
+        return "CONDITIONAL", "Applies to reviewed female units not assigned a deliberately horrific lane."
+    if line_number == 271:
+        return "CONDITIONAL", "Applies to reviewed female frontliners."
+    if line_number == 286:
+        return "CONDITIONAL", "Applies only when recording final user approval after a ready Board result."
+    return "ALWAYS", "Applies to the complete current Phase 2 review cut and its audit evidence."
+
+
+def criterion_critical(line_number: int, section: int) -> bool:
+    if section == 10 or line_number == 107 or 68 <= line_number <= 75:
+        return False
+    return True
 
 
 def sha256(path: Path) -> str:
@@ -44,50 +169,57 @@ def main() -> int:
         {"id": "face_psychology", "class": "CHARACTER", "critical": True, "required_inspection_modes": ["FACE_ENLARGEMENT"]},
         {"id": "native_96_read", "class": "CHARACTER", "critical": True, "required_inspection_modes": ["NATIVE_96"]},
         {"id": "roster_style_convergence", "class": "CHARACTER", "critical": True, "required_inspection_modes": ["SIDE_BY_SIDE"]},
+        {"id": "audit_record_contract", "class": "DOCUMENT", "critical": False, "required_inspection_modes": ["DIRECT"]},
     ]
     all_surfaces = [item["id"] for item in surfaces]
-
-    criterion_specs = [
-        ("C01", "Every unit must read as a fighter at or near peak combat condition.", ["master_concepts", "face_psychology"]),
-        ("C02", "Every unit must read as a villain, dangerous antagonist, or deliberately horrific combat entity.", ["master_concepts", "face_psychology", "silhouette_exploration"]),
-        ("C03", "Body, equipment, posture, and protection logic must visibly support the unit's gameplay role without generic fantasy armor.", ["master_concepts", "silhouette_exploration"]),
-        ("C04", "Each unit must have a complete ten-field survival-psychology record that is visibly expressed by face and pose.", ["master_concepts", "face_psychology"]),
-        ("C05", "A visible supernatural price, bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily consequence is mandatory.", ["master_concepts", "face_psychology"]),
-        ("C06", "Each unit must be a unique roster member rather than a reuse of one face, body, costume, anatomy, prop, or emotional template.", ["roster_style_convergence", "silhouette_exploration"]),
-        ("C07", "Every unit must stay inside one permitted adult peak-condition or deliberate-horror visual lane; cute mascots and ordinary vulnerable age lanes are forbidden.", ["master_concepts", "silhouette_exploration", "face_psychology"]),
-        ("C08", "A non-horrific female unit must read as an unmistakably adult, conventionally attractive, lean or toned, feminine, combat-capable woman with unit-specific appeal and threat.", ["master_concepts", "face_psychology", "roster_style_convergence"]),
-        ("C09", "Female frontliners must visibly explain survivability through unit-specific protection rather than a bulky male-coded body.", ["master_concepts", "silhouette_exploration"]),
-        ("C10", "The same-master face enlargement and body pose must communicate a specific want, fear, contradiction, survival strategy, and villainous intent without lore rescue.", ["face_psychology", "master_concepts"]),
-        ("C11", "Horror and threat must read as hostile, predatory, coercive, alien, spiritually ruined, or dangerously beautiful, never cute, soft, harmless, whimsical, or cartoon-goofy.", ["master_concepts", "silhouette_exploration", "native_96_read"]),
-        ("C12", "Finish must be dry, detailed, premium western gothic board-game illustration with grounded realism, rejecting anime, gacha, porcelain, glossy plastic, wet-skin, and clean heroic fantasy drift.", ["master_concepts", "roster_style_convergence"]),
-        ("C13", "Each unit requires three genuinely different silhouettes, one definitive full-body master, and face and 96-pixel derivatives from that unchanged master.", ["silhouette_exploration", "master_concepts", "face_psychology", "native_96_read"]),
-        ("C14", "The unchanged master must remain identifiable at native 96 pixels and must be compared against its nearest roster neighbors.", ["native_96_read", "roster_style_convergence"]),
-        ("C15", "One art-primary trait, separate secondary channels, one dominant prop or anatomy idea, role silhouette, and supernatural cost must read without floating-effect or accessory clutter.", ["master_concepts", "silhouette_exploration", "native_96_read"]),
-        ("C16", "The active roster must avoid convergence in faces, ages, bodies, garments, armor, props, anatomy, palettes, tease placement, and villain emotion families.", ["roster_style_convergence", "face_psychology", "silhouette_exploration"]),
-        ("C17", "The evidence packet must include silhouettes, selected masters, same-master face enlargements, deterministic 96-pixel checks, psychology, role and trait construction, Vellum-first style comparison, and roster-neighbor comparisons.", all_surfaces),
-        ("C18", "No concept may be approved with a failed gate; readiness requires unanimous professional review, no surviving blocker, controlled cross-examination, and later explicit user approval.", all_surfaces),
-    ]
-
+    visual_surfaces = [item["id"] for item in surfaces if item["class"] == "CHARACTER"]
+    surface_class_by_id = {item["id"]: item["class"] for item in surfaces}
+    authority_rows = build_authority_rows()
     criteria = []
     segments = []
     authority_records = []
-    for index, (cid, text, criterion_surfaces) in enumerate(criterion_specs, 1):
-        source_locator = f"{locator(CRITERIA_PATH)}#board-criterion-{index:02d}"
+    coverage_entries = []
+    for row in authority_rows:
+        line_number = int(row["line"])
+        text = str(row["text"])
+        classification = str(row["classification"])
+        section = int(row["section"])
+        if classification != "PACKET_CRITERION":
+            if classification != "BLANK":
+                coverage_entries.append({"line": line_number, "text": text, "classification": classification})
+            continue
+        cid = f"UA-L{line_number:03d}"
+        segment_id = f"AS-L{line_number:03d}"
+        source_locator = f"{locator(CRITERIA_PATH)}#L{line_number}"
+        criterion_surface_ids = criterion_surfaces(line_number, section, text)
+        applicability, applicability_rule = criterion_applicability(line_number, section, text)
+        required_classes = sorted({surface_class_by_id[sid] for sid in criterion_surface_ids})
         record = {
             "id": cid,
             "source_locator": source_locator,
             "text": text,
-            "critical": True,
-            "applicability": "ALWAYS",
-            "applicability_rule": "Evaluate every Phase 2 unit; record conditional lane gates explicitly when relevant.",
-            "surfaces": criterion_surfaces,
-            "required_surface_classes": ["CHARACTER"],
-            "required_evidence": "Direct visual inspection of every mapped frozen artifact plus the psychology specification and calibrated benchmark comparison.",
+            "critical": criterion_critical(line_number, section),
+            "applicability": applicability,
+            "applicability_rule": applicability_rule,
+            "surfaces": criterion_surface_ids,
+            "required_surface_classes": required_classes,
+            "required_evidence": "Direct inspection of all frozen evidence mapped to the named surfaces, with the exact source clause applied losslessly.",
         }
         criteria.append(record)
-        segment_id = f"AS{index:02d}"
         segments.append({"id": segment_id, "source_locator": source_locator, "text": text, "criterion_id": cid})
         authority_records.append({**record, "authority_segment_ids": [segment_id]})
+        coverage_entries.append({"line": line_number, "text": text, "classification": classification, "criterion_id": cid, "authority_segment_id": segment_id})
+
+    coverage = {
+        "schema_version": "phase2-authority-coverage-v1",
+        "source_locator": locator(CRITERIA_PATH),
+        "source_sha256": sha256(CRITERIA_PATH),
+        "entries": coverage_entries,
+    }
+    coverage["entries_sha256"] = board.canonical_sha256(coverage_entries)
+    coverage_path = ROUND / "authority_coverage.json"
+    ROUND.mkdir(parents=True, exist_ok=True)
+    coverage_path.write_text(json.dumps(coverage, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     dimensions = [
         {"id": "D_MASTER_CHARACTER_DESIGN", "critical": True, "surfaces": ["master_concepts"], "applicability": "APPLICABLE", "applicability_reason": "Definitive character design and visible contract read."},
@@ -97,10 +229,17 @@ def main() -> int:
         {"id": "D_ROSTER_CONVERGENCE_CONTROL", "critical": True, "surfaces": ["roster_style_convergence"], "applicability": "APPLICABLE", "applicability_reason": "The 12-unit cut must remain individually recognizable and stylistically coherent."},
     ]
     dimensions.extend(
-        {"id": did, "critical": True, "surfaces": all_surfaces, "applicability": "APPLICABLE", "applicability_reason": label}
+        {"id": did, "critical": True, "surfaces": visual_surfaces, "applicability": "APPLICABLE", "applicability_reason": label}
         for did, label in board.UNIVERSAL_DIMENSIONS.items()
     )
     all_dimensions = [item["id"] for item in dimensions]
+
+    audit_contract_dir = ROOT / "docs/art/phase2_calibration/audit_contract"
+    audit_contract_dir.mkdir(parents=True, exist_ok=True)
+    template_alias = audit_contract_dir / "unit_template.json"
+    validator_alias = audit_contract_dir / "unit_validator.py"
+    shutil.copyfile(ROOT / "docs/art/unit_art_board_review_template.json", template_alias)
+    shutil.copyfile(ROOT / "tools/art/validate_unit_art_board_review.py", validator_alias)
 
     artifact_specs: list[tuple[Path, list[str], str, list[str], list[str]]] = []
     for unit in UNITS:
@@ -117,6 +256,8 @@ def main() -> int:
         (ROOT / "docs/art/phase2_calibration/phase2_calibration_96px_board.png", ["native_96_read", "roster_style_convergence"], "AUTHORITATIVE_CAPTURE", ["NATIVE_96", "SIDE_BY_SIDE"], ["all 12 exact 96-pixel derivatives"]),
         (ROOT / "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png", ["roster_style_convergence"], "AUTHORITATIVE_CAPTURE", ["SIDE_BY_SIDE"], ["role-grouped master comparison"]),
         (ROOT / "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png", ["roster_style_convergence", "master_concepts"], "AUTHORITATIVE_CAPTURE", ["SIDE_BY_SIDE", "FULL_SIZE"], ["Vellum-first material and finish comparison"]),
+        (template_alias, ["audit_record_contract"], "PRODUCT_ARTIFACT", ["DIRECT"], ["three-seat unit-art audit record template"]),
+        (validator_alias, ["audit_record_contract"], "PRODUCT_ARTIFACT", ["DIRECT"], ["unit-art semantic review validator"]),
     ])
 
     cut_artifacts = []
@@ -149,7 +290,7 @@ def main() -> int:
             "locator": locator(path),
             "sha256": sha256(path),
             "source_class": source_class,
-            "surfaces": all_surfaces,
+            "surfaces": visual_surfaces,
             "artifact_class": artifact_class,
             "artifact_surface_classes": ["CHARACTER"],
             "relevance": relevance,
@@ -157,14 +298,14 @@ def main() -> int:
             "anchored_dimension_ids": all_dimensions,
         })
 
-    objective_text = "Work on phase 2 and use the upgraded board-of-agents. Break if you end up in an endless loop or if you catch the board missing important stuff."
+    objective_text = "Work on phase 2 and use the upgraded board-of-agents. Break if you end up in an endless loop or if you catch the board missing important stuff. Fix the failed Board transport and authority-coverage gaps without weakening the audit."
     packet = {
         "schema_version": board.SCHEMA_VERSION,
         "record_kind": "audit_packet",
-        "lineage_id": "gamble-battle-phase2-round7-upgraded",
+        "lineage_id": "gamble-battle-phase2-round8-fixed",
         "objective": {"locator": "thread:019f8be6-4ca5-7213-bfe1-135ae50eb18b:user-request", "verbatim": objective_text},
         "acceptance_envelope": {
-            "version": "phase2-2026-07-21-v1",
+            "version": "phase2-2026-07-21-v1.1-manifest-repair",
             "approval_locator": "thread:019f8be6-4ca5-7213-bfe1-135ae50eb18b:user-request",
             "approval_sha256": hashlib.sha256(objective_text.encode("utf-8")).hexdigest(),
             "target_band": "PROFESSIONAL",
@@ -176,10 +317,12 @@ def main() -> int:
                 "Board approval never replaces explicit final user approval.",
                 "Stop if required authority, evidence, surfaces, or criteria are omitted.",
                 "Do not repeat a review cycle without decision-changing product or evidence changes.",
+                "Every material product or audit-procedure clause in the canonical source must be losslessly mapped or structurally classified by the deterministic coverage gate.",
+                "Use chunked same-reviewer sealing so no primary record depends on one oversized response stream.",
             ],
         },
         "authority_segments": segments,
-        "cut": {"id": "phase2-cut-9d03d7c", "artifacts": cut_artifacts},
+        "cut": {"id": "phase2-art-cut-9d03d7c", "artifacts": cut_artifacts},
         "surfaces": surfaces,
         "criteria": criteria,
         "criteria_authority": [{
@@ -209,7 +352,7 @@ def main() -> int:
 
     (ROUND / "audit_packet.json").write_text(json.dumps(packet, indent=2) + "\n", encoding="utf-8")
     (ROUND / "authority_context.json").write_text(json.dumps(authority_context, indent=2) + "\n", encoding="utf-8")
-    print(f"PASS packet evidence={len(raw_evidence)} artifacts={len(cut_artifacts)} criteria={len(criteria)} dimensions={len(dimensions)} benchmarks={len(benchmarks)}")
+    print(f"PASS packet evidence={len(raw_evidence)} artifacts={len(cut_artifacts)} criteria={len(criteria)} dimensions={len(dimensions)} benchmarks={len(benchmarks)} coverage={len(coverage_entries)}")
     return 0
 
 

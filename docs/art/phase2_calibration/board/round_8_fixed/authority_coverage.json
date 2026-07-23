@@ -1,0 +1,1451 @@
+{
+  "schema_version": "phase2-authority-coverage-v1",
+  "source_locator": "docs/art/unit_art_board_reference_criteria.md",
+  "source_sha256": "35d4e26c43baaac050b038d4ce2bc48a1ad19e7bd8532b5d0190416592f56cf8",
+  "entries": [
+    {
+      "line": 1,
+      "text": "# Gamble Battle Unit-Art Board Reference Criteria",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 3,
+      "text": "Status: **LOCKED CANONICAL STANDARD — USER CONFIRMED 2026-07-21**",
+      "classification": "SOURCE_METADATA"
+    },
+    {
+      "line": 5,
+      "text": "Criteria version: `2026-07-21-v1`",
+      "classification": "SOURCE_METADATA"
+    },
+    {
+      "line": 7,
+      "text": "This is the governing design and review standard for every Gamble Battle unit master concept. It applies to calibration, redesign, refinement, convergence repair, and concept lock. If an older prompt, packet, approval, roster note, generated image, baseline record, or older version of the live Google design document conflicts with these user-confirmed unit-art rules, this document wins for unit-art design and review. The live Google document remains authoritative for gameplay, terminology, roster facts, roles, kits, and later user-approved changes. A later explicit user decision may replace this criteria version; silent drift or an older source may not.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L007",
+      "authority_segment_id": "AS-L007"
+    },
+    {
+      "line": 9,
+      "text": "The Board must evaluate what the image visibly communicates. Lore text cannot rescue a missing face read, weak pose, harmless silhouette, unexplained protection, generic beauty, or invisible supernatural cost.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L009",
+      "authority_segment_id": "AS-L009"
+    },
+    {
+      "line": 11,
+      "text": "## 1. Governing read",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 13,
+      "text": "Every unit must read as all of the following:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L013",
+      "authority_segment_id": "AS-L013"
+    },
+    {
+      "line": 15,
+      "text": "- A fighter at or near peak combat condition.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L015",
+      "authority_segment_id": "AS-L015"
+    },
+    {
+      "line": 16,
+      "text": "- A villain, dangerous antagonist, or deliberately horrific combat entity.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L016",
+      "authority_segment_id": "AS-L016"
+    },
+    {
+      "line": 17,
+      "text": "- A valuable playable unit whose body, equipment, and posture support its gameplay role.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L017",
+      "authority_segment_id": "AS-L017"
+    },
+    {
+      "line": 18,
+      "text": "- A specific person or creature with readable survival psychology.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L018",
+      "authority_segment_id": "AS-L018"
+    },
+    {
+      "line": 19,
+      "text": "- A supernatural being marked by a visible price, bargain, corruption, compulsion, scar, addiction, punishment, or bodily consequence.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L019",
+      "authority_segment_id": "AS-L019"
+    },
+    {
+      "line": 20,
+      "text": "- A unique roster member, not a variation from one shared costume aisle, face template, body template, demon anatomy, or emotional pose.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L020",
+      "authority_segment_id": "AS-L020"
+    },
+    {
+      "line": 22,
+      "text": "## 2. Allowed visual lanes",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 24,
+      "text": "Assign every unit one explicit lane before generating art:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L024",
+      "authority_segment_id": "AS-L024"
+    },
+    {
+      "line": 26,
+      "text": "1. **Hot adult woman** — conventionally attractive, mature, dangerous, lean or toned, feminine, and combat-capable.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L026",
+      "authority_segment_id": "AS-L026"
+    },
+    {
+      "line": 27,
+      "text": "2. **Peak-condition masculine or androgynous humanoid** — visibly mature, physically credible, dangerous, and role-specific.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L027",
+      "authority_segment_id": "AS-L027"
+    },
+    {
+      "line": 28,
+      "text": "3. **Deliberately horrific humanoid** — recognizable humanoid roots distorted for horror, with the exception recorded and justified.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L028",
+      "authority_segment_id": "AS-L028"
+    },
+    {
+      "line": 29,
+      "text": "4. **Monster, alien, or creature horror** — nonhuman body plan built around threat, gameplay, and a unique predatory or supernatural logic.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L029",
+      "authority_segment_id": "AS-L029"
+    },
+    {
+      "line": 31,
+      "text": "Ordinary children, teenagers, elderly people, harmless civilians, and cute mascot lanes are forbidden. Age, decay, frailty, or juvenile proportions may appear only when they are inseparable from a deliberately horrific non-ordinary entity and make it more combat-dangerous rather than vulnerable or sympathetic.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L031",
+      "authority_segment_id": "AS-L031"
+    },
+    {
+      "line": 33,
+      "text": "## 3. Peak-age and physical-condition gate",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 35,
+      "text": "- Human and humanoid units must look like mature adults in their physical fighting prime, normally reading from the mid-20s through late-30s. Early-40s coding is acceptable only when the unit still unmistakably reads at peak combat condition.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L035",
+      "authority_segment_id": "AS-L035"
+    },
+    {
+      "line": 36,
+      "text": "- No child, teen, boyish, girlish, school-age, doll-child, old-lady, old-man, frail elder, retirement-age, or grandmother/grandfather coding.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L036",
+      "authority_segment_id": "AS-L036"
+    },
+    {
+      "line": 37,
+      "text": "- Never use old age, youth, weakness, disability, or ordinary frailty as shorthand for uniqueness.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L037",
+      "authority_segment_id": "AS-L037"
+    },
+    {
+      "line": 38,
+      "text": "- A deliberate horror exception must be visibly dangerous, must not invite a protective reading, and must be labeled `DELIBERATE HORROR EXCEPTION` in the review record.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L038",
+      "authority_segment_id": "AS-L038"
+    },
+    {
+      "line": 39,
+      "text": "- The Board must return `PEAK-AGE FIGHTER: PASS` or explicitly document and unanimously approve the horror exception.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L039",
+      "authority_segment_id": "AS-L039"
+    },
+    {
+      "line": 41,
+      "text": "## 4. Female attractiveness standard",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 43,
+      "text": "Unless a female unit is explicitly assigned the deliberately horrific lane, she must be:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L043",
+      "authority_segment_id": "AS-L043"
+    },
+    {
+      "line": 45,
+      "text": "- Clearly and unmistakably an adult.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L045",
+      "authority_segment_id": "AS-L045"
+    },
+    {
+      "line": 46,
+      "text": "- Conventionally attractive by recognizable human standards, even when she has nonhuman skin, markings, eyes, ears, or anatomy.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L046",
+      "authority_segment_id": "AS-L046"
+    },
+    {
+      "line": 47,
+      "text": "- Lean, toned, fit, or elegantly athletic.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L047",
+      "authority_segment_id": "AS-L047"
+    },
+    {
+      "line": 48,
+      "text": "- Feminine in face, body language, and body design.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L048",
+      "authority_segment_id": "AS-L048"
+    },
+    {
+      "line": 49,
+      "text": "- Combat-capable without becoming bulky, bodybuilder-like, heavily muscled, male-coded, or “powerful” through sheer mass.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L049",
+      "authority_segment_id": "AS-L049"
+    },
+    {
+      "line": 50,
+      "text": "- Visibly valuable to the team and dangerous in combat, not a decorative pinup.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L050",
+      "authority_segment_id": "AS-L050"
+    },
+    {
+      "line": 52,
+      "text": "Approved body-range directions include lean hourglass, athletic hourglass, slender and toned, compact and toned, tall and elegant, and curvy but fit. These are a range, not a single template. The roster must vary height, proportions, ethnicity, skin tone, facial structure, styling, and which aspect of the body carries the appeal.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L052",
+      "authority_segment_id": "AS-L052"
+    },
+    {
+      "line": 54,
+      "text": "Reject:",
+      "classification": "STRUCTURAL_LABEL"
+    },
+    {
+      "line": 56,
+      "text": "- Overweight female builds.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L056",
+      "authority_segment_id": "AS-L056"
+    },
+    {
+      "line": 57,
+      "text": "- Heavy-powerful, bodybuilder, overly buff, masculinized, or male-coded female builds.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L057",
+      "authority_segment_id": "AS-L057"
+    },
+    {
+      "line": 58,
+      "text": "- Childlike, teenage, doll-like, elderly, crone, or grandmother coding.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L058",
+      "authority_segment_id": "AS-L058"
+    },
+    {
+      "line": 59,
+      "text": "- Generic prettiness without danger, personality, psychology, or gameplay authority.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L059",
+      "authority_segment_id": "AS-L059"
+    },
+    {
+      "line": 60,
+      "text": "- Making a woman unattractive merely to signal seriousness, evil, strength, intelligence, or tankiness.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L060",
+      "authority_segment_id": "AS-L060"
+    },
+    {
+      "line": 62,
+      "text": "Deliberately grotesque female monsters are allowed, but the lane must be intentional and the horror must be central to the unit's gameplay identity. It is not permission for accidental age drift or weak female design.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L062",
+      "authority_segment_id": "AS-L062"
+    },
+    {
+      "line": 64,
+      "text": "## 5. Sex appeal and clothing",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 66,
+      "text": "For the hot-adult-woman lane, “valuable combat unit” and “hot adult woman” are both mandatory. Neither cancels the other.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L066",
+      "authority_segment_id": "AS-L066"
+    },
+    {
+      "line": 68,
+      "text": "Appeal may come from:",
+      "classification": "STRUCTURAL_LABEL"
+    },
+    {
+      "line": 70,
+      "text": "- A striking adult face and deliberate eye contact.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L070",
+      "authority_segment_id": "AS-L070"
+    },
+    {
+      "line": 71,
+      "text": "- Confidence, control, predatory intent, wounded pride, dangerous restraint, or another psychology-specific presence.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L071",
+      "authority_segment_id": "AS-L071"
+    },
+    {
+      "line": 72,
+      "text": "- Tailoring and silhouette that respect an hourglass, athletic, compact, tall, or curvy-fit body.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L072",
+      "authority_segment_id": "AS-L072"
+    },
+    {
+      "line": 73,
+      "text": "- Visible arms or shoulders, neckline or occasional cleavage, back, waist, leg, fabric tension, movement, or contrast between coverage and exposure.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L073",
+      "authority_segment_id": "AS-L073"
+    },
+    {
+      "line": 74,
+      "text": "- Clothes that feel cosplayable and character-specific.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L074",
+      "authority_segment_id": "AS-L074"
+    },
+    {
+      "line": 75,
+      "text": "- The tension between beauty and threat, desire and shame, control and hunger, or another unit-specific contradiction.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L075",
+      "authority_segment_id": "AS-L075"
+    },
+    {
+      "line": 77,
+      "text": "Skin, cleavage, corsets, heels, and leg slits are optional tools, never requirements. Full coverage can still be highly attractive. Vary where and how appeal appears; do not repeat one leg slit, rear-facing pose, corset, neckline, or “sexy armor” solution across the roster.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L077",
+      "authority_segment_id": "AS-L077"
+    },
+    {
+      "line": 79,
+      "text": "Reject explicit nudity, lingerie/swimwear logic, fake armor whose only function is exposure, passive pinup posing, repetitive tease placement, harmless wholesome beauty, and hiding every body beneath shapeless clothing in the name of seriousness.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L079",
+      "authority_segment_id": "AS-L079"
+    },
+    {
+      "line": 81,
+      "text": "## 6. Armor and protection logic",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 83,
+      "text": "Armor is never mandatory. Use it only when justified by the unit's role, kit, fighting method, trait language, culture, personal history, supernatural cost, or central identity.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L083",
+      "authority_segment_id": "AS-L083"
+    },
+    {
+      "line": 85,
+      "text": "- Reject generic fantasy armor added simply because the character fights.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L085",
+      "authority_segment_id": "AS-L085"
+    },
+    {
+      "line": 86,
+      "text": "- Non-frontliners should not be forced into armor.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L086",
+      "authority_segment_id": "AS-L086"
+    },
+    {
+      "line": 87,
+      "text": "- Armor must support the silhouette and psychology rather than replace them.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L087",
+      "authority_segment_id": "AS-L087"
+    },
+    {
+      "line": 88,
+      "text": "- Female frontliners must visibly explain survivability through an appropriate protection solution: functional armor, shield architecture, reinforced clothing, chitin, scales, stone, bark, shell, nonhuman skin, supernatural dermal protection, anatomical fortification, or another unit-specific defense.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L088",
+      "authority_segment_id": "AS-L088"
+    },
+    {
+      "line": 89,
+      "text": "- Never explain a female frontliner's durability by giving her a bulky, heavily muscled, male-coded body.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L089",
+      "authority_segment_id": "AS-L089"
+    },
+    {
+      "line": 90,
+      "text": "- Protective anatomy is not a license to turn every female tank into the same armored or monstrous lane.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L090",
+      "authority_segment_id": "AS-L090"
+    },
+    {
+      "line": 92,
+      "text": "## 7. Required survival-psychology record",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 94,
+      "text": "Before silhouette generation, write all ten fields below. One-word labels such as “angry,” “sad,” “evil,” “confident,” or “crazy” are insufficient.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L094",
+      "authority_segment_id": "AS-L094"
+    },
+    {
+      "line": 96,
+      "text": "1. **Core wound** — the formative hurt, loss, humiliation, deprivation, or corruption.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L096",
+      "authority_segment_id": "AS-L096"
+    },
+    {
+      "line": 97,
+      "text": "2. **Private want** — what the unit wants but cannot admit safely.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L097",
+      "authority_segment_id": "AS-L097"
+    },
+    {
+      "line": 98,
+      "text": "3. **Primary fear** — what outcome the unit organizes its behavior to prevent.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L098",
+      "authority_segment_id": "AS-L098"
+    },
+    {
+      "line": 99,
+      "text": "4. **Survival strategy** — the habit or method that kept the unit alive.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L099",
+      "authority_segment_id": "AS-L099"
+    },
+    {
+      "line": 100,
+      "text": "5. **Villainous distortion** — how that strategy now harms, controls, consumes, or dehumanizes others.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L100",
+      "authority_segment_id": "AS-L100"
+    },
+    {
+      "line": 101,
+      "text": "6. **Current emotional state** — the immediate state visible in this definitive concept.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L101",
+      "authority_segment_id": "AS-L101"
+    },
+    {
+      "line": 102,
+      "text": "7. **Emotional contradiction** — the two forces simultaneously present.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L102",
+      "authority_segment_id": "AS-L102"
+    },
+    {
+      "line": 103,
+      "text": "8. **Face direction** — concrete eye, brow, mouth, jaw, head-angle, and asymmetry instructions.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L103",
+      "authority_segment_id": "AS-L103"
+    },
+    {
+      "line": 104,
+      "text": "9. **Pose direction** — concrete posture, weight, limb, target, and prop relationship that supports the same psychology.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L104",
+      "authority_segment_id": "AS-L104"
+    },
+    {
+      "line": 105,
+      "text": "10. **Forbidden read** — the generic or incorrect emotional interpretation the image must avoid.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L105",
+      "authority_segment_id": "AS-L105"
+    },
+    {
+      "line": 107,
+      "text": "Useful contradiction structures include hunger versus restraint, pride versus need, desire versus shame, control versus exhaustion, loneliness versus defiance, care versus ownership, fear versus aggression, devotion versus resentment, grief versus punishment, and confidence versus loss of control.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L107",
+      "authority_segment_id": "AS-L107"
+    },
+    {
+      "line": 109,
+      "text": "## 8. Face-readable psychology gate",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 111,
+      "text": "The face is a primary storytelling surface. Reviewers must inspect a derived face enlargement from the same master image and, without reading lore, answer:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L111",
+      "authority_segment_id": "AS-L111"
+    },
+    {
+      "line": 113,
+      "text": "- What is the unit feeling now?",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L113",
+      "authority_segment_id": "AS-L113"
+    },
+    {
+      "line": 114,
+      "text": "- What does the unit want from the viewer, target, ally, or situation?",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L114",
+      "authority_segment_id": "AS-L114"
+    },
+    {
+      "line": 115,
+      "text": "- What does the unit fear or refuse to reveal?",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L115",
+      "authority_segment_id": "AS-L115"
+    },
+    {
+      "line": 116,
+      "text": "- What survival strategy is active in this moment?",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L116",
+      "authority_segment_id": "AS-L116"
+    },
+    {
+      "line": 117,
+      "text": "- What makes the read villainous rather than merely sad, angry, or attractive?",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L117",
+      "authority_segment_id": "AS-L117"
+    },
+    {
+      "line": 119,
+      "text": "The review must cite visible evidence in eye focus, eyelid tension, brow shape, mouth and lips, jaw, cheeks, head angle, asymmetry, and relation to the viewer or target.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L119",
+      "authority_segment_id": "AS-L119"
+    },
+    {
+      "line": 121,
+      "text": "Fail the concept for:",
+      "classification": "STRUCTURAL_LABEL"
+    },
+    {
+      "line": 123,
+      "text": "- A neutral mannequin face.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L123",
+      "authority_segment_id": "AS-L123"
+    },
+    {
+      "line": 124,
+      "text": "- A beauty-model expression unrelated to the psychology.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L124",
+      "authority_segment_id": "AS-L124"
+    },
+    {
+      "line": 125,
+      "text": "- A generic scream, snarl, scowl, smirk, or blank “serious” look.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L125",
+      "authority_segment_id": "AS-L125"
+    },
+    {
+      "line": 126,
+      "text": "- “Pretty sad” as the whole emotional idea.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L126",
+      "authority_segment_id": "AS-L126"
+    },
+    {
+      "line": 127,
+      "text": "- Prose-only emotion that cannot be seen.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L127",
+      "authority_segment_id": "AS-L127"
+    },
+    {
+      "line": 128,
+      "text": "- A face hidden so thoroughly that psychology cannot be evaluated, unless the absence of a face is the deliberate nonhuman psychology mechanism.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L128",
+      "authority_segment_id": "AS-L128"
+    },
+    {
+      "line": 129,
+      "text": "- A face and body that tell different stories.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L129",
+      "authority_segment_id": "AS-L129"
+    },
+    {
+      "line": 131,
+      "text": "Changing the facial expression without changing the pose is not a full psychological correction. The pose must reinforce the same want, fear, contradiction, and survival strategy.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L131",
+      "authority_segment_id": "AS-L131"
+    },
+    {
+      "line": 133,
+      "text": "## 9. Villain emotion families",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 135,
+      "text": "Distribute humanoid villains across these families rather than making every villain angry. Each family still needs an individual psychology record.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L135",
+      "authority_segment_id": "AS-L135"
+    },
+    {
+      "line": 137,
+      "text": "### Dissociated / stone-cold",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 139,
+      "text": "- Face: fixed or slightly unfocused gaze, low blink tension, minimal mouth response, controlled jaw.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L139",
+      "authority_segment_id": "AS-L139"
+    },
+    {
+      "line": 140,
+      "text": "- Pose: economical movement, withheld reaction, body operating while emotion appears separated from it.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L140",
+      "authority_segment_id": "AS-L140"
+    },
+    {
+      "line": 141,
+      "text": "- Read: dangerous because feeling has been compartmentalized or severed.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L141",
+      "authority_segment_id": "AS-L141"
+    },
+    {
+      "line": 142,
+      "text": "- Avoid: dead mannequin, sleepy model, generic stoicism.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L142",
+      "authority_segment_id": "AS-L142"
+    },
+    {
+      "line": 144,
+      "text": "### Evil / manipulative / demonic",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 146,
+      "text": "- Face: evaluating eye contact, controlled asymmetry, restrained knowing smile or deliberate invitation.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L146",
+      "authority_segment_id": "AS-L146"
+    },
+    {
+      "line": 147,
+      "text": "- Pose: owns the distance, offers or withholds something, turns the viewer into a target, asset, debtor, worshipper, or accomplice.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L147",
+      "authority_segment_id": "AS-L147"
+    },
+    {
+      "line": 148,
+      "text": "- Read: dangerous because the unit understands and exploits desire, fear, obligation, or weakness.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L148",
+      "authority_segment_id": "AS-L148"
+    },
+    {
+      "line": 149,
+      "text": "- Avoid: cheerful smile, cartoon villain grin, generic seductive pose.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L149",
+      "authority_segment_id": "AS-L149"
+    },
+    {
+      "line": 151,
+      "text": "### Angry",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 153,
+      "text": "- Face: focused compression, hard target fixation, loaded jaw, specific grievance or intent.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L153",
+      "authority_segment_id": "AS-L153"
+    },
+    {
+      "line": 154,
+      "text": "- Pose: weight and weapon line committed toward a target; anger is directed rather than decorative.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L154",
+      "authority_segment_id": "AS-L154"
+    },
+    {
+      "line": 155,
+      "text": "- Read: dangerous because rage has purpose, discipline, or accumulated pressure.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L155",
+      "authority_segment_id": "AS-L155"
+    },
+    {
+      "line": 156,
+      "text": "- Avoid: generic screaming, universal scowl, random berserker pose.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L156",
+      "authority_segment_id": "AS-L156"
+    },
+    {
+      "line": 158,
+      "text": "### Feral / animalistic",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 160,
+      "text": "- Face: tracking eyes, predatory head angle, jaw or nostril tension, attention captured by prey.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L160",
+      "authority_segment_id": "AS-L160"
+    },
+    {
+      "line": 161,
+      "text": "- Pose: crouch, limb loading, asymmetrical balance, scenting, stalking, pouncing, or guarding behavior grounded in the body plan.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L161",
+      "authority_segment_id": "AS-L161"
+    },
+    {
+      "line": 162,
+      "text": "- Read: dangerous because instinct has overtaken ordinary social restraint.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L162",
+      "authority_segment_id": "AS-L162"
+    },
+    {
+      "line": 163,
+      "text": "- Avoid: cute animal, mischievous mascot, generic monster hunch.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L163",
+      "authority_segment_id": "AS-L163"
+    },
+    {
+      "line": 165,
+      "text": "The Board must track family distribution across the active roster and reject convergence into one universal expression.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L165",
+      "authority_segment_id": "AS-L165"
+    },
+    {
+      "line": 167,
+      "text": "## 10. Psychology anchors that previously worked",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 169,
+      "text": "Use these as specificity references, not templates to copy:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L169",
+      "authority_segment_id": "AS-L169"
+    },
+    {
+      "line": 171,
+      "text": "- **Morwen — starving pride:** wants blood and belonging but treats both as traps. Her exhausted predatory eyes and controlled posture make her seductive because she is wounded, dangerous, and impossible to keep, not because she is passively posing.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L171",
+      "authority_segment_id": "AS-L171"
+    },
+    {
+      "line": 172,
+      "text": "- **Nerissa — controlled hunger:** wants intimacy but fears converting closeness into appetite. Half-open mouth and restrained posture hold shame, desire, and discipline in tension.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L172",
+      "authority_segment_id": "AS-L172"
+    },
+    {
+      "line": 173,
+      "text": "- **Mara — forced self-respect:** lonely and angry without begging. Tired, defiant eyes and controlled posture combine wounded confidence with refusal.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L173",
+      "authority_segment_id": "AS-L173"
+    },
+    {
+      "line": 174,
+      "text": "- **Vellum — manipulative exhausted control:** still directs the encounter while the cost of maintaining control is visible.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L174",
+      "authority_segment_id": "AS-L174"
+    },
+    {
+      "line": 175,
+      "text": "- **Creep — dissociation from self:** separation and alienation are embodied through face, anatomy, and movement rather than pasted-on gore.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L175",
+      "authority_segment_id": "AS-L175"
+    },
+    {
+      "line": 177,
+      "text": "## 11. Horror and threat gate",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 179,
+      "text": "The game targets adults. Horror must read as dangerous, hostile, predatory, coercive, alien, or spiritually ruined—not merely strange.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L179",
+      "authority_segment_id": "AS-L179"
+    },
+    {
+      "line": 181,
+      "text": "- The hostile silhouette must read before decorative symbolism.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L181",
+      "authority_segment_id": "AS-L181"
+    },
+    {
+      "line": 182,
+      "text": "- Reject cute, soft, plush, whimsical, storybook, mascot-like, harmless, “Winnie the Pooh,” or slug-like results.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L182",
+      "authority_segment_id": "AS-L182"
+    },
+    {
+      "line": 183,
+      "text": "- Horror may come from predation, combat intent, alien anatomy, domination, corrupted care, compulsory penance, sacred corruption, hunger, dissociation, bodily cost, distorted humanity, or dangerous beauty.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L183",
+      "authority_segment_id": "AS-L183"
+    },
+    {
+      "line": 184,
+      "text": "- Random gore, extra teeth, black eyes, horns, and blood do not create sufficient horror by themselves.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L184",
+      "authority_segment_id": "AS-L184"
+    },
+    {
+      "line": 185,
+      "text": "- Attractive characters may be scary through psychology, control, predatory attention, corruption, or the visible price of power without becoming conventionally grotesque.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L185",
+      "authority_segment_id": "AS-L185"
+    },
+    {
+      "line": 187,
+      "text": "## 12. World and supernatural cost",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 189,
+      "text": "- The world is cruel folklore: famine, tragedy, occult bargains, demons, corruption, collapsed sacred order, and accumulated survival wear.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L189",
+      "authority_segment_id": "AS-L189"
+    },
+    {
+      "line": 190,
+      "text": "- No clean good magic. Magic behaves as bargain, corruption, compulsion, scar, addiction, punishment, debt, or bodily transformation.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L190",
+      "authority_segment_id": "AS-L190"
+    },
+    {
+      "line": 191,
+      "text": "- The supernatural cost must be physically or behaviorally visible in the master concept.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L191",
+      "authority_segment_id": "AS-L191"
+    },
+    {
+      "line": 192,
+      "text": "- Symbolism must be embodied in anatomy, garment, posture, wear, or one chosen prop. Floating effects cannot carry identity.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L192",
+      "authority_segment_id": "AS-L192"
+    },
+    {
+      "line": 193,
+      "text": "- Blessed specifically means divine favor experienced as disgrace: fallen angels, failed saints, shame, ruined miracles, and compulsory penance. A Blessed unit must read fallen or disgraced before “angel,” show shame in face and posture, and show the miracle's physical cost. No clean holy hero, radiant paladin, decorative black-wing demon, or generic pretty sad angel.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L193",
+      "authority_segment_id": "AS-L193"
+    },
+    {
+      "line": 195,
+      "text": "## 13. Style and reference hierarchy",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 197,
+      "text": "- **Vellum** is the material, detail, grounded-realism, and dry-finish veto anchor.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L197",
+      "authority_segment_id": "AS-L197"
+    },
+    {
+      "line": 198,
+      "text": "- **Morwen** is a hot-adult-woman and specific-psychology anchor.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L198",
+      "authority_segment_id": "AS-L198"
+    },
+    {
+      "line": 199,
+      "text": "- **Creep v5 direction** is an alien-horror and nonhuman-individuality anchor.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L199",
+      "authority_segment_id": "AS-L199"
+    },
+    {
+      "line": 200,
+      "text": "- **Paisley and the stronger earlier Luna direction** show that color, pattern, fabric, and varied tease can survive inside the world.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L200",
+      "authority_segment_id": "AS-L200"
+    },
+    {
+      "line": 201,
+      "text": "- The old clean Totem/tree direction is a negative example of harmless fantasy cleanliness.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L201",
+      "authority_segment_id": "AS-L201"
+    },
+    {
+      "line": 203,
+      "text": "Target dry, detailed, premium western gothic board-game illustration with roughly ten percent more grounded realism than cartoon/comic passes. Reject anime, gacha, porcelain, glossy rainbow crystal, wet skin, polished leather uniforming, plastic, clean heroic fantasy, and mobile-game splash-art finish. “Desaturated” is not a ban on color; preserve color when a trait or individual identity needs it.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L203",
+      "authority_segment_id": "AS-L203"
+    },
+    {
+      "line": 205,
+      "text": "## 14. Individuality and trait construction",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 207,
+      "text": "For each unit:",
+      "classification": "STRUCTURAL_LABEL"
+    },
+    {
+      "line": 209,
+      "text": "- Generate and compare three genuinely different rough silhouettes.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L209",
+      "authority_segment_id": "AS-L209"
+    },
+    {
+      "line": 210,
+      "text": "- Select one definitive full-body master; all face enlargements and 96 px checks derive from it.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L210",
+      "authority_segment_id": "AS-L210"
+    },
+    {
+      "line": 211,
+      "text": "- Preserve gameplay identity and the strongest surviving recognizable hook.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L211",
+      "authority_segment_id": "AS-L211"
+    },
+    {
+      "line": 212,
+      "text": "- Assign one art-primary trait and place each secondary trait in a separate visual channel.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L212",
+      "authority_segment_id": "AS-L212"
+    },
+    {
+      "line": 213,
+      "text": "- A third trait may support but may not compete for the main read.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L213",
+      "authority_segment_id": "AS-L213"
+    },
+    {
+      "line": 214,
+      "text": "- Use one dominant prop or anatomical idea.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L214",
+      "authority_segment_id": "AS-L214"
+    },
+    {
+      "line": 215,
+      "text": "- Establish a unique face, body plan, species logic, culture, garment family, emotional contradiction, and combat silhouette.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L215",
+      "authority_segment_id": "AS-L215"
+    },
+    {
+      "line": 216,
+      "text": "- Show role and supernatural price without relying on orbiting effects or accessory clutter.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L216",
+      "authority_segment_id": "AS-L216"
+    },
+    {
+      "line": 217,
+      "text": "- Compare against the three closest roster neighbors before approval.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L217",
+      "authority_segment_id": "AS-L217"
+    },
+    {
+      "line": 218,
+      "text": "- Validate the unchanged master at 96 px.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L218",
+      "authority_segment_id": "AS-L218"
+    },
+    {
+      "line": 219,
+      "text": "- Work one unit at a time. Do not batch-generate a group under one shared prompt.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L219",
+      "authority_segment_id": "AS-L219"
+    },
+    {
+      "line": 221,
+      "text": "## 15. Anti-convergence vetoes",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 223,
+      "text": "Reject roster drift toward:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L223",
+      "authority_segment_id": "AS-L223"
+    },
+    {
+      "line": 225,
+      "text": "- Same face, same age read, same body, same hourglass, or same expression.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L225",
+      "authority_segment_id": "AS-L225"
+    },
+    {
+      "line": 226,
+      "text": "- Shared black cloak, black coat, leather uniform, corset, heels, leg slit, rear-facing pose, or clothing aisle.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L226",
+      "authority_segment_id": "AS-L226"
+    },
+    {
+      "line": 227,
+      "text": "- Repeated rib masks, horns, hooks, halos, wings, black tendrils, or one gothic demon anatomy.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L227",
+      "authority_segment_id": "AS-L227"
+    },
+    {
+      "line": 228,
+      "text": "- Multiple units built around the same prop class.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L228",
+      "authority_segment_id": "AS-L228"
+    },
+    {
+      "line": 229,
+      "text": "- Orbiting or hanging tags, paper, chains, vials, trinkets, and detached symbols used as fake individuality.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L229",
+      "authority_segment_id": "AS-L229"
+    },
+    {
+      "line": 230,
+      "text": "- Trait identity that depends entirely on floating VFX.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L230",
+      "authority_segment_id": "AS-L230"
+    },
+    {
+      "line": 231,
+      "text": "- Kaleidoscope becoming glossy rainbow crystal.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L231",
+      "authority_segment_id": "AS-L231"
+    },
+    {
+      "line": 232,
+      "text": "- Sanguine becoming one repeated vampire stereotype.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L232",
+      "authority_segment_id": "AS-L232"
+    },
+    {
+      "line": 233,
+      "text": "- Blessed becoming clean, heroic, or merely decorative.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L233",
+      "authority_segment_id": "AS-L233"
+    },
+    {
+      "line": 234,
+      "text": "- Every villain communicating evil through anger.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L234",
+      "authority_segment_id": "AS-L234"
+    },
+    {
+      "line": 235,
+      "text": "- Every attractive woman exposing the same body area or wearing the same silhouette.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L235",
+      "authority_segment_id": "AS-L235"
+    },
+    {
+      "line": 237,
+      "text": "## 16. Required evidence packet",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 239,
+      "text": "The Board does not vote without:",
+      "classification": "STRUCTURAL_LABEL"
+    },
+    {
+      "line": 241,
+      "text": "1. Three silhouette possibilities.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L241",
+      "authority_segment_id": "AS-L241"
+    },
+    {
+      "line": 242,
+      "text": "2. The selected full-body master.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L242",
+      "authority_segment_id": "AS-L242"
+    },
+    {
+      "line": 243,
+      "text": "3. A face enlargement derived from that same master.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L243",
+      "authority_segment_id": "AS-L243"
+    },
+    {
+      "line": 244,
+      "text": "4. A deterministic 96 px check derived from that same master.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L244",
+      "authority_segment_id": "AS-L244"
+    },
+    {
+      "line": 245,
+      "text": "5. Required psychology record.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L245",
+      "authority_segment_id": "AS-L245"
+    },
+    {
+      "line": 246,
+      "text": "6. Gameplay identity and strongest preserved hook.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L246",
+      "authority_segment_id": "AS-L246"
+    },
+    {
+      "line": 247,
+      "text": "7. Visual lane, art-primary trait, secondary channels, role silhouette, dominant prop/anatomy, protection logic when relevant, and supernatural cost.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L247",
+      "authority_segment_id": "AS-L247"
+    },
+    {
+      "line": 248,
+      "text": "8. Vellum-first style comparison.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L248",
+      "authority_segment_id": "AS-L248"
+    },
+    {
+      "line": 249,
+      "text": "9. Three-nearest-neighbor comparison.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L249",
+      "authority_segment_id": "AS-L249"
+    },
+    {
+      "line": 250,
+      "text": "10. Relevant trait, role, silhouette, palette/material, garment, face/body, species, prop, emotion-family, and 96 px roster boards.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L250",
+      "authority_segment_id": "AS-L250"
+    },
+    {
+      "line": 252,
+      "text": "## 17. Board verdict contract",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 254,
+      "text": "Every reviewer must return explicit `PASS` or `FAIL` for:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L254",
+      "authority_segment_id": "AS-L254"
+    },
+    {
+      "line": 256,
+      "text": "- `PEAK-AGE FIGHTER`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L256",
+      "authority_segment_id": "AS-L256"
+    },
+    {
+      "line": 257,
+      "text": "- `PSYCHOLOGY READS FROM FACE`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L257",
+      "authority_segment_id": "AS-L257"
+    },
+    {
+      "line": 258,
+      "text": "- `FACE AND POSE AGREE`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L258",
+      "authority_segment_id": "AS-L258"
+    },
+    {
+      "line": 259,
+      "text": "- `VILLAIN`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L259",
+      "authority_segment_id": "AS-L259"
+    },
+    {
+      "line": 260,
+      "text": "- `HORROR/THREAT`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L260",
+      "authority_segment_id": "AS-L260"
+    },
+    {
+      "line": 261,
+      "text": "- `SUPERNATURAL COST`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L261",
+      "authority_segment_id": "AS-L261"
+    },
+    {
+      "line": 262,
+      "text": "- `GAMEPLAY IDENTITY`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L262",
+      "authority_segment_id": "AS-L262"
+    },
+    {
+      "line": 263,
+      "text": "- `TRAIT CHANNELS`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L263",
+      "authority_segment_id": "AS-L263"
+    },
+    {
+      "line": 264,
+      "text": "- `96PX READ`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L264",
+      "authority_segment_id": "AS-L264"
+    },
+    {
+      "line": 265,
+      "text": "- `ROSTER-DISTINCT`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L265",
+      "authority_segment_id": "AS-L265"
+    },
+    {
+      "line": 267,
+      "text": "When applicable, reviewers must also return:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L267",
+      "authority_segment_id": "AS-L267"
+    },
+    {
+      "line": 269,
+      "text": "- `HOT ADULT WOMAN`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L269",
+      "authority_segment_id": "AS-L269"
+    },
+    {
+      "line": 270,
+      "text": "- `LEAN/TONED/FEMININE`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L270",
+      "authority_segment_id": "AS-L270"
+    },
+    {
+      "line": 271,
+      "text": "- `FRONTLINE PROTECTION EXPLAINED`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L271",
+      "authority_segment_id": "AS-L271"
+    },
+    {
+      "line": 272,
+      "text": "- `DELIBERATE HORROR EXCEPTION`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L272",
+      "authority_segment_id": "AS-L272"
+    },
+    {
+      "line": 273,
+      "text": "- `BLESSED SPECIAL GATE`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L273",
+      "authority_segment_id": "AS-L273"
+    },
+    {
+      "line": 275,
+      "text": "A concept is not approved with any failed criterion. Final Board approval requires unanimous `READY`, unanimous `PROFESSIONAL`, blocker ledger `NONE`, a cross-examination round that challenges likely false positives, and the user's final approval. Board approval never replaces the user's authority.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L275",
+      "authority_segment_id": "AS-L275"
+    },
+    {
+      "line": 277,
+      "text": "### Machine-readable review enforcement",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 279,
+      "text": "- Start each unit review from `docs/art/unit_art_board_review_template.json`. It contains exactly three independently attributable seats, the full verdict set, visible-face evidence, benchmark-calibrated professional judgments, cross-examination records, derived aggregate fields, and final user-approval provenance.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L279",
+      "authority_segment_id": "AS-L279"
+    },
+    {
+      "line": 280,
+      "text": "- Record `sex_design_category`, `is_frontliner`, `visual_lane`, and `deliberately_horrific` explicitly. Conditional female-attractiveness, protection, horror-exception, and Blessed applicability is derived from those facts; reviewers may not mark an applicable gate `NOT_APPLICABLE`. An applicable gate may honestly return `PASS` or `FAIL`, and any `FAIL` makes that review `NOT_READY`.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L280",
+      "authority_segment_id": "AS-L280"
+    },
+    {
+      "line": 281,
+      "text": "- `deliberately_horrific=true` is valid only with the deliberately horrific humanoid or monster/alien/creature-horror lane. It cannot be used beside an ordinary peak-condition lane to bypass female attractiveness.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L281",
+      "authority_segment_id": "AS-L281"
+    },
+    {
+      "line": 282,
+      "text": "- Bind the criteria, selected master, face enlargement, 96 px check, Board records, and comparison artifacts with SHA-256 provenance. Face and 96 px derivative records must name the selected master's exact hash in `source_master_sha256` and the allowed deterministic derivation method.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L282",
+      "authority_segment_id": "AS-L282"
+    },
+    {
+      "line": 283,
+      "text": "- With `--check-files`, every visual artifact must be a distinct valid PNG, the board check must actually be 96 by 96 pixels, the criteria hash must match the canonical criteria bytes, and all six round-one/cross-examination records must be distinct nonempty JSON artifacts.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L283",
+      "authority_segment_id": "AS-L283"
+    },
+    {
+      "line": 284,
+      "text": "- Each reviewer records all frozen critical professional dimensions with evidence and benchmark comparison. The overall professional band equals the lowest critical dimension; `LOW` evidence confidence cannot support `READY`.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L284",
+      "authority_segment_id": "AS-L284"
+    },
+    {
+      "line": 285,
+      "text": "- Cross-examination uses an explicit `CLEARED` or `BLOCKER_RETAINED` verdict plus a surviving-blocker list. Retained blockers prevent `READY`; prose cannot claim clearance while the structured verdict retains dissent.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L285",
+      "authority_segment_id": "AS-L285"
+    },
+    {
+      "line": 286,
+      "text": "- Final user approval uses structured thread, turn, timestamp, and approval-text-hash provenance. Sentinel text such as `NONE`, `TBD`, or `x` is not approval evidence.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L286",
+      "authority_segment_id": "AS-L286"
+    },
+    {
+      "line": 287,
+      "text": "- Validate the blank template and adversarial controls with:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L287",
+      "authority_segment_id": "AS-L287"
+    },
+    {
+      "line": 288,
+      "text": "  `python tools/art/validate_unit_art_board_review.py --template docs/art/unit_art_board_review_template.json --self-test`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L288",
+      "authority_segment_id": "AS-L288"
+    },
+    {
+      "line": 289,
+      "text": "- Validate every completed record with:",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L289",
+      "authority_segment_id": "AS-L289"
+    },
+    {
+      "line": 290,
+      "text": "  `python tools/art/validate_unit_art_board_review.py --record <record.json> --check-files`",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L290",
+      "authority_segment_id": "AS-L290"
+    },
+    {
+      "line": 291,
+      "text": "- The semantic validator rejects invalid enum values, missing or placeholder psychology and visual evidence, duplicate reviewer identities or evidence records, false applicability, horror-lane mismatch, derivative/source mismatch, wrong criteria bytes, non-image visual evidence, failed gates paired with `READY`, manually false unanimity, unresolved cross-examination or blockers paired with approval, unsupported professional bands, and user approval without a ready Board and structured provenance.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L291",
+      "authority_segment_id": "AS-L291"
+    },
+    {
+      "line": 292,
+      "text": "- The template is one auditable three-seat Board record. Do not collapse three reviewers into one self-attested summary or manually assert aggregate approval.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L292",
+      "authority_segment_id": "AS-L292"
+    },
+    {
+      "line": 294,
+      "text": "## 18. Supersession notice",
+      "classification": "MARKDOWN_HEADING"
+    },
+    {
+      "line": 296,
+      "text": "The earlier Phase 2 approval is reopened. Its evidence remains useful history, but it omitted or contradicted the locked peak-age, hot-adult-woman, lean/toned/feminine, armor-only-when-justified, and face-readable psychology requirements. No prior unit concept is grandfathered past this standard.",
+      "classification": "PACKET_CRITERION",
+      "criterion_id": "UA-L296",
+      "authority_segment_id": "AS-L296"
+    }
+  ],
+  "entries_sha256": "5b70d61ed5035a85441a751805b313ccb30facb983dc50ae0d11e51814f72bcc"
+}

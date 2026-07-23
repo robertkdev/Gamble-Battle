@@ -1,0 +1,249 @@
+{
+  "schema_version": "2.0.0",
+  "record_kind": "unit_art_board_review",
+  "record_status": "TEMPLATE",
+  "authority": "docs/art/unit_art_board_reference_criteria.md",
+  "criteria_version": "2026-07-21-v1",
+  "criteria_sha256": null,
+  "board_lineage_id": null,
+  "unit": {
+    "id": null,
+    "name": null,
+    "combat_role": null,
+    "is_frontliner": null,
+    "sex_design_category": null,
+    "visual_lane": null,
+    "deliberately_horrific": null,
+    "art_primary_trait": null,
+    "secondary_trait_channels": [],
+    "gameplay_identity": null,
+    "strongest_preserved_hook": null,
+    "dominant_prop_or_anatomy": null,
+    "protection_logic": null,
+    "supernatural_cost": null,
+    "villain_emotion_family": null
+  },
+  "psychology": {
+    "core_wound": null,
+    "private_want": null,
+    "primary_fear": null,
+    "survival_strategy": null,
+    "villainous_distortion": null,
+    "current_emotional_state": null,
+    "emotional_contradiction": null,
+    "face_direction": null,
+    "pose_direction": null,
+    "forbidden_read": null
+  },
+  "evidence": {
+    "silhouette_triptych": {
+      "path": null,
+      "sha256": null,
+      "media_type": "image/png",
+      "option_labels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "selected_option": null
+    },
+    "selected_full_body_master": {
+      "path": null,
+      "sha256": null,
+      "media_type": "image/png"
+    },
+    "derived_face_enlargement": {
+      "path": null,
+      "sha256": null,
+      "media_type": "image/png",
+      "source_master_sha256": null,
+      "derivation_method": "crop_and_scale_only"
+    },
+    "derived_96px_check": {
+      "path": null,
+      "sha256": null,
+      "media_type": "image/png",
+      "source_master_sha256": null,
+      "derivation_method": "deterministic_containment_only",
+      "width": 96,
+      "height": 96
+    },
+    "vellum_first_comparison": {
+      "path": null,
+      "sha256": null,
+      "media_type": "image/png"
+    },
+    "three_nearest_neighbors": [],
+    "roster_comparison_boards": []
+  },
+  "reviews": [
+    {
+      "seat": "A",
+      "reviewer_id": null,
+      "independent_round_one_record": {
+        "path": null,
+        "sha256": null,
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": null,
+        "psychology_reads_from_face": null,
+        "face_and_pose_agree": null,
+        "villain": null,
+        "horror_threat": null,
+        "supernatural_cost": null,
+        "gameplay_identity": null,
+        "trait_channels": null,
+        "read_96px": null,
+        "roster_distinct": null,
+        "hot_adult_woman": null,
+        "lean_toned_feminine": null,
+        "frontline_protection_explained": null,
+        "deliberate_horror_exception": null,
+        "blessed_special_gate": null
+      },
+      "visible_face_evidence": {
+        "feeling": null,
+        "want": null,
+        "fear_or_concealment": null,
+        "active_survival_strategy": null,
+        "villainous_read": null,
+        "cited_visual_cues": null
+      },
+      "professional_standard": {
+        "band": null,
+        "evidence_confidence": null,
+        "benchmark_comparison": null,
+        "critical_dimensions": [],
+        "rejection_case": null,
+        "excellence_gap": null
+      },
+      "blockers": [],
+      "readiness": null,
+      "cross_examination": {
+        "record_path": null,
+        "record_sha256": null,
+        "record_media_type": "application/json",
+        "verdict": null,
+        "surviving_blockers": [],
+        "outcome": null,
+        "protected_dissent": null
+      }
+    },
+    {
+      "seat": "B",
+      "reviewer_id": null,
+      "independent_round_one_record": {
+        "path": null,
+        "sha256": null,
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": null,
+        "psychology_reads_from_face": null,
+        "face_and_pose_agree": null,
+        "villain": null,
+        "horror_threat": null,
+        "supernatural_cost": null,
+        "gameplay_identity": null,
+        "trait_channels": null,
+        "read_96px": null,
+        "roster_distinct": null,
+        "hot_adult_woman": null,
+        "lean_toned_feminine": null,
+        "frontline_protection_explained": null,
+        "deliberate_horror_exception": null,
+        "blessed_special_gate": null
+      },
+      "visible_face_evidence": {
+        "feeling": null,
+        "want": null,
+        "fear_or_concealment": null,
+        "active_survival_strategy": null,
+        "villainous_read": null,
+        "cited_visual_cues": null
+      },
+      "professional_standard": {
+        "band": null,
+        "evidence_confidence": null,
+        "benchmark_comparison": null,
+        "critical_dimensions": [],
+        "rejection_case": null,
+        "excellence_gap": null
+      },
+      "blockers": [],
+      "readiness": null,
+      "cross_examination": {
+        "record_path": null,
+        "record_sha256": null,
+        "record_media_type": "application/json",
+        "verdict": null,
+        "surviving_blockers": [],
+        "outcome": null,
+        "protected_dissent": null
+      }
+    },
+    {
+      "seat": "C",
+      "reviewer_id": null,
+      "independent_round_one_record": {
+        "path": null,
+        "sha256": null,
+        "media_type": "application/json"
+      },
+      "verdicts": {
+        "peak_age_fighter": null,
+        "psychology_reads_from_face": null,
+        "face_and_pose_agree": null,
+        "villain": null,
+        "horror_threat": null,
+        "supernatural_cost": null,
+        "gameplay_identity": null,
+        "trait_channels": null,
+        "read_96px": null,
+        "roster_distinct": null,
+        "hot_adult_woman": null,
+        "lean_toned_feminine": null,
+        "frontline_protection_explained": null,
+        "deliberate_horror_exception": null,
+        "blessed_special_gate": null
+      },
+      "visible_face_evidence": {
+        "feeling": null,
+        "want": null,
+        "fear_or_concealment": null,
+        "active_survival_strategy": null,
+        "villainous_read": null,
+        "cited_visual_cues": null
+      },
+      "professional_standard": {
+        "band": null,
+        "evidence_confidence": null,
+        "benchmark_comparison": null,
+        "critical_dimensions": [],
+        "rejection_case": null,
+        "excellence_gap": null
+      },
+      "blockers": [],
+      "readiness": null,
+      "cross_examination": {
+        "record_path": null,
+        "record_sha256": null,
+        "record_media_type": "application/json",
+        "verdict": null,
+        "surviving_blockers": [],
+        "outcome": null,
+        "protected_dissent": null
+      }
+    }
+  ],
+  "approval": {
+    "derived_all_required_gates_pass": null,
+    "derived_unanimous_ready": null,
+    "derived_unanimous_professional": null,
+    "blocker_ledger": [],
+    "board_status": null,
+    "user_approved": null,
+    "user_approval_provenance": null
+  }
+}
