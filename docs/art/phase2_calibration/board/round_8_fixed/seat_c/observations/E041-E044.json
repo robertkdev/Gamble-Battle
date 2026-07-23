@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E041",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_master.png",
+      "sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A mature woman with tied-back dark hair and scar lines across her face stands in a braced wide stance while shouldering a long scoped rifle wrapped with pale bands.",
+        "She wears a dark high-collared long coat, gloves, crossing straps, belt pouches, hanging cloth panels, fitted trousers, and tall laced boots.",
+        "The long barrel, supported fore-end, trigger hand, squared shoulders, and planted feet make a ranged combat role immediately visible."
+      ],
+      "defects": [
+        "Her eyes look sideways above and past the scope rather than through its eyepiece or along the rifle's target line, separating facial attention from the weapon aim.",
+        "The all-dark leather coat, straps, gloves, pouches, trousers, boots, and hanging panels form a familiar gothic gunslinger or sniper costume.",
+        "The rifle and practical stance communicate profession but show little visible supernatural alteration, bodily consequence, or unusual fighting method.",
+        "The calm expression and conventional military aim can read as disciplined mercenary or protagonist rather than a distinctly villainous figure."
+      ],
+      "uncertainties": [
+        "The image does not reveal whether the pale rifle wrappings are repairs, seals, ritual bindings, or ordinary cloth.",
+        "The facial scars could be mundane combat history or supernatural cost; there is no visible reaction or transformation around them.",
+        "The gaze may be scanning a second target, but no environment or opponent confirms that intent."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E042",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png",
+      "sha256": "2e993051ed5896dcba336a8d1223b335bb26d88cfee7ec1e6e8c42cbc1928fac",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates show a standing side-on rifle aim, a narrow upright frontal pose holding the rifle vertically, and a low kneeling or running aim.",
+        "The poses vary stance height, target direction, and rifle orientation while preserving the same long-gun role and slim coated body."
+      ],
+      "defects": [
+        "The long rifle supplies nearly all distinctive outer shape; the underlying body remains a conventional slim human shooter.",
+        "The centered vertical candidate hides the weapon's length behind the body and becomes a highly symmetrical column.",
+        "The left and right candidates are familiar standing and kneeling firing silhouettes without another anatomical or supernatural hook."
+      ],
+      "uncertainties": [
+        "The image provides no A, B, C labels or explicit selected-candidate marker.",
+        "Solid black treatment cannot show whether coat panels, rifle bindings, or secondary equipment add meaningful identity inside the contour."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E043",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_face.png",
+      "sha256": "e458e5ade5faef9e53d89fa8b4c8ab7f8d4f6f9ce7fec586ab5a8f13c0ad2f50",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The face turns slightly toward the rifle while the eyes glance laterally past the weapon, the brows remain mostly level, and the lips are closed with one corner faintly lifted or compressed.",
+        "Loose dark hair, several thin facial scars, black gloves, the stock, receiver, and scope frame the face."
+      ],
+      "defects": [
+        "The eyes do not align with the scope or barrel, making the current target and readiness to fire ambiguous.",
+        "The restrained mouth and lightly narrowed gaze communicate generic concentration or cool confidence more than a specific emotional contradiction.",
+        "The scars are visible but do not alter expression, posture, or weapon handling in a way that exposes their consequence."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether she is tracking another threat, checking surroundings, hesitating, or simply posing beside the rifle.",
+        "The faint mouth asymmetry could indicate contempt, confidence, or neutrality."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E044",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_96px.png",
+      "sha256": "80300a8eafa13238354b89354d5be267c8c40698af2666d29093d70027b3f923",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the long horizontal rifle, pale fore-end wrappings, head, wide legs, boots, and long hanging coat panels remain visible.",
+        "The weapon creates a strong left-to-right role silhouette that extends beyond the body."
+      ],
+      "defects": [
+        "The face, scars, eye direction, scope construction, garment layers, pouches, and most rifle detail collapse at this size.",
+        "Dark hair, coat, trousers, boots, and background merge through the central body.",
+        "The surviving read is a generic long-rifle shooter, with little supernatural or personal identity retained."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and aim clarity cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

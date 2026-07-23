@@ -1,0 +1,103 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E037",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_master.png",
+      "sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A lean athletic mature woman with dark hair in a loose high bun stands barefoot in a wide dancer-like stance, wearing wrapped cropped fabric across the chest and fitted plum trousers.",
+        "A pale geometric lattice covers her face and exposed skin; several translucent filament lines appear to extend from the raised forearm and sweep diagonally across the body toward the floor.",
+        "The long limb lines, open hands, asymmetrical balance, and filaments create a graceful mobile-caster presentation."
+      ],
+      "defects": [
+        "The open palms, lifted heel, relaxed shoulders, and flowing stance read as dance or controlled demonstration more strongly than a hostile attack.",
+        "The translucent filaments are extremely thin and do not visibly bind, cut, pull, or connect to a target, making their combat function unclear.",
+        "The skin lattice behaves like a uniform surface overlay, with no visible deformation, pain, or bodily consequence.",
+        "The fitted wrap top, high-waisted trousers, bare feet, slim body, and elegant pose form a familiar attractive mystic or dancer template."
+      ],
+      "uncertainties": [
+        "The image does not establish whether the filaments emerge from the skin, are held, are projected, or simply pass in front of the arm.",
+        "The lattice could be scarring, tattoos, crystalline skin, magical projection, or decorative pattern.",
+        "No target or impact point clarifies what the extended hand is doing."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E038",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+      "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three labeled candidates show the same high-bun woman with a horizontal thread between open hands and hanging triangular cloth, a wide diagonal stance with thread lines from the raised palm to the floor, and an upright pose with a large faceted skirt or shield mass and a thread crossing the upper body.",
+        "The candidates vary stance, hand direction, garment mass, and thread path while retaining a slim hourglass body and bun silhouette."
+      ],
+      "defects": [
+        "The key thread structures are rendered as thin light lines rather than robust outer silhouette and would disappear before the body shapes.",
+        "The first two candidates retain nearly the same slim dancer body, changing gesture and cloth placement more than anatomy or combat profile.",
+        "The third candidate introduces a large faceted lower-body mass that implies a different material and protection logic from the first two.",
+        "None of the thread lines visibly terminates in a target, weight, or captured object."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly state which candidate was selected.",
+        "It is unclear whether the large faceted mass in C is clothing, armor, a shield, crystal, or an external effect."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E039",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_face.png",
+      "sha256": "37f23d9ad7c8c0628c429a129b6bcd37a46c080fc33d36f3a9fae97aaf3e5c24",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The head turns toward the raised arm while the eyes glance sideways, one brow sits slightly higher, and the closed lips carry a faint upward curve.",
+        "Loose dark hair frames a conventionally attractive adult face crossed by the same pale geometric lattice seen over the shoulder and arm."
+      ],
+      "defects": [
+        "The sideways glance, softened eyelids, relaxed jaw, and small smile read as coyness, calm amusement, or poised self-confidence.",
+        "There is little visible fear, strain, predatory focus, anger, or conflict in the brow, mouth, cheeks, or head angle.",
+        "The face shows no visible reaction to the extensive skin lattice or the filament passing near the arm."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether she is watching a target, admiring the filament, acknowledging an ally, or posing.",
+        "The lattice's relationship to her identity or physical condition remains unresolved."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E040",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+      "sha256": "c814224f662e9563b12f3382522970fcfee4e7a26f85ec81cf2daacae7531369",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the high bun, raised hand, long diagonal arm, wide separated legs, cropped top, and one pale diagonal filament remain visible.",
+        "The stretched dancer-like pose provides the principal recognizable shape."
+      ],
+      "defects": [
+        "The face, eye direction, skin lattice, individual filament strands, garment details, feet, and hand articulation collapse at this size.",
+        "The dark hair, top, trousers, and background merge through the torso and legs.",
+        "The surviving outline reads as a generic dancer or martial caster, with little visible threat or supernatural consequence."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and filament visibility cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

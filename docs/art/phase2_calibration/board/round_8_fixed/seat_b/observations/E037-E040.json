@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E037",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_master.png",
+      "sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A mature lean athletic woman stands in a very wide dancer-like stance, wearing plum fitted trousers, a crossed blue-purple wrap top exposing the waist, and thin foot wraps instead of boots.",
+        "Pale geometric lines cover her face and body; several translucent thread-like strands extend from the open raised hand, cross the torso diagonally, and arc down past the opposite leg.",
+        "Her head and eyes turn toward the extended hand while the other hand opens low behind her, creating poised balance and controlled manipulation of the strands."
+      ],
+      "strengths": [
+        "Adult femininity, a toned body, long balanced stance, open hands, colorful cloth, and restrained exposed skin produce an attractive but combat-capable movement identity.",
+        "The diagonal threads connect hand action, torso, and lower-body space into one clear ability line rather than floating independently.",
+        "Plum and blue fabrics add individual color while remaining muted and materially soft."
+      ],
+      "defects": [
+        "The upright dance pose, clean bare feet, graceful open hands, and translucent ribbons communicate performance or elegant spell practice more strongly than hostile combat intent.",
+        "The body-wide pale lattice can read as decorative tattooing or costume surface design because it does not visibly constrain, wound, or distort her.",
+        "The wrapped crop top, fitted trousers, bun, and graceful thread magic form a familiar modern-fantasy dancer or mobile-game caster vocabulary before a specific culture or survival history appears."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the strands cut, bind, control, heal, or merely visualize movement.",
+        "The pale lattice may be a supernatural consequence, body paint, scars, or projected geometry; its effect is not visually certain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E038",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+      "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three alternatives retain a tall feminine figure with a high hair bun while exploring a frontal stance with a horizontal thread and hanging sleeve panels, a deep martial lunge crossed by two diagonal strands, and an upright pose with a large faceted lower-body mass plus a thread stretched from shoulder to hand.",
+        "The candidates vary stance, garment volume, strand direction, negative space, and whether crystalline geometry becomes a major body silhouette."
+      ],
+      "strengths": [
+        "Candidate B provides a clear action line through the lunge and diagonal strands, while candidate C makes the faceted lower body a materially different dominant shape.",
+        "The open hands and stretched lines consistently preserve a manipulation or weaving premise."
+      ],
+      "defects": [
+        "Candidate A is largely a conventional symmetrical dancer with a thin horizontal line, and candidate B still depends on strands that contribute little filled silhouette mass.",
+        "Candidate C's large faceted shape obscures leg anatomy and appears disconnected from the lighter thread idea, making the three alternatives feel like different effect packages around one body rather than one resolved construction."
+      ],
+      "uncertainties": [
+        "The sheet does not clarify whether the crystal-like lower mass and hanging panels are anatomy, clothing, summoned material, or transient effects."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E039",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_face.png",
+      "sha256": "37f23d9ad7c8c0628c429a129b6bcd37a46c080fc33d36f3a9fae97aaf3e5c24",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "An attractive adult face turns sharply toward the extended arm with eyes glancing sideways, one brow slightly lifted, lips closed in a faint asymmetric smile, chin level, and neck held long and controlled.",
+        "Pale lattice marks cross the forehead, cheeks, nose, shoulders, and arm, while the hand-directed body posture keeps her attention aligned with the visible strand action."
+      ],
+      "strengths": [
+        "Sideward eye focus, restrained mouth asymmetry, and head direction communicate deliberate concentration and awareness rather than a forward-facing beauty portrait.",
+        "The face and extended-arm pose agree on controlled attention toward the same off-frame point."
+      ],
+      "defects": [
+        "The faint smile and relaxed cheeks read as calm confidence or graceful performance, without visible hostility, fear, compulsion, shame, or strain.",
+        "The lattice does not alter facial tension, so it carries little psychological consequence and remains close to decorative pattern."
+      ],
+      "uncertainties": [
+        "The unaided expression could indicate satisfaction, caution, curiosity, calculation, or simple focus; the target and hidden emotional stakes are not decisive."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E040",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+      "sha256": "c814224f662e9563b12f3382522970fcfee4e7a26f85ec81cf2daacae7531369",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the high bun, exposed shoulders, raised open hand, wide plum-clad legs, low opposite hand, and one pale diagonal strand remain visible.",
+        "Facial eye direction, body lattice, fabric embroidery, individual threads, foot wraps, and most hand articulation disappear."
+      ],
+      "strengths": [
+        "The wide leg stance and long diagonal strand preserve an active, balanced caster or dancer silhouette.",
+        "Plum trousers and exposed skin separate more clearly than an all-black costume against the dark background."
+      ],
+      "defects": [
+        "The single surviving strand resembles a staff, ribbon, or slash line, while the thread-manipulation mechanism and body markings do not remain legible.",
+        "The reduced figure reads as a graceful martial caster without retaining the specific facial attention or supernatural alteration."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would read the strand as a controlled weapon, an effect passing in front of her, or a separate held object."
+      ],
+      "contamination": []
+    }
+  ]
+}

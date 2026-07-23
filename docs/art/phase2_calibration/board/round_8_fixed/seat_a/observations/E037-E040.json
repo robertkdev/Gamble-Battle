@@ -1,0 +1,93 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E037",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_master.png",
+      "sha256": "9436100617222f3f5500715c156793f11b0282cdc95b6b3f767aed2e38b7f836",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature, lean athletic woman stands barefoot in a very wide balanced stance wearing a wrapped teal-and-plum cropped top and fitted high-waisted purple trousers.",
+        "Fine pale lattice lines cover the face, torso, arms, and feet, while several brighter translucent strands wrap the extended viewer-left forearm and sweep diagonally across the whole body toward the opposite foot.",
+        "The viewer-left palm opens upward and outward while the other hand stays low with spread fingers; the torso twist and lifted heel create controlled dancer-like or martial balance.",
+        "Her head turns toward the extended hand rather than toward the viewer, linking eye line and body attention to the strand-bearing arm."
+      ],
+      "defects": [
+        "The luminous strands are very thin and mostly cross the body as lines rather than forming a clear contact, restraint, projectile, or target.",
+        "The wide graceful stance and open hands can read as dance or presentation as readily as imminent combat.",
+        "The dark trousers and background merge through parts of both legs, leaving bare skin and strands to carry most of the separation."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the lattice is tattoo, scar, skin fracture, woven restraint, or projected magic.",
+        "The purpose of the diagonal strands remains ambiguous between weapon, binding, instrument, or decorative effect."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E038",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_silhouettes.png",
+      "sha256": "9c296d0bba1346d259108ba0a0d238aaeea56af6e822cd2f84658f98b05b6271",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three silhouettes retain a feminine tied-up-hair body while varying the strand construct: a frontal figure holding one horizontal line between both hands with hanging triangular panels, a deep side lunge crossed by diagonal strands, and an upright figure beside a large angular shield- or web-like mass.",
+        "The middle candidate most closely matches the master's wide lunge, extended forward palm, diagonal lines, and fitted body silhouette.",
+        "The alternatives materially change stance and the large geometric form carried by the strands, while keeping the same general humanoid body and hair treatment."
+      ],
+      "defects": [
+        "In the selected middle candidate the defining diagonal strands are hairline marks rather than outer contour, so the body alone reads as a conventional unarmed martial pose.",
+        "The selected candidate provides less solid prop mass than the hanging panels or angular shield alternatives."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E039",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_face.png",
+      "sha256": "37f23d9ad7c8c0628c429a129b6bcd37a46c080fc33d36f3a9fae97aaf3e5c24",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows a mature conventionally attractive face turned toward the extended arm, with eyes tracking sideways, one brow slightly lowered, relaxed cheeks, and closed lips curved into a restrained asymmetric smile.",
+        "The sideways gaze and small smile suggest private confidence, appraisal, or satisfaction rather than exertion or visible fear.",
+        "Fine lattice lines cross the forehead, eyelids, cheeks, nose, neck, and shoulder without visibly disrupting her composure."
+      ],
+      "defects": [
+        "The subtle half-smile and smooth facial tension can read as a polished beauty portrait without the off-frame strand action.",
+        "No visible strain, fear response, or aggressive compression specifies a survival pressure or immediate hostile intent."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot distinguish whether she is controlling a target, admiring her own work, inviting someone closer, or simply posing."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E040",
+      "locator": "assets/concepts/phase2_calibration/luna/luna_96px.png",
+      "sha256": "c814224f662e9563b12f3382522970fcfee4e7a26f85ec81cf2daacae7531369",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the wide athletic stance, raised open hand, dark cropped top, purple legs, and bright diagonal strand remain recognizable.",
+        "The diagonal line is the strongest role cue and makes the pose read as manipulating a taut thread or energy line rather than simply standing.",
+        "Facial expression, skin lattice, hair detail, garment embroidery, finger positions, and multiple-strand construction collapse below reliable recognition."
+      ],
+      "defects": [
+        "The strand reduces to one pale diagonal stroke, obscuring its material and whether it is attached, projected, or held.",
+        "The face and supernatural skin treatment are not independently readable at native size."
+      ],
+      "uncertainties": [
+        "The thumbnail preserves agile strand-user identity but not the direction, target, or cost of the action."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

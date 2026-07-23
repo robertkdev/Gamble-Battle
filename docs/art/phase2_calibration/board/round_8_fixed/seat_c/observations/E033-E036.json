@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E033",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_master.png",
+      "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A very large bald muscular man stands in a wide braced stance, projecting an enlarged armored fist and forearm toward the viewer while keeping the other hand clenched at his side.",
+        "Dark geometric tattoos or incisions cover his scalp, face, neck, arms, and exposed skin; layered black shoulder pieces, ragged waist cloth, heavy trousers, wraps, and reinforced boots cover the rest.",
+        "The foreshortened giant fist, powerful body, grounded legs, and direct gaze make a close-range bruiser action immediately visible."
+      ],
+      "defects": [
+        "The bald giant, extreme musculature, oversized fist, dark wraps, and wide stance follow a familiar heavy-brawler template.",
+        "Dense repeated tattoo, leather, rivet, swirl, and patch textures cover nearly every surface, reducing hierarchy between skin, anatomy, armor, cloth, and weapon.",
+        "The enlarged forearm mixes pale flesh-like folds, metal straps, plates, symbols, and knuckles without clearly showing whether it is anatomy, armor, machinery, or all three.",
+        "The face's exposed teeth and lifted mouth corner can read as a confident grin or friendly challenge rather than unequivocal hostility."
+      ],
+      "uncertainties": [
+        "The image does not establish whether the enlarged arm is a prosthetic, mutation, gauntlet, transformation, or ordinary equipment.",
+        "The visible marks could be tattoos, scars, engraved armor-like skin, or supernatural writing; the body shows no clear reaction to them.",
+        "The bald head and facial creasing suggest mature age, but the degree of age versus species or surface patterning is unresolved."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E034",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+      "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates show the same broad bald humanoid with a massive arm ending in an enlarged clenched fist, a long conical drill-like point, and a short cylindrical barrel or ram.",
+        "The poses change from planted frontal display to hunched charge and upright advance, while the oversized arm remains the dominant asymmetry."
+      ],
+      "defects": [
+        "The body plan and heavy garment mass remain nearly unchanged; most exploration is confined to swapping the enlarged arm's endpoint.",
+        "The arm is so large in every candidate that it obscures torso orientation and makes the free arm secondary.",
+        "The fist, drill, and barrel imply materially different combat mechanisms without another visible feature connecting them as one stable identity."
+      ],
+      "uncertainties": [
+        "The image provides no A, B, C labels or explicit selected-candidate marker.",
+        "White internal outlines reveal weapon details that would not survive as part of a pure black outer silhouette."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E035",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_face.png",
+      "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The face turns toward the viewer with direct eyes, one brow more compressed than the other, a furrowed forehead, set jaw, and one mouth corner lifted to expose teeth.",
+        "Geometric markings cover the bald scalp, cheeks, nose, jaw, and neck; the enlarged marked arm occupies the lower foreground."
+      ],
+      "defects": [
+        "The asymmetrical mouth and direct gaze communicate confidence or taunting, but they can also read as a casual grin.",
+        "The facial markings are dense enough to compete with brow, cheek, and jaw contours used to read expression.",
+        "The face shows no visible pain, exhaustion, fear, or loss of control in relation to the drastically enlarged arm."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot distinguish menace, amusement, contempt, pain, or competitive excitement in the exposed-teeth expression.",
+        "It is unclear whether the facial marks are voluntary decoration or a bodily consequence."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E036",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+      "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the bald head, broad shoulders, wide legs, heavy boots, and oversized pale fist projected across the torso remain visible.",
+        "The enlarged fist is the clearest focal shape against the dark body and background."
+      ],
+      "defects": [
+        "The face, tattoos, material distinctions, knuckle construction, garment layers, and smaller clenched hand collapse at this size.",
+        "Dark cloak, torso, trousers, boots, and background merge into a broad generic heavy-body silhouette.",
+        "The surviving read is an oversized-fist bruiser with little of the specific arm construction or facial identity retained."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and attack direction cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

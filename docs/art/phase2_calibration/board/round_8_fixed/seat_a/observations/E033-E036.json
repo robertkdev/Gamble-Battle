@@ -1,0 +1,92 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E033",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_master.png",
+      "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature, heavily muscled bald man plants his feet wide while thrusting an enormously enlarged viewer-left forearm and armored fist horizontally across his body toward the viewer.",
+        "The transformed arm is pale, swollen, deeply ridged, and bound under multiple dark straps and segmented knuckle plates, making bodily deformation and imposed reinforcement directly visible.",
+        "Dense tattoo-like or scar-like markings cover the scalp, face, normal arm, and exposed transformed flesh; dark layered shoulder wraps, loose trousers, and reinforced boots frame the pale arm as the focal weapon.",
+        "The torso twists behind the fist, the normal hand stays clenched, and the broad stance supports a close-range impact action."
+      ],
+      "defects": [
+        "The transformed arm contains dense repeated ridges, straps, rivets, plates, markings, and folds at similar scale, making its internal construction difficult to parse quickly.",
+        "The extreme foreground fist hides much of the torso and the arm-to-shoulder transition, limiting clarity about the full deformation.",
+        "Most clothing and background values are dark, so the body outside the pale arm separates weakly."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the enlarged arm is permanent anatomy, active transformation, grafted material, or armor grown over flesh."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E034",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+      "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three silhouettes retain the same very broad humanoid body while varying the transformed arm into a huge blocky fist held forward, a long conical drill-like forearm used in a charge, and a compact rounded layered fist held beside an upright walk.",
+        "The left candidate most closely resembles the master's large armored knuckle block and wide grounded stance, although the master's fist crosses the torso more horizontally.",
+        "The three arm shapes produce distinct outer contours and imply impact, piercing, and compact carrying behaviors."
+      ],
+      "defects": [
+        "The alternatives keep nearly the same bald heavy humanoid body and change primarily the oversized limb and locomotion pose.",
+        "In every candidate the transformed arm dominates the outer silhouette enough that head, torso, and normal arm contribute limited secondary identity."
+      ],
+      "uncertainties": [
+        "The alternatives are not lettered or marked as selected; selection is inferred from resemblance to the master."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E035",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_face.png",
+      "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows direct eye contact beneath compressed brows, one eye slightly more narrowed, a raised upper lip, visible teeth, a loaded jaw, and a slight forward head turn.",
+        "The expression combines confrontation with a small uneven grin, suggesting challenge, confidence, or enjoyment of impending force rather than pain from the transformed arm.",
+        "Scalp and facial markings continue into the neck while the enormous pale arm blocks the lower frame, binding the face to the physical threat."
+      ],
+      "defects": [
+        "The teeth-bearing half-grin can read as a familiar tough-bruiser expression without specifying a more individual want or fear.",
+        "The transformed arm obscures body posture below the shoulders, so face-and-body agreement depends mainly on the visible twist and brow tension."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot distinguish whether the expression is intimidation, pain-masking bravado, anger, or anticipation."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E036",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+      "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the broad planted body, bald head, massive pale horizontal forearm, and large armored fist remain immediately distinguishable.",
+        "The pale transformed arm supplies the dominant contrast against dark clothing and background, preserving a heavy melee-bruiser read.",
+        "Facial expression, tattoos, flesh ridges, straps, rivets, garment layers, and individual knuckle plates collapse below reliable recognition."
+      ],
+      "defects": [
+        "The fist and forearm merge into one light block, obscuring the exact hand anatomy and reinforcement logic.",
+        "The dark legs and shoulder wraps lose separation from the background, leaving the transformed arm to carry most of the identity."
+      ],
+      "uncertainties": [
+        "The thumbnail communicates impact strength but not the bodily cost or source of the arm transformation."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

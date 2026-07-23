@@ -1,0 +1,94 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E045",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+      "sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A very large low biomechanical crustacean or arachnid stands on numerous segmented hooked legs beneath a broad plated carapace.",
+        "An open rib-cage structure exposes a large central heart connected by red-brown tubes, while a separate enormous viewer-right pincer contains another smaller heart-like organ and rows of internal teeth.",
+        "Bone-colored plates and joints bind dense dark muscle bundles, cables, ribs, claws, and root-like fibers into one bodily machine rather than conventional worn equipment.",
+        "The low stance, many planted points, sharp limb tips, and open toothed pincer create an immediate crushing or dismembering threat."
+      ],
+      "defects": [
+        "The body contains extremely dense ribs, cables, plates, fibers, joints, teeth, and organs at similar visual scale, making anatomy and locomotion difficult to parse quickly.",
+        "No distinct head, eyes, mouth, or forward-facing sensory structure establishes where the creature is looking or which body end directs behavior.",
+        "The huge pincer and exposed heart compete as separate focal centers, while the many secondary limbs form a crowded dark mass."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the pincer organ is a second heart, a captured organ, an egg, or a separate symbiote.",
+        "The central exposed heart could be a vulnerability, control organ, lure, or simply the creature's main torso."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E046",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
+      "sha256": "56ce1848f5ad23269aacac4c4e2d6cb62a913c50ee89a35725041124cf6ebeb0",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three materially different nonhuman silhouettes are shown: a very tall suspended rib-cage body on three narrow limbs, a low many-legged crawler with one huge horizontal pincer, and an upright armored crustacean with two long scythe arms.",
+        "The middle candidate matches the master's low radial stance, open rib center, many hooked legs, and dominant viewer-right pincer.",
+        "The alternatives change height, locomotion, limb count, weapon arrangement, and center of mass rather than merely changing pose."
+      ],
+      "defects": [
+        "The selected middle silhouette has heavy overlap among many legs beneath the carapace, creating a dense center where individual supports are hard to count.",
+        "The pincer occupies nearly half of the selected silhouette's width and can read as a separate creature or head attached to the body."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E047",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+      "sha256": "66b820d7ffdd5d812a4c59c45eb72cb08289188cc1ece9bfcc8cabc19f64ffb0",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop centers on the rib cage, exposed heart, torso plates, cables, and portions of several legs; no eye, brow, mouth, head, or other unambiguous face is visible.",
+        "The exposed heart is wrapped by bone ribs and connected to many tubes, making internal compulsion, vulnerability, or forced animation visually prominent.",
+        "All visible appendages angle around the torso rather than pointing toward a common target, so attention is distributed through body structure rather than a gaze."
+      ],
+      "defects": [
+        "The attention crop provides no direct facial or gaze evidence from which an immediate emotion, want, fear, or target can be read.",
+        "Dense ribs and cords partially obscure the heart boundary and the leg-to-torso connections."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the visible heart is also a sensory or decision-making organ.",
+        "No nonhuman attention mechanism is clearly distinguished from ordinary exposed anatomy in this crop."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E048",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+      "sha256": "499360ffa361177890e8632c64ecd5ade92d9d45c15b1a74decb3703d7a7d050",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the broad low carapace, many legs, round ribbed torso, exposed central organ, and huge viewer-right pincer remain recognizable.",
+        "The pale outer plates and pincer separate from the dark body and background, preserving a large armored crawler silhouette.",
+        "Individual ribs, cables, teeth, limb joints, smaller organ, surface wear, and exact leg count collapse below reliable recognition."
+      ],
+      "defects": [
+        "The body center and legs merge into a dark cluster, obscuring locomotion and anatomy.",
+        "The pincer remains clear but the lack of a head or gaze leaves facing and attention ambiguous at native size."
+      ],
+      "uncertainties": [
+        "The thumbnail establishes a pincer-bearing monster but not whether the visible central spot is a heart, eye, face, weak point, or ornament."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

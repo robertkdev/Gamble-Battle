@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E045",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+      "sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A huge low crab- or spider-like creature is assembled from exposed dark muscle cables, bone-colored shell plates, rib cages, multiple jointed legs, and a massive forward pincer shaped like an open toothed jaw.",
+        "A large raw heart hangs visibly inside the open central rib cage, and a second smaller heart-like organ sits inside the giant pincer among tendons, teeth, and curved shell blades.",
+        "The body leans toward the pincer, with many ground contacts, pointed feet, exposed organs, and layered cutting surfaces creating immediate predatory pressure."
+      ],
+      "strengths": [
+        "The heart-in-rib-cage torso, organ-bearing jaw pincer, many-legged low stance, and skeletal shell create a highly specific nonhuman body plan and attack method.",
+        "Threat and bodily cost are inseparable from the anatomy: vital organs are exposed and mechanically connected throughout the creature.",
+        "Dry shell, raw red cords, rigid ribs, dark cavities, teeth, and scarred organs provide a coherent hostile material system without decorative clothing or floating effects."
+      ],
+      "defects": [
+        "Ribs, cables, tendons, plates, joints, teeth, and repeated skeletal arcs fill nearly every region at similar detail density, making the exact hierarchy of torso, limbs, and pincer mechanics difficult to parse.",
+        "The giant pincer and central cage compete as simultaneous focal points, while several rear and lower legs merge into an unreadable dark undercarriage.",
+        "The creature's current attention is not directed by eyes, head, or a clearly oriented sensing structure; hostility comes from anatomy rather than visible target fixation."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine which structure is the head or controlling organ, how many functional legs are present, or whether the pincer heart senses, feeds, or powers the weapon.",
+        "The exact locomotion path and attack arc are obscured by overlapping limbs and shell."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E046",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
+      "sha256": "56ce1848f5ad23269aacac4c4e2d6cb62a913c50ee89a35725041124cf6ebeb0",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black alternatives show a tall oval rib-cage body on three or four long blade legs, a low many-legged crab body with an exposed central cavity and enormous jaw pincer, and a tall arched quadruped enclosed by several long scythe-like limbs.",
+        "The candidates materially change height, body orientation, leg count, dominant weapon, negative space, and the relationship between exposed organs and shell."
+      ],
+      "strengths": [
+        "Candidate A is a severe vertical cage, candidate B a broad asymmetric crustacean predator, and candidate C an upright scything frame; each is a genuinely different creature silhouette.",
+        "Candidate B combines low locomotion, a visible heart cavity, many small legs, and one giant lateral pincer into the most information-rich combat outline."
+      ],
+      "defects": [
+        "Candidate A's internal cables and ribs dominate more than its exterior anatomy, while candidate C's multiple scythe arcs overlap into a dark shell and conceal the organ premise.",
+        "Candidate B contains numerous similar legs beneath a dense torso, reducing clarity in the lower silhouette despite the strong pincer."
+      ],
+      "uncertainties": [
+        "The sheet does not establish which appendages bear weight versus attack, or whether the visible central organ remains equally exposed in all candidates."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E047",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+      "sha256": "66b820d7ffdd5d812a4c59c45eb72cb08289188cc1ece9bfcc8cabc19f64ffb0",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "The crop contains no conventional face: an open circular rib framework exposes a veined heart at right while layered muscle cords, shell plates, joints, and hanging tendons fill the surrounding torso.",
+        "A bent blade-arm crosses the lower left, but there are no eyes, mouth, head tilt, or directed sensory structures visible in the enlargement."
+      ],
+      "strengths": [
+        "The face absence is supported by a coherent nonhuman mechanism centered on an exposed vital organ and cage anatomy rather than a hidden humanoid head.",
+        "Confinement, vulnerability, compulsion, and bodily ruin are physically visible through the heart, ribs, and invasive cords."
+      ],
+      "defects": [
+        "The heart is not visibly oriented toward a viewer or target, so the crop communicates anatomy and cost more clearly than attention, want, fear, or active survival strategy.",
+        "Dense overlapping cords and ribs make it unclear which physical change represents emotion or immediate response."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether heartbeat, pincer movement, limb posture, or another unseen organ carries the creature's attention and psychology."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E048",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+      "sha256": "499360ffa361177890e8632c64ecd5ade92d9d45c15b1a74decb3703d7a7d050",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the broad low crab body, arched back, multiple legs, large open pincer, central rib cavity, and small reddish heart remain visible.",
+        "Individual tendons, shell plates, smaller limbs, pincer teeth, second organ, joints, and underbody structure collapse into a dark brown skeletal mass."
+      ],
+      "strengths": [
+        "The oversized jaw pincer and many-legged low body produce a distinctive hostile unit silhouette at the frozen scale.",
+        "The central cavity and warm heart provide a small but effective internal focal point against the bone-colored shell."
+      ],
+      "defects": [
+        "Several legs merge together and the pincer interior becomes a dark crescent, reducing clarity about appendage count and attack mechanics.",
+        "The exposed-organ construction survives only as one small red center; most of the bodily-cost detail becomes generalized texture."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish which end is the head or whether players would interpret the pincer as a jaw, claw, or separate creature."
+      ],
+      "contamination": []
+    }
+  ]
+}

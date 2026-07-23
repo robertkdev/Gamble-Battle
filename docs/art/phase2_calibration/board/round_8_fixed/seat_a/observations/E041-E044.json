@@ -1,0 +1,93 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E041",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_master.png",
+      "sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature, lean fit woman stands with feet apart while shouldering a very long scoped rifle aimed horizontally toward viewer-right.",
+        "Both gloved hands support the weapon, the stock meets the shoulder, and her eyes turn along the barrel direction, establishing a controlled ranged-combat action.",
+        "Dark fitted leather-like coat, trousers, tall lace-up boots, belts, pouches, and many long marked cloth or paper strips create a worn hunter or record-bound gunfighter silhouette.",
+        "The rifle is wrapped in pale segmented bands with occasional red ties, separating it from the dark clothing and making the weapon the primary role cue."
+      ],
+      "defects": [
+        "Coat, gloves, trousers, boots, belts, and hair occupy closely related dark values, merging much of the body and layered equipment against the background.",
+        "The many narrow hanging strips and weapon wrappings repeat the same rectangular band motif across torso, arms, barrel, and skirt area.",
+        "Her visible eye line sits beside or above the scope rather than clearly behind its eyepiece, making precise use of the optic ambiguous."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the marked strips and wrappings are supernatural bindings, ammunition records, camouflage, repairs, or ordinary decoration."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E042",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png",
+      "sha256": "2e993051ed5896dcba336a8d1223b335bb26d88cfee7ec1e6e8c42cbc1928fac",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three silhouettes show the same slim rifle user in a wide standing aim, a narrow front-facing rest pose with the rifle held vertically, and a low kneeling aim.",
+        "The left candidate most closely matches the master's standing horizontal aim, wide feet, long barrel, and ragged hanging strips.",
+        "The alternatives change stance, profile width, and readiness state while retaining the same long rifle and general outfitted humanoid body."
+      ],
+      "defects": [
+        "The alternatives vary pose but do not materially change body plan, weapon class, garment family, or primary visual mechanism.",
+        "The long rifle dominates every outer contour, leaving the character body comparatively conventional once the weapon is ignored.",
+        "Narrow hanging strips and the thin barrel extension are vulnerable to disappearing at reduced size."
+      ],
+      "uncertainties": [
+        "The alternatives are not lettered or marked as selected; selection is inferred from resemblance to the master."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E043",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_face.png",
+      "sha256": "e458e5ade5faef9e53d89fa8b4c8ab7f8d4f6f9ce7fec586ab5a8f13c0ad2f50",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows a mature face turned toward viewer-right with narrowed sideways eyes, one brow subtly lower, relaxed cheeks, and a small closed asymmetric smile.",
+        "Her hands remain steady on the rifle and the face shows little exertion, reading as calm appraisal or confidence while tracking something off-frame.",
+        "Fine pale facial lines or scars cross the forehead and cheeks, while loose dark hair and the rifle frame the face without hiding the eyes."
+      ],
+      "defects": [
+        "The restrained half-smile can read as a polished portrait expression rather than target-specific hostility or psychological pressure.",
+        "The scope is visible directly beside the face, but the eye is not clearly aligned through it, weakening the relationship between gaze and weapon mechanics."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot distinguish whether she is hunting, protecting, amused by a target, or simply posing with the rifle."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E044",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_96px.png",
+      "sha256": "80300a8eafa13238354b89354d5be267c8c40698af2666d29093d70027b3f923",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the standing shooter, long horizontal rifle, pale barrel wrappings, and wide lower stance remain recognizable.",
+        "The rifle supplies the strongest and clearest role cue, extending far beyond the compact dark body.",
+        "Facial expression, scope alignment, marked strips, individual wraps, pouches, straps, and garment construction collapse below reliable recognition."
+      ],
+      "defects": [
+        "The dark torso and legs merge with the background, reducing the body to a narrow support shape for the long weapon.",
+        "The pale rifle wraps read as light bands but their record-like or binding character is not visible."
+      ],
+      "uncertainties": [
+        "The thumbnail establishes a rifle role but not supernatural cost, emotional state, or whether the weapon is currently aimed with precision."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

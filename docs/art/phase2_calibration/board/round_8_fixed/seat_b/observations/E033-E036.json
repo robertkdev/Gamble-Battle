@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E033",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_master.png",
+      "sha256": "53e16f7f4ccec0c642264c3ce45f2ca5ac9c4aa64dc16f1d447504001495a426",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A mature bald heavily muscled man plants his feet wide and drives one enormously enlarged pale fist and forearm toward the viewer while the normal hand stays clenched beside the body.",
+        "Tattoos or scar patterns cover the head and skin; the transformed arm contains swollen corded forms and embedded plates, straps, studs, and circular emblems, contrasting with a dark layered leather mantle, skirt, trousers, and heavy boots.",
+        "The shoulder rotation, foreshortened fist, bent knees, direct stare, and bared teeth establish an immediate close-range bruiser action."
+      ],
+      "strengths": [
+        "The giant transformed fist is a decisive dominant anatomy idea that communicates role, attack method, and bodily cost in one read.",
+        "Wide stance, mature muscular build, clenched off hand, and engaged shoulders make the figure physically credible as a powerful fighter.",
+        "Pale altered flesh against dark clothing gives the attack arm strong visual priority."
+      ],
+      "defects": [
+        "Extreme foreshortening and oversized anatomy make the fist occupy much of the image, reducing the face, torso, normal arm, and lower-body action to support for one spectacle limb.",
+        "Tattoos, cords, scars, plates, rivets, patterned leather, and repeated straps cover nearly every surface at similar frequency, weakening material and focal hierarchy.",
+        "The giant gauntlet-fist and grimacing strongman presentation communicate a familiar fantasy brawler archetype more clearly than a unique culture or personal history."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the enlarged arm is permanent anatomy, worn armor, a curse, or a temporary transformation.",
+        "The circular plate symbols and dense skin markings do not reveal their specific function or origin."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E034",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_silhouettes.png",
+      "sha256": "8c261ed276e27d7e779b4ed1a3a40207ba6bfe470d983025362f250537b8d926",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black alternatives retain the same broad bald humanoid while varying a giant square-fingered fist thrust toward the viewer, a low charging body with a long conical drill-like forearm, and an upright advancing figure carrying a smaller banded cylindrical fist.",
+        "The candidates change limb proportion, fist construction, posture, center of gravity, and attack direction, but preserve the same muscular body and one-arm premise."
+      ],
+      "strengths": [
+        "Candidate A creates a blunt frontal impact, candidate B a low piercing charge, and candidate C a more mobile advancing boxer; the weapon-arm behavior is materially explored.",
+        "The transformed arm remains immediately identifiable in all three silhouettes."
+      ],
+      "defects": [
+        "The alternatives vary the same dominant fist mechanism rather than testing a substantially different anatomy, protection strategy, or overall combat silhouette.",
+        "Candidate A's fist overwhelms the body, candidate B's cone resembles a drill attachment more than anatomy, and candidate C reduces the distinctive scale contrast until the figure approaches a generic large fighter."
+      ],
+      "uncertainties": [
+        "The silhouette sheet does not establish whether the arm can change among these shapes or whether they are exclusive anatomical designs."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E035",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_face.png",
+      "sha256": "3eddeb5b40f71eaa9bf63c3d1d20b51b8b04982bae28ce7e8992b32a465d55af",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "A mature scarred and tattooed face turns directly toward the viewer with brows drawn down, eyes narrowed, nostrils slightly tense, the upper lip raised, and teeth partly exposed in a crooked grimace or confident sneer.",
+        "The massive altered arm fills the lower foreground, linking the confrontational gaze and facial tension to the impending strike."
+      ],
+      "strengths": [
+        "Direct eye contact, compressed brow, exposed teeth, and the weaponized arm communicate immediate aggression and confidence rather than neutrality.",
+        "Bald head, facial geometry, dense markings, broad jaw, and asymmetrical mouth create a clearly adult individual."
+      ],
+      "defects": [
+        "The expression remains close to a conventional tough-guy snarl or battle sneer; it does not visibly distinguish grievance, fear, compulsion, shame, or restraint.",
+        "Dense tattoo and scar detail competes with eyelid, cheek, and mouth tension, making the emotional evidence less clean than the overall aggression cue."
+      ],
+      "uncertainties": [
+        "The unaided read cannot decide whether he is enraged, enjoying dominance, bracing against pain, or challenging the viewer."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E036",
+      "locator": "assets/concepts/phase2_calibration/kett/kett_96px.png",
+      "sha256": "e63a9c81479e9d4a868f2280a8abdad35d9d8f689601d89b861d88ff1d522024",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the bald head, broad dark shoulders, huge pale horizontal fist, wide stance, large boots, and planted lower body remain visible.",
+        "Facial expression, tattoos, scars, layered garments, embedded plates, normal hand, and most altered-flesh structure collapse into the dark figure and mottled fist."
+      ],
+      "strengths": [
+        "The pale oversized fist against the dark body forms a clear brawler icon and preserves the primary action direction.",
+        "The wide feet and shoulders keep the figure grounded and weighty."
+      ],
+      "defects": [
+        "The fist becomes a single bright block, obscuring its anatomical-versus-armored construction and making the reduced figure depend on one exaggerated limb.",
+        "Dark clothing and background merge across the torso and legs, while the normal arm and face lose readable separation."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would read a cursed biological fist, a giant gauntlet, or an ordinary oversized punch effect."
+      ],
+      "contamination": []
+    }
+  ]
+}

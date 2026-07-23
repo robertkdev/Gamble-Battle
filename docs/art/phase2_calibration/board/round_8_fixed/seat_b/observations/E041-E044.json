@@ -1,0 +1,104 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E041",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_master.png",
+      "sha256": "d079556a5ec2050ff23cab8d8414d1fb3705e231f4c55cedbecde448d53bfd47",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A mature lean woman stands with feet separated while holding a very long scoped rifle horizontally across her upper chest, the barrel extending far beyond the body to the right.",
+        "Dark hair is tied back around a scarred attractive face; gloves, wrapped forearms, layered black-brown leather, vertical inscribed strips, belts, pouches, long torn coat panels, trousers, and tall laced boots cover the body.",
+        "Her eyes track along the rifle's direction, the near finger rests at the trigger area, and both hands support the weapon, creating controlled ranged threat."
+      ],
+      "strengths": [
+        "The exceptionally long rifle establishes role and attack range immediately, while the scarred adult face and steady posture avoid a decorative pinup read.",
+        "Weathered metal, bound barrel sections, patched leather, faded strips, and worn edges create a dry utilitarian material language.",
+        "The face, hands, weapon, and gaze align around one practical combat action."
+      ],
+      "defects": [
+        "The stock is not visibly seated against the shoulder and the eye is not aligned through the scope, so the pose reads as presenting or carrying the rifle across the chest rather than plausibly firing it.",
+        "Layered black leather, straps, pouches, wraps, long coat tabs, and tall boots form a familiar dark fantasy ranger or assassin uniform before they reveal individual culture or supernatural alteration.",
+        "No visible bodily price, corruption, compulsion, or impossible weapon consequence distinguishes the figure from a skilled mundane marksman."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the inscribed cloth strips carry magical function or are decorative records.",
+        "The rifle's technology, ammunition, and relationship to the body are not visually explained."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E042",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_silhouettes.png",
+      "sha256": "2e993051ed5896dcba336a8d1223b335bb26d88cfee7ec1e6e8c42cbc1928fac",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three alternatives retain the same slim long-coated riflewoman while exploring a wide standing horizontal aim, a narrow frontal stance holding the rifle vertically against the centerline, and a low kneeling firing posture.",
+        "The candidates vary height, center of gravity, rifle orientation, negative space, and immediate combat readiness while preserving one weapon and body premise."
+      ],
+      "strengths": [
+        "Candidate A makes range visible through an extreme horizontal barrel, candidate B creates a severe compact vertical icon, and candidate C supplies the clearest braced marksman action.",
+        "The rifle remains unmistakable in every silhouette."
+      ],
+      "defects": [
+        "The sheet explores stance and rifle orientation rather than materially different body, garment, protection, or weapon concepts.",
+        "Candidate A's weapon extends so far that it dominates the composition, candidate B obscures the firearm as a central pole, and candidate C compresses coat, legs, and rifle support into a dense crouch."
+      ],
+      "uncertainties": [
+        "The silhouettes do not establish which stance represents normal gameplay scale or whether the coat and rifle change during abilities."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E043",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_face.png",
+      "sha256": "e458e5ade5faef9e53d89fa8b4c8ab7f8d4f6f9ce7fec586ab5a8f13c0ad2f50",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "A mature scarred face turns slightly along the rifle with narrowed sideways eyes, relaxed brows, closed lips, a faint asymmetric mouth corner, and a steady jaw.",
+        "Gloved hands support the stock and fore-end beneath a scope, tying facial attention to the weapon's direction even though the eye is below and left of the optic."
+      ],
+      "strengths": [
+        "The sideward gaze, scars, controlled mouth, and weapon contact communicate practiced vigilance and restraint rather than neutral glamour.",
+        "The face remains clearly adult, feminine, and combat-focused without relying on heavy musculature or exposure."
+      ],
+      "defects": [
+        "Because the eye is not using the scope and the stock is not shouldered, the calm face and rifle pose do not fully agree as an active shot.",
+        "The expression remains close to generic cool competence; no distinct want, fear, compulsion, pleasure, or emotional contradiction is visible."
+      ],
+      "uncertainties": [
+        "The unaided read cannot determine whether she is aiming, scanning, listening, posing with the weapon, or pausing before taking a shot."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E044",
+      "locator": "assets/concepts/phase2_calibration/sable/sable_96px.png",
+      "sha256": "80300a8eafa13238354b89354d5be267c8c40698af2666d29093d70027b3f923",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the long horizontal rifle, small head, bent supporting arms, separated legs, long coat panels, and tall boots remain visible.",
+        "Facial gaze, scars, scope alignment, gloves, pouches, cloth inscriptions, barrel bindings, and layered garment construction disappear into the dark figure."
+      ],
+      "strengths": [
+        "The rifle's long horizontal extension makes the ranged role unmistakable and gives the figure a strong directional cue.",
+        "Separated legs and hanging coat panels preserve a stable standing silhouette."
+      ],
+      "defects": [
+        "The weapon becomes the primary identity while the body reduces to a generic dark-clad shooter; individual face, costume, and supernatural information do not survive.",
+        "The dark torso and lower garments merge with the background, and the firing mechanics remain too small to verify."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would distinguish this specific marksman from another long-rifle silhouette."
+      ],
+      "contamination": []
+    }
+  ]
+}

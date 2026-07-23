@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E045",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_master.png",
+      "sha256": "6645bc2a1dbe7f682bed7e8211937a9592dcbba44037c86a6cb8cf9c2f95158f",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A very large low multi-legged creature combines rib-like cages, pale bone or wooden plates, exposed red cables or vessels, jointed clawed limbs, and a huge open pincer on one side.",
+        "A large heart-shaped organ hangs exposed at the center of the chest and another smaller organ sits within the open pincer; tubes and cords connect them through the body.",
+        "The low spider-crab stance, numerous sharpened feet, open cutting claw, exposed organs, and skeletal shell make predation and bodily ruin immediately visible."
+      ],
+      "defects": [
+        "The rib cages, plates, cables, vessels, hooks, joints, hearts, and repeated carved textures overlap so densely that locomotion and individual limb attachment points are difficult to follow.",
+        "Pale shell surfaces read variably as bone, wood, aged metal, or stone, leaving the material construction inconsistent.",
+        "The central heart and side pincer compete as two major focal points without a visible head or gaze to establish attack direction.",
+        "Repeated ribs, wires, organic folds, and engraved plates create uniform high-frequency detail across nearly the entire body."
+      ],
+      "uncertainties": [
+        "The image does not reveal whether the central heart is a face, core, weak point, passenger, or exposed organ.",
+        "No conventional eyes or head are visible, so the creature's current attention and target cannot be determined.",
+        "The exact number of legs and whether the pincer contains a separate organism remain unresolved because of overlap."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E046",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_silhouettes.png",
+      "sha256": "56ce1848f5ad23269aacac4c4e2d6cb62a913c50ee89a35725041124cf6ebeb0",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three labeled candidates show a tall narrow stilt creature with an open rib-cage body, a low wide many-legged creature with a large side pincer, and a tall armored spider-beetle body with two long front blades.",
+        "The candidates differ substantially in height, width, locomotion, armor mass, negative space, and front-weapon arrangement while retaining an exposed central organ."
+      ],
+      "defects": [
+        "Dense interior linework rather than pure outer contour carries much of the rib cage and organ identity.",
+        "The selected-looking low candidate has many overlapping legs under one broad shell, producing a congested lower silhouette.",
+        "The tall candidates and low pincer candidate imply materially different movement and attack behavior, leaving few stable features beyond the central organ and skeletal construction."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly state which candidate was selected.",
+        "It is unclear whether the various front blades and pincer forms are alternate limbs of one species or entirely different body mechanisms."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E047",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_face.png",
+      "sha256": "66b820d7ffdd5d812a4c59c45eb72cb08289188cc1ece9bfcc8cabc19f64ffb0",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The crop shows rib-like arches, layered shell plates, bundled red vessels, several jointed limbs, and part of the large exposed heart-shaped organ.",
+        "No eyes, mouth, brows, head, or other clear facial feature appear in the crop; the organ and surrounding cage occupy the attention area."
+      ],
+      "defects": [
+        "There is no visible gaze, facial asymmetry, mouth state, or directional sensory organ from which to infer present attention.",
+        "The heart shape communicates exposed vulnerability or organic machinery but not a specific current emotional or interpersonal state.",
+        "Dense ribs, cables, and repeated surface textures obscure which structure functions as the creature's attention mechanism."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether the organ is conscious, whether another hidden head exists, or how the creature perceives a target.",
+        "The crop does not establish whether pulsing, movement, or other non-facial behavior supplies the intended attention read."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E048",
+      "locator": "assets/concepts/phase2_calibration/malachor/malachor_96px.png",
+      "sha256": "499360ffa361177890e8632c64ecd5ade92d9d45c15b1a74decb3703d7a7d050",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the broad low shell, central dark organ area, multiple front legs, and large pale side pincer remain visible.",
+        "The body reads as a crab-, spider-, or scorpion-like monster with one dominant cutting claw."
+      ],
+      "defects": [
+        "The exposed heart, secondary organ, vessels, rib construction, individual joints, material distinctions, and exact leg count collapse at this size.",
+        "Several legs and underside cables merge into one dark lower mass.",
+        "The surviving outline communicates a generic armored arthropod more strongly than the specific organ-and-cage construction."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition, facing direction, and pincer readability cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}
