@@ -1,0 +1,169 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "benchmarks": [
+    {
+      "benchmark_id": "B_RIOT_BRIAR",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_briar_shipped.jpg",
+      "sha256": "d5a179d7c908e5bf077bb1ee017813dacbdf015ec2dd357d3d6a08af98a5fd4c",
+      "bytes": 152679,
+      "width_px": 1215,
+      "height_px": 717,
+      "inspection_modes": ["FULL_SIZE"],
+      "characteristics": {
+        "composition_and_silhouette": [
+          "A low crouch, sharply tilted head, reaching left hand, bent legs, and the massive restraint or weapon arching across the upper frame create a compressed diagonal action silhouette.",
+          "Foreground legs and a fallen body overlap the figure, while the pale face and hair remain unobstructed near the upper-center focal area.",
+          "The pose is deliberately asymmetric: one hand claws toward the viewer, the other braces the overhead mass, and the feet project into the foreground."
+        ],
+        "face_and_psychology": [
+          "The face uses a wide tooth-baring grin, narrowed bright eyes, a steep head cant, and loose hair framing to communicate excited predation.",
+          "The reaching clawed hand and exposed forward feet amplify the face's lack of restraint through the whole pose."
+        ],
+        "materials_and_craft": [
+          "Pale skin, white-pink hair, glossy black leather, dark metal, and translucent magenta energy are separated by distinct value and edge treatments.",
+          "Hard specular highlights define buckles and armor edges, softer highlights model skin and hair, and magenta rim light ties the character to the overhead restraint.",
+          "Fine costume seams and metal accents remain subordinate to the face, hands, and large weapon shapes."
+        ],
+        "color_and_readability": [
+          "Cold cyan environmental light separates the pale figure from a dark blue-gray cavern, while concentrated magenta accents establish a second focal path.",
+          "Large background forms are softened and low-contrast, preserving the figure's sharper face, hands, and restraint edges."
+        ]
+      },
+      "scope_limits": [
+        "This is a cinematic landscape scene with foreground occlusion and perspective distortion, not an isolated full-body or native-size unit presentation."
+      ]
+    },
+    {
+      "benchmark_id": "B_RIOT_BELVETH",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_belveth_shipped.jpg",
+      "sha256": "255ee513034d082a1429e4cc5602e951ac70550455404c1428316dbec9cd1708",
+      "bytes": 133217,
+      "width_px": 1215,
+      "height_px": 717,
+      "inspection_modes": ["FULL_SIZE"],
+      "characteristics": {
+        "composition_and_silhouette": [
+          "A low camera makes a vast winged mantle and tapered lower mass fill nearly the entire frame, with a small human figure at bottom left supplying an explicit scale cue.",
+          "The design is broadly symmetrical around the upright head and ivory chest, then breaks symmetry through wing curvature, trailing cloth-like lobes, and the left-side human.",
+          "Large crescent wings, horned shoulders, pointed ivory plates, and the swelling lower body carry the silhouette before surface detail is read."
+        ],
+        "face_and_psychology": [
+          "The small centered face is composed and nearly expressionless, with level features and luminous eyes.",
+          "The psychological pressure comes primarily from still posture, frontal elevation, impossible scale, and the encircling body rather than a large facial expression."
+        ],
+        "materials_and_craft": [
+          "Glossy black-violet armor, bone-like ivory chest plates, fleshy purple lower forms, and translucent energy membranes receive visibly different highlight and edge behavior.",
+          "Repeated pointed plates and luminous violet nodes organize fine detail into larger rhythmic groups across the torso and mantle.",
+          "Atmospheric particles and soft purple energy arcs reinforce depth without erasing the hard silhouette peaks."
+        ],
+        "color_and_readability": [
+          "Deep violet and black dominate, with ivory torso plates and concentrated magenta lights marking the central body structure.",
+          "The brighter moonlit opening behind the head creates a halo, while darker peripheral wings frame the focal region."
+        ]
+      },
+      "scope_limits": [
+        "This is a low-angle cinematic scale tableau rather than a neutral full-body turnaround or native-size asset."
+      ]
+    },
+    {
+      "benchmark_id": "B_RIOT_CAMILLE",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_camille_shipped.jpg",
+      "sha256": "f6e1f6bb9698066bcafa532632f0a1a77cbf86ee6c1dc0bb9fa027514cda424c",
+      "bytes": 127548,
+      "width_px": 1215,
+      "height_px": 717,
+      "inspection_modes": ["FULL_SIZE"],
+      "characteristics": {
+        "composition_and_silhouette": [
+          "The figure travels on a strong left-to-right diagonal, with an extended cable, horizontal upper arm, forward head, trailing coat panels, and two enormous blade legs forming distinct directional vectors.",
+          "The blade legs replace ordinary lower-limb proportions and occupy much of the lower-left frame, making the mechanical anatomy a primary silhouette cue.",
+          "Foreshortening and the narrow forward profile communicate speed while the cable anchors the motion back to the architecture."
+        ],
+        "face_and_psychology": [
+          "A rigid side profile, lowered brow, closed mouth, and unwavering forward gaze communicate disciplined concentration.",
+          "The fully extended posture and precise parallel lines in arms, torso, cable, and blades reinforce controlled intent rather than looseness."
+        ],
+        "materials_and_craft": [
+          "Dark tailored fabric, polished black metal, gold trim, silver hair, and cyan mechanical cores are separated through crisp edges and selective highlights.",
+          "Gold piping maps the figure's construction and keeps the black costume readable without filling it with unrelated ornament.",
+          "Cyan rings and cable sparks identify powered joints and motion contact points at a glance."
+        ],
+        "color_and_readability": [
+          "A restrained black, gray-green, gold, silver, and cyan palette keeps the mechanical anatomy legible against a desaturated industrial background.",
+          "The face and hair receive the brightest neutral values, while cyan accents punctuate the hip, blade joints, and cable."
+        ]
+      },
+      "scope_limits": [
+        "This is a cinematic action crop with substantial foreshortening and environment integration, not a neutral isolated unit view."
+      ]
+    },
+    {
+      "benchmark_id": "B_VELLUM",
+      "locator": "docs/art/phase2_calibration/benchmarks/vellum_user_approved_raw.png",
+      "sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "bytes": 2062322,
+      "width_px": 1254,
+      "height_px": 1254,
+      "inspection_modes": ["FULL_SIZE"],
+      "characteristics": {
+        "composition_and_silhouette": [
+          "A centered full-body figure stands nearly frontally while a feathered weapon, large rolled manuscript, many curling paper strips, and black branching tendrils expand the silhouette in every direction.",
+          "The broad pointed coat shoulders, long ragged skirt, upright weapon, and multiple paper arcs create distinct large, medium, and small silhouette rhythms.",
+          "The saturated flat orange field provides uninterrupted separation for the dark costume and every detached paper element."
+        ],
+        "face_and_psychology": [
+          "The face is frontal and unsmiling, with slightly lowered brows, direct eyes, dark lips, skin markings, and an asymmetrical pale hair streak.",
+          "The squared shoulders and steady stance convey command, while the loose hair, ragged hem, leaking seals, and branching black effects introduce instability."
+        ],
+        "materials_and_craft": [
+          "Leather-like black garments, dull copper embroidery, parchment, wax seals, feathers, hair, skin, blue filaments, and ink-like tendrils remain materially distinct.",
+          "Dense costume engraving is organized along seams, borders, belts, and panels rather than scattered uniformly.",
+          "Repeated parchment color and circular red seals unify the orbiting props, while blue glyphs and black branching effects supply contrasting supernatural systems."
+        ],
+        "color_and_readability": [
+          "The orange background creates high global contrast with the near-black figure; parchment tan, copper linework, red seals, and sparse blue effects form a compact accent hierarchy.",
+          "The largest readable cues are the feathered weapon, manuscript scroll, shoulder structure, long coat mass, and orbiting paper arcs; facial and engraved costume details require the full-size view."
+        ]
+      },
+      "scope_limits": [
+        "The square image is an isolated full-body presentation on a flat high-chroma field; it does not demonstrate environment integration or native-size legibility."
+      ]
+    },
+    {
+      "benchmark_id": "B_MORWEN",
+      "locator": "docs/art/phase2_calibration/benchmarks/morwen_user_approved.png",
+      "sha256": "7d93ca00f9d4a0079bed39867e9429635ffa78a2df879f4aedd2c1443565b8ec",
+      "bytes": 2086207,
+      "width_px": 1024,
+      "height_px": 1536,
+      "inspection_modes": ["FULL_SIZE"],
+      "characteristics": {
+        "composition_and_silhouette": [
+          "A tall full-body figure turns away in a rear three-quarter stance while looking back, with a long tattered cape falling on the left and a serrated sword extending down the right.",
+          "The skull shoulder piece, backward glance, separated sword, and asymmetric cape create the main outline interruptions around an otherwise body-hugging costume.",
+          "The flat saturated orange field cleanly separates the dark figure and thin weapon edges from the background."
+        ],
+        "face_and_psychology": [
+          "The backward gaze, raised chin, narrowed eyes, and parted but unsmiling lips communicate watchful defiance.",
+          "Visible grime, cuts, blood, and the relaxed low sword hand combine bodily wear with maintained composure."
+        ],
+        "materials_and_craft": [
+          "Scuffed black leather, stitched seams, straps, oxidized metal, pale damaged skin, bone ornament, dried blood, and frayed cloth receive distinct textures.",
+          "Dense straps and studs follow the torso and legs structurally, while the skull, sword guard, blade teeth, and torn cape provide larger interruptions to the fitted silhouette.",
+          "Wear is distributed consistently across skin, clothing, cape, and weapon, producing a coherent used condition."
+        ],
+        "color_and_readability": [
+          "Near-black leather and cape dominate against orange, with pale skin, bone, dull bronze, and dark red damage marks supplying secondary contrast.",
+          "At full size, facial damage, stitching, buckles, and blade texture are sharply legible; the largest distance-readable cues are the sword, skull shoulder, cape, and turned head."
+        ]
+      },
+      "scope_limits": [
+        "The portrait-format image is an isolated full-body presentation on a flat high-chroma field; it does not demonstrate environment integration or native-size legibility."
+      ]
+    }
+  ]
+}

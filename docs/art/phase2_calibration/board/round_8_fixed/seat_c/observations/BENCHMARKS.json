@@ -1,0 +1,159 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "benchmarks": [
+    {
+      "benchmark_id": "B_RIOT_BRIAR",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_briar_shipped.jpg",
+      "sha256": "d5a179d7c908e5bf077bb1ee017813dacbdf015ec2dd357d3d6a08af98a5fd4c",
+      "source_class": "SHIPPED_PEER",
+      "artifact_class": "Shipped villain-woman splash illustration",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "visible_characteristics": {
+        "master_character_design": "A pale adult woman twists over a fallen figure with white-pink hair, black restraint-like armor, oversized jagged wrist structures, clawed hands, bare feet, and a sharply arched torso.",
+        "silhouette_language": "Foreshortened claws, angular black restraints, bent legs, hair mass, and the diagonal torso create an irregular aggressive outline, although the cinematic crop and foreground victim interrupt an isolated full-body read.",
+        "face_psychology": "Wide bright eyes, raised cheeks, exposed fangs, an open crooked grin, and the head's inverted angle communicate ecstatic predatory attention rather than a neutral beauty pose.",
+        "craft_finish": "Hard black materials, pale skin, white hair, magenta energy, cyan ice light, and subdued environment masses are separated by controlled edges, selective highlights, and clear focal contrast.",
+        "coherence_hierarchy": "The face and raised claw receive the highest magenta-white contrast; the bent legs and foreground victim form a secondary action path, while the environment stays lower contrast.",
+        "distinctiveness": "The combination of broken restraint devices, ecstatic fang expression, inverted body angle, and close victim interaction provides several mutually reinforcing identity cues."
+      },
+      "uncertainties": [
+        "The file is a wide cinematic scene rather than an isolated transparent full-body master or silhouette sheet.",
+        "No native 96-pixel derivative or multi-character roster board is included, so exact small-scale and roster behavior cannot be directly inspected."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_RIOT_BELVETH",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_belveth_shipped.jpg",
+      "sha256": "255ee513034d082a1429e4cc5602e951ac70550455404c1428316dbec9cd1708",
+      "source_class": "INDEPENDENT_PROFESSIONAL",
+      "artifact_class": "Shipped nonhuman villain splash illustration",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "visible_characteristics": {
+        "master_character_design": "A small serene humanoid head and armored upper torso rise from an enormous manta-like body with broad violet membranes, black hooked shoulders, bone-colored chest blades, and sweeping wing masses.",
+        "silhouette_language": "The body expands from a narrow head into a huge low fan, with pointed shoulder hooks and wing edges that establish scale and nonhuman anatomy before fine detail.",
+        "face_psychology": "The upright chin, level mouth, narrowed luminous eyes, and distant downward gaze communicate controlled superiority rather than strain or rage.",
+        "craft_finish": "Black armor, bone plates, purple flesh, magenta lights, and blue-violet atmosphere remain materially separated through broad value grouping and selective luminous accents.",
+        "coherence_hierarchy": "The face sits at the top of a bright chest wedge, while paired shoulder lights and converging bone plates guide attention upward through the massive body.",
+        "distinctiveness": "The contrast between a composed humanoid mask and a monumental ray-like lower anatomy supplies a stable dominant contradiction."
+      },
+      "uncertainties": [
+        "The large environmental splash does not expose an isolated complete outer contour or rear anatomy.",
+        "The face occupies a small portion of the frame, and no explicit native 96-pixel derivative or roster board is present."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_RIOT_CAMILLE",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_camille_shipped.jpg",
+      "sha256": "f6e1f6bb9698066bcafa532632f0a1a77cbf86ee6c1dc0bb9fa027514cda424c",
+      "source_class": "ASPIRATIONAL_PEER",
+      "artifact_class": "Shipped adult female villain-action illustration",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "visible_characteristics": {
+        "master_character_design": "A mature silver-haired woman drives horizontally through space in a fitted black-and-gold garment, with a rigid mechanical waist device, cable lines, and two long blade-shaped prosthetic legs.",
+        "silhouette_language": "The forward head, extended pulling arm, trailing hair and coat tails, bent torso, and long paired blade legs form one directional spear-like action silhouette.",
+        "face_psychology": "The profile face uses a lowered brow, narrowed eye, closed mouth, and fixed forward gaze to support disciplined target commitment.",
+        "craft_finish": "Hair, pale fabric, black garment, gold trim, dark metal blades, blue mechanisms, and green architecture are separated with restrained accents and clean edge control.",
+        "coherence_hierarchy": "The face and white hair lead the motion, the blue waist mechanism anchors the body, and repeated gold-blue details connect torso equipment to the blade legs.",
+        "distinctiveness": "The elegant adult profile, tailored upper body, cable tension, and weaponized blade legs combine role, anatomy, and movement in one construction."
+      },
+      "uncertainties": [
+        "The image is an airborne cinematic action crop rather than an isolated neutral master or three-option silhouette sheet.",
+        "No exact native 96-pixel derivative or roster comparison is provided."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_VELLUM",
+      "locator": "docs/art/phase2_calibration/benchmarks/vellum_user_approved_raw.png",
+      "sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "source_class": "USER_SUPPLIED_REFERENCE",
+      "artifact_class": "User-approved isolated western-gothic character master",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "visible_characteristics": {
+        "master_character_design": "A mature woman stands frontally in a long black tailored coat and fitted corseted layers, holding a large feather quill while multiple sealed paper scrolls curl around her with black branching trails.",
+        "silhouette_language": "Wide pointed shoulders, a narrow waist, long split coat tails, raised quill, and large paper loops create a tall symmetrical core interrupted by orbiting curves.",
+        "face_psychology": "Direct dark eyes, a level head, compressed red lips, and slight facial asymmetry communicate stern controlled attention.",
+        "craft_finish": "Worn black leather, matte cloth, brown paper, red wax, metal trim, pale skin, hair, and feather remain distinguishable through edge wear, restrained highlights, and localized color.",
+        "coherence_hierarchy": "The pale face and quill form the upper focal pair; red wax seals repeat around the figure, while paper loops expand the silhouette without obscuring the central body.",
+        "distinctiveness": "Quill, seals, scroll loops, branching ink-like trails, and layered occult tailoring repeat one document-based construction across prop, silhouette, and surface."
+      },
+      "uncertainties": [
+        "The saturated orange chroma background is not a final use context and materially changes edge contrast.",
+        "Thin scrolls, symbols, wax seals, and garment linework have no accompanying native 96-pixel check.",
+        "A single character image cannot directly establish roster-level convergence behavior."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_MORWEN",
+      "locator": "docs/art/phase2_calibration/benchmarks/morwen_user_approved.png",
+      "sha256": "7d93ca00f9d4a0079bed39867e9429635ffa78a2df879f4aedd2c1443565b8ec",
+      "source_class": "USER_SUPPLIED_REFERENCE",
+      "artifact_class": "User-approved isolated adult female villain master",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "visible_characteristics": {
+        "master_character_design": "A mature fit woman turns in rear three-quarter view in a backless black leather corset, strapped trousers, long gloves, heeled boots, a skull-shouldered torn cape, and a large serrated sword held down at her side.",
+        "silhouette_language": "The turned torso, exposed shoulder line, fitted legs, trailing cape, and long diagonal sword create a narrow body silhouette with one extended weapon edge.",
+        "face_psychology": "The over-shoulder gaze uses lowered lids, slightly parted lips, head turn, and worn blood-marked skin to communicate guarded, tired, and confrontational attention.",
+        "craft_finish": "Pale scarred skin, matte and worn leather, bone ornament, dark cloth, blood traces, metal blade, and black hair remain separated through dry highlights and localized texture.",
+        "coherence_hierarchy": "The pale face and shoulder lead attention, the corset and straps define the body turn, and the long serrated blade carries the eye down the right edge.",
+        "distinctiveness": "Rear-facing challenge, skull shoulder, scarred pale skin, torn cape, and the heavy serrated sword combine attractiveness with visible combat wear."
+      },
+      "uncertainties": [
+        "The saturated orange chroma background is not a final environment and increases silhouette separation.",
+        "No native 96-pixel derivative, alternate silhouette set, or roster board accompanies the image."
+      ],
+      "contamination": []
+    }
+  ]
+}

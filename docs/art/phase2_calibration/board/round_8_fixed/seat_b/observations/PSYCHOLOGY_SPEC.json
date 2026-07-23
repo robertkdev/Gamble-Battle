@@ -1,0 +1,402 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E_PSYCHOLOGY_SPEC",
+      "locator": "docs/art/phase2_calibration/phase2_unit_psychology_records.json",
+      "sha256": "887f210796685f45a1618a6b34d1a29cc598e426a1f0488cd4db297f9222086d",
+      "surface": "face_psychology",
+      "kind": "SPECIFICATION",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "method_notes": [
+        "E_PSYCHOLOGY_SPEC was opened only after the unit-by-unit unaided visual observations in E001 through E048 had been written and sealed.",
+        "The comparisons below reference those earlier records without changing or reinterpreting their stored text."
+      ],
+      "structural_observations": [
+        "The file declares schema_version 1.0.0, identifies docs/art/unit_art_board_reference_criteria.md as its authority, and states that its purpose is Phase 2 ten-field survival-psychology and conditional-gate applicability records.",
+        "The units object contains exactly twelve keyed records: korath, veyra, cashmere, pilfer, nyxa, creep, knoll, quillith, kett, luna, malachor, and sable.",
+        "Every unit contains all ten named psychology fields with nonempty text: core_wound, private_want, primary_fear, survival_strategy, villainous_distortion, current_emotional_state, emotional_contradiction, face_direction, pose_direction, and forbidden_read.",
+        "Every unit also contains sex_design_category, age_gate, visual_lane, deliberately_horrific, conditional_gates, and exactly three nearest_neighbors.",
+        "The twelve nearest-neighbor arrays contain thirty-six references. Thirty-four resolve case-insensitively to unit keys in this file; the two Paisley references, under Cashmere and Luna, point outside this twelve-unit set.",
+        "All twelve conditional-gate maps contain hot_adult_woman, lean_toned_feminine, frontline_protection, and deliberate_horror_exception. Korath alone also contains blessed_special_gate, giving Korath five gate entries and every other unit four.",
+        "The conditional-gate key frontline_protection differs from the frontline_protection_explained verdict key recorded in the sealed E054 contract observation.",
+        "Pilfer, Nyxa, Malachor, and Sable use sex-design category tokens nonbinary, female_deliberate_horror_exception, sexless_grotesque_once_human, and nonbinary_androgynous. Those four tokens differ from the four accepted tokens recorded in the sealed E055 validator observation."
+      ],
+      "ten_field_completeness": {
+        "korath": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "veyra": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "cashmere": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "pilfer": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "nyxa": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "creep": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "knoll": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "quillith": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "kett": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "luna": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "malachor": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        },
+        "sable": {
+          "present": 10,
+          "missing": [],
+          "empty": []
+        }
+      },
+      "per_unit_comparisons": [
+        {
+          "unit_id": "korath",
+          "sealed_evidence_ids": [
+            "E001",
+            "E002",
+            "E003",
+            "E004"
+          ],
+          "specified_psychology": "Failed public miracle; a need for suffering to be declared necessary and forgivable; fear that penance has no purpose; compulsory protection converted into moral debt; exhausted shame sharpened into accusation; service in conflict with resentment.",
+          "visual_correspondences": [
+            "The sealed master and face reads independently identified an immense burden, split damaged anatomy, a bowed head, exhausted resentful vigilance, and an eye line that remains confrontational.",
+            "The broken overhead structure and unequal ruined body visibly correspond to continuing compulsory suffering, while the low open hand can accommodate an accusatory demand."
+          ],
+          "visual_discrepancies": [
+            "The sealed face read resolved most strongly as a familiar stern scowl and could not isolate accusation from grief, fatigue, controlled threat, or appeal.",
+            "The open palm read as beckoning or pleading as readily as demanding a debt.",
+            "The failed miracle, need for forgiveness, indispensability, and conversion of protection into moral obligation were not visually specific in the unaided evidence.",
+            "At 96 pixels, the face, hand action, chains, and split-material anatomy collapse, leaving the arch and giant mass as the dominant read."
+          ],
+          "preserved_uncertainties": [
+            "Whether the pale side is exposed anatomy, fused armor, or another transformation remains unresolved by the images.",
+            "The exact target and intent of the open-hand gesture remain unresolved."
+          ]
+        },
+        {
+          "unit_id": "veyra",
+          "sealed_evidence_ids": [
+            "E005",
+            "E006",
+            "E007",
+            "E008"
+          ],
+          "specified_psychology": "Trauma from an early breach; desire for a perfectly sealed world; fear of openings and independent motion; survival through nested enclosure; protection distorted into possession; possessive stillness around a watched larval core.",
+          "visual_correspondences": [
+            "The sealed reads independently identified nested pale plates, a compressed central opening, a bound inner body, a watchful upper slit, and static defensive enclosure.",
+            "Binding cords and layers physically support the themes of containment, sealing, and loss of freedom."
+          ],
+          "visual_discrepancies": [
+            "Unaided inspection could not determine which aperture or inner structure is the controlling intelligence.",
+            "The central form could read as a victim, prey, offspring, or carried organism rather than a valued subject being possessively enclosed.",
+            "Fear of breach, annihilation of another's freedom, and the wish to stop independent motion were not independently legible as motives.",
+            "At 96 pixels, the form reads closer to a seed pod or environmental object; the bound core, teeth, and psychology disappear."
+          ],
+          "preserved_uncertainties": [
+            "Predation, gestation, imprisonment, and symbiosis remain competing visual explanations for the shell-core relationship.",
+            "The movement and attack method remain visually uncertain."
+          ]
+        },
+        {
+          "unit_id": "cashmere",
+          "sealed_evidence_ids": [
+            "E009",
+            "E010",
+            "E011",
+            "E012"
+          ],
+          "specified_psychology": "A paid kill erased a beloved face; desire to own people, knowledge, and outcomes; fear of unpriced uncertainty and missing memory; survival by pricing and contracting; people treated as assets; proprietary warmth covering concealed panic.",
+          "visual_correspondences": [
+            "The sealed master read identified controlled authority, a large inscribed book, direct appraisal, and a precise forward hand, which can visually support classification, ownership, or contract activity.",
+            "Mature composure and steady eye contact correspond to the specified pleasurable certainty."
+          ],
+          "visual_discrepancies": [
+            "The sealed face read found near-symmetrical beauty-model seriousness, softly closed lips, and no decisive visible want, fear, compulsion, or emotional contradiction.",
+            "The specified split between one sharply appraising eye and one fractionally unfocused eye, tiny brow pinch, tight jaw, and inviting mouth corner did not register in the unaided face record.",
+            "The book could be an occult tome rather than a ledger, and the blackened hand could be spell effect rather than a contract action.",
+            "Memory loss, panic about an unpriceable blank, acquisition of people, and proprietary warmth were not visually recoverable.",
+            "At 96 pixels, the figure reduces to a conventional dark-coated woman with a book and extended hand."
+          ],
+          "preserved_uncertainties": [
+            "The meaning of the skin script, book, and black liquid remains ambiguous.",
+            "Confidence, guarded appraisal, seduction, impatience, and neutrality remain competing unaided face reads."
+          ]
+        },
+        {
+          "unit_id": "pilfer",
+          "sealed_evidence_ids": [
+            "E013",
+            "E014",
+            "E015",
+            "E016"
+          ],
+          "specified_psychology": "Repeatedly assigned profitable identities; desire for acceptance without a fixed role; fear of permanent definition; adaptive self-presentation; theft of identity, chemistry, and trust; ingratiating vigilance immediately before theft.",
+          "visual_correspondences": [
+            "The sealed reads identified a side-scanning eye, crouched opportunistic approach, asymmetrical concealment, a knowing crooked smile, and a reaching hand already entering the viewer's space.",
+            "Those cues independently support target assessment, rapid adaptation to an opportunity, and imminent taking."
+          ],
+          "visual_discrepancies": [
+            "The smile read as playful, sly, delighted, or appealing-rogue behavior rather than a tense plea to be liked.",
+            "The long amber hand read primarily as claws or a weapon, not specifically as a siphon stealing a valued trait.",
+            "Fear of being defined, longing for unconditional acceptance, and deliberate theft of identity were not visually isolated.",
+            "The pose read as a predatory lunge or stalk rather than clearly deferential bowing.",
+            "At 96 pixels, the bright claws dominate while the face, tail, species detail, and social strategy disappear."
+          ],
+          "preserved_uncertainties": [
+            "Hunger, theft, curiosity, amusement, and planned violence remain competing unaided interpretations.",
+            "The amber material's biological, magical, or equipment status remains unresolved."
+          ]
+        },
+        {
+          "unit_id": "nyxa",
+          "sealed_evidence_ids": [
+            "E017",
+            "E018",
+            "E019",
+            "E020"
+          ],
+          "specified_psychology": "Choosing one future killed all others in memory; desire to keep every future as ammunition; fear of one irreversible aging timeline; hoarding and firing possible futures; ecstatic predatory delight in multiple deaths; ancient grief in conflict with feral pleasure.",
+          "visual_correspondences": [
+            "The sealed reads identified a crouched predatory attack, a body and face split into pale and black halves, narrowed target fixation, exposed teeth, and a huge membrane bow.",
+            "The mouth could include a grin, and the asymmetrical body visibly permits a reading of incompatible conditions along the firing axis."
+          ],
+          "visual_discrepancies": [
+            "The sealed face read resolved mainly as generic feral aggression; ancient grief, temporal pain, and simultaneous pleasure were not distinctly separated.",
+            "The mouth remained ambiguous among grin, snarl, and tension caused by the crossing cords.",
+            "Multiple futures, age displacement, irreversible choice, and the use of timelines as ammunition were not independently visible.",
+            "The cause of the pale-black split and the bow's biological or carried status remained uncertain.",
+            "At 96 pixels, the face, teeth, cords, and age-related detail collapse into the bow-and-body mass."
+          ],
+          "preserved_uncertainties": [
+            "It remains unclear whether the viewer is prey or merely aligned with the weapon aim.",
+            "The firing mechanics and projectile remain unresolved."
+          ]
+        },
+        {
+          "unit_id": "creep",
+          "sealed_evidence_ids": [
+            "E021",
+            "E022",
+            "E023",
+            "E024"
+          ],
+          "specified_psychology": "Rejected after identifying marks were used against it; desire to approach without being named; fear of recognition; erasure of identifying traces and witnesses; vacant fixation on the weakest witness; longing to approach in conflict with refusal to be known.",
+          "visual_correspondences": [
+            "The sealed reads independently identified an erased mouthless face, black apertures, stitched and scarred skin, a slight head cant, low loaded limbs, and encircling hooked appendages.",
+            "The head tilt and forward crouch support alert attention and approach, while the absence of conventional expression supports a vacant nonhuman mechanism."
+          ],
+          "visual_discrepancies": [
+            "The fixed apertures and absent mouth made curiosity, caution, dissociation, hunger, fear, submission, and predation visually interchangeable.",
+            "No unaided cue isolated the weakest witness as the target or showed recognition itself as the feared event.",
+            "Longing for contact, memory erasure, boundary rejection, and procedural witness extermination were not visually specific.",
+            "The surrounding arcs could be limbs, parasites, shadows, blades, or display elements rather than a clearly closing escape ring.",
+            "At 96 pixels, the attention mechanism disappears and the form becomes a pale center inside a dark radial swirl."
+          ],
+          "preserved_uncertainties": [
+            "The appendages' attachment, agency, and combat function remain unresolved.",
+            "The emotional meaning of the head tilt remains unresolved."
+          ]
+        },
+        {
+          "unit_id": "knoll",
+          "sealed_evidence_ids": [
+            "E025",
+            "E026",
+            "E027",
+            "E028"
+          ],
+          "specified_psychology": "Affection used to create an unpayable obligation; desire for a relationship beyond leverage; fear of unpriced care and debt; transactional control as survival; reciprocal obligation imposed on others; courteous welcome while measuring painful collection.",
+          "visual_correspondences": [
+            "The sealed reads independently centered the character on an oversized stamp, a long paper strip, administrative judgment, calculating attention, and a restrained asymmetric smile.",
+            "The eyes, head angle, hands, and weight all converge on the stamping action, visibly supporting a transactional or institutional mode of control."
+          ],
+          "visual_discrepancies": [
+            "Without an affected person or visible consequence, the action read as clerk, tax collector, merchant, bureaucrat, or benign craft pride as readily as coercive branding.",
+            "The specified service smile versus clinical predatory measurement did not separate cleanly from a familiar sly goblin smirk.",
+            "The private wish for non-transactional affection and fear of being placed in debt were not visually available.",
+            "The prop could be a mundane official seal rather than a painful reciprocal-obligation weapon.",
+            "At 96 pixels, the stamp is a small dark knob and the unit reads first as a dark goblin holding pale paper."
+          ],
+          "preserved_uncertainties": [
+            "Amusement, greed, vindictiveness, meticulousness, and satisfaction with completed work remain competing face reads.",
+            "The stamp's target, stakes, and effect remain unresolved."
+          ]
+        },
+        {
+          "unit_id": "quillith",
+          "sealed_evidence_ids": [
+            "E029",
+            "E030",
+            "E031",
+            "E032"
+          ],
+          "specified_psychology": "A pupil surpassed and left her after consuming her private ambitions; desire for permanent dependence called love; fear of being surpassed and made unnecessary; partial teaching and correction as survival; mentorship distorted into ownership; intimate approval while imposing a limit.",
+          "visual_correspondences": [
+            "The sealed reads identified a tall mature woman with direct controlled attention, an offered hand, a diagram-covered rectangular board, one raised brow, a restrained smile, and body-wide fissures.",
+            "The offered hand and socially directed face can accommodate intimate approval or controlled instruction, while the board can accommodate examination or correction."
+          ],
+          "visual_discrepancies": [
+            "The unaided read ranged among recruitment, bargain, seduction, condescension, reassurance, and confidence; a favored-pupil relationship was not decisive.",
+            "Fear of being surpassed, engineered dependency, withheld truth, and genuine care in conflict with ownership were not visibly isolated.",
+            "The copper fissures did not alter muscle tension or movement and read more like surface pattern than inflamed nerves or an active psychological cost.",
+            "The board did not unambiguously read as a correction slate and the open hand did not unambiguously direct obedience.",
+            "At 96 pixels, the fissures and diagrams disappear and the figure becomes a dark-clad woman carrying a case or tablet."
+          ],
+          "preserved_uncertainties": [
+            "The fissures may represent damage, stored power, tattoos, circuitry, or ornament.",
+            "The board's practical function and the offered hand's demand remain unresolved."
+          ]
+        },
+        {
+          "unit_id": "kett",
+          "sealed_evidence_ids": [
+            "E033",
+            "E034",
+            "E035",
+            "E036"
+          ],
+          "specified_psychology": "Cartel labor, debt, and public humiliation; desire for an impact that restores dignity; fear that complexity will expose helplessness; reduction of problems to three blows; other bodies made to absorb humiliation; controlled labor rage in conflict with desperate desire for release.",
+          "visual_correspondences": [
+            "The sealed reads independently identified a mature industrial-looking brawler, an enormously enlarged forward fist, a wide planted stance, immediate impact, facial tension, and a direct confrontational gaze.",
+            "The dominant fist and loaded body visibly support the specified focus on simple physical release through impact."
+          ],
+          "visual_discrepancies": [
+            "The sealed face read found a conventional tough-guy snarl or battle sneer rather than a specifically legible grievance or suppressed humiliation.",
+            "The specification says the lips stay compressed, while the sealed visual record observed a raised upper lip and partly exposed teeth.",
+            "The cheek's anticipated relief and the distinction between rigid restraint and desperate release were not cleanly visible.",
+            "Cartel debt, labor degradation, fear of complex problems, and the three-blow survival sequence were not recoverable from the image.",
+            "At 96 pixels, recognition depends on one pale fist and does not preserve facial psychology or the arm's anatomical-versus-armored construction."
+          ],
+          "preserved_uncertainties": [
+            "Rage, enjoyment of dominance, pain-bracing, and direct challenge remain competing face reads.",
+            "Whether the arm is anatomy, armor, curse, or temporary transformation remains unresolved."
+          ]
+        },
+        {
+          "unit_id": "luna",
+          "sealed_evidence_ids": [
+            "E037",
+            "E038",
+            "E039",
+            "E040"
+          ],
+          "specified_psychology": "Exclusion after two depended-on people formed a direct bond; desire to make every relationship require her; fear that two parties will compare accounts; controlled translation and manufactured conflict; warm invitation split by surveillance of a second party; performed intimacy covering fear of exclusion.",
+          "visual_correspondences": [
+            "The sealed reads independently identified a wide split stance, one strong diagonal strand, an inviting open hand, a second low open hand, and a face turned toward off-frame action.",
+            "The opposition of two hands and the diagonal connection across the body can accommodate a two-vector mediation or control premise."
+          ],
+          "visual_discrepancies": [
+            "The sealed face record described one sideways eye direction, one slightly lifted brow, a faint smile, and relaxed cheeks; it did not identify two independently legible gaze pairs.",
+            "Warm invitation versus cool surveillance, fear of comparison, and exclusion from direct connection were not visible as a specific contradiction.",
+            "The face read as calm confidence, graceful performance, satisfaction, caution, curiosity, or concentration without visible hostility, compulsion, shame, or strain.",
+            "The strand could be a staff, ribbon, slash line, binding, cutting line, healing effect, or movement trace rather than a clearly physical refractor ligament.",
+            "At 96 pixels, eye direction, lattice, secondary strands, and the two-party psychological construction disappear."
+          ],
+          "preserved_uncertainties": [
+            "The target and function of the strand remain unresolved.",
+            "The lattice may be consequence, body paint, scarring, or projected geometry."
+          ]
+        },
+        {
+          "unit_id": "malachor",
+          "sealed_evidence_ids": [
+            "E045",
+            "E046",
+            "E047",
+            "E048"
+          ],
+          "specified_psychology": "Irreversible bodily collapse postponed through stolen grafts; desire for continued existence without maintenance terror; fear of one unpaid moment of disintegration; debtor bodies incorporated as replacement material; circulatory hunger; fortress authority in conflict with panic about collapse.",
+          "visual_correspondences": [
+            "The sealed reads independently identified a huge low flesh-and-shell vault, exposed central and pincer hearts, invasive cords, rib cages, many supports, and an enormous clamp-like pincer.",
+            "Exposed vital organs, structural replacement-like anatomy, and the low many-legged fortress visually support bodily maintenance, vulnerability, hunger, and defensive authority."
+          ],
+          "visual_discrepancies": [
+            "The sealed face crop found no oriented eye, mouth, head, or sensing structure, so attention, entitlement, and maintenance panic were not directly locatable.",
+            "A still image did not visibly establish the specified contracting central heart or show which vascular change carries current emotion.",
+            "Stolen debtor bodies, graft provenance, refusal to die, and the economic logic of unpaid maintenance were not independently visible.",
+            "The exact hierarchy among central heart, pincer organ, ribs, legs, and controlling anatomy remained unclear.",
+            "At 96 pixels, only a small reddish center remains from the exposed-organ system."
+          ],
+          "preserved_uncertainties": [
+            "The head or controlling organ, sensing method, leg count, and pincer-heart function remain unresolved.",
+            "Heartbeat, limb posture, pincer movement, or an unseen organ could carry attention; the image does not decide among them."
+          ]
+        },
+        {
+          "unit_id": "sable",
+          "sealed_evidence_ids": [
+            "E041",
+            "E042",
+            "E043",
+            "E044"
+          ],
+          "specified_psychology": "A grievance dismissed for lack of authority-approved evidence; desire for undeniable proof; fear that contradiction will erase the grievance and self built around it; feelings converted into evidence and people into confirming targets; cold moral satisfaction covering doubt.",
+          "visual_correspondences": [
+            "The sealed reads independently identified a very long rifle, mature scarred face, narrowed sideways gaze, controlled mouth, practical ranged focus, and inscribed hanging strips.",
+            "The whole-body weapon line and steady attention can accommodate a proof-seeking target fixation."
+          ],
+          "visual_discrepancies": [
+            "The sealed visual record read the character as a mature lean woman with an adult feminine face, while the specification identifies a nonbinary androgynous design.",
+            "The face read as generic cool competence, vigilance, or restraint rather than specifically cold moral satisfaction with a suppressed flicker of doubt.",
+            "The stock was not visibly shouldered and the eye did not align through the scope, so face and weapon did not fully agree as an active evidentiary shot.",
+            "The grievance, authority's demand for proof, fear of contradictory evidence, and reduction of people to citations were not visually recoverable.",
+            "The hanging strips could be decorative records rather than a mobile archive of witness proof.",
+            "At 96 pixels, the rifle remains but facial psychology, inscriptions, scars, and archive detail disappear."
+          ],
+          "preserved_uncertainties": [
+            "Aiming, scanning, listening, posing, and pausing before a shot remain competing pose reads.",
+            "The strips' function, rifle technology, and relationship between weapon and supernatural identity remain unresolved."
+          ]
+        }
+      ],
+      "uncertainties": [
+        "The specification supplies internal history, motive, fear, and causal interpretation that a static character image cannot by itself confirm.",
+        "Several pose directions describe actions such as contraction, tracking a second party, swallowing an accusation, or closing an escape arc; the inspected evidence is static and does not establish motion.",
+        "The unit records contain no per-field source receipts inside E_PSYCHOLOGY_SPEC, so the provenance of individual authored psychology statements is not expressed within this file.",
+        "Age and sex-design labels are specification metadata; discrepancies above report only what the sealed images communicated unaided, not an independent identity claim."
+      ],
+      "contamination": []
+    }
+  ]
+}

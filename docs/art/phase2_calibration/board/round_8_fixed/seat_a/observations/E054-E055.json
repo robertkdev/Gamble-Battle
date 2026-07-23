@@ -1,0 +1,77 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E054",
+      "locator": "docs/art/phase2_calibration/audit_contract/unit_template.json",
+      "sha256": "4b7da04f74e9ac4b669f630886ae30b54e56fc0dee4ceb3d260aac7f692860c4",
+      "bytes": 6933,
+      "surface": "audit_record_contract",
+      "inspection_modes": ["SOURCE_REVIEW", "VALIDATOR_EXECUTION"],
+      "observations": [
+        "The JSON declares schema_version 2.0.0, record_kind unit_art_board_review, record_status TEMPLATE, criteria version 2026-07-21-v1, and a canonical criteria locator; criteria_sha256 and board_lineage_id are intentionally null placeholders.",
+        "The unit section separates identity and applicability inputs from art semantics: role, frontline flag, sex design category, visual lane, horror flag, primary and secondary trait channels, gameplay identity, preserved hook, dominant prop or anatomy, protection logic, supernatural cost, and villain emotion family all have dedicated fields.",
+        "The psychology section contains ten distinct fields spanning wound, want, fear, survival strategy, distortion, current state, contradiction, face direction, pose direction, and forbidden read.",
+        "The evidence section names five primary image artifacts, exactly three silhouette option labels, one selected option, source-master hashes and derivation methods for face and 96px derivatives, exact 96 by 96 metadata, three nearest neighbors, and roster comparison boards.",
+        "The reviews array contains exactly three preallocated seats in A, B, C order. Each seat has an independent round-one artifact receipt, fifteen verdict fields, six visible-face evidence fields, professional-standard fields, blockers, readiness, and a cross-examination artifact plus outcome fields.",
+        "The approval section distinguishes three derived unanimity or gate aggregates, a blocker ledger, Board status, user approval, and structured approval provenance.",
+        "Executing E055 against this file with --template returned PASS: unit-art Board template validation."
+      ],
+      "uncertainties": [
+        "The blank template alone does not declare allowed enum values, substantive-text thresholds, aggregation formulas, or conditional applicability rules; those semantics exist only in the paired validator source.",
+        "Only the 96px derivative declares exact dimensions. The template provides no expected dimensions, aspect-ratio constraints, color-space declaration, or alpha requirement for the other image artifacts.",
+        "The template requires visible-face evidence fields for every seat but does not express how those fields should be represented for a design without a conventional face or gaze mechanism.",
+        "The record contains a Vellum-specific comparison slot but no generalized list of benchmark identifiers or benchmark file receipts.",
+        "The template has no field identifying the validator version or hash that interpreted it."
+      ]
+    },
+    {
+      "evidence_id": "E055",
+      "locator": "docs/art/phase2_calibration/audit_contract/unit_validator.py",
+      "sha256": "951572741e67f8c33dafba24cf7fad55730426f826feac405352b5a2f83b4b3f",
+      "bytes": 49079,
+      "surface": "audit_record_contract",
+      "inspection_modes": ["SOURCE_REVIEW", "VALIDATOR_EXECUTION"],
+      "observations": [
+        "The validator hard-codes schema 2.0.0, record kind, record statuses, criteria version and locator, four visual lanes, four sex-design categories, eight protection-logic values, five villain-emotion families, ten always-required verdicts, five conditional verdicts, ten psychology fields, six visible-face evidence fields, five professional bands, and eight frozen professional dimensions.",
+        "Conditional verdict applicability is derived from unit metadata: two female non-horror gates, a female-frontliner protection gate, a deliberate-horror gate, and a Blessed trait gate. Unit validation also couples female, horror, and visual-lane values and requires explicit protection logic for a female frontliner.",
+        "Psychology and visible-face prose must be nonempty, not one of a small sentinel set, and at least 20 characters. Professional comparison, rejection, excellence, dimension-evidence, and dimension-comparison prose must be at least 40 characters.",
+        "The evidence checks require PNG declarations, A/B/C silhouette labels and selection, source-master SHA equality for both derivatives, exact derivation-method strings, 96 by 96 metadata, exactly three unique neighbor ids, at least one roster board, and distinct paths and hashes across visual artifacts.",
+        "Completed records require three unique reviewer ids across seats A, B, and C; required verdicts must be PASS or FAIL, conditional verdicts must be PASS or FAIL when applicable and NOT_APPLICABLE otherwise.",
+        "Each professional review must contain exactly the frozen eight-dimension set, mark every dimension critical, provide a valid band plus substantive evidence and benchmark comparison, and set the overall band equal to the lowest critical-dimension band. Professional passage requires that minimum to be at least PROFESSIONAL with HIGH or MEDIUM evidence confidence.",
+        "Seat readiness is recomputed from gates, professional passage, an empty seat blocker list, and a CLEARED cross-examination with no surviving blockers. Board status and three approval aggregates are then recomputed from all three seats and blocker collections.",
+        "USER_APPROVED status additionally requires a READY Board, user_approved true, a UUID-shaped thread id, nonempty turn and timestamp strings of minimum lengths, and a SHA-shaped approval-text hash; BOARD_REVIEWED instead requires user_approved false and null provenance.",
+        "With --check-files, the validator checks artifact existence, declared SHA against bytes, PNG extension, signature and IHDR, positive dimensions, exact 96 by 96 size for the native derivative, and JSON extension, UTF-8 parsing, and nonempty top-level collection for review records.",
+        "The self-test builds one positive record, accepts an internally consistent conditional failure as NOT_READY, and includes negative mutations for a failed gate masked as READY, empty psychology, conditional bypass, derivative-provenance mismatch, duplicate reviewer, false aggregate, invalid lane, horror-lane mismatch, unresolved cross-examination, wrong criteria hash, shared reviewer evidence, placeholder professional evidence, low-confidence READY, false approval provenance, and nonvisual files presented as images."
+      ],
+      "uncertainties": [
+        "At this frozen locator, ROOT is computed as Path(__file__).resolve().parents[2], which resolves to the repository's docs/art directory. DEFAULT_TEMPLATE and CRITERIA_PATH then append docs/art again, and record file paths are also joined to that ROOT. Direct template-only validation does not exercise those paths, so the intended runtime relocation or path basis is unresolved from E055 itself.",
+        "Substantive semantic truth is not machine-checked: prose that clears the sentinel and length rules can satisfy evidence fields without demonstrating that the visual claim is accurate.",
+        "Review and cross-examination JSON artifacts are checked only for extension, decoding, and a nonempty object or list; their internal seat, lineage, independence, criterion coverage, or claim-to-evidence schema is not validated.",
+        "The source-master provenance fields are compared with the selected master's declared SHA. Byte-level confirmation occurs only when --check-files is supplied, and the validator does not recompute the face crop or containment transform to prove that either derivative actually came from the master.",
+        "PNG inspection verifies container signature, IHDR, dimensions, and declared hash but does not decode the full image or test visual content, corruption after IHDR, transparency behavior, image-only blindness, or answer-bearing annotations.",
+        "The nearest-neighbor values are required only to be three unique nonempty strings; existence, roster membership, and actual visual nearness are not established.",
+        "Seat reviewer ids and artifact paths or hashes must be unique, but there is no machine-verifiable check of reviewer identity, independence, blindness, or whether the three records were produced by separate review sessions.",
+        "Visible-face evidence is always required with the same six fields, with no explicit alternate schema for faceless, masked, abstract, or nonhuman attention systems.",
+        "The blocker ledger and seat or cross-examination blocker arrays are individually used to prevent READY, but blocker identifiers are not required to be unique or cross-linked across those locations.",
+        "Approval provenance checks the timestamp and turn id only by type and minimum length, not by ISO timestamp parsing or by resolving the cited thread and turn; approval_text_sha256 is format-checked but not matched to accessible approval text.",
+        "The validator enforces an overall professional band equal to the lowest critical dimension, while it does not validate the declared top-level benchmark comparison against specific benchmark ids or receipts."
+      ]
+    }
+  ],
+  "execution_receipts": [
+    {
+      "command_scope": "E055 invoked only against E054 in template mode",
+      "arguments": [
+        "--template",
+        "docs/art/phase2_calibration/audit_contract/unit_template.json"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: unit-art Board template validation"
+    }
+  ]
+}

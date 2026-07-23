@@ -1,0 +1,70 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E054",
+      "locator": "docs/art/phase2_calibration/audit_contract/unit_template.json",
+      "sha256": "4b7da04f74e9ac4b669f630886ae30b54e56fc0dee4ceb3d260aac7f692860c4",
+      "surface": "audit_record_contract",
+      "inspection_modes": [
+        "DIRECT"
+      ],
+      "structural_observations": [
+        "The template fixes schema version 2.0.0, a canonical authority locator and version, nullable criteria and lineage hashes, one unit object, one ten-field psychology object, one evidence object, exactly three repeated review-seat objects labeled A, B, and C, and one approval object.",
+        "Unit fields explicitly capture combat role, frontliner state, sex-design category, visual lane, deliberate-horror state, primary and secondary trait channels, gameplay identity, preserved hook, dominant prop or anatomy, protection logic, supernatural cost, and emotion family.",
+        "Evidence fields separate a three-option silhouette sheet, selected master, same-master face derivative, deterministic 96-pixel derivative, Vellum-first comparison, three nearest neighbors, and roster boards; the face and 96 records each carry source-master hashes and fixed derivation labels.",
+        "Each seat contains one reviewer_id, an independent-record path and hash, fifteen verdict slots, six visible-face fields, a professional-standard block, blockers, readiness, and a cross-examination record path, hash, verdict, surviving blockers, outcome, and protected dissent.",
+        "Approval fields store derived gate, readiness, and professional booleans, a blocker ledger, Board status, a user-approved flag, and user-approval provenance."
+      ],
+      "semantic_observations": [
+        "The template itself does not define evaluator family, role, session, clean-context, instance, transcript, or sealed-payload identity fields.",
+        "It contains no per-artifact inspection receipt, observed-region list, inspection-mode list, criterion-by-criterion evidence binding, or surface-class reconstruction.",
+        "Independent round-one and cross-examination content is represented only by external JSON path and hash fields; peer targets, quoted claims, falsification attempts, claim identifiers, and evidence bindings are not modeled inside this template.",
+        "Professional-standard fields require one free-text benchmark comparison, rejection case, excellence gap, and an array of dimensions, but the template does not bind benchmark IDs, hashes, surfaces, or evidence IDs.",
+        "Most semantic fields are nullable placeholders, so substantive constraints depend on the separate validator rather than being expressed by a JSON schema in this artifact."
+      ],
+      "uncertainties": [
+        "External independent-round and cross-examination JSON files may contain provenance and evidence detail absent from the template, but their schemas are not identified here.",
+        "The exact object shape expected for user_approval_provenance is not shown in the template because the field is null.",
+        "The template does not state whether blocker strings must resolve to a separate claim or finding registry."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E055",
+      "locator": "docs/art/phase2_calibration/audit_contract/unit_validator.py",
+      "sha256": "951572741e67f8c33dafba24cf7fad55730426f826feac405352b5a2f83b4b3f",
+      "surface": "audit_record_contract",
+      "inspection_modes": [
+        "DIRECT"
+      ],
+      "structural_observations": [
+        "The validator enforces schema and authority tokens, enumerated lanes, sex categories, protection options and emotion families, ten required psychology fields, ten universal verdict gates, five conditional gates, six face-evidence fields, five professional bands, and eight professional dimensions.",
+        "It derives conditional female, frontline, deliberate-horror, and Blessed applicability from unit metadata and derives each seat's readiness from gate results, lowest professional dimension, evidence confidence, blockers, and cross-examination clearance.",
+        "It requires three unique reviewer_id strings, distinct round-one and cross-examination paths and hashes, source-master hash equality for face and 96 derivatives, exactly three unique neighbor IDs, nonempty roster-board evidence, and derived approval fields.",
+        "File mode checks artifact existence and SHA-256, inspects PNG signature and IHDR width and height, enforces the 96-by-96 dimensions, and parses review artifacts as nonempty UTF-8 JSON.",
+        "The self-test includes negative mutations for failed gates paired with readiness, empty psychology, false conditional inapplicability, derivative-hash mismatch, duplicate reviewer IDs, false aggregates, invalid lanes, horror-lane mismatch, unresolved cross-examination, wrong criteria hash, shared review evidence, placeholder prose, low-confidence readiness, unstructured user approval, and non-image visual evidence."
+      ],
+      "semantic_observations": [
+        "At this artifact's actual path, ROOT = Path(__file__).resolve().parents[2] resolves to the repository's docs/art directory; the resulting criteria and default-template locators resolve under docs/art/docs/art and do not exist.",
+        "Completed-record validation reads the computed criteria path without handling a missing-file exception inside validate_record, so the current-path locator prevents the criteria-byte comparison from completing.",
+        "Reviewer independence is reduced to unique reviewer_id values plus distinct path and byte-hash strings; evaluator family, instance, session, context, transcript, role, and sealed primary payload are not checked.",
+        "Round-one and cross-examination JSON files are accepted when they parse to any nonempty object or list; their internal seat identity, peer bindings, challenge completeness, quoted targets, evidence receipts, and semantic dispositions are not validated.",
+        "Face, psychology, benchmark, dimension, rejection-case, and excellence-gap evidence is checked primarily by enum membership, sentinel rejection, and minimum character length; no cited evidence or benchmark identifier must resolve.",
+        "The required free-text rejection_case and excellence_gap fields must each contain at least forty characters for every seat, including records that otherwise contain no blocker.",
+        "The declared crop_and_scale_only and deterministic_containment_only methods are checked as literal strings and source-hash fields, but the derived image pixels are not compared with the selected master.",
+        "PNG validation checks the signature and IHDR header but does not decode the complete image stream or require a valid terminal chunk.",
+        "The professional band is mechanically tied to the lowest supplied dimension and confidence, but the truth of the supplied dimension evidence and benchmark comparison remains outside the code's checks."
+      ],
+      "uncertainties": [
+        "The file may have been copied from a location where parents[2] would resolve to repository root, but the frozen artifact is stored and receipted at the path inspected here.",
+        "A separate external schema may validate the referenced round-one or cross-examination JSON records, but this artifact neither invokes nor identifies one.",
+        "No completed record was supplied in this evidence scope, so interactions among real blocker strings, external review files, and user-approval provenance were not directly exercised."
+      ],
+      "contamination": []
+    }
+  ]
+}

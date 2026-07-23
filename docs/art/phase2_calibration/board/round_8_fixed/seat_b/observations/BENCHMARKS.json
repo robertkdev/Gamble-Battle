@@ -1,0 +1,268 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "benchmark_id": "B_RIOT_BRIAR",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_briar_shipped.jpg",
+      "sha256": "d5a179d7c908e5bf077bb1ee017813dacbdf015ec2dd357d3d6a08af98a5fd4c",
+      "source_class": "SHIPPED_PEER",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "Shipped villain-woman splash illustration",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ],
+      "inspected_file": {
+        "width_px": 1215,
+        "height_px": 717
+      },
+      "visible_observations": [
+        "A pale adult woman crouches in a compressed forward diagonal beneath a large black spiked restraint structure that crosses behind and above her shoulders.",
+        "The outer read is governed by the long pointed restraint bar, bent legs, forward-reaching clawed hand, tilted head, and the dark foreground body beneath her.",
+        "Her face combines a strong head tilt, wide luminous eyes, raised and pinched brows, and an open sharp-toothed grin.",
+        "The palette separates pale skin and hair from black leather and metal, with magenta light along the face, hair, and restraint and cyan light through the environment.",
+        "Hard glossy restraint and leather surfaces, soft skin and hair, translucent magical light, foreground occlusion, and misty architectural depth are distinctly rendered.",
+        "The face occupies a small portion of the wide composition; the restraint bar, pale bent legs, hair halo, and magenta-cyan value pattern carry the largest source-scale signals."
+      ],
+      "surface_style_craft_characteristics": [
+        "The master is staged as a close cinematic action event rather than a neutral isolated full-body presentation.",
+        "Silhouette information is highly asymmetrical and pose-dependent, with the restraint device supplying the broadest horizontal mass.",
+        "Facial psychology is encoded through simultaneous pleasure, agitation, and predatory teeth rather than a neutral beauty pose.",
+        "The image uses selective sharpness, strong rim light, and atmospheric depth to concentrate detail around the head, restraint, and forward limbs."
+      ],
+      "uncertainties": [
+        "No native 96-pixel derivative or isolated transparent character asset is included in this benchmark file.",
+        "The cinematic foreground figure and environment contribute to the composition and cannot be separated from the character read in this image."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_RIOT_BELVETH",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_belveth_shipped.jpg",
+      "sha256": "255ee513034d082a1429e4cc5602e951ac70550455404c1428316dbec9cd1708",
+      "source_class": "INDEPENDENT_PROFESSIONAL",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "Shipped nonhuman villain splash illustration",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ],
+      "inspected_file": {
+        "width_px": 1215,
+        "height_px": 717
+      },
+      "visible_observations": [
+        "A towering nonhuman figure fills the frame from a low viewing angle, with a small human figure near the lower edge establishing the creature's scale.",
+        "The silhouette spreads laterally through enormous manta-like wings or fins while the central torso narrows into a pale ribbed breastplate and dark pointed shoulder structures.",
+        "A small humanoid mask-like head sits high above the torso, with a rigid mouth, recessed features, and glowing magenta eyes.",
+        "The palette is tightly controlled around black-violet, purple, magenta, and ivory; pale thorax plates and magenta nodes form the highest-contrast internal anchors.",
+        "Curved organic membranes, glossy chitin-like armor, bone-colored plates, suspended particles, and atmospheric violet light are separated by edge quality and reflected color.",
+        "The outer wing mass and pale central thorax occupy far more image area than the face or small ornamental nodes."
+      ],
+      "surface_style_craft_characteristics": [
+        "The master design combines a humanoid facial decoy with a much larger animal-like body plan.",
+        "Silhouette language is dominated by a broad wing span, crescent cutouts, hooked tips, and a narrow central vertical axis.",
+        "Facial affect is minimal and remote; threatening intent is carried primarily by scale, viewpoint, anatomy, and luminous eyes.",
+        "The composition preserves a clear central value hierarchy despite dense environmental and particle effects."
+      ],
+      "uncertainties": [
+        "No native 96-pixel derivative or isolated transparent character asset is included in this benchmark file.",
+        "The wing extremities merge with the dark environment in places, so their complete isolated contour is not visible."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_RIOT_CAMILLE",
+      "locator": "docs/art/phase2_calibration/benchmarks/riot_camille_shipped.jpg",
+      "sha256": "f6e1f6bb9698066bcafa532632f0a1a77cbf86ee6c1dc0bb9fa027514cda424c",
+      "source_class": "ASPIRATIONAL_PEER",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "Shipped adult female villain-action illustration",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ],
+      "inspected_file": {
+        "width_px": 1215,
+        "height_px": 717
+      },
+      "visible_observations": [
+        "A silver-haired adult woman is suspended in a long horizontal action pose, with her head and torso projecting rightward and both mechanical blade legs trailing leftward.",
+        "The silhouette is organized by an extended rear arm, taut cables, two elongated blade legs, swept coat panels, and a forward-pointing profile.",
+        "Her face is shown in clean profile with a lowered brow, closed mouth, narrowed forward gaze, and little extraneous expression.",
+        "Black and blue-gray garments and mechanical limbs are edged with restrained gold trim, while cyan modules and cable energy provide small high-chroma focal points.",
+        "Hair, cloth, polished metal, matte black panels, gold edging, and blue energy are differentiated through distinct highlight width, edge sharpness, and surface reflection.",
+        "The bright hair and face form a compact focal wedge, while the long dark blade legs and arm-cable line carry the largest directional shapes."
+      ],
+      "surface_style_craft_characteristics": [
+        "The character concept integrates equipment and anatomy by replacing the lower legs with long angular blades.",
+        "Silhouette clarity comes from a single strong travel direction and long separated appendage lines rather than a standing body envelope.",
+        "Facial psychology is restrained and task-focused, with the body line and mechanical action supplying most of the force.",
+        "The environment is softened and desaturated behind crisp character edges, preserving the head, torso, cables, and blades as the sharpest structures."
+      ],
+      "uncertainties": [
+        "No native 96-pixel derivative or isolated transparent character asset is included in this benchmark file.",
+        "The full blade-leg geometry is partly staged against architecture and motion, so the splash is not a neutral turnaround."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_VELLUM",
+      "locator": "docs/art/phase2_calibration/benchmarks/vellum_user_approved_raw.png",
+      "sha256": "824b55085428af5ef7e0e760edc76400b333c90d8d71c7703aa97848e6752c18",
+      "source_class": "USER_SUPPLIED_REFERENCE",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "User-approved isolated western-gothic character master",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ],
+      "inspected_file": {
+        "width_px": 1254,
+        "height_px": 1254
+      },
+      "visible_observations": [
+        "A full-body adult woman stands near-frontally in a long black coat, fitted corset, trousers, gloves, and high-heeled boots, holding a large feather quill in one hand and an open parchment scroll in the other.",
+        "The silhouette widens through pointed shoulders, long ragged coat tails, many curling parchment ribbons, the quill, and branching black ink forms.",
+        "Her face uses a direct unsmiling gaze, lowered brows, dark lips, fine line markings, and asymmetrical black-and-silver hair crossing one side of the face.",
+        "The dominant materials are dry worn black leather or cloth, tan fibrous parchment, red wax seals, dark metal, black liquid or smoke, and small pale-blue sigils.",
+        "Bronze-gold seam and occult linework covers large garment areas, while frayed hems, script, hair strands, seal impressions, and ink splashes create dense small-scale texture.",
+        "Large pale parchment arcs, the face, the feather quill, the shoulder points, and the triangular coat envelope remain the broadest value and contour structures; much of the garment symbolism is substantially finer."
+      ],
+      "surface_style_craft_characteristics": [
+        "The concept uses a mostly upright centered body as a stable core and places animated paper and ink asymmetrically around it.",
+        "Silhouette variation is generated by external prop ribbons and ragged cloth edges more than by a nonhuman body plan.",
+        "Facial psychology is controlled and severe, carried by a direct gaze, compressed mouth, brow angle, and marked skin.",
+        "The rendering is line-dense and dry, with repeated etched ornament, abrasion, stitching, script, and fibrous edges rather than broad glossy gradients."
+      ],
+      "uncertainties": [
+        "No native 96-pixel derivative is included; dense garment linework and script cannot be directly assessed at that target size from this file alone.",
+        "The saturated orange field is a presentation or keying background rather than an illustrated environment or transparent channel."
+      ],
+      "contamination": []
+    },
+    {
+      "benchmark_id": "B_MORWEN",
+      "locator": "docs/art/phase2_calibration/benchmarks/morwen_user_approved.png",
+      "sha256": "7d93ca00f9d4a0079bed39867e9429635ffa78a2df879f4aedd2c1443565b8ec",
+      "source_class": "USER_SUPPLIED_REFERENCE",
+      "surfaces": [
+        "master_concepts",
+        "silhouette_exploration",
+        "face_psychology",
+        "native_96_read",
+        "roster_style_convergence"
+      ],
+      "artifact_class": "User-approved isolated adult female villain master",
+      "artifact_surface_classes": [
+        "CHARACTER"
+      ],
+      "anchored_dimension_ids": [
+        "D_MASTER_CHARACTER_DESIGN",
+        "D_SILHOUETTE_LANGUAGE",
+        "D_FACE_PSYCHOLOGY",
+        "D_NATIVE_96_LEGIBILITY",
+        "D_ROSTER_CONVERGENCE_CONTROL",
+        "U_AUDIENCE_INTENT_FIT",
+        "U_CRAFT_FINISH",
+        "U_COHERENCE_HIERARCHY",
+        "U_DISTINCTIVENESS",
+        "U_COMPLETENESS_DOWNSTREAM_USABILITY"
+      ],
+      "inspected_file": {
+        "width_px": 1024,
+        "height_px": 1536
+      },
+      "visible_observations": [
+        "A full-body adult woman stands in a rear three-quarter pose with her head turned back toward the viewer, one arm hanging beside a long serrated sword.",
+        "The principal silhouette is a tall fitted human figure split by a ragged cape and skull pauldron on the left and a long bone-edged blade on the right.",
+        "Her face uses a sidelong narrowed gaze, slightly parted dark lips, a raised chin, wet strands of dark hair, and visible scars or blood marks.",
+        "The costume is dominated by fitted worn black leather: corset lacing, strapped trousers, long gloves, high-heeled boots, belts, buckles, and fine contrasting stitches.",
+        "Pale scarred skin, a bone-like skull shoulder piece, a dark frayed cape, aged metal hardware, dried red marks, and the serrated blade are separated through dry texture and narrow highlights.",
+        "At the source scale, the cape edge, skull shoulder, turned pale face and back, long legs, and blade are the major contour or value anchors; stitching, scratches, and small blood marks are much finer."
+      ],
+      "surface_style_craft_characteristics": [
+        "The master uses a controlled rear-view pose to expose the laced costume structure while keeping the face engaged through the over-shoulder turn.",
+        "Silhouette identity is concentrated in the counterbalanced cape-and-skull mass and long serrated sword around an otherwise narrow upright body.",
+        "Facial psychology is conveyed through sidelong eye contact, chin angle, parted lips, surface damage, and the guarded body turn.",
+        "The rendering emphasizes dry worn leather, accumulated abrasion, stitching, scars, bone ridges, and restrained metallic reflection."
+      ],
+      "uncertainties": [
+        "No native 96-pixel derivative is included; the survival of fine stitching, scars, and leather wear at that target size cannot be directly inspected here.",
+        "The saturated orange field is a presentation or keying background rather than an illustrated environment or transparent channel."
+      ],
+      "contamination": []
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E049",
+      "locator": "docs/art/phase2_calibration/phase2_calibration_contact_sheet.png",
+      "sha256": "b53957db4c5e8be5715adb2ce74af201f342d09a29a5643c24ac2871a07cfbf1",
+      "surface": "roster_style_convergence",
+      "inspection_modes": [
+        "SIDE_BY_SIDE"
+      ],
+      "visible_observations": [
+        "Twelve master cards appear in a three-by-four grid with a common smoky dark background, low-chroma brown-black palette, isolated full-body framing, and a silhouette strip beneath each master.",
+        "Veyra, Nyxa, Creep, and Malachor retain strongly nonhuman outer shapes; Korath's arch, Pilfer's hand, Kett's fist, Sable's rifle, and Knoll's paper-and-stamp action provide other large identifiers.",
+        "Cashmere, Quillith, Luna, and Sable share tall human proportions, fitted dark clothing, narrow waists, long legs, and mostly restrained studio poses."
+      ],
+      "defects": [
+        "Dark leather, black cloth, brown straps, smoky backgrounds, and similar low-key lighting recur across most humanoids, compressing garment and material separation.",
+        "Cashmere and Quillith both combine an attractive standing woman, a rectangular occult document object, fitted dark trousers, and an extended hand.",
+        "Image scale and empty margins vary substantially between tall humanoids, wide creatures, and compact units, weakening direct size comparison."
+      ],
+      "uncertainties": [
+        "The sheet does not show actual gameplay spacing, neighboring placement, animation, or environment.",
+        "The card layout does not establish whether apparent scale differences are character scale or image fitting."
+      ],
+      "contamination": [
+        "Every card prints the unit name, role, trait labels, and a selected-silhouette letter beside the visual evidence."
+      ]
+    },
+    {
+      "evidence_id": "E050",
+      "locator": "docs/art/phase2_calibration/phase2_face_board.png",
+      "sha256": "23ae410e7a196095484e422b14d2103bb02bd92bde7d7df88c3b8695aa3b75b8",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT",
+        "SIDE_BY_SIDE"
+      ],
+      "visible_observations": [
+        "Twelve face or attention crops appear in a two-column board at similar card widths, making eye direction, mouth shape, head angle, and nonhuman attention mechanisms visible together.",
+        "Korath is downcast and compressed, Pilfer smiles crookedly, Kett exposes teeth, Sable tracks sideways, and Cashmere, Quillith, and Luna use mild narrowed-eye or small-smile expressions.",
+        "Veyra and Malachor show enclosed anatomy or an organ cage rather than a conventional face, while Creep shows black eye cavities without a mouth."
+      ],
+      "defects": [
+        "Several attractive humanoid faces converge on polished skin, controlled brows, direct or sideways eyes, and restrained closed mouths rather than strongly differentiated visible states.",
+        "Veyra and Malachor lack a clear gaze or facial action in their crops, so their attention cannot be compared on the same visual terms as the humanoids.",
+        "Crop scale and included body context differ, with some cards showing a tight head and others showing large anatomy or weapon regions."
+      ],
+      "uncertainties": [
+        "The still board cannot reveal blinking, pulsing organs, shifting apertures, or other temporal attention cues."
+      ],
+      "contamination": [
+        "Each crop is placed beside extensive answer-bearing text for private want, primary fear, active survival strategy, current emotion, contradiction, visible face direction, and forbidden read.",
+        "The board header states the intended review question and an explicit stopping condition before the images are inspected."
+      ]
+    },
+    {
+      "evidence_id": "E050_roster_style_convergence",
+      "locator": "docs/art/phase2_calibration/phase2_face_board.png#roster_style_convergence",
+      "sha256": "23ae410e7a196095484e422b14d2103bb02bd92bde7d7df88c3b8695aa3b75b8",
+      "surface": "roster_style_convergence",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT",
+        "SIDE_BY_SIDE"
+      ],
+      "visible_observations": [
+        "Across the twelve crops, human and humanoid faces share the same dark studio background, close three-quarter framing, controlled realistic rendering, and subdued palette.",
+        "The roster spans bearded giant, pod anatomy, several adult women, ratlike humanoid, batlike creature, faceless alien, pointed-ear clerk, tattooed bruiser, and organ-cage monster.",
+        "Cashmere, Quillith, Luna, and Sable all retain attractive adult facial proportions, groomed dark or blonde hair, restrained lips, and composed eyes, while their surface markings and props provide most differentiation."
+      ],
+      "defects": [
+        "The composed female expressions cluster around calm confidence, faint smile, or cool concentration, reducing emotional separation at roster scale.",
+        "Several male or humanoid faces also use a compressed brow plus closed or partly exposed mouth, creating a recurring serious-or-smug family."
+      ],
+      "uncertainties": [
+        "The board does not show the faces at gameplay scale or in moving combat states."
+      ],
+      "contamination": [
+        "Names, roles, sex categories, deliberate-horror labels, full psychology explanations, visible-direction instructions, and forbidden interpretations are printed next to every crop."
+      ]
+    },
+    {
+      "evidence_id": "E051",
+      "locator": "docs/art/phase2_calibration/phase2_calibration_96px_board.png",
+      "sha256": "62175cf2664e81230ab1b8b0fcb91d32967eda67f0e9b9827a832bd0a22f07be",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96",
+        "SIDE_BY_SIDE"
+      ],
+      "visible_observations": [
+        "Twelve small square unit images appear in equal cards, allowing the native derivatives to be scanned in a consistent grid.",
+        "Veyra's pod, Nyxa's bow and ears, Creep's tendril ring, Malachor's pincer, Korath's arch, Kett's fist, and Sable's rifle remain the strongest small-scale shapes.",
+        "Cashmere, Knoll, Quillith, and Sable reduce to narrow dark humanoids whose prop or arm extension carries most recognition."
+      ],
+      "defects": [
+        "Faces, skin markings, small supernatural effects, document surfaces, garment construction, and most material distinctions disappear across the set.",
+        "The common near-black backgrounds merge with dark clothing and rear appendages in many icons.",
+        "The printed text for Quillith and Malachor visibly truncates inside their cards, showing layout pressure around long trait strings."
+      ],
+      "uncertainties": [
+        "The board does not show these icons on an actual battlefield, with selection states, health bars, overlap, or motion."
+      ],
+      "contamination": [
+        "Every icon is accompanied by the unit name, role, traits, and a printed primary trait that can identify or explain an otherwise ambiguous image."
+      ]
+    },
+    {
+      "evidence_id": "E051_roster_style_convergence",
+      "locator": "docs/art/phase2_calibration/phase2_calibration_96px_board.png#roster_style_convergence",
+      "sha256": "62175cf2664e81230ab1b8b0fcb91d32967eda67f0e9b9827a832bd0a22f07be",
+      "surface": "roster_style_convergence",
+      "inspection_modes": [
+        "NATIVE_96",
+        "SIDE_BY_SIDE"
+      ],
+      "visible_observations": [
+        "The nonhuman units remain separated by pod, bow, tendril, arch, and pincer silhouettes, while the humanoid cluster shares dark bodies on matching dark squares.",
+        "Cashmere and Quillith both read as standing women with one extended arm and one rectangular object; Knoll also retains a pale rectangular paper accent.",
+        "Kett's enlarged fist and Sable's long rifle preserve role-scale asymmetry more clearly than the smaller hand, face, and garment identifiers of the other humanoids."
+      ],
+      "defects": [
+        "Shared dark palettes and similar upright human proportions narrow roster separation among Cashmere, Knoll, Quillith, Luna, and Sable.",
+        "Most individual psychology and supernatural-cost marks do not survive at this grid scale."
+      ],
+      "uncertainties": [
+        "Names and role text remain adjacent to every image, so unaided icon-only roster recognition is not isolated by the board."
+      ],
+      "contamination": [
+        "The unit names, roles, traits, and primary-trait labels provide answer-bearing identity beside each native-size image."
+      ]
+    },
+    {
+      "evidence_id": "E052",
+      "locator": "docs/art/phase2_calibration/comparisons/phase2_master_comparison.png",
+      "sha256": "5530e78a4e768ecacced76196ee9812ecf2571b0123c2a86872ae8669831045d",
+      "surface": "roster_style_convergence",
+      "inspection_modes": [
+        "SIDE_BY_SIDE"
+      ],
+      "visible_observations": [
+        "The twelve masters are grouped into Tank, Mage, Assassin, Support, Marksman, and Brawler panels, revealing large within-role differences for tanks, assassins, and marksmen.",
+        "Cashmere and Luna share slim adult female bodies, open-hand casting gestures, fitted dark clothing, and long legs; Knoll and Quillith both pair a dark humanoid with a pale rectangular document object.",
+        "Nyxa and Sable separate clearly through organic bow versus rifle, while Korath, Veyra, and Malachor separate through giant humanoid, pod, and arthropod construction."
+      ],
+      "defects": [
+        "Wide creatures and tall humanoids are fitted into different image windows and empty margins, making body-scale and finish comparison uneven.",
+        "Some role groups contain only one unit or visually dissimilar mechanisms, so the board does not consistently expose the closest visual neighbors.",
+        "Dark fitted garments, straps, boots, and smoky backgrounds recur across most humanoids despite different role headings."
+      ],
+      "uncertainties": [
+        "The board supplies no gameplay scene or interaction proving how the grouped silhouettes separate during use."
+      ],
+      "contamination": [
+        "Every panel includes producer-authored lane, prop or anatomy, visible-cost, emotion, and contradiction text beside the master.",
+        "The header explicitly instructs what to compare and states that the grouped labels expose same-role collisions."
+      ]
+    },
+    {
+      "evidence_id": "E053",
+      "locator": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png",
+      "sha256": "16fe7e59d589ea3e90ff8716786fd561c95ab13159c851dcdbd53c873fd82ae6",
+      "surface": "roster_style_convergence",
+      "inspection_modes": [
+        "SIDE_BY_SIDE",
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A large separate Vellum panel appears above a three-by-four grid of the twelve current masters; all use dark isolated character presentation.",
+        "The upper figure combines a long dark tailored coat, corseted torso, raised quill, and many curling paper strips; Cashmere, Knoll, and Quillith also use dark tailored garments with book, paper, board, or inscription motifs.",
+        "Nonhuman units preserve strong body-plan separation, while several humanoids repeat black or brown leather, long panels, straps, boots, and open-hand presentation."
+      ],
+      "defects": [
+        "The upper reference panel and current-unit cards use different crop sizes, backgrounds, poses, and surrounding text, limiting direct visual comparison.",
+        "Paper or document motifs recur across the upper figure, Cashmere, Knoll, and Quillith, while fitted dark leather and long tailored panels recur more broadly.",
+        "The current masters are scaled to equal card widths rather than equal character height or use scale."
+      ],
+      "uncertainties": [
+        "The board does not show how repeated materials separate under gameplay lighting or at native runtime size."
+      ],
+      "contamination": [
+        "The upper panel explicitly labels Vellum as a reference, states its intended comparison function, lists what not to copy, asks an answer-bearing phase question, and prints approval-anchor provenance.",
+        "Each current card prints lane, emotion, and dominant-idea text beneath the image."
+      ]
+    },
+    {
+      "evidence_id": "E053_master_concepts",
+      "locator": "docs/art/phase2_calibration/comparisons/phase2_vellum_first_comparison.png#master_concepts",
+      "sha256": "16fe7e59d589ea3e90ff8716786fd561c95ab13159c851dcdbd53c873fd82ae6",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "SIDE_BY_SIDE",
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "All twelve masters are visible together beneath the separate upper figure, exposing consistent dark backgrounds, detailed surface rendering, and isolated full-body presentation.",
+        "Individual master identities are carried by large dominant shapes: Korath's arch, Veyra's pod, Pilfer's hand, Nyxa's bow, Creep's tendrils, Kett's fist, Malachor's pincer, and Sable's rifle.",
+        "Cashmere, Quillith, and Luna depend more heavily on small skin marks, thin effects, hand gestures, and rectangular props than on a radically different body silhouette."
+      ],
+      "defects": [
+        "Several current humanoids repeat fitted dark trousers, boots, straps, long panels, and studio-front presentation.",
+        "Fine identity mechanisms such as ink drips, skin lattices, copper cracks, facial scars, and document diagrams are much less visible at the board's master-card scale.",
+        "The current masters are not shown at a common physical or gameplay scale."
+      ],
+      "uncertainties": [
+        "The board cannot establish rear-view construction, animation, material response, or interaction behavior for any master."
+      ],
+      "contamination": [
+        "The file surrounds the masters with explicit reference instructions, intended lane and emotion labels, dominant-idea claims, and approval-source text."
+      ]
+    }
+  ]
+}

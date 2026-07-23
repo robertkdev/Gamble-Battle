@@ -1,0 +1,85 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E054",
+      "locator": "docs/art/phase2_calibration/audit_contract/unit_template.json",
+      "sha256": "4b7da04f74e9ac4b669f630886ae30b54e56fc0dee4ceb3d260aac7f692860c4",
+      "surface": "audit_record_contract",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "DIRECT"
+      ],
+      "structural_observations": [
+        "The JSON object has twelve top-level keys and identifies schema_version 2.0.0, record_kind unit_art_board_review, record_status TEMPLATE, a canonical criteria path, and criteria version 2026-07-21-v1.",
+        "The unit object contains fifteen fields covering identity, combat role, frontliner status, sex-design category, visual lane, horror status, primary and secondary traits, gameplay hook, dominant prop or anatomy, protection logic, supernatural cost, and villain emotion family.",
+        "The psychology object contains ten fields: core wound, private want, primary fear, survival strategy, villainous distortion, current emotional state, emotional contradiction, face direction, pose direction, and forbidden read.",
+        "The evidence object contains five named image artifacts plus three_nearest_neighbors and roster_comparison_boards. Each named artifact carries path, SHA-256, and media type placeholders.",
+        "The silhouette artifact declares option labels A, B, and C and a selected-option slot. The face and 96-pixel artifacts carry source-master hash slots and fixed derivation-method labels; the 96-pixel artifact additionally declares width and height as 96.",
+        "The reviews array contains exactly three parallel seat objects ordered A, B, and C. Each has an independent-round record receipt, fifteen verdict slots, six visible-face evidence fields, six professional-standard fields, blockers, readiness, and a seven-field cross-examination object.",
+        "The approval object contains three derived aggregate flags, a blocker ledger, board status, user-approved state, and user-approval provenance."
+      ],
+      "semantic_observations": [
+        "The template separates identity and intended psychology from evidence receipts, seat-authored review material, cross-examination, and final approval state.",
+        "All unit-specific, psychology, reviewer, verdict, professional-band, blocker, readiness, and approval values are blank placeholders; criteria_sha256 and board_lineage_id are also null in the template state.",
+        "Independent review and cross-examination are represented as external JSON artifacts with path and hash receipts rather than embedded review transcripts.",
+        "The professional-standard structure reserves both an overall band and a critical-dimensions array, together with benchmark comparison, rejection case, excellence gap, and confidence fields.",
+        "Board status and user approval are represented separately, with a dedicated provenance slot for the latter."
+      ],
+      "uncertainties": [
+        "The template is an example JSON record rather than a JSON Schema, so required fields, allowed enum values, conditional applicability, and aggregation rules are not expressed within E054 itself.",
+        "The template alone does not state which of the fifteen verdicts are always required versus conditionally applicable.",
+        "three_nearest_neighbors is an array of identifiers without embedded path or hash receipts, and the required structure of roster_comparison_boards is not specified inside the blank array.",
+        "The vellum_first_comparison artifact has a generic image receipt but no separate source-reference identity or derivation-provenance fields in this template.",
+        "No completed instance is part of E054, so populated-value behavior and cross-field consistency cannot be observed from this artifact alone."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E055",
+      "locator": "docs/art/phase2_calibration/audit_contract/unit_validator.py",
+      "sha256": "951572741e67f8c33dafba24cf7fad55730426f826feac405352b5a2f83b4b3f",
+      "surface": "audit_record_contract",
+      "kind": "PRODUCT_ARTIFACT",
+      "inspection_modes": [
+        "DIRECT"
+      ],
+      "structural_observations": [
+        "The Python file is 973 lines and exposes separate validation paths for a blank template, a completed record, referenced files, semantic self-tests, and file-evidence self-tests.",
+        "The validator freezes four visual lanes, four sex-design categories, eight protection-logic values, five villain-emotion families, ten required verdicts, five conditional verdicts, ten psychology fields, six visible-face evidence fields, five professional bands, and eight required professional dimensions.",
+        "Command-line parsing requires exactly one of --template or --record, with optional --self-test and --check-files switches.",
+        "Template validation checks version, kind, template status, authority, criteria version, top-level object types, exactly three ordered seats, presence of all verdict keys, review-artifact media declarations, cross-examination shape, psychology keys, evidence keys and image media declarations, and the user-approval-provenance key.",
+        "Completed-record validation adds unit text and enum checks, visual-lane and horror cross-field rules, ten substantive psychology strings, artifact receipts, derivative source hashes, fixed derivation labels, exact declared 96-by-96 dimensions, three unique neighbor identifiers, at least one roster board, and distinct paths and hashes for visual evidence.",
+        "Each completed seat requires a unique reviewer identifier, a distinct independent-round JSON receipt, PASS or FAIL values for required and applicable conditional verdicts, NOT_APPLICABLE for inapplicable conditional verdicts, substantive visible-face evidence, professional-band material, blockers, readiness, and a cross-examination receipt and outcome.",
+        "The overall professional band is checked against the lowest critical-dimension band. Professional readiness requires that lowest band to be at least PROFESSIONAL and confidence to be HIGH or MEDIUM.",
+        "Per-seat readiness is recomputed from gates, professional status, blockers, and cleared cross-examination. Approval aggregates and board status are then recomputed from all three seats and blocker state.",
+        "USER_APPROVED records require READY board status, user_approved true, and structured provenance containing a UUID thread id, substantive turn and timestamp strings, and an approval-text SHA-256.",
+        "Optional file checking verifies existence and declared hashes, PNG extension, signature, IHDR, positive dimensions, exact 96-by-96 dimensions for the native check, and nonempty parseable JSON review artifacts.",
+        "The self-test constructs a syntactically valid BOARD_REVIEWED control, accepts an honest conditional failure when its derived status is NOT_READY, and applies negative mutations for gate bypasses, missing psychology, derivative-hash mismatch, reviewer duplication, false aggregates, invalid lanes, unresolved cross-examination, criteria-hash mismatch, shared review evidence, placeholder professional evidence, low-confidence readiness, and unstructured user approval.",
+        "The file-evidence self-test creates temporary PNG and JSON artifacts, validates a file-backed control, and checks that a non-image criteria file cannot pass as PNG visual evidence."
+      ],
+      "semantic_observations": [
+        "Conditional applicability is derived from female design, deliberate-horror status, frontliner status, and presence of the Blessed trait in either primary or secondary channels.",
+        "A non-horrific female record is required to use the hot_adult_woman lane, while deliberate-horror records are required to use one of the two horror lanes; a female frontliner cannot use not_applicable protection logic.",
+        "An honest FAIL is structurally valid when downstream readiness and aggregate fields reflect that failure; the validator rejects inconsistency rather than requiring every submitted record to be READY.",
+        "Without --check-files, artifact path and hash fields are checked for text, syntax, declared media type, uniqueness, and declared provenance, but referenced bytes are not opened.",
+        "Even with --check-files, the image checks establish PNG container identity and dimensions rather than visual content, crop boundaries, silhouette-option content, or whether a declared crop or containment transform was actually applied.",
+        "The source-master provenance checks compare declared SHA-256 strings for face and 96-pixel derivatives; they do not reconstruct or compare the image transformation.",
+        "The blocker ledger participates in board-status derivation, but no rule in E055 requires its entries to equal the union of seat blockers and surviving cross-examination blockers.",
+        "validate_template checks a subset of the blank record's nested contract: it does not enumerate the fifteen unit keys, visible-face fields, professional-standard fields, or approval aggregate fields beyond user_approval_provenance.",
+        "ROOT is assigned Path(__file__).resolve().parents[2]. At E055's frozen locator this resolves to docs/art, after which DEFAULT_TEMPLATE and CRITERIA_PATH append docs/art again, yielding duplicated docs/art/docs/art path segments.",
+        "DEFAULT_TEMPLATE names docs/art/unit_art_board_review_template.json, while the directly paired E054 artifact is docs/art/phase2_calibration/audit_contract/unit_template.json."
+      ],
+      "uncertainties": [
+        "Only E055 and E054 were inspected, so it is unknown whether an external launcher copies E055 to a different directory before execution or otherwise compensates for the in-place ROOT calculation.",
+        "The separately named DEFAULT_TEMPLATE target was not opened, so its intended relationship to E054 cannot be established from the assigned artifacts.",
+        "The validator was inspected statically and its external criteria or default-template dependencies were not opened under this checkpoint's restricted scope.",
+        "Semantic truth of authored prose, visual quality, nearest-neighbor identity, and benchmark appropriateness are outside the checks implemented by this file."
+      ],
+      "contamination": []
+    }
+  ]
+}
