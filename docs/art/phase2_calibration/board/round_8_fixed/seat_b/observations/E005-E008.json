@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E005",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+      "sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "An upright ovoid creature stands on two short hoof-like legs, enclosed by overlapping pale carapace plates separated by dark fibrous seams.",
+        "The front opens around a bound cocoon-like inner body with a vertical toothed maw, while a second tapered structure above it carries a narrow purple slit.",
+        "Cracks, blood-dark seams, corded tissue, and irregular plate edges keep the body tactile and worn rather than clean or ornamental."
+      ],
+      "strengths": [
+        "The nested shell, exposed central captive or organ, double vertical apertures, and compressed legs create a singular nonhuman body plan.",
+        "Horror is embodied through enclosure, binding, teeth, and incompatible anatomical layers rather than detached effects."
+      ],
+      "defects": [
+        "The nearly symmetrical upright presentation is static and defensive; no limb, weight shift, or attack line visibly demonstrates how the creature threatens or fights.",
+        "The central bound body can read as a victim carried inside a protective seed pod, which competes with the read of the whole form as one hostile actor."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the purple slit, toothed opening, or inner cocoon is the controlling intelligence.",
+        "The movement method and gameplay action are not visually certain beyond slow armored advance."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E006",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+      "sha256": "03503f19e50fbb4e73b09cc2d8b402750b8cc15d24abe222b7cca8a2b2c11ff7",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black silhouettes explore a tall closed blade-like pod on two legs, a low wide opened shell supported by multiple articulated legs, and an upright oval shell opened around a central cocoon on two legs.",
+        "The candidates materially vary height, locomotion, negative space, shell opening, and how much internal anatomy is exposed."
+      ],
+      "strengths": [
+        "Candidate A is a severe vertical spike, candidate B is an arachnid-like low mass, and candidate C is a contained upright reliquary; the alternatives are genuinely distinct body plans.",
+        "Candidate C retains both the leaf-armored outline and a readable central void that separates the inner body from the shell."
+      ],
+      "defects": [
+        "Candidate A is so closed that it reads primarily as a seed or architectural fin, while candidate C's paired legs and smooth oval mass reduce kinetic threat.",
+        "Candidate B supplies the clearest predatory locomotion but its dense shell hides the internal mouth-and-cocoon identity."
+      ],
+      "uncertainties": [
+        "The sheet does not establish whether any shell parts articulate during movement or attack."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E007",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+      "sha256": "6f1086f23c977e38724db76d6843c71950739d1a65abf78077f98e4f70c31f86",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "The enlargement contains no humanoid face: a narrow purple slit sits in a tapered upper plate above a wrapped inner body whose vertical opening is lined with nested teeth.",
+        "Rigid pale plates crowd both apertures while dark cords cross the inner body, producing a restrained, compressed, and invasive relationship between shell and core."
+      ],
+      "strengths": [
+        "The absence of a conventional face is a coherent nonhuman mechanism, and the slit-over-maw arrangement creates a watchful upper sensor paired with feeding anatomy.",
+        "Binding cords and enclosing plates make confinement or compulsion physically visible."
+      ],
+      "defects": [
+        "Neither aperture has directional focus, asymmetrical tension, or a visible target, so the image communicates alien anatomy more clearly than a current psychological state.",
+        "The wrapped inner form still risks reading as prey or offspring rather than the active face of the creature."
+      ],
+      "uncertainties": [
+        "It is unclear which aperture perceives the viewer and whether the visible relationship is predation, gestation, imprisonment, or symbiosis."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E008",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+      "sha256": "c06521e2d61dd072f43895bdd1d2b280419670a74a28fe36c058c383d5a20e73",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the pale oval shell, dark central cleft, repeated diagonal plates, and two short legs remain legible.",
+        "The purple slit, inner bindings, tooth structure, blood-dark seams, and distinction between the two apertures disappear into the narrow dark center."
+      ],
+      "strengths": [
+        "The closed leaf or pinecone outline is immediately distinct and the light shell separates cleanly from the dark background.",
+        "The central opening survives as a simple high-contrast structural cue."
+      ],
+      "defects": [
+        "The native read is closer to a stationary seed pod than an active hostile creature because the small legs and internal maw carry little visual weight.",
+        "Threat, psychology, and the bound-inner-body concept do not survive at this scale."
+      ],
+      "uncertainties": [
+        "The image alone does not establish whether players would read an armored creature, plant pod, egg, or environmental object during gameplay."
+      ],
+      "contamination": []
+    }
+  ]
+}

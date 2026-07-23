@@ -1,0 +1,92 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E009",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+      "sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature, fit woman stands upright in a sleeveless fitted dark coat, trousers, and boots, with a large engraved book or rigid folio held against one hip.",
+        "Her viewer-left arm reaches toward the viewer; that hand is coated in glossy black material that drips from long pointed fingertips, while dense script-like marks climb both arms and the neck.",
+        "A high collar and long split coat tails frame an hourglass silhouette, while the uncovered arms and neckline keep the body design visibly feminine without exposed armor.",
+        "Direct eye contact, a slightly raised brow, squared shoulders, and the extended hand create a controlled invitation or demand rather than an active strike."
+      ],
+      "defects": [
+        "The coat, trousers, boots, and book share closely related dark brown-black materials, reducing separation through the torso and legs.",
+        "The thin black drips and arm inscriptions carry much of the supernatural detail but become visually minor beside the large rectangular folio.",
+        "The image does not show how the book and dripping hand translate into an immediate combat action."
+      ],
+      "uncertainties": [
+        "The unaided image supports command, invitation, or coercion, but does not isolate which of those is the intended immediate motive."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E010",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+      "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three materially different arrangements are shown: a seated reader behind an open oversized book, a tall standing figure presenting one dripping hand beside a closed folio, and a wide standing figure holding multiple unfolded text panels.",
+        "The middle candidate matches the master through the upright stance, raised hand, paired long coat tails, and single large rectangular folio.",
+        "The alternatives change overall width, posture, and the book's function rather than only changing hand position."
+      ],
+      "defects": [
+        "The selected middle candidate's first read is a conventional slim standing humanoid plus a rectangle; the ink drips and fingers are too thin to carry the outer silhouette strongly.",
+        "The selected candidate has less outer-contour novelty than the seated block shape or the wide unfolded-panel arrangement."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E011",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+      "sha256": "41241e1494145d0ba06019b4098eabd17e132efe7dfcf36a4dff15b6a7475513",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows a mature conventionally attractive face with direct eye contact, narrowed upper lids, one subtly lifted brow, relaxed cheeks, closed lips, and a slight head turn.",
+        "The mouth remains controlled rather than smiling; the gaze and raised brow suggest appraisal, superiority, or a measured challenge.",
+        "Loose blonde strands soften the face while the dark high collar, neck inscriptions, and blackened reaching hand keep the presentation from reading as purely formal portraiture."
+      ],
+      "defects": [
+        "The small asymmetry in brow and mouth is restrained enough that the face can also read as a beauty-model neutral expression.",
+        "No visible strain, fear response, or break in composure specifies what she refuses to reveal."
+      ],
+      "uncertainties": [
+        "The exact want behind the eye contact remains ambiguous between recruitment, control, seduction, and threat."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E012",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+      "sha256": "85688804cf9550abf5839eb3b6213aa0ca366f68b7048d97ebefe86a4730aa4c",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the upright feminine figure, outstretched arm, long split coat, and rectangular folio remain distinguishable.",
+        "The blonde hair and exposed skin provide the main contrast against the otherwise dark clothing and background.",
+        "The black hand coating, drips, inscriptions, facial asymmetry, fasteners, and folio engraving collapse below reliable recognition."
+      ],
+      "defects": [
+        "The supernatural hand treatment is not identifiable at native size.",
+        "The coat and legs merge into a narrow dark column, leaving the extended arm and book as the only strong role cues."
+      ],
+      "uncertainties": [
+        "The thumbnail preserves a caster-like pose but does not unaided communicate the specific source, cost, or mechanism of power."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

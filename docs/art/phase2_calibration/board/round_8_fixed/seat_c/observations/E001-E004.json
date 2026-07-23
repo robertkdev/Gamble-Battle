@@ -1,0 +1,100 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E001",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_master.png",
+      "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A massive mature bearded humanoid leans forward beneath a broken stone arch, with cracked brown stone on one side and pale torn or hollowed tissue on the other.",
+        "One oversized hand is extended palm-up toward the viewer while the other hangs low; the figure wears only dark tattered cloth and fills most of the vertical frame.",
+        "The arch, asymmetrical body damage, huge feet, and split material treatment create an immediately specific full-body shape."
+      ],
+      "defects": [
+        "The open palm and lowered head can read as pleading or requesting help rather than initiating an attack.",
+        "The brown stone body, cloth, arch, and dark background occupy close values, so their boundaries compress outside the pale damaged side.",
+        "The very long hanging arm, enlarged hands, and oversized feet make anatomical intent difficult to separate from image distortion."
+      ],
+      "uncertainties": [
+        "The image alone does not establish whether the arch is attached anatomy, carried structure, or a background element.",
+        "Without another view or action context, the combat function of the extended hand and arch remains unclear."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E002",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+      "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates are shown on a light parchment field: a tall hunched biped under a broken arch, a low four-legged cage-backed body, and a broad domed architectural body on two feet.",
+        "The three candidates differ materially in height, locomotion, negative space, and the relationship between body and structure."
+      ],
+      "defects": [
+        "In the tall candidate, the arch supports and hanging arm shapes crowd the torso and make the limb count ambiguous.",
+        "The low and domed candidates read more immediately as mobile architecture or constructs than as variations of the selected humanoid body.",
+        "The selected-looking tall candidate has a comparatively ordinary bipedal lower-half contour beneath the dominant arch."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly identify which silhouette was selected.",
+        "Solid black presentation prevents inspection of whether interior anatomy resolves the apparent limb and structure ambiguity."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E003",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_face.png",
+      "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The head angles downward while the eyes look outward from beneath compressed brows; the mouth is closed and downturned inside a heavy beard.",
+        "Wet-looking hair obscures parts of the forehead and cheeks, with cracked stone on one shoulder and pale hollowed material on the other framing the face."
+      ],
+      "defects": [
+        "The compressed brows, fixed stare, and closed downturned mouth support several generic readings, including anger, fatigue, grief, or sternness, without a clearly visible contradiction.",
+        "The nearly frontal, largely symmetrical facial arrangement supplies little asymmetry or target-specific interaction beyond looking toward the camera.",
+        "Hair shadow and the dark palette reduce the readability of eyelid, cheek, and mouth detail."
+      ],
+      "uncertainties": [
+        "An unaided viewing cannot determine what the figure wants from the viewer or what it is refusing to reveal.",
+        "The face crop does not show enough of the extended hand to determine whether face and gesture express the same intent."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E004",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+      "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, a broken overhead ring, broad shoulders, two large feet, and a pale damaged side remain visible around a centered humanoid mass.",
+        "The dark figure occupies a narrow central portion of the square against a near-black background."
+      ],
+      "defects": [
+        "The face, open hand, material cracking, hollow shoulder, and cloth detail collapse into a small dark cluster.",
+        "Similar dark values merge the arch, hair, torso, arm, and background, weakening the separation of the defining body parts.",
+        "The surviving read is dominated by the arch-and-bulk outline rather than the figure's facial or gestural identity."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition cannot be determined from this image alone."
+      ],
+      "contamination": []
+    }
+  ]
+}

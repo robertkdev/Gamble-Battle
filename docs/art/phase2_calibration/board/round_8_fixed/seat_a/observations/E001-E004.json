@@ -1,0 +1,91 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E001",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_master.png",
+      "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A mature, massively built humanoid advances in a deep hunch beneath a broken stone arch fused behind his shoulders.",
+        "The body is split between dark cracked stone on the viewer-left and pale torn, hollowed material on the viewer-right, making bodily corruption visible without floating effects.",
+        "One oversized palm reaches toward the viewer while the other hangs low; the forward mass, huge feet, and fused architecture create a slow crushing threat rather than agile weapon combat.",
+        "The wet dark hair, lowered head, and close-set stare concentrate attention on the face despite the much larger arch and torso."
+      ],
+      "defects": [
+        "The very dark background and dark stone side reduce separation around the viewer-left forearm, hip, and outer arch at a glance.",
+        "The open reaching hand can read as an offer or plea as well as coercion because no target or impact line clarifies the immediate action."
+      ],
+      "uncertainties": [
+        "The image alone establishes fused ruin and bodily damage but not the precise gameplay mechanic represented by the arch."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E002",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+      "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three materially different black silhouettes are shown: an upright humanoid carried inside a broken arch, a low quadruped supporting a shrine-like cage, and a broad domed architectural mass on two legs.",
+        "The first silhouette matches the master through the broken overhead ring, long hanging arm, large hands, and heavy feet.",
+        "Each candidate changes body plan and load distribution rather than merely changing limb pose."
+      ],
+      "defects": [
+        "In the first silhouette the lowered head merges into the upper torso, so facial direction and neck line disappear.",
+        "The selected silhouette's large arch carries more immediate identity than the humanoid body inside it."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E003",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_face.png",
+      "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The same wet-haired mature face is shown under the arch with the head lowered, brows deeply compressed, eyes looking upward from shadow, jaw loaded, and lips slightly parted.",
+        "The gaze is confrontational and controlled while the head drop, facial furrows, and slackness around the mouth add fatigue or burden.",
+        "Cracked stone skin on one side and ragged pale corruption on the other frame the face as physically caught between two material states."
+      ],
+      "defects": [
+        "Hair and the downward angle obscure part of the viewer-left eye and temple, limiting readable asymmetry.",
+        "The compressed-brow scowl communicates hostility but does not unaided reveal a specific want beyond confronting or assessing the viewer."
+      ],
+      "uncertainties": [
+        "No visible cue resolves whether the slight mouth opening is pain, restraint, speech, or exertion."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E004",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+      "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the broken overhead arch, hunched bulky torso, large feet, and extended viewer-left hand remain recognizable.",
+        "The pale corrupted shoulder and arm remain lighter than the stone half, preserving the principal body split.",
+        "Fine fissures, facial expression, holes in the pale side, and most garment detail collapse into a dark brown-gray mass."
+      ],
+      "defects": [
+        "The face is not independently readable at native size.",
+        "The dark stone arm and lower body partially merge with the background, weakening the outer contour below the arch."
+      ],
+      "uncertainties": [
+        "The thumbnail communicates scale and fused architecture more clearly than exact role or emotional state."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

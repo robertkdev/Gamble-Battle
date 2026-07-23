@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E001",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_master.png",
+      "sha256": "797fe7361cb6864372eaac3e270cf178b7d15b963725c25259f3c54d88b774a3",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A massive mature bearded humanoid leans forward beneath a broken masonry arch fixed behind his shoulders.",
+        "The body is strongly asymmetric: one side is dark stone-crusted flesh while the other is pale, torn, hollowed, and corpse-like; the near hand is extended open toward the viewer.",
+        "Torn waist cloth, bare oversized feet, chained stonework, cracks, cavities, and eroded edges produce a dry, burdened ruin-material read."
+      ],
+      "strengths": [
+        "The broken arch, extreme shoulder mass, and unequal arms create an immediately identifiable full-body shape.",
+        "Material wear and the split dark-versus-pale anatomy visibly establish bodily damage and supernatural burden without floating effects."
+      ],
+      "defects": [
+        "The open palm reads as beckoning or pleading as readily as attacking, so hostile intent is less explicit than the body mass.",
+        "The masonry apparatus can read as a carried ruin or shrine before it reads as a combat function, and the face occupies too little of the master to clarify that ambiguity."
+      ],
+      "uncertainties": [
+        "Unaided inspection does not establish whether the pale side is exposed anatomy, fused armor, or a second material transformation.",
+        "The exact gameplay role and intended target of the gesture are not visually certain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E002",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_silhouettes.png",
+      "sha256": "75a912dc05100432e73d5f9b3d9d3e2a749d5f82d2381d0c2d273b9a3c58051a",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black silhouettes explore a tall humanoid under a broken arch, a low four-point crouch beneath a cage-like curve, and a broad domed bell or cloak mass on planted feet.",
+        "The three candidates materially change height, center of gravity, negative space, limb exposure, and the relationship between body and architectural burden."
+      ],
+      "strengths": [
+        "Candidate A uses the broken overhead arc, hanging side masses, and exposed legs to preserve a readable humanoid threat.",
+        "Candidates B and C demonstrate genuinely different low and monolithic alternatives rather than small costume variations."
+      ],
+      "defects": [
+        "Candidate B's compressed body and circular cage merge into a dense central lump, while candidate C's dome conceals nearly all anatomy and action.",
+        "Only candidate A clearly combines a character body with the architectural motif at first glance."
+      ],
+      "uncertainties": [
+        "The silhouette sheet alone does not label the selected candidate or show how the extra hanging side masses function in motion."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E003",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_face.png",
+      "sha256": "016b9eb1ec3a62edc9c9caf1a45407cd0f5bb535313f728f7014922fdc65fbe4",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "A mature bearded face is pitched downward under wet-looking dark hair, with compressed brows, narrowed eyes, deep forehead folds, a closed mouth, and a heavy set jaw.",
+        "The face sits between unequal damaged shoulders, which reinforces strain, endurance, and physical burden."
+      ],
+      "strengths": [
+        "Age, damage, brow tension, and the lowered head create a specific exhausted, resentful vigilance rather than a neutral mannequin read.",
+        "The eye line remains confrontational despite the bowed posture."
+      ],
+      "defects": [
+        "The expression resolves most strongly as a familiar stern scowl; the mouth and eye asymmetry do not clearly reveal a distinct want, fear, or manipulative relationship to the viewer.",
+        "The dark irises and heavy shadow reduce precision in the eye-focus read."
+      ],
+      "uncertainties": [
+        "Without a visible target, it is unclear whether the active state is controlled threat, grief, fatigue, accusation, or appeal."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E004",
+      "locator": "assets/concepts/phase2_calibration/korath/korath_96px.png",
+      "sha256": "6a18f1db6c8fc1aec71e49a12fb921f785c5a9ba31ea993f1a59cfe5a5e76d73",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the broken overhead arch, broad asymmetrical shoulders, central hanging torso, separated legs, and oversized feet remain visible.",
+        "The extended hand, facial expression, hollow shoulder cavity, chains, and most internal stone-versus-flesh distinctions collapse into a dark brown-gray cluster."
+      ],
+      "strengths": [
+        "The arch-and-giant-body combination survives as a distinctive unit silhouette at the frozen scale.",
+        "The stance reads as a large grounded front-line presence."
+      ],
+      "defects": [
+        "The near-black background and low-chroma materials suppress internal separation, leaving the transformed anatomy and gesture unreadable.",
+        "Threat and psychology do not survive through the face; recognition depends chiefly on the arch and body mass."
+      ],
+      "uncertainties": [
+        "The native image does not establish whether players would distinguish the open-hand action or the two anatomical materials during gameplay."
+      ],
+      "contamination": []
+    }
+  ]
+}

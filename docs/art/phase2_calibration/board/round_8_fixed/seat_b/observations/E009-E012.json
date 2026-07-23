@@ -1,0 +1,103 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E009",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+      "sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A mature blonde woman stands squarely in fitted dark leather trousers, boots, a high-collared long coat or bodice, and an open neckline, holding a large inscribed book against one hip.",
+        "Her extended arm is covered in small script, the raised hand is blackened to the wrist, and viscous black drops hang from the fingers; matching script continues across the neck and other arm.",
+        "Direct eye contact, an upright spine, planted legs, the forward hand, and the heavy book establish controlled spellcaster authority rather than passive display."
+      ],
+      "strengths": [
+        "Adult femininity, a fit body, controlled posture, tome, runic skin, and ink-black hand combine into a readable combat-caster identity.",
+        "Scuffed brown-black leather, restrained bronze marks, and dark liquid keep the materials tactile and weathered rather than bright or crystalline."
+      ],
+      "defects": [
+        "The blonde updo, corseted leather tailoring, cleavage, long coat, and tall boots form a familiar premium-fantasy witch outfit before they establish an individual culture or survival history.",
+        "The runes can read as decorative tattoos and the black hand as an active spell effect, so the image does not clearly distinguish supernatural cost from chosen styling or weaponry.",
+        "The polished standing presentation carries less immediate combat danger than the forward hand suggests."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine whether the script is imposed punishment, self-authored magic, ownership marks, or ordinary ornament.",
+        "The intended target and exact function of the book and black liquid are not visually certain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E010",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+      "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three alternatives show a seated writer behind an oversized open tome, a tall standing woman carrying a large closed book while raising a dripping hand, and a wide standing figure spreading a multi-panel manuscript between both hands.",
+        "The alternatives change pose, width, prop configuration, negative space, and the relationship between the figure and the writing surface."
+      ],
+      "strengths": [
+        "The seated, vertical, and wide-spread options are materially different compositions rather than minor hand or clothing changes.",
+        "Candidate B preserves a clear body silhouette while making the book and lifted hand readable as separate tools."
+      ],
+      "defects": [
+        "Candidate A is dominated by chair, cloth, and book mass, while candidate C reads first as a map or banner display; both suppress bodily combat intent.",
+        "Across all three options the same slim tailored humanoid body remains conventional, so most distinction comes from book staging rather than anatomy or locomotion."
+      ],
+      "uncertainties": [
+        "The sheet does not establish whether the book changes form in use or whether the dripping hand is independently important at silhouette distance."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E011",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+      "sha256": "41241e1494145d0ba06019b4098eabd17e132efe7dfcf36a4dff15b6a7475513",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "A conventionally attractive adult face looks directly at the viewer with slightly narrowed eyes, clean arched brows, a closed relaxed mouth, a raised chin, and near-symmetrical features.",
+        "Loose hair crosses one temple, runic marks climb the neck, and the rigid high collar frames the face without obscuring it."
+      ],
+      "strengths": [
+        "Maturity, direct eye contact, steady head angle, and controlled eyelids communicate composure and appraisal rather than innocence or vulnerability.",
+        "The neck markings connect the face to the visible magic system while preserving clear facial anatomy."
+      ],
+      "defects": [
+        "The smooth symmetry, softly closed lips, and fashion-portrait lighting produce a controlled beauty-model seriousness more strongly than a specific villainous want, fear, compulsion, or contradiction.",
+        "The eyes do not visibly lock onto the extended hand, book, or another target, leaving the pose and face only loosely connected."
+      ],
+      "uncertainties": [
+        "The unaided read could be confidence, guarded appraisal, seduction, impatience, or neutrality; no single active survival strategy is visually decisive."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E012",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+      "sha256": "85688804cf9550abf5839eb3b6213aa0ca366f68b7048d97ebefe86a4730aa4c",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, a tall feminine figure, one extended arm, the rectangular book at the opposite hip, separated legs, blonde hair, and the long dark coat remain visible.",
+        "The blackened hand, hanging ink, runic skin, facial expression, tailoring, and most leather wear collapse into the dark figure and background."
+      ],
+      "strengths": [
+        "The opposing hand-and-book arrangement preserves a simple caster gesture and prop read at the frozen scale.",
+        "Blonde hair and exposed skin provide small warm anchors against the dark costume."
+      ],
+      "defects": [
+        "Recognition depends on a conventional dark-coated woman-with-book silhouette because the script and ink mechanism do not survive.",
+        "The coat, trousers, and background merge through the lower body, weakening leg separation and material hierarchy."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would identify the black-hand mechanic or distinguish this figure from another slim dark-clad caster."
+      ],
+      "contamination": []
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E005",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+      "sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "An upright nonhuman body is enclosed by overlapping pale shell plates arranged into a broad seed- or chrysalis-like oval on two short armored legs.",
+        "Dark braided tissue runs between the plates; cracks, grime, and thin blood streaks make the shell look worn and bodily rather than decorative.",
+        "A wrapped central organism is exposed through the opening, with a vertical toothed aperture, while a separate pointed structure above carries a narrow purple slit.",
+        "The closed frontal symmetry and layered plates emphasize containment and protection more than speed or reach."
+      ],
+      "defects": [
+        "No visible arm, weapon, target line, or locomotion cue explains how the upright shell attacks at this moment.",
+        "The central wrapped organism is visually subordinate to the repeated pale plates, so the shell reads before the inhabitant."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the upper purple slit or the lower toothed opening is the primary sensing face.",
+        "The exact relationship between shell and central organism could be armor, prison, parent body, or separate symbiote."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E006",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+      "sha256": "03503f19e50fbb4e73b09cc2d8b402750b8cc15d24abe222b7cca8a2b2c11ff7",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three distinct body plans are visible: a very tall closed leaf-blade spire on two legs, a low broad multi-legged shell with an open center, and an upright oval shell exposing a wrapped central figure.",
+        "The third silhouette matches the master through its oval layered casing, narrow frontal opening, central occupant, and paired feet.",
+        "All candidates retain segmented shell construction while materially changing height, locomotion, opening, and center of mass."
+      ],
+      "defects": [
+        "The selected third silhouette has a nearly continuous oval perimeter, so its two legs and central occupant contribute little to the first read.",
+        "The black silhouette removes the pale-shell versus dark-tissue separation that carries most of the master's internal hierarchy."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels identify alternatives but do not mark which alternative was selected."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E007",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+      "sha256": "6f1086f23c977e38724db76d6843c71950739d1a65abf78077f98e4f70c31f86",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows two separated face-like structures: a pointed upper hood with one vertical purple slit and a lower bound organism whose opening is ringed by several rows of small teeth.",
+        "Taut cords cross the lower organism and braided tissue surrounds both structures, making restraint or enforced enclosure directly visible.",
+        "The upper slit is closed or pupil-like and the lower mouth remains open, producing a watchful-versus-hungry visual split without human facial muscles."
+      ],
+      "defects": [
+        "There is no shared eye-mouth arrangement, so viewer attention divides between two possible faces.",
+        "The fixed apertures do not provide brows, gaze direction, or mouth asymmetry from which a precise immediate emotion can be read."
+      ],
+      "uncertainties": [
+        "Unaided inspection cannot determine which visible organism owns agency or whether one is controlling the other."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E008",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+      "sha256": "c06521e2d61dd072f43895bdd1d2b280419670a74a28fe36c058c383d5a20e73",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the pale layered oval and two short legs remain immediately visible against the dark background.",
+        "The center retains a narrow dark opening, but the bound organism, teeth, upper slit, cords, cracks, and blood streaks collapse into indistinct texture.",
+        "The compact symmetry makes the unit read as a single armored pod rather than multiple interacting anatomical parts."
+      ],
+      "defects": [
+        "The primary face or aperture cannot be identified at native size.",
+        "The repeated shell plates merge into a broad striped oval with little indication of action or facing beyond the feet."
+      ],
+      "uncertainties": [
+        "The thumbnail preserves the shell identity but does not resolve whether the dark central mark is a face, opening, or surface seam."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

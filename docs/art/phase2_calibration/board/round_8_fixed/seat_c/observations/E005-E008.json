@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E005",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_master.png",
+      "sha256": "aabad99083a89af926bcd6ad2ef1a6a6d8b8d7873fa5b4716eb8dee3d827da60",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A tall oval pod-like body is wrapped in overlapping pale cracked plates separated by dark braided or fleshy channels and supported by two short squared legs.",
+        "The central opening contains a bound cocoon form with a concentric toothed mouth, while a tapered upper structure carries a small vertical purple slit.",
+        "The layered shell, enclosed mouth, and compact leg arrangement create a specific nonhuman construction."
+      ],
+      "defects": [
+        "The nearly perfect bilateral symmetry and upright frontal stance make the figure appear static and sealed rather than actively predatory.",
+        "No visible arms, weapon, loaded limb, or directional action explains how the body attacks or interacts in combat.",
+        "The bound central form can read as a captive or helpless contained creature, competing with the threat of the enclosing body.",
+        "Repeated pale plate rows dominate the design while the dark interior anatomy is compressed into narrow gaps."
+      ],
+      "uncertainties": [
+        "The image does not make clear whether the purple slit is an eye, whether the toothed cocoon is the primary face, or whether two beings are present.",
+        "The cords around the central form could indicate restraint, protection, incubation, or anatomy; their visible purpose is unresolved.",
+        "Scale and locomotion cannot be inferred from the isolated frontal presentation."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E006",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_silhouettes.png",
+      "sha256": "03503f19e50fbb4e73b09cc2d8b402750b8cc15d24abe222b7cca8a2b2c11ff7",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates are shown on parchment: a very tall narrow leaf or spear pod on two legs, a low wide radial shell on multiple articulated legs, and an oval split pod on two legs with an exposed central form.",
+        "Height, width, locomotion, negative space, and degree of enclosure differ substantially among the three candidates."
+      ],
+      "defects": [
+        "The tall and oval candidates share the same layered leaf-shell language, so their outer contours differ more in proportion than in underlying construction.",
+        "The low candidate's large black central cavity and dense leg cluster obscure a clear focal anatomy.",
+        "The two-legged candidates read first as seed pods or architectural shells; no attack limb or directional weapon shape breaks that passive outline."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly state which candidate was selected.",
+        "Solid black treatment prevents evaluation of whether the internal mouth, eye, and binding details clarify the locomotion and threat ambiguity."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E007",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_face.png",
+      "sha256": "6f1086f23c977e38724db76d6843c71950739d1a65abf78077f98e4f70c31f86",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The enlargement shows a lower cocoon-like form tightly crossed by cords, with a vertical mouth composed of nested teeth and dark inner folds.",
+        "Above it, a separate tapered armored structure contains a narrow purple slit, while pale shell plates close around both forms."
+      ],
+      "defects": [
+        "The purple slit and toothed opening compete as separate facial focal points, leaving the viewer uncertain where the unit's attention originates.",
+        "The mouth communicates hunger, pain, or screaming through teeth alone but shows no directional gaze, asymmetry, or changing expression.",
+        "The centered symmetry and enclosure provide little visible evidence of a specific current intent beyond containment."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether the lower form is the unit, an offspring, a prisoner, or an organ.",
+        "It is unclear whether the purple slit is sensory anatomy or ornament, so the active face mechanism remains unresolved."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E008",
+      "locator": "assets/concepts/phase2_calibration/veyra/veyra_96px.png",
+      "sha256": "c06521e2d61dd072f43895bdd1d2b280419670a74a28fe36c058c383d5a20e73",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the light oval shell, dark diagonal plate gaps, central dark opening, and two short legs remain visible against the dark square.",
+        "The image reads primarily as a compact upright pod or layered seed shape."
+      ],
+      "defects": [
+        "The toothed mouth, binding cords, purple slit, blood marks, and cracked material detail collapse at this size.",
+        "The small dark interior does not resolve as a face, captive form, or attack mechanism.",
+        "The surviving pod silhouette communicates enclosure more strongly than motion, hostility, or role."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are present, so in-context recognition and threat readability cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

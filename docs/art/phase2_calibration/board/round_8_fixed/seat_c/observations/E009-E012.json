@@ -1,0 +1,101 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E009",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_master.png",
+      "sha256": "f80ba21bebe17067f880b2e44dc203efc7a6751ba5876ba6477a9b105abcd02a",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A tall mature woman with blonde hair in a loose high bun stands squarely, holding a large closed book against one hip and extending her other hand toward the viewer.",
+        "She wears a fitted dark brown sleeveless long coat over trousers and boots; small script-like marks cover her neck and arms, and glossy black fluid coats the extended fingers and drips downward.",
+        "The book, inked hand, direct eye contact, and tailored vertical silhouette establish a controlled occult-scholar presentation."
+      ],
+      "defects": [
+        "The upright stance, held book, fitted dark clothing, and extended spell hand closely resemble a familiar dark-academia caster template rather than exposing an unusual combat method.",
+        "Most of the visible script reads as decorative skin patterning, while the black fingertip drips are too localized to make a substantial bodily consequence legible.",
+        "The dark coat, trousers, boots, book, and background share compressed brown-black values, reducing separation through the lower body.",
+        "The calm display pose does not show a loaded attack, defensive response, or physical struggle with the apparent ink effect."
+      ],
+      "uncertainties": [
+        "The image alone does not establish whether the script and black fluid are power, injury, corruption, or ordinary ornament.",
+        "The large book suggests a role but does not reveal whether it functions as weapon, shield, source, or carried reference."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E010",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_silhouettes.png",
+      "sha256": "7e738be169991cda400cda2a20d71ed0bbd06b52f5cf5fdc8ec27ec7c3e22c37",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three candidates show a seated reader behind a very large open book, a standing woman holding a tall rectangular book while raising one hand, and a standing woman spreading a wide segmented document between outstretched arms.",
+        "The candidates vary pose and the book or document deployment while retaining a slim adult body, tailored dark clothing, and high-bun head shape."
+      ],
+      "defects": [
+        "The exploration changes prop configuration more than body plan, garment family, or combat silhouette.",
+        "In the seated candidate, the open book and chair mass absorb the torso and legs; in the wide-document candidate, the rectangular sheet overwhelms the body.",
+        "The standing center candidate has the clearest body but retains a conventional upright caster outline with no strong directional action."
+      ],
+      "uncertainties": [
+        "The A, B, and C labels do not explicitly state which candidate was selected.",
+        "The partly rendered presentation makes it difficult to distinguish pure silhouette decisions from interior costume and prop detail."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E011",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_face.png",
+      "sha256": "41241e1494145d0ba06019b4098eabd17e132efe7dfcf36a4dff15b6a7475513",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The face looks directly toward the viewer with slightly lowered lids, shaped brows, a level head, closed relaxed lips, and an otherwise controlled expression.",
+        "Loose blonde strands frame a conventionally attractive adult face; script-like markings rise from the chest up the neck and continue onto the visible arm."
+      ],
+      "defects": [
+        "The polished skin, symmetrical beauty lighting, relaxed mouth, and mild narrowed gaze read primarily as a composed beauty portrait.",
+        "There is little visible jaw loading, mouth tension, cheek asymmetry, or head-angle conflict to distinguish manipulation, fear, restraint, hunger, or another specific state.",
+        "The black fluid on the hand is mostly outside the crop, leaving the face visually detached from its clearest unusual effect."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine what she wants from the viewer, what she fears, or whether the direct gaze is predatory, skeptical, or merely self-possessed.",
+        "The script-like marks could be scars, writing, tattoos, or magic, and the crop provides no visible reaction to them."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E012",
+      "locator": "assets/concepts/phase2_calibration/cashmere/cashmere_96px.png",
+      "sha256": "85688804cf9550abf5839eb3b6213aa0ca366f68b7048d97ebefe86a4730aa4c",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the blonde head, raised arm, narrow dark body, split stance, long coat, and rectangular book remain visible.",
+        "The extended arm and book create the principal asymmetry against the dark background."
+      ],
+      "defects": [
+        "The face, script markings, black fluid, tailoring, and book-surface design collapse at this size.",
+        "Dark trousers, coat tails, boots, and background merge through much of the lower half.",
+        "The surviving outline reads as a generic slim spellcaster holding a book, with little of the ink or inscription identity retained."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}

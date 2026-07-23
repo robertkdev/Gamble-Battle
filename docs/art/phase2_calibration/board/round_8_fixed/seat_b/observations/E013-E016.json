@@ -1,0 +1,103 @@
+{
+  "reviewer_id": "B",
+  "role": "PROFESSIONAL_STANDARDS_DIRECTOR",
+  "packet_lineage_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E013",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+      "sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "visible_observations": [
+        "A lean rat- or goblin-like humanoid lunges low toward the viewer with one extremely elongated arm ending in four translucent amber claws, while the opposite hand tucks close to the torso.",
+        "A long bare tail curves behind ragged dark wraps; patchy fur, pointed pierced ears, an elongated nose, scars or sutures, wrapped shins, and bare clawed feet make the body visibly nonhuman and worn.",
+        "The forward weight, planted near foot, reaching hand, side glance, and crooked smile combine stealth, speed, and opportunistic contact."
+      ],
+      "strengths": [
+        "The oversized amber claws, long arm, tail, pointed profile, and crouched diagonal pose establish an immediately singular combat silhouette and likely close-range mechanic.",
+        "Ragged cloth, scarred skin, uneven fur, and asymmetrical hair feel materially integrated with the body rather than attached as decorative symbols."
+      ],
+      "defects": [
+        "The crooked smile and large ears produce a mischievous rogue or folkloric trickster read more strongly than immediate lethal hostility.",
+        "Extreme foreshortening makes the forward forearm and hand disproportionately dominant, leaving the rest of the anatomy and combat stance secondary.",
+        "The glassy amber claws look partly like filled tubes or ornaments, so their biological or weapon function is not fully clear."
+      ],
+      "uncertainties": [
+        "Unaided inspection does not establish whether the amber material is venom, stored magic, keratin, or fitted equipment.",
+        "The character's exact age and whether the apparent scars are punishment, adaptation, or ordinary wear remain ambiguous."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E014",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png",
+      "sha256": "98716689371e417fba0f680ee0d3fa232e3bf654faa0e311d1b86ef5b0acb1cb",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "visible_observations": [
+        "Three black alternatives show a running upright figure with one oversized carried or transformed arm mass, a low rat-like sprinter with a tail and long branching claws, and a crouched figure almost fully covered by a steep triangular cloak.",
+        "The candidates materially change posture, center of gravity, limb emphasis, clothing mass, and how openly the nonhuman anatomy is displayed."
+      ],
+      "strengths": [
+        "Candidate B has a clear head-tail axis, forward acceleration, long reach, separated limbs, and branching claw tips that communicate predatory movement at a glance.",
+        "Candidates A and C provide genuinely different upright and concealed alternatives rather than small variations of the same crouch."
+      ],
+      "defects": [
+        "Candidate A's huge arm mass reads like a sack, cannon, or burden without a clear connection to the rat-like anatomy, while candidate C hides nearly every distinctive body cue under a generic triangular cloak.",
+        "Candidate B's long arm, fingers, tail, and multiple ground contacts create several thin extremities that may visually tangle when reduced."
+      ],
+      "uncertainties": [
+        "The silhouette sheet does not clarify whether the three alternatives represent one stable species logic or substantially different character premises."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E015",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+      "sha256": "aa48197d9fc697c652093c00abbcd83b48facf57c4e81306f18dbfd0a1214ebe",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "visible_observations": [
+        "One amber eye looks sideways beneath a low dark brow while the other is hidden by long black hair; the elongated scarred nose, raised mouth corner, slight cheek compression, and tilted head form a knowing crooked smile.",
+        "The close shoulder, tucked arm, and forward lean agree with a stalking or opportunistic approach rather than a frontal challenge."
+      ],
+      "strengths": [
+        "Asymmetrical hair, one exposed tracking eye, facial scarring, pointed ears, and the off-center smile create an individual face with active attention.",
+        "The eye direction and compressed crouch suggest calculation and target assessment rather than blank posing."
+      ],
+      "defects": [
+        "The smile reads as playful, sly, or delighted and can soften the character into an appealing rogue instead of making the immediate harm or predatory stakes visible.",
+        "The familiar one-eye-hidden smirk supplies attitude but does not by itself reveal a specific fear, compulsion, or emotional contradiction."
+      ],
+      "uncertainties": [
+        "The unaided expression could indicate hunger, theft, curiosity, amusement, or planned violence; the target and emotional cost are not decisive."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E016",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png",
+      "sha256": "c5134b66c07e0c757df155848e10d3f8b2327fe6af7afb60184586b25638f138",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "visible_observations": [
+        "At native size, the hunched diagonal body, pointed head, one reaching arm, separated legs, and four bright amber claw tips remain visible.",
+        "The tail, facial smile, skin scars, patchy fur, cloth layers, and distinction between hand and elongated claw containers mostly disappear into the dark body and background."
+      ],
+      "strengths": [
+        "The luminous four-pronged hand and low reaching pose create a fast, asymmetrical unit read with a clear focal point.",
+        "Warm face and claw accents keep the upper action readable against the black clothing."
+      ],
+      "defects": [
+        "The bright claw hand overwhelms the reduced figure, so recognition depends on one extremity while the tail and species body plan become weak.",
+        "The dark torso, rear leg, and ragged garments merge, reducing the sense of locomotion and internal anatomy."
+      ],
+      "uncertainties": [
+        "The native image alone does not establish whether players would read a rat-like body, an amber-claw weapon, or only a small dark rogue with a glowing hand."
+      ],
+      "contamination": []
+    }
+  ]
+}

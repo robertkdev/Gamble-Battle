@@ -1,0 +1,92 @@
+{
+  "reviewer_id": "A",
+  "role": "CONTRACT_AND_EVIDENCE_PROSECUTOR",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "packet_sha256": "1c9c6a9df7e1b49ff38c5057974980e3b4cbd2f580ef30d6ea3824849ddb9c2b",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "evidence": [
+    {
+      "evidence_id": "E013",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+      "sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+      "surface": "master_concepts",
+      "inspection_modes": ["FULL_SIZE"],
+      "observations": [
+        "A lean mature humanoid creature crouches forward on bare clawed feet with long pointed ears, patchy fur and scarred skin, asymmetrical black hair, and two thin rat-like tails.",
+        "The viewer-right arm is unnaturally elongated toward the viewer and ends in five oversized translucent amber claws; this forced perspective makes the hand the immediate attack and identity cue.",
+        "The other arm stays tight across the abdomen while bent knees, forward shoulders, and the reaching hand create a stalking or snatching action.",
+        "Ragged layered wraps and dark cloth expose the bodily patchwork rather than presenting conventional armor."
+      ],
+      "defects": [
+        "The extreme hand perspective makes the far arm and hand visually much larger than the torso, weakening certainty about the creature's resting proportions.",
+        "The dark clothing merges through the torso and hips, leaving the pale scarred limbs, ears, tails, and amber claws to carry most of the readable design.",
+        "The twin tails cross behind the extended arm and are easy to confuse with cords or tendrils."
+      ],
+      "uncertainties": [
+        "The amber fingertip forms could be natural claws, containers, coated nails, or attached tools; the image does not resolve their mechanism."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E014",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png",
+      "sha256": "98716689371e417fba0f680ee0d3fa232e3bf654faa0e311d1b86ef5b0acb1cb",
+      "surface": "silhouette_exploration",
+      "inspection_modes": ["SILHOUETTE"],
+      "observations": [
+        "Three substantially different silhouettes are visible: a running upright thief carrying a large rounded object, a low rat-like sprinter with a long tail and greatly extended clawed arm, and a crouched figure under a broad triangular hood or cloak.",
+        "The middle candidate matches the master through the long ear, horizontal crouch, trailing tail, planted opposite hand, and long splayed reaching claws.",
+        "The alternatives change locomotion, body height, carried mass, and concealment rather than only changing limb pose."
+      ],
+      "defects": [
+        "The selected middle silhouette's extended arm and claws dominate so strongly that the torso, supporting limbs, and second hand become secondary shapes.",
+        "Its long tail and thin claw tips are narrow features that can disappear when reduced."
+      ],
+      "uncertainties": [
+        "The alternatives are not lettered or otherwise marked, so the selected status must be inferred from resemblance to the master."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E015",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+      "sha256": "aa48197d9fc697c652093c00abbcd83b48facf57c4e81306f18dbfd0a1214ebe",
+      "surface": "face_psychology",
+      "inspection_modes": ["FACE_ENLARGEMENT"],
+      "observations": [
+        "The crop shows one exposed amber eye fixed on the viewer, a raised inner brow, lifted cheek, asymmetrical closed-mouth smirk, and a head tilted forward beneath hair that hides the other eye.",
+        "The long pierced ear, pointed nose, facial scars, sparse fur, and visible small fangs establish a specific nonhuman face rather than a human with added ears.",
+        "The eye contact and compressed half-smile suggest sly appraisal or anticipated advantage, while the crouched shoulder keeps the expression connected to the reaching body action."
+      ],
+      "defects": [
+        "Hair fully conceals one eye, limiting the visible eye-to-eye asymmetry to brow, cheek, and mouth.",
+        "The smirk can read as mischievous or playful as readily as predatory because the mouth and jaw show little tension."
+      ],
+      "uncertainties": [
+        "The image does not distinguish whether the viewer is prey, an accomplice, or the owner of something being taken."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E016",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png",
+      "sha256": "c5134b66c07e0c757df155848e10d3f8b2327fe6af7afb60184586b25638f138",
+      "surface": "native_96_read",
+      "inspection_modes": ["NATIVE_96"],
+      "observations": [
+        "At native size the crouched diagonal body, long pointed ear, reaching arm, and amber claw cluster remain separable.",
+        "The warm face and claw tips stand out against the nearly black clothing and background.",
+        "Facial scars, the smirk, patchy fur, garment layers, and most tail separation collapse below reliable recognition."
+      ],
+      "defects": [
+        "The hand reads as a bright multi-pronged cluster, but the individual translucent claw construction is unclear.",
+        "The torso and rear leg merge into the background, reducing the body to face, forward foot, and reaching hand accents."
+      ],
+      "uncertainties": [
+        "The thumbnail preserves a stalking reach but does not independently communicate whether the unit steals, poisons, slashes, or grabs."
+      ],
+      "contamination": []
+    }
+  ],
+  "contamination": []
+}

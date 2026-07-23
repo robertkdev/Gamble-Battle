@@ -1,0 +1,102 @@
+{
+  "reviewer_id": "C",
+  "role": "FAILURE_AND_ADOPTION_RED_TEAM",
+  "packet_id": "gamble-battle-phase2-round8-fixed",
+  "cut_id": "phase2-art-cut-9d03d7c",
+  "records": [
+    {
+      "evidence_id": "E013",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_master.png",
+      "sha256": "7c2d18304b26f8503d1843b2eead432b9fd162ee46ef0f19490da5c99a4d4b1e",
+      "surface": "master_concepts",
+      "inspection_modes": [
+        "FULL_SIZE"
+      ],
+      "visible_observations": [
+        "A lean rat- or goblin-like humanoid lunges forward in a low asymmetric crouch, with long pointed ears, one visible amber eye, patchy fur, scarred skin, bare clawed feet, and dark ragged wraps.",
+        "One disproportionately long forearm reaches toward the viewer and ends in four extended fingers with translucent amber claw tips; long thin tails or tendrils curve behind the body.",
+        "The foreshortened reaching hand, low loaded legs, and trailing tail lines give the figure immediate directional motion."
+      ],
+      "defects": [
+        "The sideways eye and curled smile read as sly amusement or mischievous invitation more strongly than immediate hostility.",
+        "The glossy translucent claw tips look like attached glass capsules and materially separate from the dry scarred skin and cloth.",
+        "The extreme forearm length and repeated extended fingers dominate the image so strongly that the shoulder-to-hand anatomy appears unstable.",
+        "The dark scarf, sleeveless rags, cropped trousers, and bindings supply a familiar generic scavenger or rogue costume beneath the unusual hand."
+      ],
+      "uncertainties": [
+        "The image does not resolve whether the two long rear appendages are separate tails, a split tail, or another anatomy.",
+        "The claw-tip contents and their relationship to the character's body are not visually explained.",
+        "The hidden rear arm prevents confirmation of whether the asymmetrical anatomy is intentional or perspective-driven."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E014",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_silhouettes.png",
+      "sha256": "98716689371e417fba0f680ee0d3fa232e3bf654faa0e311d1b86ef5b0acb1cb",
+      "surface": "silhouette_exploration",
+      "inspection_modes": [
+        "SILHOUETTE"
+      ],
+      "visible_observations": [
+        "Three black candidates show an upright running thief carrying an oversized sack, a long-tailed ratlike figure lunging horizontally with a multi-pronged reaching hand, and a crouched figure almost entirely covered by a triangular cloak.",
+        "The candidates differ substantially in posture, prop emphasis, body plan, and exposed anatomy."
+      ],
+      "defects": [
+        "Only the center candidate exposes the ratlike head, tail, and elongated claw hand that define the selected full-body design.",
+        "The left candidate reads as a conventional bag-carrying thief, while the right candidate reads as a cloak triangle with small hands and feet.",
+        "The center silhouette has strong motion but merges the torso, bent legs, rear hand, and lower garment into a dense central mass."
+      ],
+      "uncertainties": [
+        "The image contains no A, B, C labels or explicit selection marker.",
+        "The three candidates vary enough in prop and body presentation that it is unclear which identity elements were intended to remain constant."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E015",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_face.png",
+      "sha256": "aa48197d9fc697c652093c00abbcd83b48facf57c4e81306f18dbfd0a1214ebe",
+      "surface": "face_psychology",
+      "inspection_modes": [
+        "FACE_ENLARGEMENT"
+      ],
+      "visible_observations": [
+        "The head tilts forward and sideways, with one amber eye fixed toward the viewer, one side hidden by black hair, a raised or relaxed brow, and a crooked closed-mouth smile.",
+        "Long pierced ears, a pointed nose, scar lines, mottled skin, sparse fur, and facial asymmetry make the head visually specific."
+      ],
+      "defects": [
+        "The crooked smile and open visible eye produce a playful, crafty, or impish read that can soften the predatory body language.",
+        "The expression shows little fear, strain, hunger, or conflict; its strongest unaided signal is self-satisfied mischief.",
+        "Hair fully hides one eye, limiting evidence of bilateral eye tension and target focus."
+      ],
+      "uncertainties": [
+        "Unaided viewing cannot determine whether the smile is predatory anticipation, social charm, mockery, or harmless amusement.",
+        "The face crop does not include the oversized reaching hand, so agreement between facial intent and the attack-like gesture remains uncertain."
+      ],
+      "contamination": []
+    },
+    {
+      "evidence_id": "E016",
+      "locator": "assets/concepts/phase2_calibration/pilfer/pilfer_96px.png",
+      "sha256": "c5134b66c07e0c757df155848e10d3f8b2327fe6af7afb60184586b25638f138",
+      "surface": "native_96_read",
+      "inspection_modes": [
+        "NATIVE_96"
+      ],
+      "visible_observations": [
+        "At native size, the pointed ear, pale face, low forward lean, narrow legs, oversized reaching hand, and four bright amber claw tips remain visible.",
+        "The bright fingertips form the clearest focal accent against the otherwise dark figure and background."
+      ],
+      "defects": [
+        "Facial scars, fur patches, smile nuance, clothing layers, and tail anatomy collapse at this size.",
+        "The torso, rear arm, and dark garments merge into one central mass.",
+        "The oversized glowing-looking fingertips become more prominent than the character's face or species identity and may read as a generic claw effect."
+      ],
+      "uncertainties": [
+        "No neighboring unit icons, gameplay background, selection frame, or motion state are shown, so in-context recognition and apparent threat cannot be determined."
+      ],
+      "contamination": []
+    }
+  ]
+}
