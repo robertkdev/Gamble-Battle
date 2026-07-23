@@ -1,6 +1,6 @@
 # Phase 2 Board Approval
 
-> **CURRENT STATUS — 2026-07-22:** `STOPPED / NO BOARD VERDICT`. The upgraded Round 7 Board could not seal its primary records: Seat A's initial attempt and single bounded retry both ended in the same backend stream disconnect. The remaining seats were interrupted when the user's loop brake fired. The Round 7 packet also exposed a material-authority coverage gap described in `board/round_7_upgraded/STOP_REPORT.md`. Phase 2 remains candidate-only and requires explicit user review plus a later functioning Board run; no historical approval below is current.
+> **CURRENT STATUS - 2026-07-22:** `STOPPED / NO BOARD VERDICT`. Round 8 repaired Round 7's authority-coverage and output-assembly defects, but the Board still could not create its first durable reviewer checkpoint. Seat A's full attempt and materially shortened four-unit recovery both ended in the same backend stream disconnect before any write; Seat C also disconnected, and the remaining work was interrupted when the user's loop brake fired. The missing capability is now an explicit same-seat staged-review protocol for large visual audits, described in `board/round_8_fixed/STOP_REPORT.md`. Phase 2 remains candidate-only; no historical approval below is current.
 
 Current status: **SUPERSEDED / NOT A CURRENT APPROVAL**
 

@@ -1,5 +1,15 @@
 # Phase 2 reapproval triage
 
+## 2026-07-22 Round 8 fixed-packet stop
+
+Round 8 repaired the two actionable Round 7 defects: the packet now maps all 184 material source lines losslessly, and a validated artifact-first assembler can expand reviewer-authored shards into complete primary records. The frozen cut contains 59 evidence records and 55 artifacts. All packet, authority-coverage, evidence, calibration, template, and semantic negative-control checks pass.
+
+The Board still produced no verdict. Seat A disconnected before writing on its initial turn and again during its single materially shortened recovery, which asked for only four units plus five benchmarks and one tiny observation checkpoint. Seat C's initial turn failed the same way; Seat B and Seat C recovery were interrupted when the user's no-loop brake fired. See `board/round_8_fixed/STOP_REPORT.md`.
+
+This isolates the remaining infrastructure defect: the upgraded Board lacks a mandatory same-seat staged-review protocol for large visual corpora. Output sharding cannot help when a reviewer must inspect the entire corpus before the first durable checkpoint. Do not reconvene this cut until the Board protocol supports bounded blind-inspection checkpoints, continuation identity, completeness sealing, and fault-injection validation.
+
+Status: **STOPPED / NO BOARD VERDICT / CANDIDATES ONLY**.
+
 ## 2026-07-22 upgraded Board stop
 
 The rebuilt 12-unit cut and evidence packet are frozen at `phase2-cut-9d03d7c`, but the upgraded Board did not produce a verdict. Seat A's initial clean-room attempt and one bounded retry both failed with the same backend response-stream disconnect before a primary record could seal. The remaining seats were interrupted under the user's explicit no-loop condition.
