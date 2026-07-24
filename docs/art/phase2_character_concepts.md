@@ -1,7 +1,7 @@
 # Gamble Battle Phase 2 Character Concept Ledger
 
 Status: living creative reference
-Scope: future Phase 2 character concepts dictated by the user
+Scope: user-directed Phase 2 concepts and Stage Three redesign directions
 
 This is an additive creative ledger, not a Board approval report, asset manifest, production commitment, or replacement for the locked unit-art criteria. Record each future user-directed concept here when they say to remember it. Preserve the user’s concrete imagery and the reason the idea works; do not silently normalize an unsettling design into a generic fantasy archetype.
 
@@ -34,6 +34,41 @@ Four long iron rods emerge from its shoulder blades and drag behind it like the 
 ### Intentionally undecided
 
 Name, roster role, traits, story, faction, and production-art treatment are not assigned yet. Future user dictation may establish them; do not retrofit this concept into an existing unit or approval workflow without an explicit user decision.
+
+## Concept 002 — Malachor: Living Siege Cage
+
+**User decision:** approved and locked as the Stage Three redesign direction.
+
+**Approval boundary:** this selects the concept direction that later Malachor work must preserve. It does not replace the six-phase production process or claim final production-art approval/concept lock; that formal gate remains reserved for Phase Six.
+
+**Preserved reference:** [`../../assets/concepts/phase3_redesign/malachor/malachor_living_siege_cage_selected_direction.png`](../../assets/concepts/phase3_redesign/malachor/malachor_living_siege_cage_selected_direction.png)
+
+The preserved image is a non-destructive concept reference. It does not replace the current live unit asset at `assets/units/malachor.png`.
+
+### Definitive direction
+
+Malachor is rebuilt as a living siege cage. He retains his oppressive tank mass and lockdown identity, but no longer reads as a conventional armored boss. A colossal human-shaped body is trapped inside four or five uneven matte-black coffin plates. The plates are chained to a heavy collar and a single rigid spinal rail. Dry, pale skin appears through the gaps, and an exhausted, aware face is pressed behind a grille in the chest.
+
+His legs are visibly weak. The coffin plates brace against the ground to support them, making the cage both prison and load-bearing body. This dependence is essential: Malachor is not a powerful knight wearing armor, but a captive mass made mobile and dangerous by the apparatus around him.
+
+### Lockdown and attack language
+
+The plates anchor into the ground, unfold around a target, then swing inward to imprison and crush. The same physical system explains his silhouette, locomotion, tank durability, crowd-control role, and finishing action. His threat comes from enclosure and compression rather than weapon flourishes or oversized hands.
+
+### Non-negotiable reads
+
+- Preserve the colossal human presence, oppressive tank mass, and lockdown identity.
+- Keep four or five uneven matte-black coffin plates, the heavy collar, chains, and one rigid spinal rail as a coherent physical system.
+- Show dry pale skin through gaps and an exhausted, aware human face behind the chest grille.
+- Keep the legs weak and visibly supported by plates braced against the ground.
+- The plates must anchor, unfold around a target, swing inward, imprison, and crush.
+- Avoid a conventional helmet or knight-armor read.
+- Avoid a crab-shell silhouette, giant claws, green glow, decorative spikes, and glossy raid-boss language.
+- Avoid generic golem, mascot, or fantasy-brute simplification.
+
+### Intentionally undecided
+
+This direction does not yet settle final model construction, animation timing, gameplay-scale simplification, portrait crop, production materials, or replacement of the live unit asset. Those belong to later phases and the Phase Six formal approval gate.
 
 ## Future entries
 
