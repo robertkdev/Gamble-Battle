@@ -70,6 +70,54 @@ The plates anchor into the ground, unfold around a target, then swing inward to 
 
 This direction does not yet settle final model construction, animation timing, gameplay-scale simplification, portrait crop, production materials, or replacement of the live unit asset. Those belong to later phases and the Phase Six formal approval gate.
 
+## Concept 003 — Knoll: Foreclosure Press
+
+**User decision:** approved and hard-locked as the Stage Three redesign direction.
+
+**Approval boundary:** this is the binding creative and future-gameplay direction for later Knoll work. It does not replace the six-phase production process or claim the later Phase Six final concept/production lock.
+
+**Preserved reference:** [`../../assets/concepts/phase3_redesign/knoll/knoll_foreclosure_press_selected_direction.png`](../../assets/concepts/phase3_redesign/knoll/knoll_foreclosure_press_selected_direction.png)
+
+The image is a non-destructive Stage Three reference. It does not replace the current live asset at `assets/units/knoll.png`, and this record makes no gameplay-code change.
+
+### Definitive visual direction
+
+Knoll is no longer a goblin accountant. He is a small, gaunt adult human in a decayed merchant coat permanently sewn into his shoulders. He is hunched because an enormous vertical brass printing press is built through his ribcage, with two flat plates visible inside his chest. His face is itself compressed: his nose flattened, cheeks forced outward, and mouth reduced to a narrow horizontal line.
+
+His ordinary arms remain folded or bound behind his back. Two much longer black articulated mechanical arms unfold from inside the coat. Their clamp-like hands seize an enemy and pull them into the chest press. The result is adult body-horror: solemn, materially physical, and threatening rather than campy, whimsical, or cute.
+
+### Locked future ability direction — `Foreclosure Press`
+
+When gameplay implementation begins, replace `Receipt Mark` with `Foreclosure Press`:
+
+1. Knoll's clamp arms grab one enemy, physically remove/pull that target from position, and drag it into the chest press.
+2. The press slams shut, dealing physical damage and stunning the target.
+3. On release, the target bears a black `Foreclosed` stamp for several seconds.
+4. While `Foreclosed`, the target's armor and magic resistance are seized, it cannot gain shields, and part of the stolen defenses is divided among Knoll's allies.
+
+This expresses Trader/Harmony as physical repossession and redistribution, not spellcasting.
+
+### Identity continuity for implementation
+
+- Keep primary role `support`.
+- Keep primary goal `support.enemy_lockdown`.
+- Keep approaches `lockdown`, `debuff`, and `disrupt`.
+- Preserve `support.formation_breaking` as an alternate.
+- Reconsider or replace the old `mage.area_denial_zone` alternate when gameplay work starts; the preferred replacement space is defense redistribution or single-target exploitation.
+
+### Non-negotiable reads and vetoes
+
+- Preserve the small gaunt adult-human body, decayed merchant coat, body-integrated brass press, compressed face, bound ordinary arms, and long black mechanical clamp arms.
+- The press and arms must be a single physical repossession system: seize, pull, press, stamp, and redistribute defenses.
+- No goblin ears or goblin face.
+- No abacus, papers, scroll bundle, bookkeeper joke, or top hat.
+- No steampunk whimsy, mascot proportions, children's-book monster, glossy gacha styling, or campy read.
+- No handheld weapon, magic orb, random spikes, or generic demon anatomy.
+
+### Intentionally deferred
+
+Final model construction, animation timing, numerical ability tuning, exact displacement rules, status duration, defense-share values, portrait crop, and replacement of the live unit asset remain later production work. They must inherit this locked direction and pass the Phase Six formal approval gate.
+
 ## Future entries
 
 Add future user-approved concepts as a new numbered section with:
