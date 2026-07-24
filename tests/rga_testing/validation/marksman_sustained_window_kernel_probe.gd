@@ -5,7 +5,7 @@ const BattleStateScript := preload("res://scripts/game/combat/battle_state.gd")
 const CombatPatternKernel := preload("res://tests/rga_testing/aggregators/kernels/combat_pattern_kernel.gd")
 const GoalPrimaryTest := preload("res://tests/rga_testing/metrics/goal/goal_primary_test.gd")
 
-const SUBJECT_ID: String = "teller"
+const SUBJECT_ID: String = "omenry"
 const ALLY_ID: String = "marksman_window_ally"
 const TARGET_ID: String = "marksman_window_target"
 

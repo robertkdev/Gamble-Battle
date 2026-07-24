@@ -5,7 +5,7 @@ const RoleMetricsContextBuilder = preload("res://tests/rga_testing/metrics/_shar
 const TelemetryCapabilities = preload("res://tests/rga_testing/core/telemetry_capabilities.gd")
 const AoeApproachTest = preload("res://tests/rga_testing/metrics/approach/aoe_approach_test.gd")
 
-const SUBJECT_IDS: Array[String] = ["luna", "morrak", "nyxa", "paisley", "teller"]
+const SUBJECT_IDS: Array[String] = ["luna", "morrak", "nyxa", "paisley", "omenry"]
 const CLUSTER_LABELS: Array[String] = ["clustered", "clustered_alt"]
 
 @export var do_quit_on_finish: bool = true

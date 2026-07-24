@@ -669,7 +669,7 @@ func _on_defeat(_stage: int = 0) -> void:
 	emit_signal("defeat", stage)
 
 func _on_tie(_stage: int = 0) -> void:
-	emit_signal("log_line", "Tie at Stage %d. Bet refunded." % stage)
+	emit_signal("log_line", "Tie at Stage %d. Blood wager returned." % stage)
 	emit_signal("stats_updated", BattleState.first_alive(player_team), enemy)
 	emit_signal("tie", stage)
 

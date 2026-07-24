@@ -1,0 +1,29 @@
+version: 1
+project: Gamble Battle Blood Economy
+scenarios:
+- id: blood-economy
+  title: Blood Economy Player-Facing Review
+  adapter: generic
+  objective: Verify the blood reserve commodity, Laith identity, wager controls,
+    battle payout state, and blood-denominated shop remain readable and coherent
+    at authoritative runtime scale.
+  required_groups:
+  - title
+  - roster
+  - economy
+  evidence:
+    required_events: []
+    min_temporal_frames: 0
+  captures:
+  - path: outputs\visual_iter\blood_economy\02_title_blood_reserve_refined.png
+    label: Blood reserve title screen
+    group: title
+    role: actual
+  - path: outputs\visual_iter\blood_economy\03_laith_arcanist_only.png
+    label: Laith selection and sole Arcanist trait
+    group: roster
+    role: actual
+  - path: outputs\visual_iter\blood_economy\12_live_blood_flow_final_window.png
+    label: Post-battle transfusion payout, vial wager, reserve, and blood-priced shop
+    group: economy
+    role: actual

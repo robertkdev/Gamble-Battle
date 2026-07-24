@@ -5,7 +5,7 @@ const BattleStateScript := preload("res://scripts/game/combat/battle_state.gd")
 const CombatPatternKernel := preload("res://tests/rga_testing/aggregators/kernels/combat_pattern_kernel.gd")
 const AoeApproachTest := preload("res://tests/rga_testing/metrics/approach/aoe_approach_test.gd")
 
-const SUBJECT_IDS: Array[String] = ["luna", "morrak", "nyxa", "paisley", "teller"]
+const SUBJECT_IDS: Array[String] = ["luna", "morrak", "nyxa", "paisley", "omenry"]
 const TARGET_IDS: Array[String] = ["target_alpha", "target_beta", "target_gamma"]
 
 @export var do_quit_on_finish: bool = true

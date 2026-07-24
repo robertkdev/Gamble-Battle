@@ -1,5 +1,7 @@
 # Cost Tiering Pass - 2026-06-24
 
+> Historical snapshot. Current cost authority is the 49-unit live roster guarded by `CostBalanceSmoke.tscn`: 14/12/11/8/4 units at costs 1-5. Cashmere's cost-1 slot is now Laith (Arcanist only); Teller and Ivara are retired. See `blood_economy_conversion.md`.
+
 ## Baseline
 
 Before this pass, the active playable roster had 21 effective cost-1 units and one cost-3 unit, Hexeon. Bonko and Brute relied on `UnitProfile` defaults instead of explicit resource fields.

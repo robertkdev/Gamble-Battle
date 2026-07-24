@@ -421,7 +421,7 @@
       "subject_type": "unit",
       "subject_id": "teller",
       "display_name": "Teller",
-      "status": "current_candidate",
+      "status": "retired_historical",
       "coverage_group": [
         "humanoid_mage",
         "weapon_heavy",
@@ -437,8 +437,8 @@
       "style_gate": "Current candidate pass: thin Exile/Mogul identity, pale cracked half-mask, long matte coat, red lining, quill/ammo details, small hand weapon, and one grouped parchment-gold contract magic shape survive without glossy tuxedo drift.",
       "cutout_gate": "Pass: refined BiRefNet foreground-ML/despill cutout plus edge-orange-clean post-pass preserves the half-mask, coat tails, boots, small weapon, quills, and grouped magic shape; the board preview remains readable at 96 px on checker/black/white and orange-fringe audit now passes.",
       "telegram_message": "100",
-      "decision_notes": "Current Teller candidate. The raw still has some realistic dark-cloth highlights, but it avoids shiny tuxedo/leather and keeps the small formal silhouette readable. Not a live replacement.",
-      "reference_role": "narrow_proof_only"
+      "decision_notes": "Historical Teller proof retained as recoverable art evidence. Teller is retired from the playable roster and forward-looking art plan; do not promote or redesign from this row.",
+      "reference_role": "retired_historical_only"
     },
     {
       "id": "bo_large_brute_refit",
@@ -688,28 +688,27 @@
       "reference_role": "review_candidate_not_anchor"
     },
     {
-      "id": "cashmere_vellum_alignment_v3",
+      "id": "laith_preconcept_source_v3",
       "subject_type": "unit",
-      "subject_id": "cashmere",
-      "display_name": "Cashmere",
-      "status": "current_candidate",
+      "subject_id": "laith",
+      "display_name": "Laith",
+      "status": "superseded_source_reference",
       "coverage_group": [
         "humanoid_mage",
-        "formal_mogul",
         "small_narrow"
       ],
-      "proof_goal": "Preserve the live-source platinum-blond formal occult businesswoman identity while converting the black suit, coat, hair, and shoes from clean corporate gloss into Vellum-level dry matte gothic cloth and worn occult detail.",
+      "proof_goal": "Retain the old source-material study as visual provenance only. Future Laith work must follow the spine-ledger, painful pressurized tattoo-black ink, permanent staining, and memory-erasure concept rather than the former Mogul identity.",
       "source_image": "assets/units/cashmere.png",
       "output_dir": "outputs/art_pipeline/style_validation/cashmere_vellum_alignment_2026_07_01",
       "raw": "outputs/art_pipeline/style_validation/cashmere_vellum_alignment_2026_07_01/cashmere_vellum_alignment_v3_raw_candidate.png",
       "cutout": null,
       "review": "outputs/art_pipeline/style_validation/cashmere_vellum_alignment_2026_07_01/cashmere_vellum_alignment_v3_iteration_sheet.png",
       "board_preview": null,
-      "style_gate": "Current best artwork candidate: v3 preserves Cashmere's platinum bob, glasses, white shirt, black tie, long coat, and formal mogul silhouette while improving worn matte cloth and occult embroidery over v1. It still needs human review for residual shoe/hair polish before any acceptance.",
+      "style_gate": "Superseded source reference. It may inform Laith's elegant human silhouette, but its formal Mogul/business framing is not current identity authority.",
       "cutout_gate": "Not run in this pass; user asked to focus on artwork rather than cutout.",
       "telegram_message": "458",
-      "decision_notes": "Sent Telegram sheet 457 and raw 458. v2 improved face/cloth but used a portrait canvas; v3 restored square framing and is the best-current candidate. Not a live replacement.",
-      "reference_role": "review_candidate_not_anchor"
+      "decision_notes": "Historical Cashmere-era sheet retained non-destructively. Laith is the only preserved redesign candidate; do not promote this old economy-facing artwork as her final design.",
+      "reference_role": "source_provenance_only"
     },
     {
       "id": "mortem_vellum_lore_alignment_v3",

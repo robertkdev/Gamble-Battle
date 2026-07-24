@@ -2,6 +2,8 @@
 
 Status: research continuation only. No live `assets/units/*.png` replacements were made, and no new proof was accepted.
 
+> 2026-07-23 supersession: Cashmere-era studies are source provenance for Laith only, not current identity authority. Teller and Ivara are retired from the forward art plan. See `laith_redesign_candidate.md`.
+
 ## Standing Anchor
 
 - Vellum remains the primary and ultimate character style anchor: `outputs/art_pipeline/style_exploration/vellum_american_hard_matte_2026_06_29/vellum_10pct_real_deshine_selected_raw.png`.

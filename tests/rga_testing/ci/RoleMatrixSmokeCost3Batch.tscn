@@ -4,7 +4,7 @@
 
 [node name="RoleMatrixSmokeCost3Batch" type="Node"]
 script = ExtResource("1")
-units = PackedStringArray("caldera", "ivara", "noxley", "quorra", "juno_vale", "kett", "egress", "marble", "prisma", "sable")
+units = PackedStringArray("caldera", "noxley", "quorra", "juno_vale", "kett", "egress", "marble", "prisma", "sable")
 run_all_units = false
 opponents_per_pack = 1
 repeats = 1

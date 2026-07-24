@@ -1,6 +1,10 @@
 # Endgame Roster Plan - 2026-06-28
 
-Status: target roster implemented. The corrected target set is 51 playable units and includes Creep as a formal cost-3 Assassin unit. Sari is a normal playable unit with `Exile` and `Scholar` traits.
+Status: superseded roster snapshot. The live economy-conversion branch has 49 playable units: Teller and Ivara are retired, Cashmere is replaced by Laith, Mogul is retired, and Laith has Arcanist as her sole trait. The 51-unit tables below remain historical planning evidence, not current authority. See `blood_economy_conversion.md`.
+
+Current live cost distribution is 14/12/11/8/4 across costs 1-5. Laith is a cost-1 mage with the provisional non-economy Ink Expulsion bridge kit. Her final role/kit redesign is deferred.
+
+> **2026-07-23 superseding roster criterion:** every authored vertical trait must be naturally playable to its maximum listed threshold. Do not repair an underfilled vertical by lowering its thresholds. Treat three requirements as separate acceptance contracts: **natural capstone availability** (enough distinct units to reach the listed maximum), **drafting reliability** (a usable cost curve plus redundancy beyond the exact threshold), and **intended pair fieldability** (any promised dual-vertical composition must fit the actual board at once). The coordinator-verified current late-game board cap is 10, so an 8-unit vertical is individually fieldable, but two 8-unit verticals require at least 6 shared units (`8 + 8 - overlap <= 10`). Projected Fortified and Arcanist currently have zero shared units. The desired max-Fortified frontline plus max-Arcanist backline is therefore impossible by roster-count completion alone; it needs at least six coherent dual-trait units or an explicit trait-count source, capacity, or threshold redesign. Do not silently change thresholds. Integration note: this isolated branch's older `shop_config.gd` still exposes a chapter-five floor of 9, so the capacity source must be reconciled with the coordinator's verified 10-slot current baseline before the paired-vertical contract can be validated here.
 
 ## Sources Checked
 

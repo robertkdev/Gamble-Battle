@@ -82,13 +82,13 @@ static func _apply_unit_override(style: Dictionary[String, Variant], unit_id: St
 		"berebell":
 			_merge_style(style, _make_style("shield", Color(0.92, 0.98, 1.0, 1.0), Color(0.58, 0.78, 1.0, 0.96), Color(0.32, 0.50, 0.90, 0.42), Color(0.78, 1.0, 1.0, 0.92), 1.22, 4.4, 33.0, 0.90))
 		"bo":
-			_merge_style(style, _make_style("coin", Color(1.0, 0.86, 0.34, 1.0), Color(0.92, 0.48, 0.10, 0.96), Color(0.88, 0.42, 0.08, 0.44), Color(0.98, 1.0, 0.70, 0.94), 1.10, 3.7, 28.0, 1.06))
+			_merge_style(style, _make_style("glyph", Color(0.92, 0.84, 0.64, 1.0), Color(0.58, 0.34, 0.22, 0.96), Color(0.36, 0.18, 0.14, 0.44), Color(0.90, 0.76, 0.54, 0.94), 1.10, 3.7, 28.0, 1.06))
 		"bonko":
 			_merge_style(style, _make_style("ember", Color(1.0, 0.78, 0.42, 1.0), Color(1.0, 0.22, 0.10, 0.96), Color(0.84, 0.16, 0.06, 0.46), Color(1.0, 0.92, 0.42, 0.96), 1.18, 4.5, 32.0, 1.00, 0.05, 4.0))
 		"brute":
 			_merge_style(style, _make_style("hammer", Color(0.92, 0.92, 0.88, 1.0), Color(0.72, 0.58, 0.44, 0.98), Color(0.46, 0.34, 0.26, 0.42), Color(1.0, 0.70, 0.34, 0.94), 1.30, 4.8, 35.0, 0.86))
-		"cashmere":
-			_merge_style(style, _make_style("ribbon", Color(1.0, 0.84, 0.94, 1.0), Color(0.96, 0.36, 0.72, 0.94), Color(0.70, 0.22, 0.54, 0.42), Color(0.78, 1.0, 0.94, 0.90), 1.02, 3.2, 27.0, 1.04, 0.16, 4.8))
+		"laith":
+			_merge_style(style, _make_style("ribbon", Color(0.28, 0.23, 0.32, 1.0), Color(0.08, 0.05, 0.10, 0.98), Color(0.04, 0.02, 0.06, 0.62), Color(0.56, 0.22, 0.40, 0.90), 1.08, 4.0, 30.0, 0.96, 0.20, 4.2))
 		"grint":
 			_merge_style(style, _make_style("chain", Color(0.86, 0.94, 1.0, 1.0), Color(0.38, 0.62, 0.90, 0.96), Color(0.18, 0.36, 0.64, 0.44), Color(1.0, 0.82, 0.38, 0.94), 1.14, 4.0, 30.0, 1.08))
 		"hexeon":
@@ -111,8 +111,6 @@ static func _apply_unit_override(style: Dictionary[String, Variant], unit_id: St
 			_merge_style(style, _make_style("paper", Color(0.98, 0.92, 0.76, 1.0), Color(0.82, 0.58, 0.28, 0.96), Color(0.56, 0.40, 0.20, 0.42), Color(0.36, 0.86, 1.0, 0.92), 1.00, 3.1, 27.0, 1.06))
 		"sari":
 			_merge_style(style, _make_style("bolt", Color(1.0, 0.94, 0.58, 1.0), Color(0.24, 0.78, 1.0, 0.98), Color(0.12, 0.54, 1.0, 0.52), Color(1.0, 0.72, 0.24, 0.96), 0.90, 2.9, 24.0, 1.34))
-		"teller":
-			_merge_style(style, _make_style("card", Color(0.96, 0.98, 0.84, 1.0), Color(0.34, 0.92, 0.68, 0.96), Color(0.18, 0.68, 0.46, 0.42), Color(1.0, 0.84, 0.24, 0.94), 1.00, 3.2, 27.0, 1.10))
 		"totem":
 			_merge_style(style, _make_style("glyph", Color(0.90, 1.0, 0.74, 1.0), Color(0.54, 0.86, 0.24, 0.96), Color(0.30, 0.58, 0.14, 0.42), Color(0.96, 0.80, 0.34, 0.94), 1.14, 3.8, 31.0, 0.96))
 		"veyra":

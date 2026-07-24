@@ -12,7 +12,7 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "axiom": ["sari"],
     "bo": ["berebell", "grint"],
     "bonko": ["morrak", "grint", "mortem"],
-    "cashmere": ["brute", "bonko"],
+    "laith": ["brute", "bonko"],
     "korath": ["bonko", "sari", "morrak", "berebell"],
     "knoll": ["sari", "brute", "grint", "bonko", "morrak"],
     "morrak": ["berebell", "sari", "bonko"],
@@ -22,22 +22,22 @@ const FIRST_SHOP_HELPERS_BY_STARTER: Dictionary = {
     "sari": ["bonko", "grint", "brute", "berebell", "morrak"],
 }
 const FIRST_SHOP_BLOCKED_HELPERS_BY_STARTER: Dictionary = {
-    "axiom": ["axiom", "repo", "grint", "korath", "brute", "bo", "bonko", "morrak", "berebell", "mortem", "cashmere"],
-    "bo": ["cashmere", "brute", "axiom"],
+    "axiom": ["axiom", "repo", "grint", "korath", "brute", "bo", "bonko", "morrak", "berebell", "mortem", "laith"],
+    "bo": ["laith", "brute", "axiom"],
     "bonko": ["axiom", "repo", "korath"],
-    "cashmere": ["korath", "repo", "axiom"],
+    "laith": ["korath", "repo", "axiom"],
     "korath": ["brute", "axiom"],
     "knoll": ["axiom", "knoll", "pilfer"],
     "morrak": ["repo", "brute", "korath", "grint"],
     "mortem": ["brute", "axiom"],
     "pilfer": ["axiom", "knoll", "pilfer"],
-    "repo": ["axiom", "mortem", "korath", "brute", "cashmere", "grint", "repo"],
+    "repo": ["axiom", "mortem", "korath", "brute", "laith", "grint", "repo"],
     "sari": ["axiom"],
 }
 
 # Reroll and XP costs
-const REROLL_COST := 2                            # Gold per reroll
-const BUY_XP_COST := 4                            # Gold per XP purchase
+const REROLL_COST := 2                            # Blood reserve per reroll
+const BUY_XP_COST := 4                            # Blood reserve per XP purchase
 const XP_PER_BUY := 4                             # XP granted per purchase
 const OPENING_HELPER_GUARDED_SHOPS := 2           # Starter support should get viable helpers through the first follow-up shop
 

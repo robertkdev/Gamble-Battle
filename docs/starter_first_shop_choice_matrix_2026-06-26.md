@@ -1,5 +1,7 @@
 # Starter First-Shop Choice Matrix - 2026-06-26
 
+> Current-name bridge: every Cashmere row in this dated measurement maps to Laith's preserved cost-1 combat body. The old economy kill reward is removed; current starter config and tests use `laith`. Teller and Ivara are retired. This table remains historical outcome evidence until the Laith kit redesign is finalized.
+
 Source: `tests/visual/FirstShopChoiceQualitySmoke.tscn`, rerun through MCP on 2026-06-26 after expanding the starter-aware opening-shop guard to first-slot helper quality and known-bad helper suppression.
 
 The smoke targets current starter lines where a naive first visible/first-clicked shop card can determine whether the run cleanly advances beyond Stage 2. For each starter it forces a deterministic five-offer first shop, buys/deploys each slot through the real Main-scene flow, then starts and resolves the second fight.

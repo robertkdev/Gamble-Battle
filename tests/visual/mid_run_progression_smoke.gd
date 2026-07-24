@@ -17,7 +17,7 @@ const ROUND_PLANS: Array[Dictionary] = [
 	},
 	{
 		"label": "round_3_body_width",
-		"offers": ["sari", "brute", "berebell", "bo", "cashmere"],
+		"offers": ["sari", "brute", "berebell", "bo", "laith"],
 		"buy_xp": 1,
 		"buy": ["sari"],
 		"gold": 16,
@@ -25,7 +25,7 @@ const ROUND_PLANS: Array[Dictionary] = [
 	},
 	{
 		"label": "round_4_boss_gate",
-		"offers": ["berebell", "bo", "cashmere", "repo", "korath"],
+		"offers": ["berebell", "bo", "laith", "repo", "korath"],
 		"buy_xp": 3,
 		"buy": ["berebell"],
 		"gold": 24,
@@ -41,7 +41,7 @@ const ROUND_PLANS: Array[Dictionary] = [
 	},
 	{
 		"label": "chapter_2_round_1_creep_sustain",
-		"offers": ["veyra", "nyxa", "teller", "volt", "kythera"],
+		"offers": ["veyra", "nyxa", "omenry", "volt", "kythera"],
 		"buy_xp": 6,
 		"buy": ["veyra"],
 		"gold": 36,
@@ -50,7 +50,7 @@ const ROUND_PLANS: Array[Dictionary] = [
 	},
 	{
 		"label": "chapter_2_round_2_normal_check",
-		"offers": ["kythera", "hexeon", "vykos", "teller", "volt"],
+		"offers": ["kythera", "hexeon", "vykos", "omenry", "volt"],
 		"buy": ["hexeon", "vykos"],
 		"field": ["veyra", "hexeon", "vykos"],
 		"bench_out": ["bonko", "morrak", "berebell"],
@@ -68,9 +68,9 @@ const ROUND_PLANS: Array[Dictionary] = [
 	},
 	{
 		"label": "chapter_2_round_4_boss_pivot",
-		"offers": ["kythera", "teller", "repo", "bo", "paisley"],
-		"buy": ["kythera", "teller"],
-		"field": ["kythera", "teller"],
+		"offers": ["kythera", "omenry", "repo", "bo", "paisley"],
+		"buy": ["kythera", "omenry"],
+		"field": ["kythera", "omenry"],
 		"bench_out": ["korath", "sari"],
 		"gold": 28,
 		"min_chapter_after": 2,
@@ -81,7 +81,7 @@ const ROUND_PLANS: Array[Dictionary] = [
 		"offers": ["nyxa", "paisley", "luna", "repo", "bo"],
 		"buy": ["nyxa"],
 		"field": ["nyxa"],
-		"bench_out": ["cashmere"],
+		"bench_out": ["laith"],
 		"gold": 24,
 		"min_chapter_after": 3,
 	},

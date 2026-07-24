@@ -6,7 +6,7 @@ const CombatPatternKernel := preload("res://tests/rga_testing/aggregators/kernel
 const GoalPrimaryTest := preload("res://tests/rga_testing/metrics/goal/goal_primary_test.gd")
 
 const SARI_ID: String = "sari"
-const TELLER_ID: String = "teller"
+const TELLER_ID: String = "omenry"
 const ALLY_ID: String = "marksman_goal_ally"
 const TARGET_ID: String = "marksman_goal_target"
 
@@ -19,31 +19,31 @@ func _run() -> void:
 	var sari_full_result: Dictionary = _run_case("sari_full_goal", SARI_ID, 90.0, 300.0, 0.72, 0.82, true, 4)
 	var sari_low_damage_result: Dictionary = _run_case("sari_low_damage", SARI_ID, 60.0, 300.0, 0.72, 0.82, true, 4)
 	var sari_low_ramp_result: Dictionary = _run_case("sari_low_ramp", SARI_ID, 90.0, 300.0, 0.72, 0.82, true, 1)
-	var teller_full_result: Dictionary = _run_case("teller_full_goal", TELLER_ID, 90.0, 300.0, 0.70, 0.80, false, 0)
-	var teller_low_damage_result: Dictionary = _run_case("teller_low_damage", TELLER_ID, 60.0, 300.0, 0.70, 0.80, false, 0)
+	var omenry_full_result: Dictionary = _run_case("omenry_full_goal", TELLER_ID, 90.0, 300.0, 0.70, 0.80, false, 0)
+	var omenry_low_damage_result: Dictionary = _run_case("omenry_low_damage", TELLER_ID, 60.0, 300.0, 0.70, 0.80, false, 0)
 	var weak_result: Dictionary = _run_case("weak_marksman_goal", SARI_ID, 30.0, 300.0, 0.10, 0.10, false, 0, 2.0)
 
 	var sari_full_goal: Dictionary = sari_full_result.get("goal", {})
 	var sari_low_damage_goal: Dictionary = sari_low_damage_result.get("goal", {})
 	var sari_low_ramp_goal: Dictionary = sari_low_ramp_result.get("goal", {})
-	var teller_full_goal: Dictionary = teller_full_result.get("goal", {})
-	var teller_low_damage_goal: Dictionary = teller_low_damage_result.get("goal", {})
+	var omenry_full_goal: Dictionary = omenry_full_result.get("goal", {})
+	var omenry_low_damage_goal: Dictionary = omenry_low_damage_result.get("goal", {})
 	var weak_goal: Dictionary = weak_result.get("goal", {})
 
 	var sari_full_pass: bool = bool(sari_full_goal.get("pass", false))
 	var sari_low_damage_pass: bool = bool(sari_low_damage_goal.get("pass", false))
 	var sari_low_ramp_pass: bool = bool(sari_low_ramp_goal.get("pass", false))
-	var teller_full_pass: bool = bool(teller_full_goal.get("pass", false))
-	var teller_low_damage_pass: bool = bool(teller_low_damage_goal.get("pass", false))
+	var omenry_full_pass: bool = bool(omenry_full_goal.get("pass", false))
+	var omenry_low_damage_pass: bool = bool(omenry_low_damage_goal.get("pass", false))
 	var weak_pass: bool = bool(weak_goal.get("pass", false))
 	var sari_damage_share: float = _span_value(sari_full_goal, "goal_marksman_sustained_dps_team_damage_share")
-	var teller_damage_share: float = _span_value(teller_full_goal, "goal_marksman_sustained_dps_team_damage_share")
+	var omenry_damage_share: float = _span_value(omenry_full_goal, "goal_marksman_sustained_dps_team_damage_share")
 	var sari_ramp_stack: float = _span_value(sari_full_goal, "goal_marksman_sustained_dps_ramp_stack_max")
 	var sari_damage_span: bool = _has_span(sari_full_goal, "goal_marksman_sustained_dps_team_damage_share", true)
-	var teller_damage_span: bool = _has_span(teller_full_goal, "goal_marksman_sustained_dps_team_damage_share", true)
+	var omenry_damage_span: bool = _has_span(omenry_full_goal, "goal_marksman_sustained_dps_team_damage_share", true)
 	var sari_ramp_stack_span: bool = _has_span(sari_full_goal, "goal_marksman_sustained_dps_ramp_stack_max", true)
 	var sari_low_damage_fail_span: bool = _has_span(sari_low_damage_goal, "goal_marksman_sustained_dps_team_damage_share", false)
-	var teller_low_damage_fail_span: bool = _has_span(teller_low_damage_goal, "goal_marksman_sustained_dps_team_damage_share", false)
+	var omenry_low_damage_fail_span: bool = _has_span(omenry_low_damage_goal, "goal_marksman_sustained_dps_team_damage_share", false)
 	var sari_low_ramp_stack: float = _span_value(sari_low_ramp_goal, "goal_marksman_sustained_dps_ramp_stack_max")
 	var sari_low_ramp_diagnostic: bool = _has_diagnostic_span(sari_low_ramp_goal, "goal_marksman_sustained_dps_ramp_stack_max", "alternate_ramp_state_evidence_satisfied")
 	var weak_damage_span: bool = _has_span(weak_goal, "goal_marksman_sustained_dps_team_damage_share", true)
@@ -57,10 +57,10 @@ func _run() -> void:
 		" sari_low_ramp_pass=", sari_low_ramp_pass,
 		" sari_low_ramp_stack=", sari_low_ramp_stack,
 		" sari_low_ramp_diagnostic=", sari_low_ramp_diagnostic,
-		" teller_full_pass=", teller_full_pass,
-		" teller_damage_share=", teller_damage_share,
-		" teller_low_damage_pass=", teller_low_damage_pass,
-		" teller_low_damage_fail_span=", teller_low_damage_fail_span,
+		" omenry_full_pass=", omenry_full_pass,
+		" omenry_damage_share=", omenry_damage_share,
+		" omenry_low_damage_pass=", omenry_low_damage_pass,
+		" omenry_low_damage_fail_span=", omenry_low_damage_fail_span,
 		" weak_pass=", weak_pass)
 
 	var failed: bool = false
@@ -70,17 +70,17 @@ func _run() -> void:
 	if sari_damage_share < 0.29 or sari_ramp_stack < 4.0:
 		printerr("MarksmanSustainedDpsGoalProbe: FAIL Sari direct damage share or ramp stack proof was below target")
 		failed = true
-	if not teller_full_pass or not teller_damage_span:
-		printerr("MarksmanSustainedDpsGoalProbe: FAIL Teller full sustained-DPS proof did not pass direct damage share")
+	if not omenry_full_pass or not omenry_damage_span:
+		printerr("MarksmanSustainedDpsGoalProbe: FAIL Omenry full sustained-DPS proof did not pass direct damage share")
 		failed = true
-	if teller_damage_share < 0.29:
-		printerr("MarksmanSustainedDpsGoalProbe: FAIL Teller direct damage share proof was below target")
+	if omenry_damage_share < 0.29:
+		printerr("MarksmanSustainedDpsGoalProbe: FAIL Omenry direct damage share proof was below target")
 		failed = true
 	if not sari_low_damage_pass or not sari_low_damage_fail_span:
 		printerr("MarksmanSustainedDpsGoalProbe: FAIL Sari low-damage aggregate path did not preserve a failed damage-share span")
 		failed = true
-	if not teller_low_damage_pass or not teller_low_damage_fail_span:
-		printerr("MarksmanSustainedDpsGoalProbe: FAIL Teller low-damage aggregate path did not preserve a failed damage-share span")
+	if not omenry_low_damage_pass or not omenry_low_damage_fail_span:
+		printerr("MarksmanSustainedDpsGoalProbe: FAIL Omenry low-damage aggregate path did not preserve a failed damage-share span")
 		failed = true
 	if not sari_low_ramp_pass or not sari_low_ramp_diagnostic or sari_low_ramp_stack >= 2.0:
 		printerr("MarksmanSustainedDpsGoalProbe: FAIL Sari low-ramp aggregate path did not keep ramp-stack span diagnostic")

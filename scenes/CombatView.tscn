@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://bq7rbbhqrjhrt"]
+[gd_scene load_steps=5 format=3 uid="uid://bq7rbbhqrjhrt"]
 
 [ext_resource type="Script" uid="uid://c221b20euic1x" path="res://scripts/combat_view.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://brf1rgu45pejc" path="res://scenes/ui/stats/StatsPanel.tscn" id="2"]
 [ext_resource type="PackedScene" uid="uid://dib1tw8576diu" path="res://scenes/ui/traits/TraitsPanel.tscn" id="3"]
+[ext_resource type="Texture2D" path="res://assets/ui/blood_meter_handle.svg" id="4_blood_meter"]
 
 [node name="CombatView" type="Control"]
 layout_mode = 3
@@ -518,7 +519,7 @@ theme_override_constants/separation = 13
 
 [node name="GoldLabel" type="Label" parent="MarginContainer/VBoxContainer/ActionsRow"]
 layout_mode = 2
-text = "Gold: 2"
+text = "Blood Reserve: 2"
 
 [node name="AttackButton" type="Button" parent="MarginContainer/VBoxContainer/ActionsRow"]
 visible = false
@@ -535,20 +536,24 @@ layout_mode = 2
 
 [node name="BetLabel" type="Label" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
 layout_mode = 2
-text = "Bet:"
-
-[node name="BetSlider" type="HSlider" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
-custom_minimum_size = Vector2(300, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-min_value = 1.0
-max_value = 2.0
-value = 1.0
+text = "Wager reserve:"
 
 [node name="BetValue" type="Label" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
 layout_mode = 2
-text = "1"
+theme_override_colors/font_color = Color(0.92, 0.82, 0.69, 1)
+theme_override_font_sizes/font_size = 16
+text = "1 blood"
+
+[node name="BetSlider" type="HSlider" parent="MarginContainer/VBoxContainer/ActionsRow/BetRow"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_icons/grabber = ExtResource("4_blood_meter")
+theme_override_icons/grabber_highlight = ExtResource("4_blood_meter")
+min_value = 1.0
+max_value = 2.0
+value = 1.0
 
 [node name="BottomStorageArea" type="VBoxContainer" parent="MarginContainer/VBoxContainer"]
 layout_mode = 2

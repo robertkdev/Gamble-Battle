@@ -1,6 +1,6 @@
 extends Control
 
-const SIGIL_TEXTURE: Texture2D = preload("res://assets/ui/gold icon.png")
+const SIGIL_TEXTURE: Texture2D = preload("res://assets/ui/blood_reserve.svg")
 const UnitCatalogScript: GDScript = preload("res://scripts/game/shop/unit_catalog.gd")
 const PrimaryRoleScript: GDScript = preload("res://scripts/game/identity/primary_role.gd")
 const GoalCatalogScript: GDScript = preload("res://scripts/game/identity/goal_catalog.gd")
@@ -365,7 +365,7 @@ func _ensure_subtitle() -> void:
 		_subtitle.name = "Subtitle"
 		center_vbox.add_child(_subtitle)
 		center_vbox.move_child(_subtitle, min(1, center_vbox.get_child_count() - 1))
-	_subtitle.text = "Blood. Gold. Consequence."
+	_subtitle.text = "Blood. Wager. Consequence."
 	_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_subtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_subtitle.add_theme_font_size_override("font_size", 17)
@@ -546,7 +546,7 @@ func _add_home_route_grid() -> void:
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 12)
 	_content_body.add_child(grid)
-	_add_card_to_parent(grid, "Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and betting decisions.", "Start Here", "run flow start starter shop bench combines items traits betting", COLOR_GOLD, false, "HomeRunFlow")
+	_add_card_to_parent(grid, "Run Flow", "Pick a starter, survive the forced first fight, then build through shop offers, bench deployment, combines, items, traits, and blood-wager decisions.", "Start Here", "run flow start starter shop bench combines items traits blood wager", COLOR_GOLD, false, "HomeRunFlow")
 	_add_card_to_parent(grid, "Roster Library", "Live unit cards include ability text, traits, cost, role, goal, and approaches, so roster study stays tied to current resources.", "Units", "units roster ability traits cost role goal approaches", COLOR_BLOOD_HOT, false, "HomeRoster")
 	_add_card_to_parent(grid, "Combat Terms", "Role, Goal, and Approach explain what a unit is trying to do and why it belongs on a board.", "Glossary", "combat terms role goal approach trait board", COLOR_BLUE, false, "HomeRGA")
 	_add_card_to_parent(grid, "Settings", "Runtime controls for master volume and fullscreen behavior in the current menu session.", "Local", "settings volume fullscreen", COLOR_GREEN, false, "HomeSettings")
@@ -563,13 +563,13 @@ func _render_global_search_results() -> void:
 func _render_how_to_play() -> void:
 	_set_content_header("How to Play", "A compact tutorial for the actual Main-scene loop, from starter pick to post-fight shop decisions.")
 	if _search_field != null:
-		_search_field.placeholder_text = "Search tutorial: shop, bench, combine, bet, item..."
+		_search_field.placeholder_text = "Search tutorial: shop, bench, combine, wager, item..."
 	_add_card("1. Pick a Starter", "Start Run opens the Unit Select screen. Pick one starter unit; that unit becomes your first board piece and anchors your opening plan.", "starter unit select start run board")
 	_add_card("2. Survive the Forced First Fight", "Chapter 1 Stage 1 begins as a forced opener. The shop is intentionally locked until you win that first fight, so focus on reading your unit and the battlefield.", "first fight forced opener chapter stage locked shop win")
-	_add_card("3. Spend Gold in the Shop", "After the opener, the shop offers five units. Buy affordable units, reroll when you need a different lane, lock when you want to preserve offers, and buy XP to raise shop odds.", "shop gold offers reroll lock xp odds buy unit")
+	_add_card("3. Spend Blood in the Shop", "After the opener, the shop offers five units. Buy affordable units from the house blood reserve, reroll when you need a different lane, lock when you want to preserve offers, and buy XP to raise shop odds.", "shop blood reserve offers reroll lock xp odds buy unit")
 	_add_card("4. Use Bench and Board", "Bought units land on the bench. Drag bench units to highlighted board cells before the next fight. Three copies of the same unit and level combine into a stronger copy, up to level 3.", "bench board drag deploy combine three copies level")
 	_add_card("5. Read Items and Traits", "Items and traits are multipliers on a unit's job. Traits come from unit tags; items add scaling combat effects and should support the unit's role, goal, and approach.", "items traits tags scaling role goal approach")
-	_add_card("6. Manage Bets and Health", "Planning purchases must preserve survival. Combat spending can borrow against the current bet, but bad spending can leave the next planning phase short on health or gold.", "bet health planning combat spending gold survival")
+	_add_card("6. Manage Wagers and Blood", "Planning purchases must preserve the reserve. Combat spending can borrow against the current wager, but careless spending can leave the next planning phase short on blood.", "wager blood reserve planning combat spending survival")
 	_add_card("7. Learn Roles Before Optimizing", "Tank, Brawler, Assassin, Marksman, Mage, and Support describe the broad combat job. Use the Units and Combat Terms pages to understand why two units in the same role can still play very differently.", "roles tank brawler assassin marksman mage support optimize")
 
 func _render_units() -> void:

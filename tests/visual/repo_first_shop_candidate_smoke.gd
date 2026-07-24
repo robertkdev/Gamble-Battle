@@ -7,7 +7,7 @@ const REPO_CANDIDATE_HELPERS: Array[String] = [
 	"bo",
 	"bonko",
 	"brute",
-	"cashmere",
+	"laith",
 	"grint",
 	"korath",
 	"morrak",

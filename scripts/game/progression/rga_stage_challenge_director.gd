@@ -9,7 +9,7 @@ static var _choices: Dictionary = {}
 
 static var _pools: Dictionary = {
 	1: [
-		{"id": "frontline_lesson", "label": "Frontline Lesson", "ids": ["brute", "cashmere"], "puzzle": "Break a simple front line before its support stabilizes."},
+		{"id": "frontline_lesson", "label": "Frontline Lesson", "ids": ["brute", "laith"], "puzzle": "Break a simple front line before its support stabilizes."},
 		{"id": "range_pressure", "label": "Range Pressure", "ids": ["luna", "grint"], "puzzle": "Reach or outlast protected ranged pressure."},
 		{"id": "pick_access", "label": "Pick Access", "ids": ["bo", "bonko"], "puzzle": "Protect fragile units from early backline access."},
 		{"id": "attrition_intro", "label": "Attrition Intro", "ids": ["berebell", "morrak"], "puzzle": "Close the fight before attrition healing wins."},
@@ -18,7 +18,7 @@ static var _pools: Dictionary = {
 		{"id": "lockdown_window", "label": "Lockdown Window", "ids": ["kythera", "paisley", "sari"], "puzzle": "Answer crowd control without losing the damage race."},
 		{"id": "reposition_test", "label": "Reposition Test", "ids": ["mortem", "berebell", "veyra"], "puzzle": "Handle a fight that changes contact points."},
 		{"id": "anti_dive_shell", "label": "Anti-Dive Shell", "ids": ["totem", "nyxa", "rooket"], "puzzle": "Dive into a board that can peel and punish access."},
-		{"id": "volatile_burst", "label": "Volatile Burst", "ids": ["cinder", "volt", "teller"], "puzzle": "Survive front-loaded damage and stabilize."},
+		{"id": "volatile_burst", "label": "Volatile Burst", "ids": ["cinder", "volt", "orielle"], "puzzle": "Survive front-loaded damage and stabilize."},
 	],
 	3: [
 		{"id": "wide_trait_math", "label": "Wide Trait Math", "ids": ["prisma", "juno_vale", "quorra", "kett"], "puzzle": "Beat a wide-board value engine before it compounds."},

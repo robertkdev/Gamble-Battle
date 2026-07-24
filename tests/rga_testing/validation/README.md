@@ -1,5 +1,7 @@
 # RGA Validation — Entry Points
 
+> 2026-07-23 roster supersession: Mogul, Teller, and Ivara are retired. Cashmere is replaced by Laith, whose sole trait is Arcanist and whose non-economy Ink Expulsion bridge kit retains the existing mage pick-burst validation lane. Dated prose below may still name retired subjects as historical evidence; current scene names and live unit resources are authoritative.
+
 Run these scenes via MCP for headless validation and reports.
 
 - Role Matrix Probe (per-unit orchestrator)
@@ -18,7 +20,7 @@ Run these scenes via MCP for headless validation and reports.
   - Produces rows in a single file: `user://rga_out.jsonl` (overwritten each run), and a report at `user://identity_reports/<unit>.json`.
   - Targeted 6v6 scenes:
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Axiom.tscn` - support peel/sustain/amp.
-    - `tests/rga_testing/validation/RoleMatrixProbe6v6Cashmere.tscn` - mage pick_burst/burst.
+    - `tests/rga_testing/validation/RoleMatrixProbe6v6Laith.tscn` - mage pick_burst/burst.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Bo.tscn` - brawler skirmish_dive/disrupt/reposition across counter and peel contexts.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Mortem.tscn` - brawler attrition_dps/reposition/burst/disrupt across burst and peel contexts.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Hexeon.tscn` - assassin access_backline/burst/execute across counter and burst contexts.
@@ -33,7 +35,7 @@ Run these scenes via MCP for headless validation and reports.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Sari.tscn` - marksman long_range/ramp/on_hit_effect.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Kythera.tscn` - tank team_fortification/damage_reduction/debuff across counterplay, fortify, and burst contexts, with explicit goal-primary span checks for the now-passing buff-uptime contract.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Korath.tscn` - tank damage_reduction/redirect/engage.
-    - `tests/rga_testing/validation/RoleMatrixProbe6v6Teller.tscn` - marksman sustained_dps/long_range/burst/aoe across sustained, clustered, kite, and burst contexts.
+    - `tests/rga_testing/validation/RoleMatrixProbe6v6Omenry.tscn` - marksman backline_siege/long_range/on_hit_effect/reposition.
     - `tests/rga_testing/validation/RoleMatrixProbe6v6Totem.tscn` - support peel/amp/cc_immunity across `peel` plus carry-threat `threat` contexts, with explicit goal-primary span checks for the current save/interrupt residual shape.
 
 - On-hit telemetry positive control
@@ -92,9 +94,9 @@ Run these scenes via MCP for headless validation and reports.
   - Scene: `tests/rga_testing/validation/KytheraSiphonCanonicalStackProbe.tscn`
   - Proves the real Siphon cast consumes canonical `TraitKeys.AEGIS` stacks for drain rate, executes scheduled tick/end events, drains target MR, and applies Kythera's permanent MR stack.
 
-- Cashmere Ledger canonical stack probe
-  - Scene: `tests/rga_testing/validation/CashmereLedgerCanonicalStackProbe.tscn`
-  - Proves the real Arcane Ledger cast consumes canonical `TraitKeys.ARCANIST` stacks for damage scaling without relying on the old `arcanist_stacks` fallback.
+- Laith Ink Expulsion canonical stack probe
+  - Scene: `tests/rga_testing/validation/LaithInkExpulsionCanonicalStackProbe.tscn`
+  - Proves the provisional Ink Expulsion cast consumes canonical `TraitKeys.ARCANIST` stacks for damage scaling without relying on the old `arcanist_stacks` fallback, and awards no currency.
 
 - Paisley Bubbles canonical stack probe
   - Scene: `tests/rga_testing/validation/PaisleyBubblesCanonicalStackProbe.tscn`

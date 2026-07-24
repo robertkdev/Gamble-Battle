@@ -71,15 +71,15 @@
       "prompt_addendum": "Preserve Brute as a massive skull-faced titan-fortified tank: broad hunched stone-and-bone bulk, rib armor, huge slab fists, cracked shoulder plates, black tattered waist cloth, tiny green fissures, and dust at the feet. Hard matte material lock: chalky charcoal stone, dry bone, dull oxidized iron only; no polished metal, no glossy wet rock, no chrome highlights, no oily shine."
     },
     {
-      "id": "cashmere",
-      "display_name": "Cashmere",
-      "traits": ["Arcanist", "Mogul"],
+      "id": "laith",
+      "display_name": "Laith",
+      "traits": ["Arcanist"],
       "source_image": "assets/units/cashmere.png",
       "coverage_group": ["humanoid_mage", "small_narrow"],
-      "visual_identity": "pale platinum-blond formal occult businesswoman/arcanist, glasses, black suit, white shirt, black tie, long black coat, severe mogul posture",
-      "preserve": ["pale platinum-blond bob", "glasses", "black suit and long coat", "white shirt and black tie", "upright mogul posture", "formal occult businesswoman read"],
+      "visual_identity": "elegant pale human arcanist bound to a spine-mounted ledger, violently expelling pressurized tattoo-black ink that permanently stains her and erodes her memories",
+      "preserve": ["elegant human woman", "spine-mounted ledger", "painful pressurized tattoo-black ink", "permanent ink stains", "memory-loss expression", "formal severe silhouette"],
       "avoid_drift": ["bald head", "generic vampire", "superhero", "anime butler", "shiny tuxedo", "gender change", "plastic salon hair"],
-      "prompt_addendum": "Preserve Cashmere from the live source as a pale platinum-blond occult businesswoman in glasses, a matte black suit, white shirt, black tie, and long coat, formal and severe, with dry cloth rather than glossy tuxedo shine."
+      "prompt_addendum": "Develop Laith as an elegant human Arcanist physically bound to a spine-ledger. Her casting must read as a painful, violent pressure release of messy tattoo-black ink that stains her body and visibly costs memory. Preserve the formal severe silhouette, but remove all Mogul, cash, coin, wealth, and businesswoman framing. The legacy source filename is a compatibility seam, not identity authority."
     },
     {
       "id": "grint",
@@ -201,17 +201,6 @@
       "preserve": ["grayscale spectral palette", "wind-swept black tendril hair mass", "green glowing eyes", "dark face mask/visor", "matte black armor plates", "leather chest straps", "crouched leaping marksman silhouette", "clawed hands", "green rune marks", "grouped ghostly extra arms/tendrils trailing behind"],
       "avoid_drift": ["colorful fairy", "human warrior", "busy smoke only", "cute ghost", "werewolf", "anime ninja", "shiny black armor", "glossy latex bodysuit", "generic armored knight", "loose confetti wisps", "hair spaghetti noise", "lost face/eye read", "unreadable tendril cloud"],
       "prompt_addendum": "Preserve Sari as a traitless live-data marksman with a grayscale spectral armored body, wind-swept black tendril hair, green eyes, dark face mask, matte black armor plates, leather straps, clawed hands, green rune marks, crouched leaping stance, and grouped ghostly extra arms/tendrils trailing behind. Hard matte material lock: dry charcoal cloth/armor, soot, dusty metal, dull leather, chalky gray spectral flesh, matte green rune pigment, and dry brush only; no shiny black armor, no glossy latex body, no cute ghost, no werewolf, no smoke-only silhouette, no loose confetti wisps, and no unreadable tendril cloud."
-    },
-    {
-      "id": "teller",
-      "display_name": "Teller",
-      "traits": ["Exile", "Mogul"],
-      "source_image": "assets/units/teller.png",
-      "coverage_group": ["humanoid_mage", "weapon_heavy", "small_narrow"],
-      "visual_identity": "thin gothic exile mogul in a long black formal coat with red inner lining, pale cracked half-mask/face, chest harness and quill/ammo details, small pistol-or-wand weapon, and restrained gold contract/coin magic swirl",
-      "preserve": ["long matte coat", "pale cracked half-mask/face", "thin upright silhouette", "chest harness and quill/ammo details", "small handheld pistol-or-wand weapon", "single grouped gold contract/coin magic shape"],
-      "avoid_drift": ["modern hitman", "superhero", "shiny leather coat", "generic vampire", "glossy tuxedo", "polished dress shoes", "tiny coin confetti", "readable money symbols", "oversized gun"],
-      "prompt_addendum": "Preserve Teller as a thin gothic Exile/Mogul in a matte long black coat with red inner lining, pale cracked half-mask/face, chest harness, quill/ammo details, and a small pistol-or-wand silhouette. Keep contract/coin magic as one restrained grouped gold-parchment shape attached to the hand, not tiny coin confetti, readable symbols, or glossy formalwear."
     },
     {
       "id": "totem",

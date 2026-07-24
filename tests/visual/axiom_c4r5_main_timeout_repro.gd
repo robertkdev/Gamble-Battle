@@ -3,7 +3,7 @@ extends "res://tests/visual/first_shop_choice_quality_smoke.gd"
 const MirrorBoardStore := preload("res://scripts/game/progression/mirror_board_store.gd")
 
 const REPRO_NAME: String = "AxiomC4R5MainTimeoutRepro"
-const PLAYER_IDS: Array[String] = ["axiom", "teller", "cinder", "nyxa", "caldera", "rooket", "kythera", "hexeon"]
+const PLAYER_IDS: Array[String] = ["axiom", "omenry", "cinder", "nyxa", "caldera", "rooket", "kythera", "hexeon"]
 const BENCH_IDS: Array[String] = ["korath", "sari", "brute", "sari", "grint", "volt"]
 const CHAPTER: int = 4
 const ROUND_IN_CHAPTER: int = 5

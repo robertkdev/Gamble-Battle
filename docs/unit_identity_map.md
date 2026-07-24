@@ -13,7 +13,7 @@ Terminology: capital-C `Creep` (`data/units/creep.tres`) is a playable roster un
 | Bonko | bonko | brawler | brawler.attrition_dps | sustain, ramp | res://data/identity/unit_identities/bonko_identity.tres |
 | Brute | brute | tank | tank.frontline_absorb | engage, damage_reduction, lockdown | res://data/identity/unit_identities/brute_identity.tres |
 | Caldera | caldera | tank | tank.initiate_fight | engage, zone, aoe | res://data/identity/unit_identities/caldera_identity.tres |
-| Cashmere | cashmere | mage | mage.pick_burst | burst | res://data/identity/unit_identities/cashmere_identity.tres |
+| Laith | laith | mage | mage.pick_burst | burst | res://data/identity/unit_identities/laith_identity.tres |
 | Cinder | cinder | mage | mage.area_denial_zone | zone, aoe, dot | res://data/identity/unit_identities/cinder_identity.tres |
 | Creep | creep | assassin | assassin.backline_elimination | access_backline, aoe, damage_reduction | res://data/identity/unit_identities/creep_identity.tres |
 | Draxelle | draxelle | brawler | brawler.frontline_disruption | engage, disrupt, ramp | res://data/identity/unit_identities/draxelle_identity.tres |
@@ -21,7 +21,6 @@ Terminology: capital-C `Creep` (`data/units/creep.tres`) is a playable roster un
 | Gable | gable | marksman | marksman.sustained_dps | long_range, on_hit_effect, ramp | res://data/identity/unit_identities/gable_identity.tres |
 | Grint | grint | tank | tank.initiate_fight | engage, debuff, damage_reduction | res://data/identity/unit_identities/grint_identity.tres |
 | Hexeon | hexeon | assassin | assassin.backline_elimination | access_backline, burst, execute | res://data/identity/unit_identities/hexeon_identity.tres |
-| Ivara | ivara | marksman | marksman.tank_shredding | long_range, debuff, engage | res://data/identity/unit_identities/ivara_identity.tres |
 | Juno Vale | juno_vale | support | support.formation_breaking | zone, disrupt, redirect | res://data/identity/unit_identities/juno_vale_identity.tres |
 | Kett | kett | brawler | brawler.frontline_disruption | on_hit_effect, ramp, debuff | res://data/identity/unit_identities/kett_identity.tres |
 | Knoll | knoll | support | support.enemy_lockdown | lockdown, debuff, disrupt | res://data/identity/unit_identities/knoll_identity.tres |
@@ -50,7 +49,6 @@ Terminology: capital-C `Creep` (`data/units/creep.tres`) is a playable roster un
 | Sable | sable | marksman | marksman.tank_shredding | long_range, debuff, on_hit_effect | res://data/identity/unit_identities/sable_identity.tres |
 | Saffron | saffron | support | support.peel_carry | peel, sustain, damage_reduction | res://data/identity/unit_identities/saffron_identity.tres |
 | Sari | sari | marksman | marksman.sustained_dps | long_range, on_hit_effect, ramp | res://data/identity/unit_identities/sari_identity.tres |
-| Teller | teller | marksman | marksman.sustained_dps | long_range, burst, aoe | res://data/identity/unit_identities/teller_identity.tres |
 | Totem | totem | support | support.peel_carry | peel, cc_immunity, amp | res://data/identity/unit_identities/totem_identity.tres |
 | Velour | velour | support | support.enemy_lockdown | lockdown, peel, sustain | res://data/identity/unit_identities/velour_identity.tres |
 | Veyra | veyra | tank | tank.team_fortification | damage_reduction, cc_immunity, ramp | res://data/identity/unit_identities/veyra_identity.tres |

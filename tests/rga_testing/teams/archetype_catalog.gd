@@ -1,4 +1,4 @@
-﻿extends RefCounted
+extends RefCounted
 class_name RGAArchetypeCatalog
 
 const TAG_DIVE := "Dive"
@@ -21,7 +21,7 @@ const _ARCHETYPES := [
         "id": "poke_siege_pressure",
         "name": "Siege Pressure Poke",
         "description": "Long-range zoning core that chips opponents before committing.",
-        "unit_ids": ["paisley", "volt", "luna", "nyxa", "teller"],
+        "unit_ids": ["paisley", "volt", "luna", "nyxa", "omenry"],
         "tags": [TAG_POKE],
     },
     {
@@ -49,7 +49,7 @@ const _ARCHETYPES := [
         "id": "antiheal_suppression_lance",
         "name": "Suppression Lance AntiHeal",
         "description": "Debuff-heavy core focused on cutting sustain and forcing short fights.",
-        "unit_ids": ["volt", "teller", "kythera", "mortem", "paisley"],
+        "unit_ids": ["volt", "omenry", "kythera", "mortem", "paisley"],
         "tags": [TAG_ANTI_HEAL, TAG_POKE],
     },
 ]

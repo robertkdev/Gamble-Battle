@@ -149,14 +149,14 @@ func _start_and_verify_locked_max_bet() -> void:
 	_expect(int(Economy.combat_credit_base) == max(0, (2 * selected_bet) - 1), "combat credit base should derive from selected bet")
 	_expect(not slider.visible, "bet slider should hide while combat is active")
 	_expect(not slider.editable, "bet slider should lock while combat is active")
-	_expect(String(value_label.text) == "Bet: %d (locked)" % selected_bet, "combat should show locked bet copy, got %s" % String(value_label.text))
+	_expect(String(value_label.text) == "Wager: %d (locked)" % selected_bet, "combat should show locked blood-wager copy, got %s" % String(value_label.text))
 	var ignored_ok: bool = Economy.set_bet(1)
 	_expect(ignored_ok, "set_bet during Main-scene combat should report existing positive wager")
 	_expect(int(Economy.current_bet) == selected_bet, "set_bet during Main-scene combat should not change wager")
 	slider.value = 1
 	await _settle_frames(2)
 	_expect(int(Economy.current_bet) == selected_bet, "hidden combat slider changes should not alter wager")
-	_expect(String(value_label.text) == "Bet: %d (locked)" % selected_bet, "hidden combat slider changes should not repaint locked copy")
+	_expect(String(value_label.text) == "Wager: %d (locked)" % selected_bet, "hidden combat slider changes should not repaint locked wager copy")
 
 func _bet_slider() -> HSlider:
 	return _main.find_child("BetSlider", true, false) as HSlider if _main != null else null

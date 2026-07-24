@@ -1001,7 +1001,7 @@ func _on_continue_pressed() -> void:
 		var bet_ok: bool = Economy.set_bet(int(bet_val))
 		if not bet_ok:
 			if Debug.enabled:
-				print("[CombatView] Place a bet > 0 to start")
+				print("[CombatView] Place a blood wager > 0 to start")
 			return
 		Trace.step("Economy bet accepted")
 		continue_button.disabled = true
@@ -1070,7 +1070,7 @@ func _on_continue_pressed() -> void:
 	var bet_ok2: bool = Economy.set_bet(int(bet_slider.value))
 	if not bet_ok2:
 		if Debug.enabled:
-			print("[CombatView] Place a bet > 0 to continue")
+			print("[CombatView] Place a blood wager > 0 to continue")
 		return
 	continue_button.disabled = true
 	_begin_combat_resolving_feedback()
@@ -1566,7 +1566,13 @@ func _on_victory(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "victory"
-	_show_result_banner("WON", Color(0.12, 0.22, 0.15, 0.96), Color(0.78, 0.98, 0.70, 1.0))
+	var blood_payout: int = 0
+	if Engine.has_singleton("Economy") or parent.has_node("/root/Economy"):
+		blood_payout = max(0, int(Economy.last_bet_start) * 2)
+	var victory_copy: String = "WON - BLOOD RESERVE SETTLED"
+	if blood_payout > 0:
+		victory_copy = "WON - TRANSFUSION +%d BLOOD" % blood_payout
+	_show_result_banner(victory_copy, Color(0.12, 0.22, 0.15, 0.96), Color(0.78, 0.98, 0.70, 1.0))
 	_auto_loop_running = false
 	_start_intermission(2.0)
 
@@ -1575,7 +1581,7 @@ func _on_defeat(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "defeat"
-	_show_result_banner("LOST", Color(0.28, 0.035, 0.050, 0.96), Color(1.0, 0.62, 0.55, 1.0))
+	_show_result_banner("LOST - WAGERED BLOOD FORFEITED", Color(0.28, 0.035, 0.050, 0.96), Color(1.0, 0.62, 0.55, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -1584,7 +1590,7 @@ func _on_tie(_stage: int) -> void:
 		attack_button.disabled = true
 	_end_combat_resolving_feedback()
 	_post_combat_outcome = "tie"
-	_show_result_banner("TIE - BET REFUNDED", Color(0.12, 0.10, 0.16, 0.96), Color(0.92, 0.82, 1.0, 1.0))
+	_show_result_banner("TIE - WAGERED BLOOD RETURNED", Color(0.12, 0.10, 0.16, 0.96), Color(0.92, 0.82, 1.0, 1.0))
 	_start_intermission(2.0)
 	_auto_loop_running = false
 
@@ -1720,7 +1726,7 @@ func _apply_first_boss_prep_gold_floor(win: bool) -> void:
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("First boss prep stipend: +%d gold." % missing_gold)
+	_on_log_line("First boss prep allocation: +%d blood." % missing_gold)
 
 func _apply_chapter_two_stability_gold_floor(win: bool) -> void:
 	if not win:
@@ -1738,7 +1744,7 @@ func _apply_chapter_two_stability_gold_floor(win: bool) -> void:
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("Chapter 2 stability stipend: +%d gold." % missing_gold)
+	_on_log_line("Chapter 2 stability allocation: +%d blood." % missing_gold)
 
 func _apply_chapter_three_stability_gold_floor(win: bool) -> void:
 	if not win:
@@ -1756,7 +1762,7 @@ func _apply_chapter_three_stability_gold_floor(win: bool) -> void:
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("Chapter 3 stability stipend: +%d gold." % missing_gold)
+	_on_log_line("Chapter 3 stability allocation: +%d blood." % missing_gold)
 
 func _apply_boss_prep_gold_floor(win: bool) -> void:
 	if not win:
@@ -1773,7 +1779,7 @@ func _apply_boss_prep_gold_floor(win: bool) -> void:
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("Boss prep stipend: +%d gold." % missing_gold)
+	_on_log_line("Boss prep allocation: +%d blood." % missing_gold)
 
 func _apply_opening_retry_recovery(win: bool) -> void:
 	if win:
@@ -1793,7 +1799,7 @@ func _apply_opening_retry_recovery(win: bool) -> void:
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("Opening retry recovery: +%d gold." % missing_gold)
+	_on_log_line("Opening retry transfusion: +%d blood." % missing_gold)
 
 func _apply_early_run_retry_recovery(win: bool) -> void:
 	if win:
@@ -1812,7 +1818,7 @@ func _apply_early_run_retry_recovery(win: bool) -> void:
 	if missing_gold <= 0:
 		return
 	Economy.add_gold(missing_gold)
-	_on_log_line("Early retry recovery: +%d gold." % missing_gold)
+	_on_log_line("Early retry transfusion: +%d blood." % missing_gold)
 
 func _start_auto_loop() -> void:
 	if not auto_combat:

@@ -2,6 +2,8 @@
 
 Status: story-first universe draft for Gamble Battle. This replaces the rejected `docs/lore.md`.
 
+> 2026-07-23 character supersession: any Cashmere, Teller, Ivara, Mogul, coin, or gold-economy passages below are historical draft material. Teller and Ivara are not active roster characters. Laith is the only preserved redesign candidate from that cluster: an elegant human Arcanist bound to a spine-ledger whose painful pressurized tattoo-black ink stains her and erodes her memories. Universal currency is institutional blood reserve and remains distinct from Sanguine vitality.
+
 This document treats the world as primary. The battles, characters, factions, and visual direction come from this universe; the universe is not an explanation of a rules surface.
 
 ## Core Promise

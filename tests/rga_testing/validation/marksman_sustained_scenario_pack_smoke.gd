@@ -15,7 +15,7 @@ func _run() -> void:
 		"primary_goal": "marksman.sustained_dps",
 		"approaches": ["long_range", "debuff", "ramp"]
 	}
-	var teller_identity: Dictionary[String, Variant] = {
+	var omenry_identity: Dictionary[String, Variant] = {
 		"primary_role": "marksman",
 		"primary_goal": "marksman.sustained_dps",
 		"approaches": ["long_range", "burst", "aoe"]
@@ -26,7 +26,7 @@ func _run() -> void:
 		"approaches": ["long_range", "ramp", "aoe"]
 	}
 	var sari_labels: PackedStringArray = smoke.call("_labels_for_unit", sari_identity)
-	var teller_labels: PackedStringArray = smoke.call("_labels_for_unit", teller_identity)
+	var omenry_labels: PackedStringArray = smoke.call("_labels_for_unit", omenry_identity)
 	var nyxa_labels: PackedStringArray = smoke.call("_labels_for_unit", nyxa_identity)
 	smoke.free()
 
@@ -37,7 +37,7 @@ func _run() -> void:
 	var subject_lane: String = String(sustained_pack.get("subject_lane", ""))
 
 	print("MarksmanSustainedScenarioPackSmoke: sari_labels=", Array(sari_labels),
-		" teller_labels=", Array(teller_labels),
+		" omenry_labels=", Array(omenry_labels),
 		" nyxa_labels=", Array(nyxa_labels),
 		" sustained_map_id=", map_id)
 
@@ -48,10 +48,10 @@ func _run() -> void:
 	if _has_label(sari_labels, "clustered"):
 		printerr("MarksmanSustainedScenarioPackSmoke: FAIL non-AoE sustained marksman should not request clustered context")
 		failed = true
-	if teller_labels.size() != 6 or not _has_label(teller_labels, "sustained") or not _has_label(teller_labels, "kite") or not _has_label(teller_labels, "burst") or not _has_label(teller_labels, "clustered") or not _has_label(teller_labels, "clustered_alt"):
-		printerr("MarksmanSustainedScenarioPackSmoke: FAIL Teller-style sustained AoE marksman should keep sustained, kite, burst, and clustered contexts")
+	if omenry_labels.size() != 6 or not _has_label(omenry_labels, "sustained") or not _has_label(omenry_labels, "kite") or not _has_label(omenry_labels, "burst") or not _has_label(omenry_labels, "clustered") or not _has_label(omenry_labels, "clustered_alt"):
+		printerr("MarksmanSustainedScenarioPackSmoke: FAIL Omenry-style sustained AoE marksman should keep sustained, kite, burst, and clustered contexts")
 		failed = true
-	if _has_label(teller_labels, "peel"):
+	if _has_label(omenry_labels, "peel"):
 		printerr("MarksmanSustainedScenarioPackSmoke: FAIL sustained AoE marksman should prefer sustained/kite/burst over generic peel under cap")
 		failed = true
 	if _has_label(nyxa_labels, "sustained"):
