@@ -3,7 +3,7 @@
 Scope: this repository. Preserve the user's requested outcome and existing authored work. Resolve the actual selected checkout before using any example path.
 
 ## Canonical Obsidian Brain
-Use the global conditional brain-retrieval workflow for project history, decisions, and continuity. The live router currently resolves this project to `Projects/Gamble Battle.md`; use the route it actually returns rather than inventing a renamed page. Record durable state changes and reusable conclusions, not every read-only task. Canonical writes belong to the root through the revision/hash-checked write helper. Run read-only `Tools\Test-Vault.cmd` after vault edits; use `-CreateProbeCapture` only when testing capture integration itself. Keep secrets and large/raw artifacts out of the vault.
+Use the global conditional brain-retrieval workflow for project history, decisions, and continuity. The live router currently resolves this project to `Projects/Gamble Battle.md`; use the route it actually returns rather than inventing a renamed page. Record durable state changes and reusable conclusions, not every read-only task. Canonical writes belong to the root through the revision/hash-checked write helper. Validate affected canonical metadata and links; full-vault and synthetic-capture checks apply only to changes to those mechanisms or explicit validation requests. Keep secrets and large/raw artifacts out of the vault.
 
 ## Game Design Source Of Truth
 - The canonical gameplay/design reference is the private Google Doc `Blood Will Pay`: https://docs.google.com/document/d/1OCS4jfjMIiw-2-VQbLPaeDxsmzZMKEAFKb6BHvkMa7I/edit?tab=t.0
@@ -33,21 +33,9 @@ Top-level layout
 - `tests/` � headless runners, test scenes
 - `docs/` � design notes and developer docs
 
-## GDScript Style (Typed)
-- Indentation: match nearby files; gameplay code uses tabs.
-- Naming: functions/vars `snake_case`; classes `class_name PascalCase`; constants `UPPER_SNAKE_CASE`; preloads `const Pascal := preload("...")`.
-- Types: always annotate vars/params/returns; use `Array[T]`, `Packed*Array`, and `Dictionary[K, V]`.
-  - Typed examples
-    - Good: `var number: int = 0`
-    - Bad: `var number := 0` (missing explicit type)
-- Hard rule: no ambiguous variables
-  - Every `var` must declare an explicit type. Do NOT use inferred declarations like `var x := ...` or bare `var x = ...`.
-  - Always use typed containers: `Array[T]`, `Dictionary[K, V]`, `Packed*Array`.
-  - Exported vars must be typed (e.g., `@export var health: int = 100`).
-- Signals: type parameters when known (e.g., `signal error(code: String, context: Dictionary)`).
-- Imports: prefer `preload()`; use `load()` only for dynamic cases.
-- Scene scripts: keep `_ready()` light; prefer explicit `configure(...)` methods.
-- Logging: `print` for routine logs; `push_warning` for non-fatal; `push_error` only for hard failures.
+## GDScript compatibility
+
+Match existing naming and indentation. Every variable, parameter, return, exported field, and applicable signal parameter has an explicit type; use typed containers. Preserve the project's autoload, UID/import, and scene-resource conventions. Avoid generic style rewrites outside the requested change.
 
 ## Godot/Resource Practices
 - Prefer editing `.tscn`/`.tres` via Godot; if patching text, keep formatting stable and minimal.
@@ -60,16 +48,9 @@ Top-level layout
 - For combat/shop/items behavior changes, use an existing appropriate regression scene or add focused coverage when it would catch a meaningful failure. Keep behavior deterministic where possible; do not create a test that merely repeats the implementation.
 - Keep changes focused; do not reformat unrelated files.
 
-## Git Hygiene / Publishing
-- Start and finish meaningful work with `git status -sb`; inspect `git diff --stat` before deciding what belongs in the handoff.
-- Treat a dirty tree as a maintenance risk. Do not leave agent-owned source, test, docs, or config changes uncommitted unless blocked or the user explicitly asks for an uncommitted handoff.
-- When the tree is already dirty, separate pre-existing user work from agent-made work. Never revert user changes just to make status clean.
-- For broad accumulated work, classify changes into intentional commit groups before staging: tooling/docs, gameplay/content, RGA/tests, UI/visuals, and cleanup are common groups in this repo.
-- Stage explicit paths or reviewed groups. Avoid `git add -A` until ignored runtime artifacts, generated outputs, local Godot binaries, and temporary files have been ruled out.
-- Before committing, run `git diff --check` and the affected checks described below. Gameplay, script, resource, and runtime-affecting changes require appropriate MCP validation and `get_debug_output()` inspection; instruction-only or documentation-only changes require content, reference, and scope review rather than a game launch. Line-ending warnings alone are not blockers; script errors, assertions, or unexpected engine errors are.
-- Before pushing, run `git fetch --prune --tags`, verify the branch and upstream, inspect `git diff --cached --stat`, commit with a clear message, then push.
-- If GitHub tooling such as `gh` is unavailable, direct-push the branch when that is the user's requested publishing path, and state that no PR was opened.
-- If any dirty files remain at handoff, document exactly why they remain, who owns them if known, and what command or decision is needed next.
+## Git ownership and integration
+
+Inspect the relevant checkout and preserve pre-existing edits. Stage only reviewed owned paths; commit and publish meaningful work through the existing authorized branch/PR workflow. Check whitespace and affected behavior before integration, verifying current head/check/ownership evidence. Runtime-affecting changes need appropriate engine/debug inspection; instruction-only edits need content and link checks, not a game launch. Report any owned work left unpublished and why.
 
 ## Validation and completion
 
