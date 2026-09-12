@@ -1,14 +1,9 @@
-# AGENTS.md � Guidance for Agents Working in This Repo
+# Blood Will Pay agent instructions
 
-Concise, enforceable rules for working in this Godot 4.5 project. Scope: entire repository.
+Scope: this repository. Preserve the user's requested outcome and existing authored work. Resolve the actual selected checkout before using any example path.
 
 ## Canonical Obsidian Brain
-- The canonical Codex/Obsidian brain vault is `C:\Users\Flipm\Documents\Codex\2026-06-22\hi\outputs\karpathy-obsidian-brain`.
-- Do not use `C:\Users\Flipm\Documents\Obsidian Vault` as project memory unless the user explicitly asks for that older/minimal vault.
-- For meaningful Blood Will Pay work, update `Projects/Blood Will Pay.md` in the canonical brain before the final response.
-- For active sessions, add or update a concise work log when useful: current status, decisions, changed areas, important files, tests/runs, screenshots/evidence paths, blockers, and next steps.
-- When editing the brain, update `Wiki/log.md` and run `Tools\Test-Vault.cmd -CreateProbeCapture` from the canonical brain when feasible.
-- Never copy secrets, credentials, private keys, large generated files, dependency folders, or noisy logs into the brain; summarize and link paths instead.
+Use the global conditional brain-retrieval workflow for project history, decisions, and continuity. The live router currently resolves this project to `Projects/Gamble Battle.md`; use the route it actually returns rather than inventing a renamed page. Record durable state changes and reusable conclusions, not every read-only task. Canonical writes belong to the root through the revision/hash-checked write helper. Run read-only `Tools\Test-Vault.cmd` after vault edits; use `-CreateProbeCapture` only when testing capture integration itself. Keep secrets and large/raw artifacts out of the vault.
 
 ## Game Design Source Of Truth
 - The canonical gameplay/design reference is the private Google Doc `Blood Will Pay`: https://docs.google.com/document/d/1OCS4jfjMIiw-2-VQbLPaeDxsmzZMKEAFKb6BHvkMa7I/edit?tab=t.0
@@ -22,16 +17,6 @@ Concise, enforceable rules for working in this Godot 4.5 project. Scope: entire 
 - Lowercase `cashmere` may remain only in explicitly labeled legacy input compatibility, historical filenames, generated-output provenance, or preserved dated evidence.
 - Canonical active identifiers are `mara`, `mara_arcane_ledger`, `data/units/mara.tres`, and `data/identity/unit_identities/mara_identity.tres`.
 - The pale ledger-clad artwork stored under the retired filename is an unapproved placeholder/provenance asset, not confirmed Mara art. Do not silently relabel or promote it.
-
-## Unit Concepts Shared Review Contract
-- The Blood Will Pay Unit Concepts tool is a communication surface between the user and agents, not merely a browser gallery. Open the existing Chrome page at `http://127.0.0.1:8769/tools/art/unit-art-review.html?shared-main=1c71fbbb` when live visual interaction is needed.
-- Before answering any question about selected unit art, read `C:\Users\Flipm\Documents\Blood-Will-Pay-shared\tools\art\unit-art-review-state.json`. Use `communication.phase2_working_concepts` as the fast machine-readable manifest of unit, selected image path, decision, and note.
-- A **working concept** is the version the user is going with for now and the source concept for downstream models, sprite sheets, and related assets. It is not merely a favorite, and it is not automatically a final production-ready asset.
-- When the user asks what is wrong with a named unit, inspect the exact `image_path` selected for that unit in the shared manifest before viewing or discussing any alternate image. Never substitute a similarly named file, an older folder candidate, or remembered chat context.
-- Treat the durable shared JSON as authoritative after browser migration. Browser labels and screenshots are useful visual evidence, but local browser cache is not the source of truth. If page and file disagree, diagnose synchronization before making art judgments.
-- Preserve the distinction between selection and verification: the review tool records the chosen direction; modelability, turnaround consistency, sprite readability, equipment continuity, occlusion, and animation readiness are separate audits against that exact selected image.
-- Do not hand-edit the shared JSON for ordinary review decisions. Use the live tool so the user and agent see the same state, then verify the saved revision and manifest directly.
-- Full operating details are in `tools/art/UNIT_CONCEPT_REVIEW.md`.
 
 ## Project Overview
 - Engine: Godot 4.5
@@ -47,55 +32,6 @@ Top-level layout
 - `assets/` � textures/art
 - `tests/` � headless runners, test scenes
 - `docs/` � design notes and developer docs
-
-## Running (MCP Only)
-- Agents MUST run the project exclusively via MCP `run_project(projectPath="<abs_project_dir>", scene="<scene>.tscn")`.
-- Do not pass `.` for `projectPath`; it resolves relative to the MCP host process and may not be the repo root.
-- Example (this repo): `projectPath="C:\Users\Flipm\Documents\blood-will-pay"`.
-- Choose the scene appropriate for the task; do not assume `scenes/Main.tscn`.
-- Never invoke the `godot` executable or pass `-s`; if the editor is needed, use MCP `launch_editor(projectPath)`.
-
-Common scenes to run via MCP
-- Game: `scenes/Main.tscn`
-- RGA regression harness: `tests/rga_testing/RGATesting.tscn`
-- Role matrix probe (1v1): `tests/rga_testing/validation/RoleMatrixProbe.tscn`
-- Role matrix probe (6v6): `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn`
-- Perf harness (optional): `tests/perf/Perf1v1.tscn`, `tests/perf/Perf1v1Sweep.tscn`
-
-Output locations
-- Prefer writing to `user://...` paths.
-- Defaults: RGA outputs -> `user://rga_out.jsonl` (single file or per-run directory).
-
-## MCP Quickstart
-- Preferred Codex/Godot loop
-  - Use `godot-ai` first when the editor is open and live inspection matters: `session_manage`, `editor_state`, `logs_read`, `project_run`, `editor_screenshot`, scene/script tools, and game eval.
-  - Use the legacy `godot` MCP as the fallback runner and project utility layer, especially from a fresh Codex session before `godot-ai` has loaded.
-  - On every fresh, replaced, or newly selected checkout, launch the editor through MCP before the first project run, then require `Tools\Test-GodotEditorHydration.ps1 -ProjectPath "<selected-project-path>" -AsJson` to return `ready: true`. Never start `Main.tscn` while this gate reports missing script classes or imported resources; doing so can produce false SVG-loader and external-class parser failures.
-  - For visual verification, run the scene with `godot-ai project_run`, wait for `editor_state.game_capture_ready == true`, then capture `editor_screenshot(source="game")`.
-  - Codex config has both MCP servers: `godot` for local process control and `godot-ai` at `http://127.0.0.1:8000/mcp` for live-editor control.
-
-- Core operations
-  - `run_project(projectPath, scene?)`, `stop_project()` (debug mode; inspect `get_debug_output()` after run)
-  - `create_scene(rootNodeType, projectPath, scenePath)`, `save_scene(scenePath, newPath?)`
-  - `add_node(nodeName, nodeType, parentNodePath?, projectPath, scenePath, properties?)`
-  - `edit_node(nodePath, projectPath, scenePath, properties)` (set exported props before running a scene)
-  - `remove_node(nodePath, projectPath, scenePath)`
-  - `load_sprite(nodePath, scenePath, texturePath, projectPath)`
-  - Info/maintenance: `list_projects`, `get_project_info`, `get_godot_version`, `get_debug_output`, `launch_editor`, `update_project_uids`, `get_uid`, `export_mesh_library`
-
-- Paths and typing
-  - `projectPath` must be an absolute path to the directory containing `project.godot`. Use MCP `list_projects` to discover valid projects (e.g., search `C:\Users\Flipm\Documents`). Resource paths remain project-relative (e.g., `tests/rga_testing/validation/RoleMatrixProbe.tscn`).
-  - Provide correctly typed values in `properties` (e.g., `position: Vector2(64, 64)`, `rotation: 0.0`, `texture: Resource`), or `null` to clear.
-
-- Run scenes examples
-  - RGA regression suite: `run_project(projectPath="C:\Users\Flipm\Documents\blood-will-pay", scene="tests/rga_testing/RGATesting.tscn")`
-  - Role matrix (1v1): `run_project(projectPath="C:\Users\Flipm\Documents\blood-will-pay", scene="tests/rga_testing/validation/RoleMatrixProbe.tscn")`
-  - Role matrix (6v6): `run_project(projectPath="C:\Users\Flipm\Documents\blood-will-pay", scene="tests/rga_testing/validation/RoleMatrixProbe6v6.tscn")`
-
-- Safety
-  - Do not hand-edit `.uid`/`.import` files. Use MCP `update_project_uids` or the editor via MCP.
-  - Keep changes minimal and focused.
-  - In tools/headless, guard autoload usage (see `_has_autoload(...)` pattern in `scripts/game/shop/shop.gd`).
 
 ## GDScript Style (Typed)
 - Indentation: match nearby files; gameplay code uses tabs.
@@ -119,23 +55,9 @@ Output locations
 - When UIDs break, re-open/save scenes in the editor or batch-resave; MCP `update_project_uids` is available.
 - Autoload checks: follow `_has_autoload(...)` before calling singletons in tools/headless.
 
-## Generated Gothic UI Assets
-- The future-agent workflow for exact-size generated UI assets is `docs/art/ui_gothic_asset_workflow.md`.
-- Treat ImageGen as a texture/style pass only. Do not promote raw generated output directly into `assets/ui/gothic/`; recover candidates with deterministic bbox crop, exact resize, original alpha/shape mask, and dimension/nine-slice audits.
-- Wire UI frames through `scripts/ui/gothic_ui_assets.gd` as `StyleBoxTexture` helpers with flat fallbacks. Validate state variants with MCP visual scenes and compare against fresh full-game captures.
-
-## Where Things Go
-- New systems: `scripts/game/<area>/...`
-- Utilities: `scripts/util/`
-- Scenes: `scenes/` (e.g., `scenes/ui`, `scenes/tools`)
-- Items: `data/items/<id>.tres` (auto-discovered by catalog)
-- Units: `data/units/<id>.tres` (playables; `UnitFactory` loads identity, kit knobs, cost/level; combat stats belong in role profiles)
-- Non-playables: `data/other_units/creeps/...` and `data/other_units/other/...` (enemy waves, test dummies). Excluded from shop/audits; still spawnable by ID.
-- Public constants/config: update docs under `docs/` (e.g., `docs/shop/README.md`).
-
 ## Making Changes Safely
 - Do not edit `project.godot` unless required.
-- For combat/shop/items changes: add/update a headless test scene; keep behavior deterministic where possible.
+- For combat/shop/items behavior changes, use an existing appropriate regression scene or add focused coverage when it would catch a meaningful failure. Keep behavior deterministic where possible; do not create a test that merely repeats the implementation.
 - Keep changes focused; do not reformat unrelated files.
 
 ## Git Hygiene / Publishing
@@ -144,67 +66,19 @@ Output locations
 - When the tree is already dirty, separate pre-existing user work from agent-made work. Never revert user changes just to make status clean.
 - For broad accumulated work, classify changes into intentional commit groups before staging: tooling/docs, gameplay/content, RGA/tests, UI/visuals, and cleanup are common groups in this repo.
 - Stage explicit paths or reviewed groups. Avoid `git add -A` until ignored runtime artifacts, generated outputs, local Godot binaries, and temporary files have been ruled out.
-- Before committing, run the appropriate MCP validation scene(s), inspect `get_debug_output()`, and run `git diff --check`. Line-ending warnings alone are not blockers; script errors, assertions, or unexpected engine errors are.
+- Before committing, run `git diff --check` and the affected checks described below. Gameplay, script, resource, and runtime-affecting changes require appropriate MCP validation and `get_debug_output()` inspection; instruction-only or documentation-only changes require content, reference, and scope review rather than a game launch. Line-ending warnings alone are not blockers; script errors, assertions, or unexpected engine errors are.
 - Before pushing, run `git fetch --prune --tags`, verify the branch and upstream, inspect `git diff --cached --stat`, commit with a clear message, then push.
 - If GitHub tooling such as `gh` is unavailable, direct-push the branch when that is the user's requested publishing path, and state that no PR was opened.
 - If any dirty files remain at handoff, document exactly why they remain, who owns them if known, and what command or decision is needed next.
 
-## Adding Content
-- Unit (playable): create `data/units/<id>.tres` as `UnitProfile`; fill identity/kit metadata and economy knobs only (no combat stats).
-- Non-playable (enemy/test): create under `data/other_units/creeps/...` or `data/other_units/other/...` with `UnitProfile`; set flags (`enemy_only`, `hidden`) as appropriate.
-- Item: create `data/items/<id>.tres` as `ItemDef`; set `type` and (for completed) `components`.
+## Validation and completion
 
-## Test Authoring Patterns
-- Use a small scene with a `Node` and a script that runs in `_ready()` then calls `get_tree().quit()`.
-- Prefer configuration via resources or `user://` files; avoid reliance on command-line arguments.
+Choose checks for the affected behavior. Reuse current evidence only when its source and scope still match. After those checks pass, repeat or broaden them only for new changes, failures, or unresolved concerns. An explicit `/playtest` still means broad player-facing coverage under the playtest skill. A narrow implementation check must not be reported as a broad playtest. Preserve active editors, games, serving roots, dirty primaries, and user saves.
 
-## Review Checklist
-- Style matches nearby files (tabs, naming); types are explicit.
-- No ambiguous vars: every `var` has an explicit type; no `var name := ...` or untyped `Array`/`Dictionary`.
-- Resources in correct folders; referenced via `preload()`.
-- No manual edits to `.uid`/`.import` files.
-- Tests/scenes updated to validate gameplay changes.
-- Docs updated when changing public constants/config.
-- Debug run performed via MCP; `get_debug_output().errors` is empty.
+## Task-specific references
 
-## Principles
-- SRP: small, single-responsibility files; short, focused functions.
-- DRY, KISS, YAGNI: reuse, keep it simple, avoid over-config.
-- SoC and SLAP: one level of abstraction per function/module.
-- Composition over inheritance; encapsulation; Law of Demeter.
-- PoLA/PoLP; fail fast and validate inputs early.
-- Open for extension via config/hooks; keep interfaces stable.
-- Readability and maintainability first; no magic numbers.
-- Testability and determinism; prefer pure functions and injected services.
+- Before launching or validating runtime changes; includes mandatory hydration and meaningful debug gates: [docs/agent-workflows/runtime.md](docs/agent-workflows/runtime.md).
+- Before discussing selected unit art or editing generated UI assets; shared selection is not production approval: [docs/agent-workflows/art.md](docs/agent-workflows/art.md).
+- When placing content or locating the existing game systems and tests: [docs/agent-workflows/content.md](docs/agent-workflows/content.md).
 
-## Quick Links
-- Shop docs: `docs/shop/README.md`
-- Gothic UI asset workflow: `docs/art/ui_gothic_asset_workflow.md`
-- Shop config: `scripts/game/shop/shop_config.gd`
-- Unit factory: `scripts/unit_factory.gd`
-- Unit stat audit: `tests/rga_testing/validation/UnitStatAudit.tscn`
-- Balancing workflow: `docs/balancing_workflow.md`
-- RGA testing overview: `tests/rga_testing/README.md`
-- Role matrix probes: `tests/rga_testing/validation/RoleMatrixProbe.tscn`, `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn`
-
-## Validation Tips
-- Fast sanity checks via MCP (validated)
-  - Quick: run `tests/rga_testing/validation/RoleMatrixProbe.tscn` (1v1) or `tests/rga_testing/validation/RoleMatrixProbe6v6.tscn` and inspect `get_debug_output()`.
-  - Full regression: run `tests/rga_testing/RGATesting.tscn`.
-- Stat lint: automatically runs via `roles_gate`. For manual spot checks use `tests/lint/UnitStatLint.tscn` after touching `data/units/*.tres`.
-- Stat audit: run `tests/rga_testing/validation/UnitStatAudit.tscn` to diff live unit stats against role baselines.
-- For resource changes, open the project via MCP `launch_editor(projectPath)` to validate UIDs/resources.
-- When changing container types, run a minimal test scene via MCP to catch mismatches early.
-
-### Pre-Submit Debug Run (Required)
-- Always run at least one appropriate scene via MCP in debug before submitting changes.
-- Immediately call `get_debug_output()` and ensure the `errors` array is empty.
-- If any script parse errors, assertions, or engine errors appear (e.g., "SCRIPT ERROR", "ASSERT FAILED"), do not submit; fix issues or adjust the scene.
-- Suggested defaults:
-  - General unit validation: `tests/rga_testing/validation/RoleMatrixProbe.tscn`
-  - Full regression: `tests/rga_testing/RGATesting.tscn`
-  - Targeted systems: add/extend a purpose-built scene under `tests/rga_testing/...`
-
-### Troubleshooting
-- Not a valid Godot project: . � Use an absolute `projectPath` (e.g., `C:\Users\Flipm\Documents\blood-will-pay`) or discover via `list_projects`.
-- Scene parse errors � Ensure required scripts/resources parse under Godot 4.5; update dependencies or run the appropriate RGA probe scene to confirm.
+When selected-art context is requested, read the exact image selected in `C:\Users\Flipm\Documents\Blood-Will-Pay-shared\tools\art\unit-art-review-state.json` before considering alternatives.
